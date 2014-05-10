@@ -5,9 +5,11 @@
  *      Author: kmahoney
  */
 
-#include <sstream>
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
+
+#include <sstream>
 
 #include "zSemaphore.h"
 
