@@ -5,6 +5,7 @@
  *      Author: kmahoney
  */
 
+#include <unistd.h>
 #include <string.h>
 #include <errno.h>
 
