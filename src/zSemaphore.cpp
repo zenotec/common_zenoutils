@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-#include "zSemaphore.h"
+#include "zutils/zSemaphore.h"
 
 namespace zUtils
 {

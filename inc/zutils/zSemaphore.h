@@ -12,7 +12,7 @@
 #include <sys/select.h>
 #include <sys/eventfd.h>
 
-#include "zEvent.h"
+#include "zutils/zEvent.h"
 
 namespace zUtils
 {

@@ -9,7 +9,7 @@
 #include <string.h>
 #include <errno.h>
 
-#include "zEvent.h"
+#include "zutils/zEvent.h"
 
 namespace zUtils
 {

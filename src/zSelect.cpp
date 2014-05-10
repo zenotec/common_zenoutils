@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/select.h>
 
-#include "zSelect.h"
+#include "zutils/zSelect.h"
 
 namespace zUtils
 {

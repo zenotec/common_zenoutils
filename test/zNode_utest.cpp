@@ -1,5 +1,5 @@
 #include "UnitTest.h"
-#include "zNode.h"
+#include "zutils/zNode.h"
 
 using namespace std;
 using namespace Test;

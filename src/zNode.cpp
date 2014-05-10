@@ -8,9 +8,9 @@
 #include <errno.h>
 #include <string.h>
 
-#include "zSelect.h"
-#include "zTimer.h"
-#include "zNode.h"
+#include "zutils/zSelect.h"
+#include "zutils/zTimer.h"
+#include "zutils/zNode.h"
 
 namespace zUtils
 {

@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include "zSemaphore.h"
+#include "zutils/zSemaphore.h"
 
 namespace zUtils
 {

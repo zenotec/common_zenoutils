@@ -1,5 +1,5 @@
 #include "UnitTest.h"
-#include "zSemaphore.h"
+#include "zutils/zSemaphore.h"
 
 using namespace std;
 using namespace Test;

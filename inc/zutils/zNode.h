@@ -14,8 +14,8 @@
 #include <list>
 #include <pthread.h>
 
-#include "zData.h"
-#include "zQueue.h"
+#include "zutils/zData.h"
+#include "zutils/zQueue.h"
 
 namespace zUtils
 {

@@ -10,7 +10,7 @@
 
 #include <list>
 
-#include "zEvent.h"
+#include "zutils/zEvent.h"
 
 namespace zUtils
 {

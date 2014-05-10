@@ -1,8 +1,8 @@
 #include "UnitTest.h"
 
-#include "zQueue.h"
-#include "zSemaphore.h"
-#include "zSelect.h"
+#include "zutils/zQueue.h"
+#include "zutils/zSemaphore.h"
+#include "zutils/zSelect.h"
 
 using namespace std;
 using namespace Test;

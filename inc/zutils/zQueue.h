@@ -12,8 +12,8 @@
 #include <semaphore.h>
 #include <queue>
 
-#include "zEvent.h"
-#include "zSemaphore.h"
+#include "zutils/zEvent.h"
+#include "zutils/zSemaphore.h"
 
 namespace zUtils
 {
