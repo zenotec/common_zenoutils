@@ -7,6 +7,7 @@ lib_LTLIBRARIES = libzutil.la
 libzutil_ladir = $(includedir)/zutils
 
 libzutil_la_HEADERS = $(top_srcdir)/inc/zutils/zData.h \
+                      $(top_srcdir)/inc/zutils/zQueue.h \
                       $(top_srcdir)/inc/zutils/zEvent.h \
                       $(top_srcdir)/inc/zutils/zSemaphore.h \
                       $(top_srcdir)/inc/zutils/zTimer.h \
