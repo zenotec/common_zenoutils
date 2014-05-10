@@ -13,6 +13,9 @@ check_zutil_SOURCES = $(top_srcdir)/test/UnitTest.cpp \
                       $(top_srcdir)/src/zNode.cpp \
                       $(top_srcdir)/test/zData_utest.cpp \
                       $(top_srcdir)/test/zEvent_utest.cpp \
+                      $(top_srcdir)/test/zSemaphore_utest.cpp \
+                      $(top_srcdir)/test/zTimer_utest.cpp \
+                      $(top_srcdir)/test/zSelect_utest.cpp \
                       $(top_srcdir)/test/zNode_utest.cpp
 check_zutil_CFLAGS = @CHECK_CFLAGS@
 

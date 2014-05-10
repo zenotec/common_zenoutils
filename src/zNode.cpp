@@ -20,22 +20,18 @@ namespace zUtils
 //**********************************************************************
 
 const std::string zNode::ROOT = "zNode";
-const std::string zNode::NAME = "Name";
 const std::string zNode::ID = "Id";
-const std::string zNode::ADDR = "Address";
 
 zNode::zNode(const zData &node_) :
     zData(node_), _tardyCnt(0)
 {
 }
 
-zNode::zNode(const std::string &name_, const std::string &id_, const std::string &addr_) :
+zNode::zNode(const std::string &id_) :
     zData(zNode::ROOT)
 {
 //    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
-  this->SetName(name_);
   this->SetId(id_);
-  this->SetAddress(addr_);
   this->SetTardyCnt(0);
 //    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
 }
@@ -57,18 +53,6 @@ zNode::operator !=(const zNode &other_) const
 }
 
 std::string
-zNode::GetName() const
-{
-  return (this->GetVal(zNode::NAME));
-}
-
-void
-zNode::SetName(const std::string &name_)
-{
-  this->SetVal(zNode::NAME, name_);
-}
-
-std::string
 zNode::GetId() const
 {
   return (this->GetVal(zNode::ID));
@@ -78,18 +62,6 @@ void
 zNode::SetId(const std::string &id_)
 {
   this->SetVal(zNode::ID, id_);
-}
-
-std::string
-zNode::GetAddress() const
-{
-  return (this->GetVal(zNode::ADDR));
-}
-
-void
-zNode::SetAddress(const std::string &address_)
-{
-  this->SetVal(zNode::ADDR, address_);
 }
 
 uint32_t
@@ -164,9 +136,9 @@ zNodeTable::RemoveNode(zNode &node_)
 }
 
 bool
-zNodeTable::FindNode(const std::string &name_)
+zNodeTable::FindNode(const std::string &id_)
 {
-  return (this->nodeMap.count(name_) != 0);
+  return (this->nodeMap.count(id_) != 0);
 }
 
 std::list<zNode>
@@ -210,6 +182,7 @@ zNodeTable::ManagerThread(void *arg_)
     // Process update queue
     while (self->updateQueue.GetPending())
     {
+//      std::cout << "zNodeTable::ManagerThread: Updating" << std::endl;
       zNode node = self->updateQueue.Front();
       self->nodeMap[node.GetId()] = node;
       self->updateQueue.Pop();
@@ -218,6 +191,7 @@ zNodeTable::ManagerThread(void *arg_)
     // Process remove queue
     while (self->removeQueue.GetPending())
     {
+//      std::cout << "zNodeTable::ManagerThread: Removing" << std::endl;
       zNode node = self->removeQueue.Front();
       self->nodeMap.erase(node.GetId());
       self->removeQueue.Pop();
@@ -232,6 +206,7 @@ zNodeTable::ManagerThread(void *arg_)
       {
         if (iter->second.GetTardyCnt() == 0)
         {
+//          std::cout << "zNodeTable::ManagerThread: Retiring" << std::endl;
           self->nodeMap.erase(iter);
         } // end if
         else

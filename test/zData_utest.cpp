@@ -436,7 +436,7 @@ UnitTestData_XmlSimple(int arg_)
 }
 
 int
-Data_utest(void)
+zData_utest(void)
 {
   INIT();
   UTEST( UnitTestData_Defaults, 0);

@@ -24,13 +24,11 @@ class zNode : public zData
 {
 
   static const std::string ROOT;
-  static const std::string NAME;
   static const std::string ID;
-  static const std::string ADDR;
 
 public:
   zNode(const zData &node_);
-  zNode(const std::string &name_ = "", const std::string &id_ = "", const std::string &addr_ = "");
+  zNode(const std::string &id_ = "");
   ~zNode();
   bool
   operator==(const zNode &other_) const;
@@ -38,19 +36,9 @@ public:
   operator!=(const zNode &other_) const;
 
   std::string
-  GetName() const;
-  void
-  SetName(const std::string &name_);
-
-  std::string
   GetId() const;
   void
   SetId(const std::string &id_);
-
-  std::string
-  GetAddress() const;
-  void
-  SetAddress(const std::string &address_);
 
   uint32_t
   GetTardyCnt() const;
@@ -74,7 +62,7 @@ public:
   void
   RemoveNode(zNode &node_);
   bool
-  FindNode(const std::string &name_);
+  FindNode(const std::string &id_);
   std::list<zNode>
   GetNodeList();
 

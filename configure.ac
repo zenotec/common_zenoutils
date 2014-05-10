@@ -3,9 +3,10 @@
 
 AC_PREREQ([2.68])
 AC_INIT([libzutil], [0.1], [kevin.mahoney@zenotec.net])
-AM_INIT_AUTOMAKE(canacmd, 0.1)
+AM_INIT_AUTOMAKE(libzutil, 0.1)
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -14,7 +15,9 @@ AC_PROG_INSTALL
 AC_PROG_AWK
 AC_PROG_CPP
 AC_PROG_MKDIR_P
-AC_PROG_RANLIB
+AC_PROG_LIBTOOL
+
+LT_INIT
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
@@ -35,4 +38,8 @@ AC_CHECK_FUNCS([strerror])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  test/Makefile])
+                 
+# Boost checks
+BOOST_REQUIRE([1.41.1])
+
 AC_OUTPUT
