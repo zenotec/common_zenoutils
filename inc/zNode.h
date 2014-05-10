@@ -1,0 +1,95 @@
+/*
+ * zNode.h
+ *
+ *  Created on: Jan 13, 2014
+ *      Author: Kevin Mahoney
+ */
+
+#ifndef _ZNODE_H_
+#define _ZNODE_H_
+
+#include <stdint.h>
+#include <string>
+#include <map>
+#include <list>
+#include <pthread.h>
+
+#include "zData.h"
+#include "zQueue.h"
+
+namespace zUtils
+{
+
+class zNode : public zData
+{
+
+  static const std::string ROOT;
+  static const std::string NAME;
+  static const std::string ID;
+  static const std::string ADDR;
+
+public:
+  zNode(const zData &node_);
+  zNode(const std::string &name_ = "", const std::string &id_ = "", const std::string &addr_ = "");
+  ~zNode();
+  bool
+  operator==(const zNode &other_) const;
+  bool
+  operator!=(const zNode &other_) const;
+
+  std::string
+  GetName() const;
+  void
+  SetName(const std::string &name_);
+
+  std::string
+  GetId() const;
+  void
+  SetId(const std::string &id_);
+
+  std::string
+  GetAddress() const;
+  void
+  SetAddress(const std::string &address_);
+
+  uint32_t
+  GetTardyCnt() const;
+  void
+  SetTardyCnt(const uint32_t &cnt_);
+
+protected:
+
+private:
+  unsigned int _tardyCnt;
+
+};
+
+class zNodeTable
+{
+public:
+  zNodeTable();
+  ~zNodeTable();
+  void
+  UpdateNode(zNode &node_);
+  void
+  RemoveNode(zNode &node_);
+  bool
+  FindNode(const std::string &name_);
+  std::list<zNode>
+  GetNodeList();
+
+protected:
+
+private:
+  static void *
+  ManagerThread(void *arg_);
+  pthread_t managerThreadId;
+  bool exit;
+  zQueue<zNode> updateQueue;
+  zQueue<zNode> removeQueue;
+  std::map<std::string, zNode> nodeMap;
+};
+
+}
+
+#endif /* _ZNODE_H_ */
