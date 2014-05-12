@@ -30,13 +30,29 @@ zData::~zData()
 std::string
 zData::GetKey() const
 {
-  return (this->_pt.get < std::string > (zData::KEY));
+  std::string key;
+  try
+  {
+    key = this->_pt.get < std::string > (zData::KEY);
+  }
+  catch(boost::property_tree::ptree_bad_path const &e )
+  {
+    key = "";
+  }
+  return (key);
 }
 
 void
 zData::_setKey(const std::string &key_)
 {
-  this->_pt.put(zData::KEY, key_);
+  try
+  {
+    this->_pt.put(zData::KEY, key_);
+  }
+  catch(boost::property_tree::ptree_bad_path const &e )
+  {
+    return;
+  }
 }
 
 std::string

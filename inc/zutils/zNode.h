@@ -24,16 +24,22 @@ class zNode : public zData
 {
 
   static const std::string ROOT;
+  static const std::string TYPE;
   static const std::string ID;
 
 public:
   zNode(const zData &node_);
-  zNode(const std::string &id_ = "");
+  zNode(const std::string &type_ = "", const std::string &id_ = "");
   ~zNode();
   bool
   operator==(const zNode &other_) const;
   bool
   operator!=(const zNode &other_) const;
+
+  std::string
+  GetType() const;
+  void
+  SetType(const std::string &type_);
 
   std::string
   GetId() const;

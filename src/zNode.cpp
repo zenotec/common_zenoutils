@@ -20,6 +20,7 @@ namespace zUtils
 //**********************************************************************
 
 const std::string zNode::ROOT = "zNode";
+const std::string zNode::TYPE = "Type";
 const std::string zNode::ID = "Id";
 
 zNode::zNode(const zData &node_) :
@@ -27,10 +28,11 @@ zNode::zNode(const zData &node_) :
 {
 }
 
-zNode::zNode(const std::string &id_) :
+zNode::zNode(const std::string &type_, const std::string &id_) :
     zData(zNode::ROOT)
 {
 //    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
+  this->SetType(type_);
   this->SetId(id_);
   this->SetTardyCnt(0);
 //    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
@@ -50,6 +52,18 @@ bool
 zNode::operator !=(const zNode &other_) const
 {
   return (this->GetId() != other_.GetId());
+}
+
+std::string
+zNode::GetType() const
+{
+  return (this->GetVal(zNode::TYPE));
+}
+
+void
+zNode::SetType(const std::string &type_)
+{
+  this->SetVal(zNode::TYPE, type_);
 }
 
 std::string

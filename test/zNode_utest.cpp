@@ -11,6 +11,7 @@ UnitTestNodeDefaults(int arg_)
 
   // Create new node and validate
   zNode MyNode;
+  TEST_EQ( MyNode.GetType(), string( "" ));
   TEST_EQ( MyNode.GetId(), string( "" ));
   TEST_EQ( MyNode.GetTardyCnt(), 0);
 
@@ -27,8 +28,16 @@ UnitTestNodeMethods(int arg_)
 
   // Create new node and validate
   zNode *MyNode = new zNode();
+  TEST_EQ( MyNode->GetType(), string( "" ));
   TEST_EQ( MyNode->GetId(), string( "" ));
   TEST_EQ( MyNode->GetTardyCnt(), 0);
+
+  // Test setting type
+  exp = "";
+  TEST_EQ( MyNode->GetType(), exp);
+  exp = "Type";
+  MyNode->SetType(exp);
+  TEST_EQ( MyNode->GetType(), exp);
 
   // Test setting identifier
   exp = "";
@@ -72,10 +81,13 @@ UnitTestNodeTableMethods(int arg_)
 
   // Create new node and validate
   zNode *MyNode = new zNode();
+  TEST_EQ( MyNode->GetType(), "");
   TEST_EQ( MyNode->GetId(), "");
   TEST_EQ( MyNode->GetTardyCnt(), 0);
 
   // Initialize node
+  MyNode->SetType("TestNode");
+  TEST_EQ( MyNode->GetType(), "TestNode");
   MyNode->SetId("abcdef56789");
   TEST_EQ( MyNode->GetId(), "abcdef56789");
   MyNode->SetTardyCnt(3);
