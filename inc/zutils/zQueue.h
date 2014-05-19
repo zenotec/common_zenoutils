@@ -19,104 +19,113 @@ namespace zUtils
 {
 
 template<typename T>
-class zQueue : private std::queue<T>, public zEvent
-{
-public:
+  class zQueue : private std::queue<T>, public zEvent
+  {
+  public:
     zQueue()
     {
-        // Initialize lock to 'locked'
-        int ret = sem_init( &this->_lockSem, 0, 0 );
-        if( ret != 0 )
-        {
-            std::stringstream errmsg;
-            errmsg << "zQueue: Error initializing lock: " << ret;
-            throw errmsg.str();
-        } // end if
+      // Initialize lock to 'locked'
+      int ret = sem_init(&this->_lockSem, 0, 0);
+      if (ret != 0)
+      {
+        std::stringstream errmsg;
+        errmsg << "zQueue: Error initializing lock: " << ret;
+        throw errmsg.str();
+      } // end if
 
-        // Set event FD
-        this->_setFd( this->_sem.GetFd() );
+      // Set event FD
+      this->_setFd(this->_sem.GetFd());
 
-        // Unlock
-        this->_unlock();
+      // Unlock
+      this->_unlock();
     }
 
-    virtual ~zQueue()
+    virtual
+    ~zQueue()
     {
-        int ret = sem_destroy( &this->_lockSem );
-        if( ret != 0 )
-        {
-            std::string errmsg;
-            errmsg = "zQueue: Cannot destroy lock";
-            throw errmsg;
-        } // end if
+      int ret = sem_destroy(&this->_lockSem);
+      if (ret != 0)
+      {
+        std::string errmsg;
+        errmsg = "zQueue: Cannot destroy lock";
+        throw errmsg;
+      } // end if
     }
 
-    T Front()
+    T
+    Front()
     {
-        this->_lock();
-        T item = this->front();
-        this->_unlock();
-        return( item );
+      this->_lock();
+      T item = this->front();
+      this->_unlock();
+      return (item);
     }
 
-    T Back()
+    T
+    Back()
     {
-        this->_lock();
-        T item = this->back();
-        this->_unlock();
-        return( item );
+      this->_lock();
+      T item = this->back();
+      this->_unlock();
+      return (item);
     }
 
-    void Push( T item_ )
+    void
+    Push(T item_)
     {
-        this->_lock();
-        this->push( item_ );
-        this->_notify();
-        this->_sem.Post();
-        this->_unlock();
+      this->_lock();
+      this->push(item_);
+      this->_notify();
+      this->_sem.Post();
+      this->_unlock();
     }
 
-    void Pop()
+    void
+    Pop()
     {
-        this->_lock();
-        this->pop();
-        this->_acknowledge();
-        this->_sem.Acknowledge();
-        this->_unlock();
+      this->_lock();
+      this->pop();
+      this->_acknowledge();
+      this->_sem.Acknowledge();
+      this->_unlock();
     }
 
-    size_t Size()
+    size_t
+    Size()
     {
-        this->_lock();
-        size_t size = this->size();
-        this->_unlock();
-        return( size );
+      this->_lock();
+      size_t size = this->size();
+      this->_unlock();
+      return (size);
     }
 
-    bool Empty()
+    bool
+    Empty()
     {
-        this->_lock();
-        bool empty = this->empty();
-        this->_unlock();
-        return( empty );
+      this->_lock();
+      bool empty = this->empty();
+      this->_unlock();
+      return (empty);
     }
 
-protected:
+  protected:
 
-private:
-    void _lock()
+  private:
+    void
+    _lock()
     {
-        sem_wait( &this->_lockSem );
+      sem_wait(&this->_lockSem);
     }
 
-    void _unlock()
+    void
+    _unlock()
     {
-        sem_post( &this->_lockSem );
+      sem_post(&this->_lockSem);
     }
     sem_t _lockSem;
     zSemaphore _sem;
 
-};
+  };
 
 }
 

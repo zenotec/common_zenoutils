@@ -9,6 +9,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "zutils/zLog.h"
 #include "zutils/zEvent.h"
 
 namespace zUtils
@@ -25,9 +26,8 @@ zEvent::zEvent() :
   int ret = sem_init(&this->_sem, 0, 1);
   if (ret != 0)
   {
-    std::stringstream errmsg;
-    errmsg << "Event: Cannot initialize lock: " << ret;
-    throw errmsg.str();
+    ZLOG_CRIT("Event: Cannot initialize lock: " + zLog::IntStr(ret));
+    throw;
   } // end if
 }
 
@@ -37,9 +37,8 @@ zEvent::~zEvent()
   int ret = sem_destroy(&this->_sem);
   if (ret != 0)
   {
-    std::string errmsg;
-    errmsg = "Event: Cannot destroy lock";
-    throw errmsg;
+    ZLOG_CRIT("Event: Cannot destroy lock: " + zLog::IntStr(ret));
+    throw;
   } // end if
 }
 

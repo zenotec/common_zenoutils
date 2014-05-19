@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "zutils/zLog.h"
 #include "zutils/zSelect.h"
 #include "zutils/zTimer.h"
 #include "zutils/zNode.h"
@@ -31,11 +32,10 @@ zNode::zNode(const zData &node_) :
 zNode::zNode(const std::string &type_, const std::string &id_) :
     zData(zNode::ROOT)
 {
-//    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
   this->SetType(type_);
   this->SetId(id_);
   this->SetTardyCnt(0);
-//    std::cout << std::endl << "Node::Node(): " << std::endl << this->GetJson() << std::endl;
+  ZLOG_DEBUG("Creating new node: " + type_ + "[" + id_ + "]");
 }
 
 zNode::~zNode()
@@ -216,16 +216,17 @@ zNodeTable::ManagerThread(void *arg_)
     {
       std::map<std::string, zNode>::iterator iter = self->nodeMap.begin();
       std::map<std::string, zNode>::iterator end = self->nodeMap.end();
-      for (; iter != end; ++iter)
+      while (iter != end)
       {
         if (iter->second.GetTardyCnt() == 0)
         {
 //          std::cout << "zNodeTable::ManagerThread: Retiring" << std::endl;
-          self->nodeMap.erase(iter);
+          self->nodeMap.erase(iter++);
         } // end if
         else
         {
           iter->second.SetTardyCnt(iter->second.GetTardyCnt() - 1);
+          ++iter;
         } // end else
       } // end for
       timer.Acknowledge(timer.GetPending());

@@ -5,6 +5,7 @@
  *      Author: kmahoney
  */
 
+#include "zutils/zLog.h"
 #include "zutils/zData.h"
 
 namespace zUtils
@@ -19,6 +20,7 @@ const std::string zData::KEY = "Key";
 
 zData::zData(const std::string &key_)
 {
+  ZLOG_DEBUG("Creating new zData object: " + key_);
   this->_setKey(key_);
   this->_pt.put(key_, "");
 }
@@ -35,9 +37,9 @@ zData::GetKey() const
   {
     key = this->_pt.get < std::string > (zData::KEY);
   }
-  catch(boost::property_tree::ptree_bad_path const &e )
+  catch (boost::property_tree::ptree_bad_path const &e)
   {
-    key = "";
+    ZLOG_WARN("zData key does not exist, returning empty key");
   }
   return (key);
 }
@@ -49,8 +51,9 @@ zData::_setKey(const std::string &key_)
   {
     this->_pt.put(zData::KEY, key_);
   }
-  catch(boost::property_tree::ptree_bad_path const &e )
+  catch (boost::property_tree::ptree_bad_path const &e)
   {
+    ZLOG_ERR("Cannot set zData key value, leaving blank");
     return;
   }
 }
@@ -58,21 +61,49 @@ zData::_setKey(const std::string &key_)
 std::string
 zData::GetVal(const std::string &name_) const
 {
-  std::string name = this->GetKey() + "." + name_;
-  return (this->_pt.get < std::string > (name));
+  std::string value;
+  try
+  {
+    std::string name = this->GetKey() + "." + name_;
+    value = this->_pt.get < std::string > (name);
+    ZLOG_DEBUG("Getting zData value: " + name_ + " = " + value);
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("zData value does not exist, returning empty value");
+  }
+  return (value);
 }
 
 boost::property_tree::ptree
 zData::_getVal(const std::string &name_) const
 {
-  return (this->_pt.get_child(name_));
+  boost::property_tree::ptree value;
+  try
+  {
+    value = this->_pt.get_child(name_);
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("zData value does not exist, returning empty value");
+  }
+  return (value);
 }
 
 void
 zData::SetVal(const std::string &name_, const std::string &value_)
 {
-  std::string name = this->GetKey() + "." + name_;
-  this->_pt.put(name, value_);
+  std::string name;
+  try
+  {
+    name = this->GetKey() + "." + name_;
+    this->_pt.put(name, value_);
+    ZLOG_DEBUG("Setting zData value: " + name + " = " + value_);
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("Cannot set zData value");
+  }
 }
 
 void
@@ -84,33 +115,49 @@ zData::_setVal(const std::string &name_, const boost::property_tree::ptree &pt_)
 void
 zData::GetChild(const std::string &name_, zData &child_) const
 {
-//    std::cout << std::endl << "Data::GetChild(): " << std::endl << this->GetJson() << std::endl;
-//    std::cout << std::endl << child_.GetJson();
-  std::string name = this->GetKey() + "." + name_;
-  child_._setKey(name_);
-  child_._setVal(name_, this->_pt.get_child(name));
-//    std::cout << std::endl << "Data::GetChild(): " << std::endl << child_.GetJson() << std::endl;
+  try
+  {
+    std::string name = this->GetKey() + "." + name_;
+    child_._setKey(name_);
+    child_._setVal(name_, this->_pt.get_child(name));
+    ZLOG_DEBUG("Getting zData child:\n" + child_.GetJson());
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("Cannot get zData child: " + name_);
+  }
+
 }
 
 void
 zData::PutChild(const std::string &name_, const zData &child_)
 {
-//    std::cout << std::endl << "Data::PutChild(): " << std::endl << this->GetJson() << std::endl;
-//    std::cout << std::endl << child_.GetJson();
-  std::string name = this->GetKey() + "." + name_;
-  this->_pt.put_child(name, child_._getVal(child_.GetKey()));
-//    std::cout << std::endl << "Data::PutChild(): " << std::endl << this->GetJson() << std::endl;
+  try
+  {
+    std::string name = this->GetKey() + "." + name_;
+    this->_pt.put_child(name, child_._getVal(child_.GetKey()));
+    ZLOG_DEBUG("Putting zData child:\n" + child_.GetJson());
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("Cannot put zData child: " + name_);
+  }
 }
 
 void
-zData::AddChild(const std::string &key_, const zData &child_)
+zData::AddChild(const std::string &name_, const zData &child_)
 {
-  std::cout << std::endl << "Data::AddChild(): " << std::endl << this->GetJson() << std::endl;
-  std::cout << std::endl << child_.GetJson();
-  std::string key = this->GetKey() + "." + key_;
-  boost::property_tree::ptree pt = child_._getVal(child_.GetKey());
-  this->_pt.add_child(key, pt);
-  std::cout << std::endl << "Data::AddChild(): " << std::endl << this->GetJson() << std::endl;
+  try
+  {
+    std::string key = this->GetKey() + "." + name_;
+    boost::property_tree::ptree pt = child_._getVal(child_.GetKey());
+    this->_pt.add_child(key, pt);
+    ZLOG_DEBUG("Adding zData child:\n" + child_.GetJson());
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("Cannot add zData child: " + name_);
+  }
 }
 
 std::string

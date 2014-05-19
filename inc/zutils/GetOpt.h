@@ -12,8 +12,6 @@
 #include <map>
 #include <vector>
 
-namespace zHome
-{
 namespace zUtils
 {
 
@@ -48,7 +46,6 @@ private:
 
 };
 
-}
 }
 
 #endif /* GETOPT_H_ */
