@@ -39,15 +39,15 @@ namespace zLog
     zUtils::zLog::Log::Instance().LogMsg(msg); \
   }
 
-#define ZLOG_CRIT(x)    ZLOG_LOGGER(zLog::CRIT,(x))
-#define ZLOG_ERR(x)     ZLOG_LOGGER(zLog::ERROR,(x))
-#define ZLOG_WARN(x)    ZLOG_LOGGER(zLog::WARN,(x))
-#define ZLOG_INFO(x)    ZLOG_LOGGER(zLog::INFO,(x))
-#define ZLOG_DEBUG(x)   ZLOG_LOGGER(zLog::DBG,(x))
+#define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::CRIT,(x))
+#define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::ERROR,(x))
+#define ZLOG_WARN(x)    ZLOG_LOGGER(zUtils::zLog::WARN,(x))
+#define ZLOG_INFO(x)    ZLOG_LOGGER(zUtils::zLog::INFO,(x))
+#define ZLOG_DEBUG(x)   ZLOG_LOGGER(zUtils::zLog::DBG,(x))
 
 enum LogLevel
 {
-  CRIT = 0, ERROR, INFO, WARN, DBG, LAST
+  CRIT = 0, ERROR, WARN, INFO, DBG, LAST
 };
 
 std::string
