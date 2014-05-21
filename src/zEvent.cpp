@@ -1,13 +1,10 @@
-/*
- * Select.cpp
- *
- *  Created on: Jan 13, 2014
- *      Author: kmahoney
- */
-
-#include <sstream>
-#include <string.h>
-#include <errno.h>
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zEvent.cpp
+//    Description:
+//
+//*****************************************************************************
 
 #include "zutils/zLog.h"
 #include "zutils/zEvent.h"
@@ -16,110 +13,87 @@ namespace zUtils
 {
 
 //**********************************************************************
-// Event
+// Event Class
 //**********************************************************************
 
-zEvent::zEvent() :
-    _fd(0), _cnt(0)
+zEvent::zEvent()
 {
-  // Initialize lock
-  int ret = sem_init(&this->_sem, 0, 1);
-  if (ret != 0)
-  {
-    ZLOG_CRIT("Event: Cannot initialize lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
+  this->_lock.Unlock();
 }
 
 zEvent::~zEvent()
 {
-  // Destroy lock
-  int ret = sem_destroy(&this->_sem);
-  if (ret != 0)
+}
+
+void
+zEvent::_notify()
+{
+  if (this->_lock.Lock())
   {
-    ZLOG_CRIT("Event: Cannot destroy lock: " + zLog::IntStr(ret));
-    throw;
+    std::list<zEventList *>::iterator itr = this->_eventlists.begin();
+    std::list<zEventList *>::iterator end = this->_eventlists.end();
+    for (; itr != end; itr++)
+    {
+      (*itr)->_notify();
+    } // end for
+    this->_lock.Unlock();
   } // end if
 }
 
-int
-zEvent::GetFd()
-{
-  this->_lock();
-  int fd = this->_fd;
-  this->_unlock();
-  return (fd);
-}
-
-uint64_t
-zEvent::GetPending()
-{
-  this->_lock();
-  uint64_t cnt = this->_cnt;
-  this->_unlock();
-  return (cnt);
-}
-
 void
-zEvent::_setFd(const int fd_)
+zEvent::_addList(zEventList *list_)
 {
-  this->_lock();
-  this->_fd = fd_;
-  this->_unlock();
-}
-
-void
-zEvent::_notify(const uint64_t &cnt_)
-{
-  // Lock
-  this->_lock();
-
-  // Conditionally increment count
-  if ((this->_cnt + cnt_) > this->_cnt)
+  if (this->_lock.Lock())
   {
-    this->_cnt += cnt_;
+    this->_eventlists.push_front(list_);
+    this->_lock.Unlock();
   } // end if
-
-  // Unlock
-  this->_unlock();
 }
 
-uint64_t
-zEvent::_acknowledge(const uint64_t &cnt_)
+void
+zEvent::_remList(zEventList *list_)
 {
-  // Lock
-  this->_lock();
-
-  // Save current count for returning to the caller
-  uint64_t cnt = this->_cnt;
-
-  // Decrement count
-  if (this->_cnt >= cnt_)
+  if (this->_lock.Lock())
   {
-    this->_cnt -= cnt_;
+    this->_eventlists.remove(list_);
+    this->_lock.Unlock();
   } // end if
-  else
-  {
-    this->_cnt = 0;
-  } // end else
+}
 
-  // Unlock
-  this->_unlock();
+//**********************************************************************
+// zEventList Class
+//**********************************************************************
 
-  // Return
-  return (cnt);
+zEventList::zEventList()
+{
+}
+
+zEventList::~zEventList()
+{
 }
 
 void
-zEvent::_lock()
+zEventList::Register(zEvent &event_)
 {
-  sem_wait(&this->_sem);
+  event_._addList(this);
 }
 
 void
-zEvent::_unlock()
+zEventList::Unregister(zEvent &event_)
 {
-  sem_post(&this->_sem);
+  event_._remList(this);
+}
+
+bool
+zEventList::Wait(uint32_t us_)
+{
+  return (this->_sem.TimedWait(us_));
+}
+
+void
+zEventList::_notify()
+{
+  this->_sem.Post();
 }
 
 }

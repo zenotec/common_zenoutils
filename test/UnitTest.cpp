@@ -12,13 +12,15 @@
 int
 zLog_utest(void);
 int
+zSem_utest(void);
+int
+zQueue_utest(void);
+int
 zData_utest(void);
 int
 zEvent_utest(void);
 int
 zTimer_utest(void);
-int
-zSemaphore_utest(void);
 int
 zSelect_utest(void);
 int
@@ -45,11 +47,11 @@ main(int argc, const char **argv)
   zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
 
   // Test all classes
-  ret |= zData_utest();
+  ret |= zSem_utest();
   ret |= zEvent_utest();
+  ret |= zQueue_utest();
   ret |= zTimer_utest();
-  ret |= zSemaphore_utest();
-  ret |= zSelect_utest();
+  ret |= zData_utest();
   ret |= zNode_utest();
 
   // Return status

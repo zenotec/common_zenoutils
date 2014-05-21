@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "zutils/zLog.h"
-#include "zutils/zSelect.h"
 #include "zutils/zTimer.h"
 #include "zutils/zNode.h"
 
@@ -93,156 +92,111 @@ zNode::SetTardyCnt(const uint32_t &cnt_)
 //**********************************************************************
 // NodeTable
 //**********************************************************************
-zNodeTable::zNodeTable() :
-    managerThreadId(0), exit(false)
+zNodeTable::zNodeTable()
 {
-  pthread_attr_t attr;
-
-  if (pthread_attr_init(&attr))
-  {
-    std::string errmsg("Error: Cannot initialize thread attributes: ");
-    errmsg += std::string(strerror(errno));
-    throw errmsg;
-  } /* end if */
-
-  if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE))
-  {
-    std::string errmsg("Error: Cannot set detached state: ");
-    errmsg += std::string(strerror(errno));
-    throw errmsg;
-  } /* end if */
-
-  if (pthread_create(&this->managerThreadId, NULL, zNodeTable::ManagerThread, this))
-  {
-    std::string errmsg("Error: Cannot create manager thread: ");
-    errmsg += std::string(strerror(errno));
-    throw errmsg;
-  } // end if
-
-  if (pthread_attr_destroy(&attr))
-  {
-    std::string errmsg("Error: Cannot destroy thread attributes: ");
-    errmsg += std::string(strerror(errno));
-    throw errmsg;
-  } /* end if */
-
+  // Start timer
+  this->_timer.Register(this);
+  this->_timer.Start(100000);
+  // Unlock
+  this->_lock.Unlock();
 }
 
 zNodeTable::~zNodeTable()
 {
-  if (this->managerThreadId)
+}
+
+void
+zNodeTable::GetNodeList(std::list<zNode> &nodes_)
+{
+  this->_lock.Lock();
+  std::map<std::string, zNode>::iterator itr = this->_nodeTable.begin();
+  std::map<std::string, zNode>::iterator end = this->_nodeTable.end();
+  for (; itr != end; ++itr)
   {
-    this->exit = true;
-    pthread_join(this->managerThreadId, 0);
-  } // end if
+    nodes_.push_front(itr->second);
+  } // end for
+  this->_lock.Unlock();
 }
 
 void
-zNodeTable::UpdateNode(zNode &node_)
+zNodeTable::Register(zNodeTableObserver *obs_)
 {
-  this->updateQueue.Push(node_);
+  this->_lock.Lock();
+  this->_observers.push_front(obs_);
+  this->_lock.Unlock();
 }
 
 void
-zNodeTable::RemoveNode(zNode &node_)
+zNodeTable::Unregister(zNodeTableObserver *obs_)
 {
-  this->removeQueue.Push(node_);
+  this->_lock.Lock();
+  this->_observers.remove(obs_);
+  this->_lock.Unlock();
+}
+
+void
+zNodeTable::TimerTick()
+{
+  this->_lock.Lock();
+  std::map<std::string, zNode>::iterator itr = this->_nodeTable.begin();
+  std::map<std::string, zNode>::iterator end = this->_nodeTable.end();
+  while (itr != end)
+  {
+    if (itr->second.GetTardyCnt() == 0)
+    {
+      ZLOG_WARN("Retiring zNode: " + itr->second.GetId());
+
+      this->_notifyObservers(zNodeTableObserver::STALE, itr->second);
+      this->_nodeTable.erase(itr++);
+    } // end if
+    else
+    {
+      itr->second.SetTardyCnt(itr->second.GetTardyCnt() - 1);
+      ++itr;
+    } // end else
+  } // end for
+  this->_lock.Unlock();
 }
 
 bool
-zNodeTable::FindNode(const std::string &id_)
+zNodeTable::_addNode(const zNode &node_)
 {
-  return (this->nodeMap.count(id_) != 0);
+  this->_lock.Lock();
+  this->_nodeTable[node_.GetId()] = node_;
+  this->_notifyObservers(zNodeTableObserver::NEW, this->_nodeTable[node_.GetId()]);
+  this->_lock.Unlock();
 }
 
-std::list<zNode>
-zNodeTable::GetNodeList()
+bool
+zNodeTable::_removeNode(const std::string &id_)
 {
-  std::list<zNode> nodes;
-  std::map<std::string, zNode>::iterator iter = this->nodeMap.begin();
-  std::map<std::string, zNode>::iterator end = this->nodeMap.end();
+  this->_lock.Lock();
+  this->_nodeTable.erase(id_);
+  this->_lock.Unlock();
+}
 
-  for (; iter != end; ++iter)
+zNode *
+zNodeTable::_findNode(const std::string &id_)
+{
+  std::map<std::string, zNode>::iterator itr;
+  this->_lock.Lock();
+  itr = this->_nodeTable.find(id_);
+  this->_lock.Unlock();
+  return (&itr->second);
+}
+
+
+void
+zNodeTable::_notifyObservers(zNodeTableObserver::Event event_, zNode &node_)
+{
+  this->_lock.Lock();
+  std::list<zNodeTableObserver *>::iterator itr = this->_observers.begin();
+  std::list<zNodeTableObserver *>::iterator end = this->_observers.end();
+  for (; itr != end; itr++)
   {
-    nodes.push_front(iter->second);
+    (*itr)->EventHandler(event_, node_);
   } // end for
-
-  return (nodes);
-}
-
-void *
-zNodeTable::ManagerThread(void *arg_)
-{
-  zNodeTable *self = (zNodeTable *) arg_;
-
-  // Create timer for timed event
-  zTimer timer;
-  zSelect select;
-
-  // Register events with select loop
-  select.RegisterEvent(&timer);
-  select.RegisterEvent(&self->updateQueue);
-  select.RegisterEvent(&self->removeQueue);
-
-  // Start timer
-  timer.Start(1000000);
-
-  while (self->exit == false)
-  {
-
-    // Wait for queue event
-    select.Wait(100000);
-
-    // Process update queue
-    while (self->updateQueue.GetPending())
-    {
-//      std::cout << "zNodeTable::ManagerThread: Updating" << std::endl;
-      zNode node = self->updateQueue.Front();
-      self->nodeMap[node.GetId()] = node;
-      self->updateQueue.Pop();
-    } // end while
-
-    // Process remove queue
-    while (self->removeQueue.GetPending())
-    {
-//      std::cout << "zNodeTable::ManagerThread: Removing" << std::endl;
-      zNode node = self->removeQueue.Front();
-      self->nodeMap.erase(node.GetId());
-      self->removeQueue.Pop();
-    } // end while
-
-    // Retire old nodes
-    if (timer.GetPending() > 0)
-    {
-      std::map<std::string, zNode>::iterator iter = self->nodeMap.begin();
-      std::map<std::string, zNode>::iterator end = self->nodeMap.end();
-      while (iter != end)
-      {
-        if (iter->second.GetTardyCnt() == 0)
-        {
-//          std::cout << "zNodeTable::ManagerThread: Retiring" << std::endl;
-          self->nodeMap.erase(iter++);
-        } // end if
-        else
-        {
-          iter->second.SetTardyCnt(iter->second.GetTardyCnt() - 1);
-          ++iter;
-        } // end else
-      } // end for
-      timer.Acknowledge(timer.GetPending());
-    } // end if
-
-  } // end while
-
-  // Reset exit flag
-  self->exit = false;
-
-  // Cleanup thread resources
-  pthread_exit(0);
-
-  // Return
-  return (0);
-}
+  this->_lock.Unlock();}
 
 }
 

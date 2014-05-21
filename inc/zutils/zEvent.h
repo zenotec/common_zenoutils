@@ -1,49 +1,76 @@
-/*
- * Event.h
- *
- *  Created on: Jan 28, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zEvent.h
+//    Description:
+//
+//*****************************************************************************
 
-#ifndef _ZEVENT_H_
-#define _ZEVENT_H_
+#ifndef __ZEVENT_H__
+#define __ZEVENT_H__
 
-#include <stdint.h>
-#include <semaphore.h>
+#include <list>
+
+#include "zutils/zSemaphore.h"
 
 namespace zUtils
 {
 
+class zEventList;
+
+//**********************************************************************
+// zEvent Class
+//**********************************************************************
 class zEvent
 {
+  friend class zEventList;
 public:
   zEvent();
   virtual
   ~zEvent();
 
-  int
-  GetFd();
-  uint64_t
-  GetPending();
+protected:
+  void
+  _notify();
+  void
+  _addList(zEventList *list_);
+  void
+  _remList(zEventList *list_);
+
+private:
+  zMutex _lock;
+  std::list<zEventList *> _eventlists;
+
+};
+
+//**********************************************************************
+// zEventList Class
+//**********************************************************************
+class zEventList
+{
+  friend class zEvent;
+public:
+  zEventList();
+  virtual
+  ~zEventList();
+
+  void
+  Register(zEvent &event_);
+  void
+  Unregister(zEvent &event_);
+
+  bool
+  Wait(uint32_t ms_);
 
 protected:
   void
-  _setFd(const int id_);
-  void
-  _notify(const uint64_t &cnt_ = 1);
-  uint64_t
-  _acknowledge(const uint64_t &cnt_ = 1);
+  _notify();
 
 private:
-  void
-  _lock();
-  void
-  _unlock();
-  sem_t _sem;
-  int _fd;
-  uint64_t _cnt;
+  zSemaphore _sem;
+
 };
 
 }
 
-#endif /* _ZEVENT_H_ */
+#endif /* __ZEVENT_H__ */

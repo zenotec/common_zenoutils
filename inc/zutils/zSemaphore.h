@@ -1,39 +1,87 @@
-/*
- * Semaphore.h
- *
- *  Created on: Jan 28, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zSemaphore.h
+//    Description:
+//
+//*****************************************************************************
 
-#ifndef _ZSEMAPHORE_H_
-#define _ZSEMAPHORE_H_
+#ifndef __ZSEMAPHORE_H__
+#define __ZSEMAPHORE_H__
 
+#include <stdint.h>
 #include <semaphore.h>
-#include <sys/select.h>
-#include <sys/eventfd.h>
-
-#include "zutils/zEvent.h"
 
 namespace zUtils
 {
 
-class zSemaphore : public zEvent
+//**********************************************************************
+// zMutex Class
+//**********************************************************************
+class zMutex
 {
 public:
-    zSemaphore();
-    ~zSemaphore();
+  enum state
+  {
+    LOCKED, UNLOCKED
+  };
 
-    void Post( const uint64_t &cnt_ = 1 );
-    uint64_t Acknowledge( const uint64_t &cnt_ = 1 );
+  zMutex(zMutex::state state_ = zMutex::LOCKED);
+  ~zMutex();
+
+  bool
+  Lock();
+
+  bool
+  TryLock();
+
+  bool
+  TimedLock(uint32_t ms_);
+
+  bool
+  Unlock();
+
+  zMutex::state
+  State();
 
 protected:
 
 private:
-    void _lock();
-    void _unlock();
-    sem_t _sem;
+  sem_t _sem;
+
+};
+
+//**********************************************************************
+// Semaphore Class
+//**********************************************************************
+class zSemaphore
+{
+public:
+  zSemaphore(const uint32_t value_ = 0);
+  ~zSemaphore();
+
+  bool
+  Post(uint32_t value_ = 1);
+
+  bool
+  Wait();
+
+  bool
+  TryWait();
+
+  bool
+  TimedWait(uint32_t us_);
+
+  uint32_t
+  Value();
+
+protected:
+
+private:
+  sem_t _sem;
+
 };
 
 }
 
-#endif /* _ZSEMAPHORE_H_ */
+#endif /* __ZSEMAPHORE_H__ */

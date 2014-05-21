@@ -12,10 +12,10 @@
 #include <string>
 #include <map>
 #include <list>
-#include <pthread.h>
 
 #include "zutils/zData.h"
 #include "zutils/zQueue.h"
+#include "zutils/zTimer.h"
 
 namespace zUtils
 {
@@ -30,7 +30,9 @@ class zNode : public zData
 public:
   zNode(const zData &node_);
   zNode(const std::string &type_ = "", const std::string &id_ = "");
+  virtual
   ~zNode();
+
   bool
   operator==(const zNode &other_) const;
   bool
@@ -58,30 +60,65 @@ private:
 
 };
 
-class zNodeTable
+class zNodeTableObserver
 {
 public:
-  zNodeTable();
-  ~zNodeTable();
-  void
-  UpdateNode(zNode &node_);
-  void
-  RemoveNode(zNode &node_);
-  bool
-  FindNode(const std::string &id_);
-  std::list<zNode>
-  GetNodeList();
+
+  enum Event
+  {
+    NONE = 0, NEW, STALE, LAST
+  };
+
+  virtual void
+  EventHandler(zNodeTableObserver::Event event_, zNode &node_) = 0;
 
 protected:
 
 private:
-  static void *
-  ManagerThread(void *arg_);
-  pthread_t managerThreadId;
-  bool exit;
-  zQueue<zNode> updateQueue;
-  zQueue<zNode> removeQueue;
-  std::map<std::string, zNode> nodeMap;
+
+};
+
+class zNodeTable : public zTimerHandler
+{
+public:
+
+  zNodeTable();
+  virtual
+  ~zNodeTable();
+
+  void
+  GetNodeList(std::list<zNode> &nodes_);
+
+  void
+  Register(zNodeTableObserver *obsvr_);
+
+  void
+  Unregister(zNodeTableObserver *obsvr_);
+
+  virtual void
+  TimerTick();
+
+protected:
+
+private:
+
+  bool
+  _addNode(const zNode &node_);
+
+  bool
+  _removeNode(const std::string &id_);
+
+  zNode *
+  _findNode(const std::string &id_);
+
+  void
+  _notifyObservers(zNodeTableObserver::Event event_, zNode &node_);
+
+  zMutex _lock;
+  zTimer _timer;
+
+  std::map<std::string, zNode> _nodeTable;
+  std::list<zNodeTableObserver *>_observers;
 };
 
 }

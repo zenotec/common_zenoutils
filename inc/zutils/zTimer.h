@@ -1,39 +1,68 @@
-/*
- * Timer.h
- *
- *  Created on: Jan 28, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zTimer.h
+//    Description:
+//
+//*****************************************************************************
 
 #ifndef TIMER_H_
 #define TIMER_H_
 
-#include <stdint.h>
-#include <pthread.h>
+#include <time.h>
+
+#include <list>
 
 #include "zutils/zSemaphore.h"
+#include "zutils/zEvent.h"
 
 namespace zUtils
 {
 
-class zTimer: public zEvent
+//**********************************************************************
+// zTimer Class
+//**********************************************************************
+class zTimerHandler
 {
 public:
-    zTimer();
-    ~zTimer();
-    void Start( uint64_t interval );
-    uint64_t Acknowledge( const uint64_t &cnt_ = 1);
-    void Stop();
+  virtual void
+  TimerTick() = 0;
 
 protected:
 
 private:
-    static void *_timerThread( void *arg_ );
-    pthread_t _timerThreadId;
-    bool _exit;
-    uint64_t _interval;
-    zSemaphore _sem;
+};
+//**********************************************************************
+// zTimer Class
+//**********************************************************************
+class zTimer : public zEvent
+{
+public:
+  zTimer();
+  ~zTimer();
 
+  void
+  Start(uint32_t usec_);
+
+  void
+  Stop();
+
+  void
+  Register(zTimerHandler *obs_);
+
+  void
+  Unregister(zTimerHandler *obs_);
+
+protected:
+
+private:
+  static void
+  _handler(union sigval sv_);
+
+  timer_t _timerid;
+
+  zMutex _lock;
+  std::list<zTimerHandler *> _observers;
 };
 
 }

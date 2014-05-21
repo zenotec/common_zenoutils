@@ -1,25 +1,66 @@
 #include "UnitTest.h"
 #include "zutils/zEvent.h"
 
-using namespace std;
 using namespace Test;
 using namespace zUtils;
 
-static int UnitTestEvent_Defaults( int arg_ )
+class TestEvent : public zEvent
 {
-    // Create new event and validate
-    zEvent MyEvent;
-    TEST_EQ( MyEvent.GetFd(), 0 );
-    TEST_EQ( MyEvent.GetPending(), 0 );
+public:
+  void
+  Notify()
+  {
+    this->_notify();
+  }
 
-    // Return success
-    return (0);
+protected:
+
+private:
+
+};
+
+static int
+UT_zEvent_Event(int arg_)
+{
+  // Create new event and validate
+  zEvent MyEvent;
+
+  // Return success
+  return (0);
 }
 
-int zEvent_utest( void )
+static int
+UT_zEvent_EventList(int arg_)
 {
-    INIT();
-    UTEST( UnitTestEvent_Defaults, 0 );
-    FINI();
+  // Create new event and validate
+  TestEvent MyEvent;
+
+  // Create new event list and validate
+  zEventList MyList;
+  TEST_FALSE(MyList.Wait(1));
+
+  // Register event with list
+  MyList.Register(MyEvent);
+  TEST_FALSE(MyList.Wait(1));
+
+  // Notify
+  MyEvent.Notify();
+  TEST_TRUE(MyList.Wait(1));
+
+  // Cleanup
+  MyList.Unregister(MyEvent);
+  TEST_FALSE(MyList.Wait(1));
+
+  // Return success
+  return (0);
+}
+
+int
+zEvent_utest(void)
+{
+  INIT();
+  UTEST( UT_zEvent_Event, 0);
+  UTEST( UT_zEvent_EventList, 0);
+  FINI();
 }
 

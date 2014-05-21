@@ -5,129 +5,184 @@
  *      Author: kmahoney
  */
 
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-#include <sstream>
-
+#include "zutils/zLog.h"
 #include "zutils/zSemaphore.h"
 
 namespace zUtils
 {
 
-//**********************************************************************
-// Semaphore
-//**********************************************************************
+static void
+_add_time(struct timespec *ts_, uint32_t us_)
+{
+  // Compute seconds
+  ts_->tv_sec += (us_ / 1000000);
 
-zSemaphore::zSemaphore()
+  // Compute nanoseconds
+  uint32_t nsec = ((us_ % 1000000) * 1000);
+  if ((ts_->tv_nsec + nsec) < ts_->tv_nsec)
+  {
+    ts_->tv_sec++;
+  } // end if
+  ts_->tv_nsec += nsec;
+
+}
+
+//*****************************************************************************
+// zMutex Class
+//*****************************************************************************
+
+zMutex::zMutex(zMutex::state state_)
+{
+  switch (state_)
+  {
+    case zMutex::LOCKED:
+    case zMutex::UNLOCKED:
+    {
+      int ret = sem_init(&this->_sem, 0, state_);
+      if (ret != 0)
+      {
+        ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
+        throw;
+      } // end if
+      break;
+    }
+    default:
+    {
+      ZLOG_CRIT("Invalid mutex state: " + zLog::IntStr(state_));
+      throw;
+    }
+  }
+}
+
+zMutex::~zMutex()
+{
+  int ret = sem_destroy(&this->_sem);
+  if (ret != 0)
+  {
+    ZLOG_CRIT("Cannot destroy lock: " + zLog::IntStr(ret));
+    throw;
+  } // end if
+}
+
+bool
+zMutex::Lock()
+{
+  return (sem_wait(&this->_sem) == 0);
+}
+
+bool
+zMutex::TryLock()
+{
+  return (sem_trywait(&this->_sem) == 0);
+}
+
+bool
+zMutex::TimedLock(uint32_t us_)
 {
 
-    // Initialize lock to 'locked'
-    int ret = sem_init( &this->_sem, 0, 0 );
-    if( ret != 0 )
-    {
-        std::stringstream errmsg;
-        errmsg << "Semaphore: Error initializing lock: " << ret;
-        throw errmsg.str();
-    } // end if
+  struct timespec ts;
 
-    // Create event file descriptor
-    int id = eventfd( 0, EFD_NONBLOCK );
-    if( id < 0 )
-    {
-        std::stringstream errmsg;
-        errmsg << "Semaphore: Error creating event: " << id;
-        throw errmsg.str();
-    } // end if
+  // Get current time
+  if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
+  {
+    return (false);
+  } // end if
 
-    // Set event FD
-    this->_setFd( id );
+  // Compute absolute time
+  _add_time(&ts, us_);
 
-    // Unlock
-    this->_unlock();
+  return (sem_timedwait(&this->_sem, &ts) == 0);
+}
 
+bool
+zMutex::Unlock()
+{
+  int ret = 0;
+  if (this->State() == zMutex::LOCKED) // possible race condition here
+  {
+    ret = sem_post(&this->_sem);
+  } // end if
+  return (ret == 0);
+}
+
+zMutex::state
+zMutex::State()
+{
+  int val;
+  sem_getvalue(&this->_sem, &val);
+  return ((zMutex::state) val);
+}
+
+//*****************************************************************************
+// Semaphore Class
+//*****************************************************************************
+
+zSemaphore::zSemaphore(const uint32_t value_)
+{
+  int ret = sem_init(&this->_sem, 0, value_);
+  if (ret != 0)
+  {
+    ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
+    throw;
+  } // end if
 }
 
 zSemaphore::~zSemaphore()
 {
-    int ret = sem_destroy( &this->_sem );
-    if( ret != 0 )
-    {
-        std::string errmsg;
-        errmsg = "Semaphore: Cannot destroy lock";
-        throw errmsg;
-    } // end if
-    close( this->GetFd() );
+  int ret = sem_destroy(&this->_sem);
+  if (ret != 0)
+  {
+    ZLOG_CRIT("Cannot destroy lock: " + zLog::IntStr(ret));
+    throw;
+  } // end if
 }
 
-void zSemaphore::Post( const uint64_t &cnt_ )
+bool
+zSemaphore::Post(uint32_t value_)
 {
-    // Wait for lock
-    this->_lock();
-
-    // Increment semaphore count
-    int n = write( this->GetFd(), &cnt_, sizeof(cnt_) );
-    if( n != sizeof(cnt_) )
-    {
-        std::string errmsg;
-        errmsg = "Semaphore: Error reading event FD";
-        this->_unlock();
-        throw errmsg;
-    } // end if
-    this->_notify( cnt_ );
-    // Unlock
-    this->_unlock();
+  int stat = 0;
+  while (!stat && value_--)
+  {
+    stat = sem_post(&this->_sem);
+  } // end while
+  return (stat == 0);
 }
 
-uint64_t zSemaphore::Acknowledge( const uint64_t &cnt_ )
+bool
+zSemaphore::Wait()
 {
-    int n = 0;
-    uint64_t cnt, pending = 0;
-
-    // Wait for lock
-    this->_lock();
-
-    // Read event FD to get semaphore count
-    n = read( this->GetFd(), &cnt, sizeof(uint64_t) );
-    if( n != sizeof(uint64_t) )
-    {
-        std::string errmsg;
-        errmsg = "Semaphore: Error reading event FD";
-        this->_unlock();
-        throw errmsg;
-    } // end if
-
-    // Acknowledge events
-    this->_acknowledge( cnt_ );
-
-    // Get updated pending count
-    pending = this->GetPending();
-
-    // Write back updated semaphore count
-    n = write( this->GetFd(), &pending, sizeof(uint64_t) );
-    if( n != sizeof(uint64_t) )
-    {
-        std::string errmsg;
-        errmsg = "Semaphore: Error reading event FD";
-        this->_unlock();
-        throw errmsg;
-    } // end if
-
-    // Unlock
-    this->_unlock();
-
-    return (cnt);
+  return (sem_wait(&this->_sem) == 0);
 }
 
-void zSemaphore::_lock()
+bool
+zSemaphore::TryWait()
 {
-    sem_wait( &this->_sem );
+  return (sem_trywait(&this->_sem) == 0);
 }
 
-void zSemaphore::_unlock()
+bool
+zSemaphore::TimedWait(uint32_t us_)
 {
-    sem_post( &this->_sem );
+  struct timespec ts;
+
+  // Get current time
+  if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
+  {
+    return (false);
+  } // end if
+
+  // Compute absolute time
+  _add_time(&ts, us_);
+
+  return (sem_timedwait(&this->_sem, &ts) == 0);
+}
+
+uint32_t
+zSemaphore::Value()
+{
+  int val;
+  sem_getvalue(&this->_sem, &val);
+  return ((uint32_t) val);
 }
 
 }

@@ -1,86 +1,121 @@
-/*
- * Select.cpp
- *
- *  Created on: Jan 13, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zTimer.cpp
+//    Description:
+//
+//*****************************************************************************
 
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-
-#include <string>
+#include <signal.h>
 
 #include "zutils/zTimer.h"
 
+#include <iostream>
 namespace zUtils
 {
 
+static void
+_add_time(struct timespec *ts_, uint32_t us_)
+{
+  // Compute seconds
+  ts_->tv_sec += (us_ / 1000000);
+
+  // Compute nanoseconds
+  uint32_t nsec = ((us_ % 1000000) * 1000);
+  if ((ts_->tv_nsec + nsec) < ts_->tv_nsec)
+  {
+    ts_->tv_sec++;
+  } // end if
+  ts_->tv_nsec += nsec;
+
+}
+
 //**********************************************************************
-// Timer
+// zTimer Class
 //**********************************************************************
 
-zTimer::zTimer() :
-        _timerThreadId( 0 ), _exit( false )
+zTimer::zTimer()
 {
-    // Set the FD
-    this->_setFd( this->_sem.GetFd() );
+  // Create timer
+  struct sigevent sev = { 0 };
+  sev.sigev_notify = SIGEV_THREAD;
+  sev.sigev_notify_attributes = NULL;
+  sev.sigev_notify_function = zTimer::_handler;
+  sev.sigev_value.sival_int = 0;
+  sev.sigev_value.sival_ptr = this;
+  timer_create(CLOCK_REALTIME, &sev, &this->_timerid);
+  // Unlock
+  this->_lock.Unlock();
 }
 
 zTimer::~zTimer()
 {
-    this->Stop();
+  this->Stop();
+  timer_delete(this->_timerid);
 }
 
-void zTimer::Start( uint64_t interval )
+void
+zTimer::Start(uint32_t usec_)
 {
-    this->_interval = interval;
-    int ret = pthread_create( &this->_timerThreadId, NULL, zTimer::_timerThread, this );
-    if( ret < 0 )
-    {
-        std::string errmsg( "Error: Cannot create timer thread: " );
-        errmsg += std::string( strerror( errno ) );
-        throw errmsg;
-    } // end if
+
+  // Lock
+  this->_lock.Lock();
+
+  // Compute time
+  struct itimerspec its = { 0 };
+  _add_time(&its.it_value, usec_);
+  _add_time(&its.it_interval, usec_);
+
+  // Start timer
+  timer_settime(this->_timerid, 0, &its, NULL);
+
+  // Unlock
+  this->_lock.Unlock();
 }
 
-uint64_t zTimer::Acknowledge( const uint64_t &cnt_ )
+void
+zTimer::Stop()
 {
-    this->_sem.Acknowledge( cnt_ );
-    return (this->_acknowledge( cnt_ ));
+  // Lock
+  this->_lock.Lock();
+
+  // Stop timer
+  struct itimerspec its = { 0 };
+  timer_settime(this->_timerid, 0, &its, NULL);
+
+  // Unlock
+  this->_lock.Unlock();
 }
 
-void zTimer::Stop()
+void
+zTimer::Register(zTimerHandler *obs_)
 {
-    if( this->_timerThreadId )
-    {
-        this->_exit = true;
-        pthread_join( this->_timerThreadId, 0 );
-    } // end if
+  this->_lock.Lock();
+  this->_observers.push_front(obs_);
+  this->_lock.Unlock();
 }
 
-void *zTimer::_timerThread( void *arg_ )
+void
+zTimer::Unregister(zTimerHandler *obs_)
 {
-    zTimer *timer = (zTimer *) arg_;
-    while( timer->_exit == false )
-    {
-        usleep( timer->_interval );
-        if( timer->_exit == false )
-        {
-            timer->_sem.Post();
-            timer->_notify();
-        } // end if
-    } // end while
+  this->_lock.Lock();
+  this->_observers.remove(obs_);
+  this->_lock.Unlock();
+}
 
-    // Reset exit flag
-    timer->_exit = false;
+void
+zTimer::_handler(union sigval sv_)
+{
+  zTimer *self = (zTimer *) sv_.sival_ptr;
 
-    // Cleanup thread resources
-    pthread_exit( 0 );
-
-    // Return
-    return (0);
-
+  self->_lock.Lock();
+  std::list<zTimerHandler *>::iterator itr = self->_observers.begin();
+  std::list<zTimerHandler *>::iterator end = self->_observers.end();
+  for (; itr != end; itr++)
+  {
+    (*itr)->TimerTick();
+  } // end for
+  self->_lock.Unlock();
 }
 
 }

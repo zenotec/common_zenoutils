@@ -1,15 +1,14 @@
-/*
- * zzQueue.h
- *
- *  Created on: Jan 28, 2014
- *      Author: Kevin Mahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zQueue.h
+//    Description:
+//
+//*****************************************************************************
 
-#ifndef _ZQUEUE_H_
-#define _ZQUEUE_H_
+#ifndef __ZQUEUE_H__
+#define __ZQUEUE_H__
 
-#include <sstream>
-#include <semaphore.h>
 #include <queue>
 
 #include "zutils/zEvent.h"
@@ -24,109 +23,74 @@ template<typename T>
   public:
     zQueue()
     {
-      // Initialize lock to 'locked'
-      int ret = sem_init(&this->_lockSem, 0, 0);
-      if (ret != 0)
-      {
-        std::stringstream errmsg;
-        errmsg << "zQueue: Error initializing lock: " << ret;
-        throw errmsg.str();
-      } // end if
-
-      // Set event FD
-      this->_setFd(this->_sem.GetFd());
-
-      // Unlock
-      this->_unlock();
+      this->_lock.Unlock();
     }
 
     virtual
     ~zQueue()
     {
-      int ret = sem_destroy(&this->_lockSem);
-      if (ret != 0)
-      {
-        std::string errmsg;
-        errmsg = "zQueue: Cannot destroy lock";
-        throw errmsg;
-      } // end if
     }
 
     T
     Front()
     {
-      this->_lock();
+      this->_lock.Lock();
       T item = this->front();
-      this->_unlock();
+      this->_lock.Unlock();
       return (item);
     }
 
     T
     Back()
     {
-      this->_lock();
+      this->_lock.Lock();
       T item = this->back();
-      this->_unlock();
+      this->_lock.Unlock();
       return (item);
     }
 
     void
     Push(T item_)
     {
-      this->_lock();
+      this->_lock.Lock();
       this->push(item_);
       this->_notify();
-      this->_sem.Post();
-      this->_unlock();
+      this->_lock.Unlock();
     }
 
     void
     Pop()
     {
-      this->_lock();
+      this->_lock.Lock();
       this->pop();
-      this->_acknowledge();
-      this->_sem.Acknowledge();
-      this->_unlock();
+      this->_lock.Unlock();
     }
 
     size_t
     Size()
     {
-      this->_lock();
+      this->_lock.Lock();
       size_t size = this->size();
-      this->_unlock();
+      this->_lock.Unlock();
       return (size);
     }
 
     bool
     Empty()
     {
-      this->_lock();
+      this->_lock.Lock();
       bool empty = this->empty();
-      this->_unlock();
+      this->_lock.Unlock();
       return (empty);
     }
 
   protected:
 
   private:
-    void
-    _lock()
-    {
-      sem_wait(&this->_lockSem);
-    }
-
-    void
-    _unlock()
-    {
-      sem_post(&this->_lockSem);
-    }
-    sem_t _lockSem;
-    zSemaphore _sem;
+    zMutex _lock;
 
   };
 
 }
 
-#endif /* _ZQUEUE_H_ */
+#endif /* __ZQUEUE_H__ */

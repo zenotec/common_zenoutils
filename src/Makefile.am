@@ -11,16 +11,15 @@ libzutil_la_HEADERS = $(top_srcdir)/inc/zutils/zData.h \
                       $(top_srcdir)/inc/zutils/zEvent.h \
                       $(top_srcdir)/inc/zutils/zSemaphore.h \
                       $(top_srcdir)/inc/zutils/zTimer.h \
-                      $(top_srcdir)/inc/zutils/zSelect.h \
                       $(top_srcdir)/inc/zutils/zLog.h \
                       $(top_srcdir)/inc/zutils/zNode.h
 
+
 libzutil_la_SOURCES = $(libzutil_a_HEADERS) \
-                      $(top_srcdir)/src/zData.cpp \
-                      $(top_srcdir)/src/zEvent.cpp \
-                      $(top_srcdir)/src/zSemaphore.cpp \
-                      $(top_srcdir)/src/zTimer.cpp \
-                      $(top_srcdir)/src/zSelect.cpp \
                       $(top_srcdir)/src/zLog.cpp \
+                      $(top_srcdir)/src/zSemaphore.cpp \
+                      $(top_srcdir)/src/zEvent.cpp \
+                      $(top_srcdir)/src/zTimer.cpp \
+                      $(top_srcdir)/src/zData.cpp \
                       $(top_srcdir)/src/zNode.cpp 
 
