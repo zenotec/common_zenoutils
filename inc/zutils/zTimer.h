@@ -6,8 +6,8 @@
 //
 //*****************************************************************************
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#ifndef __TIMER_H__
+#define __TIMER_H__
 
 #include <time.h>
 
@@ -20,7 +20,7 @@ namespace zUtils
 {
 
 //**********************************************************************
-// zTimer Class
+// zTimerHandler Class
 //**********************************************************************
 class zTimerHandler
 {
@@ -31,6 +31,7 @@ public:
 protected:
 
 private:
+
 };
 //**********************************************************************
 // zTimer Class
@@ -59,12 +60,13 @@ private:
   static void
   _handler(union sigval sv_);
 
-  timer_t _timerid;
+  uint32_t _interval;
 
+  timer_t _timerid;
   zMutex _lock;
   std::list<zTimerHandler *> _observers;
 };
 
 }
 
-#endif /* TIMER_H_ */
+#endif /* __TIMER_H__ */

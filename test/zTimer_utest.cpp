@@ -11,48 +11,47 @@ public:
   TimerTestObserver() :
       Cnt(0)
   {
-
   }
   ~TimerTestObserver()
   {
-
   }
-
   virtual void
   TimerTick()
   {
     this->Cnt++;
   }
   int Cnt;
-
-protected:
-
-private:
 };
 
 static int
 UT_zTimer(int arg_)
 {
+  uint32_t interval = 10000;
+
   // Create new timer and validate
-  zTimer MyTimer;
+  zTimer *MyTimer = new zTimer;
 
   // Create new timer observer and register with timer
-  TimerTestObserver MyObsvr;
-  TEST_IS_ZERO(MyObsvr.Cnt);
-  MyTimer.Register(&MyObsvr);
+  TimerTestObserver *MyObsvr = new TimerTestObserver;
+  TEST_IS_ZERO(MyObsvr->Cnt);
+  MyTimer->Register(MyObsvr);
 
   // Start the timer
-  MyTimer.Start(1000);
+  MyTimer->Start(interval);
 
-  // Delay
-  usleep(10000);
-  TEST_ISNOT_ZERO(MyObsvr.Cnt);
+  // Delay for n intervals
+  usleep((10 * interval) + (interval / 2));
 
   // Stop the timer
-  MyTimer.Stop();
+  MyTimer->Stop();
+
+  // Validate
+  TEST_EQ(10, MyObsvr->Cnt);
 
   // Cleanup
-  MyTimer.Unregister(&MyObsvr);
+  MyTimer->Unregister(MyObsvr);
+  delete (MyObsvr);
+  delete (MyTimer);
 
   // Return success
   return (0);

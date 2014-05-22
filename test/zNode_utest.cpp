@@ -6,7 +6,7 @@ using namespace Test;
 using namespace zUtils;
 
 static int
-UnitTestNodeDefaults(int arg_)
+UT_zNode_Defaults(int arg_)
 {
 
   // Create new node and validate
@@ -21,7 +21,7 @@ UnitTestNodeDefaults(int arg_)
 }
 
 static int
-UnitTestNodeMethods(int arg_)
+UT_zNode_Methods(int arg_)
 {
 
   std::string exp;
@@ -60,8 +60,28 @@ UnitTestNodeMethods(int arg_)
   return (0);
 }
 
+class TestObserver : public zNodeTableObserver
+{
+public:
+  TestObserver() :
+      Count(0)
+  {
+  }
+  int Count;
+
+protected:
+  virtual void
+  EventHandler(zNodeTableObserver::Event event_, zNode &node_)
+  {
+    std::cout << "Event: " << event_;
+    this->Count++;
+  }
+
+private:
+};
+
 static int
-UnitTestNodeTableDefaults(int arg_)
+UT_zNodeTable_Defaults(int arg_)
 {
 
   // Create new node table and validate
@@ -76,7 +96,7 @@ UnitTestNodeTableDefaults(int arg_)
 }
 
 static int
-UnitTestNodeTableMethods(int arg_)
+UT_zNodeTable_Methods(int arg_)
 {
 
   // Create new node and validate
@@ -93,41 +113,37 @@ UnitTestNodeTableMethods(int arg_)
   MyNode->SetTardyCnt(3);
   TEST_EQ( MyNode->GetTardyCnt(), 3);
 
+  // Create new node table test observer and validate
+  TestObserver *MyObsvr = new TestObserver;
+  TEST_IS_ZERO(MyObsvr->Count);
+
   // Create new node table and validate
   zNodeTable *MyNodeTable = new zNodeTable();
+  TEST_IS_NULL(MyNodeTable->FindNode(MyNode->GetId()));
 
-  // Update node
-//  MyNodeTable->UpdateNode(MyNode->GetId());
+  // Register observer
+  MyNodeTable->Register(MyObsvr);
+  TEST_IS_ZERO(MyObsvr->Count);
 
-  // Wait for safe insertion
+  // Add node to table and validate
+  TEST_TRUE(MyNodeTable->AddNode(*MyNode));
+  TEST_ISNOT_NULL(MyNodeTable->FindNode(MyNode->GetId()));
+  TEST_EQ(1, MyObsvr->Count);
+
+  // Remove node
+  TEST_TRUE(MyNodeTable->RemoveNode(MyNode->GetId()));
+  TEST_IS_NULL(MyNodeTable->FindNode(MyNode->GetId()));
+  TEST_EQ(2, MyObsvr->Count);
+
+  // Add node back to table and validate
+  TEST_TRUE(MyNodeTable->AddNode(*MyNode));
+  TEST_ISNOT_NULL(MyNodeTable->FindNode(MyNode->GetId()));
+  TEST_EQ(3, MyObsvr->Count);
+
+  // Wait for node to expire
   sleep(1);
-
-//  // Find node
-//  TEST_TRUE( MyNodeTable->FindNode( MyNode->GetId() ));
-//
-//  // Wait for node to expire
-//  sleep(4);
-//
-//  // Find node
-//  TEST_FALSE( MyNodeTable->FindNode( MyNode->GetId() ));
-//
-//  // Update node
-//  MyNodeTable->UpdateNode(*MyNode);
-//
-//  // Wait for safe insertion
-//  sleep(1);
-//
-//  // Find node
-//  TEST_TRUE( MyNodeTable->FindNode( MyNode->GetId() ));
-//
-//  // Remove node
-//  MyNodeTable->RemoveNode(*MyNode);
-//
-//  // Wait for safe removal
-//  sleep(1);
-//
-//  // Find node
-//  TEST_FALSE( MyNodeTable->FindNode( MyNode->GetId() ));
+  TEST_IS_NULL(MyNodeTable->FindNode(MyNode->GetId()));
+  TEST_EQ(5, MyObsvr->Count);
 
   // Cleanup
   delete (MyNodeTable);
@@ -142,10 +158,10 @@ zNode_utest(void)
 {
 
   INIT();
-  UTEST( UnitTestNodeDefaults, 0);
-  UTEST( UnitTestNodeMethods, 0);
-  UTEST( UnitTestNodeTableDefaults, 0);
-  UTEST( UnitTestNodeTableMethods, 0);
+  UTEST( UT_zNode_Defaults, 0);
+  UTEST( UT_zNode_Methods, 0);
+  UTEST( UT_zNodeTable_Defaults, 0);
+  UTEST( UT_zNodeTable_Methods, 0);
   FINI();
 
 }

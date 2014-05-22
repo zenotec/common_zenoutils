@@ -1,9 +1,10 @@
-/*
- * zNode.h
- *
- *  Created on: Jan 13, 2014
- *      Author: Kevin Mahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zNode.h
+//    Description:
+//
+//*****************************************************************************
 
 #ifndef _ZNODE_H_
 #define _ZNODE_H_
@@ -20,6 +21,9 @@
 namespace zUtils
 {
 
+//**********************************************************************
+// zNode Class
+//**********************************************************************
 class zNode : public zData
 {
 
@@ -60,13 +64,16 @@ private:
 
 };
 
+//**********************************************************************
+// zNodeTableObserver Class
+//**********************************************************************
 class zNodeTableObserver
 {
 public:
 
   enum Event
   {
-    NONE = 0, NEW, STALE, LAST
+    NONE = 0, NEW, REMOVED, TARDY, STALE, RETIRED, LAST
   };
 
   virtual void
@@ -78,13 +85,25 @@ private:
 
 };
 
-class zNodeTable : public zTimerHandler
+//**********************************************************************
+// zNodeTable Class
+//**********************************************************************
+class zNodeTable : private zTimerHandler
 {
 public:
 
   zNodeTable();
   virtual
   ~zNodeTable();
+
+  bool
+  AddNode(const zNode &node_);
+
+  bool
+  RemoveNode(const std::string &id_);
+
+  zNode *
+  FindNode(const std::string &id_);
 
   void
   GetNodeList(std::list<zNode> &nodes_);
@@ -102,14 +121,7 @@ protected:
 
 private:
 
-  bool
-  _addNode(const zNode &node_);
-
-  bool
-  _removeNode(const std::string &id_);
-
-  zNode *
-  _findNode(const std::string &id_);
+  zNodeTable( const zNodeTable &other_);
 
   void
   _notifyObservers(zNodeTableObserver::Event event_, zNode &node_);
@@ -118,7 +130,7 @@ private:
   zTimer _timer;
 
   std::map<std::string, zNode> _nodeTable;
-  std::list<zNodeTableObserver *>_observers;
+  std::list<zNodeTableObserver *> _observers;
 };
 
 }

@@ -4,6 +4,7 @@
  *  Created on: Jan 13, 2014
  *      Author: kmahoney
  */
+#include <string.h>
 
 #include "zutils/zLog.h"
 #include "zutils/zSemaphore.h"
@@ -33,6 +34,7 @@ _add_time(struct timespec *ts_, uint32_t us_)
 
 zMutex::zMutex(zMutex::state state_)
 {
+  memset(&this->_sem, 0, sizeof(this->_sem));
   switch (state_)
   {
     case zMutex::LOCKED:

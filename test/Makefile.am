@@ -18,6 +18,8 @@ check_PROGRAMS = check_zutils
 check_zutils_SOURCES = \
         $(top_srcdir)/src/zLog.cpp \
         $(top_srcdir)/test/zLog_utest.cpp \
+        $(top_srcdir)/src/zThread.cpp \
+        $(top_srcdir)/test/zThread_utest.cpp \
         $(top_srcdir)/src/zSemaphore.cpp \
         $(top_srcdir)/test/zSemaphore_utest.cpp \
         $(top_srcdir)/src/zEvent.cpp \
