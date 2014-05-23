@@ -66,8 +66,8 @@ zData::GetVal(const std::string &name_) const
   try
   {
     name = this->GetKey() + "." + name_;
-    value = this->_pt.get < std::string > (name);
     ZLOG_DEBUG("Getting zData value: " + name_ + " = " + value);
+    value = this->_pt.get < std::string > (name);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -98,8 +98,8 @@ zData::SetVal(const std::string &name_, const std::string &value_)
   try
   {
     name = this->GetKey() + "." + name_;
-    this->_pt.put(name, value_);
     ZLOG_DEBUG("Setting zData value: " + name + " = " + value_);
+    this->_pt.put(name, value_);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -127,9 +127,10 @@ zData::GetChild(const std::string &name_, zData &child_) const
   try
   {
     name = this->GetKey() + "." + name_;
+    ZLOG_DEBUG("Getting zData child: '" + name + "'");
     child_._setKey(name_);
     child_._setVal(name_, this->_pt.get_child(name));
-    ZLOG_DEBUG("Getting zData child:\n" + child_.GetJson());
+    ZLOG_DEBUG("\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -145,8 +146,8 @@ zData::PutChild(const std::string &name_, const zData &child_)
   try
   {
     name = this->GetKey() + "." + name_;
+    ZLOG_DEBUG("Putting zData child: '" + name + "'\n" + child_.GetJson());
     this->_pt.put_child(name, child_._getVal(child_.GetKey()));
-    ZLOG_DEBUG("Putting zData child:\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
