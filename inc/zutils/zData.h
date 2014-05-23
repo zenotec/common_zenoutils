@@ -1,12 +1,13 @@
-/*
- * zData.h
- *
- *  Created on: Jan 13, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File: zData.h
+//    Description:
+//
+//*****************************************************************************
 
-#ifndef _ZDATA_H_
-#define _ZDATA_H_
+#ifndef __ZDATA_H__
+#define __ZDATA_H__
 
 #include <string>
 #include <boost/property_tree/ptree.hpp>
@@ -80,4 +81,4 @@ private:
 
 }
 
-#endif /* _ZDATA_H_ */
+#endif /* __ZDATA_H__ */

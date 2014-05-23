@@ -73,7 +73,6 @@ protected:
   virtual void
   EventHandler(zNodeTableObserver::Event event_, zNode &node_)
   {
-    std::cout << "Event: " << event_;
     this->Count++;
   }
 
@@ -146,6 +145,8 @@ UT_zNodeTable_Methods(int arg_)
   TEST_EQ(5, MyObsvr->Count);
 
   // Cleanup
+  MyNodeTable->Unregister(MyObsvr);
+  delete (MyObsvr);
   delete (MyNodeTable);
   delete (MyNode);
 

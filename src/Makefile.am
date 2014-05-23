@@ -14,6 +14,7 @@ libzutil_la_HEADERS = \
                     $(top_srcdir)/inc/zutils/zEvent.h \
                     $(top_srcdir)/inc/zutils/zTimer.h \
                     $(top_srcdir)/inc/zutils/zData.h \
+                    $(top_srcdir)/inc/zutils/zSocket.h \
                     $(top_srcdir)/inc/zutils/zNode.h
 
 
@@ -24,5 +25,8 @@ libzutil_la_SOURCES = $(libzutil_a_HEADERS) \
                       $(top_srcdir)/src/zEvent.cpp \
                       $(top_srcdir)/src/zTimer.cpp \
                       $(top_srcdir)/src/zData.cpp \
-                      $(top_srcdir)/src/zNode.cpp 
+                      $(top_srcdir)/src/zNode.cpp \
+                      $(top_srcdir)/src/zSocket/SocketBuffer.cpp \
+                      $(top_srcdir)/src/zSocket/SocketAddress.cpp \
+                      $(top_srcdir)/src/zSocket/Socket.cpp 
 

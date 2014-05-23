@@ -31,6 +31,10 @@ check_zutils_SOURCES = \
         $(top_srcdir)/test/zData_utest.cpp \
         $(top_srcdir)/src/zNode.cpp \
         $(top_srcdir)/test/zNode_utest.cpp \
+        $(top_srcdir)/src/zSocket/SocketBuffer.cpp \
+        $(top_srcdir)/src/zSocket/SocketAddress.cpp \
+        $(top_srcdir)/src/zSocket/Socket.cpp \
+        $(top_srcdir)/test/zSocket_utest.cpp \
         $(top_srcdir)/test/UnitTest.cpp
 
 

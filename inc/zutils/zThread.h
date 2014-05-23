@@ -9,6 +9,7 @@
 #ifndef __ZTHREAD_H__
 #define __ZTHREAD_H__
 
+#include <stdint.h>
 #include <pthread.h>
 
 #include "zutils/zEvent.h"
@@ -16,19 +17,37 @@
 namespace zUtils
 {
 
+class zThreadFunction
+{
+public:
+  virtual void *
+  Function(void *arg_) = 0;
+protected:
+private:
+};
+
 //**********************************************************************
 // zTimer Class
 //**********************************************************************
 class zThread : public zEvent
 {
 public:
-  zThread();
+  zThread(zThreadFunction *func_, void *arg_);
   ~zThread();
+
+  uint32_t
+  Id();
 
 protected:
 
 private:
-  pthread_t _threadId;
+  static void *
+  _threadHandler(void *arg_);
+
+  zThreadFunction *_func;
+  void *_arg;
+
+  pthread_t _id;
   bool _exit;
 
 };
