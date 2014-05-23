@@ -9,11 +9,18 @@ static int
 UT_zNode_Defaults(int arg_)
 {
 
+  // Create new node from zData object
+  zData MyData;
+  zNode MyNode1(MyData);
+  TEST_EQ( MyNode1.GetType(), string( "" ));
+  TEST_EQ( MyNode1.GetId(), string( "" ));
+  TEST_EQ( MyNode1.GetTardyCnt(), 0);
+
   // Create new node and validate
-  zNode MyNode;
-  TEST_EQ( MyNode.GetType(), string( "" ));
-  TEST_EQ( MyNode.GetId(), string( "" ));
-  TEST_EQ( MyNode.GetTardyCnt(), 0);
+  zNode MyNode2;
+  TEST_EQ( MyNode2.GetType(), string(""));
+  TEST_EQ( MyNode2.GetId(), string(""));
+  TEST_EQ( MyNode2.GetTardyCnt(), 0);
 
   // Return success
   return (0);

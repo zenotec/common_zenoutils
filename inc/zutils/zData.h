@@ -70,12 +70,7 @@ protected:
   _setVal(const std::string &key_, const boost::property_tree::ptree &pt_);
 
 private:
-  bool
-  _isMine(const std::string &key_) const;
-  bool
-  _isMe(const std::string &key_) const;
-  std::string
-  _me(const std::string &key_) const;
+
   boost::property_tree::ptree _pt;
 };
 

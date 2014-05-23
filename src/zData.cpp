@@ -61,16 +61,17 @@ zData::_setKey(const std::string &key_)
 std::string
 zData::GetVal(const std::string &name_) const
 {
+  std::string name;
   std::string value;
   try
   {
-    std::string name = this->GetKey() + "." + name_;
+    name = this->GetKey() + "." + name_;
     value = this->_pt.get < std::string > (name);
     ZLOG_DEBUG("Getting zData value: " + name_ + " = " + value);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("zData value does not exist, returning empty value");
+    ZLOG_WARN("zData value '" + name + "' does not exist, returning empty value");
   }
   return (value);
 }
@@ -85,7 +86,7 @@ zData::_getVal(const std::string &name_) const
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("zData value does not exist, returning empty value");
+    ZLOG_WARN("zData value '" + name_ + "' does not exist, returning empty value");
   }
   return (value);
 }
@@ -102,29 +103,37 @@ zData::SetVal(const std::string &name_, const std::string &value_)
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("Cannot set zData value");
+    ZLOG_WARN("Cannot set zData value:" + name);
   }
 }
 
 void
 zData::_setVal(const std::string &name_, const boost::property_tree::ptree &pt_)
 {
-  this->_pt.put_child(name_, pt_);
+  try
+  {
+    this->_pt.put_child(name_, pt_);
+  }
+  catch (boost::property_tree::ptree_bad_path const &e)
+  {
+    ZLOG_WARN("Cannot set zData value:" + name_);
+  }
 }
 
 void
 zData::GetChild(const std::string &name_, zData &child_) const
 {
+  std::string name;
   try
   {
-    std::string name = this->GetKey() + "." + name_;
+    name = this->GetKey() + "." + name_;
     child_._setKey(name_);
     child_._setVal(name_, this->_pt.get_child(name));
     ZLOG_DEBUG("Getting zData child:\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("Cannot get zData child: " + name_);
+    ZLOG_WARN("Cannot get zData child: " + name);
   }
 
 }
@@ -132,31 +141,33 @@ zData::GetChild(const std::string &name_, zData &child_) const
 void
 zData::PutChild(const std::string &name_, const zData &child_)
 {
+  std::string name;
   try
   {
-    std::string name = this->GetKey() + "." + name_;
+    name = this->GetKey() + "." + name_;
     this->_pt.put_child(name, child_._getVal(child_.GetKey()));
     ZLOG_DEBUG("Putting zData child:\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("Cannot put zData child: " + name_);
+    ZLOG_WARN("Cannot put zData child: " + name);
   }
 }
 
 void
 zData::AddChild(const std::string &name_, const zData &child_)
 {
+  std::string name;
   try
   {
-    std::string key = this->GetKey() + "." + name_;
+    name = this->GetKey() + "." + name_;
     boost::property_tree::ptree pt = child_._getVal(child_.GetKey());
-    this->_pt.add_child(key, pt);
+    this->_pt.add_child(name, pt);
     ZLOG_DEBUG("Adding zData child:\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
-    ZLOG_WARN("Cannot add zData child: " + name_);
+    ZLOG_WARN("Cannot add zData child: " + name);
   }
 }
 
@@ -188,24 +199,6 @@ zData::SetXml(const std::string &xml_)
 {
   std::stringstream xml(xml_);
   boost::property_tree::read_xml(xml, this->_pt);
-}
-
-bool
-zData::_isMe(const std::string &key_) const
-{
-  return (key_ == this->GetKey());
-}
-
-bool
-zData::_isMine(const std::string &key_) const
-{
-  return (this->_me(key_) == this->GetKey());
-}
-
-std::string
-zData::_me(const std::string &key_) const
-{
-  return (key_.substr(0, key_.find_first_of(".")));
 }
 
 }
