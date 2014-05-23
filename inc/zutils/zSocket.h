@@ -110,7 +110,10 @@ public:
   struct sockaddr_in
   GetAddr();
 
-  uint8_t *
+  bool
+  SetHwAddr(const std::string &addr_);
+
+  const uint8_t *
   GetHwAddr() const;
   std::string
   GetHwAddrStr() const;

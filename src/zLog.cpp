@@ -99,7 +99,7 @@ Message::Message(zLog::LogLevel level_, const char *name_, int line_) :
 {
   std::string name(name_);
   name = name.substr(name.find_last_of("/") + 1);
-  this->_name = name;
+  this->_file = name;
   this->_line = zLog::IntStr(line_);
 }
 
@@ -121,6 +121,7 @@ Message::GetStr() const
   str += this->_getProcId() + "\t";
   str += this->_getThreadId() + "\t";
   str += std::string(levelStr[this->_level]) + "\t";
+  str += this->_file + "[" + this->_line + "]\t";
   str += this->_msg + "\n";
   return (str);
 }

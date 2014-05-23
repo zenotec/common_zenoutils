@@ -5,6 +5,7 @@
 //*****************************************************************************
 
 #include <stdio.h>
+#include <string.h>
 #include <arpa/inet.h>
 
 #include "zutils/zLog.h"
@@ -17,6 +18,7 @@ namespace zSocket
 
 SocketAddr::SocketAddr(const std::string& addr_)
 {
+  memset(this->_hwaddr, 0, sizeof(this->_hwaddr));
   if (!this->SetAddr(addr_))
   {
     ZLOG_CRIT("Cannot set zSocket address");
@@ -139,16 +141,25 @@ SocketAddr::GetAddr()
   return (this->_ipaddr);
 }
 
-uint8_t *
-SocketAddr::GetHwAddr() const
+bool
+SocketAddr::SetHwAddr(const std::string &addr_)
 {
 
+}
+
+const uint8_t *
+SocketAddr::GetHwAddr() const
+{
+  return (this->_hwaddr);
 }
 
 std::string
 SocketAddr::GetHwAddrStr() const
 {
-
+  char addr[18] = { 0 };
+  sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
+      this->_hwaddr[2], this->_hwaddr[3], this->_hwaddr[4], this->_hwaddr[5]);
+  return (std::string(addr));
 }
 
 in_addr_t

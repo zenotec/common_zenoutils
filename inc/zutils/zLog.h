@@ -150,7 +150,7 @@ private:
   _getTimestamp() const;
 
   zLog::LogLevel _level;
-  std::string _name;
+  std::string _file;
   std::string _line;
   std::string _msg;
 

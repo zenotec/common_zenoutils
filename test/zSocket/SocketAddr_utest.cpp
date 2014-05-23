@@ -5,12 +5,16 @@ UnitTestSocketAddrDefaults(int arg_)
 
   // Create new socket address and validate
   SocketAddr MySockAddr1;
-  TEST_EQ(MySockAddr1.GetIpAddrStr(), std::string("0.0.0.0"));
-  TEST_EQ(MySockAddr1.GetPortStr(), std::string("0"));
+  TEST_EQ(std::string("0.0.0.0"), MySockAddr1.GetIpAddrStr());
+  TEST_EQ(std::string("00:00:00:00:00:00"), MySockAddr1.GetHwAddrStr());
+  TEST_EQ(0, MySockAddr1.GetPort());
+  TEST_EQ(std::string("0"), MySockAddr1.GetPortStr());
 
   // Create Socket address using string notation
   SocketAddr MySockAddr2("1.2.3.4:56789");
   TEST_EQ(std::string("1.2.3.4"), MySockAddr2.GetIpAddrStr());
+  TEST_EQ(std::string("00:00:00:00:00:00"), MySockAddr2.GetHwAddrStr());
+  TEST_EQ(56789, MySockAddr2.GetPort());
   TEST_EQ(std::string("56789"), MySockAddr2.GetPortStr());
 
   struct sockaddr_in addr;
@@ -19,6 +23,7 @@ UnitTestSocketAddrDefaults(int arg_)
   addr.sin_port = htons(54321);
   SocketAddr MySockAddr3(addr);
   TEST_EQ(std::string("9.8.7.6"), MySockAddr3.GetIpAddrStr());
+  TEST_EQ(54321, MySockAddr3.GetPort());
   TEST_EQ(std::string("54321"), MySockAddr3.GetPortStr());
 
   // Return success
