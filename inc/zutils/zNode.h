@@ -21,6 +21,8 @@
 namespace zUtils
 {
 
+class zNodeTable;
+
 //**********************************************************************
 // zNode Class
 //**********************************************************************
@@ -30,6 +32,8 @@ class zNode : public zData
   static const std::string ROOT;
   static const std::string TYPE;
   static const std::string ID;
+
+  friend class zNodeTable;
 
 public:
   zNode(const zData &node_);
@@ -52,15 +56,10 @@ public:
   void
   SetId(const std::string &id_);
 
-  uint32_t
-  GetTardyCnt() const;
-  void
-  SetTardyCnt(const uint32_t &cnt_);
-
 protected:
+  uint32_t _tardyCnt;
 
 private:
-  unsigned int _tardyCnt;
 
 };
 
@@ -77,7 +76,7 @@ public:
   };
 
   virtual void
-  EventHandler(zNodeTableObserver::Event event_, zNode &node_) = 0;
+  EventHandler(zNodeTableObserver::Event event_, const zNode *node_) = 0;
 
 protected:
 
@@ -95,6 +94,13 @@ public:
   zNodeTable();
   virtual
   ~zNodeTable();
+
+  void
+  GetConf(uint16_t &int_, uint16_t &tardy_, uint16_t &stale_, uint16_t &retire_);
+
+  bool
+  SetConf(uint16_t int_ = 500, uint16_t tardy_ = 3000, uint16_t stale_ = 5000, uint16_t retire_ =
+      10000);
 
   bool
   AddNode(const zNode &node_);
@@ -121,16 +127,21 @@ protected:
 
 private:
 
-  zNodeTable( const zNodeTable &other_);
+  zNodeTable(const zNodeTable &other_);
 
   void
-  _notifyObservers(zNodeTableObserver::Event event_, zNode &node_);
+  _notifyObservers(zNodeTableObserver::Event event_, const zNode *node_);
 
   zMutex _lock;
   zTimer _timer;
 
   std::map<std::string, zNode> _nodeTable;
   std::list<zNodeTableObserver *> _observers;
+
+  uint16_t _interval; // msecs
+  uint16_t _tardy; // cumulative msecs
+  uint16_t _stale; // cumulative msecs
+  uint16_t _retire; // cumulative msecs
 };
 
 }

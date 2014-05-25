@@ -3,17 +3,9 @@
 class SocketTestListener : public SocketListener
 {
 public:
-  SocketTestListener()
-  {
-  }
-
-  virtual
-  ~SocketTestListener()
-  {
-  }
 
   virtual bool
-  Recv(const SocketAddr &addr_, SocketBuffer *sb_)
+  SocketRecv(const SocketAddr &addr_, SocketBuffer *sb_)
   {
     this->_sq.Push(std::make_pair(addr_, sb_));
     return (true);

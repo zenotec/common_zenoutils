@@ -21,7 +21,7 @@ class zThreadFunction
 {
 public:
   virtual void *
-  Function(void *arg_) = 0;
+  ThreadFunction(void *arg_) = 0;
 protected:
 private:
 };

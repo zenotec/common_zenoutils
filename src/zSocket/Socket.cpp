@@ -48,7 +48,7 @@ void
 Socket::Register(SocketListener *listener_)
 {
   this->_lock.Lock();
-  this->_listenerTable.push_back(listener_);
+  this->_handlers.push_back(listener_);
   this->_lock.Unlock();
 }
 
@@ -56,7 +56,7 @@ void
 Socket::Unregister(SocketListener *listener_)
 {
   this->_lock.Lock();
-  this->_listenerTable.remove(listener_);
+  this->_handlers.remove(listener_);
   this->_lock.Unlock();
 }
 
@@ -150,7 +150,7 @@ Socket::_listen()
 }
 
 void *
-Socket::Function(void *arg_)
+Socket::ThreadFunction(void *arg_)
 {
   Socket *self = (Socket *) arg_;
 
@@ -180,22 +180,22 @@ Socket::Function(void *arg_)
       logstr += "From: " + addr.GetIpAddrStr() + ":" + addr.GetPortStr() + ";\t";
       logstr += "Size: " + zLog::IntStr(n) + ";";
       ZLOG_INFO(logstr);
-      self->_notifyListeners(addr, sb);
+      self->_notifyHandler(addr, sb);
     } // end if
     else
     {
       std::string logstr;
-      logstr += "Error receiving packet: \n";
-      logstr += "Socket: " + self->_addr.GetIpAddrStr() + ":" + self->_addr.GetPortStr();
-      logstr += "  Status: " + zLog::IntStr(n);
-      ZLOG_WARN(logstr);
+      logstr += "Error receiving packet:\t";
+      logstr += "Socket: " + self->_addr.GetIpAddrStr() + ":" + self->_addr.GetPortStr() + "\t";
+      logstr += "Err: (" + zLog::IntStr(errno) + ")" + std::string(strerror(errno));
+      ZLOG_ERR(logstr);
       delete (sb);
     } //  end else
   } // end if
 
   if (ret < 0)
   {
-    ZLOG_ERR("Cannot select on socket fd: " + std::string(strerror(errno)));
+    ZLOG_ERR("Cannot select on socket: " + std::string(strerror(errno)));
   } // end if
 
   return (0);
@@ -203,17 +203,17 @@ Socket::Function(void *arg_)
 }
 
 void
-Socket::_notifyListeners(SocketAddr &addr_, SocketBuffer *buf_)
+Socket::_notifyHandler(SocketAddr &addr_, SocketBuffer *buf_)
 {
 
   this->_lock.Lock();
-  if (!this->_listenerTable.empty())
+  if (!this->_handlers.empty())
   {
-    SocketListener *listener = this->_listenerTable.front();
-    this->_listenerTable.pop_front();
-    this->_listenerTable.push_back(listener);
+    SocketListener *handler = this->_handlers.front();
+    this->_handlers.pop_front();
+    this->_handlers.push_back(handler);
     ZLOG_INFO("Notifying socket listener");
-    listener->Recv(addr_, buf_);
+    handler->SocketRecv(addr_, buf_);
   } // end if
   else
   {

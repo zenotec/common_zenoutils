@@ -115,28 +115,32 @@
       return (2); \
 }
 
-#define TEST_EQ(x, y) \
-{ \
-  if( utest->Eq( __LINE__, (x), (y), std::string( "" ) ) != true ) \
-    return (3); \
-}
-
+#define TEST_EQ(x, y) TEST_EQ_MSG(x, y, std::string( "" ))
 #define TEST_EQ_MSG(x, y, msg) \
 { \
-  if( utest->Eq( __LINE__, (x), (y), msg ) != true ) \
+  if( utest->Eq( __LINE__, (x), (y), (msg) ) != true ) \
     return (3); \
 }
 
-#define TEST_NEQ(x, y) \
+#define TEST_NEQ(x, y) TEST_NEQ_MSG(x, y, std::string( "" ))
+#define TEST_NEQ_MSG(x, y, msg) \
 { \
-  if( utest->Neq( __LINE__, (x), (y), std::string( "" ) ) != true ) \
+  if( utest->Neq( __LINE__, (x), (y), (msg) ) != true ) \
     return (4); \
 }
 
-#define TEST_NEQ_MSG(x, y, msg) \
+#define TEST_LT(x, y) TEST_LT_MSG(x, y, std::string( "" ))
+#define TEST_LT_MSG(x, y, msg) \
 { \
-  if( utest->Neq( __LINE__, (x), (y), msg ) != true ) \
-    return (4); \
+  if( utest->Lt( __LINE__, (x), (y), (msg) ) != true ) \
+    return (5); \
+}
+
+#define TEST_GT(x, y) TEST_GT_MSG((x), (y), std::string( "" ) )
+#define TEST_GT_MSG(x, y, msg) \
+{ \
+  if( utest->Gt( __LINE__, (x), (y), (msg) ) != true ) \
+    return (6); \
 }
 
 #define INIT() \
@@ -239,7 +243,6 @@ public:
       return (true);
     } // end else
   }
-
   bool
   False(const int line_, const bool &val_, const std::string &msg)
   {
@@ -343,6 +346,36 @@ public:
     {
       std::stringstream errmsg;
       errmsg << i1_ << " == " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
+  bool
+  Lt(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
+  {
+    if (i1_ >= i2_)
+    {
+      std::stringstream errmsg;
+      errmsg << i1_ << " >= " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
+  bool
+  Gt(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
+  {
+    if (i1_ <= i2_)
+    {
+      std::stringstream errmsg;
+      errmsg << i1_ << " <= " << i2_ << std::endl;
       this->LogMsg(line_, errmsg.str());
       return (false);
     } // end if

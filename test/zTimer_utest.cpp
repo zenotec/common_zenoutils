@@ -26,7 +26,8 @@ public:
 static int
 UT_zTimer(int arg_)
 {
-  uint32_t interval = 10000;
+  uint32_t interval = 50000;
+  int n = 50;
 
   // Create new timer and validate
   zTimer *MyTimer = new zTimer;
@@ -40,13 +41,14 @@ UT_zTimer(int arg_)
   MyTimer->Start(interval);
 
   // Delay for n intervals
-  usleep((10 * interval) + (interval / 2));
+  usleep((n * interval) + (interval / 2));
 
   // Stop the timer
-  MyTimer->Stop();
+  MyTimer->Start(0);
 
-  // Validate
-  TEST_EQ(10, MyObsvr->Cnt);
+  // Validate ((n - 2) < cnt < (n + 1))
+  TEST_GT(MyObsvr->Cnt, (n - 2));
+  TEST_LT(MyObsvr->Cnt, (n + 1));
 
   // Cleanup
   MyTimer->Unregister(MyObsvr);

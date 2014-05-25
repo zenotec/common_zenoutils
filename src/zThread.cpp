@@ -78,7 +78,7 @@ zThread::_threadHandler(void *arg_)
   {
     if (self->_func != NULL)
     {
-      self->_func->Function(self->_arg);
+      self->_func->ThreadFunction(self->_arg);
     } // end if
   } // end while
 

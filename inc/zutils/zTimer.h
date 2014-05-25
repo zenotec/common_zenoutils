@@ -46,9 +46,6 @@ public:
   Start(uint32_t usec_);
 
   void
-  Stop();
-
-  void
   Register(zTimerHandler *obs_);
 
   void
@@ -57,12 +54,14 @@ public:
 protected:
 
 private:
+  timer_t _timerid;
   static void
   _handler(union sigval sv_);
 
+  void
+  _start();
   uint32_t _interval;
 
-  timer_t _timerid;
   zMutex _lock;
   std::list<zTimerHandler *> _observers;
 };

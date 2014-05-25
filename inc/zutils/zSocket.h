@@ -145,7 +145,7 @@ class SocketListener
 public:
 
   virtual bool
-  Recv(const SocketAddr &addr_, SocketBuffer *pkt_) = 0;
+  SocketRecv(const SocketAddr &addr_, SocketBuffer *pkt_) = 0;
 
 protected:
 
@@ -180,13 +180,13 @@ public:
 
 protected:
   virtual void *
-  Function(void *arg_);
+  ThreadFunction(void *arg_);
 
 private:
 
   void
-  _notifyListeners(SocketAddr &addr_, SocketBuffer *buf_);
-  std::list<SocketListener *> _listenerTable;
+  _notifyHandler(SocketAddr &addr_, SocketBuffer *buf_);
+  std::list<SocketListener *> _handlers;
 
   zMutex _lock;
   SocketAddr _addr;
