@@ -98,7 +98,7 @@ zNodeTable::~zNodeTable()
 }
 
 void
-zNodeTable::GetConf(uint16_t &int_, uint16_t &tardy_, uint16_t &stale_, uint16_t &retire_)
+zNodeTable::GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_)
 {
   if (this->_lock.Lock())
   {
@@ -111,7 +111,7 @@ zNodeTable::GetConf(uint16_t &int_, uint16_t &tardy_, uint16_t &stale_, uint16_t
 }
 
 bool
-zNodeTable::SetConf(uint16_t int_, uint16_t tardy_, uint16_t stale_, uint16_t retire_)
+zNodeTable::SetConf(uint32_t int_, uint32_t tardy_, uint32_t stale_, uint32_t retire_)
 {
   bool stat = false;
   if (this->_lock.Lock())
@@ -140,6 +140,25 @@ zNodeTable::AddNode(const zNode &node_)
     this->_lock.Unlock();
   } // end if
   return (true);
+}
+
+bool
+zNodeTable::UpdateNode(const std::string &id_)
+{
+  bool stat = false;
+  std::map<std::string, zNode>::iterator itr;
+
+  if (this->_lock.Lock())
+  {
+    itr = this->_nodeTable.find(id_);
+    if (itr != this->_nodeTable.end())
+    {
+      itr->second._tardyCnt = 0;
+      stat = true;
+    } // end if
+    this->_lock.Unlock();
+  } // end if
+  return (stat);
 }
 
 bool

@@ -96,14 +96,17 @@ public:
   ~zNodeTable();
 
   void
-  GetConf(uint16_t &int_, uint16_t &tardy_, uint16_t &stale_, uint16_t &retire_);
+  GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_);
 
   bool
-  SetConf(uint16_t int_ = 500, uint16_t tardy_ = 3000, uint16_t stale_ = 5000, uint16_t retire_ =
+  SetConf(uint32_t int_ = 500, uint32_t tardy_ = 3000, uint32_t stale_ = 5000, uint32_t retire_ =
       10000);
 
   bool
   AddNode(const zNode &node_);
+
+  bool
+  UpdateNode(const std::string &id_);
 
   bool
   RemoveNode(const std::string &id_);
@@ -138,10 +141,10 @@ private:
   std::map<std::string, zNode> _nodeTable;
   std::list<zNodeTableObserver *> _observers;
 
-  uint16_t _interval; // msecs
-  uint16_t _tardy; // cumulative msecs
-  uint16_t _stale; // cumulative msecs
-  uint16_t _retire; // cumulative msecs
+  uint32_t _interval; // msecs
+  uint32_t _tardy; // cumulative msecs
+  uint32_t _stale; // cumulative msecs
+  uint32_t _retire; // cumulative msecs
 };
 
 }
