@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "zutils/zQueue.h"
 
 class SocketTestListener : public SocketListener

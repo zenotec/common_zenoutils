@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "UnitTest.h"
 #include "zutils/zTimer.h"
 

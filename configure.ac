@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([libzutils], [0.1], [kevin.mahoney@zenotec.net])
-AM_INIT_AUTOMAKE(libzutils, 0.1)
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])

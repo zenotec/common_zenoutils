@@ -1,3 +1,5 @@
+
+
 AM_CPPFLAGS = \
         -fprofile-arcs \
         -ftest-coverage \
@@ -16,26 +18,26 @@ TESTS = check_zutils
 check_PROGRAMS = check_zutils
 
 check_zutils_SOURCES = \
-        $(top_srcdir)/src/zLog.cpp \
-        $(top_srcdir)/test/zLog_utest.cpp \
-        $(top_srcdir)/src/zThread.cpp \
-        $(top_srcdir)/test/zThread_utest.cpp \
-        $(top_srcdir)/src/zSemaphore.cpp \
-        $(top_srcdir)/test/zSemaphore_utest.cpp \
-        $(top_srcdir)/src/zEvent.cpp \
-        $(top_srcdir)/test/zEvent_utest.cpp \
-        $(top_srcdir)/test/zQueue_utest.cpp \
-        $(top_srcdir)/src/zTimer.cpp \
-        $(top_srcdir)/test/zTimer_utest.cpp \
-        $(top_srcdir)/src/zData.cpp \
-        $(top_srcdir)/test/zData_utest.cpp \
-        $(top_srcdir)/src/zNode.cpp \
-        $(top_srcdir)/test/zNode_utest.cpp \
-        $(top_srcdir)/src/zSocket/SocketBuffer.cpp \
-        $(top_srcdir)/src/zSocket/SocketAddress.cpp \
-        $(top_srcdir)/src/zSocket/Socket.cpp \
-        $(top_srcdir)/test/zSocket_utest.cpp \
-        $(top_srcdir)/test/UnitTest.cpp
+                       ../src/zLog.cpp \
+                       zLog_utest.cpp \
+                       ../src/zThread.cpp \
+                       zThread_utest.cpp \
+                       ../src/zSemaphore.cpp \
+                       zSemaphore_utest.cpp \
+                       ../src/zEvent.cpp \
+                       zEvent_utest.cpp \
+                       zQueue_utest.cpp \
+                       ../src/zTimer.cpp \
+                       zTimer_utest.cpp \
+                       ../src/zData.cpp \
+                       zData_utest.cpp \
+                       ../src/zNode.cpp \
+                       zNode_utest.cpp \
+                       ../src/zSocket/SocketAddress.cpp \
+                       ../src/zSocket/SocketBuffer.cpp \
+                       ../src/zSocket/Socket.cpp \
+                       zSocket_utest.cpp \
+                       UnitTest.cpp
 
 
 
