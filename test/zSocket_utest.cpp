@@ -4,9 +4,12 @@
 using namespace Test;
 using namespace zUtils::zSocket;
 
-#include "zSocket/SocketBuffer_utest.cpp"
-#include "zSocket/SocketAddr_utest.cpp"
-#include "zSocket/Socket_utest.cpp"
+int
+SocketBuffer_utest(void);
+int
+SocketAddr_utest(void);
+int
+Socket_utest(void);
 
 int
 zSocket_utest(void)

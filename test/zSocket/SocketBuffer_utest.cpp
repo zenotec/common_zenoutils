@@ -1,4 +1,11 @@
+#include <string>
 
+#include "UnitTest.h"
+
+#include "zutils/zSocket.h"
+
+using namespace Test;
+using namespace zUtils::zSocket;
 
 static int
 UnitTestSBDefaults(int arg_)

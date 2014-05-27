@@ -37,6 +37,10 @@ check_zutils_SOURCES = \
                        ../src/zSocket/SocketBuffer.cpp \
                        ../src/zSocket/Socket.cpp \
                        zSocket_utest.cpp \
+                       zSocket/SocketAddr_utest.cpp \
+                       zSocket/SocketBuffer_utest.cpp \
+                       zSocket/Socket_utest.cpp \
+                       UnitTest.h \
                        UnitTest.cpp
 
 

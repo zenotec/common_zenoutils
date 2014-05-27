@@ -1,6 +1,13 @@
 #include <unistd.h>
+#include <string>
 
+#include "UnitTest.h"
+
+#include "zutils/zSocket.h"
 #include "zutils/zQueue.h"
+
+using namespace Test;
+using namespace zUtils::zSocket;
 
 class SocketTestListener : public SocketListener
 {
