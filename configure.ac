@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([libzutils], [0.1], [kevin.mahoney@zenotec.net])
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -20,6 +20,14 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
 LT_INIT
+
+m4_ifndef([PKG_PROG_PKG_CONFIG],
+  [m4_fatal([Could not locate the pkg-config autoconf
+    macros. These are usually located in /usr/share/aclocal/pkg.m4.
+    If your macros are in a different location, try setting the
+    environment variable AL_OPTS="-I/other/macro/dir" before running
+    ./autogen.sh or autoreconf again.])])
+PKG_PROG_PKG_CONFIG
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
@@ -39,6 +47,14 @@ AC_CHECK_FUNCS([memset getpid sem_init strerror])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
+                 src/zData/Makefile
+                 src/zEvent/Makefile
+                 src/zLog/Makefile
+                 src/zNode/Makefile
+                 src/zSemaphore/Makefile
+                 src/zSocket/Makefile
+                 src/zThread/Makefile
+                 src/zTimer/Makefile
                  test/Makefile])
                  
 # Boost checks

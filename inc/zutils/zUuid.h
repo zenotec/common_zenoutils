@@ -11,6 +11,9 @@
 #include <stdint.h>
 #include <string>
 
+#define INPUT   1
+#define USER    1
+
 namespace zUtils
 {
 
