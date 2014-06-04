@@ -24,5 +24,9 @@ libzutils_la_SOURCES = \
 libzutils_la_LIBADD = \
     ${top_builddir}/src/zData/libzData.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
+    ${top_builddir}/src/zLog/libzLog.la \
+    ${top_builddir}/src/zNode/libzNode.la \
     ${top_builddir}/src/zSemaphore/libzSemaphore.la \
-    ${top_builddir}/src/zSocket/libzSocket.la
+    ${top_builddir}/src/zSocket/libzSocket.la \
+    ${top_builddir}/src/zThread/libzThread.la \
+    ${top_builddir}/src/zTimer/libzTimer.la

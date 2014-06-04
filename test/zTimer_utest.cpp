@@ -48,8 +48,8 @@ UT_zTimer(int arg_)
   // Stop the timer
   MyTimer->Start(0);
 
-  // Validate ((n - 2) < cnt < (n + 1))
-  TEST_GT(MyObsvr->Cnt, (n - 2));
+  // Validate ((n - 3) < cnt < (n + 1))
+  TEST_GT(MyObsvr->Cnt, (n - 3));
   TEST_LT(MyObsvr->Cnt, (n + 1));
 
   // Cleanup

@@ -55,7 +55,8 @@ AC_CONFIG_FILES([Makefile
                  src/zSocket/Makefile
                  src/zThread/Makefile
                  src/zTimer/Makefile
-                 test/Makefile])
+                 test/Makefile
+                 test/zSocket/Makefile])
                  
 # Boost checks
 BOOST_REQUIRE([1.41.1])
