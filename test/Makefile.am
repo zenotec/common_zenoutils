@@ -1,16 +1,13 @@
 SUBDIRS = zSocket
 
 AM_CPPFLAGS = \
-        -fprofile-arcs \
-        -ftest-coverage \
         -I${top_srcdir}/inc \
         -I${top_srcdir}/test
 
 
 AM_LDFLAGS = \
         -lrt \
-        -lpthread \
-        -fprofile-arcs
+        -lpthread
 
 
 TESTS = check_zutils
