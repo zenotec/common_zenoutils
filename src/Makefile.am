@@ -1,4 +1,4 @@
-SUBDIRS = zData zEvent zLog zNode zSemaphore zSocket zThread zTimer
+SUBDIRS = zLog zException zData zEvent zNode zSemaphore zSocket zThread zTimer
 
 lib_LTLIBRARIES = libzutils.la
 
@@ -8,6 +8,7 @@ libzutils_ladir = $(includedir)/zutils
 # Headers to install
 libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zLog.h \
+    $(top_srcdir)/inc/zutils/zException.h \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zSemaphore.h \
     $(top_srcdir)/inc/zutils/zQueue.h \
@@ -22,9 +23,10 @@ libzutils_la_SOURCES = \
     $(libzutils_a_HEADERS)
 
 libzutils_la_LIBADD = \
+    ${top_builddir}/src/zLog/libzLog.la \
+    ${top_builddir}/src/zException/libzException.la \
     ${top_builddir}/src/zData/libzData.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
-    ${top_builddir}/src/zLog/libzLog.la \
     ${top_builddir}/src/zNode/libzNode.la \
     ${top_builddir}/src/zSemaphore/libzSemaphore.la \
     ${top_builddir}/src/zSocket/libzSocket.la \

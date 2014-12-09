@@ -45,18 +45,25 @@ AC_TYPE_UINT64_T
 # Checks for library functions.
 AC_CHECK_FUNCS([memset getpid sem_init strerror])
 
-AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 src/zData/Makefile
-                 src/zEvent/Makefile
-                 src/zLog/Makefile
-                 src/zNode/Makefile
-                 src/zSemaphore/Makefile
-                 src/zSocket/Makefile
-                 src/zThread/Makefile
-                 src/zTimer/Makefile
-                 test/Makefile
-                 test/zSocket/Makefile])
+# Common variables
+com_incdir='-I${top_srcdir}/inc'
+AC_SUBST([com_incdir])
+
+AC_CONFIG_FILES([
+    Makefile
+    src/Makefile
+    src/zData/Makefile
+    src/zEvent/Makefile
+    src/zException/Makefile
+    src/zLog/Makefile
+    src/zNode/Makefile
+    src/zSemaphore/Makefile
+    src/zSocket/Makefile
+    src/zThread/Makefile
+    src/zTimer/Makefile
+    test/Makefile
+    test/zSocket/Makefile
+    ])
                  
 # Boost checks
 BOOST_REQUIRE([1.41.1])
