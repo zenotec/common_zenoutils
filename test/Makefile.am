@@ -15,15 +15,16 @@ TESTS = check_zutils
 check_PROGRAMS = check_zutils
 
 check_zutils_SOURCES = \
-                       zLog_utest.cpp \
-                       zThread_utest.cpp \
-                       zSemaphore_utest.cpp \
-                       zEvent_utest.cpp \
-                       zQueue_utest.cpp \
-                       zTimer_utest.cpp \
                        zData_utest.cpp \
+                       zEvent_utest.cpp \
+                       zLog_utest.cpp \
+                       zMessage_utest.cpp \
                        zNode_utest.cpp \
+                       zQueue_utest.cpp \
+                       zSemaphore_utest.cpp \
                        zSocket_utest.cpp \
+                       zThread_utest.cpp \
+                       zTimer_utest.cpp \
                        UnitTest.h \
                        UnitTest.cpp
 

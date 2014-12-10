@@ -16,7 +16,7 @@ namespace zUtils
 namespace zException
 {
 
-class Exception : public std::exception
+class Exception
 {
 public:
   Exception();

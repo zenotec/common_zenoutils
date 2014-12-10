@@ -56,6 +56,7 @@ AC_CONFIG_FILES([
     src/zEvent/Makefile
     src/zException/Makefile
     src/zLog/Makefile
+    src/zMessage/Makefile
     src/zNode/Makefile
     src/zSemaphore/Makefile
     src/zSocket/Makefile

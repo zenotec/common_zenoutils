@@ -26,6 +26,8 @@ zSelect_utest(void);
 int
 zNode_utest(void);
 int
+zMessage_utest(void);
+int
 zSocket_utest(void);
 
 
@@ -56,6 +58,7 @@ main(int argc, const char **argv)
   ret |= zTimer_utest();
   ret |= zData_utest();
   ret |= zNode_utest();
+  ret |= zMessage_utest();
   ret |= zSocket_utest();
 
   // Return status
