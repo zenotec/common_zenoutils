@@ -20,31 +20,33 @@
 
 namespace zUtils
 {
+namespace zNode
+{
 
-class zNodeTable;
+class NodeTable;
 
 //**********************************************************************
 // zNode Class
 //**********************************************************************
-class zNode : public zData
+class Node : public zData::Data
 {
 
   static const std::string ROOT;
   static const std::string TYPE;
   static const std::string ID;
 
-  friend class zNodeTable;
+  friend class NodeTable;
 
 public:
-  zNode(const zData &node_);
-  zNode(const std::string &type_ = "", const std::string &id_ = "");
+  Node(const zData::Data &node_);
+  Node(const std::string &type_ = "", const std::string &id_ = "");
   virtual
-  ~zNode();
+  ~Node();
 
   bool
-  operator==(const zNode &other_) const;
+  operator==(const Node &other_) const;
   bool
-  operator!=(const zNode &other_) const;
+  operator!=(const Node &other_) const;
 
   std::string
   GetType() const;
@@ -66,7 +68,7 @@ private:
 //**********************************************************************
 // zNodeTableObserver Class
 //**********************************************************************
-class zNodeTableObserver
+class NodeTableObserver
 {
 public:
 
@@ -76,7 +78,7 @@ public:
   };
 
   virtual void
-  EventHandler(zNodeTableObserver::Event event_, const zNode *node_) = 0;
+  EventHandler(NodeTableObserver::Event event_, const Node *node_) = 0;
 
 protected:
 
@@ -87,13 +89,13 @@ private:
 //**********************************************************************
 // zNodeTable Class
 //**********************************************************************
-class zNodeTable : private zTimerHandler
+class NodeTable : private zTimer::TimerObserver
 {
 public:
 
-  zNodeTable();
+  NodeTable();
   virtual
-  ~zNodeTable();
+  ~NodeTable();
 
   void
   GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_);
@@ -103,7 +105,7 @@ public:
       10000);
 
   bool
-  AddNode(const zNode &node_);
+  AddNode(const Node &node_);
 
   bool
   UpdateNode(const std::string &id_);
@@ -111,17 +113,17 @@ public:
   bool
   RemoveNode(const std::string &id_);
 
-  zNode *
+  Node *
   FindNode(const std::string &id_);
 
   void
-  GetNodeList(std::list<zNode> &nodes_);
+  GetNodeList(std::list<Node> &nodes_);
 
   void
-  Register(zNodeTableObserver *obsvr_);
+  Register(NodeTableObserver *obsvr_);
 
   void
-  Unregister(zNodeTableObserver *obsvr_);
+  Unregister(NodeTableObserver *obsvr_);
 
   virtual void
   TimerTick();
@@ -130,16 +132,16 @@ protected:
 
 private:
 
-  zNodeTable(const zNodeTable &other_);
+  NodeTable(const NodeTable &other_);
 
   void
-  _notifyObservers(zNodeTableObserver::Event event_, const zNode *node_);
+  _notifyObservers(NodeTableObserver::Event event_, const Node *node_);
 
-  zMutex _lock;
-  zTimer _timer;
+  zSem::Mutex _lock;
+  zTimer::Timer _timer;
 
-  std::map<std::string, zNode> _nodeTable;
-  std::list<zNodeTableObserver *> _observers;
+  std::map<std::string, Node> _nodeTable;
+  std::list<NodeTableObserver *> _observers;
 
   uint32_t _interval; // msecs
   uint32_t _tardy; // cumulative msecs
@@ -147,6 +149,7 @@ private:
   uint32_t _retire; // cumulative msecs
 };
 
+}
 }
 
 #endif /* _ZNODE_H_ */

@@ -11,27 +11,29 @@
 
 namespace zUtils
 {
+namespace zEvent
+{
 
 //**********************************************************************
 // Event Class
 //**********************************************************************
 
-zEvent::zEvent()
+Event::Event()
 {
   this->_lock.Unlock();
 }
 
-zEvent::~zEvent()
+Event::~Event()
 {
 }
 
 void
-zEvent::_notify()
+Event::_notify()
 {
   if (this->_lock.Lock())
   {
-    std::list<zEventList *>::iterator itr = this->_eventlists.begin();
-    std::list<zEventList *>::iterator end = this->_eventlists.end();
+    std::list<EventList *>::iterator itr = this->_eventlists.begin();
+    std::list<EventList *>::iterator end = this->_eventlists.end();
     for (; itr != end; itr++)
     {
       (*itr)->_notify();
@@ -41,7 +43,7 @@ zEvent::_notify()
 }
 
 void
-zEvent::_addList(zEventList *list_)
+Event::_addList(EventList *list_)
 {
   if (this->_lock.Lock())
   {
@@ -51,7 +53,7 @@ zEvent::_addList(zEventList *list_)
 }
 
 void
-zEvent::_remList(zEventList *list_)
+Event::_remList(EventList *list_)
 {
   if (this->_lock.Lock())
   {
@@ -64,36 +66,37 @@ zEvent::_remList(zEventList *list_)
 // zEventList Class
 //**********************************************************************
 
-zEventList::zEventList()
+EventList::EventList()
 {
 }
 
-zEventList::~zEventList()
+EventList::~EventList()
 {
 }
 
 void
-zEventList::Register(zEvent &event_)
+EventList::Register(Event &event_)
 {
   event_._addList(this);
 }
 
 void
-zEventList::Unregister(zEvent &event_)
+EventList::Unregister(Event &event_)
 {
   event_._remList(this);
 }
 
 bool
-zEventList::Wait(uint32_t us_)
+EventList::Wait(uint32_t us_)
 {
   return (this->_sem.TimedWait(us_));
 }
 
 void
-zEventList::_notify()
+EventList::_notify()
 {
   this->_sem.Post();
 }
 
+}
 }

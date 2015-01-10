@@ -14,20 +14,22 @@
 
 namespace zUtils
 {
+namespace zSem
+{
 
 //**********************************************************************
-// zMutex Class
+// Mutex Class
 //**********************************************************************
-class zMutex
+class Mutex
 {
 public:
-  enum state
+  enum STATE
   {
     LOCKED, UNLOCKED
   };
 
-  zMutex(zMutex::state state_ = zMutex::LOCKED);
-  ~zMutex();
+  Mutex(Mutex::STATE state_ = Mutex::LOCKED);
+  ~Mutex();
 
   bool
   Lock();
@@ -41,7 +43,7 @@ public:
   bool
   Unlock();
 
-  zMutex::state
+  Mutex::STATE
   State();
 
 protected:
@@ -54,11 +56,11 @@ private:
 //**********************************************************************
 // Semaphore Class
 //**********************************************************************
-class zSemaphore
+class Semaphore
 {
 public:
-  zSemaphore(const uint32_t value_ = 0);
-  ~zSemaphore();
+  Semaphore(const uint32_t value_ = 0);
+  ~Semaphore();
 
   bool
   Post(uint32_t value_ = 1);
@@ -82,6 +84,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* __ZSEMAPHORE_H__ */

@@ -10,10 +10,14 @@
 #include <string.h>
 #include <signal.h>
 
+#include <time.h>
+
 #include "zutils/zTimer.h"
 #include "zutils/zLog.h"
 
 namespace zUtils
+{
+namespace zTimer
 {
 
 static void
@@ -30,17 +34,24 @@ _add_time(struct timespec *ts_, uint32_t us_)
   ts_->tv_nsec += nsec;
 }
 
+void
+_timer_handler(union sigval sv_)
+{
+  Timer *self = (Timer *) sv_.sival_ptr;
+  self->Notify();
+}
+
 //**********************************************************************
 // zTimer Class
 //**********************************************************************
 
-zTimer::zTimer() :
+Timer::Timer() :
     _timerid(0), _interval(0)
 {
   // Create timer
   struct sigevent sev = { 0 };
   sev.sigev_notify = SIGEV_THREAD;
-  sev.sigev_notify_function = zTimer::_handler;
+  sev.sigev_notify_function = _timer_handler;
   sev.sigev_notify_attributes = NULL;
   sev.sigev_value.sival_int = 0;
   sev.sigev_value.sival_ptr = this;
@@ -53,7 +64,7 @@ zTimer::zTimer() :
   this->_lock.Unlock();
 }
 
-zTimer::~zTimer()
+Timer::~Timer()
 {
   this->_lock.Lock();
   if (this->_timerid)
@@ -67,7 +78,7 @@ zTimer::~zTimer()
 }
 
 void
-zTimer::Start(uint32_t usec_)
+Timer::Start(uint32_t usec_)
 {
   if (this->_lock.Lock())
   {
@@ -78,7 +89,17 @@ zTimer::Start(uint32_t usec_)
 }
 
 void
-zTimer::Register(zTimerHandler *obs_)
+Timer::Stop(void)
+{
+  if (this->_lock.Lock())
+  {
+    this->_stop();
+    this->_lock.Unlock();
+  } // end if
+}
+
+void
+Timer::Register(zTimer::TimerObserver *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -88,7 +109,7 @@ zTimer::Register(zTimerHandler *obs_)
 }
 
 void
-zTimer::Unregister(zTimerHandler *obs_)
+Timer::Unregister(zTimer::TimerObserver *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -98,7 +119,23 @@ zTimer::Unregister(zTimerHandler *obs_)
 }
 
 void
-zTimer::_start()
+Timer::Notify()
+{
+  if (this->_lock.Lock())
+  {
+    std::list<zTimer::TimerObserver *>::iterator itr = this->_observers.begin();
+    std::list<zTimer::TimerObserver *>::iterator end = this->_observers.end();
+    for (; itr != end; itr++)
+    {
+      (*itr)->TimerTick();
+    } // end for
+    this->_start();
+    this->_lock.Unlock();
+  } // end if
+}
+
+void
+Timer::_start()
 {
   // Compute time
   struct itimerspec its = { 0 };
@@ -112,21 +149,17 @@ zTimer::_start()
 }
 
 void
-zTimer::_handler(union sigval sv_)
+Timer::_stop()
 {
-  zTimer *self = (zTimer *) sv_.sival_ptr;
-
-  if (self->_lock.Lock())
+  // Compute time
+  struct itimerspec its = { 0 };
+  // Start timer
+  int stat = timer_settime(this->_timerid, 0, &its, NULL);
+  if (stat != 0)
   {
-    std::list<zTimerHandler *>::iterator itr = self->_observers.begin();
-    std::list<zTimerHandler *>::iterator end = self->_observers.end();
-    for (; itr != end; itr++)
-    {
-      (*itr)->TimerTick();
-    } // end for
-    self->_start();
-    self->_lock.Unlock();
+    ZLOG_ERR("Cannot start timer: " + std::string(strerror(errno)));
   } // end if
 }
 
+}
 }

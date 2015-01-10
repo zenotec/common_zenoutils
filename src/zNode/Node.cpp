@@ -1,5 +1,5 @@
 /*
- * zNode.cpp
+ * Node.cpp
  *
  *  Created on: Jan 13, 2014
  *      Author: kmahoney
@@ -14,72 +14,74 @@
 
 namespace zUtils
 {
+namespace zNode
+{
 
 //**********************************************************************
-// zNode
+// Node
 //**********************************************************************
 
-const std::string zNode::ROOT = "zNode";
-const std::string zNode::TYPE = "Type";
-const std::string zNode::ID = "Id";
+const std::string Node::ROOT = "zNode";
+const std::string Node::TYPE = "Type";
+const std::string Node::ID = "Id";
 
-zNode::zNode(const zData &node_) :
-    zData(node_), _tardyCnt(0)
+Node::Node(const zData::Data &node_) :
+    zData::Data(node_), _tardyCnt(0)
 {
 }
 
-zNode::zNode(const std::string &type_, const std::string &id_) :
-    zData(zNode::ROOT), _tardyCnt(0)
+Node::Node(const std::string &type_, const std::string &id_) :
+    zData::Data(Node::ROOT), _tardyCnt(0)
 {
   this->SetType(type_);
   this->SetId(id_);
   ZLOG_DEBUG("Creating new node: " + type_ + "[" + id_ + "]");
 }
 
-zNode::~zNode()
+Node::~Node()
 {
 }
 
 bool
-zNode::operator ==(const zNode &other_) const
+Node::operator ==(const Node &other_) const
 {
   return (this->GetId() == other_.GetId());
 }
 
 bool
-zNode::operator !=(const zNode &other_) const
+Node::operator !=(const Node &other_) const
 {
   return (this->GetId() != other_.GetId());
 }
 
 std::string
-zNode::GetType() const
+Node::GetType() const
 {
-  return (this->GetVal(zNode::TYPE));
+  return (this->GetValue(Node::TYPE));
 }
 
 void
-zNode::SetType(const std::string &type_)
+Node::SetType(const std::string &type_)
 {
-  this->SetVal(zNode::TYPE, type_);
+  this->SetValue(Node::TYPE, type_);
 }
 
 std::string
-zNode::GetId() const
+Node::GetId() const
 {
-  return (this->GetVal(zNode::ID));
+  return (this->GetValue(Node::ID));
 }
 
 void
-zNode::SetId(const std::string &id_)
+Node::SetId(const std::string &id_)
 {
-  this->SetVal(zNode::ID, id_);
+  this->SetValue(Node::ID, id_);
 }
 
 //**********************************************************************
-// zNodeTable Class
+// NodeTable Class
 //**********************************************************************
-zNodeTable::zNodeTable() :
+NodeTable::NodeTable() :
     _interval(500), _tardy(3000), _stale(5000), _retire(10000)
 {
   // Start timer
@@ -88,7 +90,7 @@ zNodeTable::zNodeTable() :
   this->_lock.Unlock();
 }
 
-zNodeTable::~zNodeTable()
+NodeTable::~NodeTable()
 {
   // Signal the Management thread to stop by stopping the timer thread
   if (this->_lock.Lock())
@@ -98,7 +100,7 @@ zNodeTable::~zNodeTable()
 }
 
 void
-zNodeTable::GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_)
+NodeTable::GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_)
 {
   if (this->_lock.Lock())
   {
@@ -111,7 +113,7 @@ zNodeTable::GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t
 }
 
 bool
-zNodeTable::SetConf(uint32_t int_, uint32_t tardy_, uint32_t stale_, uint32_t retire_)
+NodeTable::SetConf(uint32_t int_, uint32_t tardy_, uint32_t stale_, uint32_t retire_)
 {
   bool stat = false;
   if (this->_lock.Lock())
@@ -131,22 +133,22 @@ zNodeTable::SetConf(uint32_t int_, uint32_t tardy_, uint32_t stale_, uint32_t re
 }
 
 bool
-zNodeTable::AddNode(const zNode &node_)
+NodeTable::AddNode(const Node &node_)
 {
   if (this->_lock.Lock())
   {
     this->_nodeTable[node_.GetId()] = node_;
-    this->_notifyObservers(zNodeTableObserver::NEW, &this->_nodeTable[node_.GetId()]);
+    this->_notifyObservers(NodeTableObserver::NEW, &this->_nodeTable[node_.GetId()]);
     this->_lock.Unlock();
   } // end if
   return (true);
 }
 
 bool
-zNodeTable::UpdateNode(const std::string &id_)
+NodeTable::UpdateNode(const std::string &id_)
 {
   bool stat = false;
-  std::map<std::string, zNode>::iterator itr;
+  std::map<std::string, Node>::iterator itr;
 
   if (this->_lock.Lock())
   {
@@ -162,7 +164,7 @@ zNodeTable::UpdateNode(const std::string &id_)
 }
 
 bool
-zNodeTable::RemoveNode(const std::string &id_)
+NodeTable::RemoveNode(const std::string &id_)
 {
   bool stat = false;
 
@@ -171,7 +173,7 @@ zNodeTable::RemoveNode(const std::string &id_)
     if (this->_nodeTable.count(id_))
     {
       stat = true;
-      this->_notifyObservers(zNodeTableObserver::REMOVED, &this->_nodeTable[id_]);
+      this->_notifyObservers(NodeTableObserver::REMOVED, &this->_nodeTable[id_]);
       this->_nodeTable.erase(id_);
     } // end if
     this->_lock.Unlock();
@@ -179,11 +181,11 @@ zNodeTable::RemoveNode(const std::string &id_)
   return (stat);
 }
 
-zNode *
-zNodeTable::FindNode(const std::string &id_)
+Node *
+NodeTable::FindNode(const std::string &id_)
 {
-  zNode *node = 0;
-  std::map<std::string, zNode>::iterator itr;
+  Node *node = 0;
+  std::map<std::string, Node>::iterator itr;
 
   if (this->_lock.Lock())
   {
@@ -198,12 +200,12 @@ zNodeTable::FindNode(const std::string &id_)
 }
 
 void
-zNodeTable::GetNodeList(std::list<zNode> &nodes_)
+NodeTable::GetNodeList(std::list<Node> &nodes_)
 {
   if (this->_lock.Lock())
   {
-    std::map<std::string, zNode>::iterator itr = this->_nodeTable.begin();
-    std::map<std::string, zNode>::iterator end = this->_nodeTable.end();
+    std::map<std::string, Node>::iterator itr = this->_nodeTable.begin();
+    std::map<std::string, Node>::iterator end = this->_nodeTable.end();
     for (; itr != end; ++itr)
     {
       nodes_.push_front(itr->second);
@@ -213,7 +215,7 @@ zNodeTable::GetNodeList(std::list<zNode> &nodes_)
 }
 
 void
-zNodeTable::Register(zNodeTableObserver *obs_)
+NodeTable::Register(NodeTableObserver *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -223,7 +225,7 @@ zNodeTable::Register(zNodeTableObserver *obs_)
 }
 
 void
-zNodeTable::Unregister(zNodeTableObserver *obs_)
+NodeTable::Unregister(NodeTableObserver *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -233,21 +235,21 @@ zNodeTable::Unregister(zNodeTableObserver *obs_)
 }
 
 void
-zNodeTable::TimerTick()
+NodeTable::TimerTick()
 {
-  zNode *node = 0;
+  Node *node = 0;
   if (this->_lock.Lock())
   {
-    std::map<std::string, zNode>::iterator itr = this->_nodeTable.begin();
-    std::map<std::string, zNode>::iterator end = this->_nodeTable.end();
+    std::map<std::string, Node>::iterator itr = this->_nodeTable.begin();
+    std::map<std::string, Node>::iterator end = this->_nodeTable.end();
     while (itr != end)
     {
       node = &itr->second;
       // Test for expired node condition
       if (node->_tardyCnt >= (this->_retire / this->_interval))
       {
-        ZLOG_WARN("Retiring zNode: " + node->GetId());
-        this->_notifyObservers(zNodeTableObserver::RETIRED, node);
+        ZLOG_WARN("Retiring Node: " + node->GetId());
+        this->_notifyObservers(NodeTableObserver::RETIRED, node);
         this->_nodeTable.erase(itr++);
       } // end if
       else
@@ -255,16 +257,16 @@ zNodeTable::TimerTick()
         // Test for tardy node condition
         if (node->_tardyCnt == (this->_tardy / this->_interval))
         {
-          ZLOG_WARN("Tardy zNode: " + node->GetId());
-          this->_notifyObservers(zNodeTableObserver::TARDY, node);
+          ZLOG_WARN("Tardy Node: " + node->GetId());
+          this->_notifyObservers(NodeTableObserver::TARDY, node);
         } // end if
         else
         {
           // Test for stale node condition
           if (node->_tardyCnt == (this->_stale / this->_interval))
           {
-            ZLOG_WARN("Stale zNode: " + node->GetId());
-            this->_notifyObservers(zNodeTableObserver::STALE, node);
+            ZLOG_WARN("Stale Node: " + node->GetId());
+            this->_notifyObservers(NodeTableObserver::STALE, node);
           } // end if
         } // end else
         node->_tardyCnt++;
@@ -276,16 +278,17 @@ zNodeTable::TimerTick()
 }
 
 void
-zNodeTable::_notifyObservers(zNodeTableObserver::Event event_, const zNode *node_)
+NodeTable::_notifyObservers(NodeTableObserver::Event event_, const Node *node_)
 {
   // Critical section; needs to be protected by caller
-  std::list<zNodeTableObserver *>::iterator itr = this->_observers.begin();
-  std::list<zNodeTableObserver *>::iterator end = this->_observers.end();
+  std::list<NodeTableObserver *>::iterator itr = this->_observers.begin();
+  std::list<NodeTableObserver *>::iterator end = this->_observers.end();
   for (; itr != end; itr++)
   {
     (*itr)->EventHandler(event_, node_);
   } // end for
 }
 
+}
 }
 

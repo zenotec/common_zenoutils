@@ -9,6 +9,8 @@
 
 namespace zUtils
 {
+namespace zMessage
+{
 
 //**********************************************************************
 // byeMessage
@@ -18,12 +20,13 @@ const std::string ByeMessage::TYPE = "Bye";
 
 ByeMessage::ByeMessage()
 {
-    this->SetType( ByeMessage::TYPE );
+  this->SetType(ByeMessage::TYPE);
 }
 
 ByeMessage::~ByeMessage()
 {
 }
 
+}
 }
 

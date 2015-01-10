@@ -1,35 +1,31 @@
-SUBDIRS = zSocket
+SUBDIRS = zLog zOpt zData zTimer zThread zEvent zQueue zSem zMessage zSocket zNode
 
-AM_CPPFLAGS = \
-        -I${top_srcdir}/inc \
-        -I${top_srcdir}/test
+if COND_VALGRIND
+VALGRIND_TESTS = \
+    zLog/valgrind.sh \
+    zData/valgrind.sh \
+    zEvent/valgrind.sh \
+    zMessage/valgrind.sh \
+    zNode/valgrind.sh \
+    zOpt/valgrind.sh \
+    zQueue/valgrind.sh \
+    zSem/valgrind.sh \
+    zSocket/valgrind.sh \
+    zThread/valgrind.sh \
+    zTimer/valgrind.sh
+endif
 
+GCOV_TESTS = \
+    zLog/zLogUnitTest \
+    zData/zDataUnitTest \
+    zEvent/zEventUnitTest \
+    zMessage/zMessageUnitTest \
+    zNode/zNodeUnitTest \
+    zOpt/zOptUnitTest \
+    zQueue/zQueueUnitTest \
+    zSem/zSemUnitTest \
+    zSocket/zSocketUnitTest \
+    zThread/zThreadUnitTest \
+    zTimer/zTimerUnitTest
 
-AM_LDFLAGS = \
-        -lrt \
-        -lpthread
-
-
-TESTS = check_zutils
-
-check_PROGRAMS = check_zutils
-
-check_zutils_SOURCES = \
-                       zData_utest.cpp \
-                       zEvent_utest.cpp \
-                       zLog_utest.cpp \
-                       zMessage_utest.cpp \
-                       zNode_utest.cpp \
-                       zQueue_utest.cpp \
-                       zSemaphore_utest.cpp \
-                       zSocket_utest.cpp \
-                       zThread_utest.cpp \
-                       zTimer_utest.cpp \
-                       UnitTest.h \
-                       UnitTest.cpp
-
-
-check_zutils_LDADD = \
-    ${top_builddir}/test/zSocket/libzSocketTest.la \
-    ${top_builddir}/src/libzutils.la
-
+TESTS = $(VALGRIND_TESTS) $(GCOV_TESTS)

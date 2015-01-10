@@ -29,7 +29,7 @@ private:
 //**********************************************************************
 // zTimer Class
 //**********************************************************************
-class zThread : public zEvent
+class zThread : public zEvent::Event
 {
 public:
   zThread(zThreadFunction *func_, void *arg_);

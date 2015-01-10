@@ -162,6 +162,7 @@ class Socket : private zUtils::zThreadFunction
 
 public:
   Socket(SocketAddr &addr_);
+  virtual
   ~Socket();
 
   SocketAddr
@@ -188,7 +189,7 @@ private:
   _notifyHandler(SocketAddr &addr_, SocketBuffer *buf_);
   std::list<SocketListener *> _handlers;
 
-  zMutex _lock;
+  zSem::Mutex _lock;
   SocketAddr _addr;
 
   void

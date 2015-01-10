@@ -11,6 +11,8 @@
 
 namespace zUtils
 {
+namespace zSem
+{
 
 static void
 _add_time(struct timespec *ts_, uint32_t us_)
@@ -32,13 +34,13 @@ _add_time(struct timespec *ts_, uint32_t us_)
 // zMutex Class
 //*****************************************************************************
 
-zMutex::zMutex(zMutex::state state_)
+Mutex::Mutex(Mutex::STATE state_)
 {
   memset(&this->_sem, 0, sizeof(this->_sem));
   switch (state_)
   {
-    case zMutex::LOCKED:
-    case zMutex::UNLOCKED:
+    case Mutex::LOCKED:
+    case Mutex::UNLOCKED:
     {
       int ret = sem_init(&this->_sem, 0, state_);
       if (ret != 0)
@@ -56,7 +58,7 @@ zMutex::zMutex(zMutex::state state_)
   }
 }
 
-zMutex::~zMutex()
+Mutex::~Mutex()
 {
   int ret = sem_destroy(&this->_sem);
   if (ret != 0)
@@ -67,19 +69,19 @@ zMutex::~zMutex()
 }
 
 bool
-zMutex::Lock()
+Mutex::Lock()
 {
   return (sem_wait(&this->_sem) == 0);
 }
 
 bool
-zMutex::TryLock()
+Mutex::TryLock()
 {
   return (sem_trywait(&this->_sem) == 0);
 }
 
 bool
-zMutex::TimedLock(uint32_t us_)
+Mutex::TimedLock(uint32_t us_)
 {
 
   struct timespec ts;
@@ -97,94 +99,23 @@ zMutex::TimedLock(uint32_t us_)
 }
 
 bool
-zMutex::Unlock()
+Mutex::Unlock()
 {
   int ret = 0;
-  if (this->State() == zMutex::LOCKED) // possible race condition here
+  if (this->State() == Mutex::LOCKED) // possible race condition here
   {
     ret = sem_post(&this->_sem);
   } // end if
   return (ret == 0);
 }
 
-zMutex::state
-zMutex::State()
+Mutex::STATE
+Mutex::State()
 {
   int val;
   sem_getvalue(&this->_sem, &val);
-  return ((zMutex::state) val);
+  return ((Mutex::STATE) val);
 }
 
-//*****************************************************************************
-// Semaphore Class
-//*****************************************************************************
-
-zSemaphore::zSemaphore(const uint32_t value_)
-{
-  int ret = sem_init(&this->_sem, 0, value_);
-  if (ret != 0)
-  {
-    ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
 }
-
-zSemaphore::~zSemaphore()
-{
-  int ret = sem_destroy(&this->_sem);
-  if (ret != 0)
-  {
-    ZLOG_CRIT("Cannot destroy lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
-}
-
-bool
-zSemaphore::Post(uint32_t value_)
-{
-  int stat = 0;
-  while (!stat && value_--)
-  {
-    stat = sem_post(&this->_sem);
-  } // end while
-  return (stat == 0);
-}
-
-bool
-zSemaphore::Wait()
-{
-  return (sem_wait(&this->_sem) == 0);
-}
-
-bool
-zSemaphore::TryWait()
-{
-  return (sem_trywait(&this->_sem) == 0);
-}
-
-bool
-zSemaphore::TimedWait(uint32_t us_)
-{
-  struct timespec ts;
-
-  // Get current time
-  if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
-  {
-    return (false);
-  } // end if
-
-  // Compute absolute time
-  _add_time(&ts, us_);
-
-  return (sem_timedwait(&this->_sem, &ts) == 0);
-}
-
-uint32_t
-zSemaphore::Value()
-{
-  int val;
-  sem_getvalue(&this->_sem, &val);
-  return ((uint32_t) val);
-}
-
 }

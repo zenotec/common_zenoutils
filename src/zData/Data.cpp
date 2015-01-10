@@ -10,32 +10,34 @@
 
 namespace zUtils
 {
+namespace zData
+{
 
 //**********************************************************************
 // Data Class
 //**********************************************************************
 
-const std::string zData::ROOT = "zData";
-const std::string zData::KEY = "Key";
+const std::string Data::ROOT = "zData";
+const std::string Data::KEY = "Key";
 
-zData::zData(const std::string &key_)
+Data::Data(const std::string &key_)
 {
   ZLOG_DEBUG("Creating new zData object: " + key_);
   this->_setKey(key_);
   this->_pt.put(key_, "");
 }
 
-zData::~zData()
+Data::~Data()
 {
 }
 
 std::string
-zData::GetKey() const
+Data::GetKey() const
 {
   std::string key;
   try
   {
-    key = this->_pt.get < std::string > (zData::KEY);
+    key = this->_pt.get < std::string > (Data::KEY);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -45,11 +47,11 @@ zData::GetKey() const
 }
 
 void
-zData::_setKey(const std::string &key_)
+Data::_setKey(const std::string &key_)
 {
   try
   {
-    this->_pt.put(zData::KEY, key_);
+    this->_pt.put(Data::KEY, key_);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -59,7 +61,7 @@ zData::_setKey(const std::string &key_)
 }
 
 std::string
-zData::GetVal(const std::string &name_) const
+Data::GetValue(const std::string &name_) const
 {
   std::string name;
   std::string value;
@@ -77,7 +79,7 @@ zData::GetVal(const std::string &name_) const
 }
 
 boost::property_tree::ptree
-zData::_getVal(const std::string &name_) const
+Data::_getValue(const std::string &name_) const
 {
   boost::property_tree::ptree value;
   try
@@ -92,7 +94,7 @@ zData::_getVal(const std::string &name_) const
 }
 
 void
-zData::SetVal(const std::string &name_, const std::string &value_)
+Data::SetValue(const std::string &name_, const std::string &value_)
 {
   std::string name;
   try
@@ -108,7 +110,7 @@ zData::SetVal(const std::string &name_, const std::string &value_)
 }
 
 void
-zData::_setVal(const std::string &name_, const boost::property_tree::ptree &pt_)
+Data::_setValue(const std::string &name_, const boost::property_tree::ptree &pt_)
 {
   try
   {
@@ -121,7 +123,7 @@ zData::_setVal(const std::string &name_, const boost::property_tree::ptree &pt_)
 }
 
 void
-zData::GetChild(const std::string &name_, zData &child_) const
+Data::GetChild(const std::string &name_, Data &child_) const
 {
   std::string name;
   try
@@ -129,7 +131,7 @@ zData::GetChild(const std::string &name_, zData &child_) const
     name = this->GetKey() + "." + name_;
     ZLOG_DEBUG("Getting zData child: '" + name + "'");
     child_._setKey(name_);
-    child_._setVal(name_, this->_pt.get_child(name));
+    child_._setValue(name_, this->_pt.get_child(name));
     ZLOG_DEBUG("\n" + child_.GetJson());
   }
   catch (boost::property_tree::ptree_bad_path const &e)
@@ -140,14 +142,14 @@ zData::GetChild(const std::string &name_, zData &child_) const
 }
 
 void
-zData::PutChild(const std::string &name_, const zData &child_)
+Data::PutChild(const std::string &name_, const Data &child_)
 {
   std::string name;
   try
   {
     name = this->GetKey() + "." + name_;
     ZLOG_DEBUG("Putting zData child: '" + name + "'\n" + child_.GetJson());
-    this->_pt.put_child(name, child_._getVal(child_.GetKey()));
+    this->_pt.put_child(name, child_._getValue(child_.GetKey()));
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -156,13 +158,13 @@ zData::PutChild(const std::string &name_, const zData &child_)
 }
 
 void
-zData::AddChild(const std::string &name_, const zData &child_)
+Data::AddChild(const std::string &name_, const Data &child_)
 {
   std::string name;
   try
   {
     name = this->GetKey() + "." + name_;
-    boost::property_tree::ptree pt = child_._getVal(child_.GetKey());
+    boost::property_tree::ptree pt = child_._getValue(child_.GetKey());
     this->_pt.add_child(name, pt);
     ZLOG_DEBUG("Adding zData child:\n" + child_.GetJson());
   }
@@ -173,7 +175,7 @@ zData::AddChild(const std::string &name_, const zData &child_)
 }
 
 std::string
-zData::GetJson() const
+Data::GetJson() const
 {
   std::stringstream json;
   boost::property_tree::write_json(json, this->_pt);
@@ -181,14 +183,14 @@ zData::GetJson() const
 }
 
 void
-zData::SetJson(const std::string &json_)
+Data::SetJson(const std::string &json_)
 {
   std::stringstream json(json_);
   boost::property_tree::read_json(json, this->_pt);
 }
 
 std::string
-zData::GetXml() const
+Data::GetXml() const
 {
   std::stringstream xml;
   boost::property_tree::write_xml(xml, this->_pt);
@@ -196,10 +198,11 @@ zData::GetXml() const
 }
 
 void
-zData::SetXml(const std::string &xml_)
+Data::SetXml(const std::string &xml_)
 {
   std::stringstream xml(xml_);
   boost::property_tree::read_xml(xml, this->_pt);
 }
 
+}
 }

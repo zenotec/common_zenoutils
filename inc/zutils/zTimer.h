@@ -9,8 +9,6 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <time.h>
-
 #include <list>
 
 #include "zutils/zSemaphore.h"
@@ -18,54 +16,61 @@
 
 namespace zUtils
 {
+namespace zTimer
+{
 
 //**********************************************************************
-// zTimerHandler Class
+// TimerObserver Class
 //**********************************************************************
-class zTimerHandler
+class TimerObserver
 {
 public:
   virtual void
   TimerTick() = 0;
 
 protected:
-
 private:
-
 };
+
 //**********************************************************************
-// zTimer Class
+// Timer Class
 //**********************************************************************
-class zTimer : public zEvent
+class Timer : public zEvent::Event
 {
 public:
-  zTimer();
-  ~zTimer();
+  Timer(void);
+  ~Timer(void);
 
   void
   Start(uint32_t usec_);
+  void
+  Stop(void);
 
   void
-  Register(zTimerHandler *obs_);
+  Register(TimerObserver *obs_);
 
   void
-  Unregister(zTimerHandler *obs_);
+  Unregister(TimerObserver *obs_);
+
+  void
+  Notify(void);
 
 protected:
 
 private:
   timer_t _timerid;
-  static void
-  _handler(union sigval sv_);
 
   void
-  _start();
+  _start(void);
+  void
+  _stop(void);
   uint32_t _interval;
 
-  zMutex _lock;
-  std::list<zTimerHandler *> _observers;
+  zSem::Mutex _lock;
+  std::list<TimerObserver *> _observers;
 };
 
+}
 }
 
 #endif /* __TIMER_H__ */

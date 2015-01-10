@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.68])
 AC_INIT([libzutils], [0.1], [kevin.mahoney@zenotec.net])
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign parallel-tests color-tests])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -29,6 +29,20 @@ m4_ifndef([PKG_PROG_PKG_CONFIG],
     ./autogen.sh or autoreconf again.])])
 PKG_PROG_PKG_CONFIG
 
+AC_ARG_ENABLE([valgrind],
+  [AS_HELP_STRING([--enable-valgrind],
+    [use Valgrind to test the test suite])],
+    [],
+    [enable_valgrind=no])
+AM_CONDITIONAL([COND_VALGRIND],[test '!' "$enable_valgrind" = no])
+
+AC_ARG_ENABLE([gcov],
+  [AS_HELP_STRING([--enable-gcov],
+    [use Gcov to test the test suite])],
+    [],
+    [enable_gcov=no])
+AM_CONDITIONAL([COND_GCOV],[test '!' "$enable_gcov" = no])
+
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([rt], [clock_gettime])
@@ -52,18 +66,29 @@ AC_SUBST([com_incdir])
 AC_CONFIG_FILES([
     Makefile
     src/Makefile
-    src/zData/Makefile
-    src/zEvent/Makefile
-    src/zException/Makefile
-    src/zLog/Makefile
-    src/zMessage/Makefile
-    src/zNode/Makefile
-    src/zSemaphore/Makefile
-    src/zSocket/Makefile
-    src/zThread/Makefile
-    src/zTimer/Makefile
     test/Makefile
+    src/zLog/Makefile
+    test/zLog/Makefile
+    src/zData/Makefile
+    test/zData/Makefile
+    src/zEvent/Makefile
+    test/zEvent/Makefile
+    src/zException/Makefile
+    src/zGetOpt/Makefile
+    test/zOpt/Makefile
+    src/zMessage/Makefile
+    test/zMessage/Makefile
+    src/zNode/Makefile
+    test/zNode/Makefile
+    test/zQueue/Makefile
+    src/zSemaphore/Makefile
+    test/zSem/Makefile
+    src/zSocket/Makefile
     test/zSocket/Makefile
+    src/zThread/Makefile
+	test/zThread/Makefile
+    src/zTimer/Makefile
+	test/zTimer/Makefile
     ])
                  
 # Boost checks

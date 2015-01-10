@@ -9,104 +9,116 @@
 
 namespace zUtils
 {
+namespace zMessage
+{
 
 //**********************************************************************
 // Message
 //**********************************************************************
 
-const std::string zMessage::ROOT = "zMessage";
-const std::string zMessage::ID = "Id";
-const std::string zMessage::TYPE = "Type";
-const std::string zMessage::TO = "To";
-const std::string zMessage::FROM = "From";
-const std::string zMessage::DATA = "Data";
+const std::string Message::ROOT = "zMessage";
+const std::string Message::ID = "Id";
+const std::string Message::TYPE = "Type";
+const std::string Message::TO = "To";
+const std::string Message::FROM = "From";
+const std::string Message::DATA = "Data";
 
-zMessage::zMessage() :
-        zData( zMessage::ROOT )
+Message::Message() :
+    zData::Data(Message::ROOT)
 {
-    zData data(zMessage::DATA);
-    zNode node;
+  zData::Data data(Message::DATA);
+  zNode::Node node;
 
 //    std::cout << std::endl << "Message::Message(): " << std::endl << this->GetJson() << std::endl;
 
-    // Initialize message
-    this->SetId( "" );
-    this->SetType( "" );
-    this->SetTo( node );
-    this->SetFrom( node );
-    this->SetData( data );
+// Initialize message
+  this->SetId("");
+  this->SetType("");
+  this->SetTo(node);
+  this->SetFrom(node);
+  this->SetData(data);
 
 //    std::cout << "Message::Message(): " << std::endl << this->GetJson() << std::endl;
 }
 
-zMessage::zMessage( const zData &msg_ ) :
-        zData( msg_ )
+Message::Message(const zData::Data &msg_) :
+    zData::Data(msg_)
 {
 }
 
-zMessage::~zMessage()
+Message::~Message()
 {
 }
 
-std::string zMessage::GetId() const
+std::string
+Message::GetId() const
 {
-    return (this->GetVal( zMessage::ID ));
+  return (this->GetValue(Message::ID));
 }
 
-void zMessage::SetId( const std::string &id_ )
+void
+Message::SetId(const std::string &id_)
 {
-    this->SetVal( zMessage::ID, id_ );
+  this->SetValue(Message::ID, id_);
 }
 
-std::string zMessage::GetType() const
+std::string
+Message::GetType() const
 {
-    return (this->GetVal( zMessage::TYPE ));
+  return (this->GetValue(Message::TYPE));
 }
 
-void zMessage::SetType( const std::string &type_ )
+void
+Message::SetType(const std::string &type_)
 {
-    this->SetVal( zMessage::TYPE, type_ );
+  this->SetValue(Message::TYPE, type_);
 }
 
-zNode zMessage::GetTo() const
+zNode::Node
+Message::GetTo() const
 {
-    zNode to;
-    this->GetChild( zMessage::TO, to );
-    return ( to );
+  zNode::Node to;
+  this->GetChild(Message::TO, to);
+  return (to);
 }
 
-void zMessage::SetTo( const zNode &to_ )
+void
+Message::SetTo(const zNode::Node &to_)
 {
 //    std::cout << std::endl << "Message::SetTo(): " << std::endl << this->GetJson() << std::endl;
-    this->PutChild( zMessage::TO, to_ );
+  this->PutChild(Message::TO, to_);
 //    std::cout << "Message::SetTo(): " << std::endl << this->GetJson() << std::endl;
 }
 
-zNode zMessage::GetFrom() const
+zNode::Node
+Message::GetFrom() const
 {
-    zNode from;
-    this->GetChild( zMessage::FROM, from );
-    return ( from );
+  zNode::Node from;
+  this->GetChild(Message::FROM, from);
+  return (from);
 }
 
-void zMessage::SetFrom( const zNode &from_ )
+void
+Message::SetFrom(const zNode::Node &from_)
 {
 //    std::cout << std::endl << "Message::SetFrom(): " << std::endl << this->GetJson() << std::endl;
-    this->PutChild( zMessage::FROM, from_ );
+  this->PutChild(Message::FROM, from_);
 //    std::cout << "Message::SetFrom(): " << std::endl << this->GetJson() << std::endl;
 }
 
-zData zMessage::GetData() const
+zData::Data
+Message::GetData() const
 {
-    zData data(zMessage::DATA);
-    this->GetChild( zMessage::DATA, data );
-    return ( data );
+  zData::Data data(Message::DATA);
+  this->GetChild(Message::DATA, data);
+  return (data);
 }
 
-void zMessage::SetData( const zData &data_ )
+void
+Message::SetData(const zData::Data &data_)
 {
 //    std::cout << std::endl << "Message::SetData(): " << std::endl << this->GetJson() << std::endl;
-    this->PutChild( zMessage::DATA, data_ );
+  this->PutChild(Message::DATA, data_);
 //    std::cout << "Message::SetData(): " << std::endl << this->GetJson() << std::endl;
 }
 
@@ -122,26 +134,27 @@ MessageFactory::~MessageFactory()
 {
 }
 
-zMessage *MessageFactory::Create( const std::string &type_ )
+Message *
+MessageFactory::Create(const std::string &type_)
 {
-    if( type_ == HelloMessage::TYPE )
-    {
-        return( new HelloMessage() );
-    } // end if
-    else if( type_ == AckMessage::TYPE )
-    {
-        return( new AckMessage() );
-    } // end else if
-    else if( type_ == ByeMessage::TYPE )
-    {
-        return( new ByeMessage() );
-    } // end else if
-    else
-    {
-        return( NULL );
-    } // end else
+  if (type_ == HelloMessage::TYPE)
+  {
+    return (new HelloMessage());
+  } // end if
+  else if (type_ == AckMessage::TYPE)
+  {
+    return (new AckMessage());
+  } // end else if
+  else if (type_ == ByeMessage::TYPE)
+  {
+    return (new ByeMessage());
+  } // end else if
+  else
+  {
+    return ( NULL);
+  } // end else
 }
 
-
+}
 }
 

@@ -9,6 +9,8 @@
 
 namespace zUtils
 {
+namespace zMessage
+{
 
 //**********************************************************************
 // HelloMessage
@@ -18,12 +20,13 @@ const std::string HelloMessage::TYPE = "Hello";
 
 HelloMessage::HelloMessage()
 {
-    this->SetType( HelloMessage::TYPE );
+  this->SetType(HelloMessage::TYPE);
 }
 
 HelloMessage::~HelloMessage()
 {
 }
 
+}
 }
 

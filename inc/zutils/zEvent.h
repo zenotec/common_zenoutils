@@ -15,49 +15,51 @@
 
 namespace zUtils
 {
-
-class zEventList;
-
-//**********************************************************************
-// zEvent Class
-//**********************************************************************
-class zEvent
+namespace zEvent
 {
-  friend class zEventList;
+
+class EventList;
+
+//**********************************************************************
+// Event Class
+//**********************************************************************
+class Event
+{
+  friend class EventList;
 public:
-  zEvent();
+  Event();
   virtual
-  ~zEvent();
+  ~Event();
 
 protected:
   void
   _notify();
   void
-  _addList(zEventList *list_);
+  _addList(EventList *list_);
   void
-  _remList(zEventList *list_);
+  _remList(EventList *list_);
 
 private:
-  zMutex _lock;
-  std::list<zEventList *> _eventlists;
+  zSem::Mutex _lock;
+  std::list<EventList *> _eventlists;
 
 };
 
 //**********************************************************************
-// zEventList Class
+// EventList Class
 //**********************************************************************
-class zEventList
+class EventList
 {
-  friend class zEvent;
+  friend class Event;
 public:
-  zEventList();
+  EventList();
   virtual
-  ~zEventList();
+  ~EventList();
 
   void
-  Register(zEvent &event_);
+  Register(Event &event_);
   void
-  Unregister(zEvent &event_);
+  Unregister(Event &event_);
 
   bool
   Wait(uint32_t ms_);
@@ -67,10 +69,11 @@ protected:
   _notify();
 
 private:
-  zSemaphore _sem;
+  zSem::Semaphore _sem;
 
 };
 
+}
 }
 
 #endif /* __ZEVENT_H__ */

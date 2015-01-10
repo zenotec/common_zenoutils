@@ -13,8 +13,10 @@
 
 namespace zUtils
 {
+namespace zMessage
+{
 
-class zMessage: public zData
+class Message: public zData::Data
 {
 
     static const std::string ROOT;
@@ -26,9 +28,9 @@ class zMessage: public zData
 
 public:
 
-    zMessage();
-    zMessage( const zData &msg_ );
-    ~zMessage();
+    Message();
+    Message( const zData::Data &msg_ );
+    virtual ~Message();
 
     std::string GetId() const;
     void SetId( const std::string &id_ );
@@ -36,14 +38,14 @@ public:
     std::string GetType() const;
     void SetType( const std::string &type_ );
 
-    zNode GetTo() const;
-    void SetTo( const zNode &to_ );
+    zNode::Node GetTo() const;
+    void SetTo( const zNode::Node &to_ );
 
-    zNode GetFrom() const;
-    void SetFrom( const zNode &from_ );
+    zNode::Node GetFrom() const;
+    void SetFrom( const zNode::Node &from_ );
 
-    zData GetData() const;
-    void SetData( const zData &data_ );
+    Data GetData() const;
+    void SetData( const zData::Data &data_ );
 
 protected:
 
@@ -57,7 +59,7 @@ public:
     MessageFactory();
     ~MessageFactory();
 
-    zMessage *Create( const std::string &type_ );
+    Message *Create( const std::string &type_ );
 
 protected:
 
@@ -65,7 +67,7 @@ private:
 
 };
 
-class AckMessage: public zMessage
+class AckMessage: public Message
 {
 public:
     static const std::string TYPE;
@@ -80,7 +82,7 @@ private:
 
 };
 
-class ByeMessage: public zMessage
+class ByeMessage: public Message
 {
 public:
     static const std::string TYPE;
@@ -93,7 +95,7 @@ private:
 
 };
 
-class HelloMessage: public zMessage
+class HelloMessage: public Message
 {
 public:
     static const std::string TYPE;
@@ -106,6 +108,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* ZMESSAGE_H_ */

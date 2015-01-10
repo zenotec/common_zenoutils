@@ -18,7 +18,7 @@ namespace zUtils
 {
 
 template<typename T>
-  class zQueue : private std::queue<T>, public zEvent
+  class zQueue : private std::queue<T>, public zEvent::Event
   {
   public:
     zQueue()
@@ -87,7 +87,7 @@ template<typename T>
   protected:
 
   private:
-    zMutex _lock;
+    zSem::Mutex _lock;
 
   };
 

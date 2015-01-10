@@ -18,36 +18,38 @@
 
 namespace zUtils
 {
+namespace zData
+{
 
-class zData
+class Data
 {
 
   static const std::string ROOT;
   static const std::string KEY;
 
 public:
-  zData(const std::string &key_ = "");
+  Data(const std::string &key_ = "");
   virtual
-  ~zData();
+  ~Data();
 
   std::string
   GetKey() const;
 
   std::string
-  GetVal(const std::string &key_) const;
+  GetValue(const std::string &key_) const;
   void
-  GetVal(const std::string &key_, std::string &value_) const;
+  GetValue(const std::string &key_, std::string &value_) const;
   void
-  SetVal(const std::string &key_, const std::string &value_);
+  SetValue(const std::string &key_, const std::string &value_);
   void
-  AddVal(const std::string &key_, const std::string &value_);
+  AddValue(const std::string &key_, const std::string &value_);
 
   void
-  GetChild(const std::string &key_, zData &child_) const;
+  GetChild(const std::string &key_, Data &child_) const;
   void
-  PutChild(const std::string &key_, const zData &child_);
+  PutChild(const std::string &key_, const Data &child_);
   void
-  AddChild(const std::string &key_, const zData &child_);
+  AddChild(const std::string &key_, const Data &child_);
 
   std::string
   GetJson() const;
@@ -65,15 +67,16 @@ protected:
   void
   _setKey(const std::string &key_);
   boost::property_tree::ptree
-  _getVal(const std::string &key_) const;
+  _getValue(const std::string &key_) const;
   void
-  _setVal(const std::string &key_, const boost::property_tree::ptree &pt_);
+  _setValue(const std::string &key_, const boost::property_tree::ptree &pt_);
 
 private:
 
   boost::property_tree::ptree _pt;
 };
 
+}
 }
 
 #endif /* __ZDATA_H__ */
