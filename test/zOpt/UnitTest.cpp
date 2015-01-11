@@ -6,7 +6,7 @@ main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zOptTest.log");
+  zUtils::zLog::FileConnector conn("zOptTest.zlog");
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
