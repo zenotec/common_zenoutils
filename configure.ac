@@ -65,31 +65,31 @@ AC_SUBST([com_incdir])
 
 AC_CONFIG_FILES([
     Makefile
-    src/Makefile
-    test/Makefile
-    src/zLog/Makefile
-    test/zLog/Makefile
-    src/zData/Makefile
-    test/zData/Makefile
-    src/zEvent/Makefile
-    test/zEvent/Makefile
-    src/zException/Makefile
-    src/zGetOpt/Makefile
-    test/zOpt/Makefile
-    src/zMessage/Makefile
-    test/zMessage/Makefile
-    src/zNode/Makefile
-    test/zNode/Makefile
-    test/zQueue/Makefile
-    src/zSemaphore/Makefile
-    test/zSem/Makefile
-    src/zSocket/Makefile
-    test/zSocket/Makefile
-    src/zThread/Makefile
-	test/zThread/Makefile
-    src/zTimer/Makefile
-	test/zTimer/Makefile
-    ])
+        src/Makefile
+        src/zData/Makefile
+        src/zEvent/Makefile
+        src/zException/Makefile
+        src/zLog/Makefile
+        src/zMessage/Makefile
+        src/zNode/Makefile
+        src/zOpt/Makefile
+        src/zSem/Makefile
+        src/zSocket/Makefile
+        src/zThread/Makefile
+        src/zTimer/Makefile
+      test/Makefile
+        test/zData/Makefile
+        test/zEvent/Makefile
+        test/zLog/Makefile
+        test/zMessage/Makefile
+        test/zNode/Makefile
+        test/zOpt/Makefile
+        test/zQueue/Makefile
+        test/zSem/Makefile
+        test/zSocket/Makefile
+        test/zThread/Makefile
+        test/zTimer/Makefile
+])
                  
 # Boost checks
 BOOST_REQUIRE([1.41.1])

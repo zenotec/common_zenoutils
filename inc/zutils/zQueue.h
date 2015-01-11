@@ -11,8 +11,9 @@
 
 #include <queue>
 
-#include "zutils/zEvent.h"
-#include "zutils/zSemaphore.h"
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {

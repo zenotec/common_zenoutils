@@ -13,49 +13,11 @@ namespace zUtils
 namespace zConf
 {
 
-
-inline
-zUtils::zConf::Data::Data()
+FileConnector::FileConnector()
 {
 }
 
-inline
-zUtils::zConf::Data::~Data()
-{
-}
-
-inline bool
-zUtils::zConf::Data::Register(Observer* obs_)
-{
-}
-
-inline bool
-zUtils::zConf::Data::Unregister(Observer* obs_)
-{
-}
-
-inline void
-zUtils::zConf::Data::_notify()
-{
-}
-
-inline
-zUtils::zConf::Connector::Connector()
-{
-}
-
-inline
-zUtils::zConf::Connector::~Connector()
-{
-}
-
-inline
-zUtils::zConf::FileConnector::FileConnector()
-{
-}
-
-inline
-zUtils::zConf::FileConnector::~FileConnector()
+FileConnector::~FileConnector()
 {
 }
 

@@ -15,7 +15,7 @@ zOptTest_Defaults(void* arg_)
   TEST_FALSE(opt_f.GetPresent());
 
   // Create new getopt and validate
-  zOpt::zGetOpt opt;
+  zOpt::GetOpt opt;
   opt.AddOption(opt_f);
 
   // Return success
@@ -41,7 +41,7 @@ zOptTest_ParseSimpleShort(void* arg_)
   opt_f.SetDesc("File");
 
   // Create new getopt and validate
-  zOpt::zGetOpt opts;
+  zOpt::GetOpt opts;
   opts.AddOption(opt_f);
 
   // Parse command line and validate
@@ -69,7 +69,7 @@ zOptTest_ParseSimpleLong(void* arg_)
   TEST_FALSE(opt_f.GetPresent());
 
   // Create new getopt and validate
-  zOpt::zGetOpt opts;
+  zOpt::GetOpt opts;
   opts.AddOption(opt_f);
 
   // Parse command line and validate

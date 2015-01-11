@@ -49,12 +49,12 @@ private:
 
 };
 
-class zGetOpt
+class GetOpt
 {
 
 public:
-  zGetOpt();
-  ~zGetOpt();
+  GetOpt();
+  ~GetOpt();
 
   Option &
   operator[](const std::string &id_);

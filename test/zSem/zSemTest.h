@@ -8,7 +8,7 @@
 #ifndef ZSEMTEST_H_
 #define ZSEMTEST_H_
 
-#include <zutils/zSemaphore.h>
+#include <zutils/zSem.h>
 #include "UnitTest.h"
 
 int

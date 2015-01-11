@@ -11,7 +11,8 @@
 
 #include <list>
 
-#include "zutils/zSemaphore.h"
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
 
 namespace zUtils
 {

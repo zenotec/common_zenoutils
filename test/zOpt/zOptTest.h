@@ -10,7 +10,7 @@
 
 #include "UnitTest.h"
 
-#include <zutils/zGetOpt.h>
+#include <zutils/zOpt.h>
 
 int
 zOptTest_Defaults(void* arg_);

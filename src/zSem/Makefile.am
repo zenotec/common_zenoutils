@@ -6,8 +6,8 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-noinst_LTLIBRARIES = libzLog.la
+noinst_LTLIBRARIES = libzSem.la
 
-libzLog_la_SOURCES = \
-    Log.cpp
-
+libzSem_la_SOURCES = \
+	Mutex.cpp \
+    Semaphore.cpp

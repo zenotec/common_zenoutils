@@ -1,10 +1,10 @@
 if COND_GCOV
-GCOV_EXTRA_CPPFLAGS = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
-GCOV_EXTRA_LDFLAGS = -lgcov
+CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(GCOV_EXTRA_CPPFLAGS) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
-AM_LDFLAGS := $(GCOV_EXTRA_LDFLAGS)
+AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
+AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 check_PROGRAMS = zQueueUnitTest
 

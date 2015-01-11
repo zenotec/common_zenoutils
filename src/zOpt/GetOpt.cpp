@@ -5,7 +5,7 @@
 //*****************************************************************************
 #include <iostream>
 
-#include "zutils/zGetOpt.h"
+#include <zutils/zOpt.h>
 
 namespace zUtils
 {
@@ -67,38 +67,38 @@ Option::SetPresent(bool present_)
 }
 
 //*****************************************************************************
-zGetOpt::zGetOpt()
+GetOpt::GetOpt()
 {
   Option opt("help", "Display usage and exit");
   this->AddOption(opt);
 }
 
 //*****************************************************************************
-zGetOpt::~zGetOpt()
+GetOpt::~GetOpt()
 {
 
 }
 
 Option &
-zGetOpt::operator[](const std::string &id_)
+GetOpt::operator[](const std::string &id_)
 {
   return (this->_opts[id_]);
 }
 
 void
-zGetOpt::SetUsage(const std::string &usage_)
+GetOpt::SetUsage(const std::string &usage_)
 {
   this->_usage = usage_;
 }
 
 std::string
-zGetOpt::Usage()
+GetOpt::Usage()
 {
   return (this->_usage);
 }
 
 bool
-zGetOpt::AddOption(const Option &opt_)
+GetOpt::AddOption(const Option &opt_)
 {
   bool ret = true;
   if (!opt_.GetName().empty())
@@ -113,7 +113,7 @@ zGetOpt::AddOption(const Option &opt_)
 }
 
 bool
-zGetOpt::Parse(int argc_, const char **argv_)
+GetOpt::Parse(int argc_, const char **argv_)
 {
   Option *opt = NULL;
 
@@ -146,7 +146,7 @@ zGetOpt::Parse(int argc_, const char **argv_)
 }
 
 Option *
-zGetOpt::_find_opt(const std::string &opt_)
+GetOpt::_find_opt(const std::string &opt_)
 {
   Option *ret = NULL;
   std::map<std::string, Option>::iterator itr = this->_opts.begin();

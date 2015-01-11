@@ -15,8 +15,9 @@
 #include <string>
 #include <list>
 
-#include "zutils/zSemaphore.h"
-#include "zutils/zThread.h"
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
 
 namespace zUtils
 {
