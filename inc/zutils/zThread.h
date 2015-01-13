@@ -16,8 +16,14 @@
 
 namespace zUtils
 {
+namespace zThread
+{
 
-class zThreadFunction
+//**********************************************************************
+// Function Class
+//**********************************************************************
+
+class Function
 {
 public:
   virtual void *
@@ -27,16 +33,23 @@ private:
 };
 
 //**********************************************************************
-// zTimer Class
+// Thread Class
 //**********************************************************************
-class zThread : public zEvent::Event
+
+class Thread
 {
 public:
-  zThread(zThreadFunction *func_, void *arg_);
-  ~zThread();
+  Thread(Function *func_, void *arg_);
+  ~Thread();
 
-  uint32_t
-  Id();
+  unsigned long
+  GetId();
+
+  bool
+  Run();
+
+  bool
+  Join(uint32_t msecs_);
 
 protected:
 
@@ -44,14 +57,15 @@ private:
   static void *
   _threadHandler(void *arg_);
 
-  zThreadFunction *_func;
-  void *_arg;
-
+  zSem::Mutex _mutex;
   pthread_t _id;
+  Function *_func;
+  void *_arg;
   bool _exit;
 
 };
 
+}
 }
 
 #endif /* __ZTHREAD_H__ */

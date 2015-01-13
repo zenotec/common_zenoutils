@@ -13,19 +13,31 @@ main(int argc, const char **argv)
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::INFO);
+  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
 
   // Test all classes
   UTEST_INIT();
-  UTEST_TEST(zSocketTest_SocketBufferDefaults, 0);
-  UTEST_TEST(zSocketTest_SocketAddrDefaults, 0);
+
+  UTEST_TEST(zSocketTest_BufferDefaults, 0);
+  UTEST_TEST(zSocketTest_AddressDefaults, 0);
+  UTEST_TEST(zSocketTest_ObserverDefaults, 0);
   UTEST_TEST(zSocketTest_SocketDefaults, 0);
-  UTEST_TEST(zSocketTest_ListenerDefaults, 0);
+  UTEST_TEST(zSocketTest_HandlerDefaults, 0);
+
   UTEST_TEST(zSocketTest_SocketBufferCompare, 0);
-  UTEST_TEST(zSocketTest_SocketAddrGet, 0);
-  UTEST_TEST(zSocketTest_SocketAddrSet, 0);
-  UTEST_TEST(zSocketTest_SocketAddrCompare, 0);
-  UTEST_TEST(zSocketTest_SocketListener, 0);
+
+  UTEST_TEST(zSocketTest_AddressGetSet, 0);
+  UTEST_TEST(zSocketTest_AddressCompare, 0);
+
+  UTEST_TEST(zSocketTest_InetAddressGet, 0);
+  UTEST_TEST(zSocketTest_InetAddressSet, 0);
+  UTEST_TEST(zSocketTest_InetAddressCompare, 0);
+
+  UTEST_TEST(zSocketTest_InetSocketDefault, 0);
+  UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
+  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
+  UTEST_TEST(zSocketTest_InetSocketObserver, 0);
+
   UTEST_FINI();
 
   // Exit

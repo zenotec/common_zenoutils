@@ -80,6 +80,9 @@ public:
 protected:
 
 private:
+
+  Semaphore(Semaphore &other_);
+  Semaphore(const Semaphore &other_);
   sem_t _sem;
 
 };

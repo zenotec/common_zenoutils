@@ -14,7 +14,7 @@ int
 zEventTest_EventList(void* arg_)
 {
   // Create new event and validate
-  TestEvent MyEvent;
+  TestEvent *MyEvent = new TestEvent;
 
   // Create new event list and validate
   zEvent::EventList MyList;
@@ -25,12 +25,13 @@ zEventTest_EventList(void* arg_)
   TEST_FALSE(MyList.Wait(1));
 
   // Notify
-  MyEvent.Notify();
+  MyEvent->Notify();
   TEST_TRUE(MyList.Wait(1));
 
   // Cleanup
   MyList.Unregister(MyEvent);
   TEST_FALSE(MyList.Wait(1));
+  delete (MyEvent);
 
   // Return success
   return (0);

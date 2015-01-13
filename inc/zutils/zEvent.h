@@ -58,9 +58,9 @@ public:
   ~EventList();
 
   void
-  Register(Event &event_);
+  Register(Event *event_);
   void
-  Unregister(Event &event_);
+  Unregister(Event *event_);
 
   bool
   Wait(uint32_t ms_);

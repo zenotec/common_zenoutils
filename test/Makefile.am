@@ -28,4 +28,5 @@ GCOV_TESTS = \
     zThread/zThreadUnitTest \
     zTimer/zTimerUnitTest
 
-TESTS = $(VALGRIND_TESTS) $(GCOV_TESTS)
+TESTS = \
+    $(GCOV_TESTS) $(VALGRIND_TESTS)

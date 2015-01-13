@@ -6,6 +6,7 @@
 //
 //*****************************************************************************
 
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 
@@ -14,14 +15,31 @@
 
 namespace zUtils
 {
-
-//*****************************************************************************
-// Class PacketListener
-//*****************************************************************************
-zThread::zThread(zThreadFunction *func_, void *arg_) :
-    _id(0), _func(func_), _arg(arg_), _exit(false)
+namespace zThread
 {
 
+//*****************************************************************************
+// Class Thread
+//*****************************************************************************
+Thread::Thread(Function *func_, void *arg_) :
+    _id(0), _func(func_), _arg(arg_), _exit(true)
+{
+  // Starting with the mutex in the locked state so that when the thread is
+  //   started, it unlocks it
+}
+
+Thread::~Thread()
+{
+  // Terminate listener thread
+  this->Join(1000);
+}
+
+bool
+Thread::Run()
+{
+
+  bool status = false;
+  pthread_t id = 0;
   pthread_attr_t attr;
 
   if (pthread_attr_init(&attr))
@@ -36,7 +54,7 @@ zThread::zThread(zThreadFunction *func_, void *arg_) :
     throw;
   } /* end if */
 
-  if (pthread_create(&this->_id, NULL, zThread::_threadHandler, this))
+  if (pthread_create(&id, NULL, Thread::_threadHandler, this))
   {
     ZLOG_CRIT("Cannot create listen thread: " + std::string(strerror(errno)));
     throw;
@@ -48,42 +66,77 @@ zThread::zThread(zThreadFunction *func_, void *arg_) :
     throw;
   } /* end if */
 
-  ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t)this->_id));
+  if (this->_mutex.TimedLock(1000000))
+  {
+    this->_id = id;
+    status = !this->_exit;
+    this->_mutex.Unlock();
+    ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t )this->_id));
+  }
 
+  return (status);
 }
 
-zThread::~zThread()
+bool
+Thread::Join(uint32_t msecs_)
 {
-  // Terminate listener thread
-  if (this->_id)
+  bool status = false;
+  this->_exit = true;
+  if (this->_id && this->_mutex.TimedLock(msecs_ * 1000))
   {
-    this->_exit = true;
+    ZLOG_INFO("Joining thread: " + zLog::HexStr((uint32_t )this->_id));
     pthread_join(this->_id, 0);
     this->_id = 0;
+    status = true;
   } // end if
+  return (status);
 }
 
-uint32_t
-zThread::Id()
+unsigned long
+Thread::GetId()
 {
-  return ((uint32_t) this->_id);
+  unsigned long id = 0;
+
+  if (this->_mutex.TryLock())
+  {
+    id = (unsigned long) this->_id;
+    this->_mutex.Unlock();
+  }
+  return (id);
 }
 
 void *
-zThread::_threadHandler(void *arg_)
+Thread::_threadHandler(void *arg_)
 {
-  zThread *self = (zThread *) arg_;
+  Thread *self = (Thread *) arg_;
+  std::string logstr;
 
-  while (self->_exit != true)
+  self->_exit = false;
+  self->_mutex.Unlock();
+
+  // Pause a moment to allow context switch
+  usleep(1000);
+
+  while (self && !self->_exit && self->_func)
   {
-    if (self->_func != NULL)
+    if (self->_mutex.TryLock())
     {
-      self->_func->ThreadFunction(self->_arg);
-    } // end if
-  } // end while
+      logstr = "Calling thread";
+      ZLOG_DEBUG(logstr);
+      if (self->_func->ThreadFunction(self->_arg))
+      {
+        self->_exit = true;
+      }
+      self->_mutex.Unlock();
+    }
+  }
+
+  logstr = "Thread exiting";
+  ZLOG_INFO(logstr);
 
   pthread_exit(0);
   return (0);
 }
 
+}
 }

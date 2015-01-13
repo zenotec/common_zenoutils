@@ -18,27 +18,33 @@
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
 #include <zutils/zThread.h>
+#include <zutils/zQueue.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
+class Handler;
+
 //**********************************************************************
-// SocketBuffer Class
+// Buffer Class
 //**********************************************************************
 
-class SocketBuffer
+class Buffer
 {
 
 public:
-  SocketBuffer(const size_t size_ = 1500);
-  ~SocketBuffer();
+  Buffer(Buffer &other_);
+  Buffer(const size_t size_ = 1500);
+  ~Buffer();
 
+  Buffer &
+  operator=(Buffer &other_);
   bool
-  operator==(SocketBuffer &other_);
+  operator==(Buffer &other_);
   bool
-  operator!=(SocketBuffer &other_);
+  operator!=(Buffer &other_);
 
   uint8_t *
   Head();
@@ -74,8 +80,9 @@ protected:
 
 private:
 
-  SocketBuffer(SocketBuffer &other_);
-  SocketBuffer(const SocketBuffer &other_);
+  Buffer(const Buffer &other_);
+  Buffer &
+  operator=(const Buffer &other_);
   uint8_t *_head;
   size_t _data;
   size_t _tail;
@@ -84,130 +91,142 @@ private:
 };
 
 //**********************************************************************
-// SocketAddr Class
+// Address Class
 //**********************************************************************
 
-class SocketAddr
+class Address
 {
 public:
-  SocketAddr(const std::string &addr_ = "0.0.0.0:0");
-  SocketAddr(const struct sockaddr_in &addr_);
-  ~SocketAddr();
+
+  enum TYPE
+  {
+    TYPE_ERR = -1, TYPE_NONE = 0, TYPE_INET = 1, TYPE_LAST
+  };
+
+  Address(Address::TYPE type = Address::TYPE_NONE, const std::string &addr_ = std::string(""));
+  ~Address();
 
   bool
-  operator ==(const SocketAddr &other_) const;
+  operator ==(const Address &other_) const;
   bool
-  operator !=(const SocketAddr &other_) const;
-  bool
-  operator <(const SocketAddr &other_) const;
-  bool
-  operator >(const SocketAddr &other_) const;
+  operator !=(const Address &other_) const;
 
+  Address::TYPE
+  GetType() const;
+  bool
+  SetType(const Address::TYPE &type_);
+
+  std::string
+  GetAddr() const;
   bool
   SetAddr(const std::string &addr_);
-  bool
-  SetAddr(const struct sockaddr_in &addr_);
-
-  struct sockaddr_in
-  GetAddr();
-
-  bool
-  SetHwAddr(const std::string &addr_);
-
-  const uint8_t *
-  GetHwAddr() const;
-  std::string
-  GetHwAddrStr() const;
-
-  in_addr_t
-  GetIpAddr() const;
-  std::string
-  GetIpAddrStr() const;
-
-  in_port_t
-  GetPort();
-  std::string
-  GetPortStr();
 
 protected:
 
 private:
-  uint8_t _hwaddr[6];
-  struct sockaddr_in _ipaddr;
+
+  Address::TYPE _type;
+  std::string _addr;
 
 };
 
 //**********************************************************************
-// SocketListener Class
+// Observer Class
 //**********************************************************************
 
-class SocketListener
+class Observer
 {
 public:
-
   virtual bool
-  SocketRecv(const SocketAddr &addr_, SocketBuffer *pkt_) = 0;
+  SocketRecv(const Address &addr_, Buffer *buf_) = 0;
 
 protected:
-
 private:
-
 };
 
 //**********************************************************************
 // Socket Class
 //**********************************************************************
 
-class Socket : private zUtils::zThreadFunction
+class Socket : public zQueue<std::pair<Address, Buffer *> >
+{
+  friend class Handler;
+
+public:
+
+  virtual bool
+  Bind() = 0;
+
+  virtual bool
+  Connect() = 0;
+
+  ssize_t
+  RecvBuffer(Address &addr_, Buffer &sb_);
+  ssize_t
+  RecvString(Address &addr_, std::string &str_);
+
+  ssize_t
+  SendBuffer(const Address &addr_, Buffer &sb_);
+  ssize_t
+  SendString(const Address &addr_, const std::string &str_);
+
+protected:
+
+  virtual bool
+  _open() = 0;
+  virtual void
+  _close() = 0;
+
+  virtual ssize_t
+  _send(const Address &addr_, Buffer &sb_) = 0;
+
+private:
+
+};
+
+//**********************************************************************
+// Handler Class
+//**********************************************************************
+
+class Handler : private zThread::Function
 {
 
 public:
-  Socket(SocketAddr &addr_);
+  Handler();
   virtual
-  ~Socket();
-
-  SocketAddr
-  GetAddr() const;
-
-  void
-  Register(SocketListener *listener_);
-  void
-  Unregister(SocketListener *listener_);
-
-  void
-  Listen();
+  ~Handler();
 
   bool
-  Send(SocketAddr addr_, SocketBuffer *pkt_);
+  Register(Observer *obs_);
+  void
+  Unregister(Observer *obs_);
+
+  bool
+  Open(Socket *sock_);
+  void
+  Close(Socket *sock_ = NULL);
+
+  bool
+  StartListener(uint32_t usecs_);
+  bool
+  StopListener();
 
 protected:
+
   virtual void *
   ThreadFunction(void *arg_);
 
 private:
 
   void
-  _notifyHandler(SocketAddr &addr_, SocketBuffer *buf_);
-  std::list<SocketListener *> _handlers;
+  _notify(Socket *sock_, Address &addr_, Buffer *buf_);
+
+  std::list<Observer *> _obsList;
+  zEvent::EventList _waitList;
+  std::list<Socket *> _sockList;
 
   zSem::Mutex _lock;
-  SocketAddr _addr;
-
-  void
-  _create();
-  void
-  _destroy();
-  void
-  _bind(SocketAddr &addr_);
-  void
-  _listen();
-  size_t
-  _recv(SocketAddr &addr_, SocketBuffer *buf_);
-  size_t
-  _send(SocketAddr &addr_, SocketBuffer *buf_);
-
-  int _sock;
-  zThread *_thread;
+  zThread::Thread _thread;
 
 };
 

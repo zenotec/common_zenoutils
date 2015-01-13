@@ -15,6 +15,7 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
+    $(top_srcdir)/inc/zutils/zConf.h \
     $(top_srcdir)/inc/zutils/zData.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
@@ -25,6 +26,8 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zQueue.h \
     $(top_srcdir)/inc/zutils/zSem.h \
     $(top_srcdir)/inc/zutils/zSocket.h \
+    $(top_srcdir)/inc/zutils/zInetSocket.h \
+    $(top_srcdir)/inc/zutils/zEthSocket.h \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zTimer.h 
 

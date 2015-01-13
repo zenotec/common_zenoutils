@@ -75,21 +75,21 @@ EventList::~EventList()
 }
 
 void
-EventList::Register(Event &event_)
+EventList::Register(Event *event_)
 {
-  event_._addList(this);
+  event_->_addList(this);
 }
 
 void
-EventList::Unregister(Event &event_)
+EventList::Unregister(Event *event_)
 {
-  event_._remList(this);
+  event_->_remList(this);
 }
 
 bool
-EventList::Wait(uint32_t us_)
+EventList::Wait(uint32_t usecs_)
 {
-  return (this->_sem.TimedWait(us_));
+  return (this->_sem.TimedWait(usecs_));
 }
 
 void

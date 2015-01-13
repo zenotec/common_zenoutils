@@ -1,229 +1,66 @@
 //*****************************************************************************
+//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
 //
-//
+//    File: Handler.cpp
+//    Description:
 //
 //*****************************************************************************
 
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
-#include <sys/select.h>
 
-#include "zutils/zLog.h"
-#include "zutils/zSocket.h"
+#include <zutils/zLog.h>
+#include <zutils/zSocket.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-Socket::Socket(SocketAddr &addr_) :
-    _addr(addr_), _sock(0), _thread(0)
+ssize_t
+Socket::RecvBuffer(Address &addr_, Buffer &sb_)
 {
-  this->_create();
-  this->_bind(addr_);
-  this->_lock.Unlock();
-
-}
-
-Socket::~Socket()
-{
-  this->_lock.Lock();
-  this->_destroy();
-}
-
-SocketAddr
-Socket::GetAddr() const
-{
-  return (this->_addr);
-}
-
-void
-Socket::Listen()
-{
-  this->_listen();
-}
-
-void
-Socket::Register(SocketListener *listener_)
-{
-  this->_lock.Lock();
-  this->_handlers.push_back(listener_);
-  this->_lock.Unlock();
-}
-
-void
-Socket::Unregister(SocketListener *listener_)
-{
-  this->_lock.Lock();
-  this->_handlers.remove(listener_);
-  this->_lock.Unlock();
-}
-
-bool
-Socket::Send(SocketAddr addr_, SocketBuffer *buf_)
-{
-  std::string logstr;
-  logstr += "Sending on socket:\t";
-  logstr += "To: " + addr_.GetIpAddrStr() + ":" + addr_.GetPortStr() + ";\t";
-  logstr += "From: " + this->_addr.GetIpAddrStr() + ":" + this->_addr.GetPortStr() + ";\t";
-  logstr += "Size: " + zLog::IntStr(buf_->Size()) + ";";
-  ZLOG_INFO(logstr);
-  return (this->_send(addr_, buf_) == buf_->Length());
-}
-
-//*****************************************************************************
-// Private methods
-//*****************************************************************************
-
-void
-Socket::_create()
-{
-  // Create a inet socket
-  if (!this->_sock)
+  ssize_t bytes = -1;
+  if (!this->Empty())
   {
-    this->_sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (this->_sock < 0)
-    {
-      ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
-      throw;
-    } // end if
-  } // end if
+    std::pair<zSocket::Address, zSocket::Buffer *> q;
+    q = this->Front();
+    this->Pop();
+    addr_ = q.first;
+    sb_ = *q.second;
+    bytes = sb_.Size();
+    delete(q.second);
+  }
+  return (bytes);
 }
 
-void
-Socket::_destroy()
+ssize_t
+Socket::RecvString(Address &addr_, std::string &str_)
 {
-  // Close socket
-  if (this->_sock)
+  ssize_t bytes = 0;
+  Buffer sb;
+  bytes = RecvBuffer(addr_, sb);
+  if (bytes > 0)
   {
-    close(this->_sock);
-    this->_sock = 0;
-  } // end if
-  if (this->_thread)
-  {
-    delete (this->_thread);
-    this->_thread = 0;
-  } // end if
+    str_ = std::string((const char *) sb.Head(), sb.Size());
+  }
+  return (bytes);
 }
 
-void
-Socket::_bind(SocketAddr &addr_)
+ssize_t
+Socket::SendBuffer(const Address &addr_, Buffer &sb_)
 {
-  struct sockaddr_in addr = addr_.GetAddr();
-  int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
-  if (ret < 0)
-  {
-    ZLOG_CRIT("Cannot bind socket: " + std::string(strerror(errno)));
-    throw;
-  } // end if
+  return (this->_send(addr_, sb_));
 }
 
-size_t
-Socket::_recv(SocketAddr &addr_, SocketBuffer *buf_)
+ssize_t
+Socket::SendString(const Address &addr_, const std::string &str_)
 {
-  struct sockaddr_in src = { 0 };
-  socklen_t len = sizeof(src);
-  int n = recvfrom(this->_sock, buf_->Head(), buf_->TotalSize(), 0, (struct sockaddr *) &src, &len);
-  if (n > 0)
-  {
-    addr_.SetAddr(src);
-    buf_->Put(n);
-  } // end if
-  return (n);
-}
-
-size_t
-Socket::_send(SocketAddr &addr_, SocketBuffer *buf_)
-{
-  struct sockaddr_in src = addr_.GetAddr();
-  socklen_t slen = sizeof(src);
-  int n = sendto(this->_sock, buf_->Head(), buf_->Size(), 0, (struct sockaddr *) &src, slen);
-  return (n);
-}
-
-void
-Socket::_listen()
-{
-  // Create socket listening thread
-  this->_thread = new zUtils::zThread(this, this);
-}
-
-void *
-Socket::ThreadFunction(void *arg_)
-{
-  Socket *self = (Socket *) arg_;
-
-  fd_set rxFds;
-  struct timeval to;
-
-  // Setup for select loop
-  FD_ZERO(&rxFds);
-  FD_SET(self->_sock, &rxFds);
-  to.tv_sec = 0;
-  to.tv_usec = 100000;
-
-  // Select on socket
-  int ret = select(self->_sock + 1, &rxFds, NULL, NULL, &to);
-
-  if (ret > 0)
-  {
-    // Received message
-    SocketAddr addr;
-    SocketBuffer *sb = new SocketBuffer; // Listener is responsible for deleting
-    int n = self->_recv(addr, sb);
-    if (n > 0)
-    {
-      std::string logstr;
-      logstr += "Receiving on socket:\t";
-      logstr += "To: " + self->_addr.GetIpAddrStr() + ":" + self->_addr.GetPortStr() + ";\t";
-      logstr += "From: " + addr.GetIpAddrStr() + ":" + addr.GetPortStr() + ";\t";
-      logstr += "Size: " + zLog::IntStr(n) + ";";
-      ZLOG_INFO(logstr);
-      self->_notifyHandler(addr, sb);
-    } // end if
-    else
-    {
-      std::string logstr;
-      logstr += "Error receiving packet:\t";
-      logstr += "Socket: " + self->_addr.GetIpAddrStr() + ":" + self->_addr.GetPortStr() + "\t";
-      logstr += "Err: (" + zLog::IntStr(errno) + ")" + std::string(strerror(errno));
-      ZLOG_ERR(logstr);
-      delete (sb);
-    } //  end else
-  } // end if
-
-  if (ret < 0)
-  {
-    ZLOG_ERR("Cannot select on socket: " + std::string(strerror(errno)));
-  } // end if
-
-  return (0);
-
-}
-
-void
-Socket::_notifyHandler(SocketAddr &addr_, SocketBuffer *buf_)
-{
-
-  this->_lock.Lock();
-  if (!this->_handlers.empty())
-  {
-    SocketListener *handler = this->_handlers.front();
-    this->_handlers.pop_front();
-    this->_handlers.push_back(handler);
-    ZLOG_INFO("Notifying socket listener");
-    handler->SocketRecv(addr_, buf_);
-  } // end if
-  else
-  {
-    // Since no listeners are register, delete socket buffer
-    delete (buf_);
-  } // end else
-  this->_lock.Unlock();
-
-  return;
+  ssize_t bytes = 0;
+  Buffer sb;
+  memcpy(sb.Head(), str_.c_str(), str_.size());
+  sb.Put(str_.size());
+  bytes = SendBuffer(addr_, sb);
+  return (bytes);
 }
 
 }

@@ -10,7 +10,7 @@ zSocketTest_SocketBufferCompare(void* arg_)
 {
 
   // Create new packet and validate
-  zSocket::SocketBuffer MySB1;
+  zSocket::Buffer MySB1;
   TEST_ISNOT_NULL(MySB1.Head());
   TEST_EQ(MySB1.Head(), MySB1.Data());
   TEST_ISNOT_NULL(MySB1.Data());
@@ -19,7 +19,7 @@ zSocketTest_SocketBufferCompare(void* arg_)
   TEST_EQ(MySB1.TotalSize(), 1500);
 
   // Create new packet of set size and validate
-  zSocket::SocketBuffer MySB2;
+  zSocket::Buffer MySB2;
   TEST_ISNOT_NULL(MySB2.Head());
   TEST_EQ(MySB2.Head(), MySB2.Data());
   TEST_ISNOT_NULL(MySB2.Data());
