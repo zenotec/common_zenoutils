@@ -24,7 +24,7 @@ zSocketTest_InetAddressGet(void* arg_)
 
   obsSockAddr = myAddr.GetAddrSockAddr();
   TEST_EQ(expSockAddr.sin_family, obsSockAddr.sin_family);
-  TEST_EQ(expSockAddr.sin_addr.s_addr, obsSockAddr.sin_addr.s_addr);
+  TEST_TRUE(expSockAddr.sin_addr.s_addr == obsSockAddr.sin_addr.s_addr);
   TEST_EQ(expSockAddr.sin_port, obsSockAddr.sin_port);
 
   // Return success

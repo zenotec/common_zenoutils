@@ -10,10 +10,22 @@
 
 #include "UnitTest.h"
 
-#include <zutils/zOpt.h>
+#include <zutils/zProgOpt.h>
 
 int
-zOptTest_Defaults(void* arg_);
+zOptTest_OptionDefaults(void* arg_);
+int
+zOptTest_TableDefaults(void* arg_);
+
+int
+zOptTest_OptionString(void* arg_);
+int
+zOptTest_OptionInt(void* arg_);
+int
+zOptTest_OptionUint(void* arg_);
+int
+zOptTest_OptionDouble(void* arg_);
+
 int
 zOptTest_ParseSimpleShort(void* arg_);
 int

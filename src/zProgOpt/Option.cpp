@@ -3,162 +3,134 @@
 //
 //
 //*****************************************************************************
-#include <iostream>
 
-#include <zutils/zOpt.h>
+#include <stdio.h>
+
+#include <iostream>
+#include <sstream>
+
+#include <zutils/zProgOpt.h>
 
 namespace zUtils
 {
-namespace zOpt
+namespace zProgOpt
 {
 
 //*****************************************************************************
-Option::Option(const std::string &name_, const std::string &desc_, const std::string &default_) :
-    _name(name_), _desc(desc_), _arg(default_), _present(false)
+//*****************************************************************************
+Option::Option(uint32_t flags_, const std::string &name_) :
+    _cnt(0), _flags(Option::FLAGS_NONE), _name(name_)
+{
+  this->_setFlags(flags_);
+}
+
+Option::~Option()
 {
 }
 
-//*****************************************************************************
-Option::~Option()
+uint32_t
+Option::Flags() const
 {
-
+  return (this->_flags);
 }
 
 std::string
-Option::GetName() const
+Option::Name() const
 {
   return (this->_name);
 }
 
 std::string
-Option::GetDesc() const
+Option::HelpMsg() const
 {
-  return (this->_desc);
+  return (this->_help);
 }
 
 void
-Option::SetDesc(const std::string &desc_)
+Option::HelpMsg(const std::string &msg_)
 {
-  this->_desc = desc_;
+  this->_help = msg_;
 }
 
-std::string
-Option::GetArg() const
-{
-  return (this->_arg);
-}
+template<typename T>
+  bool
+  Option::Default(T default_)
+  {
+    std::stringstream ss;
+    ss << default_;
+    this->_arg = ss.str();
+    return (true);
+  }
+
+template bool
+Option::Default(std::string default_);
+template bool
+Option::Default(int default_);
+template bool
+Option::Default(unsigned int default_);
+template bool
+Option::Default(double default_);
+
+template<typename T>
+  T
+  Option::Arg()
+  {
+    T arg;
+    this->_getArg(arg);
+    return (arg);
+  }
+
+template std::string
+Option::Arg();
 
 void
-Option::SetArg(const std::string &arg_)
+Option::_getArg(std::string &arg_)
+{
+  arg_ = this->_arg;
+}
+
+template int32_t
+Option::Arg();
+
+void
+Option::_getArg(int &arg_)
+{
+  arg_ = 0;
+  sscanf(this->_arg.c_str(), "%d", &arg_);
+}
+
+template uint32_t
+Option::Arg();
+
+void
+Option::_getArg(unsigned int &arg_)
+{
+  arg_ = 0;
+  sscanf(this->_arg.c_str(), "%u", &arg_);
+}
+
+template double
+Option::Arg();
+
+void
+Option::_getArg(double &arg_)
+{
+  arg_ = 0.0;
+  sscanf(this->_arg.c_str(), "%lf", &arg_);
+}
+
+bool
+Option::_setArg(const std::string &arg_)
 {
   this->_arg = arg_;
+  return (true);
 }
 
 bool
-Option::GetPresent()
+Option::_setFlags(uint32_t flags_)
 {
-  return (this->_present);
-}
-
-void
-Option::SetPresent(bool present_)
-{
-  this->_present = present_;
-}
-
-//*****************************************************************************
-GetOpt::GetOpt()
-{
-  Option opt("help", "Display usage and exit");
-  this->AddOption(opt);
-}
-
-//*****************************************************************************
-GetOpt::~GetOpt()
-{
-
-}
-
-Option &
-GetOpt::operator[](const std::string &id_)
-{
-  return (this->_opts[id_]);
-}
-
-void
-GetOpt::SetUsage(const std::string &usage_)
-{
-  this->_usage = usage_;
-}
-
-std::string
-GetOpt::Usage()
-{
-  return (this->_usage);
-}
-
-bool
-GetOpt::AddOption(const Option &opt_)
-{
-  bool ret = true;
-  if (!opt_.GetName().empty())
-  {
-    this->_opts[opt_.GetName()] = opt_;
-  } // end if
-  else
-  {
-    ret = false;
-  } // end else
-  return (ret);
-}
-
-bool
-GetOpt::Parse(int argc_, const char **argv_)
-{
-  Option *opt = NULL;
-
-  for (int arg = 0; arg < argc_; arg++)
-  {
-    if (argv_[arg][0] == '-')
-    {
-      if (argv_[arg][1] == '-')
-      {
-        opt = this->_find_opt(std::string(&argv_[arg][2]));
-      } // end if
-      else
-      {
-        opt = this->_find_opt(std::string(&argv_[arg][1]));
-      } // end else
-      if (opt != NULL)
-      {
-        opt->SetPresent(true);
-      } // end if
-    } // end if
-    else
-    {
-      if (opt != NULL)
-      {
-        opt->SetArg(std::string(argv_[arg]));
-        opt = NULL; // reset arg pointer
-      } // end if
-    } // end else
-  } // end for
-}
-
-Option *
-GetOpt::_find_opt(const std::string &opt_)
-{
-  Option *ret = NULL;
-  std::map<std::string, Option>::iterator itr = this->_opts.begin();
-  std::map<std::string, Option>::iterator end = this->_opts.end();
-  for (; itr != end; itr++)
-  {
-    if (itr->second.GetName() == opt_)
-    {
-      ret = &itr->second;
-    } // end if
-  } // end if
-  return (ret);
+  this->_flags = flags_;
+  return (true);
 }
 
 }

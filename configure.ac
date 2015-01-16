@@ -72,7 +72,7 @@ AC_CONFIG_FILES([
         src/zLog/Makefile
         src/zMessage/Makefile
         src/zNode/Makefile
-        src/zOpt/Makefile
+        src/zProgOpt/Makefile
         src/zSem/Makefile
         src/zSocket/Makefile
         src/zThread/Makefile
@@ -83,7 +83,7 @@ AC_CONFIG_FILES([
         test/zLog/Makefile
         test/zMessage/Makefile
         test/zNode/Makefile
-        test/zOpt/Makefile
+        test/zProgOpt/Makefile
         test/zQueue/Makefile
         test/zSem/Makefile
         test/zSocket/Makefile

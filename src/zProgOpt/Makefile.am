@@ -6,7 +6,8 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-noinst_LTLIBRARIES = libzOpt.la
+noinst_LTLIBRARIES = libzProgOpt.la
 
-libzOpt_la_SOURCES = \
-    GetOpt.cpp
+libzProgOpt_la_SOURCES = \
+    Option.cpp \
+    Table.cpp

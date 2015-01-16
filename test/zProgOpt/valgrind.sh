@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DIR=zOpt
-BIN=.libs/zOptUnitTest
+DIR=zProgOpt
+BIN=.libs/zProgOptUnitTest
 TEST=$(pwd)/${DIR}/${BIN}
 LOG=$(pwd)/${DIR}/valgrind.log
 

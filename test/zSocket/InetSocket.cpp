@@ -40,6 +40,8 @@ int
 zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 {
 
+  unsigned int n = 0;
+
   // Create new socket address and validate
   zSocket::Address srcAddr(zSocket::Address::TYPE_INET);
   TEST_EQ(std::string(""), srcAddr.GetAddr());
@@ -64,14 +66,14 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ(mySock->SendString(srcAddr, expStr), expStr.size());
+  TEST_EQ((int )mySock->SendString(srcAddr, expStr), (int )expStr.size());
 
   // Do not need a context switch as the underlying code puts the buffer into the queue
   //   and therefore the buffer is immediately available
 
   // Receive string back and validate
   std::string obsStr;
-  TEST_EQ(mySock->RecvString(dstAddr, obsStr), expStr.size());
+  TEST_EQ((int )mySock->RecvString(dstAddr, obsStr), (int )expStr.size());
   TEST_TRUE(srcAddr == dstAddr);
   TEST_EQ(expStr, obsStr);
 
@@ -121,7 +123,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ(mySock1->SendString(dstAddr, expStr), expStr.size());
+  TEST_EQ((int )mySock1->SendString(dstAddr, expStr), (int )expStr.size());
 
   // Sleep a moment to allow context switch
   usleep(100000);
@@ -129,7 +131,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Receive string back and validate
   zSocket::Address obsAddr;
   std::string obsStr;
-  TEST_EQ(mySock2->RecvString(obsAddr, obsStr), expStr.size());
+  TEST_EQ((int )mySock2->RecvString(obsAddr, obsStr), (int )expStr.size());
   TEST_EQ(obsAddr.GetAddr(), srcAddr.GetAddr());
   TEST_EQ(obsAddr.GetType(), srcAddr.GetType());
   TEST_TRUE(obsAddr == srcAddr);
@@ -184,7 +186,7 @@ zSocketTest_InetSocketObserver(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ(mySock->SendString(srcAddr, expStr), expStr.size());
+  TEST_EQ((int )mySock->SendString(srcAddr, expStr), (int )expStr.size());
 
   // Sleep a moment to allow context switch
   usleep(100000);

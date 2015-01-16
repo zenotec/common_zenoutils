@@ -4,19 +4,17 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zOptTest_Defaults(void* arg_)
+zOptTest_OptionDefaults(void* arg_)
 {
 
   // Create new option and validate
-  zOpt::Option opt_f("f");
-  TEST_EQ(std::string("f"), opt_f.GetName());
-  TEST_EQ(std::string(""), opt_f.GetDesc());
-  TEST_EQ(std::string(""), opt_f.GetArg());
-  TEST_FALSE(opt_f.GetPresent());
-
-  // Create new getopt and validate
-  zOpt::GetOpt opt;
-  opt.AddOption(opt_f);
+  zProgOpt::Option myOpt(
+      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL), "f");
+  TEST_EQ((zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL),
+      myOpt.Flags());
+  TEST_EQ(std::string("f"), myOpt.Name());
+  TEST_EQ(std::string(""), myOpt.HelpMsg());
+  TEST_EQ(std::string(""), myOpt.Arg<std::string>());
 
   // Return success
   return (0);
@@ -24,58 +22,14 @@ zOptTest_Defaults(void* arg_)
 }
 
 int
-zOptTest_ParseSimpleShort(void* arg_)
+zOptTest_TableDefaults(void* arg_)
 {
 
-  int argc = 3;
-  const char *argv[] = { "program", "-f", "filename.ext" };
-
-  // Create new option and validate
-  zOpt::Option opt_f("f");
-  TEST_EQ(std::string("f"), opt_f.GetName());
-  TEST_EQ(std::string(""), opt_f.GetDesc());
-  TEST_EQ(std::string(""), opt_f.GetArg());
-  TEST_FALSE(opt_f.GetPresent());
-
-  // Set option description
-  opt_f.SetDesc("File");
-
-  // Create new getopt and validate
-  zOpt::GetOpt opts;
-  opts.AddOption(opt_f);
-
-  // Parse command line and validate
-  opts.Parse(argc, argv);
-  TEST_TRUE(opts["f"].GetPresent());
-  TEST_EQ(std::string("filename.ext"), opts["f"].GetArg());
-
-  // Return success
-  return (0);
-
-}
-
-int
-zOptTest_ParseSimpleLong(void* arg_)
-{
-
-  int argc = 3;
-  const char *argv[] = { "program", "--file", "filename.ext" };
-
-  // Create new option and validate
-  zOpt::Option opt_f("file");
-  TEST_EQ("file", opt_f.GetName());
-  TEST_EQ("", opt_f.GetDesc());
-  TEST_EQ("", opt_f.GetArg());
-  TEST_FALSE(opt_f.GetPresent());
-
-  // Create new getopt and validate
-  zOpt::GetOpt opts;
-  opts.AddOption(opt_f);
-
-  // Parse command line and validate
-  opts.Parse(argc, argv);
-  TEST_TRUE(opts["file"].GetPresent());
-  TEST_EQ(std::string("filename.ext"), opts["file"].GetArg());
+  // Create new table and validate
+  zProgOpt::Table myTable;
+  TEST_EQ(-1, myTable.Count("f"));
+  TEST_EQ(std::string(""), myTable.Usage());
+  TEST_EQ(std::string(""), myTable.ErrorString());
 
   // Return success
   return (0);

@@ -16,7 +16,18 @@ main(int argc, const char **argv)
 
   // Test all classes
   UTEST_INIT();
-  UTEST_TEST(zOptTest_Defaults, 0);
+
+  UTEST_TEST(zOptTest_OptionDefaults, 0);
+  UTEST_TEST(zOptTest_TableDefaults, 0);
+
+  UTEST_TEST(zOptTest_OptionString, 0);
+  UTEST_TEST(zOptTest_OptionInt, 0);
+  UTEST_TEST(zOptTest_OptionUint, 0);
+  UTEST_TEST(zOptTest_OptionDouble, 0);
+
+  UTEST_TEST(zOptTest_ParseSimpleShort, 0);
+  UTEST_TEST(zOptTest_ParseSimpleLong, 0);
+
   UTEST_FINI();
 
   // Exit

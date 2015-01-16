@@ -5,115 +5,40 @@
 //*****************************************************************************
 #include <iostream>
 
-#include <zutils/zOpt.h>
+#include <zutils/zProgOpt.h>
 
 namespace zUtils
 {
-namespace zOpt
+namespace zProgOpt
 {
 
 //*****************************************************************************
-Option::Option(const std::string &name_, const std::string &desc_, const std::string &default_) :
-    _name(name_), _desc(desc_), _arg(default_), _present(false)
-{
-}
-
 //*****************************************************************************
-Option::~Option()
+Table::Table()
 {
-
 }
 
-std::string
-Option::GetName() const
-{
-  return (this->_name);
-}
-
-std::string
-Option::GetDesc() const
-{
-  return (this->_desc);
-}
-
-void
-Option::SetDesc(const std::string &desc_)
-{
-  this->_desc = desc_;
-}
-
-std::string
-Option::GetArg() const
-{
-  return (this->_arg);
-}
-
-void
-Option::SetArg(const std::string &arg_)
-{
-  this->_arg = arg_;
-}
-
-bool
-Option::GetPresent()
-{
-  return (this->_present);
-}
-
-void
-Option::SetPresent(bool present_)
-{
-  this->_present = present_;
-}
-
-//*****************************************************************************
-GetOpt::GetOpt()
-{
-  Option opt("help", "Display usage and exit");
-  this->AddOption(opt);
-}
-
-//*****************************************************************************
-GetOpt::~GetOpt()
+Table::~Table()
 {
 
 }
 
 Option &
-GetOpt::operator[](const std::string &id_)
+Table::operator[](const std::string &id_)
 {
   return (this->_opts[id_]);
 }
 
-void
-GetOpt::SetUsage(const std::string &usage_)
-{
-  this->_usage = usage_;
-}
-
-std::string
-GetOpt::Usage()
-{
-  return (this->_usage);
-}
-
 bool
-GetOpt::AddOption(const Option &opt_)
+Table::AddOption(const Option &opt_)
 {
   bool ret = true;
-  if (!opt_.GetName().empty())
-  {
-    this->_opts[opt_.GetName()] = opt_;
-  } // end if
-  else
-  {
-    ret = false;
-  } // end else
+  this->_opts[opt_.Name()] = opt_;
   return (ret);
 }
 
 bool
-GetOpt::Parse(int argc_, const char **argv_)
+Table::Parse(int argc_, const char **argv_)
 {
   Option *opt = NULL;
 
@@ -131,31 +56,75 @@ GetOpt::Parse(int argc_, const char **argv_)
       } // end else
       if (opt != NULL)
       {
-        opt->SetPresent(true);
+        opt->_cnt++;
       } // end if
     } // end if
     else
     {
       if (opt != NULL)
       {
-        opt->SetArg(std::string(argv_[arg]));
+        opt->_setArg(std::string(argv_[arg]));
         opt = NULL; // reset arg pointer
       } // end if
     } // end else
   } // end for
+  return(true);
+}
+
+ssize_t
+Table::Count(const std::string& opt_)
+{
+  ssize_t cnt = -1;
+  Option *opt = this->_find_opt(opt_);
+  if (opt)
+  {
+    cnt = opt->_cnt;
+  }
+  return (cnt);
+}
+
+std::string
+Table::Usage()
+{
+  std::string usage;
+  std::map<std::string, Option>::iterator it;
+  for (it = this->_opts.begin(); it != this->_opts.end(); ++it)
+  {
+    usage += it->second.Name() + "\t";
+    if (it->second.Flags() & Option::FLAGS_HAVEARG)
+    {
+      if (!(it->second.Flags() & Option::FLAGS_ARG_ISOPTIONAL))
+      {
+        usage += std::string("arg");
+      }
+      else
+      {
+        usage += std::string("[ arg ]");
+      }
+    }
+    usage += std::string("\t");
+
+    usage += it->second.HelpMsg() + "\n";
+  }
+  return (usage);
+}
+
+std::string
+Table::ErrorString()
+{
+  return (this->_errStr);
 }
 
 Option *
-GetOpt::_find_opt(const std::string &opt_)
+Table::_find_opt(const std::string &opt_)
 {
   Option *ret = NULL;
-  std::map<std::string, Option>::iterator itr = this->_opts.begin();
-  std::map<std::string, Option>::iterator end = this->_opts.end();
-  for (; itr != end; itr++)
+  std::map<std::string, Option>::iterator it;
+  for (it = this->_opts.begin(); it != this->_opts.end(); ++it)
   {
-    if (itr->second.GetName() == opt_)
+    if (it->second.Name() == opt_)
     {
-      ret = &itr->second;
+      ret = &it->second;
     } // end if
   } // end if
   return (ret);

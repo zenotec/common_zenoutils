@@ -414,6 +414,68 @@ Gt(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
   } // end else
 }
 
+// Float comparison
+bool
+Eq(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+{
+  if (i1_ != i2_)
+  {
+    std::stringstream errmsg;
+    errmsg << i1_ << " != " << i2_ << std::endl;
+    this->LogMsg(line_, errmsg.str());
+    return (false);
+  } // end if
+  else
+  {
+    return (true);
+  } // end else
+}
+bool
+Neq(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+{
+  if (i1_ == i2_)
+  {
+    std::stringstream errmsg;
+    errmsg << i1_ << " == " << i2_ << std::endl;
+    this->LogMsg(line_, errmsg.str());
+    return (false);
+  } // end if
+  else
+  {
+    return (true);
+  } // end else
+}
+bool
+Lt(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+{
+  if (i1_ >= i2_)
+  {
+    std::stringstream errmsg;
+    errmsg << i1_ << " >= " << i2_ << std::endl;
+    this->LogMsg(line_, errmsg.str());
+    return (false);
+  } // end if
+  else
+  {
+    return (true);
+  } // end else
+}
+bool
+Gt(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+{
+  if (i1_ <= i2_)
+  {
+    std::stringstream errmsg;
+    errmsg << i1_ << " <= " << i2_ << std::endl;
+    this->LogMsg(line_, errmsg.str());
+    return (false);
+  } // end if
+  else
+  {
+    return (true);
+  } // end else
+}
+
 void
 LogMsg(const int line_, const std::string &msg_)
 {
