@@ -49,14 +49,32 @@ Handler::Unregister(Observer *obs_)
 }
 
 bool
-Handler::Open(Socket *sock_)
+Handler::Bind(Socket *sock_)
 {
   bool status = false;
   if (!sock_)
   {
     return (false);
   }
-  if (sock_->_open())
+  if (sock_->_open() && sock_->_bind())
+  {
+    ZLOG_DEBUG("Handler::Open: Opening socket");
+    this->_sockList.push_back(sock_);
+    this->_waitList.Register(sock_);
+    status = true;
+  }
+  return (status);
+}
+
+bool
+Handler::Connect(Socket *sock_)
+{
+  bool status = false;
+  if (!sock_)
+  {
+    return (false);
+  }
+  if (sock_->_open() && sock_->_connect())
   {
     ZLOG_DEBUG("Handler::Open: Opening socket");
     this->_sockList.push_back(sock_);

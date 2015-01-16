@@ -121,8 +121,6 @@ Thread::_threadHandler(void *arg_)
   {
     if (self->_mutex.TryLock())
     {
-      logstr = "Calling thread";
-      ZLOG_DEBUG(logstr);
       if (self->_func->ThreadFunction(self->_arg))
       {
         self->_exit = true;

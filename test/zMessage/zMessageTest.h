@@ -20,5 +20,9 @@ int
 zMessageTest_AckDefaults(void* arg_);
 int
 zMessageTest_ByeDefaults(void* arg_);
+int
+zMessageTest_CfgDefaults(void* arg_);
+int
+zMessageTest_CmdDefaults(void* arg_);
 
 #endif /* _ZMESSAGETEST_H_ */

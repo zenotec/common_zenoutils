@@ -15,7 +15,8 @@ zSocketUnitTest_SOURCES = \
     Defaults.cpp \
     Buffer.cpp \
     Address.cpp \
-    Inet.cpp
+    InetAddress.cpp \
+    InetSocket.cpp
 
 zSocketUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

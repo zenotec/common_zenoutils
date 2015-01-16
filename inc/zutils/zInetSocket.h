@@ -28,7 +28,9 @@ namespace zSocket
 
 class InetAddress
 {
+
 public:
+
   InetAddress(const Address &addr_);
   InetAddress(const std::string &addr_ = "0.0.0.0:0");
   InetAddress(const struct sockaddr_in &addr_);
@@ -41,13 +43,24 @@ public:
   bool
   operator !=(const InetAddress &other_) const;
 
+  Address
+  GetAddr() const;
   std::string
   GetAddrString() const;
   struct sockaddr_in
-  GetAddrSockAddr();
+  GetAddrSockAddr() const;
 
   bool
-  SetAddr(const std::string& addr_);
+  GetAddr(Address &addr_) const;
+  bool
+  GetAddr(std::string &addr_) const;
+  bool
+  GetAddr(struct sockaddr_in &addr_) const;
+
+  bool
+  SetAddr(const Address &addr_);
+  bool
+  SetAddr(const std::string &addr_);
   bool
   SetAddr(const struct sockaddr_in &addr_);
 
@@ -78,15 +91,11 @@ class InetSocket : public Socket, private zThread::Function
 
 public:
 
+  InetSocket();
   InetSocket(const Address &addr_);
+
   virtual
   ~InetSocket();
-
-  virtual bool
-  Bind();
-
-  virtual bool
-  Connect();
 
 protected:
 
@@ -95,8 +104,15 @@ protected:
 
   virtual bool
   _open();
+
   virtual void
   _close();
+
+  virtual bool
+  _bind();
+
+  virtual bool
+  _connect();
 
   virtual ssize_t
   _send(const Address &addr_, Buffer &sb_);

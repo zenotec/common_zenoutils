@@ -83,6 +83,7 @@ private:
   Buffer(const Buffer &other_);
   Buffer &
   operator=(const Buffer &other_);
+
   uint8_t *_head;
   size_t _data;
   size_t _tail;
@@ -154,12 +155,6 @@ class Socket : public zQueue<std::pair<Address, Buffer *> >
 
 public:
 
-  virtual bool
-  Bind() = 0;
-
-  virtual bool
-  Connect() = 0;
-
   ssize_t
   RecvBuffer(Address &addr_, Buffer &sb_);
   ssize_t
@@ -174,8 +169,15 @@ protected:
 
   virtual bool
   _open() = 0;
+
   virtual void
   _close() = 0;
+
+  virtual bool
+  _bind() = 0;
+
+  virtual bool
+  _connect() = 0;
 
   virtual ssize_t
   _send(const Address &addr_, Buffer &sb_) = 0;
@@ -192,6 +194,7 @@ class Handler : private zThread::Function
 {
 
 public:
+
   Handler();
   virtual
   ~Handler();
@@ -202,7 +205,10 @@ public:
   Unregister(Observer *obs_);
 
   bool
-  Open(Socket *sock_);
+  Bind(Socket *sock_);
+  bool
+  Connect(Socket *sock_);
+
   void
   Close(Socket *sock_ = NULL);
 

@@ -9,7 +9,5 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzMessage.la
 
 libzMessage_la_SOURCES = \
-    Ack.cpp \
-    Bye.cpp \
-    Hello.cpp \
-    Message.cpp
+    Message.cpp \
+    Factory.cpp

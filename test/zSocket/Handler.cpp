@@ -5,6 +5,7 @@
  *      Author: kmahoney
  */
 
+#include <unistd.h>
 
 #include "zSocketTest.h"
 
@@ -38,6 +39,14 @@ zSocketTest_HandlerRegister(void* arg_)
 
   // Register observer
   myHandler.Register(&myObserver);
+
+  // Start listener
+
+  // Pause to let listener run a moment
+  usleep(100000);
+
+  // Clean up
+  myHandler.Unregister(&myObserver);
 
   // Return success
   return (0);

@@ -19,47 +19,50 @@ namespace zMessage
 class Message: public zData::Data
 {
 
-    static const std::string ROOT;
-    static const std::string ID;
-    static const std::string TYPE;
-    static const std::string TO;
-    static const std::string FROM;
-    static const std::string DATA;
+    static const std::string STR_ROOT;
+    static const std::string STR_TYPE;
+    static const std::string STR_HELLO;
+    static const std::string STR_ACK;
+    static const std::string STR_BYE;
+    static const std::string STR_CFG;
+    static const std::string STR_CMD;
+    static const std::string STR_ID;
+    static const std::string STR_TO;
+    static const std::string STR_FROM;
+    static const std::string STR_DATA;
 
 public:
+
+    enum TYPE
+    {
+        TYPE_ERR = -1,
+        TYPE_NONE = 0,
+        TYPE_HELLO = 1,
+        TYPE_ACK = 2,
+        TYPE_BYE = 3,
+        TYPE_CFG = 4,
+        TYPE_CMD = 5,
+        TYPE_LAST
+    };
 
     Message();
     Message( const zData::Data &msg_ );
     virtual ~Message();
 
-    std::string GetId() const;
-    void SetId( const std::string &id_ );
+    Message::TYPE GetType() const;
+    bool SetType( const Message::TYPE &type_ );
 
-    std::string GetType() const;
-    void SetType( const std::string &type_ );
+    std::string GetId() const;
+    bool SetId( const std::string &id_ );
 
     zNode::Node GetTo() const;
-    void SetTo( const zNode::Node &to_ );
+    bool SetTo( const zNode::Node &to_ );
 
     zNode::Node GetFrom() const;
-    void SetFrom( const zNode::Node &from_ );
+    bool SetFrom( const zNode::Node &from_ );
 
-    Data GetData() const;
-    void SetData( const zData::Data &data_ );
-
-protected:
-
-private:
-
-};
-
-class MessageFactory
-{
-public:
-    MessageFactory();
-    ~MessageFactory();
-
-    Message *Create( const std::string &type_ );
+    zData::Data GetData() const;
+    bool SetData( const zData::Data &data_ );
 
 protected:
 
@@ -67,40 +70,11 @@ private:
 
 };
 
-class AckMessage: public Message
+class Factory
 {
 public:
-    static const std::string TYPE;
-    static const std::string ID;
 
-    AckMessage();
-    ~AckMessage();
-
-protected:
-
-private:
-
-};
-
-class ByeMessage: public Message
-{
-public:
-    static const std::string TYPE;
-    ByeMessage();
-    ~ByeMessage();
-
-protected:
-
-private:
-
-};
-
-class HelloMessage: public Message
-{
-public:
-    static const std::string TYPE;
-    HelloMessage();
-    ~HelloMessage();
+    static Message *Create( const Message::TYPE &type_ );
 
 protected:
 

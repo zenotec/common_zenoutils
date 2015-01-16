@@ -116,18 +116,8 @@ public:
   {
   }
 
-  virtual bool
-  Bind()
-  {
-    return (false);
-  }
-
-  virtual bool
-  Connect()
-  {
-    return (false);
-  }
 protected:
+
   virtual bool
   _open()
   {
@@ -140,16 +130,16 @@ protected:
     return;
   }
 
-  virtual void
-  _listen()
+  virtual bool
+  _bind()
   {
-    return;
+    return (false);
   }
 
-  virtual ssize_t
-  _recv(zSocket::Address &addr_, zSocket::Buffer &sb_)
+  virtual bool
+  _connect()
   {
-    return (-1);
+    return (false);
   }
 
   virtual ssize_t

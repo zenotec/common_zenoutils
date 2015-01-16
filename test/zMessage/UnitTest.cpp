@@ -18,6 +18,11 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
   UTEST_TEST(zMessageTest_Defaults, 0);
+  UTEST_TEST(zMessageTest_HelloDefaults, 0);
+  UTEST_TEST(zMessageTest_AckDefaults, 0);
+  UTEST_TEST(zMessageTest_ByeDefaults, 0);
+  UTEST_TEST(zMessageTest_CfgDefaults, 0);
+  UTEST_TEST(zMessageTest_CmdDefaults, 0);
   UTEST_FINI();
 
   // Exit
