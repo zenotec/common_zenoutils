@@ -24,22 +24,27 @@ zNodeTest_NodeTableGetSet(void* arg_);
 using namespace Test;
 using namespace zUtils;
 
-
-class TestObserver : public zNode::NodeTableObserver
+class TestObserver : public zNode::Observer
 {
 public:
   TestObserver() :
       _count(0)
   {
   }
-  int GetCount()
+  virtual
+  ~TestObserver()
   {
-    return(this->_count);
+  }
+
+  int
+  GetCount()
+  {
+    return (this->_count);
   }
 
 protected:
   virtual void
-  EventHandler(zNode::NodeTableObserver::Event event_, const zNode::Node *node_)
+  EventHandler(zNode::Observer::EVENT event_, const zNode::Node &node_)
   {
     this->_count++;
   }

@@ -49,7 +49,6 @@ FileConnector::FileConnector(const char *logfile_) :
   {
     this->_file << "************************************************************\n";
     this->_file << "* Logging started\n";
-    //    this->_file << "* Logging started: " << ZLOG_TIME << "\n";
     this->_file << "************************************************************\n";
     this->_file.flush();
   }
@@ -61,7 +60,6 @@ FileConnector::~FileConnector()
   {
     this->_file << "************************************************************\n";
     this->_file << "* Logging stopped\n";
-    //    this->_file << "* Logging stopped: " << ZLOG_TIME << "\n";
     this->_file << "************************************************************\n";
     this->_file.flush();
     this->_file.close();
@@ -220,6 +218,7 @@ Log::RegisterConnector(zLog::LogLevel level_, Connector *conn_)
   this->_lock();
   this->_connTable[level_] = conn_;
   this->_unlock();
+  return (true);
 }
 
 bool
@@ -228,6 +227,7 @@ Log::UnregisterConnector(zLog::LogLevel level_)
   this->_lock();
   this->_connTable[level_] = NULL;
   this->_unlock();
+  return (true);
 }
 
 void

@@ -28,8 +28,6 @@ class Function
 public:
   virtual void *
   ThreadFunction(void *arg_) = 0;
-protected:
-private:
 };
 
 //**********************************************************************

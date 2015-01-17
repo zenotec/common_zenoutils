@@ -28,7 +28,7 @@ namespace zSocket
 class Handler;
 
 //**********************************************************************
-// Buffer Class
+// zSocket::Buffer Class
 //**********************************************************************
 
 class Buffer
@@ -36,8 +36,8 @@ class Buffer
 
 public:
   Buffer(Buffer &other_);
-  Buffer(const size_t size_ = 1500);
-  ~Buffer();
+    Buffer(const size_t size_ = 1500);
+    ~Buffer();
 
   Buffer &
   operator=(Buffer &other_);
@@ -76,6 +76,9 @@ public:
   size_t
   TotalSize();
 
+  std::string
+  Str();
+
 protected:
 
 private:
@@ -92,7 +95,7 @@ private:
 };
 
 //**********************************************************************
-// Address Class
+// zSocket::Address Class
 //**********************************************************************
 
 class Address
@@ -101,21 +104,25 @@ public:
 
   enum TYPE
   {
-    TYPE_ERR = -1, TYPE_NONE = 0, TYPE_INET = 1, TYPE_LAST
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_INET = 1,
+    TYPE_LAST
   };
 
-  Address(Address::TYPE type = Address::TYPE_NONE, const std::string &addr_ = std::string(""));
-  ~Address();
+  Address(zSocket::Address::TYPE type = zSocket::Address::TYPE_NONE,
+      const std::string &addr_ = std::string(""));
+    ~Address();
 
   bool
-  operator ==(const Address &other_) const;
+  operator ==(const zSocket::Address &other_) const;
   bool
-  operator !=(const Address &other_) const;
+  operator !=(const zSocket::Address &other_) const;
 
   Address::TYPE
   GetType() const;
   bool
-  SetType(const Address::TYPE &type_);
+  SetType(const zSocket::Address::TYPE &type_);
 
   std::string
   GetAddr() const;
@@ -132,38 +139,24 @@ private:
 };
 
 //**********************************************************************
-// Observer Class
+// zSocket::Socket Class
 //**********************************************************************
 
-class Observer
-{
-public:
-  virtual bool
-  SocketRecv(const Address &addr_, Buffer *buf_) = 0;
-
-protected:
-private:
-};
-
-//**********************************************************************
-// Socket Class
-//**********************************************************************
-
-class Socket : public zQueue<std::pair<Address, Buffer *> >
+class Socket : public zQueue<std::pair<zSocket::Address, zSocket::Buffer *> >
 {
   friend class Handler;
 
 public:
 
   ssize_t
-  RecvBuffer(Address &addr_, Buffer &sb_);
+  RecvBuffer(zSocket::Address &addr_, zSocket::Buffer &sb_);
   ssize_t
-  RecvString(Address &addr_, std::string &str_);
+  RecvString(zSocket::Address &addr_, std::string &str_);
 
   ssize_t
-  SendBuffer(const Address &addr_, Buffer &sb_);
+  SendBuffer(const zSocket::Address &addr_, zSocket::Buffer &sb_);
   ssize_t
-  SendString(const Address &addr_, const std::string &str_);
+  SendString(const zSocket::Address &addr_, const std::string &str_);
 
 protected:
 
@@ -180,14 +173,25 @@ protected:
   _connect() = 0;
 
   virtual ssize_t
-  _send(const Address &addr_, Buffer &sb_) = 0;
+  _send(const zSocket::Address &addr_, zSocket::Buffer &sb_) = 0;
 
 private:
 
 };
 
 //**********************************************************************
-// Handler Class
+// zSocket::Observer Class
+//**********************************************************************
+
+class Observer
+{
+public:
+  virtual bool
+  SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &sb_) = 0;
+};
+
+//**********************************************************************
+// zSocket::Handler Class
 //**********************************************************************
 
 class Handler : private zThread::Function
@@ -200,17 +204,17 @@ public:
   ~Handler();
 
   bool
-  Register(Observer *obs_);
+  Register(zSocket::Observer *obs_);
   void
-  Unregister(Observer *obs_);
+  Unregister(zSocket::Observer *obs_);
 
   bool
-  Bind(Socket *sock_);
+  Bind(zSocket::Socket *sock_);
   bool
-  Connect(Socket *sock_);
+  Connect(zSocket::Socket *sock_);
 
   void
-  Close(Socket *sock_ = NULL);
+  Close(zSocket::Socket *sock_ = NULL);
 
   bool
   StartListener(uint32_t usecs_);
@@ -225,11 +229,11 @@ protected:
 private:
 
   void
-  _notify(Socket *sock_, Address &addr_, Buffer *buf_);
+  _notify(zSocket::Socket *sock_, zSocket::Address &addr_, zSocket::Buffer &buf_);
 
-  std::list<Observer *> _obsList;
+  std::list<zSocket::Observer *> _obsList;
   zEvent::EventList _waitList;
-  std::list<Socket *> _sockList;
+  std::list<zSocket::Socket *> _sockList;
 
   zSem::Mutex _lock;
   zThread::Thread _thread;

@@ -170,5 +170,11 @@ Buffer::TotalSize()
   return (this->_end);
 }
 
+std::string
+Buffer::Str()
+{
+  return (std::string((const char *) this->_head, this->_tail));
+}
+
 }
 }

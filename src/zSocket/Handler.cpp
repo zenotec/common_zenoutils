@@ -134,36 +134,33 @@ Handler::ThreadFunction(void *arg_)
     for (; it != end; ++it)
     {
       Address addr;
-      Buffer *sb = new Buffer; // Listener is responsible for deleting
+      Buffer *sb = new Buffer;
       int n = (*it)->RecvBuffer(addr, *sb);
-      self->_notify((*it), addr, sb);
+      if (n > 0)
+      {
+        self->_notify((*it), addr, *sb);
+      }
+      delete (sb);
     }
   }
   return (0);
 }
 
 void
-Handler::_notify(Socket *sock_, Address &addr_, Buffer *buf_)
+Handler::_notify(zSocket::Socket *sock_, zSocket::Address &addr_, zSocket::Buffer &buf_)
 {
   bool status = false;
 
   // Protect observer list
   this->_lock.Lock();
 
-  if (!this->_obsList.empty())
+  std::list<zSocket::Observer *>::iterator it = this->_obsList.begin();
+  std::list<zSocket::Observer *>::iterator end = this->_obsList.end();
+  for (; it != end; ++it)
   {
-    Observer *obs = this->_obsList.front();
-    this->_obsList.pop_front();
-    this->_obsList.push_back(obs);
     ZLOG_INFO("Handler::_notify(): Notifying socket listener");
-    status = obs->SocketRecv(addr_, buf_);
-  } // end if
-
-  if (!status)
-  {
-    // Since no listeners are register, delete socket buffer
-    delete (buf_);
-  } // end else
+    (*it)->SocketRecv(sock_, addr_, buf_);
+  }
 
   this->_lock.Unlock();
 

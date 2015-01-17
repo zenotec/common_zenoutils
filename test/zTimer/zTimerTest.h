@@ -20,7 +20,7 @@ zTimerTest_StartStop(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TimerTestObserver : public zTimer::TimerObserver
+class TimerTestObserver : public zTimer::Observer
 {
 public:
   TimerTestObserver() :

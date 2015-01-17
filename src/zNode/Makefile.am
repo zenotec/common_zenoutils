@@ -9,5 +9,6 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzNode.la
 
 libzNode_la_SOURCES = \
-    Node.cpp
+    Node.cpp \
+    Table.cpp
 

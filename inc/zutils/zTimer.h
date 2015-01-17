@@ -23,7 +23,7 @@ namespace zTimer
 //**********************************************************************
 // TimerObserver Class
 //**********************************************************************
-class TimerObserver
+class Observer
 {
 public:
   virtual void
@@ -48,10 +48,10 @@ public:
   Stop(void);
 
   void
-  Register(TimerObserver *obs_);
+  Register(Observer *obs_);
 
   void
-  Unregister(TimerObserver *obs_);
+  Unregister(Observer *obs_);
 
   void
   Notify(void);
@@ -68,7 +68,7 @@ private:
   uint32_t _interval;
 
   zSem::Mutex _lock;
-  std::list<TimerObserver *> _observers;
+  std::list<Observer *> _observers;
 };
 
 }

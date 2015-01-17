@@ -23,7 +23,7 @@ zNodeTest_NodeTableGetSet(void* arg_)
   TEST_IS_ZERO(MyObsvr->GetCount());
 
   // Create new node table and validate
-  zNode::NodeTable *MyNodeTable = new zNode::NodeTable;
+  zNode::Table *MyNodeTable = new zNode::Table;
   TEST_TRUE(MyNodeTable->SetConf(100, 300, 400, 500));
   TEST_IS_NULL(MyNodeTable->FindNode(MyNode->GetId()));
 

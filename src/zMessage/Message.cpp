@@ -18,15 +18,17 @@ namespace zMessage
 
 const std::string Message::STR_ROOT = "zMessage";
 const std::string Message::STR_TYPE = "Type";
-const std::string Message::STR_HELLO = "Hello";
-const std::string Message::STR_ACK = "Ack";
-const std::string Message::STR_BYE = "Bye";
-const std::string Message::STR_CFG = "Cfg";
-const std::string Message::STR_CMD = "Cmd";
+const std::string Message::STR_TYPE_AUTH = "Auth";
+const std::string Message::STR_TYPE_HELLO = "Hello";
+const std::string Message::STR_TYPE_ACK = "Ack";
+const std::string Message::STR_TYPE_BYE = "Bye";
+const std::string Message::STR_TYPE_CFG = "Cfg";
+const std::string Message::STR_TYPE_CMD = "Cmd";
+const std::string Message::STR_TYPE_DATA = "Data";
 const std::string Message::STR_ID = "Id";
 const std::string Message::STR_TO = "To";
 const std::string Message::STR_FROM = "From";
-const std::string Message::STR_DATA = "Data";
+const std::string Message::STR_DATA = "zData";
 
 Message::Message() :
     zData::Data(Message::STR_ROOT)
@@ -62,33 +64,42 @@ bool
 Message::SetId(const std::string &id_)
 {
   this->SetValue(Message::STR_ID, id_);
+  return(true);
 }
 
 Message::TYPE
 Message::GetType() const
 {
   std::string type = this->GetValue(Message::STR_TYPE);
-  if(type == Message::STR_HELLO)
+  if (type == Message::STR_TYPE_AUTH)
+  {
+    return (Message::TYPE_AUTH);
+  }
+  else if (type == Message::STR_TYPE_HELLO)
   {
     return (Message::TYPE_HELLO);
   }
-  else if(type == Message::STR_ACK)
+  else if (type == Message::STR_TYPE_ACK)
   {
     return (Message::TYPE_ACK);
   }
-  else if(type == Message::STR_BYE)
+  else if (type == Message::STR_TYPE_BYE)
   {
     return (Message::TYPE_BYE);
   }
-  else if(type == Message::STR_CFG)
+  else if (type == Message::STR_TYPE_CFG)
   {
     return (Message::TYPE_CFG);
   }
-  else if(type == Message::STR_CMD)
+  else if (type == Message::STR_TYPE_CMD)
   {
     return (Message::TYPE_CMD);
   }
-  else if(type == std::string(""))
+  else if (type == Message::STR_TYPE_DATA)
+  {
+    return (Message::TYPE_DATA);
+  }
+  else if (type == std::string(""))
   {
     return (Message::TYPE_NONE);
   }
@@ -102,31 +113,37 @@ bool
 Message::SetType(const Message::TYPE &type_)
 {
   bool status = true;
-  switch(type_)
+  switch (type_)
   {
-    case Message::TYPE_HELLO:
-      this->SetValue(Message::STR_TYPE, Message::STR_HELLO);
-      break;
-    case Message::TYPE_ACK:
-      this->SetValue(Message::STR_TYPE, Message::STR_ACK);
-      break;
-    case Message::TYPE_BYE:
-      this->SetValue(Message::STR_TYPE, Message::STR_BYE);
-      break;
-    case Message::TYPE_CFG:
-      this->SetValue(Message::STR_TYPE, Message::STR_CFG);
-      break;
-    case Message::TYPE_CMD:
-      this->SetValue(Message::STR_TYPE, Message::STR_CMD);
-      break;
-    case Message::TYPE_NONE:
-      this->SetValue(Message::STR_TYPE, std::string(""));
-      break;
-    default:
-      status = false;
-      break;
+  case Message::TYPE_AUTH:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_AUTH);
+    break;
+  case Message::TYPE_HELLO:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_HELLO);
+    break;
+  case Message::TYPE_ACK:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_ACK);
+    break;
+  case Message::TYPE_BYE:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_BYE);
+    break;
+  case Message::TYPE_CFG:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CFG);
+    break;
+  case Message::TYPE_CMD:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CMD);
+    break;
+  case Message::TYPE_DATA:
+    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_DATA);
+    break;
+  case Message::TYPE_NONE:
+    this->SetValue(Message::STR_TYPE, std::string(""));
+    break;
+  default:
+    status = false;
+    break;
   }
-  return(false);
+  return (false);
 }
 
 zNode::Node
@@ -141,6 +158,7 @@ bool
 Message::SetTo(const zNode::Node &to_)
 {
   this->PutChild(Message::STR_TO, to_);
+  return (true);
 }
 
 zNode::Node
@@ -155,6 +173,7 @@ bool
 Message::SetFrom(const zNode::Node &from_)
 {
   this->PutChild(Message::STR_FROM, from_);
+  return (true);
 }
 
 zData::Data
@@ -169,8 +188,8 @@ bool
 Message::SetData(const zData::Data &data_)
 {
   this->PutChild(Message::STR_DATA, data_);
+  return (true);
 }
 
 }
 }
-

@@ -3,6 +3,9 @@
 //
 //
 //*****************************************************************************
+
+#include <libgen.h>
+
 #include <iostream>
 
 #include <zutils/zProgOpt.h>
@@ -42,6 +45,11 @@ Table::Parse(int argc_, const char **argv_)
 {
   Option *opt = NULL;
 
+  std::string program(argv_[0]);
+
+  this->_usage = std::string("USAGE: ");
+  this->_usage += program.substr(program.find_last_of("/\\") + 1) + std::string("\n");
+
   for (int arg = 0; arg < argc_; arg++)
   {
     if (argv_[arg][0] == '-')
@@ -68,7 +76,7 @@ Table::Parse(int argc_, const char **argv_)
       } // end if
     } // end else
   } // end for
-  return(true);
+  return (true);
 }
 
 ssize_t
@@ -86,27 +94,26 @@ Table::Count(const std::string& opt_)
 std::string
 Table::Usage()
 {
-  std::string usage;
   std::map<std::string, Option>::iterator it;
   for (it = this->_opts.begin(); it != this->_opts.end(); ++it)
   {
-    usage += it->second.Name() + "\t";
+    this->_usage += std::string("\t") + it->second.Name() + std::string("\t");
     if (it->second.Flags() & Option::FLAGS_HAVEARG)
     {
       if (!(it->second.Flags() & Option::FLAGS_ARG_ISOPTIONAL))
       {
-        usage += std::string("arg");
+        this->_usage += std::string("arg");
       }
       else
       {
-        usage += std::string("[ arg ]");
+        this->_usage += std::string("[ arg ]");
       }
     }
-    usage += std::string("\t");
+    this->_usage += std::string("\t");
 
-    usage += it->second.HelpMsg() + "\n";
+    this->_usage += it->second.HelpMsg() + "\n";
   }
-  return (usage);
+  return (this->_usage);
 }
 
 std::string

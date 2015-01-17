@@ -69,11 +69,11 @@ public:
   }
 
   virtual bool
-  SocketRecv(const zSocket::Address &addr_, zSocket::Buffer *sb_)
+  SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &sb_)
   {
-    std::string logstr = "TestObserver::SocketRecv(): Receiving on socket";
-    ZLOG_DEBUG(logstr);
-    this->_sq.Push(std::make_pair(addr_, sb_));
+    ZLOG_DEBUG("TestObserver::SocketRecv(): Receiving on socket");
+    zSocket::Buffer *sb = new zSocket::Buffer(sb_);
+    this->_sq.Push(std::make_pair(addr_, sb));
     return (true);
   }
 

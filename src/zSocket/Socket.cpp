@@ -28,7 +28,7 @@ Socket::RecvBuffer(Address &addr_, Buffer &sb_)
     addr_ = q.first;
     sb_ = *q.second;
     bytes = sb_.Size();
-    delete(q.second);
+    delete (q.second);
   }
   return (bytes);
 }
@@ -41,7 +41,7 @@ Socket::RecvString(Address &addr_, std::string &str_)
   bytes = RecvBuffer(addr_, sb);
   if (bytes > 0)
   {
-    str_ = std::string((const char *) sb.Head(), sb.Size());
+    str_ = sb.Str();
   }
   return (bytes);
 }

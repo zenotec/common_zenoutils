@@ -29,7 +29,8 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zInetSocket.h \
     $(top_srcdir)/inc/zutils/zEthSocket.h \
     $(top_srcdir)/inc/zutils/zThread.h \
-    $(top_srcdir)/inc/zutils/zTimer.h 
+    $(top_srcdir)/inc/zutils/zTimer.h \
+    $(top_srcdir)/inc/zutils/zUuid.h 
 
 # Sources to include in the package
 libzutils_la_SOURCES = \

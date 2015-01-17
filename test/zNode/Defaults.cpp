@@ -28,7 +28,7 @@ zNodeTest_NodeTableDefaults(void* arg_)
 {
 
   // Create new node table and validate
-  zNode::NodeTable *MyNodeTable = new zNode::NodeTable;
+  zNode::Table *MyNodeTable = new zNode::Table;
 
   // Cleanup
   delete (MyNodeTable);

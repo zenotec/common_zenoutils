@@ -10,17 +10,29 @@
 
 #include <stdint.h>
 #include <string>
+#include <sstream>
 
-#define INPUT   1
-#define USER    1
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 namespace zUtils
 {
+namespace zUuid
+{
 
-class zUuid
+class Uuid
 {
 public:
-    std::string operator()( const int len = 64 );
+  std::string
+  operator()(const unsigned int len = 64)
+  {
+    boost::uuids::random_generator rg;
+    boost::uuids::uuid uuid = rg();
+    std::stringstream ss;
+    ss << uuid;
+    return (ss.str());
+  }
 
 protected:
 
@@ -28,6 +40,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* _ZUUID_H_ */

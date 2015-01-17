@@ -99,7 +99,7 @@ Timer::Stop(void)
 }
 
 void
-Timer::Register(zTimer::TimerObserver *obs_)
+Timer::Register(zTimer::Observer *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -109,7 +109,7 @@ Timer::Register(zTimer::TimerObserver *obs_)
 }
 
 void
-Timer::Unregister(zTimer::TimerObserver *obs_)
+Timer::Unregister(zTimer::Observer *obs_)
 {
   if (this->_lock.Lock())
   {
@@ -123,8 +123,8 @@ Timer::Notify()
 {
   if (this->_lock.Lock())
   {
-    std::list<zTimer::TimerObserver *>::iterator itr = this->_observers.begin();
-    std::list<zTimer::TimerObserver *>::iterator end = this->_observers.end();
+    std::list<zTimer::Observer *>::iterator itr = this->_observers.begin();
+    std::list<zTimer::Observer *>::iterator end = this->_observers.end();
     for (; itr != end; itr++)
     {
       (*itr)->TimerTick();

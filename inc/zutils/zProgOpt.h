@@ -119,9 +119,11 @@ public:
 protected:
 
 private:
+
   Option *
   _find_opt(const std::string &opt_);
 
+  std::string _usage;
   std::string _errStr;
   std::map<std::string, Option> _opts;
 

@@ -10,4 +10,5 @@ noinst_LTLIBRARIES = libzMessage.la
 
 libzMessage_la_SOURCES = \
     Message.cpp \
-    Factory.cpp
+    Factory.cpp \
+    Handler.cpp

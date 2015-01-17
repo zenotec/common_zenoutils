@@ -29,10 +29,12 @@ zOptTest_ParseSimpleShort(void* arg_)
 
   // Create new program options table and validate
   zProgOpt::Table myTable;
+  TEST_EQ(std::string(""), myTable.Usage());
   TEST_TRUE(myTable.AddOption(myOpt));
 
   // Parse command line and validate
   TEST_TRUE(myTable.Parse(argc, argv));
+  TEST_EQ(std::string("USAGE: program\n\tf\t\tFile\n"), myTable.Usage());
   TEST_EQ(1, myTable.Count("f"));
   TEST_EQ(std::string("filename.ext"), myTable["f"].Arg<std::string>());
 
@@ -67,10 +69,12 @@ zOptTest_ParseSimpleLong(void* arg_)
 
   // Create new program options table and validate
   zProgOpt::Table myTable;
+  TEST_EQ(std::string(""), myTable.Usage());
   TEST_TRUE(myTable.AddOption(myOpt));
 
   // Parse command line and validate
   TEST_TRUE(myTable.Parse(argc, argv));
+  TEST_EQ(std::string("USAGE: program\n\tfile\t\tFile\n"), myTable.Usage());
   TEST_EQ(1, myTable.Count("file"));
   TEST_EQ(std::string("filename.ext"), myTable["file"].Arg<std::string>());
 
