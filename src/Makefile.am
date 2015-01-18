@@ -1,4 +1,4 @@
-SUBDIRS = zData zEvent zException zProgOpt zLog zMessage zNode zSem zSocket zThread zTimer
+SUBDIRS = zLog zProgOpt zData zEvent zException zNode zSem zSocket zThread zTimer zMessage
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline

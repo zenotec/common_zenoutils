@@ -1,17 +1,27 @@
 #!/bin/bash
 
-BIN=rtapd
-THISDIR=$(pwd)
-TESTDIR=${THISDIR}/test
+TOPDIR=$(pwd)
+TESTDIR="${TOPDIR}/test"
+TESTS="zLog zProgOpt"
 
+rm -rf ${TOPDIR}/src ${TOPDIR}/test ${TOPDIR}/coverage
+../configure --enable-gcov
 cd ${TESTDIR}
 lcov --base-directory . --directory . --zerocounters -q
-cd ${THISDIR}
+cd ${TOPDIR}
 make check
-cd ${TESTDIR}
-lcov --base-directory . --directory . -c -o ${THISDIR}/${BIN}_test.info
-lcov --remove ${THISDIR}/${BIN}_test.info "/usr*" -o ${THISDIR}/${BIN}_test.info
+
+for test in ${TESTS}; do
+  echo ${test}
+  cd ${TESTDIR}/${test}
+  lcov --base-directory . --directory . -c -o ${TESTDIR}/${test}_test.info
+  lcov --remove ${TESTDIR}/${test}_test.info "/usr*" -o ${TESTDIR}/${test}_test.info
+  genhtml -o ${TOPDIR}/coverage -t "${test} Test Coverage" --num-spaces 4 ${TESTDIR}/${test}_test.info
+done
+
+cd ${TOPDIR}
+
+exit
+
 lcov --remove ${THISDIR}/${BIN}_test.info "*_utest.cpp" -o ${THISDIR}/${BIN}_test.info
-rm -rf ${THISDIR}/coverage
-genhtml -o ${THISDIR}/coverage -t "${BIN} Test Coverage" --num-spaces 4 ${THISDIR}/${BIN}_test.info
 

@@ -15,6 +15,8 @@
 int
 zMessageTest_Defaults(void* arg_);
 int
+zMessageTest_AuthDefaults(void* arg_);
+int
 zMessageTest_HelloDefaults(void* arg_);
 int
 zMessageTest_AckDefaults(void* arg_);
@@ -24,5 +26,13 @@ int
 zMessageTest_CfgDefaults(void* arg_);
 int
 zMessageTest_CmdDefaults(void* arg_);
+int
+zMessageTest_DataDefaults(void* arg_);
+
+int
+zMessageTest_GetSet(void* arg_);
+
+using namespace zUtils;
+using namespace Test;
 
 #endif /* _ZMESSAGETEST_H_ */

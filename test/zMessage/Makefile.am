@@ -12,7 +12,9 @@ zMessageUnitTest_SOURCES = \
     valgrind.sh \
     UnitTest.h \
     UnitTest.cpp \
-    Defaults.cpp
+    Defaults.cpp \
+    GetSet.cpp \
+    Handler.cpp
 
 zMessageUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

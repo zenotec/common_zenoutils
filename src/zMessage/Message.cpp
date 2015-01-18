@@ -112,38 +112,38 @@ Message::GetType() const
 bool
 Message::SetType(const Message::TYPE &type_)
 {
-  bool status = true;
+  bool status = false;
   switch (type_)
   {
   case Message::TYPE_AUTH:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_AUTH);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_AUTH);
     break;
   case Message::TYPE_HELLO:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_HELLO);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_HELLO);
     break;
   case Message::TYPE_ACK:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_ACK);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_ACK);
     break;
   case Message::TYPE_BYE:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_BYE);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_BYE);
     break;
   case Message::TYPE_CFG:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CFG);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CFG);
     break;
   case Message::TYPE_CMD:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CMD);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CMD);
     break;
   case Message::TYPE_DATA:
-    this->SetValue(Message::STR_TYPE, Message::STR_TYPE_DATA);
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_DATA);
     break;
   case Message::TYPE_NONE:
-    this->SetValue(Message::STR_TYPE, std::string(""));
+    status = this->SetValue(Message::STR_TYPE, std::string(""));
     break;
   default:
     status = false;
     break;
   }
-  return (false);
+  return (status);
 }
 
 zNode::Node

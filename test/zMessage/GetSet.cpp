@@ -13,36 +13,35 @@ zMessageTest_GetSet(void* arg_)
   zData::Data data;
 
   // Create new message and validate
-  zMessage::Message *MyMessage = new zMessage::Message();
+  zMessage::Message *MyMessage = new zMessage::Message;
   TEST_EQ(MyMessage->GetId(), std::string(""));
-  TEST_EQ(MyMessage->GetType(), std::string(""));
-  TEST_EQ(MyMessage->GetTo().GetId(), to.GetId());
-  TEST_EQ(MyMessage->GetFrom().GetId(), from.GetId());
+  TEST_EQ(MyMessage->GetType(), zMessage::Message::TYPE_NONE);
+  TEST_NEQ(MyMessage->GetTo().GetId(), to.GetId());
+  TEST_NEQ(MyMessage->GetFrom().GetId(), from.GetId());
 
   // Test setting "id" field
   id = "0123456789";
-  MyMessage->SetId(id);
+  TEST_TRUE(MyMessage->SetId(id));
   TEST_EQ(MyMessage->GetId(), id);
 
   // Test setting "type" field
-  type = "test";
-  MyMessage->SetType(type);
-  TEST_EQ(MyMessage->GetType(), type);
+  TEST_TRUE(MyMessage->SetType(zMessage::Message::TYPE_HELLO));
+  TEST_EQ(MyMessage->GetType(), zMessage::Message::TYPE_HELLO);
 
   // Test setting "to" field
-  to.SetId("toId");
-  MyMessage->SetTo(to);
+  TEST_TRUE(to.SetId("toId"));
+  TEST_TRUE(MyMessage->SetTo(to));
   TEST_EQ(MyMessage->GetTo().GetId(), to.GetId());
 
   // Test setting "from" field
-  from.SetId("fromId");
-  MyMessage->SetFrom(from);
+  TEST_TRUE(from.SetId("fromId"));
+  TEST_TRUE(MyMessage->SetFrom(from));
   TEST_EQ(MyMessage->GetFrom().GetId(), from.GetId());
 
   // Test setting "data" field
   data = MyMessage->GetData();
-  data.SetValue("Key", "Value");
-  MyMessage->SetData(data);
+  TEST_TRUE(data.SetValue("Key", "Value"));
+  TEST_TRUE(MyMessage->SetData(data));
 
   // Cleanup
   delete (MyMessage);
