@@ -1,4 +1,4 @@
-#include "zOptTest.h"
+#include "zProgOptTest.h"
 
 using namespace Test;
 using namespace zUtils;

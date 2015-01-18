@@ -1,5 +1,6 @@
 #include "zutils/zLog.h"
-#include "zOptTest.h"
+
+#include "zProgOptTest.h"
 
 int
 main(int argc, const char **argv)
