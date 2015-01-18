@@ -10,7 +10,7 @@ check_PROGRAMS = zThreadUnitTest
 
 zThreadUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zThreadTest.h \
     UnitTest.cpp \
     Defaults.cpp
 

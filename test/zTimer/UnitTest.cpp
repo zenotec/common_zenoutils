@@ -21,8 +21,4 @@ main(int argc, const char **argv)
   UTEST_TEST( zTimerTest_StartStop, 0);
   UTEST_FINI();
 
-  // Exit
-  exit( 0 );
-
-
 }

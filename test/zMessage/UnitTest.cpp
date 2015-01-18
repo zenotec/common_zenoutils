@@ -12,26 +12,26 @@ main(int argc, const char **argv)
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::INFO);
+  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
 
   // Test all classes
   UTEST_INIT();
 
   UTEST_TEST(zMessageTest_Defaults, 0);
 
-  UTEST_TEST(zMessageTest_AuthDefaults, 0);
-  UTEST_TEST(zMessageTest_HelloDefaults, 0);
-  UTEST_TEST(zMessageTest_AckDefaults, 0);
-  UTEST_TEST(zMessageTest_ByeDefaults, 0);
-  UTEST_TEST(zMessageTest_CfgDefaults, 0);
-  UTEST_TEST(zMessageTest_CmdDefaults, 0);
-  UTEST_TEST(zMessageTest_DataDefaults, 0);
+  UTEST_TEST(zMessageTest_FactoryError, 0);
+  UTEST_TEST(zMessageTest_FactoryAuth, 0);
+  UTEST_TEST(zMessageTest_FactoryHello, 0);
+  UTEST_TEST(zMessageTest_FactoryAck, 0);
+  UTEST_TEST(zMessageTest_FactoryBye, 0);
+  UTEST_TEST(zMessageTest_FactoryCfg, 0);
+  UTEST_TEST(zMessageTest_FactoryCmd, 0);
+  UTEST_TEST(zMessageTest_FactoryData, 0);
 
   UTEST_TEST(zMessageTest_GetSet, 0);
 
-  UTEST_FINI();
+  UTEST_TEST(zMessageTest_Handler, 0);
 
-  // Exit
-  exit(0);
+  UTEST_FINI();
 
 }

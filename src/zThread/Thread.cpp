@@ -21,8 +21,8 @@ namespace zThread
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
-Thread::Thread(Function *func_, void *arg_) :
-    _id(0), _func(func_), _arg(arg_), _exit(true)
+Thread::Thread(Function *func_, void *arg_, uint32_t period_) :
+    _id(0), _func(func_), _arg(arg_), _exit(true), _period(period_)
 {
   // Starting with the mutex in the locked state so that when the thread is
   //   started, it unlocks it
@@ -35,7 +35,7 @@ Thread::~Thread()
 }
 
 bool
-Thread::Run()
+Thread::Run(uint32_t msecs_)
 {
 
   bool status = false;
@@ -66,7 +66,7 @@ Thread::Run()
     throw;
   } /* end if */
 
-  if (this->_mutex.TimedLock(1000000))
+  if (this->_mutex.TimedLock(msecs_ * 1000))
   {
     this->_id = id;
     status = !this->_exit;
@@ -95,14 +95,7 @@ Thread::Join(uint32_t msecs_)
 unsigned long
 Thread::GetId()
 {
-  unsigned long id = 0;
-
-  if (this->_mutex.TryLock())
-  {
-    id = (unsigned long) this->_id;
-    this->_mutex.Unlock();
-  }
-  return (id);
+  return (this->_id);
 }
 
 void *
@@ -119,7 +112,7 @@ Thread::_threadHandler(void *arg_)
 
   while (self && !self->_exit && self->_func)
   {
-    if (self->_mutex.TryLock())
+    if (self->_mutex.TimedLock(self->_period * 1000))
     {
       if (self->_func->ThreadFunction(self->_arg))
       {
@@ -129,8 +122,7 @@ Thread::_threadHandler(void *arg_)
     }
   }
 
-  logstr = "Thread exiting";
-  ZLOG_INFO(logstr);
+  ZLOG_INFO("Thread exiting");
 
   pthread_exit(0);
   return (0);

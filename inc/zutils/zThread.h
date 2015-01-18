@@ -37,14 +37,14 @@ public:
 class Thread
 {
 public:
-  Thread(Function *func_, void *arg_);
+  Thread(Function *func_, void *arg_, uint32_t period_ = 100);
   ~Thread();
 
   unsigned long
   GetId();
 
   bool
-  Run();
+  Run(uint32_t msecs_);
 
   bool
   Join(uint32_t msecs_);
@@ -60,6 +60,7 @@ private:
   Function *_func;
   void *_arg;
   bool _exit;
+  uint32_t _period; // msecs
 
 };
 

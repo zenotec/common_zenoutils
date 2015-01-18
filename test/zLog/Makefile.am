@@ -10,7 +10,7 @@ check_PROGRAMS = zLogUnitTest
 
 zLogUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zLogTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     File.cpp

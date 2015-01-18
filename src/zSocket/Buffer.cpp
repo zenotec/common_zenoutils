@@ -184,7 +184,19 @@ Buffer::TotalSize()
 std::string
 Buffer::Str()
 {
-  return (std::string((const char *) this->_head, this->_tail));
+  return (std::string((const char *) this->Head(), this->Size()));
+}
+
+bool
+Buffer::Str(const std::string &str_)
+{
+  bool status = false;
+  void *ret = memcpy(this->Head(), str_.c_str(), str_.size());
+  if ((ret == this->Head()) && this->Put(str_.size()))
+  {
+    status = true;
+  }
+  return (status);
 }
 
 }

@@ -10,7 +10,7 @@ check_PROGRAMS = zNodeUnitTest
 
 zNodeUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zNodeTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Node.cpp \

@@ -10,7 +10,7 @@ check_PROGRAMS = zProgOptUnitTest
 
 zProgOptUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zProgOptTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Option.cpp \

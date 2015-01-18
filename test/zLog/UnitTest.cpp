@@ -11,8 +11,4 @@ main(int argc, const char **argv)
   UTEST_TEST( zLogTest_FileConnector, 0);
   UTEST_FINI();
 
-  // Exit
-  exit( 0 );
-
-
 }

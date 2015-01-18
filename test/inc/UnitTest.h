@@ -78,8 +78,8 @@ do { \
   if( utest ) \
   { \
     utest->DisplayFooter(); \
-    return( utest->GetStatus()); \
   } \
+  return( utest->GetStatus()); \
 } while(0);
 
 #define UTEST_TEST(fnc, arg) \

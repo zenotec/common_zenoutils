@@ -10,7 +10,7 @@ check_PROGRAMS = zSemUnitTest
 
 zSemUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zSemTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Mutex.cpp \

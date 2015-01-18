@@ -70,6 +70,7 @@ AC_CONFIG_FILES([
         src/zData/Makefile
         src/zEvent/Makefile
         src/zException/Makefile
+        src/zGpio/Makefile
         src/zLog/Makefile
         src/zMessage/Makefile
         src/zNode/Makefile
@@ -81,6 +82,7 @@ AC_CONFIG_FILES([
       test/Makefile
         test/zData/Makefile
         test/zEvent/Makefile
+        test/zGpio/Makefile
         test/zLog/Makefile
         test/zMessage/Makefile
         test/zNode/Makefile

@@ -1,6 +1,6 @@
-#include "zutils/zLog.h"
+#include <zutils/zLog.h>
+
 #include "zEventTest.h"
-#include "UnitTest.h"
 
 int
 main(int argc, const char **argv)
@@ -18,9 +18,7 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
   UTEST_TEST(zEventTest_Defaults, 0);
+  UTEST_TEST(zEventTest_EventList, 0);
   UTEST_FINI();
-
-  // Exit
-  exit(0);
 
 }

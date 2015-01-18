@@ -19,7 +19,4 @@ main(int argc, const char **argv)
   UTEST_TEST(zQueueTest_Defaults, 0);
   UTEST_FINI();
 
-  // Exit
-  exit(0);
-
 }

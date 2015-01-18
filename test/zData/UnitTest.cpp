@@ -29,8 +29,4 @@ main(int argc, const char **argv)
   UTEST_TEST( zDataTest_XmlSimple, 0);
   UTEST_FINI();
 
-  // Exit
-  exit( 0 );
-
-
 }

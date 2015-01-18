@@ -14,25 +14,62 @@
 
 int
 zMessageTest_Defaults(void* arg_);
+
 int
-zMessageTest_AuthDefaults(void* arg_);
+zMessageTest_FactoryError(void* arg_);
 int
-zMessageTest_HelloDefaults(void* arg_);
+zMessageTest_FactoryAuth(void* arg_);
 int
-zMessageTest_AckDefaults(void* arg_);
+zMessageTest_FactoryHello(void* arg_);
 int
-zMessageTest_ByeDefaults(void* arg_);
+zMessageTest_FactoryAck(void* arg_);
 int
-zMessageTest_CfgDefaults(void* arg_);
+zMessageTest_FactoryBye(void* arg_);
 int
-zMessageTest_CmdDefaults(void* arg_);
+zMessageTest_FactoryCfg(void* arg_);
 int
-zMessageTest_DataDefaults(void* arg_);
+zMessageTest_FactoryCmd(void* arg_);
+int
+zMessageTest_FactoryData(void* arg_);
 
 int
 zMessageTest_GetSet(void* arg_);
 
+int
+zMessageTest_Handler(void* arg_);
+
 using namespace zUtils;
 using namespace Test;
+
+class TestHandler : public zMessage::Handler, public zMessage::Observer
+{
+public:
+
+  TestHandler()
+  {
+    zMessage::Handler::Register(zMessage::Message::TYPE_HELLO, this);
+    zMessage::Handler::Register(zMessage::Message::TYPE_ACK, this);
+    zMessage::Handler::Register(zMessage::Message::TYPE_BYE, this);
+  }
+
+  virtual
+  ~TestHandler()
+  {
+    zMessage::Handler::Unregister(zMessage::Message::TYPE_HELLO, this);
+    zMessage::Handler::Unregister(zMessage::Message::TYPE_ACK, this);
+    zMessage::Handler::Unregister(zMessage::Message::TYPE_BYE, this);
+  }
+
+  virtual bool
+  RecvMsg(zMessage::Handler &handler_, zMessage::Message &msg_)
+  {
+    return(false);
+  }
+
+protected:
+
+private:
+
+};
 
 #endif /* _ZMESSAGETEST_H_ */

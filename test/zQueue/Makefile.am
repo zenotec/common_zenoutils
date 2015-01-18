@@ -10,7 +10,7 @@ check_PROGRAMS = zQueueUnitTest
 
 zQueueUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zQueueTest.h \
     UnitTest.cpp \
     Defaults.cpp
 

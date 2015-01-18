@@ -22,7 +22,4 @@ main(int argc, const char **argv)
   UTEST_TEST(zNodeTest_NodeTableGetSet, 0);
   UTEST_FINI();
 
-  // Exit
-  exit(0);
-
 }

@@ -10,7 +10,7 @@ check_PROGRAMS = zTimerUnitTest
 
 zTimerUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zTimerTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     StartStop.cpp

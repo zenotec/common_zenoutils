@@ -27,7 +27,9 @@ int
 zSocketTest_HandlerDefaults(void* arg_);
 
 int
-zSocketTest_SocketBufferCompare(void* arg_);
+zSocketTest_BufferCompare(void* arg_);
+int
+zSocketTest_BufferString(void* arg_);
 
 int
 zSocketTest_AddressGetSet(void* arg_);
@@ -50,6 +52,13 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_);
 
 int
 zSocketTest_InetSocketObserver(void* arg_);
+
+int
+zSocketTest_HandlerRegister(void* arg_);
+int
+zSocketTest_HandlerStartStop(void* arg_);
+int
+zSocketTest_HandlerSendRecv(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
@@ -84,7 +93,7 @@ public:
     zSocket::Buffer *sb = 0;
     std::string logstr = "TestObserver::WaitForPacket(): Waiting for queue event";
     ZLOG_DEBUG(logstr);
-    if (this->_events.Wait(ms_))
+    if (this->_events.Wait(ms_ * 1000))
     {
       std::string logstr = "TestObserver::WaitForPacket(): Queue event received";
       ZLOG_DEBUG(logstr);
@@ -108,7 +117,8 @@ private:
 class TestSocket : public zSocket::Socket
 {
 public:
-  TestSocket()
+  TestSocket() :
+      _opened(false), _bound(false), _connected(false)
   {
   }
   virtual
@@ -121,34 +131,59 @@ protected:
   virtual bool
   _open()
   {
-    return (false);
+    bool status = false;
+    if (!this->_opened)
+    {
+      this->_opened = true;
+      status = true;
+    }
+    return (status);
   }
 
   virtual void
   _close()
   {
+    this->_opened = false;
     return;
   }
 
   virtual bool
   _bind()
   {
-    return (false);
+    bool status = false;
+    if (this->_opened && !this->_bound && !this->_connected)
+    {
+      this->_bound = true;
+      status = true;
+    }
+    return (status);
   }
 
   virtual bool
   _connect()
   {
-    return (false);
+    bool status = false;
+    if (this->_opened && !this->_bound && !this->_connected)
+    {
+      this->_connected = true;
+      status = true;
+    }
+    return (status);
   }
 
   virtual ssize_t
   _send(const zSocket::Address &addr_, zSocket::Buffer &sb_)
   {
-    return (-1);
+    zSocket::Buffer *sb = new zSocket::Buffer(sb_);
+    this->Push(std::make_pair(addr_, sb));
+    return (sb->Size());
   }
 
 private:
+
+  bool _opened;
+  bool _bound;
+  bool _connected;
 
 };
 

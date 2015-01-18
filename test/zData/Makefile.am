@@ -10,7 +10,7 @@ check_PROGRAMS = zDataUnitTest
 
 zDataUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zDataTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     SetValue.cpp \

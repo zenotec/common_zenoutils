@@ -46,6 +46,7 @@ Address::SetType(const Address::TYPE &type_)
   bool status = true;
   switch (type_)
   {
+  case Address::TYPE_LOOP:
   case Address::TYPE_INET:
     this->_type = type_;
     break;

@@ -17,9 +17,8 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
   UTEST_TEST(zSemTest_Defaults, 0);
+  UTEST_TEST(zSemTest_Mutex, 0);
+  UTEST_TEST(zSemTest_Semaphore, 0);
   UTEST_FINI();
-
-  // Exit
-  exit(0);
 
 }

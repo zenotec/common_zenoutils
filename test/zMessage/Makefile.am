@@ -10,9 +10,10 @@ check_PROGRAMS = zMessageUnitTest
 
 zMessageUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zMessageTest.h \
     UnitTest.cpp \
     Defaults.cpp \
+    Factory.cpp \
     GetSet.cpp \
     Handler.cpp
 

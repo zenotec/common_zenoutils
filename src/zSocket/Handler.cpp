@@ -98,17 +98,17 @@ Handler::Close(Socket *sock_)
 }
 
 bool
-Handler::StartListener(uint32_t usecs_)
+Handler::StartListener(uint32_t msecs_)
 {
   ZLOG_DEBUG("Handler::StartListener: Start listening on sockets");
-  return (this->_thread.Run());
+  return (this->_thread.Run(msecs_));
 }
 
 bool
-Handler::StopListener()
+Handler::StopListener(uint32_t msecs_)
 {
   ZLOG_DEBUG("Handler::StopListener: Stop listening on sockets");
-  return (this->_thread.Join(1000));
+  return (this->_thread.Join(msecs_));
 }
 
 //*****************************************************************************

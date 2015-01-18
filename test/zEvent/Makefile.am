@@ -10,7 +10,7 @@ check_PROGRAMS = zEventUnitTest
 
 zEventUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zEventTest.h \
     UnitTest.cpp \
     Defaults.cpp
 

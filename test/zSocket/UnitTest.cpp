@@ -24,7 +24,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_SocketDefaults, 0);
   UTEST_TEST(zSocketTest_HandlerDefaults, 0);
 
-  UTEST_TEST(zSocketTest_SocketBufferCompare, 0);
+  UTEST_TEST(zSocketTest_BufferCompare, 0);
+  UTEST_TEST(zSocketTest_BufferString, 0);
 
   UTEST_TEST(zSocketTest_AddressGetSet, 0);
   UTEST_TEST(zSocketTest_AddressCompare, 0);
@@ -38,9 +39,10 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
   UTEST_TEST(zSocketTest_InetSocketObserver, 0);
 
-  UTEST_FINI();
+  UTEST_TEST(zSocketTest_HandlerRegister, 0);
+  UTEST_TEST(zSocketTest_HandlerStartStop, 0);
+  UTEST_TEST(zSocketTest_HandlerSendRecv, 0);
 
-  // Exit
-  exit(0);
+  UTEST_FINI();
 
 }

@@ -10,13 +10,14 @@ check_PROGRAMS = zSocketUnitTest
 
 zSocketUnitTest_SOURCES = \
     valgrind.sh \
-    UnitTest.h \
+    zSocketTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Buffer.cpp \
     Address.cpp \
     InetAddress.cpp \
-    InetSocket.cpp
+    InetSocket.cpp \
+    Handler.cpp
 
 zSocketUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

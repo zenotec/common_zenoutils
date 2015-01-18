@@ -30,7 +30,4 @@ main(int argc, const char **argv)
 
   UTEST_FINI();
 
-  // Exit
-  exit(0);
-
 }

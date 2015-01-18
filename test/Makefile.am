@@ -1,4 +1,4 @@
-SUBDIRS = zLog zProgOpt zData zTimer zThread zEvent zQueue zSem zSocket zNode zMessage
+SUBDIRS = zLog zProgOpt zData zTimer zThread zEvent zQueue zSem zSocket zNode zMessage zGpio
 
 if COND_VALGRIND
 VALGRIND_TESTS = \
@@ -12,7 +12,8 @@ VALGRIND_TESTS = \
     zQueue/valgrind.sh \
     zNode/valgrind.sh \
     zSocket/valgrind.sh \
-    zMessage/valgrind.sh
+    zMessage/valgrind.sh \
+    zGpio/valgrind.sh
 endif
 
 GCOV_TESTS = \
@@ -26,7 +27,8 @@ GCOV_TESTS = \
     zQueue/zQueueUnitTest \
     zNode/zNodeUnitTest \
     zSocket/zSocketUnitTest \
-    zMessage/zMessageUnitTest
+    zMessage/zMessageUnitTest \
+    zGpio/zGpioUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)

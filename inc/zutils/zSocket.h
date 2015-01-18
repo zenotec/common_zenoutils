@@ -79,6 +79,9 @@ public:
   std::string
   Str();
 
+  bool
+  Str(const std::string &str_);
+
 protected:
 
 private:
@@ -106,7 +109,8 @@ public:
   {
     TYPE_ERR = -1,
     TYPE_NONE = 0,
-    TYPE_INET = 1,
+    TYPE_LOOP = 1,
+    TYPE_INET = 2,
     TYPE_LAST
   };
 
@@ -217,9 +221,9 @@ public:
   Close(zSocket::Socket *sock_ = NULL);
 
   bool
-  StartListener(uint32_t usecs_);
+  StartListener(uint32_t msecs_ = 0);
   bool
-  StopListener();
+  StopListener(uint32_t msecs_ = 0);
 
 protected:
 

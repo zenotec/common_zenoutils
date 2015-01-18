@@ -133,7 +133,7 @@ InetSocket::_bind()
     ZLOG_CRIT("InetSocket::_bind: Cannot bind socket: " + std::string(strerror(errno)));
     return (false);
   } // end if
-  this->_thread.Run();
+  this->_thread.Run(1000);
   return (true);
 }
 
@@ -155,10 +155,9 @@ InetSocket::_connect()
     ZLOG_CRIT("InetSocket::_connect: Cannot connect socket: " + std::string(strerror(errno)));
     return (false);
   } // end if
-  this->_thread.Run();
+  this->_thread.Run(1000);
   return (true);
 }
-
 
 ssize_t
 InetSocket::_send(const Address &addr_, Buffer &sb_)
