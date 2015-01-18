@@ -10,26 +10,26 @@ zNodeTest_NodeGetSet(void* arg_)
   std::string exp;
 
   // Create new node and validate
-  zNode::Node *MyNode = new zNode::Node;
-  TEST_EQ( MyNode->GetType(), std::string( "" ));
-  TEST_EQ( MyNode->GetId(), std::string( "" ));
+  zNode::Node *myNode = new zNode::Node;
+  TEST_EQ(std::string(""), myNode->GetType());
+  TEST_NEQ(std::string(""), myNode->GetId());
 
   // Test setting type
   exp = "";
-  TEST_EQ( MyNode->GetType(), exp);
+  TEST_EQ( myNode->GetType(), exp);
   exp = "Type";
-  MyNode->SetType(exp);
-  TEST_EQ( MyNode->GetType(), exp);
+  TEST_TRUE(myNode->SetType(exp));
+  TEST_EQ( myNode->GetType(), exp);
 
   // Test setting identifier
   exp = "";
-  TEST_EQ( MyNode->GetId(), exp);
+  TEST_NEQ( myNode->GetId(), exp);
   exp = "Identifier";
-  MyNode->SetId(exp);
-  TEST_EQ( MyNode->GetId(), exp);
+  TEST_TRUE(myNode->SetId(exp));
+  TEST_EQ( myNode->GetId(), exp);
 
   // Cleanup
-  delete (MyNode);
+  delete (myNode);
 
   // Return success
   return (0);

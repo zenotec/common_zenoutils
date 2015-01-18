@@ -28,7 +28,9 @@ class Data
   static const std::string KEY;
 
 public:
+
   Data(const std::string &key_ = "");
+
   virtual
   ~Data();
 
@@ -39,36 +41,36 @@ public:
   GetValue(const std::string &key_) const;
   void
   GetValue(const std::string &key_, std::string &value_) const;
-  void
+  bool
   SetValue(const std::string &key_, const std::string &value_);
-  void
+  bool
   AddValue(const std::string &key_, const std::string &value_);
 
   void
   GetChild(const std::string &key_, Data &child_) const;
-  void
+  bool
   PutChild(const std::string &key_, const Data &child_);
-  void
+  bool
   AddChild(const std::string &key_, const Data &child_);
 
   std::string
   GetJson() const;
-  void
+  bool
   SetJson(const std::string &json_);
 
   std::string
   GetXml() const;
-  void
+  bool
   SetXml(const std::string &xml_);
 
 protected:
   std::string
   _getKey() const;
-  void
+  bool
   _setKey(const std::string &key_);
   boost::property_tree::ptree
   _getValue(const std::string &key_) const;
-  void
+  bool
   _setValue(const std::string &key_, const boost::property_tree::ptree &pt_);
 
 private:

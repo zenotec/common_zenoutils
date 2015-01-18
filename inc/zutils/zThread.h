@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <pthread.h>
 
-#include "zutils/zEvent.h"
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {

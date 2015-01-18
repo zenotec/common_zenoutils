@@ -23,21 +23,25 @@ Buffer::Buffer(size_t size_) :
     _head(0), _data(0), _tail(0), _end(size_)
 {
   this->_head = (uint8_t *) malloc(size_);
-  if (this->_head)
+  if (!this->_head)
   {
-    memset(this->_head, 0, size_);
+    std::string errMsg = "Error allocating memory for socket buffer";
+    throw errMsg;
   }
+  memset(this->_head, 0, size_);
 }
 
 Buffer::Buffer(Buffer &other_) :
     _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
 {
   this->_head = (uint8_t *) malloc(other_._end);
-  if (this->_head)
+  if (!this->_head)
   {
-    memset(this->_head, 0, other_._end);
-    memcpy(this->_head, other_._head, other_._tail);
+    std::string errMsg = "Error allocating memory for socket buffer";
+    throw errMsg;
   }
+  memset(this->_head, 0, other_._end);
+  memcpy(this->_head, other_._head, other_._tail);
 }
 
 Buffer::~Buffer()
@@ -52,15 +56,22 @@ Buffer::~Buffer()
 Buffer &
 Buffer::operator=(Buffer &other_)
 {
-  this->_head = (uint8_t *) malloc(other_._end);
-  if (this->_head)
+  // Free previous buffer if it is a different size
+  if (this->_head && (this->_end != other_._end))
   {
-    this->_data = other_._data;
-    this->_tail = other_._tail;
-    this->_end = other_._end;
-    memset(this->_head, 0, other_._end);
-    memcpy(this->_head, other_._head, other_._tail);
-  }
+    free(this->_head);
+    this->_head = (uint8_t *) malloc(other_._end);
+    if (!this->_head)
+    {
+      std::string errMsg = "Error allocating memory for socket buffer";
+      throw errMsg;
+    }
+  } // end if
+  this->_data = other_._data;
+  this->_tail = other_._tail;
+  this->_end = other_._end;
+  memcpy(this->_head, other_._head, this->_tail);
+  memset(this->_head + this->_tail, 0, this->_end - this->_tail);
   return (*this);
 }
 

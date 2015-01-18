@@ -10,6 +10,7 @@
 
 #include <zutils/zLog.h>
 #include <zutils/zNode.h>
+#include <zutils/zUuid.h>
 
 namespace zUtils
 {
@@ -29,12 +30,13 @@ Node::Node(const zData::Data &node_) :
 {
 }
 
-Node::Node(const std::string &type_, const std::string &id_) :
+Node::Node(const std::string &type_) :
     zData::Data(Node::ROOT), _tardyCnt(0)
 {
+  zUuid::Uuid uuid;
   this->SetType(type_);
-  this->SetId(id_);
-  ZLOG_DEBUG("Creating new node: " + type_ + "[" + id_ + "]");
+  this->SetId(uuid());
+  ZLOG_DEBUG("Creating new node: " + this->GetType() + "[" + this->GetId() + "]");
 }
 
 Node::~Node()
@@ -43,25 +45,25 @@ Node::~Node()
 
 bool
 Node::operator ==(const Node &other_) const
-{
+    {
   return (this->GetId() == other_.GetId());
 }
 
 bool
 Node::operator !=(const Node &other_) const
-{
+    {
   return (this->GetId() != other_.GetId());
 }
 
 bool
 Node::operator >(const Node &other_) const
-{
+    {
   return (this->GetId() > other_.GetId());
 }
 
 bool
 Node::operator <(const Node &other_) const
-{
+    {
   return (this->GetId() < other_.GetId());
 }
 
@@ -71,10 +73,10 @@ Node::GetType() const
   return (this->GetValue(Node::TYPE));
 }
 
-void
+bool
 Node::SetType(const std::string &type_)
 {
-  this->SetValue(Node::TYPE, type_);
+  return (this->SetValue(Node::TYPE, type_));
 }
 
 std::string
@@ -83,10 +85,10 @@ Node::GetId() const
   return (this->GetValue(Node::ID));
 }
 
-void
+bool
 Node::SetId(const std::string &id_)
 {
-  this->SetValue(Node::ID, id_);
+  return (this->SetValue(Node::ID, id_));
 }
 
 }

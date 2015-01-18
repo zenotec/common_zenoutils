@@ -9,12 +9,11 @@
 #define _ZUUID_H_
 
 #include <stdint.h>
+
+#include <uuid/uuid.h>
+
 #include <string>
 #include <sstream>
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 namespace zUtils
 {
@@ -27,11 +26,11 @@ public:
   std::string
   operator()(const unsigned int len = 64)
   {
-    boost::uuids::random_generator rg;
-    boost::uuids::uuid uuid = rg();
-    std::stringstream ss;
-    ss << uuid;
-    return (ss.str());
+    uuid_t uuid;
+    uuid_generate(uuid);
+    char c_str[256] = { 0 };
+    uuid_unparse(uuid, c_str);
+    return (std::string(c_str));
   }
 
 protected:

@@ -8,15 +8,15 @@ zNodeTest_NodeDefaults(void* arg_)
 {
 
   // Create new node from zData object
-  zData::Data MyData;
-  zNode::Node MyNode1(MyData);
-  TEST_EQ(MyNode1.GetType(), std::string(""));
-  TEST_EQ(MyNode1.GetId(), std::string(""));
+  zData::Data myData;
+  zNode::Node myNode1(myData);
+  TEST_EQ(std::string(""), myNode1.GetType());
+  TEST_EQ(std::string(""), myNode1.GetId());
 
   // Create new node and validate
-  zNode::Node MyNode2;
-  TEST_EQ(MyNode2.GetType(), std::string(""));
-  TEST_EQ(MyNode2.GetId(), std::string(""));
+  zNode::Node myNode2;
+  TEST_EQ(std::string(""), myNode2.GetType());
+  TEST_NEQ(std::string(""), myNode2.GetId());
 
   // Return success
   return (0);

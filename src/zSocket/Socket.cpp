@@ -37,12 +37,18 @@ ssize_t
 Socket::RecvString(Address &addr_, std::string &str_)
 {
   ssize_t bytes = 0;
-  Buffer sb;
-  bytes = RecvBuffer(addr_, sb);
+  zSocket::Buffer *sb = new zSocket::Buffer;
+  if (!sb)
+  {
+    std::string errMsg = "Error allocating memory for socket buffer";
+    throw errMsg;
+  }
+  bytes = RecvBuffer(addr_, *sb);
   if (bytes > 0)
   {
-    str_ = sb.Str();
+    str_ = sb->Str();
   }
+  delete (sb);
   return (bytes);
 }
 

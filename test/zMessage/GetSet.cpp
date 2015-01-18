@@ -12,7 +12,7 @@ zMessageTest_GetSet(void* arg_)
   zNode::Node from;
   zData::Data data;
 
-  // Create new node and validate
+  // Create new message and validate
   zMessage::Message *MyMessage = new zMessage::Message();
   TEST_EQ(MyMessage->GetId(), std::string(""));
   TEST_EQ(MyMessage->GetType(), std::string(""));

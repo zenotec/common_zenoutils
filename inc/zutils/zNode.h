@@ -14,9 +14,9 @@
 #include <map>
 #include <list>
 
-#include "zutils/zData.h"
-#include "zutils/zQueue.h"
-#include "zutils/zTimer.h"
+#include <zutils/zData.h>
+#include <zutils/zQueue.h>
+#include <zutils/zTimer.h>
 
 namespace zUtils
 {
@@ -38,8 +38,11 @@ class Node : public zData::Data
   friend class Table;
 
 public:
+
   Node(const zData::Data &node_);
-  Node(const std::string &type_ = "", const std::string &id_ = "");
+
+  Node(const std::string &type_ = "");
+
   virtual
   ~Node();
 
@@ -54,12 +57,12 @@ public:
 
   std::string
   GetType() const;
-  void
+  bool
   SetType(const std::string &type_);
 
   std::string
   GetId() const;
-  void
+  bool
   SetId(const std::string &id_);
 
 protected:
