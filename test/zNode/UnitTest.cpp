@@ -18,7 +18,10 @@ main(int argc, const char **argv)
   UTEST_INIT();
   UTEST_TEST(zNodeTest_NodeDefaults, 0);
   UTEST_TEST(zNodeTest_NodeTableDefaults, 0);
+
   UTEST_TEST(zNodeTest_NodeGetSet, 0);
+  UTEST_TEST(zNodeTest_NodeCopy, 0);
+
   UTEST_TEST(zNodeTest_NodeTableGetSet, 0);
   UTEST_FINI();
 

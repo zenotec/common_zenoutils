@@ -33,7 +33,9 @@ int
 zMessageTest_FactoryData(void* arg_);
 
 int
-zMessageTest_GetSet(void* arg_);
+zMessageTest_MessageGetSet(void* arg_);
+int
+zMessageTest_MessageCopy(void* arg_);
 
 int
 zMessageTest_Handler(void* arg_);
@@ -45,8 +47,11 @@ class TestHandler : public zMessage::Handler, public zMessage::Observer
 {
 public:
 
-  TestHandler()
+  TestHandler() :
+      _cnt(0)
   {
+    ZLOG_DEBUG("TestHandler::TestHandler(): New test handler created");
+    this->_cnt = new uint32_t[zMessage::Message::TYPE_LAST];
     zMessage::Handler::Register(zMessage::Message::TYPE_HELLO, this);
     zMessage::Handler::Register(zMessage::Message::TYPE_ACK, this);
     zMessage::Handler::Register(zMessage::Message::TYPE_BYE, this);
@@ -55,20 +60,40 @@ public:
   virtual
   ~TestHandler()
   {
+    ZLOG_DEBUG("TestHandler::~TestHandler(): Test handler deleted");
     zMessage::Handler::Unregister(zMessage::Message::TYPE_HELLO, this);
     zMessage::Handler::Unregister(zMessage::Message::TYPE_ACK, this);
     zMessage::Handler::Unregister(zMessage::Message::TYPE_BYE, this);
+    delete[] (this->_cnt);
   }
 
   virtual bool
   RecvMsg(zMessage::Handler &handler_, zMessage::Message &msg_)
   {
-    return(false);
+    ZLOG_DEBUG("TestHandler::RecvMsg(): Received message");
+    this->_cnt[msg_.GetType()]++;
+    this->_sem.Post();
+    return (true);
+  }
+
+  bool
+  WaitForMessage(uint32_t msecs_)
+  {
+    return (this->_sem.TimedWait(msecs_));
+  }
+
+  uint32_t
+  GetCount(zMessage::Message::TYPE type_)
+  {
+    return (this->_cnt[type_]);
   }
 
 protected:
 
 private:
+
+  zSem::Semaphore _sem;
+  uint32_t *_cnt;
 
 };
 

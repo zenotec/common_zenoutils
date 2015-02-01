@@ -16,8 +16,12 @@ int
 zNodeTest_NodeDefaults(void* arg_);
 int
 zNodeTest_NodeTableDefaults(void* arg_);
+
 int
 zNodeTest_NodeGetSet(void* arg_);
+int
+zNodeTest_NodeCopy(void* arg_);
+
 int
 zNodeTest_NodeTableGetSet(void* arg_);
 

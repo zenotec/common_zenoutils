@@ -11,7 +11,7 @@ zMessageTest_Handler(void* arg_)
 
   // Setup local node
   zNode::Node self;
-  self.SetType("test");
+  self.SetType("nodeType");
 
   // Setup network socket
   zSocket::Address myAddr(zSocket::Address::TYPE_INET, std::string("127.0.0.1:8888"));
@@ -29,22 +29,41 @@ zMessageTest_Handler(void* arg_)
   // Send hello message to self
   zMessage::Message *helloMsg = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);
   TEST_ISNOT_NULL(helloMsg);
+  TEST_TRUE(helloMsg->SetId("helloMsg"));
+  TEST_TRUE(helloMsg->SetTo(self));
   TEST_TRUE(helloMsg->SetFrom(self));
-  TEST_EQ((int)helloMsg->GetJson().size(), (int)mySock->SendString(myAddr, helloMsg->GetJson()));
+  ZLOG_DEBUG(helloMsg->GetJson());
+  TEST_EQ((int)helloMsg->GetJson().size(), (int)mySock->Send(myAddr, helloMsg->GetJson()));
   delete (helloMsg);
 
-  // Pause here to allow context switch
-  usleep(100000);
+  // Wait for message to arrive
+  TEST_TRUE(myHandler->WaitForMessage(100000));
+
+  // Send hello message to self
+  zMessage::Message *ackMsg = zMessage::Factory::Create(zMessage::Message::TYPE_ACK);
+  TEST_ISNOT_NULL(ackMsg);
+  TEST_TRUE(ackMsg->SetId("ackMsg"));
+  TEST_TRUE(ackMsg->SetTo(self));
+  TEST_TRUE(ackMsg->SetFrom(self));
+  ZLOG_DEBUG(ackMsg->GetJson());
+  TEST_EQ((int)ackMsg->GetJson().size(), (int)mySock->Send(myAddr, ackMsg->GetJson()));
+  delete (ackMsg);
+
+  // Wait for message to arrive
+  TEST_TRUE(myHandler->WaitForMessage(100000));
 
   // Send hello message to self
   zMessage::Message *byeMsg = zMessage::Factory::Create(zMessage::Message::TYPE_BYE);
   TEST_ISNOT_NULL(byeMsg);
+  TEST_TRUE(byeMsg->SetId("byeMsg"));
+  TEST_TRUE(byeMsg->SetTo(self));
   TEST_TRUE(byeMsg->SetFrom(self));
-  TEST_EQ((int)byeMsg->GetJson().size(), (int)mySock->SendString(myAddr, byeMsg->GetJson()));
+  ZLOG_DEBUG(byeMsg->GetJson());
+  TEST_EQ((int)byeMsg->GetJson().size(), (int)mySock->Send(myAddr, byeMsg->GetJson()));
   delete (byeMsg);
 
-  // Pause here to allow context switch
-  usleep(100000);
+  // Wait for message to arrive
+  TEST_TRUE(myHandler->WaitForMessage(100000));
 
   // Clean up
   myHandler->StopListener();

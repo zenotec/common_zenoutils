@@ -21,7 +21,6 @@ namespace zUtils
 namespace zSocket
 {
 
-
 //**********************************************************************
 // InetAddress Class
 //**********************************************************************
@@ -29,9 +28,11 @@ namespace zSocket
 InetAddress::InetAddress(const Address &addr_)
 {
   memset(&this->_ipaddr, 0, sizeof(this->_ipaddr));
-  if ((addr_.GetType() != Address::TYPE_INET) || !this->SetAddr(addr_.GetAddr()))
+  if ((addr_.GetType() != Address::TYPE_INET) || !this->SetAddr(addr_.GetAddress()))
   {
-    ZLOG_CRIT("zSocket::InetAddress: Cannot set address");
+    std::string errMsg = "zSocket::InetAddress: Cannot set address";
+    ZLOG_CRIT(errMsg);
+    throw(errMsg);
   } // end if
 }
 
@@ -40,7 +41,9 @@ InetAddress::InetAddress(const std::string& addr_)
   memset(&this->_ipaddr, 0, sizeof(this->_ipaddr));
   if (!this->SetAddr(addr_))
   {
-    ZLOG_CRIT("zSocket::InetAddress: Cannot set address");
+    std::string errMsg = "zSocket::InetAddress: Cannot set address";
+    ZLOG_CRIT(errMsg);
+    throw(errMsg);
   } // end if
 }
 
@@ -49,7 +52,9 @@ InetAddress::InetAddress(const struct sockaddr_in& addr_)
   memset(&this->_ipaddr, 0, sizeof(this->_ipaddr));
   if (!this->SetAddr(addr_))
   {
-    ZLOG_CRIT("zSocket::InetAddress: Cannot set address");
+    std::string errMsg = "zSocket::InetAddress: Cannot set address";
+    ZLOG_CRIT(errMsg);
+    throw(errMsg);
   } // end if
 }
 
@@ -67,6 +72,18 @@ bool
 InetAddress::operator !=(const InetAddress &other_) const
 {
   return ((this->GetAddrString() != other_.GetAddrString()));
+}
+
+bool
+InetAddress::operator <(const InetAddress &other_) const
+{
+  return ((this->GetAddrString() < other_.GetAddrString()));
+}
+
+bool
+InetAddress::operator >(const InetAddress &other_) const
+{
+  return ((this->GetAddrString() > other_.GetAddrString()));
 }
 
 std::string

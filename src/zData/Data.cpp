@@ -31,6 +31,18 @@ Data::~Data()
 {
 }
 
+bool
+Data::operator ==(const Data &other_) const
+{
+  return (this->_pt == other_._pt);
+}
+
+bool
+Data::operator !=(const Data &other_) const
+{
+  return (this->_pt != other_._pt);
+}
+
 std::string
 Data::GetKey() const
 {
@@ -70,8 +82,8 @@ Data::GetValue(const std::string &name_) const
   try
   {
     name = this->GetKey() + "." + name_;
-    ZLOG_DEBUG("Getting zData value: " + name_ + " = " + value);
     value = this->_pt.get < std::string > (name);
+    ZLOG_DEBUG("Getting zData value: " + name_ + " = " + value);
   }
   catch (boost::property_tree::ptree_bad_path const &e)
   {
@@ -103,8 +115,8 @@ Data::SetValue(const std::string &name_, const std::string &value_)
   try
   {
     name = this->GetKey() + "." + name_;
-    ZLOG_DEBUG("Setting zData value: " + name + " = " + value_);
     this->_pt.put(name, value_);
+    ZLOG_DEBUG("Setting zData value: " + name + " = " + value_);
     status = true;
   }
   catch (boost::property_tree::ptree_bad_path const &e)

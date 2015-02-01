@@ -15,12 +15,16 @@ using namespace zUtils;
 int
 zSocketTest_HandlerRegister(void* arg_)
 {
+  // Create new socket address and validate
+  zSocket::Address myAddr;
+  TEST_EQ(zSocket::Address::TYPE_ERR, myAddr.GetType());
+  TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Create new observer and validate
   TestObserver myObserver;
 
   // Create new socket and validate
-  TestSocket mySocket;
+  TestSocket mySocket(myAddr);
 
   // Create new handler and validate
   zSocket::Handler myHandler;
@@ -45,14 +49,14 @@ zSocketTest_HandlerStartStop(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
-  TEST_EQ(std::string("lo"), myAddress.GetAddr());
+  TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
   // Create new observer and validate
   TestObserver *myObserver = new TestObserver;
   TEST_ISNOT_NULL(myObserver);
 
   // Create new socket and validate
-  TestSocket *mySocket = new TestSocket;
+  TestSocket *mySocket = new TestSocket(myAddress);
   TEST_ISNOT_NULL(mySocket);
 
   // Create new handler and validate
@@ -92,14 +96,14 @@ zSocketTest_HandlerSendRecv(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
-  TEST_EQ(std::string("lo"), myAddress.GetAddr());
+  TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
   // Create new observer and validate
   TestObserver *myObserver = new TestObserver;
   TEST_ISNOT_NULL(myObserver);
 
   // Create new socket and validate
-  TestSocket *mySocket = new TestSocket;
+  TestSocket *mySocket = new TestSocket(myAddress);
   TEST_ISNOT_NULL(mySocket);
 
   // Create new handler and validate
@@ -117,7 +121,7 @@ zSocketTest_HandlerSendRecv(void* arg_)
 
   // Send string and validate
   std::string expStr = "zSocketTest_HandlerSendRecv";
-  TEST_TRUE(mySocket->SendString(myAddress, expStr));
+  TEST_TRUE(mySocket->Send(myAddress, expStr));
 
   // Wait for socket observer to be notified
   zSocket::Buffer *sb = myObserver->WaitForPacket(1000);

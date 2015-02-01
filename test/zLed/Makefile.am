@@ -6,17 +6,14 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-check_PROGRAMS = zMessageUnitTest
+check_PROGRAMS = zLedUnitTest
 
-zMessageUnitTest_SOURCES = \
+zLedUnitTest_SOURCES = \
     valgrind.sh \
-    zMessageTest.h \
+    zLedTest.h \
     UnitTest.cpp \
-    Defaults.cpp \
-    Factory.cpp \
-    Message.cpp \
-    Handler.cpp
+    Defaults.cpp
 
-zMessageUnitTest_LDADD = \
+zLedUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la
 

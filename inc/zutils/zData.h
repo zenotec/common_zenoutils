@@ -34,6 +34,11 @@ public:
   virtual
   ~Data();
 
+  bool
+  operator ==(const Data &other_) const;
+  bool
+  operator !=(const Data &other_) const;
+
   std::string
   GetKey() const;
 
@@ -64,6 +69,7 @@ public:
   SetXml(const std::string &xml_);
 
 protected:
+
   std::string
   _getKey() const;
   bool
@@ -73,9 +79,10 @@ protected:
   bool
   _setValue(const std::string &key_, const boost::property_tree::ptree &pt_);
 
+  boost::property_tree::ptree _pt;
+
 private:
 
-  boost::property_tree::ptree _pt;
 };
 
 }

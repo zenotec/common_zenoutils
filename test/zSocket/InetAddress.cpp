@@ -60,7 +60,7 @@ zSocketTest_InetAddressCompare(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address myAddr(zSocket::Address::TYPE_INET, std::string("0.0.0.0:0"));
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddr());
+  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
 
   // Create new socket address and validate
   zSocket::InetAddress myAddr1;

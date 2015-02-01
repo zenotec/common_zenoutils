@@ -25,9 +25,11 @@ const std::string Node::ROOT = "zNode";
 const std::string Node::TYPE = "Type";
 const std::string Node::ID = "Id";
 
-Node::Node(const zData::Data &node_) :
-    zData::Data(node_), _tardyCnt(0)
+Node::Node(const zData::Data &data_) :
+    _tardyCnt(0)
 {
+  this->SetType(data_.GetValue(Node::TYPE));
+  this->SetId(data_.GetValue(Node::ID));
 }
 
 Node::Node(const std::string &type_) :
@@ -43,28 +45,36 @@ Node::~Node()
 {
 }
 
+Node &
+Node::operator=(const Node &other_)
+{
+  this->SetType(other_.GetType());
+  this->SetId(other_.GetId());
+  return(*this);
+}
+
 bool
 Node::operator ==(const Node &other_) const
-    {
-  return (this->GetId() == other_.GetId());
+{
+  return (this->_pt == other_._pt);
 }
 
 bool
 Node::operator !=(const Node &other_) const
-    {
-  return (this->GetId() != other_.GetId());
+{
+  return (this->_pt != other_._pt);
 }
 
 bool
 Node::operator >(const Node &other_) const
-    {
-  return (this->GetId() > other_.GetId());
+{
+  return ((this->GetType() != other_.GetType()) || (this->GetId() > other_.GetId()));
 }
 
 bool
 Node::operator <(const Node &other_) const
-    {
-  return (this->GetId() < other_.GetId());
+{
+  return ((this->GetType() != other_.GetType()) || (this->GetId() < other_.GetId()));
 }
 
 std::string

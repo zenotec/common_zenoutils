@@ -11,11 +11,11 @@ zSocketTest_InetSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address myAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), myAddr.GetAddr());
+  TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(myAddr.SetAddr(std::string("127.0.0.1:9876")));
-  TEST_EQ(std::string("127.0.0.1:9876"), myAddr.GetAddr());
+  TEST_TRUE(myAddr.SetAddress(std::string("127.0.0.1:9876")));
+  TEST_EQ(std::string("127.0.0.1:9876"), myAddr.GetAddress());
 
   // Create new socket handler and validate
   zSocket::Handler *myHandler = new zSocket::Handler;
@@ -44,15 +44,15 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address srcAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), srcAddr.GetAddr());
+  TEST_EQ(std::string(""), srcAddr.GetAddress());
 
   // Create new socket address and validate
   zSocket::Address dstAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), dstAddr.GetAddr());
+  TEST_EQ(std::string(""), dstAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(srcAddr.SetAddr(std::string("127.0.0.1:9876")));
-  TEST_EQ(std::string("127.0.0.1:9876"), srcAddr.GetAddr());
+  TEST_TRUE(srcAddr.SetAddress(std::string("127.0.0.1:9876")));
+  TEST_EQ(std::string("127.0.0.1:9876"), srcAddr.GetAddress());
   TEST_TRUE(srcAddr != dstAddr);
 
   // Create new socket handler and validate
@@ -66,14 +66,14 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ((int )mySock->SendString(srcAddr, expStr), (int )expStr.size());
+  TEST_EQ((int )mySock->Send(srcAddr, expStr), (int )expStr.size());
 
   // Do not need a context switch as the underlying code puts the buffer into the queue
   //   and therefore the buffer is immediately available
 
   // Receive string back and validate
   std::string obsStr;
-  TEST_EQ((int )mySock->RecvString(dstAddr, obsStr), (int )expStr.size());
+  TEST_EQ((int )mySock->Receive(dstAddr, obsStr), (int )expStr.size());
   TEST_TRUE(srcAddr == dstAddr);
   TEST_EQ(expStr, obsStr);
 
@@ -93,19 +93,19 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address srcAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), srcAddr.GetAddr());
+  TEST_EQ(std::string(""), srcAddr.GetAddress());
 
   // Create new socket address and validate
   zSocket::Address dstAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), dstAddr.GetAddr());
+  TEST_EQ(std::string(""), dstAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(srcAddr.SetAddr(std::string("127.0.0.1:9877")));
-  TEST_EQ(std::string("127.0.0.1:9877"), srcAddr.GetAddr());
+  TEST_TRUE(srcAddr.SetAddress(std::string("127.0.0.1:9877")));
+  TEST_EQ(std::string("127.0.0.1:9877"), srcAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(dstAddr.SetAddr(std::string("127.0.0.2:9877")));
-  TEST_EQ(std::string("127.0.0.2:9877"), dstAddr.GetAddr());
+  TEST_TRUE(dstAddr.SetAddress(std::string("127.0.0.2:9877")));
+  TEST_EQ(std::string("127.0.0.2:9877"), dstAddr.GetAddress());
 
   // Create new socket handler and validate
   zSocket::Handler *myHandler = new zSocket::Handler;
@@ -123,7 +123,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ((int )mySock1->SendString(dstAddr, expStr), (int )expStr.size());
+  TEST_EQ((int )mySock1->Send(dstAddr, expStr), (int )expStr.size());
 
   // Sleep a moment to allow context switch
   usleep(100000);
@@ -131,8 +131,8 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Receive string back and validate
   zSocket::Address obsAddr;
   std::string obsStr;
-  TEST_EQ((int )mySock2->RecvString(obsAddr, obsStr), (int )expStr.size());
-  TEST_EQ(obsAddr.GetAddr(), srcAddr.GetAddr());
+  TEST_EQ((int )mySock2->Receive(obsAddr, obsStr), (int )expStr.size());
+  TEST_EQ(obsAddr.GetAddress(), srcAddr.GetAddress());
   TEST_EQ(obsAddr.GetType(), srcAddr.GetType());
   TEST_TRUE(obsAddr == srcAddr);
   TEST_EQ(expStr, obsStr);
@@ -155,15 +155,15 @@ zSocketTest_InetSocketObserver(void* arg_)
 
   // Create new socket address and validate
   zSocket::Address srcAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), srcAddr.GetAddr());
+  TEST_EQ(std::string(""), srcAddr.GetAddress());
 
   // Create new socket address and validate
   zSocket::Address dstAddr(zSocket::Address::TYPE_INET);
-  TEST_EQ(std::string(""), dstAddr.GetAddr());
+  TEST_EQ(std::string(""), dstAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(srcAddr.SetAddr(std::string("127.0.0.1:9877")));
-  TEST_EQ(std::string("127.0.0.1:9877"), srcAddr.GetAddr());
+  TEST_TRUE(srcAddr.SetAddress(std::string("127.0.0.1:9877")));
+  TEST_EQ(std::string("127.0.0.1:9877"), srcAddr.GetAddress());
   TEST_TRUE(srcAddr != dstAddr);
 
   // Create new socket handler and validate
@@ -186,7 +186,7 @@ zSocketTest_InetSocketObserver(void* arg_)
 
   // Send string and validate
   std::string expStr = "Hello Universe";
-  TEST_EQ((int )mySock->SendString(srcAddr, expStr), (int )expStr.size());
+  TEST_EQ((int )mySock->Send(srcAddr, expStr), (int )expStr.size());
 
   // Sleep a moment to allow context switch
   usleep(100000);

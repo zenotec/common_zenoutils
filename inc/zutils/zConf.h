@@ -25,43 +25,48 @@ class Observer
 {
 public:
   virtual void
-  Prepare(Data *item_) = 0;
-  virtual void
-  Commit(Data *item_) = 0;
+  Handle(zConf::Data::STATE state_, zData::Data &item_) = 0;
 protected:
 
 private:
 };
 
-class Data : private zData::Data
+class Data : public zData::Data
 {
   enum STATE
   {
     STATE_ERR = -1,
     STATE_NONE = 0,
-    STATE_PREPARE = 1,
-    STATE_COMMIT = 2,
+    STATE_PREGET = 1,
+    STATE_PRESET = 2,
+    STATE_POSTGET = 3,
+    STATE_POSTSET = 4,
+    STATE_PRECOMMIT = 5,
+    STATE_POSTCOMMIT = 6,
     STATE_LAST
   };
 
 public:
+
   Data();
+
   virtual
   ~Data();
 
   bool
-  Register(Observer *obs_);
+  Register(zConf::Observer *obs_);
+
   bool
-  Unregister(Observer *obs_);
+  Unregister(zConf::Observer *obs_);
 
 protected:
 
 private:
 
   void
-  _notify(Data::STATE state_);
+  _notify(zConf::Data::STATE state_);
 
-  std::list<Observer *> _obsList;
+  std::list<zConf::Observer *> _obsList;
 
 };
 
@@ -89,9 +94,10 @@ public:
   ~FileConnector();
 
   virtual bool
-  Load() = 0;
+  Load();
+
   virtual bool
-  Store() = 0;
+  Store();
 
 private:
 };

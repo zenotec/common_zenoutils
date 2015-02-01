@@ -25,7 +25,7 @@ namespace zSocket
 //**********************************************************************
 
 InetSocket::InetSocket(const Address &addr_) :
-    _thread(this, this), _sock(0), _addr(addr_)
+    zSocket::Socket(addr_), _thread(this, this), _sock(0), _inetaddr(InetAddress(addr_))
 {
   ZLOG_DEBUG("InetSocket::InetSocket: New socket: " + zLog::IntStr(this->_sock));
 }
@@ -126,7 +126,7 @@ InetSocket::_bind()
 
   ZLOG_DEBUG("InetSocket::_bind: Bind on socket: " + zLog::IntStr(this->_sock));
 
-  struct sockaddr_in addr = this->_addr.GetAddrSockAddr();
+  struct sockaddr_in addr = this->_inetaddr.GetAddrSockAddr();
   int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
@@ -148,7 +148,7 @@ InetSocket::_connect()
 
   ZLOG_DEBUG("InetSocket::_connect: Connect on socket: " + zLog::IntStr(this->_sock));
 
-  struct sockaddr_in addr = this->_addr.GetAddrSockAddr();
+  struct sockaddr_in addr = this->_inetaddr.GetAddrSockAddr();
   int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
@@ -171,12 +171,12 @@ InetSocket::_send(const Address &addr_, Buffer &sb_)
   // Log info message about message being sent
   std::string logstr;
   logstr += "Sending on socket:\t";
-  logstr += "To: " + addr_.GetAddr() + ";\t";
-  logstr += "From: " + this->_addr.GetAddrString() + ";\t";
+  logstr += "To: " + addr_.GetAddress() + ";\t";
+  logstr += "From: " + this->_addr.GetAddress() + ";\t";
   logstr += "Size: " + zLog::IntStr(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
-  if (InetAddress(addr_) == this->_addr)
+  if (addr_ == this->_addr)
   {
     Buffer *sb = new Buffer(sb_);
     this->Push(std::make_pair(addr_, sb));
@@ -209,11 +209,11 @@ InetSocket::_recv(Address &addr_, Buffer &sb_)
   {
     InetAddress ipaddr(src);
     addr_.SetType(Address::TYPE_INET);
-    addr_.SetAddr(ipaddr.GetAddrString());
+    addr_.SetAddress(ipaddr.GetAddrString());
 
     std::string logstr;
     logstr += "Receiving on socket:\t";
-    logstr += "To: " + this->_addr.GetAddrString() + ";\t";
+    logstr += "To: " + this->_addr.GetAddress() + ";\t";
     logstr += "From: " + ipaddr.GetAddrString() + ";\t";
     logstr += "Size: " + zLog::IntStr(n) + ";";
     ZLOG_INFO(logstr);

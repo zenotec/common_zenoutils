@@ -148,7 +148,7 @@ private:
   _notify(zMessage::Message::TYPE type, zMessage::Message &msg_);
 
   std::map<zMessage::Message::TYPE, std::list<zMessage::Observer *> > _obsMap;
-  std::map<zNode::Node, std::pair<zSocket::Socket *, zSocket::Address> > _addrMap;
+  std::map<std::string, std::pair<zSocket::Socket *, zSocket::Address> > _addrMap;
 
 };
 

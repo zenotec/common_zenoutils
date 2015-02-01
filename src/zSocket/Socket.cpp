@@ -16,8 +16,29 @@ namespace zUtils
 namespace zSocket
 {
 
+Socket::Socket(const zSocket::Address &addr_) :
+    _addr(addr_)
+{
+}
+
+Socket::~Socket()
+{
+}
+
+std::string
+Socket::GetAddress() const
+{
+  return (this->_addr.GetAddress());
+}
+
+std::string
+Socket::GetBroadcast() const
+{
+  return (this->_addr.GetBroadcast());
+}
+
 ssize_t
-Socket::RecvBuffer(Address &addr_, Buffer &sb_)
+Socket::Receive(Address &addr_, Buffer &sb_)
 {
   ssize_t bytes = -1;
   if (!this->Empty())
@@ -34,7 +55,7 @@ Socket::RecvBuffer(Address &addr_, Buffer &sb_)
 }
 
 ssize_t
-Socket::RecvString(Address &addr_, std::string &str_)
+Socket::Receive(Address &addr_, std::string &str_)
 {
   ssize_t bytes = 0;
   zSocket::Buffer *sb = new zSocket::Buffer;
@@ -43,7 +64,7 @@ Socket::RecvString(Address &addr_, std::string &str_)
     std::string errMsg = "Error allocating memory for socket buffer";
     throw errMsg;
   }
-  bytes = RecvBuffer(addr_, *sb);
+  bytes = Receive(addr_, *sb);
   if (bytes > 0)
   {
     str_ = sb->Str();
@@ -53,19 +74,19 @@ Socket::RecvString(Address &addr_, std::string &str_)
 }
 
 ssize_t
-Socket::SendBuffer(const Address &addr_, Buffer &sb_)
+Socket::Send(const Address &addr_, Buffer &sb_)
 {
   return (this->_send(addr_, sb_));
 }
 
 ssize_t
-Socket::SendString(const Address &addr_, const std::string &str_)
+Socket::Send(const Address &addr_, const std::string &str_)
 {
   ssize_t bytes = 0;
   Buffer sb;
   memcpy(sb.Head(), str_.c_str(), str_.size());
   sb.Put(str_.size());
-  bytes = SendBuffer(addr_, sb);
+  bytes = Send(addr_, sb);
   return (bytes);
 }
 

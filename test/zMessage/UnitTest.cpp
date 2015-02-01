@@ -28,7 +28,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zMessageTest_FactoryCmd, 0);
   UTEST_TEST(zMessageTest_FactoryData, 0);
 
-  UTEST_TEST(zMessageTest_GetSet, 0);
+  UTEST_TEST(zMessageTest_MessageGetSet, 0);
+  UTEST_TEST(zMessageTest_MessageCopy, 0);
 
   UTEST_TEST(zMessageTest_Handler, 0);
 

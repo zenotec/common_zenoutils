@@ -122,6 +122,10 @@ public:
   operator ==(const zSocket::Address &other_) const;
   bool
   operator !=(const zSocket::Address &other_) const;
+  bool
+  operator <(const zSocket::Address &other_) const;
+  bool
+  operator >(const zSocket::Address &other_) const;
 
   Address::TYPE
   GetType() const;
@@ -129,9 +133,14 @@ public:
   SetType(const zSocket::Address::TYPE &type_);
 
   std::string
-  GetAddr() const;
+  GetAddress() const;
   bool
-  SetAddr(const std::string &addr_);
+  SetAddress(const std::string &addr_);
+
+  std::string
+  GetBroadcast() const;
+  bool
+  SetBroadcast(const std::string &addr_);
 
 protected:
 
@@ -139,6 +148,7 @@ private:
 
   Address::TYPE _type;
   std::string _addr;
+  std::string _bcaddr;
 
 };
 
@@ -152,15 +162,26 @@ class Socket : public zQueue<std::pair<zSocket::Address, zSocket::Buffer *> >
 
 public:
 
-  ssize_t
-  RecvBuffer(zSocket::Address &addr_, zSocket::Buffer &sb_);
-  ssize_t
-  RecvString(zSocket::Address &addr_, std::string &str_);
+  Socket(const zSocket::Address &addr_);
+
+  virtual
+  ~Socket();
+
+  std::string
+  GetAddress() const;
+
+  std::string
+  GetBroadcast() const;
 
   ssize_t
-  SendBuffer(const zSocket::Address &addr_, zSocket::Buffer &sb_);
+  Receive(zSocket::Address &from_, zSocket::Buffer &sb_);
   ssize_t
-  SendString(const zSocket::Address &addr_, const std::string &str_);
+  Receive(zSocket::Address &from_, std::string &str_);
+
+  ssize_t
+  Send(const zSocket::Address &to_, zSocket::Buffer &sb_);
+  ssize_t
+  Send(const zSocket::Address &to_, const std::string &str_);
 
 protected:
 
@@ -178,6 +199,10 @@ protected:
 
   virtual ssize_t
   _send(const zSocket::Address &addr_, zSocket::Buffer &sb_) = 0;
+
+protected:
+
+  zSocket::Address _addr;
 
 private:
 

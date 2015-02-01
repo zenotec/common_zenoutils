@@ -42,6 +42,10 @@ public:
   operator ==(const InetAddress &other_) const;
   bool
   operator !=(const InetAddress &other_) const;
+  bool
+  operator <(const InetAddress &other_) const;
+  bool
+  operator >(const InetAddress &other_) const;
 
   Address
   GetAddr() const;
@@ -125,7 +129,7 @@ private:
   zThread::Thread _thread;
 
   int _sock;
-  InetAddress _addr;
+  InetAddress _inetaddr;
 
 };
 

@@ -117,8 +117,8 @@ private:
 class TestSocket : public zSocket::Socket
 {
 public:
-  TestSocket() :
-      _opened(false), _bound(false), _connected(false)
+  TestSocket(const zSocket::Address &addr_) :
+      zSocket::Socket(addr_), _opened(false), _bound(false), _connected(false)
   {
   }
   virtual

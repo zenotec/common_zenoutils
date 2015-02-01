@@ -1,14 +1,18 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
-#include "zutils/zLog.h"
-#include "zDataTest.h"
-#include "UnitTest.h"
+#include <zutils/zLog.h>
+
+#include "zLedTest.h"
 
 int
 main(int argc, const char **argv)
 {
+  struct stat st = { 0 };
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zDataTest.zlog");
+  zUtils::zLog::FileConnector conn("zLedTest.zlog");
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
@@ -19,21 +23,21 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
 
-  UTEST_TEST( zDataTest_Defaults, 0);
+  if (stat(TESTDIR.c_str(), &st) == -1)
+  {
+    mkdir(TESTDIR.c_str(), 0777);
+  }
 
-  UTEST_TEST( zDataTest_SetValueSingle, 0);
-  UTEST_TEST( zDataTest_SetValueMultiple, 0);
+  UTEST_TEST(zLedTest_LedDefaults, 0);
+  UTEST_TEST(zLedTest_HandlerDefaults, 0);
 
-  UTEST_TEST( zDataTest_GetChildSingle, 0);
-  UTEST_TEST( zDataTest_GetChildMultiple, 0);
-  UTEST_TEST( zDataTest_PutChildSingle, 0);
-  UTEST_TEST( zDataTest_PutChildMultiple, 0);
+  UTEST_TEST(zLedTest_HandlerAddRemove, 0);
+  UTEST_TEST(zLedTest_HandlerOnOffToggle, 0);
 
-  UTEST_TEST( zDataTest_JsonSimple, 0);
-
-  UTEST_TEST( zDataTest_XmlSimple, 0);
-
-  UTEST_TEST( zDataTest_DataCopy, 0);
+  if (stat(TESTDIR.c_str(), &st) != -1)
+  {
+    rmdir(TESTDIR.c_str());
+  }
 
   UTEST_FINI();
 

@@ -46,6 +46,9 @@ public:
   virtual
   ~Node();
 
+  Node &
+  operator=(const Node &other_);
+
   bool
   operator==(const Node &other_) const;
   bool

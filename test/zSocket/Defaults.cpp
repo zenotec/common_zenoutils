@@ -37,12 +37,12 @@ zSocketTest_AddressDefaults(void* arg_)
   // Create new socket address and validate
   zSocket::Address myAddr1;
   TEST_EQ(zSocket::Address::TYPE_ERR, myAddr1.GetType());
-  TEST_EQ(std::string(""), myAddr1.GetAddr());
+  TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create Socket address using string notation
   zSocket::Address myAddr2(zSocket::Address::TYPE_INET, "1.2.3.4:56789");
   TEST_EQ(zSocket::Address::TYPE_INET, myAddr2.GetType());
-  TEST_EQ(std::string("1.2.3.4:56789"), myAddr2.GetAddr());
+  TEST_EQ(std::string("1.2.3.4:56789"), myAddr2.GetAddress());
 
   // Return success
   return (0);
@@ -60,7 +60,12 @@ zSocketTest_ObserverDefaults(void* arg_)
 int
 zSocketTest_SocketDefaults(void* arg_)
 {
-  TestSocket mySocket;
+  // Create new socket address and validate
+  zSocket::Address myAddr;
+  TEST_EQ(zSocket::Address::TYPE_ERR, myAddr.GetType());
+  TEST_EQ(std::string(""), myAddr.GetAddress());
+
+  TestSocket mySocket(myAddr);
 
   // Return success
   return (0);

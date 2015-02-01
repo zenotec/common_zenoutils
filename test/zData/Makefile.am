@@ -16,7 +16,8 @@ zDataUnitTest_SOURCES = \
     SetValue.cpp \
  	Child.cpp \
  	Json.cpp \
- 	Xml.cpp
+ 	Xml.cpp \
+ 	Copy.cpp
 
 zDataUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

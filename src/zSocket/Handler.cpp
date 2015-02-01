@@ -135,7 +135,7 @@ Handler::ThreadFunction(void *arg_)
     {
       Address addr;
       Buffer *sb = new Buffer;
-      int n = (*it)->RecvBuffer(addr, *sb);
+      int n = (*it)->Receive(addr, *sb);
       if (n > 0)
       {
         self->_notify((*it), addr, *sb);
