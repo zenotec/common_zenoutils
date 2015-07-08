@@ -32,7 +32,7 @@ class InetAddress
 public:
 
   InetAddress(const Address &addr_);
-  InetAddress(const std::string &addr_ = "0.0.0.0:0");
+  InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
   InetAddress(const struct sockaddr_in &addr_);
 
   virtual

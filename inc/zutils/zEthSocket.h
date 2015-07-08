@@ -24,28 +24,54 @@ namespace zSocket
 // EthAddress Class
 //**********************************************************************
 
-class EthAddress : public Address
+class EthAddress
 {
+
 public:
   static const unsigned int ETHADDR_LEN;
 
+  EthAddress(const Address &addr_);
   EthAddress(const std::string &addr_ = std::string("00:00:00:00:00:00"));
-  EthAddress(const uint8_t *addr_);
+  EthAddress(const struct sockaddr_in &addr_);
 
   virtual
   ~EthAddress();
 
-  const uint8_t *
-  GetHwAddr() const;
+  bool
+  operator ==(const EthAddress &other_) const;
+  bool
+  operator !=(const EthAddress &other_) const;
+  bool
+  operator <(const EthAddress &other_) const;
+  bool
+  operator >(const EthAddress &other_) const;
 
-  virtual bool
+  Address
+  GetAddr() const;
+  std::string
+  GetAddrString() const;
+  struct sockaddr_in
+  GetAddrSockAddr() const;
+
+  bool
+  GetAddr(Address &addr_) const;
+  bool
+  GetAddr(std::string &addr_) const;
+  bool
+  GetAddr(struct sockaddr_in &addr_) const;
+
+  bool
+  SetAddr(const Address &addr_);
+  bool
   SetAddr(const std::string &addr_);
   bool
-  SetAddr(const uint8_t *addr_);
+  SetAddr(const struct sockaddr_in &addr_);
 
 protected:
+
 private:
   uint8_t *_ethaddr;
+
 };
 
 }

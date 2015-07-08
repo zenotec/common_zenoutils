@@ -15,16 +15,15 @@ namespace zUtils
 {
 namespace zSocket
 {
-#if 0
 
 const uint8_t *
-InetAddress::GetHwAddr() const
+EthAddress::GetHwAddr() const
 {
   return (this->_hwaddr);
 }
 
 std::string
-InetAddress::GetHwAddrStr() const
+EthAddress::GetHwAddrStr() const
 {
   char addr[18] =
   { 0};
@@ -33,7 +32,7 @@ InetAddress::GetHwAddrStr() const
   return (std::string(addr));
 }
 
-InetAddress::InetAddress(const std::string& addr_)
+EthAddress::EthAddress(const std::string& addr_)
 {
   memset(this->_hwaddr, 0, sizeof(this->_hwaddr));
   if (!this->SetAddr(addr_))
@@ -43,7 +42,7 @@ InetAddress::InetAddress(const std::string& addr_)
   } // end if
 }
 
-InetAddress::InetAddress(const struct sockaddr_in& addr_)
+EthAddress::EthAddress(const struct sockaddr_in& addr_)
 {
   if (!this->SetAddr(addr_))
   {
@@ -52,12 +51,12 @@ InetAddress::InetAddress(const struct sockaddr_in& addr_)
   } // end if
 }
 
-InetAddress::~InetAddress()
+EthAddress::~EthAddress()
 {
 }
 
 bool
-InetAddress::operator ==(const InetAddress &other_) const
+EthAddress::operator ==(const EthAddress &other_) const
 {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
       && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
@@ -66,7 +65,7 @@ InetAddress::operator ==(const InetAddress &other_) const
 }
 
 bool
-InetAddress::operator !=(const InetAddress &other_) const
+EthAddress::operator !=(const EthAddress &other_) const
 {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
       && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
@@ -75,7 +74,7 @@ InetAddress::operator !=(const InetAddress &other_) const
 }
 
 bool
-InetAddress::operator <(const InetAddress &other_) const
+EthAddress::operator <(const EthAddress &other_) const
 {
   if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
   {
@@ -95,7 +94,7 @@ InetAddress::operator <(const InetAddress &other_) const
 }
 
 bool
-InetAddress::operator >(const InetAddress &other_) const
+EthAddress::operator >(const EthAddress &other_) const
 {
   if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
   {
@@ -115,7 +114,7 @@ InetAddress::operator >(const InetAddress &other_) const
 }
 
 bool
-InetAddress::SetAddr(const std::string& addr_)
+EthAddress::SetAddr(const std::string& addr_)
 {
   char ip[INET_ADDRSTRLEN] = { 0 };
   int port = 0;
@@ -146,32 +145,32 @@ InetAddress::SetAddr(const std::string& addr_)
 }
 
 bool
-InetAddress::SetAddr(const struct sockaddr_in& addr_)
+EthAddress::SetAddr(const struct sockaddr_in& addr_)
 {
   this->_ipaddr = addr_;
   return (true);
 }
 
 struct sockaddr_in
-InetAddress::GetAddr()
+EthAddress::GetAddr()
 {
   return (this->_ipaddr);
 }
 
 bool
-InetAddress::SetHwAddr(const std::string &addr_)
+EthAddress::SetHwAddr(const std::string &addr_)
 {
 
 }
 
 const uint8_t *
-InetAddress::GetHwAddr() const
+EthAddress::GetHwAddr() const
 {
   return (this->_hwaddr);
 }
 
 std::string
-InetAddress::GetHwAddrStr() const
+EthAddress::GetHwAddrStr() const
 {
   char addr[18] = { 0 };
   sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
@@ -180,13 +179,13 @@ InetAddress::GetHwAddrStr() const
 }
 
 in_addr_t
-InetAddress::GetIpAddr() const
+EthAddress::GetIpAddr() const
 {
   return (ntohl(this->_ipaddr.sin_addr.s_addr));
 }
 
 std::string
-InetAddress::GetIpAddrStr() const
+EthAddress::GetIpAddrStr() const
 {
   char ip[INET_ADDRSTRLEN] = { 0 };
   inet_ntop(AF_INET, &this->_ipaddr.sin_addr, ip, INET_ADDRSTRLEN);
@@ -194,13 +193,13 @@ InetAddress::GetIpAddrStr() const
 }
 
 in_port_t
-InetAddress::GetPort()
+EthAddress::GetPort()
 {
   return (ntohs(this->_ipaddr.sin_port));
 }
 
 std::string
-InetAddress::GetPortStr()
+EthAddress::GetPortStr()
 {
   char port[6] = { 0 };
   sprintf(port, "%d", ntohs(this->_ipaddr.sin_port));
