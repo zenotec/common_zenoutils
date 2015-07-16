@@ -1,4 +1,4 @@
-SUBDIRS = zLog zProgOpt zData zEvent zException zNode zSem zSocket zThread zTimer zMessage zGpio zLed
+SUBDIRS = zLog zProgOpt zData zEvent zException zNode zSem zSocket zSwitch zThread zTimer zMessage zGpio zLed
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
@@ -30,6 +30,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zSocket.h \
     $(top_srcdir)/inc/zutils/zInetSocket.h \
     $(top_srcdir)/inc/zutils/zEthSocket.h \
+    $(top_srcdir)/inc/zutils/zSwitch.h \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zTimer.h \
     $(top_srcdir)/inc/zutils/zUuid.h 
@@ -50,5 +51,6 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zNode/libzNode.la \
     ${top_builddir}/src/zSem/libzSem.la \
     ${top_builddir}/src/zSocket/libzSocket.la \
+    ${top_builddir}/src/zSwitch/libzSwitch.la \
     ${top_builddir}/src/zThread/libzThread.la \
     ${top_builddir}/src/zTimer/libzTimer.la

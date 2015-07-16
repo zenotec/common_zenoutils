@@ -28,6 +28,10 @@ int
 zGpioTest_HandlerAddRemove(void* arg);
 int
 zGpioTest_HandlerOnOff(void* arg);
+int
+zGpioTest_SwitchDefaults(void* arg);
+int
+zGpioTest_SwitchOnOff(void* arg);
 
 using namespace zUtils;
 using namespace Test;

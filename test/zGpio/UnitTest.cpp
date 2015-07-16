@@ -32,6 +32,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zGpioTest_HandlerDefaults, 0);
   UTEST_TEST(zGpioTest_HandlerAddRemove, 0);
   UTEST_TEST(zGpioTest_HandlerOnOff, 0);
+  UTEST_TEST(zGpioTest_SwitchDefaults, 0);
+  UTEST_TEST(zGpioTest_SwitchOnOff, 0);
 
   if (stat(TESTDIR.c_str(), &st) != -1)
   {

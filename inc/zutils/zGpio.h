@@ -6,6 +6,8 @@
 #include <string>
 #include <list>
 
+#include <zutils/zSwitch.h>
+
 namespace zUtils
 {
 namespace zGpio
@@ -117,8 +119,33 @@ public:
   SetState(Port::STATE state_);
 
 protected:
+
 private:
+
   std::list<Port*> _portList;
+
+};
+
+class Switch : public zSwitch::Switch, public Handler
+{
+
+public:
+
+  Switch(zSwitch::Switch::STATE state_);
+
+  virtual
+  ~Switch();
+
+protected:
+
+private:
+
+  virtual bool
+  _turnOn();
+
+  virtual bool
+  _turnOff();
+
 };
 
 }

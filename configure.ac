@@ -78,6 +78,7 @@ AC_CONFIG_FILES([
         src/zProgOpt/Makefile
         src/zSem/Makefile
         src/zSocket/Makefile
+        src/zSwitch/Makefile
         src/zThread/Makefile
         src/zTimer/Makefile
       test/Makefile
@@ -92,6 +93,7 @@ AC_CONFIG_FILES([
         test/zQueue/Makefile
         test/zSem/Makefile
         test/zSocket/Makefile
+        test/zSwitch/Makefile
         test/zThread/Makefile
         test/zTimer/Makefile
 ])
