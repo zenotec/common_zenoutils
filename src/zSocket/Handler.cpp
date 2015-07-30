@@ -15,7 +15,7 @@ namespace zSocket
 {
 
 Handler::Handler() :
-    _thread(this, this)
+    _sock(0), _thread(this, this)
 {
   this->_lock.Unlock();
 }
@@ -32,7 +32,7 @@ Handler::Register(Observer *obs_)
   {
     return (false);
   }
-  ZLOG_DEBUG("Handler::Register: Registering observer");
+  ZLOG_DEBUG("Handler::Register: Registering socket observer");
   this->_lock.Lock();
   this->_obsList.push_back(obs_);
   this->_lock.Unlock();
@@ -42,7 +42,7 @@ Handler::Register(Observer *obs_)
 void
 Handler::Unregister(Observer *obs_)
 {
-  ZLOG_DEBUG("Handler::Unregister: Unregistering observer");
+  ZLOG_DEBUG("Handler::Unregister: Unregistering socket observer");
   this->_lock.Lock();
   this->_obsList.remove(obs_);
   this->_lock.Unlock();
@@ -52,14 +52,14 @@ bool
 Handler::Bind(Socket *sock_)
 {
   bool status = false;
-  if (!sock_)
+  if (!sock_ || this->_sock)
   {
     return (false);
   }
   if (sock_->_open() && sock_->_bind())
   {
-    ZLOG_DEBUG("Handler::Open: Opening socket");
-    this->_sockList.push_back(sock_);
+    ZLOG_DEBUG("Handler::Open: Binding socket");
+    this->_sock = sock_;
     this->_waitList.Register(sock_);
     status = true;
   }
@@ -70,14 +70,14 @@ bool
 Handler::Connect(Socket *sock_)
 {
   bool status = false;
-  if (!sock_)
+  if (!sock_ || this->_sock)
   {
     return (false);
   }
   if (sock_->_open() && sock_->_connect())
   {
-    ZLOG_DEBUG("Handler::Open: Opening socket");
-    this->_sockList.push_back(sock_);
+    ZLOG_DEBUG("Handler::Open: Connecting to socket");
+    this->_sock = sock_;
     this->_waitList.Register(sock_);
     status = true;
   }
@@ -85,16 +85,60 @@ Handler::Connect(Socket *sock_)
 }
 
 void
-Handler::Close(Socket *sock_)
+Handler::Close()
 {
-  if (sock_)
+  if (this->_sock)
   {
     ZLOG_DEBUG("Handler::Close: Closing socket");
-    sock_->_close();
-    this->_waitList.Unregister(sock_);
-    this->_sockList.remove(sock_);
+    this->_sock->_close();
+    this->_waitList.Unregister(this->_sock);
+    this->_sock = NULL;
   }
   return;
+}
+
+ssize_t
+Handler::Send(const zSocket::Address *to_, zSocket::Buffer *sb_)
+{
+  ssize_t size = -1;
+  if (this->_sock)
+  {
+    size = this->_sock->Send(to_, sb_);
+  }
+  return (size);
+}
+
+ssize_t
+Handler::Send(const zSocket::Address *to_, const std::string &str_)
+{
+  ssize_t size = -1;
+  if (this->_sock)
+  {
+    size = this->_sock->Send(to_, str_);
+  }
+  return (size);
+}
+
+ssize_t
+Handler::Broadcast(zSocket::Buffer *sb_)
+{
+  ssize_t size = -1;
+  if (this->_sock)
+  {
+    size = this->_sock->Broadcast(sb_);
+  }
+  return (size);
+}
+
+ssize_t
+Handler::Broadcast(const std::string &str_)
+{
+  ssize_t size = -1;
+  if (this->_sock)
+  {
+    size = this->_sock->Broadcast(str_);
+  }
+  return (size);
 }
 
 bool
@@ -124,30 +168,25 @@ Handler::ThreadFunction(void *arg_)
   logstr = "Handler::ThreadFunction(): Waiting for socket event....";
   ZLOG_DEBUG(logstr);
 
-  if (self->_waitList.Wait(1000))
+  if (self->_waitList.Wait(100000))
   {
-    logstr = "Handler::ThreadFunction(): Received socket event....";
-    ZLOG_DEBUG(logstr);
+    ZLOG_DEBUG("Handler::ThreadFunction(): Received socket event....");
 
-    std::list<Socket *>::iterator it = self->_sockList.begin();
-    std::list<Socket *>::iterator end = self->_sockList.end();
-    for (; it != end; ++it)
+    Address *addr = new Address;
+    Buffer *sb = new Buffer;
+    int n = this->_sock->Receive(addr, sb);
+    if (n > 0)
     {
-      Address addr;
-      Buffer *sb = new Buffer;
-      int n = (*it)->Receive(addr, *sb);
-      if (n > 0)
-      {
-        self->_notify((*it), addr, *sb);
-      }
-      delete (sb);
+      self->_notify(this->_sock, addr, sb);
     }
+    delete (addr);
+    delete (sb);
   }
   return (0);
 }
 
 void
-Handler::_notify(zSocket::Socket *sock_, zSocket::Address &addr_, zSocket::Buffer &buf_)
+Handler::_notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::Buffer *buf_)
 {
   bool status = false;
 

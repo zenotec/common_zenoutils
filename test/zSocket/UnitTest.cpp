@@ -30,9 +30,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_AddressGetSet, 0);
   UTEST_TEST(zSocketTest_AddressCompare, 0);
 
-  UTEST_TEST(zSocketTest_InetAddressGet, 0);
-  UTEST_TEST(zSocketTest_InetAddressSet, 0);
+  UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
   UTEST_TEST(zSocketTest_InetAddressCompare, 0);
+  UTEST_TEST(zSocketTest_InetAddressIface, 0);
 
   UTEST_TEST(zSocketTest_InetSocketDefault, 0);
   UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
@@ -42,6 +42,7 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_HandlerRegister, 0);
   UTEST_TEST(zSocketTest_HandlerStartStop, 0);
   UTEST_TEST(zSocketTest_HandlerSendRecv, 0);
+  UTEST_TEST(zSocketTest_HandlerBroadcast, 0);
 
   UTEST_FINI();
 

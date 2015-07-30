@@ -11,15 +11,15 @@ zNodeTest_NodeGetSet(void* arg_)
 
   // Create new node and validate
   zNode::Node *myNode = new zNode::Node;
-  TEST_EQ(std::string(""), myNode->GetType());
+  TEST_EQ(std::string(""), myNode->GetName());
   TEST_NEQ(std::string(""), myNode->GetId());
 
   // Test setting type
   exp = "";
-  TEST_EQ( myNode->GetType(), exp);
-  exp = "Type";
-  TEST_TRUE(myNode->SetType(exp));
-  TEST_EQ( myNode->GetType(), exp);
+  TEST_EQ( myNode->GetName(), exp);
+  exp = "Name";
+  TEST_TRUE(myNode->SetName(exp));
+  TEST_EQ( myNode->GetName(), exp);
 
   // Test setting identifier
   exp = "";
@@ -43,18 +43,18 @@ zNodeTest_NodeCopy(void* arg_)
 
   // Create new node and validate
   zNode::Node *myNode1 = new zNode::Node;
-  TEST_EQ(std::string(""), myNode1->GetType());
+  TEST_EQ(std::string(""), myNode1->GetName());
   TEST_NEQ(std::string(""), myNode1->GetId());
 
   // Create second new node from first and validate
   zNode::Node *myNode2 = new zNode::Node(*myNode1);
-  TEST_EQ(std::string(""), myNode2->GetType());
+  TEST_EQ(std::string(""), myNode2->GetName());
 
   // Verify nodes are equal
   TEST_TRUE(*myNode1 == *myNode2);
 
   // Modify first node and validate
-  TEST_TRUE(myNode1->SetType("Type1"));
+  TEST_TRUE(myNode1->SetName("Name1"));
   TEST_TRUE(myNode1->SetId("Id1"));
 
   // Verify nodes are NOT equal

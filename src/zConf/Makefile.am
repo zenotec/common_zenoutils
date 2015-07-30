@@ -6,8 +6,8 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-noinst_LTLIBRARIES = libzData.la
+noinst_LTLIBRARIES = libzConf.la
 
-libzData_la_SOURCES = \
+libzConf_la_SOURCES = \
     Data.cpp \
     File.cpp

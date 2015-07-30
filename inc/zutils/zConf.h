@@ -19,20 +19,13 @@ namespace zUtils
 namespace zConf
 {
 
-class Data;
-
-class Observer
-{
-public:
-  virtual void
-  Handle(zConf::Data::STATE state_, zData::Data &item_) = 0;
-protected:
-
-private:
-};
+class Observer;
 
 class Data : public zData::Data
 {
+
+public:
+
   enum STATE
   {
     STATE_ERR = -1,
@@ -45,8 +38,6 @@ class Data : public zData::Data
     STATE_POSTCOMMIT = 6,
     STATE_LAST
   };
-
-public:
 
   Data();
 
@@ -70,12 +61,19 @@ private:
 
 };
 
+class Observer
+{
+public:
+  virtual void
+  Handle(Data::STATE state_, zData::Data &item_) = 0;
+protected:
+
+private:
+};
+
 class Connector
 {
 public:
-  Connector();
-  virtual
-  ~Connector();
 
   virtual bool
   Load() = 0;
@@ -83,10 +81,12 @@ public:
   Store() = 0;
 
 protected:
+
 private:
+
 };
 
-class FileConnector
+class FileConnector : public Connector
 {
 public:
   FileConnector();
@@ -99,7 +99,10 @@ public:
   virtual bool
   Store();
 
+protected:
+
 private:
+
 };
 
 }

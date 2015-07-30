@@ -24,25 +24,25 @@ Address::~Address()
 
 bool
 Address::operator ==(const Address &other_) const
-{
+    {
   return ((this->GetType() == other_.GetType()) && (this->GetAddress() == other_.GetAddress()));
 }
 
 bool
 Address::operator !=(const Address &other_) const
-{
+    {
   return ((this->GetType() != other_.GetType()) || (this->GetAddress() != other_.GetAddress()));
 }
 
 bool
 Address::operator <(const Address &other_) const
-{
+    {
   return ((this->GetType() != other_.GetType()) || (this->GetAddress() < other_.GetAddress()));
 }
 
 bool
 Address::operator >(const Address &other_) const
-{
+    {
   return ((this->GetType() != other_.GetType()) || (this->GetAddress() > other_.GetAddress()));
 }
 
@@ -59,7 +59,7 @@ Address::SetType(const Address::TYPE &type_)
   switch (type_)
   {
   case Address::TYPE_LOOP:
-    case Address::TYPE_INET:
+  case Address::TYPE_INET:
     this->_type = type_;
     break;
   default:
@@ -80,19 +80,6 @@ bool
 Address::SetAddress(const std::string &addr_)
 {
   this->_addr = addr_;
-  return (true);
-}
-
-std::string
-Address::GetBroadcast() const
-{
-  return (this->_bcaddr);
-}
-
-bool
-Address::SetBroadcast(const std::string &addr_)
-{
-  this->_bcaddr = addr_;
   return (true);
 }
 

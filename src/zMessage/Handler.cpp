@@ -49,13 +49,19 @@ Handler::Unregister(zMessage::Message::TYPE type_, zMessage::Observer* obs_)
 }
 
 bool
-Handler::Send(zMessage::Message &msg_)
+Handler::Send(const zSocket::Address &addr_, zMessage::Message &msg_)
 {
-  return (false);
+  return (zSocket::Handler::Send(&addr_, msg_.GetJson()) == msg_.GetJson().size());
 }
 
 bool
-Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &buf_)
+Handler::Broadcast(zMessage::Message &msg_)
+{
+  return (zSocket::Handler::Broadcast(msg_.GetJson()) == msg_.GetJson().size());
+}
+
+bool
+Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_)
 {
   bool status = false;
 
@@ -63,7 +69,7 @@ Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSock
 
   // Convert from socket buffer to a message
   zMessage::Message *msg = new zMessage::Message;
-  if (!msg->SetJson(buf_.Str()))
+  if (!msg->SetJson(buf_->Str()))
   {
     ZLOG_ERR("zMessage::Handler::SocketRecv(): Error converting buffer string to zMessage");
     return (false);
@@ -75,7 +81,7 @@ Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSock
   case zMessage::Message::TYPE_HELLO:
     // Update socket and socket address associated with this zNode
     this->_addrMap[msg->GetFrom().GetId()].first = sock_;
-    this->_addrMap[msg->GetFrom().GetId()].second = addr_;
+    this->_addrMap[msg->GetFrom().GetId()].second = *addr_;
     status = true;
     break;
   case zMessage::Message::TYPE_BYE:
@@ -85,10 +91,10 @@ Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSock
     status = true;
     break;
   case zMessage::Message::TYPE_ACK:
-    case zMessage::Message::TYPE_AUTH:
-    case zMessage::Message::TYPE_CFG:
-    case zMessage::Message::TYPE_CMD:
-    case zMessage::Message::TYPE_DATA:
+  case zMessage::Message::TYPE_AUTH:
+  case zMessage::Message::TYPE_CFG:
+  case zMessage::Message::TYPE_CMD:
+  case zMessage::Message::TYPE_DATA:
     status = true;
     break;
   default:
@@ -115,7 +121,7 @@ Handler::_notify(zMessage::Message::TYPE type_, zMessage::Message &msg_)
   std::list<zMessage::Observer *>::iterator end = obsList.end();
   for (; it != end; ++it)
   {
-    (*it)->RecvMsg(*this, msg_);
+    (*it)->MessageRecv(*this, msg_);
   }
 }
 

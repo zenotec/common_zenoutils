@@ -68,9 +68,9 @@ public:
   }
 
   virtual bool
-  RecvMsg(zMessage::Handler &handler_, zMessage::Message &msg_)
+  MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_)
   {
-    ZLOG_DEBUG("TestHandler::RecvMsg(): Received message");
+    ZLOG_DEBUG("TestHandler::MessageRecv(): Received message");
     this->_cnt[msg_.GetType()]++;
     this->_sem.Post();
     return (true);

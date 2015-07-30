@@ -52,11 +52,8 @@ Data::_notify(Data::STATE state_)
   {
     switch (state_)
     {
-    case Data::STATE_PREPARE:
-      (*it)->Prepare(this);
-      break;
-    case Data::STATE_COMMIT:
-      (*it)->Commit(this);
+    case Data::STATE_PRECOMMIT:
+      (*it)->Handle(state_, *this);
       break;
     default:
       break;

@@ -9,12 +9,12 @@ zNodeTest_NodeTableGetSet(void* arg_)
 
   // Create new node and validate
   zNode::Node *MyNode = new zNode::Node;
-  TEST_EQ( MyNode->GetType(), std::string(""));
+  TEST_EQ( MyNode->GetName(), std::string(""));
   TEST_NEQ( MyNode->GetId(), std::string(""));
 
   // Initialize node
-  MyNode->SetType("TestNode");
-  TEST_EQ( MyNode->GetType(), "TestNode");
+  MyNode->SetName("TestNode");
+  TEST_EQ( MyNode->GetName(), "TestNode");
   MyNode->SetId("abcdef56789");
   TEST_EQ( MyNode->GetId(), "abcdef56789");
 

@@ -4,6 +4,8 @@
  *  Created on: Jan 13, 2014
  *      Author: kmahoney
  */
+#include <unistd.h>
+#include <errno.h>
 #include <string.h>
 
 #include <zutils/zLog.h>
@@ -17,8 +19,6 @@ namespace zSem
 static void
 _add_time(struct timespec *ts_, uint32_t us_)
 {
-  // Compute seconds
-  ts_->tv_sec += (us_ / 1000000);
 
   // Compute nanoseconds
   uint32_t nsec = ((us_ % 1000000) * 1000);
@@ -27,6 +27,14 @@ _add_time(struct timespec *ts_, uint32_t us_)
     ts_->tv_sec++;
   } // end if
   ts_->tv_nsec += nsec;
+
+  // Compute seconds
+  ts_->tv_sec += (us_ / 1000000);
+  if (ts_->tv_nsec >= 1000000000)
+  {
+    ts_->tv_sec++;
+    ts_->tv_nsec %= 1000000000;
+  }
 
 }
 
@@ -42,10 +50,12 @@ Semaphore::Semaphore(const uint32_t value_)
     ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
     throw;
   } // end if
+  ZLOG_INFO("Semaphore::Semaphore: Created system semaphore: " + zLog::HexStr(this->_sem) + ":" + zLog::IntStr(value_));
 }
 
 Semaphore::~Semaphore()
 {
+  ZLOG_INFO("Semaphore::Semaphore: Destroying system semaphore: " + zLog::HexStr(this->_sem));
   int ret = sem_destroy(&this->_sem);
   if (ret != 0)
   {
@@ -68,19 +78,36 @@ Semaphore::Post(uint32_t value_)
 bool
 Semaphore::Wait()
 {
-  return (sem_wait(&this->_sem) == 0);
+
+  ZLOG_DEBUG("Semaphore::Wait: Waiting on system semaphore " + zLog::HexStr(this->_sem));
+
+  if (sem_wait(&this->_sem) != 0)
+  {
+    ZLOG_CRIT("Error waiting on system semaphore: " + std::string(strerror(errno)));
+    return(false);
+  }
+
+  return (true);
 }
 
 bool
 Semaphore::TryWait()
 {
-  return (sem_trywait(&this->_sem) == 0);
+  if (sem_trywait(&this->_sem) != 0)
+  {
+    ZLOG_CRIT("Error waiting on system semaphore: " + std::string(strerror(errno)));
+    return(false);
+  }
+
+  return (true);
 }
 
 bool
 Semaphore::TimedWait(uint32_t us_)
 {
   struct timespec ts;
+
+  ZLOG_DEBUG("Semaphore::TimedWait: Waiting on system semaphore " + zLog::HexStr(this->_sem));
 
   // Get current time
   if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
@@ -91,7 +118,13 @@ Semaphore::TimedWait(uint32_t us_)
   // Compute absolute time
   _add_time(&ts, us_);
 
-  return (sem_timedwait(&this->_sem, &ts) == 0);
+  if (sem_timedwait(&this->_sem, &ts) != 0)
+  {
+    ZLOG_CRIT("Error waiting on system semaphore: " + std::string(strerror(errno)));
+    return(false);
+  }
+
+  return (true);
 }
 
 uint32_t

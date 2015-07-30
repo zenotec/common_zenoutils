@@ -97,6 +97,7 @@ private:
 
 };
 
+
 //**********************************************************************
 // zSocket::Address Class
 //**********************************************************************
@@ -132,15 +133,11 @@ public:
   bool
   SetType(const zSocket::Address::TYPE &type_);
 
-  std::string
+  virtual std::string
   GetAddress() const;
-  bool
-  SetAddress(const std::string &addr_);
 
-  std::string
-  GetBroadcast() const;
-  bool
-  SetBroadcast(const std::string &addr_);
+  virtual bool
+  SetAddress(const std::string &addr_);
 
 protected:
 
@@ -148,7 +145,6 @@ private:
 
   Address::TYPE _type;
   std::string _addr;
-  std::string _bcaddr;
 
 };
 
@@ -156,32 +152,36 @@ private:
 // zSocket::Socket Class
 //**********************************************************************
 
-class Socket : public zQueue<std::pair<zSocket::Address, zSocket::Buffer *> >
+class Socket : public zQueue<std::pair<zSocket::Address *, zSocket::Buffer *> >
 {
   friend class Handler;
 
 public:
 
-  Socket(const zSocket::Address &addr_);
-
-  virtual
-  ~Socket();
-
-  std::string
-  GetAddress() const;
-
-  std::string
-  GetBroadcast() const;
-
-  ssize_t
-  Receive(zSocket::Address &from_, zSocket::Buffer &sb_);
-  ssize_t
-  Receive(zSocket::Address &from_, std::string &str_);
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_ETH = 1,
+    TYPE_IPV4 = 2,
+    TYPE_IPV6 = 3,
+    TYPE_LAST
+  };
 
   ssize_t
-  Send(const zSocket::Address &to_, zSocket::Buffer &sb_);
+  Receive(zSocket::Address *from_, zSocket::Buffer *sb_);
   ssize_t
-  Send(const zSocket::Address &to_, const std::string &str_);
+  Receive(zSocket::Address *from_, std::string &str_);
+
+  ssize_t
+  Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
+  ssize_t
+  Send(const zSocket::Address *to_, const std::string &str_);
+
+  ssize_t
+  Broadcast(zSocket::Buffer *sb_);
+  ssize_t
+  Broadcast(const std::string &str_);
 
 protected:
 
@@ -198,11 +198,38 @@ protected:
   _connect() = 0;
 
   virtual ssize_t
-  _send(const zSocket::Address &addr_, zSocket::Buffer &sb_) = 0;
+  _send(const zSocket::Address *addr_, zSocket::Buffer *sb_) = 0;
+
+  virtual ssize_t
+  _broadcast(zSocket::Buffer *sb_) = 0;
 
 protected:
 
-  zSocket::Address _addr;
+  zSocket::Socket::TYPE _type;
+
+private:
+
+};
+
+//**********************************************************************
+// zSocket::Factory Class
+//**********************************************************************
+
+class Factory
+{
+
+public:
+
+  static zSocket::Address *
+  Create(const zSocket::Address::TYPE &type_);
+
+  static zSocket::Address *
+  Create(const zSocket::Address::TYPE &type_, const std::string &ifname_);
+
+  static zSocket::Socket *
+  Create(const zSocket::Socket::TYPE &type_, const zSocket::Address *addr_);
+
+protected:
 
 private:
 
@@ -216,7 +243,7 @@ class Observer
 {
 public:
   virtual bool
-  SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &sb_) = 0;
+  SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *sb_) = 0;
 };
 
 //**********************************************************************
@@ -242,8 +269,18 @@ public:
   bool
   Connect(zSocket::Socket *sock_);
 
+  ssize_t
+  Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
+  ssize_t
+  Send(const zSocket::Address *to_, const std::string &str_);
+
+  ssize_t
+  Broadcast(zSocket::Buffer *sb_);
+  ssize_t
+  Broadcast(const std::string &str_);
+
   void
-  Close(zSocket::Socket *sock_ = NULL);
+  Close();
 
   bool
   StartListener(uint32_t msecs_ = 0);
@@ -258,11 +295,11 @@ protected:
 private:
 
   void
-  _notify(zSocket::Socket *sock_, zSocket::Address &addr_, zSocket::Buffer &buf_);
+  _notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::Buffer *buf_);
 
   std::list<zSocket::Observer *> _obsList;
   zEvent::EventList _waitList;
-  std::list<zSocket::Socket *> _sockList;
+  zSocket::Socket *_sock;
 
   zSem::Mutex _lock;
   zThread::Thread _thread;

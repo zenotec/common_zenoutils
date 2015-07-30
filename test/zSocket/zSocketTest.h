@@ -37,11 +37,11 @@ int
 zSocketTest_AddressCompare(void* arg_);
 
 int
-zSocketTest_InetAddressGet(void* arg_);
-int
-zSocketTest_InetAddressSet(void* arg_);
+zSocketTest_InetAddressGetSet(void* arg_);
 int
 zSocketTest_InetAddressCompare(void* arg_);
+int
+zSocketTest_InetAddressIface(void* arg_);
 
 int
 zSocketTest_InetSocketDefault(void* arg_);
@@ -59,6 +59,8 @@ int
 zSocketTest_HandlerStartStop(void* arg_);
 int
 zSocketTest_HandlerSendRecv(void* arg_);
+int
+zSocketTest_HandlerBroadcast(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
@@ -78,11 +80,11 @@ public:
   }
 
   virtual bool
-  SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &sb_)
+  SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *sb_)
   {
     ZLOG_DEBUG("TestObserver::SocketRecv(): Receiving on socket");
-    zSocket::Buffer *sb = new zSocket::Buffer(sb_);
-    this->_sq.Push(std::make_pair(addr_, sb));
+    zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
+    this->_sq.Push(std::make_pair(*addr_, sb));
     return (true);
   }
 
@@ -117,8 +119,8 @@ private:
 class TestSocket : public zSocket::Socket
 {
 public:
-  TestSocket(const zSocket::Address &addr_) :
-      zSocket::Socket(addr_), _opened(false), _bound(false), _connected(false)
+  TestSocket(const zSocket::Address *addr_) :
+      _addr(*addr_), _opened(false), _bound(false), _connected(false)
   {
   }
   virtual
@@ -172,15 +174,26 @@ protected:
   }
 
   virtual ssize_t
-  _send(const zSocket::Address &addr_, zSocket::Buffer &sb_)
+  _send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
   {
-    zSocket::Buffer *sb = new zSocket::Buffer(sb_);
-    this->Push(std::make_pair(addr_, sb));
+    zSocket::Address *addr = new zSocket::Address(this->_addr);
+    zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
+    this->Push(std::make_pair(addr, sb));
+    return (sb->Size());
+  }
+
+  virtual ssize_t
+  _broadcast(zSocket::Buffer *sb_)
+  {
+    zSocket::Address *addr = new zSocket::Address(this->_addr);
+    zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
+    this->Push(std::make_pair(addr, sb));
     return (sb->Size());
   }
 
 private:
 
+  const zSocket::Address _addr;
   bool _opened;
   bool _bound;
   bool _connected;

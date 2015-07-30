@@ -22,23 +22,26 @@ namespace zNode
 //**********************************************************************
 
 const std::string Node::ROOT = "zNode";
-const std::string Node::TYPE = "Type";
+const std::string Node::NAME = "Name";
 const std::string Node::ID = "Id";
+
+const std::string Node::BCAST_NAME = "ALL";
+const std::string Node::BCAST_ID = "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF";
 
 Node::Node(const zData::Data &data_) :
     _tardyCnt(0)
 {
-  this->SetType(data_.GetValue(Node::TYPE));
+  this->SetName(data_.GetValue(Node::NAME));
   this->SetId(data_.GetValue(Node::ID));
 }
 
-Node::Node(const std::string &type_) :
+Node::Node(const std::string &name_) :
     zData::Data(Node::ROOT), _tardyCnt(0)
 {
   zUuid::Uuid uuid;
-  this->SetType(type_);
   this->SetId(uuid());
-  ZLOG_DEBUG("Creating new node: " + this->GetType() + "[" + this->GetId() + "]");
+  this->SetName(name_);
+  ZLOG_DEBUG("Creating new node: " + this->GetName() + "[" + this->GetId() + "]");
 }
 
 Node::~Node()
@@ -48,7 +51,7 @@ Node::~Node()
 Node &
 Node::operator=(const Node &other_)
 {
-  this->SetType(other_.GetType());
+  this->SetName(other_.GetName());
   this->SetId(other_.GetId());
   return(*this);
 }
@@ -68,25 +71,25 @@ Node::operator !=(const Node &other_) const
 bool
 Node::operator >(const Node &other_) const
 {
-  return ((this->GetType() != other_.GetType()) || (this->GetId() > other_.GetId()));
+  return ((this->GetName() != other_.GetName()) || (this->GetId() > other_.GetId()));
 }
 
 bool
 Node::operator <(const Node &other_) const
 {
-  return ((this->GetType() != other_.GetType()) || (this->GetId() < other_.GetId()));
+  return ((this->GetName() != other_.GetName()) || (this->GetId() < other_.GetId()));
 }
 
 std::string
-Node::GetType() const
+Node::GetName() const
 {
-  return (this->GetValue(Node::TYPE));
+  return (this->GetValue(Node::NAME));
 }
 
 bool
-Node::SetType(const std::string &type_)
+Node::SetName(const std::string &name_)
 {
-  return (this->SetValue(Node::TYPE, type_));
+  return (this->SetValue(Node::NAME, name_));
 }
 
 std::string

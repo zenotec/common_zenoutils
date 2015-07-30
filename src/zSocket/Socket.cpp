@@ -16,46 +16,40 @@ namespace zUtils
 namespace zSocket
 {
 
-Socket::Socket(const zSocket::Address &addr_) :
-    _addr(addr_)
-{
-}
-
-Socket::~Socket()
-{
-}
-
-std::string
-Socket::GetAddress() const
-{
-  return (this->_addr.GetAddress());
-}
-
-std::string
-Socket::GetBroadcast() const
-{
-  return (this->_addr.GetBroadcast());
-}
-
 ssize_t
-Socket::Receive(Address &addr_, Buffer &sb_)
+Socket::Receive(Address *addr_, Buffer *sb_)
 {
+
   ssize_t bytes = -1;
+
   if (!this->Empty())
   {
-    std::pair<zSocket::Address, zSocket::Buffer *> q;
+
+    // Get first pair off queue and copy to caller's space */
+    std::pair<zSocket::Address *, zSocket::Buffer *> q;
     q = this->Front();
     this->Pop();
-    addr_ = q.first;
-    sb_ = *q.second;
-    bytes = sb_.Size();
-    delete (q.second);
+
+    // Copy address */
+    addr_->SetType(q.first->GetType());
+    addr_->SetAddress(q.first->GetAddress());
+    delete(q.first);
+
+    // Copy buffer */
+    *sb_ = *q.second;
+    delete(q.second);
+
+    // Update number of bytes received
+    bytes = sb_->Size();
   }
+
+  // Return number of bytes received
   return (bytes);
+
 }
 
 ssize_t
-Socket::Receive(Address &addr_, std::string &str_)
+Socket::Receive(Address *addr_, std::string &str_)
 {
   ssize_t bytes = 0;
   zSocket::Buffer *sb = new zSocket::Buffer;
@@ -64,29 +58,45 @@ Socket::Receive(Address &addr_, std::string &str_)
     std::string errMsg = "Error allocating memory for socket buffer";
     throw errMsg;
   }
-  bytes = Receive(addr_, *sb);
+  bytes = Receive(addr_, sb);
   if (bytes > 0)
   {
     str_ = sb->Str();
   }
-  delete (sb);
   return (bytes);
 }
 
 ssize_t
-Socket::Send(const Address &addr_, Buffer &sb_)
+Socket::Send(const Address *addr_, Buffer *sb_)
 {
   return (this->_send(addr_, sb_));
 }
 
 ssize_t
-Socket::Send(const Address &addr_, const std::string &str_)
+Socket::Send(const Address *addr_, const std::string &str_)
 {
   ssize_t bytes = 0;
-  Buffer sb;
-  memcpy(sb.Head(), str_.c_str(), str_.size());
-  sb.Put(str_.size());
+  Buffer *sb = new Buffer;
+  memcpy(sb->Head(), str_.c_str(), str_.size());
+  sb->Put(str_.size());
   bytes = Send(addr_, sb);
+  return (bytes);
+}
+
+ssize_t
+Socket::Broadcast(Buffer *sb_)
+{
+  return (this->_broadcast(sb_));
+}
+
+ssize_t
+Socket::Broadcast(const std::string &str_)
+{
+  ssize_t bytes = 0;
+  Buffer *sb = new Buffer;
+  memcpy(sb->Head(), str_.c_str(), str_.size());
+  sb->Put(str_.size());
+  bytes = Broadcast(sb);
   return (bytes);
 }
 

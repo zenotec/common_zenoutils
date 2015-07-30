@@ -32,8 +32,11 @@ class Node : public zData::Data
 {
 
   static const std::string ROOT;
-  static const std::string TYPE;
+  static const std::string NAME;
   static const std::string ID;
+
+  static const std::string BCAST_NAME;
+  static const std::string BCAST_ID;
 
   friend class Table;
 
@@ -41,7 +44,7 @@ public:
 
   Node(const zData::Data &node_);
 
-  Node(const std::string &type_ = "");
+  Node(const std::string &name_ = "");
 
   virtual
   ~Node();
@@ -59,9 +62,9 @@ public:
   operator>(const Node &other_) const;
 
   std::string
-  GetType() const;
+  GetName() const;
   bool
-  SetType(const std::string &type_);
+  SetName(const std::string &name_);
 
   std::string
   GetId() const;

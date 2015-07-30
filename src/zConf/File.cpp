@@ -21,5 +21,15 @@ FileConnector::~FileConnector()
 {
 }
 
+bool
+FileConnector::Load()
+{
+}
+
+bool
+FileConnector::Store()
+{
+}
+
 }
 }

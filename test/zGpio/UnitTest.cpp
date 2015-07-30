@@ -18,7 +18,7 @@ main(int argc, const char **argv)
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::INFO);
+  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
 
   // Test all classes
   UTEST_INIT();

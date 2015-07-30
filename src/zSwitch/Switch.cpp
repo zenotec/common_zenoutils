@@ -22,33 +22,6 @@ namespace zSwitch
 // Class Switch
 //*****************************************************************************
 
-Switch::Switch(Switch::STATE state_) :
-    _state(Switch::STATE_NONE)
-{
-  std::cout << "Creating new switch: " << state_ << std::endl;
-  switch (state_)
-  {
-  case Switch::STATE_ON:
-    if (this->_turnOn())
-    {
-      this->_state = Switch::STATE_ON;
-    }
-    break;
-  case Switch::STATE_OFF:
-    if (this->_turnOff())
-    {
-      this->_state = Switch::STATE_OFF;
-    }
-    break;
-  default:
-    break;
-  }
-}
-
-Switch::~Switch()
-{
-}
-
 bool
 Switch::On()
 {
@@ -104,18 +77,6 @@ bool
 Switch::IsOff()
 {
   return (this->_state == Switch::STATE_OFF);
-}
-
-bool
-Switch::_turnOn()
-{
-
-}
-
-bool
-Switch::_turnOff()
-{
-
 }
 
 }

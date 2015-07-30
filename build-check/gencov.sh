@@ -7,11 +7,11 @@ TESTS="zLog zProgOpt zThread zTimer zSem zData zEvent zSocket zNode zMessage zSw
 COVDIR="${TOPDIR}/coverage"
 
 #rm -rf ${TOPDIR}/src ${TOPDIR}/test ${COVDIR}
-#../configure --enable-gcov
+#../configure --enable-gcov --enable-valgrind
 cd ${TESTDIR}
 lcov --base-directory . --directory . --zerocounters -q
 cd ${TOPDIR}
-make check
+#make check
 
 for test in ${TESTS}; do
   echo ${test}

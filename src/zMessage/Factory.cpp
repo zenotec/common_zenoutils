@@ -5,7 +5,8 @@
  *      Author: kmahoney
  */
 
-#include "zutils/zMessage.h"
+#include <zutils/zUuid.h>
+#include <zutils/zMessage.h>
 
 namespace zUtils
 {
@@ -26,39 +27,24 @@ Factory::Create(const Message::TYPE &type_)
   //   is that it is a placeholder for future enhancements
   if (msg)
   {
-    if (type_ == Message::TYPE_AUTH)
+    switch(type_)
     {
+    case Message::TYPE_AUTH:
+    case Message::TYPE_HELLO:
+    case Message::TYPE_ACK:
+    case Message::TYPE_BYE:
+    case Message::TYPE_CFG:
+    case Message::TYPE_CMD:
+    case Message::TYPE_DATA:
+      zUuid::Uuid uuid;
+      msg->SetId(uuid());
       msg->SetType(type_);
-    } // end if
-    else if (type_ == Message::TYPE_HELLO)
-    {
-      msg->SetType(type_);
-    } // end if
-    else if (type_ == Message::TYPE_ACK)
-    {
-      msg->SetType(type_);
-    } // end else if
-    else if (type_ == Message::TYPE_BYE)
-    {
-      msg->SetType(type_);
-    } // end else if
-    else if (type_ == Message::TYPE_CFG)
-    {
-      msg->SetType(type_);
-    } // end else if
-    else if (type_ == Message::TYPE_CMD)
-    {
-      msg->SetType(type_);
-    } // end else if
-    else if (type_ == Message::TYPE_DATA)
-    {
-      msg->SetType(type_);
-    } // end else if
-    else
-    {
+      break;
+    default:
       delete (msg);
       msg = NULL;
-    } // end else
+      break;
+    }
   }
   return (msg);
 }

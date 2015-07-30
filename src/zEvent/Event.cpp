@@ -89,6 +89,7 @@ EventList::Unregister(Event *event_)
 bool
 EventList::Wait(uint32_t usecs_)
 {
+  ZLOG_DEBUG("EventList::Wait: Waiting on events");
   return (this->_sem.TimedWait(usecs_));
 }
 

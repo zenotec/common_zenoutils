@@ -27,11 +27,6 @@ public:
     STATE_LAST
   };
 
-  Switch(Switch::STATE state);
-
-  virtual
-  ~Switch();
-
   bool
   On();
 
@@ -49,6 +44,8 @@ public:
 
 protected:
 
+  Switch::STATE _state;
+
   virtual bool
   _turnOn() = 0;
 
@@ -56,8 +53,6 @@ protected:
   _turnOff() = 0;
 
 private:
-
-  Switch::STATE _state;
 
 };
 

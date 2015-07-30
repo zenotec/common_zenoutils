@@ -6,48 +6,24 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zSocketTest_InetAddressGet(void* arg_)
+zSocketTest_InetAddressGetSet(void* arg_)
 {
-  struct sockaddr_in expSockAddr, obsSockAddr;
-  expSockAddr.sin_family = AF_INET;
-  expSockAddr.sin_addr.s_addr = htonl(0x01020304);
-  expSockAddr.sin_port = htons(56789);
 
   // Create new socket address and validate
   zSocket::InetAddress myAddr;
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddrString());
+  TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
+  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
+  TEST_EQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
+  TEST_EQ(std::string("0"), myAddr.GetPort());
+  TEST_EQ(std::string("0.0.0.0"), myAddr.GetNetmask());
+  TEST_EQ(std::string("0.0.0.0"), myAddr.GetBroadcast());
 
   // Set socket address using string notation
   std::string expAddrString = "1.2.3.4:56789";
-  myAddr.SetAddr(expAddrString);
-  TEST_EQ(expAddrString, myAddr.GetAddrString());
+  myAddr.SetAddress(expAddrString);
+  TEST_EQ(expAddrString, myAddr.GetAddress());
+  TEST_EQ(std::string("56789"), myAddr.GetPort());
 
-  obsSockAddr = myAddr.GetAddrSockAddr();
-  TEST_EQ(expSockAddr.sin_family, obsSockAddr.sin_family);
-  TEST_TRUE(expSockAddr.sin_addr.s_addr == obsSockAddr.sin_addr.s_addr);
-  TEST_EQ(expSockAddr.sin_port, obsSockAddr.sin_port);
-
-  // Return success
-  return (0);
-
-}
-
-int
-zSocketTest_InetAddressSet(void* arg_)
-{
-
-  // Create new socket address and validate
-  zSocket::InetAddress myAddr;
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddrString());
-
-  // Set socket address using socket address
-  struct sockaddr_in addr;
-  addr.sin_family = AF_INET;
-  addr.sin_addr.s_addr = htonl(0x01020304);
-  addr.sin_port = htons(56789);
-  TEST_TRUE(myAddr.SetAddr(addr));
-  std::string expAddrString = "1.2.3.4:56789";
-  TEST_EQ(expAddrString, myAddr.GetAddrString());
 
   // Return success
   return (0);
@@ -59,48 +35,60 @@ zSocketTest_InetAddressCompare(void* arg_)
 {
 
   // Create new socket address and validate
-  zSocket::Address myAddr(zSocket::Address::TYPE_INET, std::string("0.0.0.0:0"));
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
-
-  // Create new socket address and validate
   zSocket::InetAddress myAddr1;
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr1.GetAddrString());
+  TEST_EQ(zSocket::Address::TYPE_INET, myAddr1.GetType());
+  TEST_EQ(std::string("0.0.0.0:0"), myAddr1.GetAddress());
 
   // Create second socket address and validate
   zSocket::InetAddress myAddr2;
-  TEST_EQ(std::string("0.0.0.0:0"), myAddr2.GetAddrString());
-
-  // Compare address (match)
-  TEST_TRUE(myAddr1 == myAddr2);
-  TEST_FALSE(myAddr1 != myAddr2);
-  TEST_TRUE(myAddr1 == zSocket::InetAddress(myAddr));
-  TEST_TRUE(myAddr2 == zSocket::InetAddress(myAddr));
-
-  // Set socket address using string notation
-  myAddr1.SetAddr("1.2.3.4:56789");
-  TEST_EQ(std::string("1.2.3.4:56789"), myAddr1.GetAddrString());
-
-  // Compare address (no match)
-  TEST_FALSE(myAddr1 == myAddr2);
-  TEST_TRUE(myAddr1 != myAddr2);
-  TEST_TRUE(myAddr1 != zSocket::InetAddress(myAddr));
-  TEST_TRUE(myAddr2 == zSocket::InetAddress(myAddr));
-
-  // Set socket address using string notation
-  myAddr2.SetAddr("1.2.3.4:56789");
-  TEST_EQ(std::string("1.2.3.4:56789"), myAddr2.GetAddrString());
+  TEST_EQ(zSocket::Address::TYPE_INET, myAddr2.GetType());
+  TEST_EQ(std::string("0.0.0.0:0"), myAddr2.GetAddress());
 
   // Compare address (match)
   TEST_TRUE(myAddr1 == myAddr2);
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address using string notation
-  myAddr1.SetAddr("1.2.3.4:56788");
-  TEST_EQ(std::string("1.2.3.4:56788"), myAddr1.GetAddrString());
+  myAddr1.SetAddress("1.2.3.4:56789");
+  TEST_EQ(std::string("1.2.3.4:56789"), myAddr1.GetAddress());
 
   // Compare address (no match)
   TEST_FALSE(myAddr1 == myAddr2);
   TEST_TRUE(myAddr1 != myAddr2);
+
+  // Set socket address using string notation
+  myAddr2.SetAddress("1.2.3.4:56789");
+  TEST_EQ(std::string("1.2.3.4:56789"), myAddr2.GetAddress());
+
+  // Compare address (match)
+  TEST_TRUE(myAddr1 == myAddr2);
+  TEST_FALSE(myAddr1 != myAddr2);
+
+  // Set socket address using string notation
+  myAddr1.SetAddress("1.2.3.4:56788");
+  TEST_EQ(std::string("1.2.3.4:56788"), myAddr1.GetAddress());
+
+  // Compare address (no match)
+  TEST_FALSE(myAddr1 == myAddr2);
+  TEST_TRUE(myAddr1 != myAddr2);
+
+  // Return success
+  return (0);
+
+}
+
+int
+zSocketTest_InetAddressIface(void* arg_)
+{
+
+  // Create new socket address and validate
+  zSocket::InetAddress myAddr("eth0");
+  TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
+  TEST_NEQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
+  TEST_NEQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
+  TEST_EQ(std::string("0"), myAddr.GetPort());
+  TEST_NEQ(std::string("0.0.0.0"), myAddr.GetNetmask());
+  TEST_NEQ(std::string("0.0.0.0"), myAddr.GetBroadcast());
 
   // Return success
   return (0);

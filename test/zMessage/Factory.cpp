@@ -24,11 +24,11 @@ zMessageTest_FactoryAuth(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_AUTH);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_AUTH);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -46,11 +46,11 @@ zMessageTest_FactoryHello(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_HELLO);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -68,11 +68,11 @@ zMessageTest_FactoryAck(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_ACK);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_ACK);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -90,11 +90,11 @@ zMessageTest_FactoryBye(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_BYE);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_BYE);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -112,11 +112,11 @@ zMessageTest_FactoryCfg(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_CFG);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_CFG);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -134,11 +134,11 @@ zMessageTest_FactoryCmd(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_CMD);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_CMD);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);
@@ -156,11 +156,11 @@ zMessageTest_FactoryData(void* arg_)
   zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_DATA);
   TEST_ISNOT_NULL(myMessage);
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_DATA);
-  TEST_EQ(std::string(""), myMessage->GetId());
+  TEST_NEQ(std::string(""), myMessage->GetId());
   TEST_NEQ(std::string(""), myMessage->GetTo().GetId());
-  TEST_EQ(std::string(""), myMessage->GetTo().GetType());
+  TEST_EQ(std::string(""), myMessage->GetTo().GetName());
   TEST_NEQ(std::string(""), myMessage->GetFrom().GetId());
-  TEST_EQ(std::string(""), myMessage->GetFrom().GetType());
+  TEST_EQ(std::string(""), myMessage->GetFrom().GetName());
 
   // Cleanup
   delete (myMessage);

@@ -1,4 +1,20 @@
-SUBDIRS = zLog zProgOpt zData zEvent zException zNode zSem zSocket zSwitch zThread zTimer zMessage zGpio zLed
+SUBDIRS = \
+	zConf \
+	zData \
+	zEvent \
+	zException \
+	zGpio \
+	zLed \
+	zLog \
+	zMessage \
+	zNode \
+	zProgOpt \
+	zSem \
+	zSocket \
+	zSwitch \
+	zThread \
+	zTimer
+	
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
@@ -40,15 +56,16 @@ libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 libzutils_la_LIBADD = \
+    ${top_builddir}/src/zConf/libzConf.la \
     ${top_builddir}/src/zData/libzData.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
     ${top_builddir}/src/zException/libzException.la \
-    ${top_builddir}/src/zProgOpt/libzProgOpt.la \
     ${top_builddir}/src/zGpio/libzGpio.la \
     ${top_builddir}/src/zLed/libzLed.la \
     ${top_builddir}/src/zLog/libzLog.la \
     ${top_builddir}/src/zMessage/libzMessage.la \
     ${top_builddir}/src/zNode/libzNode.la \
+    ${top_builddir}/src/zProgOpt/libzProgOpt.la \
     ${top_builddir}/src/zSem/libzSem.la \
     ${top_builddir}/src/zSocket/libzSocket.la \
     ${top_builddir}/src/zSwitch/libzSwitch.la \

@@ -13,6 +13,5 @@ libzSocket_la_SOURCES = \
     Address.cpp \
     Socket.cpp \
     Handler.cpp \
-    InetAddress.cpp \
-    InetSocket.cpp
+    Inet.cpp
 

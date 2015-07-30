@@ -51,6 +51,8 @@ Port::_open()
     std::fstream fs;
     std::string fileName = this->_getRootDir() + Port::EXPORT_FILENAME;
 
+    ZLOG_INFO("zGpio::Port::_open: Opening GPIO Port: " + zLog::IntStr(this->_id));
+
     // Open export file and write the GPIO id
     fs.open(fileName.c_str(), std::fstream::out);
     if (fs.is_open())
@@ -87,6 +89,8 @@ Port::_close()
     std::fstream fs;
     std::string fileName = this->_getRootDir() + Port::UNEXPORT_FILENAME;
 
+    ZLOG_INFO("zGpio::Port::_close: Closing GPIO Port: " + zLog::IntStr(this->_id));
+
     // Open export file and write the GPIO id
     fs.open(fileName.c_str(), std::fstream::out);
     if (fs.is_open())
@@ -115,6 +119,9 @@ Port::_getDirection()
       std::string dir;
       fs >> dir;
       fs.close();
+
+      ZLOG_DEBUG("zGpio::Port::_getDirection: Direction: '" + dir + "'");
+
       if (Port::DIR_IN_STR == dir)
       {
         this->_dir = Port::DIR_IN;
@@ -180,6 +187,9 @@ Port::_getState()
       std::string state;
       fs >> state;
       fs.close();
+
+      ZLOG_DEBUG("zGpio::Port::_getState: State: '" + state + "'");
+
       if (Port::STATE_ACTIVE_STR == state)
       {
         this->_state = Port::STATE_ACTIVE;
@@ -200,7 +210,7 @@ Port::_getState()
 bool
 Port::_setState(Port::STATE state_)
 {
-  if (this->_opened)
+  if (this->_opened && (this->_dir == Port::DIR_OUT))
   {
     std::fstream fs;
     std::string fileName = this->_getClassDir() + Port::STATE_FILENAME;
@@ -211,11 +221,13 @@ Port::_setState(Port::STATE state_)
     {
       if (Port::STATE_ACTIVE == state_)
       {
+        ZLOG_DEBUG("zGpio::Port::_setState: State: '" + Port::STATE_ACTIVE_STR + "'");
         fs << Port::STATE_ACTIVE_STR;
         this->_state = state_;
       }
       else if (Port::STATE_INACTIVE == state_)
       {
+        ZLOG_DEBUG("zGpio::Port::_setState: State: '" + Port::STATE_INACTIVE_STR + "'");
         fs << Port::STATE_INACTIVE_STR;
         this->_state = state_;
       }

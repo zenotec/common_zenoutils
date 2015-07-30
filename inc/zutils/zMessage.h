@@ -114,7 +114,7 @@ class Observer
 public:
 
   virtual bool
-  RecvMsg(zMessage::Handler &handler_, zMessage::Message &msg_) = 0;
+  MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_) = 0;
 
 };
 
@@ -135,12 +135,15 @@ public:
   Unregister(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
 
   bool
-  Send(zMessage::Message &msg_);
+  Send(const zSocket::Address &addr_, zMessage::Message &msg_);
+
+  bool
+  Broadcast(zMessage::Message &msg_);
 
 protected:
 
   virtual bool
-  SocketRecv(zSocket::Socket *sock_, const zSocket::Address &addr_, zSocket::Buffer &buf_);
+  SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_);
 
 private:
 

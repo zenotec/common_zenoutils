@@ -9,6 +9,7 @@ zSocketTest_AddressGetSet(void* arg_)
 {
   // Create new socket address and validate
   zSocket::Address myAddr(zSocket::Address::TYPE_INET);
+  TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
   TEST_TRUE(myAddr.SetAddress(std::string("some_address")));
   TEST_EQ(std::string("some_address"), myAddr.GetAddress());

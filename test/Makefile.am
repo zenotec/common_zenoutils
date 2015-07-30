@@ -27,7 +27,7 @@ VALGRIND_TESTS = \
     zNode/valgrind.sh \
     zSocket/valgrind.sh \
     zMessage/valgrind.sh \
-    zSwtich/valgrind.sh \
+    zSwitch/valgrind.sh \
     zGpio/valgrind.sh \
     zLed/valgrind.sh
 endif

@@ -10,12 +10,12 @@ zNodeTest_NodeDefaults(void* arg_)
   // Create new node from zData object
   zData::Data myData;
   zNode::Node myNode1(myData);
-  TEST_EQ(std::string(""), myNode1.GetType());
+  TEST_EQ(std::string(""), myNode1.GetName());
   TEST_EQ(std::string(""), myNode1.GetId());
 
   // Create new node and validate
   zNode::Node myNode2;
-  TEST_EQ(std::string(""), myNode2.GetType());
+  TEST_EQ(std::string(""), myNode2.GetName());
   TEST_NEQ(std::string(""), myNode2.GetId());
 
   // Return success
