@@ -68,6 +68,7 @@ zNodeTest_NodeCopy(void* arg_)
 
   // Cleanup
   delete (myNode1);
+  delete (myNode2);
 
   // Return success
   return (0);

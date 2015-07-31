@@ -33,7 +33,8 @@ _get_ipaddr_string(struct sockaddr_in *sockaddr_)
 {
   char ip[INET_ADDRSTRLEN] = { 0 };
   inet_ntop(AF_INET, &sockaddr_->sin_addr, ip, INET_ADDRSTRLEN);
-  return (std::string(ip));
+  std::string str(ip);
+  return (str);
 }
 
 static std::string
@@ -41,7 +42,8 @@ _get_port_string(struct sockaddr_in *sockaddr_)
 {
   char port[10] = { 0 };
   snprintf(port, 10, "%d", ntohs(sockaddr_->sin_port));
-  return (std::string(port));
+  std::string str(port);
+  return (port);
 }
 
 static bool
@@ -284,16 +286,16 @@ InetSocket::ThreadFunction(void *arg_)
 
   // Select on socket
   int ret = select(self->_sock + 1, &rxFds, NULL, NULL, &to);
-  if (ret > 0 && FD_ISSET(this->_sock, &rxFds))
+  if (ret > 0 && FD_ISSET(self->_sock, &rxFds))
   {
-    ZLOG_INFO("InetSocket::ThreadFunction: Received packet on socket: " + zLog::IntStr(this->_sock));
+    ZLOG_INFO("InetSocket::ThreadFunction: Received packet on socket: " + zLog::IntStr(self->_sock));
     Address *addr = new InetAddress;
     Buffer *sb = new Buffer;
-    bytes = this->_recv(addr, sb);
+    bytes = self->_recv(addr, sb);
     if (bytes > 0)
     {
       sb->Put(bytes);
-      this->Push(std::make_pair(addr, sb));
+      self->Push(std::make_pair(addr, sb));
     }
   } // end if
 

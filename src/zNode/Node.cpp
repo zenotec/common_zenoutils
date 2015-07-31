@@ -46,6 +46,7 @@ Node::Node(const std::string &name_) :
 
 Node::~Node()
 {
+  ZLOG_DEBUG("Destroying node: " + this->GetName() + "[" + this->GetId() + "]");
 }
 
 Node &

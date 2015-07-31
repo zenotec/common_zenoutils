@@ -29,6 +29,8 @@ Data::Data(const std::string &key_)
 
 Data::~Data()
 {
+  ZLOG_DEBUG("Destroying zData object: " + this->GetKey());
+  this->_pt.clear();
 }
 
 bool

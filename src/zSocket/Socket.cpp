@@ -35,7 +35,7 @@ Socket::Receive(Address *addr_, Buffer *sb_)
     addr_->SetAddress(q.first->GetAddress());
     delete(q.first);
 
-    // Copy buffer */
+    // Copy to caller's socket buffer */
     *sb_ = *q.second;
     delete(q.second);
 
@@ -63,6 +63,7 @@ Socket::Receive(Address *addr_, std::string &str_)
   {
     str_ = sb->Str();
   }
+  delete(sb);
   return (bytes);
 }
 
@@ -80,6 +81,7 @@ Socket::Send(const Address *addr_, const std::string &str_)
   memcpy(sb->Head(), str_.c_str(), str_.size());
   sb->Put(str_.size());
   bytes = Send(addr_, sb);
+  delete(sb);
   return (bytes);
 }
 
@@ -97,6 +99,7 @@ Socket::Broadcast(const std::string &str_)
   memcpy(sb->Head(), str_.c_str(), str_.size());
   sb->Put(str_.size());
   bytes = Broadcast(sb);
+  delete(sb);
   return (bytes);
 }
 

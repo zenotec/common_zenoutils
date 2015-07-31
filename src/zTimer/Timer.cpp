@@ -39,6 +39,8 @@ _timer_handler(union sigval sv_)
 {
   Timer *self = (Timer *) sv_.sival_ptr;
   self->Notify();
+  pthread_detach(pthread_self());
+  pthread_exit(0);
 }
 
 //**********************************************************************
