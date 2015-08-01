@@ -34,13 +34,12 @@ Message::Message() :
     zData::Data(Message::STR_ROOT)
 {
   zData::Data data(Message::STR_DATA);
-  zNode::Node node;
 
   // Initialize message
   this->SetId("");
   this->SetType(Message::TYPE_NONE);
-  this->SetTo(node);
-  this->SetFrom(node);
+  this->SetTo("");
+  this->SetFrom("");
   this->SetData(data);
 
 }
@@ -63,8 +62,7 @@ Message::GetId() const
 bool
 Message::SetId(const std::string &id_)
 {
-  this->SetValue(Message::STR_ID, id_);
-  return (true);
+  return (this->SetValue(Message::STR_ID, id_));
 }
 
 Message::TYPE
@@ -146,32 +144,28 @@ Message::SetType(const Message::TYPE &type_)
   return (status);
 }
 
-zNode::Node
+std::string
 Message::GetTo() const
 {
-  zData::Data to;
-  this->GetChild(Message::STR_TO, to);
-  return (zNode::Node(to));
+  return (this->GetValue(Message::STR_TO));
 }
 
 bool
-Message::SetTo(const zNode::Node &to_)
+Message::SetTo(const std::string &to_)
 {
-  return (this->PutChild(Message::STR_TO, to_));
+  return (this->SetValue(Message::STR_TO, to_));
 }
 
-zNode::Node
+std::string
 Message::GetFrom() const
 {
-  zData::Data from;
-  this->GetChild(Message::STR_FROM, from);
-  return (zNode::Node(from));
+  return (this->GetValue(Message::STR_FROM));
 }
 
 bool
-Message::SetFrom(const zNode::Node &from_)
+Message::SetFrom(const std::string &from_)
 {
-  return (this->PutChild(Message::STR_FROM, from_));
+  return (this->SetValue(Message::STR_FROM, from_));
 }
 
 zData::Data

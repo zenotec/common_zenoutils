@@ -39,11 +39,15 @@ private:
 class Timer : public zEvent::Event
 {
 public:
+
   Timer(void);
+
+  virtual
   ~Timer(void);
 
   void
   Start(uint32_t usec_);
+
   void
   Stop(void);
 
@@ -63,8 +67,10 @@ private:
 
   void
   _start(void);
+
   void
   _stop(void);
+
   uint32_t _interval;
 
   zSem::Mutex _lock;

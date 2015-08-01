@@ -38,6 +38,8 @@ class Thread
 {
 public:
   Thread(Function *func_, void *arg_, uint32_t period_ = 100);
+
+  virtual
   ~Thread();
 
   unsigned long

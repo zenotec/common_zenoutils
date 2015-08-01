@@ -162,6 +162,7 @@ private:
 class Log
 {
 public:
+  virtual
   ~Log();
 
   static Log &

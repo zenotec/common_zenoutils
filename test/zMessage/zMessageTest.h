@@ -38,7 +38,7 @@ int
 zMessageTest_MessageCopy(void* arg_);
 
 int
-zMessageTest_Handler(void* arg_);
+zMessageTest_MessageHandler(void* arg_);
 
 using namespace zUtils;
 using namespace Test;

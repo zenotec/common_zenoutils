@@ -70,14 +70,19 @@ public:
       Led::MODE mode_ = Led::MODE_NONE,
       Led::STATE defState_ = Led::STATE_OFF,
       const std::string& root_ = Led::DEVROOT_DEFAULT);
-    ~Led();
+
+  virtual
+  ~Led();
 
   std::string
   GetName();
+
   Led::COLOR
   GetColor();
+
   Led::MODE
   GetMode();
+
   Led::STATE
   GetState();
 
@@ -101,10 +106,13 @@ protected:
   _setState(Led::STATE state_);
 
 private:
+
   bool
   _setModeNone();
+
   bool
   _setModeOneShot();
+
   bool
   _setModeHeartbeat();
 
@@ -123,19 +131,25 @@ class Handler
 public:
 
   Handler(Led::COLOR color_ = Led::COLOR_NONE, Led *led_ = NULL);
-    ~Handler();
+
+  virtual
+  ~Handler();
 
   Led*
   GetLed(Led::COLOR color_);
+
   bool
   AddLed(Led::COLOR color_, Led *led_);
+
   bool
   RemoveLed(Led *led_);
 
   bool
   On(Led::COLOR color_);
+
   bool
   Off(Led::COLOR color_);
+
   bool
   Toggle(Led::COLOR color_);
 

@@ -46,7 +46,9 @@ public:
   Port(uint32_t id_, Port::DIR dir_ = Port::DIR_DEF,
       Port::STATE initialState_ = Port::STATE_DEF,
       const std::string& root_ = Port::DEFAULT_ROOT);
-    ~Port();
+
+  virtual
+  ~Port();
 
   uint32_t
   GetId();
@@ -71,18 +73,22 @@ protected:
 
   Port::DIR
   _getDirection();
+
   bool
   _setDirection(Port::DIR dir_);
 
   Port::STATE
   _getState();
+
   bool
   _setState(Port::STATE state_);
 
   std::string
   _getClassDir();
+
   std::string
   _getRootDir();
+
   bool
   _setRootDir(const std::string& root_);
 
@@ -104,17 +110,21 @@ public:
 
   Handler();
 
+  virtual
   ~Handler();
 
   bool
   AddPort(Port* port_);
+
   bool
   RemovePort(Port* port_);
+
   Port*
   GetPort(uint32_t id_);
 
   Port::STATE
   GetState();
+
   bool
   SetState(Port::STATE state_);
 
@@ -140,11 +150,11 @@ protected:
 
 private:
 
-  virtual bool
-  _turnOn();
+    virtual bool
+    _turnOn();
 
-  virtual bool
-  _turnOff();
+    virtual bool
+    _turnOff();
 
 };
 

@@ -39,9 +39,12 @@ public:
   };
 
   Option(uint32_t flags_ = Option::FLAGS_NONE, const std::string &name_ = std::string(""));
+
+  virtual
   ~Option();
 
-  uint32_t Flags() const;
+  uint32_t
+  Flags() const;
 
   std::string
   Name() const;
@@ -96,6 +99,8 @@ class Table
 
 public:
   Table();
+
+  virtual
   ~Table();
 
   Option &

@@ -31,16 +31,18 @@ Socket::Receive(Address *addr_, Buffer *sb_)
     this->Pop();
 
     // Copy address */
-    addr_->SetType(q.first->GetType());
     addr_->SetAddress(q.first->GetAddress());
-    delete(q.first);
 
     // Copy to caller's socket buffer */
     *sb_ = *q.second;
-    delete(q.second);
 
     // Update number of bytes received
     bytes = sb_->Size();
+
+    // Clean up
+    delete(q.first);
+    delete(q.second);
+
   }
 
   // Return number of bytes received

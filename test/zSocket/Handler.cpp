@@ -12,187 +12,199 @@
 using namespace Test;
 using namespace zUtils;
 
-int
-zSocketTest_HandlerRegister(void* arg_)
+int zSocketTest_HandlerRegister(void* arg_)
 {
-  // Create new socket address and validate
-  zSocket::Address myAddr;
-  TEST_EQ(zSocket::Address::TYPE_ERR, myAddr.GetType());
-  TEST_EQ(std::string(""), myAddr.GetAddress());
 
-  // Create new observer and validate
-  TestObserver myObserver;
+    ZLOG_DEBUG("#############################################################");
+    ZLOG_DEBUG("# zSocketTest_HandlerRegister()");
+    ZLOG_DEBUG("#############################################################");
 
-  // Create new socket and validate
-  TestSocket mySocket(&myAddr);
+    // Create new socket address and validate
+    zSocket::Address myAddr;
+    TEST_EQ(zSocket::Address::TYPE_NONE, myAddr.GetType());
+    TEST_EQ(std::string(""), myAddr.GetAddress());
 
-  // Create new handler and validate
-  zSocket::Handler myHandler;
+    // Create new observer and validate
+    TestObserver myObserver;
 
-  // Register observer
-  TEST_TRUE(myHandler.Register(&myObserver));
+    // Create new socket and validate
+    TestSocket mySocket(&myAddr);
 
-  // Pause to let listener run a moment
-  usleep(100000);
+    // Create new handler and validate
+    zSocket::Handler myHandler;
 
-  // Clean up
-  myHandler.Unregister(&myObserver);
+    // Register observer
+    TEST_TRUE(myHandler.Register(&myObserver));
 
-  // Return success
-  return (0);
+    // Pause to let listener run a moment
+    usleep(100000);
+
+    // Clean up
+    myHandler.Unregister(&myObserver);
+
+    // Return success
+    return (0);
 
 }
 
-int
-zSocketTest_HandlerStartStop(void* arg_)
+int zSocketTest_HandlerStartStop(void* arg_)
 {
 
-  // Create new socket address and validate
-  zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
-  TEST_EQ(std::string("lo"), myAddress.GetAddress());
+    ZLOG_DEBUG("#############################################################");
+    ZLOG_DEBUG("# zSocketTest_HandlerStartStop()");
+    ZLOG_DEBUG("#############################################################");
 
-  // Create new observer and validate
-  TestObserver *myObserver = new TestObserver;
-  TEST_ISNOT_NULL(myObserver);
+    // Create new socket address and validate
+    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
-  // Create new socket and validate
-  TestSocket *mySocket = new TestSocket(&myAddress);
-  TEST_ISNOT_NULL(mySocket);
+    // Create new observer and validate
+    TestObserver *myObserver = new TestObserver;
+    TEST_ISNOT_NULL(myObserver);
 
-  // Create new handler and validate
-  zSocket::Handler *myHandler = new zSocket::Handler;
-  TEST_ISNOT_NULL(myHandler);
+    // Create new socket and validate
+    TestSocket *mySocket = new TestSocket(&myAddress);
+    TEST_ISNOT_NULL(mySocket);
 
-  // Register observer
-  TEST_TRUE(myHandler->Register(myObserver));
+    // Create new handler and validate
+    zSocket::Handler *myHandler = new zSocket::Handler;
+    TEST_ISNOT_NULL(myHandler);
 
-  // Bind socket and validate
-  TEST_TRUE(myHandler->Bind(mySocket));
+    // Register observer
+    TEST_TRUE(myHandler->Register(myObserver));
 
-  // Start listener
-  TEST_TRUE(myHandler->StartListener(1000));
+    // Bind socket and validate
+    TEST_TRUE(myHandler->Bind(mySocket));
 
-  // Pause to let listener run a moment
-  usleep(100000);
+    // Start listener
+    TEST_TRUE(myHandler->StartListener(1000));
 
-  // Stop listener
-  TEST_TRUE(myHandler->StopListener(1000));
+    // Pause to let listener run a moment
+    usleep(100000);
 
-  // Clean up
-  myHandler->Close();
-  delete (mySocket);
-  myHandler->Unregister(myObserver);
-  delete (myObserver);
-  delete (myHandler);
+    // Stop listener
+    TEST_TRUE(myHandler->StopListener(1000));
 
-  // Return success
-  return (0);
+    // Clean up
+    myHandler->Close();
+    delete (mySocket);
+    myHandler->Unregister(myObserver);
+    delete (myObserver);
+    delete (myHandler);
+
+    // Return success
+    return (0);
 
 }
 
-int
-zSocketTest_HandlerSendRecv(void* arg_)
+int zSocketTest_HandlerSendRecv(void* arg_)
 {
 
-  // Create new socket address and validate
-  zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
-  TEST_EQ(std::string("lo"), myAddress.GetAddress());
+    ZLOG_DEBUG("#############################################################");
+    ZLOG_DEBUG("# zSocketTest_HandlerSendRecv()");
+    ZLOG_DEBUG("#############################################################");
 
-  // Create new observer and validate
-  TestObserver *myObserver = new TestObserver;
-  TEST_ISNOT_NULL(myObserver);
+    // Create new socket address and validate
+    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
-  // Create new socket and validate
-  TestSocket *mySocket = new TestSocket(&myAddress);
-  TEST_ISNOT_NULL(mySocket);
+    // Create new observer and validate
+    TestObserver *myObserver = new TestObserver;
+    TEST_ISNOT_NULL(myObserver);
 
-  // Create new handler and validate
-  zSocket::Handler *myHandler = new zSocket::Handler;
-  TEST_ISNOT_NULL(myHandler);
+    // Create new socket and validate
+    TestSocket *mySocket = new TestSocket(&myAddress);
+    TEST_ISNOT_NULL(mySocket);
 
-  // Register observer
-  TEST_TRUE(myHandler->Register(myObserver));
+    // Create new handler and validate
+    zSocket::Handler *myHandler = new zSocket::Handler;
+    TEST_ISNOT_NULL(myHandler);
 
-  // Bind socket and validate
-  TEST_TRUE(myHandler->Bind(mySocket));
+    // Register observer
+    TEST_TRUE(myHandler->Register(myObserver));
 
-  // Start listener
-  TEST_TRUE(myHandler->StartListener(1000));
+    // Bind socket and validate
+    TEST_TRUE(myHandler->Bind(mySocket));
 
-  // Send string and validate
-  std::string expStr = "zSocketTest_HandlerSendRecv";
-  TEST_TRUE(myHandler->Send(&myAddress, expStr));
+    // Start listener
+    TEST_TRUE(myHandler->StartListener(1000));
 
-  // Wait for socket observer to be notified
-  zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
-  TEST_ISNOT_NULL(sb);
-  delete (sb);
+    // Send string and validate
+    std::string expStr = "zSocketTest_HandlerSendRecv";
+    TEST_TRUE(myHandler->Send(&myAddress, expStr));
 
-  // Stop listener
-  TEST_TRUE(myHandler->StopListener(1000));
+    // Wait for socket observer to be notified
+    zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
+    TEST_ISNOT_NULL(sb);
+    delete (sb);
 
-  // Clean up
-  myHandler->Close();
-  delete (mySocket);
-  myHandler->Unregister(myObserver);
-  delete (myObserver);
-  delete (myHandler);
+    // Stop listener
+    TEST_TRUE(myHandler->StopListener(1000));
 
-  // Return success
-  return (0);
+    // Clean up
+    myHandler->Close();
+    delete (mySocket);
+    myHandler->Unregister(myObserver);
+    delete (myObserver);
+    delete (myHandler);
+
+    // Return success
+    return (0);
 
 }
 
-
-int
-zSocketTest_HandlerBroadcast(void* arg_)
+int zSocketTest_HandlerBroadcast(void* arg_)
 {
 
-  // Create new socket address and validate
-  zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
-  TEST_EQ(std::string("lo"), myAddress.GetAddress());
+    ZLOG_DEBUG("#############################################################");
+    ZLOG_DEBUG("# zSocketTest_HandlerBroadcast()");
+    ZLOG_DEBUG("#############################################################");
 
-  // Create new observer and validate
-  TestObserver *myObserver = new TestObserver;
-  TEST_ISNOT_NULL(myObserver);
+    // Create new socket address and validate
+    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
-  // Create new socket and validate
-  TestSocket *mySocket = new TestSocket(&myAddress);
-  TEST_ISNOT_NULL(mySocket);
+    // Create new observer and validate
+    TestObserver *myObserver = new TestObserver;
+    TEST_ISNOT_NULL(myObserver);
 
-  // Create new handler and validate
-  zSocket::Handler *myHandler = new zSocket::Handler;
-  TEST_ISNOT_NULL(myHandler);
+    // Create new socket and validate
+    TestSocket *mySocket = new TestSocket(&myAddress);
+    TEST_ISNOT_NULL(mySocket);
 
-  // Register observer
-  TEST_TRUE(myHandler->Register(myObserver));
+    // Create new handler and validate
+    zSocket::Handler *myHandler = new zSocket::Handler;
+    TEST_ISNOT_NULL(myHandler);
 
-  // Bind socket and validate
-  TEST_TRUE(myHandler->Bind(mySocket));
+    // Register observer
+    TEST_TRUE(myHandler->Register(myObserver));
 
-  // Start listener
-  TEST_TRUE(myHandler->StartListener(1000));
+    // Bind socket and validate
+    TEST_TRUE(myHandler->Bind(mySocket));
 
-  // Send string and validate
-  std::string expStr = "zSocketTest_HandlerSendRecv";
-  TEST_TRUE(myHandler->Broadcast(expStr));
+    // Start listener
+    TEST_TRUE(myHandler->StartListener(1000));
 
-  // Wait for socket observer to be notified
-  zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
-  TEST_ISNOT_NULL(sb);
-  delete (sb);
+    // Send string and validate
+    std::string expStr = "zSocketTest_HandlerSendRecv";
+    TEST_TRUE(myHandler->Broadcast(expStr));
 
-  // Stop listener
-  TEST_TRUE(myHandler->StopListener(1000));
+    // Wait for socket observer to be notified
+    zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
+    TEST_ISNOT_NULL(sb);
+    delete (sb);
 
-  // Clean up
-  myHandler->Close();
-  delete (mySocket);
-  myHandler->Unregister(myObserver);
-  delete (myObserver);
-  delete (myHandler);
+    // Stop listener
+    TEST_TRUE(myHandler->StopListener(1000));
 
-  // Return success
-  return (0);
+    // Clean up
+    myHandler->Close();
+    delete (mySocket);
+    myHandler->Unregister(myObserver);
+    delete (myObserver);
+    delete (myHandler);
+
+    // Return success
+    return (0);
 
 }

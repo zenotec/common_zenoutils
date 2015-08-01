@@ -36,7 +36,7 @@ zSocketTest_AddressDefaults(void* arg_)
 {
   // Create new socket address and validate
   zSocket::Address myAddr1;
-  TEST_EQ(zSocket::Address::TYPE_ERR, myAddr1.GetType());
+  TEST_EQ(zSocket::Address::TYPE_NONE, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create Socket address using string notation
@@ -62,7 +62,7 @@ zSocketTest_SocketDefaults(void* arg_)
 {
   // Create new socket address and validate
   zSocket::Address myAddr;
-  TEST_EQ(zSocket::Address::TYPE_ERR, myAddr.GetType());
+  TEST_EQ(zSocket::Address::TYPE_NONE, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
 
   TestSocket mySocket(&myAddr);

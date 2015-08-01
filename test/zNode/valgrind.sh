@@ -5,9 +5,12 @@ BIN=.libs/zNodeUnitTest
 TEST=$(pwd)/${DIR}/${BIN}
 LOG=$(pwd)/${DIR}/valgrind.log
 
+export GLIBCXX_FORCE_NEW=1
+export GLIBCPP_FORCE_NEW=1
+
 if which valgrind > /dev/null 2> /dev/null
 then
-    valgrind --leak-check=full --show-reachable=yes ${TEST} 2> ${LOG}
+    valgrind --leak-check=yes --show-reachable=yes ${TEST} 2> ${LOG}
     cat ${LOG}
     if test "x`grep 'ERROR SUMMARY: 0 errors' ${LOG}`x" = xx
     then

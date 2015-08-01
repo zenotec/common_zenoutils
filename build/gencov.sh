@@ -3,7 +3,7 @@
 TOPDIR=$(pwd)
 SRCDIR="${TOPDIR}/src"
 TESTDIR="${TOPDIR}/test"
-TESTS="zLog zProgOpt zThread zTimer zSem zData zEvent zSocket zNode zMessage zGpio"
+TESTS="zLog zProgOpt zThread zTimer zSem zData zEvent zSocket zNode zMessage zSwitch zGpio"
 COVDIR="${TOPDIR}/coverage"
 
 rm -rf ${SRCDIR} ${TESTDIR} ${COVDIR}
@@ -15,7 +15,6 @@ cd ${TOPDIR}
 make check
 
 for test in ${TESTS}; do
-  echo ${test}
   cd ${SRCDIR}/${test}
   lcov --base-directory . --directory . -c -o ${COVDIR}/${test}_src.info
   lcov --remove ${COVDIR}/${test}_src.info "/usr*" -o ${COVDIR}/${test}_src.info

@@ -27,6 +27,11 @@ public:
     STATE_LAST
   };
 
+  Switch(Switch::STATE state_);
+
+  virtual
+  ~Switch();
+
   bool
   On();
 

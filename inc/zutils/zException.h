@@ -20,6 +20,7 @@ class Exception
 {
 public:
   Exception();
+  virtual
   ~Exception();
 
 protected:

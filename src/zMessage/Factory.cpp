@@ -22,7 +22,7 @@ Factory::Create(const Message::TYPE &type_)
 {
   Message *msg = new Message;
 
-  // Yes, this might look ridiculous, but it serves two purposes. The
+  // Yes, this might look questionable, but it serves two purposes. The
   //   first is to validate the message type being passed in. The second
   //   is that it is a placeholder for future enhancements
   if (msg)

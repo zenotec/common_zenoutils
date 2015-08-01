@@ -29,6 +29,8 @@ public:
   };
 
   Mutex(Mutex::STATE state_ = Mutex::LOCKED);
+
+  virtual
   ~Mutex();
 
   bool
@@ -59,7 +61,10 @@ private:
 class Semaphore
 {
 public:
+
   Semaphore(const uint32_t value_ = 0);
+
+  virtual
   ~Semaphore();
 
   bool
@@ -82,7 +87,9 @@ protected:
 private:
 
   Semaphore(Semaphore &other_);
+
   Semaphore(const Semaphore &other_);
+
   Semaphore &
   operator=(const Semaphore &other_);
 

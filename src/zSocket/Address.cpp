@@ -13,9 +13,8 @@ namespace zSocket
 {
 
 Address::Address(Address::TYPE type_, const std::string &addr_) :
-    _type(Address::TYPE_NONE), _addr(addr_)
+    _type(type_), _addr(addr_)
 {
-  this->SetType(type_);
 }
 
 Address::~Address()
@@ -50,24 +49,6 @@ Address::TYPE
 Address::GetType() const
 {
   return (this->_type);
-}
-
-bool
-Address::SetType(const Address::TYPE &type_)
-{
-  bool status = true;
-  switch (type_)
-  {
-  case Address::TYPE_LOOP:
-  case Address::TYPE_INET:
-    this->_type = type_;
-    break;
-  default:
-    this->_type = Address::TYPE_ERR;
-    status = false;
-    break;
-  }
-  return (status);
 }
 
 std::string

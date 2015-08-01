@@ -8,8 +8,9 @@
 #ifndef ZMESSAGE_H_
 #define ZMESSAGE_H_
 
+#include <map>
+
 #include <zutils/zData.h>
-#include <zutils/zNode.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -23,70 +24,75 @@ class Handler;
 // zMessage::Message Class
 //**********************************************************************
 
-class Message : public zData::Data
+class Message: public zData::Data
 {
 
-  static const std::string STR_ROOT;
-  static const std::string STR_TYPE;
-  static const std::string STR_TYPE_AUTH;
-  static const std::string STR_TYPE_HELLO;
-  static const std::string STR_TYPE_ACK;
-  static const std::string STR_TYPE_BYE;
-  static const std::string STR_TYPE_CFG;
-  static const std::string STR_TYPE_CMD;
-  static const std::string STR_TYPE_DATA;
-  static const std::string STR_ID;
-  static const std::string STR_TO;
-  static const std::string STR_FROM;
-  static const std::string STR_DATA;
+    static const std::string STR_ROOT;
+    static const std::string STR_TYPE;
+    static const std::string STR_TYPE_AUTH;
+    static const std::string STR_TYPE_HELLO;
+    static const std::string STR_TYPE_ACK;
+    static const std::string STR_TYPE_BYE;
+    static const std::string STR_TYPE_CFG;
+    static const std::string STR_TYPE_CMD;
+    static const std::string STR_TYPE_DATA;
+    static const std::string STR_ID;
+    static const std::string STR_TO;
+    static const std::string STR_FROM;
+    static const std::string STR_DATA;
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_AUTH = 1,
-    TYPE_HELLO = 2,
-    TYPE_ACK = 3,
-    TYPE_BYE = 4,
-    TYPE_CFG = 5,
-    TYPE_CMD = 6,
-    TYPE_DATA = 7,
-    TYPE_LAST
-  };
+    enum TYPE
+    {
+        TYPE_ERR = -1,
+        TYPE_NONE = 0,
+        TYPE_AUTH = 1,
+        TYPE_HELLO = 2,
+        TYPE_ACK = 3,
+        TYPE_BYE = 4,
+        TYPE_CFG = 5,
+        TYPE_CMD = 6,
+        TYPE_DATA = 7,
+        TYPE_LAST
+    };
 
-  Message();
+    Message();
 
-  Message(const zData::Data &msg_);
+    Message(const zData::Data &msg_);
 
-  virtual
-  ~Message();
+    virtual
+    ~Message();
 
-  Message::TYPE
-  GetType() const;
-  bool
-  SetType(const Message::TYPE &type_);
+    Message::TYPE
+    GetType() const;
 
-  std::string
-  GetId() const;
-  bool
-  SetId(const std::string &id_);
+    bool
+    SetType(const Message::TYPE &type_);
 
-  zNode::Node
-  GetTo() const;
-  bool
-  SetTo(const zNode::Node &to_);
+    std::string
+    GetId() const;
 
-  zNode::Node
-  GetFrom() const;
-  bool
-  SetFrom(const zNode::Node &from_);
+    bool
+    SetId(const std::string &id_);
 
-  zData::Data
-  GetData() const;
-  bool
-  SetData(const zData::Data &data_);
+    std::string
+    GetTo() const;
+
+    bool
+    SetTo(const std::string &to_);
+
+    std::string
+    GetFrom() const;
+
+    bool
+    SetFrom(const std::string &from_);
+
+    zData::Data
+    GetData() const;
+
+    bool
+    SetData(const zData::Data &data_);
 
 protected:
 
@@ -101,8 +107,8 @@ private:
 class Factory
 {
 public:
-  static zMessage::Message *
-  Create(const zMessage::Message::TYPE &type_);
+    static zMessage::Message *
+    Create(const zMessage::Message::TYPE &type_);
 };
 
 //**********************************************************************
@@ -113,8 +119,8 @@ class Observer
 {
 public:
 
-  virtual bool
-  MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_) = 0;
+    virtual bool
+    MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_) = 0;
 
 };
 
@@ -122,36 +128,38 @@ public:
 // zMessage::Handler Class
 //**********************************************************************
 
-class Handler : public zSocket::Handler, public zSocket::Observer
+class Handler: public zSocket::Handler, public zSocket::Observer
 {
 
 public:
-  Handler();
+    Handler();
+
+    virtual
     ~Handler();
 
-  bool
-  Register(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
-  bool
-  Unregister(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
+    bool
+    Register(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
 
-  bool
-  Send(const zSocket::Address &addr_, zMessage::Message &msg_);
+    bool
+    Unregister(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
 
-  bool
-  Broadcast(zMessage::Message &msg_);
+    bool
+    Send(zMessage::Message &msg_);
+
+    bool
+    Broadcast(zMessage::Message &msg_);
 
 protected:
 
-  virtual bool
-  SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_);
+    virtual bool
+    SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_);
 
 private:
 
-  void
-  _notify(zMessage::Message::TYPE type, zMessage::Message &msg_);
+    void
+    _notify(zMessage::Message::TYPE type, zMessage::Message &msg_);
 
-  std::map<zMessage::Message::TYPE, std::list<zMessage::Observer *> > _obsMap;
-  std::map<std::string, std::pair<zSocket::Socket *, zSocket::Address> > _addrMap;
+    std::map<zMessage::Message::TYPE, std::list<zMessage::Observer *> > _obsMap;
 
 };
 
