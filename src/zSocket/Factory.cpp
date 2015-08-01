@@ -8,7 +8,7 @@
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
 
-#include <zutils/zInetSocket.h>
+#include <zutils/zInet.h>
 
 namespace zUtils
 {

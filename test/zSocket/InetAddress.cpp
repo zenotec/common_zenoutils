@@ -1,6 +1,6 @@
 #include "zSocketTest.h"
 
-#include <zutils/zInetSocket.h>
+#include <zutils/zInet.h>
 
 using namespace Test;
 using namespace zUtils;

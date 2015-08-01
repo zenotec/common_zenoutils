@@ -31,6 +31,7 @@ class InetAddress: public Address
 public:
 
     InetAddress();
+
     InetAddress(const std::string &ifname_);
 
     virtual
@@ -38,10 +39,13 @@ public:
 
     bool
     operator ==(const InetAddress &other_) const;
+
     bool
     operator !=(const InetAddress &other_) const;
+
     bool
     operator <(const InetAddress &other_) const;
+
     bool
     operator >(const InetAddress &other_) const;
 
@@ -53,19 +57,25 @@ public:
 
     std::string
     GetIpAddr() const;
+
     std::string
     GetPort() const;
+
     std::string
     GetNetmask() const;
+
     std::string
     GetBroadcast() const;
 
     bool
     SetIpAddr(const std::string &ipaddr_);
+
     bool
     SetPort(const std::string &port_);
+
     bool
     SetNetmask(const std::string &netmask_);
+
     bool
     SetBroadcast(const std::string &bcast_);
 
@@ -115,7 +125,7 @@ protected:
     _connect();
 
     virtual ssize_t
-    _send(const zSocket::Address *addr_, zSocket::Buffer *sb_);
+    _send(const zSocket::Address *dst_, zSocket::Buffer *sb_);
 
     virtual ssize_t
     _broadcast(zSocket::Buffer *sb_);
@@ -123,11 +133,12 @@ protected:
 private:
 
     virtual ssize_t
-    _recv(zSocket::Address *addr_, zSocket::Buffer *sb_);
+    _recv(zSocket::Address *src_, zSocket::Buffer *sb_);
 
     zThread::Thread _thread;
 
     int _sock;
+
     const InetAddress _inetaddr;
 
 };

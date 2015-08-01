@@ -1,6 +1,6 @@
 #include "zMessageTest.h"
 
-#include <zutils/zInetSocket.h>
+#include <zutils/zInet.h>
 
 using namespace Test;
 using namespace zUtils;
@@ -24,7 +24,7 @@ int zMessageTest_MessageHandler(void* arg_)
 
     // Startup the message handler
     TEST_TRUE(myHandler->Bind(mySock));
-    TEST_TRUE(myHandler->StartListener(100));
+    TEST_TRUE(myHandler->StartListener(500));
 
     // Broadcast hello message to self
     zMessage::Message *helloMsg = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);

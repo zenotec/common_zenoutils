@@ -21,7 +21,7 @@
 #include <sstream>
 
 #include <zutils/zLog.h>
-#include <zutils/zInetSocket.h>
+#include <zutils/zInet.h>
 
 namespace zUtils
 {

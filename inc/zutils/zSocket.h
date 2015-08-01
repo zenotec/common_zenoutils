@@ -275,6 +275,9 @@ public:
     bool
     Connect(zSocket::Socket *sock_);
 
+    bool
+    Listen(zSocket::Socket *sock_);
+
     ssize_t
     Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
 
@@ -288,7 +291,7 @@ public:
     Broadcast(const std::string &str_);
 
     void
-    Close();
+    Close(Socket *sock_ = NULL);
 
     bool
     StartListener(uint32_t msecs_ = 0);
@@ -307,6 +310,8 @@ private:
 
     void
     _notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::Buffer *buf_);
+
+    std::list<zSocket::Socket *> _sockList;
 
     std::list<zSocket::Observer *> _obsList;
     zEvent::EventList _waitList;

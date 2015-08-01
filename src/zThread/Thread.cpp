@@ -69,9 +69,9 @@ Thread::Run(uint32_t msecs_)
   if (this->_mutex.TimedLock(msecs_ * 1000))
   {
     this->_id = id;
-    status = !this->_exit;
     this->_mutex.Unlock();
     ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t )this->_id));
+    status = true;
   }
 
   return (status);

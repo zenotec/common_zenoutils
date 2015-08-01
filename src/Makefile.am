@@ -6,11 +6,11 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zLog \
+	zSocket \
 	zMessage \
 	zNode \
 	zProgOpt \
 	zSem \
-	zSocket \
 	zSwitch \
 	zThread \
 	zTimer
@@ -44,7 +44,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zQueue.h \
     $(top_srcdir)/inc/zutils/zSem.h \
     $(top_srcdir)/inc/zutils/zSocket.h \
-    $(top_srcdir)/inc/zutils/zInetSocket.h \
+    $(top_srcdir)/inc/zutils/zInet.h \
     $(top_srcdir)/inc/zutils/zEthSocket.h \
     $(top_srcdir)/inc/zutils/zSwitch.h \
     $(top_srcdir)/inc/zutils/zThread.h \
