@@ -50,18 +50,22 @@ bool Handler::Send(zMessage::Message &msg_)
 {
     bool status = true;
 
-    const zSocket::Address *fromAddr = this->_sock->GetAddress();
-    msg_.SetSrc(fromAddr->GetAddress());
-    zSocket::Address *toAddr = zSocket::Factory::Create(fromAddr->GetType());
-    toAddr->SetAddress(msg_.GetDst());
+    const zSocket::Address *srcAddr = this->_sock->GetAddress();
+    msg_.SetSrc(srcAddr->GetAddress());
+    zSocket::Address *dstAddr = zSocket::Factory::Create(srcAddr->GetType());
+    dstAddr->SetAddress(msg_.GetDst());
 
-    ssize_t size = zSocket::Handler::Send(toAddr, msg_.GetJson());
+    ssize_t size = zSocket::Handler::Send(dstAddr, msg_.GetJson());
     if (size != msg_.GetJson().size())
     {
         ZLOG_ERR("zMessage::Handler::Send(): Failed to send message: bytes sent: " + zLog::IntStr(size));
         status = false;
     }
 
+    // Clean up
+    delete (dstAddr);
+
+    // Return status
     return (status);
 
 }
@@ -70,8 +74,8 @@ bool Handler::Broadcast(zMessage::Message &msg_)
 {
     bool status = true;
 
-    const zSocket::Address *fromAddr = this->_sock->GetAddress();
-    msg_.SetSrc(fromAddr->GetAddress());
+    const zSocket::Address *srcAddr = this->_sock->GetAddress();
+    msg_.SetSrc(srcAddr->GetAddress());
 
     ssize_t size = zSocket::Handler::Broadcast(msg_.GetJson());
     if (size != msg_.GetJson().size())
@@ -80,6 +84,7 @@ bool Handler::Broadcast(zMessage::Message &msg_)
         status = false;
     }
 
+    // Return status
     return (status);
 
 }
@@ -144,6 +149,9 @@ bool Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_,
         // Notify observers
         this->_notify(msg->GetType(), *msg);
     }
+
+    // Clean up
+    delete(msg);
 
     // Return status
     return (status);

@@ -83,6 +83,7 @@ Table::Add( zNode::Node &node_ )
     // Conditionally add node
     if (status)
     {
+        ZLOG_INFO( "Table::Add(): Adding new node: " + node_.GetId() );
         notification = std::make_pair( zNode::Observer::EVENT_NEW, node_ );
         notifyList.push_back( notification );
         this->_nodeList.push_front( node_ );
@@ -96,7 +97,6 @@ Table::Add( zNode::Node &node_ )
     // Conditionally notify observers
     if (status)
     {
-        ZLOG_INFO( "Table::Add(): Adding new node: " + node_.GetId() );
         this->_notify( notifyList );
     }
 
@@ -145,6 +145,7 @@ Table::Remove( zNode::Node &node_ )
     // Conditionally remove node
     if (status)
     {
+        ZLOG_INFO( "Table::Remove(): Removing node: " + node_.GetId() );
         notification = std::make_pair( zNode::Observer::EVENT_REMOVED, node_ );
         notifyList.push_back( notification );
         this->_nodeList.remove( node_ );
@@ -156,7 +157,6 @@ Table::Remove( zNode::Node &node_ )
     // Conditionally notify observers
     if (status)
     {
-        ZLOG_INFO( "Table::Remove(): Removing node: " + node_.GetId() );
         this->_notify( notifyList );
     }
 

@@ -16,7 +16,8 @@ namespace zNode
 // Manager
 //**********************************************************************
 
-Manager::Manager( zNode::Node &self_ )
+Manager::Manager( zNode::Node &self_ ) :
+        _nodeTable( 30000 )
 {
     this->_self = self_;
     this->_nodeTable.Register( this );
@@ -152,6 +153,8 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
     zNode::Node *node = this->_nodeTable.FindByAddress( msg_.GetSrc() );
     if (node)
     {
+        std::cout << "zNode::Manager::MessageRecv(): Marking node online: " << node->GetId() <<
+                " : " << node->GetAddress() << std::endl;
         node->SetState( zNode::Node::STATE_ONLINE );
     }
 
@@ -171,7 +174,10 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
         case zMessage::Message::TYPE_BYE:
             {
                 // Find node by address and remove from table
-                this->_nodeTable.Remove( *node );
+                if (node)
+                {
+                    this->_nodeTable.Remove( *node );
+                }
                 break;
             }
         case zMessage::Message::TYPE_ACK:
@@ -180,13 +186,18 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
             }
         case zMessage::Message::TYPE_NODE:
             {
+                zNode::Message *msg = new zNode::Message( msg_ );
+                zNode::Node srcNode( msg->GetNode() );
                 if (!node)
                 {
-                    zNode::Message *msg = new zNode::Message( msg_ );
-                    zNode::Node srcNode( msg->GetNode() );
                     this->_nodeTable.Add( srcNode );
-                    delete (msg);
                 }
+                if (node && (*node != srcNode))
+                {
+                    this->_nodeTable.Remove( *node );
+                    this->_nodeTable.Add( srcNode );
+                }
+                delete (msg);
                 break;
             }
         default:
@@ -204,20 +215,42 @@ Manager::EventHandler( zNode::Observer::EVENT event_, const zNode::Node &node_ )
     switch (event_)
     {
         case zNode::Observer::EVENT_NEW:
+            std::cout << "New node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         case zNode::Observer::EVENT_REMOVED:
+            std::cout << "Removed node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         case zNode::Observer::EVENT_TARDY:
+            std::cout << "Tardy node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         case zNode::Observer::EVENT_STALE:
+            std::cout << "Stale node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         case zNode::Observer::EVENT_OFFLINE:
+            std::cout << "Offline node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         case zNode::Observer::EVENT_RETIRED:
+            std::cout << "Retired node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
+            break;
 
         default:
+            std::cout << "Unknown node: " << node_.GetName() << "[" << node_.GetId() << "]: "
+                    << node_.GetAddress() << std::endl;
             break;
     }
+
+    std::cout.flush();
 }
 
 }
