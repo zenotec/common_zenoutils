@@ -56,7 +56,7 @@ Manager::AddMessageHandler( zMessage::Handler *handler_ )
     handler_->StartListener( 1000 );
 
     // Say hello to everyone on network
-    zMessage::Message *HelloMsg = zMessage::Factory::Create( zMessage::Message::TYPE_HELLO );
+    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, this->_self );
     status = handler_->Broadcast( *HelloMsg );
     delete (HelloMsg);
 
@@ -76,7 +76,7 @@ Manager::RemMessageHandler( zMessage::Handler *handler_ )
     bool status = false;
 
     // Say goodbye to everyone on network
-    zMessage::Message *ByeMsg = zMessage::Factory::Create( zMessage::Message::TYPE_BYE );
+    zNode::Message *ByeMsg = new zNode::Message( zMessage::Message::TYPE_BYE, this->_self );
     status = handler_->Broadcast( *ByeMsg );
     delete (ByeMsg);
 
@@ -107,7 +107,7 @@ Manager::Announce()
     bcast.SetId( "0" );
     bcast.SetName( "all" );
 
-    zMessage::Message *HelloMsg = zMessage::Factory::Create( zMessage::Message::TYPE_HELLO );
+    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, this->_self );
 
     std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
     std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();
@@ -150,63 +150,34 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
     ZLOG_INFO( "zNode::Manager::MessageRecv(): Received message: " +
             msg_.GetSrc() + " -> " + msg_.GetDst() );
 
-    zNode::Node *node = this->_nodeTable.FindByAddress( msg_.GetSrc() );
-    if (node)
-    {
-        std::cout << "zNode::Manager::MessageRecv(): Marking node online: " << node->GetId() <<
-                " : " << node->GetAddress() << std::endl;
-        node->SetState( zNode::Node::STATE_ONLINE );
-    }
+    // Convert message to node message
+    zNode::Message *msg = new zNode::Message( msg_ );
 
     switch (msg_.GetType())
     {
         case zMessage::Message::TYPE_HELLO:
-            {
-                // Send node message
-                zNode::Message *msg = new zNode::Message( this->_self );
-                msg->SetDst( msg_.GetSrc() );
-                msg->SetSrc( this->_self.GetAddress() );
-                msg->SetNode( this->_self );
-                handler_.Send( *msg );
-                delete (msg);
-                break;
-            }
+            status = this->_helloMsgHandler( handler_, *msg );
+            break;
         case zMessage::Message::TYPE_BYE:
-            {
-                // Find node by address and remove from table
-                if (node)
-                {
-                    this->_nodeTable.Remove( *node );
-                }
-                break;
-            }
+            status = this->_byeMsgHandler( handler_, *msg );
+            break;
         case zMessage::Message::TYPE_ACK:
-            {
-                break;
-            }
+            status = this->_ackMsgHandler( handler_, *msg );
+            break;
         case zMessage::Message::TYPE_NODE:
-            {
-                zNode::Message *msg = new zNode::Message( msg_ );
-                zNode::Node srcNode( msg->GetNode() );
-                if (!node)
-                {
-                    this->_nodeTable.Add( srcNode );
-                }
-                if (node && (*node != srcNode))
-                {
-                    this->_nodeTable.Remove( *node );
-                    this->_nodeTable.Add( srcNode );
-                }
-                delete (msg);
-                break;
-            }
+            status = this->_nodeMsgHandler( handler_, *msg );
+            break;
         default:
-            {
-                ZLOG_ERR( "Received message of unknown type: " + ZLOG_INT( msg_.GetType() ) );
-                break;
-            }
+            ZLOG_ERR( "Received message of unknown type: " + ZLOG_INT( msg_.GetType() ) )
+            break;
     }
+
+    // Clean up
+    delete (msg);
+
+    // Return status
     return (status);
+
 }
 
 void
@@ -251,6 +222,86 @@ Manager::EventHandler( zNode::Observer::EVENT event_, const zNode::Node &node_ )
     }
 
     std::cout.flush();
+}
+
+bool
+Manager::_helloMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ )
+{
+    bool status = false;
+
+    // Lookup node identifier in table
+    if (!msg_.GetNode().GetId().empty())
+    {
+        zNode::Node *node = this->_nodeTable.Find( msg_.GetNode().GetId() );
+        if (!node)
+        {
+            // Valid node, does not exist in table so add it
+            node = new zNode::Node( msg_.GetNode() );
+            status = this->_nodeTable.Add( *node );
+            delete (node);
+        }
+        else
+        {
+            // Valid node, already exists in the table so update its state to online
+            status = node->SetState( zNode::Node::STATE_ONLINE );
+        }
+    }
+
+    // Return status
+    return (status);
+}
+
+bool
+Manager::_ackMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ )
+{
+
+}
+
+bool
+Manager::_byeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ )
+{
+    bool status = false;
+
+    // Lookup node identifier in table
+    if (!msg_.GetNode().GetId().empty())
+    {
+        zNode::Node *node = this->_nodeTable.Find( msg_.GetNode().GetId() );
+        if (node)
+        {
+            // Valid node, remove it from the table
+            this->_nodeTable.Remove(*node);
+        }
+    }
+
+    // Return status
+    return (status);
+}
+
+bool
+Manager::_nodeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ )
+{
+    bool status = false;
+
+    // Lookup node identifier in table
+    if (!msg_.GetNode().GetId().empty())
+    {
+        zNode::Node *node = this->_nodeTable.Find( msg_.GetNode().GetId() );
+        if (!node)
+        {
+            // Valid node, does not exist in table so add it
+            node = new zNode::Node( msg_.GetNode() );
+            status = this->_nodeTable.Add( *node );
+            delete (node);
+        }
+        else
+        {
+            // Valid node, already exists in the table so update its state to online
+            status = node->SetState( zNode::Node::STATE_ONLINE );
+        }
+    }
+
+    // Return status
+    return (status);
 }
 
 }

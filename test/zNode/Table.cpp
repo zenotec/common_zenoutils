@@ -30,7 +30,7 @@ zNodeTest_NodeTableAddRemove( void* arg_ )
 
     // Create new node table and validate
     zNode::Table *MyNodeTable = new zNode::Table( 1000 );
-    TEST_IS_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
+    TEST_IS_NULL( MyNodeTable->Find( MyNode->GetId() ) );
 
     // Register observer
     MyNodeTable->Register( MyObsvr );
@@ -38,32 +38,27 @@ zNodeTest_NodeTableAddRemove( void* arg_ )
 
     // Add node to table and validate
     TEST_TRUE( MyNodeTable->Add( *MyNode ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_ISNOT_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 1, MyObsvr->GetCount() );
 
     // Add node to table a second time and validate (should fail)
     TEST_FALSE( MyNodeTable->Add( *MyNode ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_ISNOT_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 1, MyObsvr->GetCount() );
 
     // Remove node
     TEST_TRUE( MyNodeTable->Remove( *MyNode ) );
-    TEST_IS_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_IS_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_IS_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 2, MyObsvr->GetCount() );
 
     // Add node back to table and validate
     TEST_TRUE( MyNodeTable->Add( *MyNode ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_ISNOT_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 3, MyObsvr->GetCount() );
 
     // Remove node
     TEST_TRUE( MyNodeTable->Remove( *MyNode ) );
-    TEST_IS_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_IS_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_IS_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 4, MyObsvr->GetCount() );
 
     // Cleanup
@@ -105,7 +100,7 @@ zNodeTest_NodeTableExpire( void* arg_ )
 
     // Create new node table and validate
     zNode::Table *MyNodeTable = new zNode::Table( 100 );
-    TEST_IS_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
+    TEST_IS_NULL( MyNodeTable->Find( MyNode->GetId() ) );
 
     // Register observer
     MyNodeTable->Register( MyObsvr );
@@ -113,7 +108,7 @@ zNodeTest_NodeTableExpire( void* arg_ )
 
     // Add node to table and validate
     TEST_TRUE( MyNodeTable->Add( *MyNode ) );
-    TEST_ISNOT_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
+    TEST_ISNOT_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 1, MyObsvr->GetCount() );
 
     // Wait for node to retire
@@ -121,8 +116,7 @@ zNodeTest_NodeTableExpire( void* arg_ )
 
     // Remove node
     TEST_FALSE( MyNodeTable->Remove( *MyNode ) );
-    TEST_IS_NULL( MyNodeTable->FindById( MyNode->GetId() ) );
-    TEST_IS_NULL( MyNodeTable->FindByAddress( MyNode->GetAddress() ) );
+    TEST_IS_NULL( MyNodeTable->Find( MyNode->GetId() ) );
     TEST_EQ( 6, MyObsvr->GetCount() );
 
     // Cleanup

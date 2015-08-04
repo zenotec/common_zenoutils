@@ -63,12 +63,12 @@ zNodeTest_MessageDefaults( void* arg_ )
     TEST_EQ( std::string( "" ), MyNode.GetAddress() );
 
     // Initialize node
-    TEST_TRUE(MyNode.SetName("zNodeTest"));
+    TEST_TRUE( MyNode.SetName( "zNodeTest" ) );
 
     // Create new node message and validate
-    zNode::Message *MyMessage = new zNode::Message( MyNode );
-    TEST_EQ(zMessage::Message::TYPE_NODE, MyMessage->GetType());
-    TEST_TRUE(MyNode == MyMessage->GetNode());
+    zNode::Message *MyMessage = new zNode::Message( zMessage::Message::TYPE_NODE, MyNode );
+    TEST_EQ( zMessage::Message::TYPE_NODE, MyMessage->GetType() );
+    TEST_TRUE( MyNode == MyMessage->GetNode() );
 
     // Cleanup
     delete (MyMessage);

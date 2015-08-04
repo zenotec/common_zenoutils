@@ -51,44 +51,17 @@ Table::Add( zNode::Node &node_ )
     } // end if
 
     // Verify node identifier is unique
-    if (!node_.GetId().empty())
+    if (!node_.GetId().empty() && !node_.GetAddress().empty())
     {
         if (!this->_idMap.count( node_.GetId() ))
         {
+            ZLOG_INFO( "Table::Add(): Adding new node: " + node_.GetId() );
+            notification = std::make_pair( zNode::Observer::EVENT_NEW, node_ );
+            notifyList.push_back( notification );
+            this->_nodeList.push_front( node_ );
+            this->_idMap[node_.GetId()] = &this->_nodeList.front();
             status = true;
         }
-        else
-        {
-            ZLOG_ERR( "zNode::Table::Add(): Node already exists: " + node_.GetId() );
-            this->_lock.Unlock();
-            return (false);
-        }
-    }
-
-    // Verify node address is unique
-    if (!node_.GetAddress().empty())
-    {
-        if (!this->_addrMap.count( node_.GetAddress() ))
-        {
-            status = true;
-        }
-        else
-        {
-            ZLOG_ERR( "zNode::Table::Add(): Node already exists: " + node_.GetAddress() );
-            this->_lock.Unlock();
-            return (false);
-        }
-    }
-
-    // Conditionally add node
-    if (status)
-    {
-        ZLOG_INFO( "Table::Add(): Adding new node: " + node_.GetId() );
-        notification = std::make_pair( zNode::Observer::EVENT_NEW, node_ );
-        notifyList.push_back( notification );
-        this->_nodeList.push_front( node_ );
-        this->_idMap[node_.GetId()] = &this->_nodeList.front();
-        this->_addrMap[node_.GetAddress()] = &this->_nodeList.front();
     }
 
     // Release lock
@@ -98,6 +71,11 @@ Table::Add( zNode::Node &node_ )
     if (status)
     {
         this->_notify( notifyList );
+    }
+    else
+    {
+        ZLOG_ERR( "zNode::Table::Add(): Node already exists: " +
+                node_.GetId() + " : " + node_.GetAddress() );
     }
 
     // Return status
@@ -124,31 +102,13 @@ Table::Remove( zNode::Node &node_ )
         std::map<std::string, zNode::Node *>::iterator it = this->_idMap.find( node_.GetId() );
         if (it != this->_idMap.end())
         {
+            ZLOG_INFO( "Table::Remove(): Removing node: " + node_.GetId() );
+            notification = std::make_pair( zNode::Observer::EVENT_REMOVED, node_ );
+            notifyList.push_back( notification );
             this->_idMap.erase( it );
+            this->_nodeList.remove( node_ );
             status = true;
         }
-    }
-
-    // Remove node from address map
-    if (!node_.GetAddress().empty())
-    {
-        // Find address in map
-        std::map<std::string, zNode::Node *>::iterator it = this->_addrMap.find(
-                node_.GetAddress() );
-        if (it != this->_addrMap.end())
-        {
-            this->_addrMap.erase( it );
-            status = true;
-        }
-    }
-
-    // Conditionally remove node
-    if (status)
-    {
-        ZLOG_INFO( "Table::Remove(): Removing node: " + node_.GetId() );
-        notification = std::make_pair( zNode::Observer::EVENT_REMOVED, node_ );
-        notifyList.push_back( notification );
-        this->_nodeList.remove( node_ );
     }
 
     // Release lock
@@ -159,13 +119,18 @@ Table::Remove( zNode::Node &node_ )
     {
         this->_notify( notifyList );
     }
+    else
+    {
+        ZLOG_ERR( "zNode::Table::Remove(): Node does not exist: " +
+                node_.GetId() + " : " + node_.GetAddress() );
+    }
 
     // Return status
     return (status);
 }
 
 zNode::Node *
-Table::FindById( const std::string &id_ )
+Table::Find( const std::string &id_ )
 {
     zNode::Node *node = NULL;
     if (!id_.empty())
@@ -177,27 +142,6 @@ Table::FindById( const std::string &id_ )
         }
     }
     return (node);
-}
-
-zNode::Node *
-Table::FindByAddress( const std::string &addr_ )
-{
-    zNode::Node *node = NULL;
-    if (!addr_.empty())
-    {
-        std::map<std::string, zNode::Node *>::iterator it = this->_addrMap.find( addr_ );
-        if (it != this->_addrMap.end())
-        {
-            node = it->second;
-        }
-    }
-    return (node);
-}
-
-void
-Table::GetNodeList( std::list<zNode::Node> &nodes_ )
-{
-
 }
 
 void
@@ -292,7 +236,7 @@ Table::_notify( std::list<std::pair<zNode::Observer::EVENT, zNode::Node> > notif
     std::list<std::pair<zNode::Observer::EVENT, zNode::Node> >::iterator not_it;
     std::list<zNode::Observer *>::iterator obs_it;
 
-    for ( not_it = notifications_.begin(); not_it != notifications_.end(); ++not_it)
+    for (not_it = notifications_.begin(); not_it != notifications_.end(); ++not_it)
     {
 
         // Notify observers of event

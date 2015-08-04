@@ -153,13 +153,7 @@ public:
     Remove( zNode::Node &node_ );
 
     zNode::Node *
-    FindById( const std::string &id_ );
-
-    zNode::Node *
-    FindByAddress( const std::string &addr_ );
-
-    void
-    GetNodeList( std::list<zNode::Node> &nodes_ );
+    Find( const std::string &id_ );
 
     void
     Register( zNode::Observer *obsvr_ );
@@ -185,7 +179,6 @@ private:
 
     std::list<zNode::Node> _nodeList;
     std::map<std::string, zNode::Node *> _idMap;
-    std::map<std::string, zNode::Node *> _addrMap;
 
     std::list<zNode::Observer *> _observers;
 
@@ -201,7 +194,7 @@ class Message: public zMessage::Message
 
 public:
 
-    Message( zNode::Node &node_ );
+    Message( zMessage::Message::TYPE, zNode::Node &node_ );
 
     Message( zMessage::Message &msg_ );
 
@@ -259,6 +252,18 @@ private:
     Table _nodeTable;
 
     std::list<zMessage::Handler *> _messageHandlers;
+
+    bool
+    _helloMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+
+    bool
+    _ackMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+
+    bool
+    _byeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+
+    bool
+    _nodeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
 
 };
 
