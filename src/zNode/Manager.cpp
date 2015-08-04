@@ -61,7 +61,7 @@ Manager::AddMessageHandler( zMessage::Handler *handler_ )
 
     if (!status)
     {
-        ZLOG_ERR( "NodeManger::AddMessageHandler(): Error broadcasting hello message" );
+        ZLOG_ERR( "zNode::Manger::AddMessageHandler(): Error broadcasting hello message" );
     }
 
     // Return status
@@ -81,7 +81,7 @@ Manager::RemMessageHandler( zMessage::Handler *handler_ )
 
     if (!status)
     {
-        ZLOG_ERR( "NodeManger::RemMessageHandler(): Error broadcasting bye message" );
+        ZLOG_ERR( "zNode::Manger::RemMessageHandler(): Error broadcasting bye message" );
     }
 
     // Unregister for all messages
@@ -114,7 +114,7 @@ Manager::Announce()
     {
         if (!(*it)->Broadcast( *HelloMsg ))
         {
-            ZLOG_ERR( "NodeManger::Announce(): Error sending hello message: " );
+            ZLOG_ERR( "zNode::Manger::Announce(): Error sending hello message: " );
         }
     }
     delete (HelloMsg);
@@ -135,7 +135,7 @@ Manager::Leave()
     {
         if (!(*it)->Broadcast( *ByeMsg ))
         {
-            ZLOG_ERR( "NodeManger::Leave(): Error sending bye message: " );
+            ZLOG_ERR( "zNode::Manger::Leave(): Error sending bye message: " );
         }
     }
     delete (ByeMsg);
@@ -145,6 +145,9 @@ bool
 Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
 {
     bool status = false;
+
+    ZLOG_INFO( "zNode::Manager::MessageRecv(): Received message: " +
+            msg_.GetSrc() + " -> " + msg_.GetDst() );
 
     zNode::Node *node = this->_nodeTable.FindByAddress( msg_.GetSrc() );
     if (node)
@@ -158,7 +161,7 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
             {
                 // Send node message
                 zNode::Message *msg = new zNode::Message( this->_self );
-                msg->SetDst( msg->GetSrc() );
+                msg->SetDst( msg_.GetSrc() );
                 msg->SetSrc( this->_self.GetAddress() );
                 msg->SetNode( this->_self );
                 handler_.Send( *msg );
@@ -177,10 +180,13 @@ Manager::MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ )
             }
         case zMessage::Message::TYPE_NODE:
             {
-                zNode::Message *msg = new zNode::Message( msg_ );
-                zNode::Node srcNode(msg->GetNode());
-                this->_nodeTable.Add( srcNode );
-                delete(msg);
+                if (!node)
+                {
+                    zNode::Message *msg = new zNode::Message( msg_ );
+                    zNode::Node srcNode( msg->GetNode() );
+                    this->_nodeTable.Add( srcNode );
+                    delete (msg);
+                }
                 break;
             }
         default:

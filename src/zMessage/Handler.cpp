@@ -123,6 +123,7 @@ bool Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_,
 
         case zMessage::Message::TYPE_ACK:
         case zMessage::Message::TYPE_AUTH:
+        case zMessage::Message::TYPE_NODE:
         case zMessage::Message::TYPE_CFG:
         case zMessage::Message::TYPE_CMD:
         case zMessage::Message::TYPE_DATA:

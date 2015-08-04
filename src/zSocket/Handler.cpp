@@ -31,7 +31,7 @@ bool Handler::Register(Observer *obs_)
     {
         return (false);
     }
-    ZLOG_DEBUG("Handler::Register: Registering socket observer");
+    ZLOG_DEBUG("zSocket::Handler::Register: Registering socket observer");
     this->_lock.Lock();
     this->_obsList.push_back(obs_);
     this->_lock.Unlock();
@@ -40,7 +40,7 @@ bool Handler::Register(Observer *obs_)
 
 void Handler::Unregister(Observer *obs_)
 {
-    ZLOG_DEBUG("Handler::Unregister: Unregistering socket observer");
+    ZLOG_DEBUG("zSocket::Handler::Unregister: Unregistering socket observer");
     this->_lock.Lock();
     this->_obsList.remove(obs_);
     this->_lock.Unlock();
@@ -55,7 +55,7 @@ bool Handler::Bind(Socket *sock_)
     }
     if (sock_->_open() && sock_->_bind())
     {
-        ZLOG_DEBUG("Handler::Open: Binding socket");
+        ZLOG_DEBUG("zSocket::Handler::Open: Binding socket");
         this->_sock = sock_;
         this->_sockList.push_front(sock_);
         this->_waitList.Register(sock_);
@@ -73,7 +73,7 @@ bool Handler::Connect(Socket *sock_)
     }
     if (sock_->_open() && sock_->_connect())
     {
-        ZLOG_DEBUG("Handler::Open: Connecting to socket");
+        ZLOG_DEBUG("zSocket::Handler::Open: Connecting to socket");
         this->_sock = sock_;
         this->_sockList.push_front(sock_);
         this->_waitList.Register(sock_);
@@ -91,7 +91,7 @@ bool Handler::Listen(Socket *sock_)
     }
     if (sock_->_open() && sock_->_bind())
     {
-        ZLOG_DEBUG("Handler::Open: Connecting to socket");
+        ZLOG_DEBUG("zSocket::Handler::Open: Connecting to socket");
         this->_sockList.push_front(sock_);
         this->_waitList.Register(sock_);
         status = true;
@@ -107,14 +107,14 @@ void Handler::Close(Socket *sock_)
     {
         if (sock_ && (sock_ == (*it)))
         {
-            ZLOG_DEBUG("Handler::Close: Closing socket");
+            ZLOG_DEBUG("zSocket::Handler::Close: Closing socket");
             sock_->_close();
             this->_sockList.remove(sock_);
             this->_waitList.Unregister(sock_);
             break;
         } else if (!sock_)
         {
-            ZLOG_DEBUG("Handler::Close: Closing socket");
+            ZLOG_DEBUG("zSocket::Handler::Close: Closing socket");
             (*it)->_close();
             this->_waitList.Unregister(*it);
             it = this->_sockList.erase(it);
@@ -168,13 +168,13 @@ ssize_t Handler::Broadcast(const std::string &str_)
 
 bool Handler::StartListener(uint32_t msecs_)
 {
-    ZLOG_DEBUG("Handler::StartListener: Start listening on sockets");
+    ZLOG_DEBUG("zSocket::Handler::StartListener: Start listening on sockets");
     return (this->_thread.Run(msecs_));
 }
 
 bool Handler::StopListener(uint32_t msecs_)
 {
-    ZLOG_DEBUG("Handler::StopListener: Stop listening on sockets");
+    ZLOG_DEBUG("zSocket::Handler::StopListener: Stop listening on sockets");
     return (this->_thread.Join(msecs_));
 }
 
@@ -188,12 +188,12 @@ Handler::ThreadFunction(void *arg_)
     Handler *self = (Handler *) arg_;
     std::string logstr;
 
-    logstr = "Handler::ThreadFunction(): Waiting for socket event....";
+    logstr = "zSocket::Handler::ThreadFunction(): Waiting for socket event....";
     ZLOG_DEBUG(logstr);
 
     if (self->_waitList.Wait(100000))
     {
-        ZLOG_DEBUG("Handler::ThreadFunction(): Received socket event....");
+        ZLOG_DEBUG("zSocket::Handler::ThreadFunction(): Received socket event....");
 
         std::list<zSocket::Socket *>::iterator it = this->_sockList.begin();
         std::list<zSocket::Socket *>::iterator end = this->_sockList.end();
@@ -224,7 +224,7 @@ void Handler::_notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::
     std::list<zSocket::Observer *>::iterator end = this->_obsList.end();
     for (; it != end; ++it)
     {
-        ZLOG_INFO("Handler::_notify(): Notifying socket listener");
+        ZLOG_INFO("zSocket::Handler::_notify(): Notifying socket listener");
         (*it)->SocketRecv(sock_, addr_, buf_);
     }
 

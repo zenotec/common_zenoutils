@@ -120,7 +120,6 @@ Semaphore::TimedWait(uint32_t us_)
 
   if (sem_timedwait(&this->_sem, &ts) != 0)
   {
-    ZLOG_CRIT("Error waiting on system semaphore: " + std::string(strerror(errno)));
     return(false);
   }
 
