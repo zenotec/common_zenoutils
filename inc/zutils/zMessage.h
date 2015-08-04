@@ -33,12 +33,13 @@ class Message: public zData::Data
     static const std::string STR_TYPE_HELLO;
     static const std::string STR_TYPE_ACK;
     static const std::string STR_TYPE_BYE;
+    static const std::string STR_TYPE_NODE;
     static const std::string STR_TYPE_CFG;
     static const std::string STR_TYPE_CMD;
     static const std::string STR_TYPE_DATA;
     static const std::string STR_ID;
-    static const std::string STR_TO;
-    static const std::string STR_FROM;
+    static const std::string STR_DST;
+    static const std::string STR_SRC;
     static const std::string STR_DATA;
 
 public:
@@ -51,15 +52,16 @@ public:
         TYPE_HELLO = 2,
         TYPE_ACK = 3,
         TYPE_BYE = 4,
-        TYPE_CFG = 5,
-        TYPE_CMD = 6,
-        TYPE_DATA = 7,
+        TYPE_NODE = 5,
+        TYPE_CFG = 6,
+        TYPE_CMD = 7,
+        TYPE_DATA = 8,
         TYPE_LAST
     };
 
     Message();
 
-    Message(const zData::Data &msg_);
+    Message( const zData::Data &msg_ );
 
     virtual
     ~Message();
@@ -68,31 +70,31 @@ public:
     GetType() const;
 
     bool
-    SetType(const Message::TYPE &type_);
+    SetType( const Message::TYPE &type_ );
 
     std::string
     GetId() const;
 
     bool
-    SetId(const std::string &id_);
+    SetId( const std::string &id_ );
 
     std::string
-    GetTo() const;
+    GetDst() const;
 
     bool
-    SetTo(const std::string &to_);
+    SetDst( const std::string &dst_ );
 
     std::string
-    GetFrom() const;
+    GetSrc() const;
 
     bool
-    SetFrom(const std::string &from_);
+    SetSrc( const std::string &src_ );
 
     zData::Data
     GetData() const;
 
     bool
-    SetData(const zData::Data &data_);
+    SetData( const zData::Data &data_ );
 
 protected:
 
@@ -108,7 +110,7 @@ class Factory
 {
 public:
     static zMessage::Message *
-    Create(const zMessage::Message::TYPE &type_);
+    Create( const zMessage::Message::TYPE &type_ );
 };
 
 //**********************************************************************
@@ -120,7 +122,7 @@ class Observer
 public:
 
     virtual bool
-    MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_) = 0;
+    MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ ) = 0;
 
 };
 
@@ -138,26 +140,26 @@ public:
     ~Handler();
 
     bool
-    Register(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
+    Register( zMessage::Message::TYPE type_, zMessage::Observer *obs_ );
 
     bool
-    Unregister(zMessage::Message::TYPE type_, zMessage::Observer *obs_);
+    Unregister( zMessage::Message::TYPE type_, zMessage::Observer *obs_ );
 
     bool
-    Send(zMessage::Message &msg_);
+    Send( zMessage::Message &msg_ );
 
     bool
-    Broadcast(zMessage::Message &msg_);
+    Broadcast( zMessage::Message &msg_ );
 
 protected:
 
     virtual bool
-    SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_);
+    SocketRecv( zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_ );
 
 private:
 
     void
-    _notify(zMessage::Message::TYPE type, zMessage::Message &msg_);
+    _notify( zMessage::Message::TYPE type, zMessage::Message &msg_ );
 
     std::map<zMessage::Message::TYPE, std::list<zMessage::Observer *> > _obsMap;
 

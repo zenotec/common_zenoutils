@@ -15,8 +15,8 @@ int zMessageTest_Defaults(void* arg_)
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_NONE);
     TEST_EQ(std::string(""), myMessage->GetId());
-    TEST_EQ(std::string(""), myMessage->GetTo());
-    TEST_EQ(std::string(""), myMessage->GetFrom());
+    TEST_EQ(std::string(""), myMessage->GetDst());
+    TEST_EQ(std::string(""), myMessage->GetSrc());
 
     // Cleanup
     delete (myMessage);

@@ -14,7 +14,7 @@ zNodeUnitTest_SOURCES = \
     UnitTest.cpp \
     Defaults.cpp \
     Node.cpp \
-    NodeTable.cpp
+    Table.cpp
 
 zNodeUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

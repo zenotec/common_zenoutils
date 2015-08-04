@@ -15,7 +15,9 @@
 int
 zNodeTest_NodeDefaults(void* arg_);
 int
-zNodeTest_NodeTableDefaults(void* arg_);
+zNodeTest_TableDefaults(void* arg_);
+int
+zNodeTest_MessageDefaults( void* arg_ );
 
 int
 zNodeTest_NodeGetSet(void* arg_);
@@ -23,7 +25,9 @@ int
 zNodeTest_NodeCopy(void* arg_);
 
 int
-zNodeTest_NodeTableGetSet(void* arg_);
+zNodeTest_NodeTableAddRemove(void* arg_);
+int
+zNodeTest_NodeTableExpire( void* arg_ );
 
 using namespace Test;
 using namespace zUtils;

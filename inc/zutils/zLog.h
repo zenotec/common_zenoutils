@@ -29,13 +29,13 @@ namespace zUtils
 namespace zLog
 {
 
-#define ZLOG_INT(n_)    zUtils::zLog::IntStr(n_)
-#define ZLOG_HEX(x_)    zUtils::zLog::HexStr(x_)
+#define ZLOG_INT(n_)    zUtils::zLog::IntStr((n_))
+#define ZLOG_HEX(x_)    zUtils::zLog::HexStr((x_))
 
-#define ZLOG_LOGGER(l,m)  \
+#define ZLOG_LOGGER(l_,m_)  \
   { \
-    zUtils::zLog::Message msg(l, __FILE__, __LINE__); \
-    msg.AddStr(m); \
+    zUtils::zLog::Message msg((l_), __FILE__, __LINE__); \
+    msg.AddStr((m_)); \
     zUtils::zLog::Log::Instance().LogMsg(msg); \
   }
 
@@ -47,20 +47,20 @@ namespace zLog
 
 enum LogLevel
 {
-  CRIT = 0, ERROR, WARN, INFO, DBG, LAST
+    CRIT = 0, ERROR, WARN, INFO, DBG, LAST
 };
 
 std::string
-IntStr(int n_);
+IntStr( int n_ );
 
 template<typename T>
-  std::string
-  HexStr(T n_)
-  {
+std::string
+HexStr( T n_ )
+{
     char str[256];
-    sprintf(str, "%#*x", (int) sizeof(T), n_);
-    return (std::string(str));
-  }
+    sprintf( str, "%#*x", (int) sizeof(T), n_ );
+    return (std::string( str ));
+}
 
 //*****************************************************************************
 // Connector Class
@@ -68,12 +68,12 @@ template<typename T>
 class Connector
 {
 public:
-  Connector();
-  virtual
-  ~Connector();
+    Connector();
+    virtual
+    ~Connector();
 
-  virtual void
-  Logger(std::string msg_) = 0;
+    virtual void
+    Logger( std::string msg_ ) = 0;
 
 protected:
 
@@ -84,35 +84,35 @@ private:
 //*****************************************************************************
 // FileConnector Class
 //*****************************************************************************
-class FileConnector : public Connector
+class FileConnector: public Connector
 {
 public:
-  FileConnector(const char *logfile_);
-  virtual
-  ~FileConnector();
+    FileConnector( const char *logfile_ );
+    virtual
+    ~FileConnector();
 
-  virtual void
-  Logger(std::string msg_);
+    virtual void
+    Logger( std::string msg_ );
 
 protected:
 
 private:
-  std::ofstream _file;
+    std::ofstream _file;
 
 };
 
 //*****************************************************************************
 // ConsoleConnector Class
 //*****************************************************************************
-class ConsoleConnector : public Connector
+class ConsoleConnector: public Connector
 {
 public:
-  ConsoleConnector();
-  virtual
-  ~ConsoleConnector();
+    ConsoleConnector();
+    virtual
+    ~ConsoleConnector();
 
-  virtual void
-  Logger(std::string msg_);
+    virtual void
+    Logger( std::string msg_ );
 
 protected:
 
@@ -126,33 +126,33 @@ private:
 class Message
 {
 public:
-  Message(zLog::LogLevel level_, const char *name_, int line_);
-  virtual
-  ~Message();
+    Message( zLog::LogLevel level_, const char *name_, int line_ );
+    virtual
+    ~Message();
 
-  zLog::LogLevel
-  GetLevel() const;
+    zLog::LogLevel
+    GetLevel() const;
 
-  std::string
-  GetStr() const;
+    std::string
+    GetStr() const;
 
-  void
-  AddStr(const std::string &str);
+    void
+    AddStr( const std::string &str );
 
 protected:
 
 private:
-  std::string
-  _getProcId() const;
-  std::string
-  _getThreadId() const;
-  std::string
-  _getTimestamp() const;
+    std::string
+    _getProcId() const;
+    std::string
+    _getThreadId() const;
+    std::string
+    _getTimestamp() const;
 
-  zLog::LogLevel _level;
-  std::string _file;
-  std::string _line;
-  std::string _msg;
+    zLog::LogLevel _level;
+    std::string _file;
+    std::string _line;
+    std::string _msg;
 
 };
 
@@ -162,46 +162,46 @@ private:
 class Log
 {
 public:
-  virtual
-  ~Log();
+    virtual
+    ~Log();
 
-  static Log &
-  Instance()
-  {
-    static Log instance;
-    return (instance);
-  }
+    static Log &
+    Instance()
+    {
+        static Log instance;
+        return (instance);
+    }
 
-  zLog::LogLevel
-  GetMaxLevel();
-  void
-  SetMaxLevel(zLog::LogLevel level_);
+    zLog::LogLevel
+    GetMaxLevel();
+    void
+    SetMaxLevel( zLog::LogLevel level_ );
 
-  bool
-  RegisterConnector(zLog::LogLevel level_, Connector *conn_);
-  bool
-  UnregisterConnector(zLog::LogLevel level_);
+    bool
+    RegisterConnector( zLog::LogLevel level_, Connector *conn_ );
+    bool
+    UnregisterConnector( zLog::LogLevel level_ );
 
-  void
-  LogMsg(const Message &msg_);
+    void
+    LogMsg( const Message &msg_ );
 
 protected:
 
 private:
-  Log();
-  Log(Log const&);
-  void
-  operator=(Log const&);
+    Log();
+    Log( Log const& );
+    void
+    operator=( Log const& );
 
-  zLog::LogLevel _maxLevel;
-  ConsoleConnector _defConn;
-  std::vector<Connector *> _connTable;
+    zLog::LogLevel _maxLevel;
+    ConsoleConnector _defConn;
+    std::vector<Connector *> _connTable;
 
-  void
-  _lock();
-  void
-  _unlock();
-  sem_t _lockSem;
+    void
+    _lock();
+    void
+    _unlock();
+    sem_t _lockSem;
 
 };
 

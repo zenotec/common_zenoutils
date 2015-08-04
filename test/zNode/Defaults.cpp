@@ -4,36 +4,76 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zNodeTest_NodeDefaults(void* arg_)
+zNodeTest_NodeDefaults( void* arg_ )
 {
 
-  // Create new node from zData object
-  zData::Data myData;
-  zNode::Node myNode1(myData);
-  TEST_EQ(std::string(""), myNode1.GetName());
-  TEST_EQ(std::string(""), myNode1.GetId());
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zNodeTest_NodeDefaults()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Create new node and validate
-  zNode::Node myNode2;
-  TEST_EQ(std::string(""), myNode2.GetName());
-  TEST_NEQ(std::string(""), myNode2.GetId());
+    // Create new node from zData object
+    zData::Data myData;
+    zNode::Node MyNode1( myData );
+    TEST_EQ( std::string( "" ), MyNode1.GetName() );
+    TEST_EQ( std::string( "" ), MyNode1.GetId() );
+    TEST_EQ( std::string( "" ), MyNode1.GetAddress() );
 
-  // Return success
-  return (0);
+    // Create new node and validate
+    zNode::Node MyNode2;
+    TEST_EQ( std::string( "" ), MyNode2.GetName() );
+    TEST_NEQ( std::string( "" ), MyNode2.GetId() );
+    TEST_EQ( std::string( "" ), MyNode2.GetAddress() );
+
+    // Return success
+    return (0);
 
 }
 
 int
-zNodeTest_NodeTableDefaults(void* arg_)
+zNodeTest_TableDefaults( void* arg_ )
 {
 
-  // Create new node table and validate
-  zNode::Table *MyNodeTable = new zNode::Table;
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zNodeTest_TableDefaults()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Cleanup
-  delete (MyNodeTable);
+    // Create new node table and validate
+    zNode::Table *MyTable = new zNode::Table;
 
-  // Return success
-  return (0);
+    // Cleanup
+    delete (MyTable);
+
+    // Return success
+    return (0);
+
+}
+
+int
+zNodeTest_MessageDefaults( void* arg_ )
+{
+
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zNodeTest_MessageDefaults()" );
+    ZLOG_DEBUG( "#############################################################" );
+
+    // Create new node and validate
+    zNode::Node MyNode;
+    TEST_EQ( std::string( "" ), MyNode.GetName() );
+    TEST_NEQ( std::string( "" ), MyNode.GetId() );
+    TEST_EQ( std::string( "" ), MyNode.GetAddress() );
+
+    // Initialize node
+    TEST_TRUE(MyNode.SetName("zNodeTest"));
+
+    // Create new node message and validate
+    zNode::Message *MyMessage = new zNode::Message( MyNode );
+    TEST_EQ(zMessage::Message::TYPE_NODE, MyMessage->GetType());
+    TEST_TRUE(MyNode == MyMessage->GetNode());
+
+    // Cleanup
+    delete (MyMessage);
+
+    // Return success
+    return (0);
 
 }

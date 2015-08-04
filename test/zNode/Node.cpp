@@ -4,73 +4,115 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zNodeTest_NodeGetSet(void* arg_)
+zNodeTest_NodeGetSet( void* arg_ )
 {
 
-  std::string exp;
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zNodeTest_NodeGetSet()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Create new node and validate
-  zNode::Node *myNode = new zNode::Node;
-  TEST_EQ(std::string(""), myNode->GetName());
-  TEST_NEQ(std::string(""), myNode->GetId());
+    std::string exp;
 
-  // Test setting type
-  exp = "";
-  TEST_EQ( myNode->GetName(), exp);
-  exp = "Name";
-  TEST_TRUE(myNode->SetName(exp));
-  TEST_EQ( myNode->GetName(), exp);
+    // Create new node and validate
+    zNode::Node *myNode = new zNode::Node;
+    TEST_EQ( std::string( "" ), myNode->GetName() );
+    TEST_NEQ( std::string( "" ), myNode->GetId() );
+    TEST_EQ( std::string( "" ), myNode->GetAddress() );
 
-  // Test setting identifier
-  exp = "";
-  TEST_NEQ( myNode->GetId(), exp);
-  exp = "Identifier";
-  TEST_TRUE(myNode->SetId(exp));
-  TEST_EQ( myNode->GetId(), exp);
+    // Test setting name
+    exp = "";
+    TEST_EQ( myNode->GetName(), exp );
+    exp = "Name";
+    TEST_TRUE( myNode->SetName( exp ) );
+    TEST_EQ( myNode->GetName(), exp );
 
-  // Cleanup
-  delete (myNode);
+    // Test setting identifier
+    exp = "";
+    TEST_NEQ( myNode->GetId(), exp );
+    exp = "Identifier";
+    TEST_TRUE( myNode->SetId( exp ) );
+    TEST_EQ( myNode->GetId(), exp );
 
-  // Return success
-  return (0);
+    // Test setting address
+    exp = "";
+    TEST_EQ( myNode->GetAddress(), exp );
+    exp = "Address";
+    TEST_TRUE( myNode->SetAddress( exp ) );
+    TEST_EQ( myNode->GetAddress(), exp );
+
+    // Cleanup
+    delete (myNode);
+
+    // Return success
+    return (0);
 }
 
 int
-zNodeTest_NodeCopy(void* arg_)
+zNodeTest_NodeCopy( void* arg_ )
 {
 
-  std::string exp;
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zNodeTest_NodeCopy()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Create new node and validate
-  zNode::Node *myNode1 = new zNode::Node;
-  TEST_EQ(std::string(""), myNode1->GetName());
-  TEST_NEQ(std::string(""), myNode1->GetId());
+    std::string exp;
 
-  // Create second new node from first and validate
-  zNode::Node *myNode2 = new zNode::Node(*myNode1);
-  TEST_EQ(std::string(""), myNode2->GetName());
+    // Create new node and validate
+    zNode::Node *myNode1 = new zNode::Node;
+    TEST_EQ( std::string( "" ), myNode1->GetName() );
+    TEST_NEQ( std::string( "" ), myNode1->GetId() );
+    TEST_EQ( std::string( "" ), myNode1->GetAddress() );
 
-  // Verify nodes are equal
-  TEST_TRUE(*myNode1 == *myNode2);
+    // Create second new node from first and validate
+    zNode::Node *myNode2 = new zNode::Node( *myNode1 );
+    TEST_EQ( std::string( "" ), myNode2->GetName() );
+    TEST_NEQ( std::string( "" ), myNode2->GetId() );
+    TEST_EQ( std::string( "" ), myNode2->GetAddress() );
 
-  // Modify first node and validate
-  TEST_TRUE(myNode1->SetName("Name1"));
-  TEST_TRUE(myNode1->SetId("Id1"));
+    // Verify nodes are equal
+    TEST_TRUE( *myNode1 == *myNode2 );
 
-  // Verify nodes are NOT equal
-  TEST_TRUE(*myNode1 != *myNode2);
+    // Modify first node name and validate
+    TEST_TRUE( myNode1->SetName( "Name1" ) );
 
-  // Copy first node to second node
-  *myNode2 = *myNode1;
+    // Verify nodes are NOT equal
+    TEST_TRUE( *myNode1 != *myNode2 );
 
-  // Verify nodes are equal
-  TEST_TRUE(*myNode1 == *myNode2);
+    // Copy first node to second node
+    *myNode2 = *myNode1;
 
-  // Cleanup
-  delete (myNode1);
-  delete (myNode2);
+    // Verify nodes are equal
+    TEST_TRUE( *myNode1 == *myNode2 );
 
-  // Return success
-  return (0);
+    // Modify first node identifier and validate
+    TEST_TRUE( myNode1->SetId( "Id1" ) );
+
+    // Verify nodes are NOT equal
+    TEST_TRUE( *myNode1 != *myNode2 );
+
+    // Copy first node to second node
+    *myNode2 = *myNode1;
+
+    // Verify nodes are equal
+    TEST_TRUE( *myNode1 == *myNode2 );
+
+    // Modify first node address and validate
+    TEST_TRUE( myNode1->SetAddress( "Address1" ) );
+
+    // Verify nodes are NOT equal
+    TEST_TRUE( *myNode1 != *myNode2 );
+
+    // Copy first node to second node
+    *myNode2 = *myNode1;
+
+    // Verify nodes are equal
+    TEST_TRUE( *myNode1 == *myNode2 );
+
+    // Cleanup
+    delete (myNode1);
+    delete (myNode2);
+
+    // Return success
+    return (0);
 }
 

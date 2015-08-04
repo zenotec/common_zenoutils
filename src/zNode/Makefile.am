@@ -10,5 +10,7 @@ noinst_LTLIBRARIES = libzNode.la
 
 libzNode_la_SOURCES = \
     Node.cpp \
-    Table.cpp
+    Table.cpp \
+    Message.cpp \
+    Manager.cpp
 

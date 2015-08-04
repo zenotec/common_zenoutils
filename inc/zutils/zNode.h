@@ -17,64 +17,91 @@
 #include <zutils/zData.h>
 #include <zutils/zQueue.h>
 #include <zutils/zTimer.h>
+#include <zutils/zMessage.h>
 
 namespace zUtils
 {
 namespace zNode
 {
 
-class Table;
-
 //**********************************************************************
 // zNode::Node Class
 //**********************************************************************
-class Node : public zData::Data
+class Node: public zData::Data
 {
 
-  static const std::string ROOT;
-  static const std::string NAME;
-  static const std::string ID;
-
-  static const std::string BCAST_NAME;
-  static const std::string BCAST_ID;
-
-  friend class Table;
+    static const std::string ROOT;
+    static const std::string NAME;
+    static const std::string ID;
+    static const std::string ADDRESS;
 
 public:
 
-  Node(const zData::Data &node_);
+    enum STATE
+    {
+        STATE_NONE = 0,
+        STATE_ONLINE = 1,
+        STATE_PENDING_TARDY = 2,
+        STATE_TARDY = 3,
+        STATE_PENDING_STALE = 4,
+        STATE_STALE = 5,
+        STATE_PENDING_OFFLINE = 6,
+        STATE_OFFLINE = 7,
+        STATE_PENDING_RETIRE = 8,
+        STATE_LAST
+    };
 
-  Node(const std::string &name_ = "");
+    Node( const zData::Data &node_ );
 
-  virtual
-  ~Node();
+    Node();
 
-  Node &
-  operator=(const Node &other_);
+    virtual
+    ~Node();
 
-  bool
-  operator==(const Node &other_) const;
-  bool
-  operator!=(const Node &other_) const;
-  bool
-  operator<(const Node &other_) const;
-  bool
-  operator>(const Node &other_) const;
+    Node &
+    operator=( const Node &other_ );
 
-  std::string
-  GetName() const;
-  bool
-  SetName(const std::string &name_);
+    bool
+    operator==( const Node &other_ ) const;
 
-  std::string
-  GetId() const;
-  bool
-  SetId(const std::string &id_);
+    bool
+    operator!=( const Node &other_ ) const;
+
+    bool
+    operator<( const Node &other_ ) const;
+
+    bool
+    operator>( const Node &other_ ) const;
+
+    Node::STATE
+    GetState() const;
+
+    bool
+    SetState( const Node::STATE state_ );
+
+    std::string
+    GetName() const;
+
+    bool
+    SetName( const std::string &name_ );
+
+    std::string
+    GetId() const;
+
+    bool
+    SetId( const std::string &id_ );
+
+    std::string
+    GetAddress() const;
+
+    bool
+    SetAddress( const std::string &add_ );
 
 protected:
-  uint32_t _tardyCnt;
 
 private:
+
+    Node::STATE _state;
 
 };
 
@@ -85,20 +112,21 @@ class Observer
 {
 public:
 
-  enum EVENT
-  {
-    EVENT_ERR = -1,
-    EVENT_NONE = 0,
-    EVENT_NEW = 1,
-    EVENT_REMOVED = 2,
-    EVENT_TARDY = 3,
-    EVENT_STALE = 4,
-    EVENT_RETIRED = 5,
-    EVENT_LAST
-  };
+    enum EVENT
+    {
+        EVENT_ERR = -1,
+        EVENT_NONE = 0,
+        EVENT_NEW = 1,
+        EVENT_REMOVED = 2,
+        EVENT_TARDY = 3,
+        EVENT_STALE = 4,
+        EVENT_OFFLINE = 5,
+        EVENT_RETIRED = 6,
+        EVENT_LAST
+    };
 
-  virtual void
-  EventHandler(Observer::EVENT event_, const Node &node_) = 0;
+    virtual void
+    EventHandler( Observer::EVENT event_, const Node &node_ ) = 0;
 
 protected:
 
@@ -109,64 +137,129 @@ private:
 //**********************************************************************
 // zNode::Table Class
 //**********************************************************************
-class Table : private zTimer::Observer
+class Table: private zTimer::Observer
 {
 public:
 
-  Table();
-  virtual
-  ~Table();
+    Table( const uint32_t period_ = 500 ); // msecs
 
-  void
-  GetConf(uint32_t &int_, uint32_t &tardy_, uint32_t &stale_, uint32_t &retire_);
+    virtual
+    ~Table();
 
-  bool
-  SetConf(uint32_t int_ = 500, uint32_t tardy_ = 3000, uint32_t stale_ = 5000, uint32_t retire_ =
-      10000);
+    bool
+    Add( zNode::Node &node_ );
 
-  bool
-  AddNode(const zNode::Node &node_);
+    bool
+    Remove( zNode::Node &node_ );
 
-  bool
-  UpdateNode(const std::string &id_);
+    zNode::Node *
+    FindById( const std::string &id_ );
 
-  bool
-  RemoveNode(const std::string &id_);
+    zNode::Node *
+    FindByAddress( const std::string &addr_ );
 
-  Node *
-  FindNode(const std::string &id_);
+    void
+    GetNodeList( std::list<zNode::Node> &nodes_ );
 
-  void
-  GetNodeList(std::list<zNode::Node> &nodes_);
+    void
+    Register( zNode::Observer *obsvr_ );
 
-  void
-  Register(zNode::Observer *obsvr_);
+    void
+    Unregister( zNode::Observer *obsvr_ );
 
-  void
-  Unregister(zNode::Observer *obsvr_);
+protected:
 
-  virtual void
-  TimerTick();
+    virtual void
+    TimerTick();
+
+private:
+
+    Table( const zNode::Table &other_ );
+
+    void
+    _notify( std::list<std::pair<zNode::Observer::EVENT, zNode::Node> > notifications_ );
+
+    zSem::Mutex _lock;
+
+    zTimer::Timer _timer;
+
+    std::list<zNode::Node> _nodeList;
+    std::map<std::string, zNode::Node *> _idMap;
+    std::map<std::string, zNode::Node *> _addrMap;
+
+    std::list<zNode::Observer *> _observers;
+
+};
+
+//**********************************************************************
+// zNode::Message Class
+//**********************************************************************
+class Message: public zMessage::Message
+{
+
+    static const std::string STR_NODE;
+
+public:
+
+    Message( zNode::Node &node_ );
+
+    Message( zMessage::Message &msg_ );
+
+    virtual
+    ~Message();
+
+    zNode::Node
+    GetNode();
+
+    bool
+    SetNode( zNode::Node &node_ );
 
 protected:
 
 private:
 
-  Table(const Table &other_);
+};
 
-  void
-  _notifyObservers(zNode::Observer::EVENT event_, const zNode::Node &node_);
+//**********************************************************************
+// zNode::Manager Class
+//**********************************************************************
+class Manager: zMessage::Observer, zNode::Observer
+{
+public:
 
-  zSem::Mutex _lock;
-  zTimer::Timer _timer;
+    Manager( zNode::Node &self_ );
 
-  std::map<std::string, zNode::Node> _nodeTable;
-  std::list<zNode::Observer *> _observers;
+    virtual
+    ~Manager();
 
-  uint32_t _interval; // msecs
-  uint32_t _tardy; // cumulative msecs
-  uint32_t _stale; // cumulative msecs
-  uint32_t _retire; // cumulative msecs
+    bool
+    AddMessageHandler( zMessage::Handler *handler_ );
+
+    bool
+    RemMessageHandler( zMessage::Handler *handler_ );
+
+    bool
+    Announce();
+
+    bool
+    Leave();
+
+protected:
+
+    virtual bool
+    MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ );
+
+    virtual void
+    EventHandler( zNode::Observer::EVENT event_, const zNode::Node &node_ );
+
+private:
+
+    Node _self;
+
+    Table _nodeTable;
+
+    std::list<zMessage::Handler *> _messageHandlers;
+
 };
 
 }

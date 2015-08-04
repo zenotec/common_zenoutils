@@ -5,7 +5,7 @@
  *      Author: kmahoney
  */
 
-#include "zutils/zMessage.h"
+#include <zutils/zMessage.h>
 
 namespace zUtils
 {
@@ -22,12 +22,13 @@ const std::string Message::STR_TYPE_AUTH = "Auth";
 const std::string Message::STR_TYPE_HELLO = "Hello";
 const std::string Message::STR_TYPE_ACK = "Ack";
 const std::string Message::STR_TYPE_BYE = "Bye";
+const std::string Message::STR_TYPE_NODE = "Node";
 const std::string Message::STR_TYPE_CFG = "Cfg";
 const std::string Message::STR_TYPE_CMD = "Cmd";
 const std::string Message::STR_TYPE_DATA = "Data";
 const std::string Message::STR_ID = "Id";
-const std::string Message::STR_TO = "To";
-const std::string Message::STR_FROM = "From";
+const std::string Message::STR_DST = "Dst";
+const std::string Message::STR_SRC = "Src";
 const std::string Message::STR_DATA = "zData";
 
 Message::Message() :
@@ -38,8 +39,8 @@ Message::Message() :
   // Initialize message
   this->SetId("");
   this->SetType(Message::TYPE_NONE);
-  this->SetTo("");
-  this->SetFrom("");
+  this->SetDst("");
+  this->SetSrc("");
   this->SetData(data);
 
 }
@@ -85,6 +86,10 @@ Message::GetType() const
   {
     return (Message::TYPE_BYE);
   }
+  else if (type == Message::STR_TYPE_NODE)
+  {
+    return (Message::TYPE_NODE);
+  }
   else if (type == Message::STR_TYPE_CFG)
   {
     return (Message::TYPE_CFG);
@@ -125,6 +130,9 @@ Message::SetType(const Message::TYPE &type_)
   case Message::TYPE_BYE:
     status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_BYE);
     break;
+  case Message::TYPE_NODE:
+    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_NODE);
+    break;
   case Message::TYPE_CFG:
     status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CFG);
     break;
@@ -145,27 +153,27 @@ Message::SetType(const Message::TYPE &type_)
 }
 
 std::string
-Message::GetTo() const
+Message::GetDst() const
 {
-  return (this->GetValue(Message::STR_TO));
+  return (this->GetValue(Message::STR_DST));
 }
 
 bool
-Message::SetTo(const std::string &to_)
+Message::SetDst(const std::string &to_)
 {
-  return (this->SetValue(Message::STR_TO, to_));
+  return (this->SetValue(Message::STR_DST, to_));
 }
 
 std::string
-Message::GetFrom() const
+Message::GetSrc() const
 {
-  return (this->GetValue(Message::STR_FROM));
+  return (this->GetValue(Message::STR_SRC));
 }
 
 bool
-Message::SetFrom(const std::string &from_)
+Message::SetSrc(const std::string &from_)
 {
-  return (this->SetValue(Message::STR_FROM, from_));
+  return (this->SetValue(Message::STR_SRC, from_));
 }
 
 zData::Data

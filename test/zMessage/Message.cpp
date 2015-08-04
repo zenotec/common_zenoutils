@@ -23,8 +23,8 @@ zMessageTest_MessageGetSet(void* arg_)
   zMessage::Message *myMessage = new zMessage::Message;
   TEST_EQ(myMessage->GetId(), std::string(""));
   TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_NONE);
-  TEST_EQ(myMessage->GetTo(), to);
-  TEST_EQ(myMessage->GetFrom(), from);
+  TEST_EQ(myMessage->GetDst(), to);
+  TEST_EQ(myMessage->GetSrc(), from);
 
   // Test setting "id" field
   id = "0123456789";
@@ -37,13 +37,13 @@ zMessageTest_MessageGetSet(void* arg_)
 
   // Test setting "to" field
   to = "toStr";
-  TEST_TRUE(myMessage->SetTo(to));
-  TEST_EQ(myMessage->GetTo(), to);
+  TEST_TRUE(myMessage->SetDst(to));
+  TEST_EQ(myMessage->GetDst(), to);
 
   // Test setting "from" field
   from = "fromId";
-  TEST_TRUE(myMessage->SetFrom(from));
-  TEST_EQ(myMessage->GetFrom(), from);
+  TEST_TRUE(myMessage->SetSrc(from));
+  TEST_EQ(myMessage->GetSrc(), from);
 
   // Test setting "data" field
   *myData = myMessage->GetData();
@@ -80,15 +80,15 @@ zMessageTest_MessageCopy(void* arg_)
   zMessage::Message *myMessage1 = new zMessage::Message;
   TEST_EQ(myMessage1->GetId(), std::string(""));
   TEST_EQ(myMessage1->GetType(), zMessage::Message::TYPE_NONE);
-  TEST_EQ(myMessage1->GetTo(), to);
-  TEST_EQ(myMessage1->GetFrom(), from);
+  TEST_EQ(myMessage1->GetDst(), to);
+  TEST_EQ(myMessage1->GetSrc(), from);
 
   // Create second new message and validate
   zMessage::Message *myMessage2 = new zMessage::Message(*myMessage1);
   TEST_EQ(myMessage2->GetId(), std::string(""));
   TEST_EQ(myMessage2->GetType(), zMessage::Message::TYPE_NONE);
-  TEST_EQ(myMessage2->GetTo(), to);
-  TEST_EQ(myMessage2->GetFrom(), from);
+  TEST_EQ(myMessage2->GetDst(), to);
+  TEST_EQ(myMessage2->GetSrc(), from);
 
   // Verify messages are the same
   TEST_TRUE(*myMessage1 == *myMessage2);
@@ -97,8 +97,8 @@ zMessageTest_MessageCopy(void* arg_)
   std::string id = "0123456789";
   TEST_TRUE(myMessage1->SetId(id));
   TEST_TRUE(myMessage1->SetType(zMessage::Message::TYPE_DATA));
-  TEST_TRUE(myMessage1->SetTo(to));
-  TEST_TRUE(myMessage1->SetFrom(from));
+  TEST_TRUE(myMessage1->SetDst(to));
+  TEST_TRUE(myMessage1->SetSrc(from));
   TEST_TRUE(myMessage1->SetData(*myData));
 
   // Verify messages are NOT the same

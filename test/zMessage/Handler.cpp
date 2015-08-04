@@ -30,8 +30,8 @@ int zMessageTest_MessageHandler(void* arg_)
     zMessage::Message *helloMsg = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);
     TEST_ISNOT_NULL(helloMsg);
     TEST_TRUE(helloMsg->SetId("helloMsg"));
-    TEST_TRUE(helloMsg->SetTo(""));
-    TEST_TRUE(helloMsg->SetFrom(myAddr.GetAddress()));
+    TEST_TRUE(helloMsg->SetDst(""));
+    TEST_TRUE(helloMsg->SetSrc(myAddr.GetAddress()));
     ZLOG_DEBUG(helloMsg->GetJson());
     TEST_TRUE(myHandler->Broadcast(*helloMsg));
     delete (helloMsg);
@@ -49,8 +49,8 @@ int zMessageTest_MessageHandler(void* arg_)
     zMessage::Message *ackMsg = zMessage::Factory::Create(zMessage::Message::TYPE_ACK);
     TEST_ISNOT_NULL(ackMsg);
     TEST_TRUE(ackMsg->SetId("ackMsg"));
-    TEST_TRUE(ackMsg->SetTo(myAddr.GetAddress()));
-    TEST_TRUE(ackMsg->SetFrom(myAddr.GetAddress()));
+    TEST_TRUE(ackMsg->SetDst(myAddr.GetAddress()));
+    TEST_TRUE(ackMsg->SetSrc(myAddr.GetAddress()));
     ZLOG_DEBUG(ackMsg->GetJson());
     TEST_TRUE(myHandler->Send(*ackMsg));
     delete (ackMsg);
@@ -65,8 +65,8 @@ int zMessageTest_MessageHandler(void* arg_)
     zMessage::Message *byeMsg = zMessage::Factory::Create(zMessage::Message::TYPE_BYE);
     TEST_ISNOT_NULL(byeMsg);
     TEST_TRUE(byeMsg->SetId("byeMsg"));
-    TEST_TRUE(byeMsg->SetTo(myAddr.GetAddress()));
-    TEST_TRUE(byeMsg->SetFrom(myAddr.GetAddress()));
+    TEST_TRUE(byeMsg->SetDst(myAddr.GetAddress()));
+    TEST_TRUE(byeMsg->SetSrc(myAddr.GetAddress()));
     ZLOG_DEBUG(byeMsg->GetJson());
     TEST_TRUE(myHandler->Send(*byeMsg));
     delete (byeMsg);

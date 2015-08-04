@@ -51,9 +51,9 @@ bool Handler::Send(zMessage::Message &msg_)
     bool status = true;
 
     const zSocket::Address *fromAddr = this->_sock->GetAddress();
-    msg_.SetFrom(fromAddr->GetAddress());
+    msg_.SetSrc(fromAddr->GetAddress());
     zSocket::Address *toAddr = zSocket::Factory::Create(fromAddr->GetType());
-    toAddr->SetAddress(msg_.GetTo());
+    toAddr->SetAddress(msg_.GetDst());
 
     ssize_t size = zSocket::Handler::Send(toAddr, msg_.GetJson());
     if (size != msg_.GetJson().size())
@@ -71,7 +71,7 @@ bool Handler::Broadcast(zMessage::Message &msg_)
     bool status = true;
 
     const zSocket::Address *fromAddr = this->_sock->GetAddress();
-    msg_.SetFrom(fromAddr->GetAddress());
+    msg_.SetSrc(fromAddr->GetAddress());
 
     ssize_t size = zSocket::Handler::Broadcast(msg_.GetJson());
     if (size != msg_.GetJson().size())
@@ -107,7 +107,7 @@ bool Handler::SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_,
             // Update socket and socket address associated with this zNode
             zMessage::Message *ack = zMessage::Factory::Create(zMessage::Message::TYPE_ACK);
             ack->SetId(msg->GetId());
-            ack->SetTo(msg->GetFrom());
+            ack->SetDst(msg->GetSrc());
             this->Send(*ack);
             delete(ack);
             status = true;

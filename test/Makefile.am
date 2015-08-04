@@ -9,8 +9,8 @@ SUBDIRS = \
 	zSem \
 	zSocket \
 	zSwitch \
-	zNode \
 	zMessage \
+	zNode \
 	zGpio \
 	zLed
 
@@ -24,9 +24,9 @@ VALGRIND_TESTS = \
     zThread/valgrind.sh \
     zTimer/valgrind.sh \
     zQueue/valgrind.sh \
-    zNode/valgrind.sh \
     zSocket/valgrind.sh \
     zMessage/valgrind.sh \
+    zNode/valgrind.sh \
     zSwitch/valgrind.sh \
     zGpio/valgrind.sh \
     zLed/valgrind.sh
@@ -41,9 +41,9 @@ GCOV_TESTS = \
     zThread/zThreadUnitTest \
     zTimer/zTimerUnitTest \
     zQueue/zQueueUnitTest \
-    zNode/zNodeUnitTest \
     zSocket/zSocketUnitTest \
     zMessage/zMessageUnitTest \
+    zNode/zNodeUnitTest \
     zSwitch/zSwitchUnitTest \
     zGpio/zGpioUnitTest \
     zLed/zLedUnitTest
