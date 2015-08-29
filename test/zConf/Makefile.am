@@ -12,7 +12,9 @@ zConfUnitTest_SOURCES = \
     valgrind.sh \
     zConfTest.h \
     UnitTest.cpp \
-    Defaults.cpp
+    Defaults.cpp \
+    Data.cpp \
+    File.cpp
 
 zConfUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

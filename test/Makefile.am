@@ -2,6 +2,7 @@ SUBDIRS = \
 	zLog \
 	zProgOpt \
 	zData \
+	zConf \
 	zTimer \
 	zThread \
 	zEvent \
@@ -19,6 +20,7 @@ VALGRIND_TESTS = \
     zProgOpt/valgrind.sh \
     zLog/valgrind.sh \
     zData/valgrind.sh \
+    zConf/valgrind.sh \
     zSem/valgrind.sh \
     zEvent/valgrind.sh \
     zThread/valgrind.sh \
@@ -36,6 +38,7 @@ GCOV_TESTS = \
     zProgOpt/zProgOptUnitTest \
     zLog/zLogUnitTest \
     zData/zDataUnitTest \
+    zConf/zConfUnitTest \
     zSem/zSemUnitTest \
     zEvent/zEventUnitTest \
     zThread/zThreadUnitTest \

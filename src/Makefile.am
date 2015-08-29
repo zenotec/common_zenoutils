@@ -1,6 +1,6 @@
 SUBDIRS = \
-	zConf \
 	zData \
+	zConf \
 	zEvent \
 	zException \
 	zGpio \
@@ -31,8 +31,8 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
-    $(top_srcdir)/inc/zutils/zConf.h \
     $(top_srcdir)/inc/zutils/zData.h \
+    $(top_srcdir)/inc/zutils/zConf.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
     $(top_srcdir)/inc/zutils/zProgOpt.h \
@@ -56,8 +56,8 @@ libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 libzutils_la_LIBADD = \
-    ${top_builddir}/src/zConf/libzConf.la \
     ${top_builddir}/src/zData/libzData.la \
+    ${top_builddir}/src/zConf/libzConf.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
     ${top_builddir}/src/zException/libzException.la \
     ${top_builddir}/src/zGpio/libzGpio.la \

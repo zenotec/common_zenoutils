@@ -111,12 +111,12 @@ int zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
     TEST_EQ(std::string("0.0.0.0:0"), dstAddr->GetAddress());
 
     // Set socket address
-    TEST_TRUE(srcAddr->SetAddress("127.0.0.1:9878"));
-    TEST_EQ(std::string("127.0.0.1:9878"), srcAddr->GetAddress());
+    TEST_TRUE(srcAddr->SetAddress("127.0.1.1:9878"));
+    TEST_EQ(std::string("127.0.1.1:9878"), srcAddr->GetAddress());
 
     // Set socket address
-    TEST_TRUE(dstAddr->SetAddress("127.0.0.2:9878"));
-    TEST_EQ(std::string("127.0.0.2:9878"), dstAddr->GetAddress());
+    TEST_TRUE(dstAddr->SetAddress("127.0.2.1:9878"));
+    TEST_EQ(std::string("127.0.2.1:9878"), dstAddr->GetAddress());
 
     // Create new socket handler and validate
     zSocket::Handler *myHandler1 = new zSocket::Handler;

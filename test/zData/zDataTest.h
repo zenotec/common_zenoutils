@@ -29,5 +29,8 @@ zDataTest_XmlSimple(void* arg_);
 int
 zDataTest_DataCopy( void* arg );
 
+int
+zDataTest_Array( void* arg );
+
 #endif /* _ZDATATEST_H_ */
 

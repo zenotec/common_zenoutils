@@ -53,7 +53,7 @@ public:
 
     Node( const zData::Data &node_ );
 
-    Node();
+    Node( const std::string &name_ = "", const std::string &address_ = "");
 
     virtual
     ~Node();
@@ -216,11 +216,12 @@ private:
 //**********************************************************************
 // zNode::Manager Class
 //**********************************************************************
-class Manager: zMessage::Observer, zNode::Observer
+class Manager: public zNode::Node, private zMessage::Observer, private zNode::Observer
 {
+
 public:
 
-    Manager( zNode::Node &self_ );
+    Manager();
 
     virtual
     ~Manager();
@@ -246,8 +247,6 @@ protected:
     EventHandler( zNode::Observer::EVENT event_, const zNode::Node &node_ );
 
 private:
-
-    Node _self;
 
     Table _nodeTable;
 

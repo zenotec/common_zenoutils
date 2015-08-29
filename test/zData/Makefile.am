@@ -15,6 +15,7 @@ zDataUnitTest_SOURCES = \
     Defaults.cpp \
     SetValue.cpp \
  	Child.cpp \
+ 	Array.cpp \
  	Json.cpp \
  	Xml.cpp \
  	Copy.cpp

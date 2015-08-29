@@ -34,13 +34,13 @@ Node::Node( const zData::Data &data_ ) :
     this->SetAddress( data_.GetValue( Node::ADDRESS ) );
 }
 
-Node::Node() :
+Node::Node( const std::string &name_, const std::string &address_ ) :
         zData::Data( Node::ROOT ), _state( Node::STATE_NONE )
 {
     zUuid::Uuid uuid;
     this->SetId( uuid() );
-    this->SetName( "" );
-    this->SetAddress( "" );
+    this->SetName( name_ );
+    this->SetAddress( address_ );
     ZLOG_DEBUG( "Creating new node: " + this->GetName() + "[" + this->GetId() + "]:"
             + this->GetAddress() );
 }

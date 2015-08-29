@@ -16,17 +16,14 @@ namespace zNode
 // Manager
 //**********************************************************************
 
-Manager::Manager( zNode::Node &self_ ) :
+Manager::Manager() :
         _nodeTable( 30000 )
 {
-    this->_self = self_;
     this->_nodeTable.Register( this );
-    this->_nodeTable.Add( this->_self );
 }
 
 Manager::~Manager()
 {
-    this->_nodeTable.Remove( this->_self );
     this->_nodeTable.Unregister( this );
     std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
     std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();
@@ -56,7 +53,7 @@ Manager::AddMessageHandler( zMessage::Handler *handler_ )
     handler_->StartListener( 1000 );
 
     // Say hello to everyone on network
-    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, this->_self );
+    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, *this );
     status = handler_->Broadcast( *HelloMsg );
     delete (HelloMsg);
 
@@ -76,7 +73,7 @@ Manager::RemMessageHandler( zMessage::Handler *handler_ )
     bool status = false;
 
     // Say goodbye to everyone on network
-    zNode::Message *ByeMsg = new zNode::Message( zMessage::Message::TYPE_BYE, this->_self );
+    zNode::Message *ByeMsg = new zNode::Message( zMessage::Message::TYPE_BYE, *this);
     status = handler_->Broadcast( *ByeMsg );
     delete (ByeMsg);
 
@@ -107,7 +104,7 @@ Manager::Announce()
     bcast.SetId( "0" );
     bcast.SetName( "all" );
 
-    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, this->_self );
+    zNode::Message *HelloMsg = new zNode::Message( zMessage::Message::TYPE_HELLO, *this );
 
     std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
     std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();

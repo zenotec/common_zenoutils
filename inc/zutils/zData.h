@@ -44,14 +44,14 @@ public:
 
   std::string
   GetValue(const std::string &key_) const;
-  void
-  GetValue(const std::string &key_, std::string &value_) const;
+  bool
+  GetValue(const std::string &key_, std::string &value_);
   bool
   SetValue(const std::string &key_, const std::string &value_);
   bool
   AddValue(const std::string &key_, const std::string &value_);
 
-  void
+  bool
   GetChild(const std::string &key_, Data &child_) const;
   bool
   PutChild(const std::string &key_, const Data &child_);
@@ -72,16 +72,21 @@ protected:
 
   std::string
   _getKey() const;
+
   bool
   _setKey(const std::string &key_);
+
   boost::property_tree::ptree
   _getValue(const std::string &key_) const;
+
   bool
   _setValue(const std::string &key_, const boost::property_tree::ptree &pt_);
 
   boost::property_tree::ptree _pt;
 
 private:
+
+  friend class iterator;
 
 };
 

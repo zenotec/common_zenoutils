@@ -5,60 +5,69 @@
 using namespace zUtils;
 
 int
-zDataTest_SetValueSingle(void* arg_)
+zDataTest_SetValueSingle( void* arg_ )
 {
-  std::string expKey = "TestKey";
-  std::string expVal = "TestValue";
-  std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
-  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
 
-  // Create new data object and validate
-  zData::Data *MyData = new zData::Data(expKey);
-  TEST_EQ(MyData->GetKey(), expKey);
-  TEST_EQ(MyData->GetJson(), expJson);
-  TEST_EQ(MyData->GetXml(), expXml);
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zDataTest_SetValueSingle()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Set value and validate
-  MyData->SetValue(expKey, expVal);
-  TEST_EQ(MyData->GetValue(expKey), expVal);
+    std::string expKey = "TestKey";
+    std::string expVal = "TestValue";
+    std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
+    std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
 
-  // Cleanup
-  delete (MyData);
+    // Create new data object and validate
+    zData::Data *MyData = new zData::Data( expKey );
+    TEST_EQ( MyData->GetKey(), expKey );
+    TEST_EQ( MyData->GetJson(), expJson );
+    TEST_EQ( MyData->GetXml(), expXml );
 
-  // Return success
-  return (0);
+    // Set value and validate
+    MyData->SetValue( expKey, expVal );
+    TEST_EQ( MyData->GetValue( expKey ), expVal );
+
+    // Cleanup
+    delete (MyData);
+
+    // Return success
+    return (0);
 }
 
 int
-zDataTest_SetValueMultiple(void* arg_)
+zDataTest_SetValueMultiple( void* arg_ )
 {
 
-  std::string expKey = "TestKey";
-  std::string expVal = "TestValue";
-  std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
-  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zDataTest_SetValueMultiple()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Create new data object and validate
-  zData::Data *MyData = new zData::Data(expKey);
-  TEST_EQ(MyData->GetKey(), expKey);
-  TEST_EQ(MyData->GetJson(), expJson);
-  TEST_EQ(MyData->GetXml(), expXml);
+    std::string expKey = "TestKey";
+    std::string expVal = "TestValue";
+    std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
+    std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
 
-  // Set first value and validate
-  expKey = "Employee.Name.First";
-  expVal = "Elvis";
-  MyData->SetValue(expKey, expVal);
-  TEST_EQ(MyData->GetValue(expKey), expVal);
+    // Create new data object and validate
+    zData::Data *MyData = new zData::Data( expKey );
+    TEST_EQ( MyData->GetKey(), expKey );
+    TEST_EQ( MyData->GetJson(), expJson );
+    TEST_EQ( MyData->GetXml(), expXml );
 
-  // Set second value and validate
-  expKey = "Employee.Name.Last";
-  expVal = "Presley";
-  MyData->SetValue(expKey, expVal);
-  TEST_EQ(MyData->GetValue(expKey), expVal);
+    // Set first value and validate
+    expKey = "Employee.Name.First";
+    expVal = "Elvis";
+    MyData->SetValue( expKey, expVal );
+    TEST_EQ( MyData->GetValue( expKey ), expVal );
 
-  // Cleanup
-  delete (MyData);
+    // Set second value and validate
+    expKey = "Employee.Name.Last";
+    expVal = "Presley";
+    MyData->SetValue( expKey, expVal );
+    TEST_EQ( MyData->GetValue( expKey ), expVal );
 
-  // Return success
-  return (0);
+    // Cleanup
+    delete (MyData);
+
+    // Return success
+    return (0);
 }

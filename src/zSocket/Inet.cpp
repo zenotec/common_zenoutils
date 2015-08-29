@@ -373,7 +373,8 @@ bool InetSocket::_bind()
     int ret = bind( this->_sock, (struct sockaddr*) &addr, sizeof(addr) );
     if (ret < 0)
     {
-        ZLOG_CRIT( "InetSocket::_bind: Cannot bind socket: " + std::string(strerror(errno)) );
+        ZLOG_CRIT( "InetSocket::_bind: Cannot bind socket: " + this->_inetaddr.GetAddress() +
+                ": " + std::string(strerror(errno)) );
         return (false);
     } // end if
 

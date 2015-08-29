@@ -4,37 +4,38 @@ using namespace zUtils;
 using namespace Test;
 
 int
-zDataTest_DataCopy(void* arg)
+zDataTest_DataCopy( void* arg )
 {
 
-  // Create new data object and validate
-  std::string key1 = "key1";
-  zData::Data *myData1 = new zData::Data(key1);
-  TEST_EQ(myData1->GetKey(), key1);
+    ZLOG_DEBUG( "#############################################################" );
+    ZLOG_DEBUG( "# zDataTest_DataCopy()" );
+    ZLOG_DEBUG( "#############################################################" );
 
-  // Create new data object and validate
-  std::string key2 = "key2";
-  zData::Data *myData2 = new zData::Data(key2);
-  TEST_EQ(myData2->GetKey(), key2);
+    // Create new data object and validate
+    std::string key1 = "key1";
+    zData::Data *myData1 = new zData::Data( key1 );
+    TEST_EQ( myData1->GetKey(), key1 );
 
-  // Verify data is NOT equal
-  TEST_TRUE(*myData1 != *myData2);
+    // Create new data object and validate
+    std::string key2 = "key2";
+    zData::Data *myData2 = new zData::Data( key2 );
+    TEST_EQ( myData2->GetKey(), key2 );
 
-  // Copy
-  *myData2 = *myData1;
+    // Verify data is NOT equal
+    TEST_TRUE( *myData1 != *myData2 );
 
-  std::cout << "zDataTest_DataCopy(): Data1: " << myData1->GetJson() << std::endl;
-  std::cout << "zDataTest_DataCopy(): Data2: " << myData2->GetJson() << std::endl;
+    // Copy
+    *myData2 = *myData1;
 
-  // Verify data is equal
-  TEST_TRUE(*myData1 == *myData2);
+    // Verify data is equal
+    TEST_TRUE( *myData1 == *myData2 );
 
-  // Clean up
-  delete (myData1);
-  delete (myData2);
+    // Clean up
+    delete (myData1);
+    delete (myData2);
 
-  // Return success
-  return (0);
+    // Return success
+    return (0);
 
 }
 
