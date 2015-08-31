@@ -1,6 +1,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/select.h>
+#include <sys/poll.h>
 
 #include <sstream>
 #include <fstream>
@@ -128,37 +128,31 @@ void *
 Handler::ThreadFunction( void *arg_ )
 {
 
+    int nfds = 0;
     Handler *self = (Handler *) arg_;
-    fd_set fds;
-    int maxfd = 0;
-    struct timeval to;
     std::list<Port*>::iterator it;
-    std::list<Port*>::iterator end;
+    std::list<Port*>::iterator end = self->_portList.end();
 
-    // Setup for select loop
-    FD_ZERO( &fds );
-    it = self->_portList.begin();
-    end = self->_portList.end();
-    for (; it != end; ++it)
+    // TODO: Start critical section
+
+    // Setup for poll loop
+    struct pollfd fds[self->_portList.size()];
+    for (it = self->_portList.begin(), nfds = 0; it != end; ++it, nfds++)
     {
-        int fd = (*it)->_state_file;
-        if (fd > maxfd)
-            maxfd = fd;
-        FD_SET( fd, &fds );
+        fds[nfds].fd = (*it)->_state_file;
+        fds[nfds].events = (POLLPRI | POLLERR);
     }
-    to.tv_sec = 0;
-    to.tv_usec = 100000;
 
-    int ret = select( maxfd + 1, &fds, NULL, NULL, &to );
+    // Poll on GPIO ports
+    int ret = poll( fds, nfds, 100 );
     if (ret > 0)
     {
         it = self->_portList.begin();
-        end = self->_portList.end();
-        for (; it != end; ++it)
+        for (it = self->_portList.begin(), nfds = 0; it != end; ++it, nfds++)
         {
-            char buf[2];
+            char buf[2] = { 0 };
             int fd = (*it)->_state_file;
-            if (FD_ISSET( fd, &fds ) && pread( fd, buf, sizeof(buf), 0))
+            if ((fds[nfds].revents & POLLPRI) && pread( fd, buf, sizeof(buf), 0 ))
             {
                 self->_notify( *(*it) );
             }
