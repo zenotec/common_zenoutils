@@ -30,7 +30,7 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zGpioTest_PortDefaults, 0);
   UTEST_TEST(zGpioTest_HandlerDefaults, 0);
-  UTEST_TEST(zGpioTest_HandlerAddRemove, 0);
+  UTEST_TEST(zGpioTest_HandlerAddPort, 0);
   UTEST_TEST(zGpioTest_HandlerOnOff, 0);
   UTEST_TEST(zGpioTest_SwitchDefaults, 0);
   UTEST_TEST(zGpioTest_SwitchOnOff, 0);

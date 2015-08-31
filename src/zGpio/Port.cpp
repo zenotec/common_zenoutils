@@ -1,3 +1,5 @@
+#include <fcntl.h>
+
 #include <sstream>
 #include <fstream>
 
@@ -402,7 +404,7 @@ Port::_open()
         }
 
         // Open the value file for watching for state changes
-        this->_state_file = fopen( this->_conf_get_state_filename().c_str(), "r+");
+        this->_state_file = open( this->_conf_get_state_filename().c_str(), (O_RDONLY | O_NONBLOCK) );
 
     }
 
@@ -427,7 +429,7 @@ Port::_close()
             fs.close();
         }
 
-        fclose(this->_state_file);
+        close(this->_state_file);
         this->_state_file = 0;
     }
     return (this->_state_file == 0);

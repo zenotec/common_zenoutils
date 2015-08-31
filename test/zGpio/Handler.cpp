@@ -11,11 +11,11 @@ using namespace zUtils;
 using namespace Test;
 
 int
-zGpioTest_HandlerAddRemove( void* arg )
+zGpioTest_HandlerAddPort( void* arg )
 {
 
     ZLOG_DEBUG( "#############################################################" );
-    ZLOG_DEBUG( "# zGpioTest_HandlerAddRemove()" );
+    ZLOG_DEBUG( "# zGpioTest_HandlerAddPort()" );
     ZLOG_DEBUG( "#############################################################" );
 
     // Create new GPIO port test configuration and verify
@@ -41,11 +41,6 @@ zGpioTest_HandlerAddRemove( void* arg )
     TEST_TRUE( myHandler->AddPort( myPort ) );
     expGpioPort = myHandler->GetPort( 1 );
     TEST_EQ( (int )expGpioPort->GetId(), (int )myPort->GetId() );
-
-    // Remove GpioPort and verify
-    TEST_TRUE( myHandler->RemovePort( myPort ) );
-    expGpioPort = myHandler->GetPort( 1 );
-    TEST_IS_NULL( expGpioPort );
 
     // Clean up
     delete (myHandler);
@@ -123,11 +118,6 @@ zGpioTest_HandlerOnOff( void* arg )
     TEST_EQ( zGpio::Port::STATE_INACTIVE, myPort1->GetState() );
     TEST_EQ( zGpio::Port::STATE_INACTIVE, myPort2->GetState() );
     TEST_EQ( zGpio::Port::STATE_INACTIVE, myHandler->GetState() );
-
-    // Remove GpioPort and verify
-    TEST_TRUE( myHandler->RemovePort( myPort1 ) );
-    expGpioPort = myHandler->GetPort( 1 );
-    TEST_IS_NULL( expGpioPort );
 
     // Clean up
     delete (myHandler);

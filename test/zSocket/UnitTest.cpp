@@ -36,7 +36,7 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zSocketTest_InetSocketDefault, 0);
   UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
-  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
+//  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
   UTEST_TEST(zSocketTest_InetSocketObserver, 0);
 
   UTEST_TEST(zSocketTest_HandlerRegister, 0);

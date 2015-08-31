@@ -23,6 +23,10 @@ Handler::Handler() :
 
 Handler::~Handler()
 {
+    if (!this->_portList.empty())
+    {
+        this->_thread.Join( 1000 );
+    }
     std::list<Port*>::iterator it = this->_portList.begin();
     std::list<Port*>::iterator end = this->_portList.end();
     for (; it != end; ++it)
@@ -42,17 +46,9 @@ Handler::AddPort( Port* port_ )
         this->_portList.unique();
         status = true;
     }
-    return (status);
-}
-
-bool
-Handler::RemovePort( Port* port_ )
-{
-    bool status = false;
-    if (port_->_close())
+    if (this->_portList.size() == 1)
     {
-        this->_portList.remove( port_ );
-        status = true;
+        this->_thread.Run( 1000 );
     }
     return (status);
 }
@@ -128,12 +124,6 @@ Handler::Unregister( Observer *obs_ )
     return (true);
 }
 
-bool
-Handler::Monitor()
-{
-    return(this->_thread.Run( 1000 ));
-}
-
 void *
 Handler::ThreadFunction( void *arg_ )
 {
@@ -151,10 +141,10 @@ Handler::ThreadFunction( void *arg_ )
     end = self->_portList.end();
     for (; it != end; ++it)
     {
-        int fd = fileno( (*it)->_state_file );
+        int fd = (*it)->_state_file;
         if (fd > maxfd)
             maxfd = fd;
-        FD_SET( fileno( (*it)->_state_file ), &fds );
+        FD_SET( fd, &fds );
     }
     to.tv_sec = 0;
     to.tv_usec = 100000;
@@ -166,10 +156,10 @@ Handler::ThreadFunction( void *arg_ )
         end = self->_portList.end();
         for (; it != end; ++it)
         {
-            int fd = fileno( (*it)->_state_file );
+            int fd = (*it)->_state_file;
             if (FD_ISSET( fd, &fds ))
             {
-                self->_notify(*(*it));
+                self->_notify( *(*it) );
             }
         }
     }

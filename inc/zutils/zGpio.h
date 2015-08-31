@@ -113,7 +113,7 @@ public:
 
 protected:
 
-    FILE *_state_file;
+    int _state_file;
 
     bool
     _open();
@@ -171,10 +171,7 @@ public:
     ~Handler();
 
     bool
-    AddPort( Port* port_ );
-
-    bool
-    RemovePort( Port* port_ );
+    AddPort( Port *port_ );
 
     Port*
     GetPort( uint32_t id_ );
@@ -190,9 +187,6 @@ public:
 
     bool
     Unregister( Observer *obs_ );
-
-    bool
-    Monitor();
 
 protected:
 
