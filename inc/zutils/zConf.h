@@ -56,10 +56,22 @@ public:
     Get( const std::string &key_, std::string &value_ );
 
     bool
+    Get( const std::string &key_, int &value_ );
+
+    bool
+    Get( const std::string &key_, unsigned int &value_ );
+
+    bool
     Get( zData::Data &data_ );
 
     bool
-    Set( const std::string &key_, std::string &value_ );
+    Set( const std::string &key_, const std::string &value_ );
+
+    bool
+    Set( const std::string &key_, const int &value_ );
+
+    bool
+    Set( const std::string &key_, const unsigned int &value_ );
 
     bool
     Set( zData::Data &data_ );
@@ -71,7 +83,7 @@ public:
     Load();
 
     bool
-    Store();
+    Commit();
 
     bool
     Register( zConf::Observer *obs_ );

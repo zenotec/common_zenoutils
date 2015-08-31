@@ -47,9 +47,21 @@ public:
   bool
   GetValue(const std::string &key_, std::string &value_);
   bool
+  GetValue(const std::string &key_, int &value_);
+  bool
+  GetValue(const std::string &key_, unsigned int &value_);
+
+  bool
   SetValue(const std::string &key_, const std::string &value_);
   bool
+  SetValue(const std::string &key_, const int &value_);
+  bool
+  SetValue(const std::string &key_, const unsigned int &value_);
+
+  bool
   AddValue(const std::string &key_, const std::string &value_);
+  bool
+  AddValue(const std::string &key_, int &value_);
 
   bool
   GetChild(const std::string &key_, Data &child_) const;

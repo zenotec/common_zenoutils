@@ -277,8 +277,7 @@ InetSocket::ThreadFunction( void *arg_ )
     int ret = select( self->_sock + 1, &rxFds, NULL, NULL, &to );
     if (ret > 0 && FD_ISSET( self->_sock, &rxFds ))
     {
-        ZLOG_INFO(
-                "InetSocket::ThreadFunction: Received packet on socket: "
+        ZLOG_INFO("InetSocket::ThreadFunction: Received packet on socket: "
                         + zLog::IntStr( self->_sock ) );
         Address *addr = new InetAddress;
         Buffer *sb = new Buffer;
@@ -292,8 +291,8 @@ InetSocket::ThreadFunction( void *arg_ )
 
     if (ret < 0)
     {
-        ZLOG_ERR(
-                "InetSocket::ThreadFunction: Error selecting on socket: " + std::string(strerror(errno)) );
+        ZLOG_ERR("InetSocket::ThreadFunction: Error selecting on socket: " +
+                std::string(strerror(errno)) );
     } // end if
 
     return (0);

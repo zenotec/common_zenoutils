@@ -12,7 +12,10 @@ zGpioUnitTest_SOURCES = \
     valgrind.sh \
     zGpioTest.h \
     UnitTest.cpp \
-    Defaults.cpp
+    Defaults.cpp \
+    Port.cpp \
+    Handler.cpp \
+    Switch.cpp
 
 zGpioUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

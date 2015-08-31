@@ -115,6 +115,48 @@ Data::GetValue( const std::string &name_, std::string &value_ )
     return (status);
 }
 
+bool
+Data::GetValue( const std::string &name_, int &value_ )
+{
+    bool status = false;
+    std::string name;
+    int value;
+    try
+    {
+        name = this->GetKey() + "." + name_;
+        value = this->_pt.get<int>( name );
+        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + zLog::IntStr(value) );
+        value_ = value;
+        status = true;
+    }
+    catch (boost::property_tree::ptree_bad_path &e)
+    {
+        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
+    }
+    return (status);
+}
+
+bool
+Data::GetValue( const std::string &name_, unsigned int &value_ )
+{
+    bool status = false;
+    std::string name;
+    int value;
+    try
+    {
+        name = this->GetKey() + "." + name_;
+        value = this->_pt.get<unsigned int>( name );
+        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + zLog::IntStr(value) );
+        value_ = value;
+        status = true;
+    }
+    catch (boost::property_tree::ptree_bad_path &e)
+    {
+        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
+    }
+    return (status);
+}
+
 boost::property_tree::ptree
 Data::_getValue( const std::string &name_ ) const
 {
@@ -140,6 +182,44 @@ Data::SetValue( const std::string &name_, const std::string &value_ )
         name = this->GetKey() + "." + name_;
         this->_pt.put( name, value_ );
         ZLOG_DEBUG( "Setting zData value: " + name + " = " + value_ );
+        status = true;
+    }
+    catch (boost::property_tree::ptree_bad_path const &e)
+    {
+        ZLOG_WARN( "Cannot set zData value:" + name );
+    }
+    return (status);
+}
+
+bool
+Data::SetValue( const std::string &name_, const int &value_ )
+{
+    bool status = false;
+    std::string name;
+    try
+    {
+        name = this->GetKey() + "." + name_;
+        this->_pt.put( name, value_ );
+        ZLOG_DEBUG( "Setting zData value: " + name + " = " + zLog::IntStr(value_) );
+        status = true;
+    }
+    catch (boost::property_tree::ptree_bad_path const &e)
+    {
+        ZLOG_WARN( "Cannot set zData value:" + name );
+    }
+    return (status);
+}
+
+bool
+Data::SetValue( const std::string &name_, const unsigned int &value_ )
+{
+    bool status = false;
+    std::string name;
+    try
+    {
+        name = this->GetKey() + "." + name_;
+        this->_pt.put( name, value_ );
+        ZLOG_DEBUG( "Setting zData value: " + name + " = " + zLog::IntStr(value_) );
         status = true;
     }
     catch (boost::property_tree::ptree_bad_path const &e)

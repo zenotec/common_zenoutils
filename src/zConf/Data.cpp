@@ -47,6 +47,26 @@ Data::Get( const std::string &key_, std::string &value_ )
 }
 
 bool
+Data::Get( const std::string &key_, int &value_ )
+{
+    bool status = false;
+    this->_notify( zConf::Data::STATE_PREGET );
+    status = this->GetValue( key_, value_ );
+    this->_notify( zConf::Data::STATE_POSTGET );
+    return (status);
+}
+
+bool
+Data::Get( const std::string &key_, unsigned int &value_ )
+{
+    bool status = false;
+    this->_notify( zConf::Data::STATE_PREGET );
+    status = this->GetValue( key_, value_ );
+    this->_notify( zConf::Data::STATE_POSTGET );
+    return (status);
+}
+
+bool
 Data::Get( zData::Data &data_ )
 {
     bool status = false;
@@ -57,7 +77,27 @@ Data::Get( zData::Data &data_ )
 }
 
 bool
-Data::Set( const std::string &key_, std::string &value_ )
+Data::Set( const std::string &key_, const std::string &value_ )
+{
+    bool status = false;
+    this->_notify( zConf::Data::STATE_PRESET );
+    status = this->SetValue( key_, value_ );
+    this->_notify( zConf::Data::STATE_POSTSET );
+    return (status);
+}
+
+bool
+Data::Set( const std::string &key_, const int &value_ )
+{
+    bool status = false;
+    this->_notify( zConf::Data::STATE_PRESET );
+    status = this->SetValue( key_, value_ );
+    this->_notify( zConf::Data::STATE_POSTSET );
+    return (status);
+}
+
+bool
+Data::Set( const std::string &key_, const unsigned int &value_ )
 {
     bool status = false;
     this->_notify( zConf::Data::STATE_PRESET );
@@ -107,13 +147,15 @@ Data::Load()
 }
 
 bool
-Data::Store()
+Data::Commit()
 {
     bool status = false;
+    this->_notify( zConf::Data::STATE_PRECOMMIT );
     if (this->_connector)
     {
         status = this->_connector->Store( *this );
     }
+    this->_notify( zConf::Data::STATE_POSTCOMMIT);
     return (status);
 }
 

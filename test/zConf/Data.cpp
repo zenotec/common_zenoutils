@@ -130,7 +130,7 @@ zConfTest_DataLoadStore( void* arg_ )
     TEST_FALSE(myData->Load());
 
     // Attempt to store configuration and verify
-    TEST_FALSE(myData->Store());
+    TEST_FALSE(myData->Commit());
 
     // Connect data to file connector
     TEST_TRUE(myData->Connect(myConnector));
@@ -147,7 +147,7 @@ zConfTest_DataLoadStore( void* arg_ )
     TEST_EQ(obs, val1);
 
     // Store configuration and verify
-    TEST_TRUE(myData->Store());
+    TEST_TRUE(myData->Commit());
 
     // Modify data and verify
     TEST_TRUE(myData->Set(key, val2));
