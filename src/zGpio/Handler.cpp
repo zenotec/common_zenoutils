@@ -156,8 +156,9 @@ Handler::ThreadFunction( void *arg_ )
         end = self->_portList.end();
         for (; it != end; ++it)
         {
+            char buf[2];
             int fd = (*it)->_state_file;
-            if (FD_ISSET( fd, &fds ))
+            if (FD_ISSET( fd, &fds ) && pread( fd, buf, sizeof(buf), 0))
             {
                 self->_notify( *(*it) );
             }
