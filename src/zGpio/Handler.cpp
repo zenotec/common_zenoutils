@@ -128,9 +128,16 @@ Handler::Unregister( Observer *obs_ )
     return (true);
 }
 
+bool
+Handler::Monitor()
+{
+    return(this->_thread.Run( 1000 ));
+}
+
 void *
 Handler::ThreadFunction( void *arg_ )
 {
+
     Handler *self = (Handler *) arg_;
     fd_set fds;
     int maxfd = 0;

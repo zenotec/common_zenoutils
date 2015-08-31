@@ -191,6 +191,9 @@ public:
     bool
     Unregister( Observer *obs_ );
 
+    bool
+    Monitor();
+
 protected:
 
     virtual void *
