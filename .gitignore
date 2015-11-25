@@ -13,6 +13,7 @@ aclocal.m4
 autom4te.cache/
 build/*
 build-check/*
+compile
 config.guess
 config.status
 config.sub
@@ -21,3 +22,5 @@ depcomp
 install-sh
 ltmain.sh
 missing
+test-driver
+

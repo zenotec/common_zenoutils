@@ -37,12 +37,15 @@ Port::Port(const std::string& device_, Port::BAUD baud_,
   cfmakeraw(&this->_termios);
   this->_termios.c_cflag |= (CLOCAL | CREAD);
 
+  this->_mutex.Unlock();
+
   // Configure the port
   this->SetBaud(baud_);
   this->SetDataBits(dbits_);
   this->SetStopBits(sbits_);
   this->SetParity(parity_);
   this->SetFlowControl(flowcntl_);
+
 }
 
 Port::~Port()

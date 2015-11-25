@@ -33,6 +33,7 @@ Handler::Handler() :
   //    std::cout.flush();
   //    std::cout << "(" << this << ")Handler::Handler: Exit" << std::endl;
   //    std::cout.flush();
+  this->_mutex.Unlock();
 }
 
 Handler::~Handler()

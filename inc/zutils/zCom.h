@@ -162,7 +162,7 @@ private:
 
 };
 
-class Handler: public zThread::Function
+class Handler : public zThread::Function
 {
 
 public:
@@ -188,11 +188,10 @@ public:
   bool
   Listen(uint32_t usecs_);
 
-
 protected:
 
-    virtual void *
-    ThreadFunction( void *arg_ );
+  virtual void *
+  ThreadFunction(void *arg_);
 
 private:
 
