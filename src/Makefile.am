@@ -1,5 +1,6 @@
 SUBDIRS = \
 	zData \
+	zCom \
 	zConf \
 	zEvent \
 	zException \
@@ -32,6 +33,7 @@ libzutils_ladir = $(includedir)/zutils
 # Headers to install
 libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zData.h \
+    $(top_srcdir)/inc/zutils/zCom.h \
     $(top_srcdir)/inc/zutils/zConf.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
@@ -57,6 +59,7 @@ libzutils_la_SOURCES = \
 
 libzutils_la_LIBADD = \
     ${top_builddir}/src/zData/libzData.la \
+    ${top_builddir}/src/zCom/libzCom.la \
     ${top_builddir}/src/zConf/libzConf.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
     ${top_builddir}/src/zException/libzException.la \

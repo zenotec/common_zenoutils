@@ -67,6 +67,7 @@ AC_SUBST([com_incdir])
 AC_CONFIG_FILES([
     Makefile
         src/Makefile
+        src/zCom/Makefile
         src/zConf/Makefile
         src/zData/Makefile
         src/zEvent/Makefile
