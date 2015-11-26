@@ -203,7 +203,6 @@ private:
   std::list<Port *> _portList;
   zThread::Thread _thread;
   zSem::Mutex _mutex;
-  bool _exit;
 
 };
 

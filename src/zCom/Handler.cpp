@@ -29,17 +29,17 @@ namespace zCom
 Handler::Handler() :
     _thread(this, this)
 {
-  //    std::cout << "(" << this << ")Handler::Handler: Entry" << std::endl;
-  //    std::cout.flush();
-  //    std::cout << "(" << this << ")Handler::Handler: Exit" << std::endl;
-  //    std::cout.flush();
+  std::cout << "(" << this << ")Handler::Handler: Entry" << std::endl;
+  std::cout.flush();
   this->_mutex.Unlock();
+  std::cout << "(" << this << ")Handler::Handler: Exit" << std::endl;
+  std::cout.flush();
 }
 
 Handler::~Handler()
 {
-//    std::cout << "(" << this << ")Handler::~Handler: Entry" << std::endl;
-//    std::cout.flush();
+  std::cout << "(" << this << ")Handler::~Handler: Entry" << std::endl;
+  std::cout.flush();
 
   if (!this->_portList.empty())
   {
@@ -49,17 +49,17 @@ Handler::~Handler()
   // Close all ports
   this->Close();
 
-//    std::cout << "(" << this << ")Handler::~Handler: Exit" << std::endl;
-//    std::cout.flush();
+  std::cout << "(" << this << ")Handler::~Handler: Exit" << std::endl;
+  std::cout.flush();
 }
 
 bool
 Handler::Open(Port* com_)
 {
 
-//    std::cout << "(" << this << ")Handler::Open: Entry" << std::endl;
-//    std::cout << "(" << this << ")Handler::Open(" << com_ << ")" << std::endl;
-//    std::cout.flush();
+  std::cout << "(" << this << ")Handler::Open: Entry" << std::endl;
+  std::cout << "(" << this << ")Handler::Open(" << com_ << ")" << std::endl;
+  std::cout.flush();
 
   bool status = false;
 
@@ -76,8 +76,8 @@ Handler::Open(Port* com_)
     this->_thread.Run(1000);
   }
 
-  //    std::cout << "(" << this << ")Handler::Open: Exit" << std::endl;
-  //    std::cout.flush();
+  std::cout << "(" << this << ")Handler::Open: Exit" << std::endl;
+  std::cout.flush();
 
   this->_mutex.Unlock();
 
@@ -88,9 +88,9 @@ Handler::Open(Port* com_)
 void
 Handler::Close(Port* com_)
 {
-//    std::cout << "(" << this << ")Handler::Close: Entry" << std::endl;
-//    std::cout << "(" << this << ")Handler::Close(" << com_ << ")" << std::endl;
-//    std::cout.flush();
+  std::cout << "(" << this << ")Handler::Close: Entry" << std::endl;
+  std::cout << "(" << this << ")Handler::Close(" << com_ << ")" << std::endl;
+  std::cout.flush();
 
   this->_mutex.Lock();
 
@@ -108,43 +108,43 @@ Handler::Close(Port* com_)
       (*it)->_close();
     }
   }
-//    std::cout << "(" << this << ")Handler::Close: Exit" << std::endl;
-//    std::cout.flush();
+
+  std::cout << "(" << this << ")Handler::Close: Exit" << std::endl;
+  std::cout.flush();
+
+  this->_mutex.Unlock();
+
   return;
 
 }
 
 void *
-Handler::ThreadFunction( void *arg_ )
+Handler::ThreadFunction(void *arg_)
 {
 
-//    std::cout << "(" << this << ")Listening: Start: " << this->_exit << std::endl;
-//    std::cout.flush();
+//  std::cout << "(" << this << ")Listening: Start: " << std::endl;
+//  std::cout.flush();
   Handler *self = (Handler *) arg_;
-  uint32_t usecs_ = 1000;
 
-  if (!self->_portList.empty() && self->_mutex.TryLock())
+  if (!self->_portList.empty() && self->_mutex.TimedLock(1000))
   {
     std::list<Port *>::iterator it = self->_portList.begin();
     std::list<Port *>::iterator end = self->_portList.end();
     for (; it != end; ++it)
     {
       char c = 0;
-//            std::cout << "(" << this << ")Listening: Port(" << *it << ")" << std::endl;
-//            std::cout.flush();
-      if ((*it)->RecvChar(&c, usecs_))
+//      std::cout << "(" << this << ")Listening: Port(" << *it << ")" << std::endl;
+//      std::cout.flush();
+      if ((*it)->RecvChar(&c, 10000))
       {
         self->_notify((*it), c);
       }
     }
+    self->_mutex.Unlock();
   }
-  else
-  {
-    // If no ports have been opened or cannot get lock, just sleep the specified time
-    usleep(usecs_);
-  }
-//    std::cout << "(" << this << ")Listening: Stop: " << this->_exit << std::endl;
-//    std::cout.flush();
+  usleep(1000);
+//  std::cout << "(" << this << ")Listening: Stop: " << std::endl;
+//  std::cout.flush();
   return (0);
 
 }

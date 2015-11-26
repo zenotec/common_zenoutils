@@ -19,7 +19,7 @@ namespace zUtils
 {
 
 template<typename T>
-  class zQueue : private std::queue<T>, public zEvent::Event
+  class zQueue : private std::queue<T>, public zEvent::Event, public zSem::Semaphore
   {
   public:
     zQueue()
@@ -55,6 +55,7 @@ template<typename T>
     {
       this->_lock.Lock();
       this->push(item_);
+      this->Post();
       this->_notify();
       this->_lock.Unlock();
     }
