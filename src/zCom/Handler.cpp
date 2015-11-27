@@ -29,17 +29,11 @@ namespace zCom
 Handler::Handler() :
     _thread(this, this)
 {
-  std::cout << "(" << this << ")Handler::Handler: Entry" << std::endl;
-  std::cout.flush();
   this->_mutex.Unlock();
-  std::cout << "(" << this << ")Handler::Handler: Exit" << std::endl;
-  std::cout.flush();
 }
 
 Handler::~Handler()
 {
-  std::cout << "(" << this << ")Handler::~Handler: Entry" << std::endl;
-  std::cout.flush();
 
   if (!this->_portList.empty())
   {
@@ -49,17 +43,11 @@ Handler::~Handler()
   // Close all ports
   this->Close();
 
-  std::cout << "(" << this << ")Handler::~Handler: Exit" << std::endl;
-  std::cout.flush();
 }
 
 bool
 Handler::Open(Port* com_)
 {
-
-  std::cout << "(" << this << ")Handler::Open: Entry" << std::endl;
-  std::cout << "(" << this << ")Handler::Open(" << com_ << ")" << std::endl;
-  std::cout.flush();
 
   bool status = false;
 
@@ -76,9 +64,6 @@ Handler::Open(Port* com_)
     this->_thread.Run(1000);
   }
 
-  std::cout << "(" << this << ")Handler::Open: Exit" << std::endl;
-  std::cout.flush();
-
   this->_mutex.Unlock();
 
   return (status);
@@ -88,9 +73,6 @@ Handler::Open(Port* com_)
 void
 Handler::Close(Port* com_)
 {
-  std::cout << "(" << this << ")Handler::Close: Entry" << std::endl;
-  std::cout << "(" << this << ")Handler::Close(" << com_ << ")" << std::endl;
-  std::cout.flush();
 
   this->_mutex.Lock();
 
@@ -109,9 +91,6 @@ Handler::Close(Port* com_)
     }
   }
 
-  std::cout << "(" << this << ")Handler::Close: Exit" << std::endl;
-  std::cout.flush();
-
   this->_mutex.Unlock();
 
   return;
@@ -122,8 +101,6 @@ void *
 Handler::ThreadFunction(void *arg_)
 {
 
-//  std::cout << "(" << this << ")Listening: Start: " << std::endl;
-//  std::cout.flush();
   Handler *self = (Handler *) arg_;
 
   if (!self->_portList.empty() && self->_mutex.TimedLock(1000))
@@ -133,8 +110,7 @@ Handler::ThreadFunction(void *arg_)
     for (; it != end; ++it)
     {
       char c = 0;
-//      std::cout << "(" << this << ")Listening: Port(" << *it << ")" << std::endl;
-//      std::cout.flush();
+
       if ((*it)->RecvChar(&c, 10000))
       {
         self->_notify((*it), c);
@@ -143,8 +119,6 @@ Handler::ThreadFunction(void *arg_)
     self->_mutex.Unlock();
   }
   usleep(1000);
-//  std::cout << "(" << this << ")Listening: Stop: " << std::endl;
-//  std::cout.flush();
   return (0);
 
 }
