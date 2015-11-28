@@ -86,6 +86,18 @@ template<typename T>
       return (empty);
     }
 
+    void
+    Clear()
+    {
+      this->_lock.Lock();
+      while(!this->empty())
+      {
+        this->pop();
+      }
+      this->_lock.Unlock();
+      return;
+    }
+
   protected:
 
   private:
