@@ -24,7 +24,7 @@ int zMessageTest_MessageHandler(void* arg_)
 
     // Startup the message handler
     TEST_TRUE(myHandler->Bind(mySock));
-    TEST_TRUE(myHandler->StartListener(500));
+    TEST_TRUE(myHandler->StartListener());
 
     // Broadcast hello message to self
     zMessage::Message *helloMsg = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);

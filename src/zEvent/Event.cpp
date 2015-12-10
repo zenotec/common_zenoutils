@@ -28,75 +28,38 @@ Event::~Event()
 }
 
 void
-Event::_notify()
+Event::Notify()
 {
   if (this->_lock.Lock())
   {
-    std::list<EventList *>::iterator itr = this->_eventlists.begin();
-    std::list<EventList *>::iterator end = this->_eventlists.end();
+    std::list<EventHandler *>::iterator itr = this->_handler_list.begin();
+    std::list<EventHandler *>::iterator end = this->_handler_list.end();
     for (; itr != end; itr++)
     {
-      (*itr)->_notify();
+      (*itr)->notify(this);
     } // end for
     this->_lock.Unlock();
   } // end if
 }
 
 void
-Event::_addList(EventList *list_)
+Event::registerHandler(EventHandler *list_)
 {
   if (this->_lock.Lock())
   {
-    this->_eventlists.push_front(list_);
+    this->_handler_list.push_front(list_);
     this->_lock.Unlock();
   } // end if
 }
 
 void
-Event::_remList(EventList *list_)
+Event::unregisterHandler(EventHandler *list_)
 {
   if (this->_lock.Lock())
   {
-    this->_eventlists.remove(list_);
+    this->_handler_list.remove(list_);
     this->_lock.Unlock();
   } // end if
-}
-
-//**********************************************************************
-// zEventList Class
-//**********************************************************************
-
-EventList::EventList()
-{
-}
-
-EventList::~EventList()
-{
-}
-
-void
-EventList::Register(Event *event_)
-{
-  event_->_addList(this);
-}
-
-void
-EventList::Unregister(Event *event_)
-{
-  event_->_remList(this);
-}
-
-bool
-EventList::Wait(uint32_t usecs_)
-{
-  ZLOG_DEBUG("EventList::Wait: Waiting on events");
-  return (this->_sem.TimedWait(usecs_));
-}
-
-void
-EventList::_notify()
-{
-  this->_sem.Post();
 }
 
 }

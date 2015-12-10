@@ -30,71 +30,90 @@ template<typename T>
     virtual
     ~zQueue()
     {
+      this->_lock.Lock();
     }
 
     T
     Front()
     {
-      this->_lock.Lock();
-      T item = this->front();
-      this->_lock.Unlock();
+      T item;
+      if(this->_lock.Lock())
+      {
+        item = this->front();
+        this->_lock.Unlock();
+      }
       return (item);
     }
 
     T
     Back()
     {
-      this->_lock.Lock();
-      T item = this->back();
-      this->_lock.Unlock();
+      T item;
+      if(this->_lock.Lock())
+      {
+        item = this->back();
+        this->_lock.Unlock();
+      }
       return (item);
     }
 
     void
     Push(T item_)
     {
-      this->_lock.Lock();
-      this->push(item_);
-      this->Post();
-      this->_notify();
-      this->_lock.Unlock();
+      if (this->_lock.Lock())
+      {
+        this->push(item_);
+        this->Post();
+        this->Notify();
+        this->_lock.Unlock();
+      }
     }
 
     void
     Pop()
     {
-      this->_lock.Lock();
-      this->pop();
-      this->_lock.Unlock();
+      if(this->_lock.Lock())
+      {
+        this->pop();
+        this->_lock.Unlock();
+      }
     }
 
-    size_t
+    ssize_t
     Size()
     {
-      this->_lock.Lock();
-      size_t size = this->size();
-      this->_lock.Unlock();
+      ssize_t size = -1;
+      if (this->_lock.Lock())
+      {
+        size = this->size();
+        this->_lock.Unlock();
+      }
       return (size);
     }
 
     bool
     Empty()
     {
-      this->_lock.Lock();
-      bool empty = this->empty();
-      this->_lock.Unlock();
+      bool empty = true;
+      if(this->_lock.Lock())
+      {
+        empty = this->empty();
+        this->_lock.Unlock();
+      }
       return (empty);
     }
 
     void
     Clear()
     {
-      this->_lock.Lock();
-      while(!this->empty())
+      if(this->_lock.Lock())
       {
-        this->pop();
+        while(!this->empty())
+        {
+          this->pop();
+        }
+        this->_lock.Unlock();
       }
-      this->_lock.Unlock();
       return;
     }
 

@@ -1,5 +1,5 @@
 if COND_GCOV
-CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
@@ -9,5 +9,6 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzEvent.la
 
 libzEvent_la_SOURCES = \
-    Event.cpp
+    Event.cpp \
+    Handler.cpp
 

@@ -21,8 +21,8 @@ namespace zThread
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
-Thread::Thread(Function *func_, void *arg_, uint32_t period_) :
-    _id(0), _func(func_), _arg(arg_), _exit(true), _period(period_)
+Thread::Thread(Function *func_, void *arg_) :
+    _id(0), _func(func_), _arg(arg_), _exit(true)
 {
   // Starting with the mutex in the locked state so that when the thread is
   //   started, it unlocks it
@@ -31,11 +31,11 @@ Thread::Thread(Function *func_, void *arg_, uint32_t period_) :
 Thread::~Thread()
 {
   // Terminate listener thread
-  this->Join(1000);
+  this->Join();
 }
 
 bool
-Thread::Run(uint32_t msecs_)
+Thread::Run()
 {
 
   bool status = false;
@@ -44,29 +44,33 @@ Thread::Run(uint32_t msecs_)
 
   if (pthread_attr_init(&attr))
   {
-    ZLOG_CRIT("Cannot initialize thread attributes: " + std::string(strerror(errno)));
-    throw;
+    std::string errmsg = "Cannot initialize thread attributes: " + std::string(strerror(errno));
+    ZLOG_CRIT(errmsg);
+    throw errmsg;
   } /* end if */
 
   if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE))
   {
-    ZLOG_CRIT("Cannot set detached state: " + std::string(strerror(errno)));
-    throw;
+    std::string errmsg = "Cannot set detached state: " + std::string(strerror(errno));
+    ZLOG_CRIT(errmsg);
+    throw errmsg;
   } /* end if */
 
-  if (pthread_create(&id, NULL, Thread::_threadHandler, this))
+  if (pthread_create(&id, &attr, Thread::_threadHandler, this))
   {
-    ZLOG_CRIT("Cannot create listen thread: " + std::string(strerror(errno)));
-    throw;
+    std::string errmsg = "Cannot create listen thread: " + std::string(strerror(errno));
+    ZLOG_CRIT(errmsg);
+    throw errmsg;
   } // end if
 
   if (pthread_attr_destroy(&attr))
   {
-    ZLOG_CRIT("Cannot destroy thread attributes: " + std::string(strerror(errno)));
-    throw;
+    std::string errmsg = "Cannot destroy thread attributes: " + std::string(strerror(errno));
+    ZLOG_CRIT(errmsg);
+    throw errmsg;
   } /* end if */
 
-  if (this->_mutex.TimedLock(msecs_ * 1000))
+  if (this->_mutex.TimedLock(1000000))
   {
     this->_id = id;
     this->_mutex.Unlock();
@@ -78,11 +82,11 @@ Thread::Run(uint32_t msecs_)
 }
 
 bool
-Thread::Join(uint32_t msecs_)
+Thread::Join()
 {
   bool status = false;
   this->_exit = true;
-  if (this->_id && this->_mutex.TimedLock(msecs_ * 1000))
+  if (this->_id && this->_mutex.TimedLock(1000000))
   {
     ZLOG_INFO("Joining thread: " + zLog::HexStr((uint32_t )this->_id));
     pthread_join(this->_id, 0);
@@ -107,12 +111,14 @@ Thread::_threadHandler(void *arg_)
   self->_exit = false;
   self->_mutex.Unlock();
 
+  ZLOG_INFO("Thread::_threadHandler: Thread starting");
+
   // Pause a moment to allow context switch
   usleep(1000);
 
   while (self && !self->_exit && self->_func)
   {
-    if (self->_mutex.TimedLock(self->_period * 1000))
+    if (self->_mutex.TimedLock(1000000))
     {
       if (self->_func->ThreadFunction(self->_arg))
       {
@@ -122,7 +128,7 @@ Thread::_threadHandler(void *arg_)
     }
   }
 
-  ZLOG_INFO("Thread exiting");
+  ZLOG_INFO("Thread::_threadHandler: Thread exiting");
 
   pthread_exit(0);
   return (0);

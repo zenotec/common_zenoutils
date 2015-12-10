@@ -15,24 +15,9 @@
 int
 zEventTest_Defaults(void * arg_);
 int
-zEventTest_EventList(void* arg_);
+zEventTest_EventHandler(void* arg_);
 
 using namespace zUtils;
 using namespace Test;
-
-class TestEvent : public zEvent::Event
-{
-public:
-  void
-  Notify()
-  {
-    this->_notify();
-  }
-
-protected:
-
-private:
-
-};
 
 #endif /* _ZEVENTTEST_H_ */

@@ -77,13 +77,13 @@ int zSocketTest_HandlerStartStop(void* arg_)
     TEST_TRUE(myHandler->Bind(mySocket));
 
     // Start listener
-    TEST_TRUE(myHandler->StartListener(1000));
+    TEST_TRUE(myHandler->StartListener());
 
     // Pause to let listener run a moment
     usleep(100000);
 
     // Stop listener
-    TEST_TRUE(myHandler->StopListener(1000));
+    TEST_TRUE(myHandler->StopListener());
 
     // Clean up
     myHandler->Close();
@@ -127,7 +127,7 @@ int zSocketTest_HandlerSendRecv(void* arg_)
     TEST_TRUE(myHandler->Bind(mySocket));
 
     // Start listener
-    TEST_TRUE(myHandler->StartListener(1000));
+    TEST_TRUE(myHandler->StartListener());
 
     // Send string and validate
     std::string expStr = "zSocketTest_HandlerSendRecv";
@@ -139,7 +139,7 @@ int zSocketTest_HandlerSendRecv(void* arg_)
     delete (sb);
 
     // Stop listener
-    TEST_TRUE(myHandler->StopListener(1000));
+    TEST_TRUE(myHandler->StopListener());
 
     // Clean up
     myHandler->Close();
@@ -183,7 +183,7 @@ int zSocketTest_HandlerBroadcast(void* arg_)
     TEST_TRUE(myHandler->Bind(mySocket));
 
     // Start listener
-    TEST_TRUE(myHandler->StartListener(1000));
+    TEST_TRUE(myHandler->StartListener());
 
     // Send string and validate
     std::string expStr = "zSocketTest_HandlerSendRecv";
@@ -195,7 +195,7 @@ int zSocketTest_HandlerBroadcast(void* arg_)
     delete (sb);
 
     // Stop listener
-    TEST_TRUE(myHandler->StopListener(1000));
+    TEST_TRUE(myHandler->StopListener());
 
     // Clean up
     myHandler->Close();

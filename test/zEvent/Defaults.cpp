@@ -11,26 +11,28 @@ zEventTest_Defaults(void * arg_)
 }
 
 int
-zEventTest_EventList(void* arg_)
+zEventTest_EventHandler(void* arg_)
 {
   // Create new event and validate
-  TestEvent *MyEvent = new TestEvent;
+  zEvent::Event *MyEvent = new zEvent::Event;
 
   // Create new event list and validate
-  zEvent::EventList MyList;
-  TEST_FALSE(MyList.Wait(1));
+  zEvent::EventHandler MyList;
+  TEST_FALSE(MyList.TimedWait(1));
 
   // Register event with list
-  MyList.Register(MyEvent);
-  TEST_FALSE(MyList.Wait(1));
+  MyList.RegisterEvent(MyEvent);
+  TEST_FALSE(MyList.TimedWait(1));
 
   // Notify
   MyEvent->Notify();
-  TEST_TRUE(MyList.Wait(1));
+  TEST_TRUE(MyList.TimedWait(1));
+
+  // Unregister
+  MyList.UnregisterEvent(MyEvent);
+  TEST_FALSE(MyList.TimedWait(1));
 
   // Cleanup
-  MyList.Unregister(MyEvent);
-  TEST_FALSE(MyList.Wait(1));
   delete (MyEvent);
 
   // Return success

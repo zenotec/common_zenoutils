@@ -12,6 +12,7 @@ SUBDIRS = \
 	zSwitch \
 	zMessage \
 	zNode \
+	zCom \
 	zGpio \
 	zLed
 
@@ -30,6 +31,7 @@ VALGRIND_TESTS = \
     zMessage/valgrind.sh \
     zNode/valgrind.sh \
     zSwitch/valgrind.sh \
+    zCom/valgrind.sh \
     zGpio/valgrind.sh \
     zLed/valgrind.sh
 endif
@@ -48,6 +50,7 @@ GCOV_TESTS = \
     zMessage/zMessageUnitTest \
     zNode/zNodeUnitTest \
     zSwitch/zSwitchUnitTest \
+    zCom/zComUnitTest \
     zGpio/zGpioUnitTest \
     zLed/zLedUnitTest
 

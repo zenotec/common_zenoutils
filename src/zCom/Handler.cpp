@@ -26,8 +26,7 @@ namespace zCom
 // Handler Class
 //*****************************************************************************
 
-Handler::Handler() :
-    _thread(this, this)
+Handler::Handler()
 {
   this->_mutex.Unlock();
 }

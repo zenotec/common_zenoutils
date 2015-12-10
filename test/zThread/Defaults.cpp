@@ -25,14 +25,14 @@ zThreadTest_RunOnce(void* arg_)
   TEST_EQ(1, myFunc->GetCount());
 
   // Run thread function until it exits
-  TEST_TRUE(myFunc->Run(1000));
+  TEST_TRUE(myFunc->Run());
   TEST_ISNOT_ZERO(myFunc->GetId());
 
   // Wait for the thread to finish
   usleep(2 * 1 * 1000); // wait twice the period
 
   // Join thread and validate
-  TEST_TRUE(myFunc->Join(1000));
+  TEST_TRUE(myFunc->Join());
   TEST_IS_ZERO(myFunc->GetId());
   TEST_IS_ZERO(myFunc->GetCount());
 
@@ -53,14 +53,14 @@ zThreadTest_RunMultiple(void* arg_)
   TEST_EQ(50, myFunc->GetCount());
 
   // Run thread function until it exits
-  TEST_TRUE(myFunc->Run(1000));
+  TEST_TRUE(myFunc->Run());
   TEST_ISNOT_ZERO(myFunc->GetId());
 
   // Wait for the thread to finish
   usleep(2 * 50 * 1000); // wait twice the period
 
   // Join thread and validate
-  TEST_TRUE(myFunc->Join(1000));
+  TEST_TRUE(myFunc->Join());
   TEST_IS_ZERO(myFunc->GetId());
   TEST_IS_ZERO(myFunc->GetCount());
 

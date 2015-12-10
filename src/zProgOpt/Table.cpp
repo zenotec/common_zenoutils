@@ -71,8 +71,8 @@ Table::Parse(int argc_, const char **argv_)
     {
       if (opt != NULL)
       {
-        opt->_setArg(std::string(argv_[arg]));
-        opt = NULL; // reset arg pointer
+        opt->_setArg(std::string(&argv_[arg][0]));
+        opt = NULL; // reset option pointer
       } // end if
     } // end else
   } // end for

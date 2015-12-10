@@ -6,20 +6,16 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-check_PROGRAMS = zDataUnitTest
+check_PROGRAMS = zComUnitTest
 
-zDataUnitTest_SOURCES = \
+zComUnitTest_SOURCES = \
     valgrind.sh \
-    zDataTest.h \
+    zComTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    SetValue.cpp \
- 	Child.cpp \
- 	Array.cpp \
- 	Json.cpp \
- 	Xml.cpp \
- 	Copy.cpp
+    Port.cpp \
+    TtyPort.cpp
 
-zDataUnitTest_LDADD = \
+zComUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la
 

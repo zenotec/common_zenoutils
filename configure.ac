@@ -66,7 +66,7 @@ AC_SUBST([com_incdir])
 
 AC_CONFIG_FILES([
     Makefile
-        src/Makefile
+      src/Makefile
         src/zCom/Makefile
         src/zConf/Makefile
         src/zData/Makefile
@@ -81,9 +81,11 @@ AC_CONFIG_FILES([
         src/zSem/Makefile
         src/zSocket/Makefile
         src/zSwitch/Makefile
+        src/zThermo/Makefile
         src/zThread/Makefile
         src/zTimer/Makefile
       test/Makefile
+        test/zCom/Makefile
         test/zConf/Makefile
         test/zData/Makefile
         test/zEvent/Makefile

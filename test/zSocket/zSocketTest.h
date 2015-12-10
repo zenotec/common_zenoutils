@@ -71,7 +71,7 @@ public:
 
     TestObserver()
     {
-        this->_events.Register(&this->_sq);
+        this->_events.RegisterEvent(&this->_sq);
     }
 
     virtual ~TestObserver()
@@ -94,7 +94,7 @@ public:
         zSocket::Buffer *sb = 0;
         std::string logstr = "TestObserver::WaitForPacket(): Waiting for queue event";
         ZLOG_DEBUG(logstr);
-        if (this->_events.Wait(ms_ * 1000))
+        if (this->_events.TimedWait(ms_ * 1000))
         {
             std::string logstr = "TestObserver::WaitForPacket(): Queue event received";
             ZLOG_DEBUG(logstr);
@@ -112,7 +112,7 @@ protected:
 
 private:
     zQueue<std::pair<zSocket::Address, zSocket::Buffer *> > _sq;
-    zEvent::EventList _events;
+    zEvent::EventHandler _events;
 };
 
 class TestSocket: public zSocket::Socket

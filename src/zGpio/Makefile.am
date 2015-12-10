@@ -1,5 +1,5 @@
 if COND_GCOV
-CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 

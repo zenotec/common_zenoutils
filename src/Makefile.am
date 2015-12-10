@@ -13,12 +13,13 @@ SUBDIRS = \
 	zProgOpt \
 	zSem \
 	zSwitch \
+	zThermo \
 	zThread \
 	zTimer
 	
 
 if COND_GCOV
-CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
@@ -49,6 +50,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zInet.h \
     $(top_srcdir)/inc/zutils/zEthSocket.h \
     $(top_srcdir)/inc/zutils/zSwitch.h \
+    $(top_srcdir)/inc/zutils/zThermo.h \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zTimer.h \
     $(top_srcdir)/inc/zutils/zUuid.h 
@@ -72,5 +74,6 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zSem/libzSem.la \
     ${top_builddir}/src/zSocket/libzSocket.la \
     ${top_builddir}/src/zSwitch/libzSwitch.la \
+    ${top_builddir}/src/zThermo/libzThermo.la \
     ${top_builddir}/src/zThread/libzThread.la \
     ${top_builddir}/src/zTimer/libzTimer.la

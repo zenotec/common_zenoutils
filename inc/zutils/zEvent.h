@@ -10,6 +10,7 @@
 #define __ZEVENT_H__
 
 #include <list>
+#include <queue>
 
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
@@ -19,58 +20,95 @@ namespace zUtils
 namespace zEvent
 {
 
-class EventList;
+class EventHandler;
 
 //**********************************************************************
 // Event Class
 //**********************************************************************
 class Event
 {
-  friend class EventList;
+  friend class EventHandler;
+
 public:
+
   Event();
+
   virtual
   ~Event();
 
+  void
+  Notify();
+
 protected:
+
   void
-  _notify();
+  registerHandler(EventHandler *list_);
+
   void
-  _addList(EventList *list_);
-  void
-  _remList(EventList *list_);
+  unregisterHandler(EventHandler *list_);
 
 private:
+
   zSem::Mutex _lock;
-  std::list<EventList *> _eventlists;
+  std::list<EventHandler *> _handler_list;
 
 };
 
 //**********************************************************************
-// EventList Class
+// EventObserver Class
 //**********************************************************************
-class EventList
+class EventObserver
 {
-  friend class Event;
 public:
-  EventList();
+  virtual bool
+  EventHandler(EventHandler *handler_) = 0;
+};
+
+//**********************************************************************
+// EventHandler Class
+//**********************************************************************
+class EventHandler : private std::queue <Event *>, public zSem::Semaphore
+{
+
+  friend class Event;
+
+public:
+  EventHandler();
+
   virtual
-  ~EventList();
+  ~EventHandler();
 
   void
-  Register(Event *event_);
+  RegisterEvent(Event *event_);
+
   void
-  Unregister(Event *event_);
+  UnregisterEvent(Event *event_);
+
+  void
+  RegisterObserver(EventObserver *obs_);
+
+  void
+  UnregisterObserver(EventObserver *obs_);
+
+  Event *
+  GetEvent();
 
   bool
-  Wait(uint32_t ms_);
+  Empty();
+
+  size_t
+  Size();
 
 protected:
+
   void
-  _notify();
+  notify(Event *event_);
 
 private:
-  zSem::Semaphore _sem;
+
+  zSem::Mutex _lock;
+  std::list <Event *> _event_list;
+  std::list <EventObserver *> _obs_list;
 
 };
 

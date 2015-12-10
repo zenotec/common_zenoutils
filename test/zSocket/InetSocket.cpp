@@ -201,7 +201,7 @@ int zSocketTest_InetSocketObserver(void* arg_)
     TEST_TRUE(myHandler->Register(&myObserver));
 
     // Start listening thread
-    TEST_TRUE(myHandler->StartListener(1000));
+    TEST_TRUE(myHandler->StartListener());
 
     // Create new socket and validate
     zSocket::InetSocket *mySock = new zSocket::InetSocket(*srcAddr);
@@ -221,7 +221,7 @@ int zSocketTest_InetSocketObserver(void* arg_)
 
     // Cleanup
     delete (sb);
-    TEST_TRUE(myHandler->StopListener(1000));
+    TEST_TRUE(myHandler->StopListener());
     myHandler->Unregister(&myObserver);
     myHandler->Close();
     delete (mySock);
