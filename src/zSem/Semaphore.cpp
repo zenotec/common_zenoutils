@@ -50,12 +50,12 @@ Semaphore::Semaphore(const uint32_t value_)
     ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
     throw;
   } // end if
-  ZLOG_INFO("Semaphore::Semaphore: Created system semaphore: " + zLog::HexStr(&this->_sem) + ":" + zLog::IntStr(value_));
+  ZLOG_INFO("Created system semaphore: " + zLog::HexStr(&this->_sem) + ":" + zLog::IntStr(value_));
 }
 
 Semaphore::~Semaphore()
 {
-  ZLOG_INFO("Semaphore::Semaphore: Destroying system semaphore: " + zLog::HexStr(&this->_sem));
+  ZLOG_INFO("Destroying system semaphore: " + zLog::HexStr(&this->_sem));
   int ret = sem_destroy(&this->_sem);
   if (ret != 0)
   {
@@ -79,7 +79,7 @@ bool
 Semaphore::Wait()
 {
 
-  ZLOG_DEBUG("Semaphore::Wait: Waiting on system semaphore " + zLog::HexStr(&this->_sem));
+  ZLOG_DEBUG("Waiting on system semaphore " + zLog::HexStr(&this->_sem));
 
   if (sem_wait(&this->_sem) != 0)
   {
@@ -107,7 +107,7 @@ Semaphore::TimedWait(uint32_t us_)
 {
   struct timespec ts;
 
-  ZLOG_DEBUG("Semaphore::TimedWait: Waiting on system semaphore " + zLog::HexStr(&this->_sem));
+  ZLOG_DEBUG("Waiting on system semaphore " + zLog::HexStr(&this->_sem));
 
   // Get current time
   if (clock_gettime(CLOCK_REALTIME, &ts) != 0)

@@ -109,6 +109,8 @@ EventHandler::Size()
 void
 EventHandler::notify(Event *event_)
 {
+  ZLOG_DEBUG("Event notification");
+
   // Never call this routine directly; Only should be called by the event class
   if (this->_lock.Lock())
   {

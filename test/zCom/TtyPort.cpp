@@ -78,20 +78,24 @@ zComTest_TtyPortSendRecvBuf(void *arg_)
   status = MyPort->Open(MyPort->Dev());
   TEST_TRUE(status);
 
-  // Send byte
+  // Send data
   memset(exp_buf, 0x55, 100);
   bytes = MyPort->SendBuf(exp_buf, 100);
   TEST_EQ(100, bytes);
 
-  // Wait for byte
-  status = MyHandler->TimedWait(100000);
-  TEST_TRUE(status);
+  // Wait for data
+  int cnt = 0;
+  while (MyHandler->TimedWait(100000))
+  {
+    ++cnt;
+  }
+  TEST_EQ(cnt, 100);
 
-  // Receive byte back
+  // Receive data
   bytes = MyPort->RecvBuf(obs_buf, 256);
   TEST_EQ(100, bytes);
 
-  // Verify
+  // Verify data
   TEST_IS_ZERO(memcmp(exp_buf, obs_buf, bytes));
 
   // Cleanup
@@ -128,15 +132,19 @@ zComTest_TtyPortSendRecvString(void *arg_)
   status = MyPort->Open(MyPort->Dev());
   TEST_TRUE(status);
 
-  // Send byte
+  // Send string
   status = MyPort->SendString("test string");
   TEST_TRUE(status);
 
-  // Wait for byte
-  status = MyHandler->TimedWait(100000);
-  TEST_TRUE(status);
+  // Wait for data
+  int cnt = 0;
+  while (MyHandler->TimedWait(100000))
+  {
+    ++cnt;
+  }
+  TEST_EQ(cnt, 11);
 
-  // Receive byte back
+  // Receive string
   std::string str;
   status = MyPort->RecvString(str);
   TEST_TRUE(status);

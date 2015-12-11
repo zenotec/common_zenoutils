@@ -99,6 +99,7 @@ AC_CONFIG_FILES([
         test/zSem/Makefile
         test/zSocket/Makefile
         test/zSwitch/Makefile
+        test/zThermo/Makefile
         test/zThread/Makefile
         test/zTimer/Makefile
 ])

@@ -49,12 +49,13 @@ Port::RecvBuf(void *buf_, size_t len_)
 {
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
+  ZLOG_DEBUG("Receiving");
   while (!this->rxq.Empty() && len_--)
   {
     buf[bytes++] = this->rxq.Front();
     this->rxq.Pop();
   }
-  ZLOG_DEBUG(std::string("Port::RecvBuf: Received Bytes: ") + zLog::IntStr(bytes));
+  ZLOG_DEBUG(std::string("Received Bytes: ") + zLog::IntStr(bytes));
   return (bytes);
 }
 
@@ -62,21 +63,21 @@ bool
 Port::RecvChar(char *c_)
 {
   bool status = false;
-  ZLOG_DEBUG("Port::RecvChar: Receiving");
+  ZLOG_DEBUG("Receiving");
   if (!this->rxq.Empty())
   {
     *c_ = this->rxq.Front();
     this->rxq.Pop();
     status = true;
   }
-  ZLOG_DEBUG(std::string("Port::RecvBuf: Received character: ") + *c_);
+  ZLOG_DEBUG(std::string("Received character: ") + *c_);
   return (status);
 }
 
 bool
 Port::RecvString(std::string &str_)
 {
-  ZLOG_DEBUG("Port::RecvString: Receiving");
+  ZLOG_DEBUG("Receiving");
   while (!this->rxq.Empty())
   {
     char c = 0;
@@ -88,7 +89,7 @@ Port::RecvString(std::string &str_)
     }
     str_ += c;
   }
-  ZLOG_DEBUG(std::string("Port::RecvBuf: Received string: '") + str_ + "'");
+  ZLOG_DEBUG(std::string("Received string: '") + str_ + "'");
   return (!str_.empty());
 }
 
@@ -97,7 +98,7 @@ Port::SendBuf(const void *buf_, size_t len_)
 {
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
-  ZLOG_DEBUG("Port::SendBuf: Sending " + zLog::IntStr(len_) + " bytes");
+  ZLOG_DEBUG("Sending " + zLog::IntStr(len_) + " bytes");
   while (len_--)
   {
     this->txq.Push(buf[bytes++]);
@@ -108,7 +109,7 @@ Port::SendBuf(const void *buf_, size_t len_)
 bool
 Port::SendChar(const char c_)
 {
-  ZLOG_DEBUG(std::string("Port::SendChar: Sending '") + c_ + "'");
+  ZLOG_DEBUG(std::string("Sending '") + c_ + "'");
   this->txq.Push(c_);
   return (true);
 }
@@ -116,7 +117,7 @@ Port::SendChar(const char c_)
 bool
 Port::SendString(const std::string &str_)
 {
-  ZLOG_DEBUG("Port::SendString: Sending string '" + str_ + "'");
+  ZLOG_DEBUG("Sending string '" + str_ + "'");
   return (this->SendBuf(str_.data(), str_.size()) == str_.size());
 }
 

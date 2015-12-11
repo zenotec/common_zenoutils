@@ -27,9 +27,9 @@ namespace zCom
 //*****************************************************************************
 TtyPort::TtyPort(TtyPort::BAUD baud_, TtyPort::DATABITS dbits_, TtyPort::STOPBITS sbits_,
     TtyPort::PARITY parity_, TtyPort::FLOWCNTL flowcntl_, bool blocking_) :
-    _thread(this, this), _fd(0), _baud(TtyPort::BAUD_NONE), _dbits(TtyPort::DATABITS_NONE),
-        _sbits(TtyPort::STOPBITS_NONE), _parity(TtyPort::PARITY_NONE),
-        _flowcntl(TtyPort::FLOWCNTL_NONE), _options(0)
+    _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this), _fd(0),
+        _baud(TtyPort::BAUD_NONE), _dbits(TtyPort::DATABITS_NONE), _sbits(TtyPort::STOPBITS_NONE),
+        _parity(TtyPort::PARITY_NONE), _flowcntl(TtyPort::FLOWCNTL_NONE), _options(0)
 {
   // Setup terminal I/O structure
   memset(&this->_termios, 0, sizeof(this->_termios));
@@ -64,8 +64,11 @@ TtyPort::Open(const std::string &dev_)
       tcflush(this->_fd, TCIOFLUSH);
       if (tcsetattr(this->_fd, TCSANOW, &this->_termios) == 0)
       {
-        this->_device = dev_;
-        status = this->_thread.Run();
+        if (this->_rx_thread.Run() && this->_tx_thread.Run())
+        {
+          this->_device = dev_;
+          status = true;
+        }
       }
     }
   }
@@ -77,7 +80,8 @@ TtyPort::Close()
 {
   if (this->_fd)
   {
-    this->_thread.Join();
+    this->_rx_thread.Join();
+    this->_tx_thread.Join();
     tcsetattr(this->_fd, TCSANOW, &this->_savedTermios);
     close(this->_fd);
     this->_fd = 0;
@@ -327,52 +331,52 @@ TtyPort::SetBlocking(bool blocking_)
 }
 
 void *
-TtyPort::ThreadFunction(void *arg_)
+TtyPortRecv::ThreadFunction(void *arg_)
 {
   TtyPort *self = (TtyPort *) arg_;
-  ssize_t bytes = -1;
 
-  ZLOG_DEBUG("TtyPort::ThreadFunction: Polling TTY for data");
+  ZLOG_DEBUG("RX: Polling TTY for data");
 
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = self->_fd;
-  fds[0].events = (POLLIN | POLLOUT | POLLERR);
+  fds[0].events = (POLLIN | POLLERR);
   int ret = poll(fds, 1, 100);
-  if (ret > 0 && ((fds[0].revents & POLLIN) == POLLIN))
+  if (ret > 0 && (fds[0].revents == POLLIN))
   {
-    bool status = false;
     char c = 0;
-    while ((bytes = read(self->_fd, &c, 1)) == 1)
+    if ((read(self->_fd, &c, 1) == 1))
     {
-      ZLOG_DEBUG(std::string("TtyPort::ThreadFunction: Received byte: '") + c + "'");
+      ZLOG_DEBUG(std::string("Received char: '") + c + "'");
       self->rxq.Push(c);
-      status = true;
-    }
-    if (status)
-    {
       self->Notify();
     }
   }
-  else if (ret > 0 && ((fds[0].revents & POLLOUT) == POLLOUT))
+
+  return (0);
+}
+
+void *
+TtyPortSend::ThreadFunction(void *arg_)
+{
+  TtyPort *self = (TtyPort *) arg_;
+
+  ZLOG_DEBUG("TX: Polling TTY for data");
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = self->_fd;
+  fds[0].events = (POLLOUT | POLLERR);
+  int ret = poll(fds, 1, 100);
+  if (ret > 0 && (fds[0].revents == POLLOUT) && self->txq.TimedWait(100000))
   {
-    while (!self->txq.Empty())
+    char c = self->txq.Front();
+    ZLOG_DEBUG(std::string("Sending byte: '") + c + "'");
+    if ((write(self->_fd, &c, 1) == 1))
     {
-      char c = self->txq.Front();
-      ZLOG_DEBUG(std::string("TtyPort::ThreadFunction: Sending byte: '") + c + "'");
-      if ((bytes = write(self->_fd, &c, 1)) == 1)
-      {
-        self->txq.Pop();
-      }
-      else
-      {
-        break;
-      }
+      ZLOG_DEBUG(std::string("Byte Sent: '") + c + "'");
+      self->txq.Pop();
     }
-  }
-  else
-  {
-    usleep(10000);
   }
 
   return (0);

@@ -10,6 +10,7 @@ SUBDIRS = \
 	zSem \
 	zSocket \
 	zSwitch \
+	zThermo \
 	zMessage \
 	zNode \
 	zCom \
@@ -31,6 +32,7 @@ VALGRIND_TESTS = \
     zMessage/valgrind.sh \
     zNode/valgrind.sh \
     zSwitch/valgrind.sh \
+    zThermo/valgrind.sh \
     zCom/valgrind.sh \
     zGpio/valgrind.sh \
     zLed/valgrind.sh
@@ -50,6 +52,7 @@ GCOV_TESTS = \
     zMessage/zMessageUnitTest \
     zNode/zNodeUnitTest \
     zSwitch/zSwitchUnitTest \
+    zThermo/zThermoUnitTest \
     zCom/zComUnitTest \
     zGpio/zGpioUnitTest \
     zLed/zLedUnitTest

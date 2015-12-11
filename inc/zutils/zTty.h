@@ -25,8 +25,31 @@ namespace zUtils
 namespace zCom
 {
 
-class TtyPort : public zThread::Function, public zCom::Port
+class TtyPortRecv : public zThread::Function
 {
+public:
+  virtual void *
+  ThreadFunction(void *arg_);
+
+protected:
+private:
+};
+
+class TtyPortSend : public zThread::Function
+{
+public:
+  virtual void *
+  ThreadFunction(void *arg_);
+
+protected:
+private:
+};
+
+class TtyPort : public zCom::Port
+{
+
+  friend TtyPortRecv;
+  friend TtyPortSend;
 
 public:
 
@@ -83,7 +106,8 @@ public:
   };
 
   TtyPort(TtyPort::BAUD baud_ = TtyPort::BAUD_DEF, TtyPort::DATABITS dbits_ = TtyPort::DATABITS_DEF,
-      TtyPort::STOPBITS sbits_ = TtyPort::STOPBITS_DEF, TtyPort::PARITY parity_ = TtyPort::PARITY_DEF,
+      TtyPort::STOPBITS sbits_ = TtyPort::STOPBITS_DEF, TtyPort::PARITY parity_ =
+          TtyPort::PARITY_DEF,
       TtyPort::FLOWCNTL flowcntl_ = TtyPort::FLOWCNTL_DEF,
       bool blocking_ = false);
 
@@ -127,9 +151,7 @@ public:
   SetBlocking(bool blocking_);
 
 protected:
-
-  virtual void *
-  ThreadFunction(void *arg_);
+  int _fd;
 
 private:
 
@@ -137,7 +159,6 @@ private:
 
   struct termios _termios;
   struct termios _savedTermios;
-  int _fd;
 
   TtyPort::BAUD _baud;
   TtyPort::DATABITS _dbits;
@@ -146,7 +167,10 @@ private:
   TtyPort::FLOWCNTL _flowcntl;
   int _options;
 
-  zThread::Thread _thread;
+  zThread::Thread _rx_thread;
+  TtyPortRecv _rx_func;
+  zThread::Thread _tx_thread;
+  TtyPortSend _tx_func;
 
 };
 

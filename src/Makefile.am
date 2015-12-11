@@ -53,6 +53,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zThermo.h \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zTimer.h \
+    $(top_srcdir)/inc/zutils/zTty.h \
     $(top_srcdir)/inc/zutils/zUuid.h 
 
 # Sources to include in the package

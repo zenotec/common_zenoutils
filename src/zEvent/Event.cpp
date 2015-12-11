@@ -32,13 +32,17 @@ Event::Notify()
 {
   if (this->_lock.Lock())
   {
-    std::list<EventHandler *>::iterator itr = this->_handler_list.begin();
-    std::list<EventHandler *>::iterator end = this->_handler_list.end();
-    for (; itr != end; itr++)
-    {
-      (*itr)->notify(this);
-    } // end for
+    // Make a copy of the handler list
+    std::list<EventHandler *> handler_list(this->_handler_list);
     this->_lock.Unlock();
+
+    // Notify all registered event handlers
+    while (!handler_list.empty())
+    {
+      EventHandler *handler = handler_list.front();
+      handler_list.pop_front();
+      handler->notify(this);
+    }
   } // end if
 }
 
