@@ -12,7 +12,10 @@ zEventUnitTest_SOURCES = \
     valgrind.sh \
     zEventTest.h \
     UnitTest.cpp \
-    Defaults.cpp
+    Defaults.cpp \
+    Event.cpp \
+    Handler.cpp \
+    Manager.cpp
 
 zEventUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

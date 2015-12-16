@@ -25,121 +25,156 @@ namespace zSocket
 // InetAddress Class
 //**********************************************************************
 
-class InetAddress: public Address
+class InetAddress : public Address
 {
 
 public:
 
-    InetAddress();
+  InetAddress();
 
-    InetAddress(const std::string &ifname_);
+  InetAddress(const std::string &ifname_);
 
-    virtual
-    ~InetAddress();
+  InetAddress(InetAddress &other_);
 
-    bool
-    operator ==(const InetAddress &other_) const;
+  InetAddress(const InetAddress &other_);
 
-    bool
-    operator !=(const InetAddress &other_) const;
+  InetAddress &
+  operator=(InetAddress &other_);
 
-    bool
-    operator <(const InetAddress &other_) const;
+  InetAddress &
+  operator=(const InetAddress &other_);
 
-    bool
-    operator >(const InetAddress &other_) const;
+  virtual
+  ~InetAddress();
 
-    virtual std::string
-    GetAddress() const;
+  bool
+  operator ==(const InetAddress &other_) const;
 
-    virtual bool
-    SetAddress(const std::string &addr_);
+  bool
+  operator !=(const InetAddress &other_) const;
 
-    std::string
-    GetIpAddr() const;
+  bool
+  operator <(const InetAddress &other_) const;
 
-    std::string
-    GetPort() const;
+  bool
+  operator >(const InetAddress &other_) const;
 
-    std::string
-    GetNetmask() const;
+  virtual std::string
+  GetAddress() const;
 
-    std::string
-    GetBroadcast() const;
+  virtual bool
+  SetAddress(const std::string &addr_);
 
-    bool
-    SetIpAddr(const std::string &ipaddr_);
+  std::string
+  GetIpAddr() const;
 
-    bool
-    SetPort(const std::string &port_);
+  std::string
+  GetPort() const;
 
-    bool
-    SetNetmask(const std::string &netmask_);
+  std::string
+  GetNetmask() const;
 
-    bool
-    SetBroadcast(const std::string &bcast_);
+  std::string
+  GetBroadcast() const;
+
+  bool
+  SetIpAddr(const std::string &ipaddr_);
+
+  bool
+  SetPort(const std::string &port_);
+
+  bool
+  SetNetmask(const std::string &netmask_);
+
+  bool
+  SetBroadcast(const std::string &bcast_);
 
 protected:
 
 private:
 
-    std::string _ipaddr;
-    std::string _port;
-    std::string _netmask;
-    std::string _bcast;
+  std::string _ipaddr;
+  std::string _port;
+  std::string _netmask;
+  std::string _bcast;
 
 };
 
 //**********************************************************************
-// InetSocket Class
+// zSocket::InetSocketRecv Class
 //**********************************************************************
 
-class InetSocket: public Socket, private zThread::Function
+class InetSocketRecv : public zThread::Function
 {
+public:
+  virtual void *
+  ThreadFunction(void *arg_);
+};
+
+//**********************************************************************
+// zSocket::InetSocketSend Class
+//**********************************************************************
+
+class InetSocketSend : public zThread::Function
+{
+public:
+  virtual void *
+  ThreadFunction(void *arg_);
+};
+
+//**********************************************************************
+// zSocket::InetSocket Class
+//**********************************************************************
+
+class InetSocket : public Socket
+{
+
+  friend InetSocketRecv;
+  friend InetSocketSend;
 
 public:
 
-    InetSocket(const InetAddress &addr_);
+  InetSocket(const InetAddress &addr_);
 
-    virtual
-    ~InetSocket();
+  virtual
+  ~InetSocket();
 
-    virtual const zSocket::Address *
-    GetAddress();
+  virtual const zSocket::Address *
+  GetAddress();
+
+  virtual bool
+  Open();
+
+  virtual void
+  Close();
+
+  virtual bool
+  Bind();
+
+  virtual bool
+  Connect();
 
 protected:
 
-    virtual void *
-    ThreadFunction(void *arg_);
+  int _sock;
 
-    virtual bool
-    _open();
+  virtual ssize_t
+  _recv(zSocket::Address *src_, zSocket::Buffer *sb_);
 
-    virtual void
-    _close();
+  virtual ssize_t
+  _send(const zSocket::Address *dst_, zSocket::Buffer *sb_);
 
-    virtual bool
-    _bind();
-
-    virtual bool
-    _connect();
-
-    virtual ssize_t
-    _send(const zSocket::Address *dst_, zSocket::Buffer *sb_);
-
-    virtual ssize_t
-    _broadcast(zSocket::Buffer *sb_);
+  virtual ssize_t
+  _broadcast(zSocket::Buffer *sb_);
 
 private:
 
-    virtual ssize_t
-    _recv(zSocket::Address *src_, zSocket::Buffer *sb_);
+  zThread::Thread _rx_thread;
+  InetSocketRecv _rx_func;
+  zThread::Thread _tx_thread;
+  InetSocketSend _tx_func;
 
-    zThread::Thread _thread;
-
-    int _sock;
-
-    const InetAddress _inetaddr;
+  const InetAddress _inetaddr;
 
 };
 

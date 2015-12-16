@@ -17,13 +17,15 @@ namespace zUtils
 namespace zThermo
 {
 
-class Handler;
-
 class Sensor : public zEvent::Event
 {
-  friend Handler;
 
 public:
+
+  Sensor();
+
+  virtual
+  ~Sensor();
 
   bool
   Temperature(double &temp_);

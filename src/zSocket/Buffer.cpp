@@ -26,6 +26,7 @@ Buffer::Buffer(size_t size_) :
   if (!this->_head)
   {
     std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
     throw errMsg;
   }
   memset(this->_head, 0, size_);
@@ -38,6 +39,22 @@ Buffer::Buffer(Buffer &other_) :
   if (!this->_head)
   {
     std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
+    throw errMsg;
+  }
+  memset(this->_head, 0, other_._end);
+  memcpy(this->_head, other_._head, other_._tail);
+}
+
+
+Buffer::Buffer(const Buffer &other_) :
+    _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
+{
+  this->_head = (uint8_t *) malloc(other_._end);
+  if (!this->_head)
+  {
+    std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
     throw errMsg;
   }
   memset(this->_head, 0, other_._end);
@@ -64,6 +81,30 @@ Buffer::operator=(Buffer &other_)
     if (!this->_head)
     {
       std::string errMsg = "Error allocating memory for socket buffer";
+      ZLOG_CRIT(errMsg);
+      throw errMsg;
+    }
+  } // end if
+  this->_data = other_._data;
+  this->_tail = other_._tail;
+  this->_end = other_._end;
+  memcpy(this->_head, other_._head, this->_tail);
+  memset(this->_head + this->_tail, 0, this->_end - this->_tail);
+  return (*this);
+}
+
+Buffer &
+Buffer::operator=(const Buffer &other_)
+{
+  // Free previous buffer if it is a different size
+  if (this->_head && (this->_end != other_._end))
+  {
+    free(this->_head);
+    this->_head = (uint8_t *) malloc(other_._end);
+    if (!this->_head)
+    {
+      std::string errMsg = "Error allocating memory for socket buffer";
+      ZLOG_CRIT(errMsg);
       throw errMsg;
     }
   } // end if

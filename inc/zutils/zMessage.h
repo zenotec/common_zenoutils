@@ -12,6 +12,7 @@
 
 #include <zutils/zData.h>
 #include <zutils/zSocket.h>
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {
@@ -130,7 +131,7 @@ public:
 // zMessage::Handler Class
 //**********************************************************************
 
-class Handler: public zSocket::Handler, public zSocket::Observer
+class Handler: public zEvent::EventObserver
 {
 
 public:
@@ -154,7 +155,7 @@ public:
 protected:
 
     virtual bool
-    SocketRecv( zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *buf_ );
+    EventHandler (void *arg_);
 
 private:
 

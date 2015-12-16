@@ -23,8 +23,6 @@ int
 zSocketTest_ObserverDefaults(void* arg_);
 int
 zSocketTest_SocketDefaults(void* arg_);
-int
-zSocketTest_HandlerDefaults(void* arg_);
 
 int
 zSocketTest_BufferCompare(void* arg_);
@@ -53,66 +51,57 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_);
 int
 zSocketTest_InetSocketObserver(void* arg_);
 
-int
-zSocketTest_HandlerRegister(void* arg_);
-int
-zSocketTest_HandlerStartStop(void* arg_);
-int
-zSocketTest_HandlerSendRecv(void* arg_);
-int
-zSocketTest_HandlerBroadcast(void* arg_);
-
 using namespace Test;
 using namespace zUtils;
 
-class TestObserver: public zSocket::Observer
+class TestObserver : public zEvent::EventObserver
 {
 public:
+  TestObserver()
+  {
+  }
 
-    TestObserver()
-    {
-        this->_events.RegisterEvent(&this->_sq);
-    }
+  virtual
+  ~TestObserver()
+  {
+  }
 
-    virtual ~TestObserver()
-    {
-    }
-
-    virtual bool SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_,
-            zSocket::Buffer *sb_)
-    {
-        ZLOG_DEBUG("TestObserver::SocketRecv(): Receiving on socket");
-        zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
-        this->_sq.Push(std::make_pair(*addr_, sb));
-        return (true);
-    }
-
-    zSocket::Buffer *
-    WaitForPacket(int ms_)
-    {
-        std::pair<zSocket::Address, zSocket::Buffer *> q;
-        zSocket::Buffer *sb = 0;
-        std::string logstr = "TestObserver::WaitForPacket(): Waiting for queue event";
-        ZLOG_DEBUG(logstr);
-        if (this->_events.TimedWait(ms_ * 1000))
-        {
-            std::string logstr = "TestObserver::WaitForPacket(): Queue event received";
-            ZLOG_DEBUG(logstr);
-            if (!this->_sq.Empty())
-            {
-                q = this->_sq.Front();
-                this->_sq.Pop();
-                sb = q.second;
-            } // end if
-        } // end for
-        return (sb);
-    }
+  zSem::Semaphore RxSem;
+  zSem::Semaphore TxSem;
+  zSem::Semaphore ErrSem;
 
 protected:
 
+  virtual bool
+  EventHandler(zEvent::Event *event_, void *arg_)
+  {
+    ZLOG_DEBUG("Handling socket event");
+
+    bool status = false;
+    if (event_ && (event_->GetType() == zEvent::Event::TYPE_SOCKET))
+    {
+      zSocket::SocketEvent::EVENTID id = (zSocket::SocketEvent::EVENTID)event_->GetId();
+      switch(id)
+      {
+      case zSocket::SocketEvent::EVENTID_PKT_RCVD:
+        this->RxSem.Post();
+        status = true;
+        break;
+      case zSocket::SocketEvent::EVENTID_PKT_SENT:
+        this->TxSem.Post();
+        status = true;
+        break;
+      default:
+        this->ErrSem.Post();
+        status = false;
+        break;
+      }
+    }
+    return (status);
+  }
+
 private:
-    zQueue<std::pair<zSocket::Address, zSocket::Buffer *> > _sq;
-    zEvent::EventHandler _events;
+
 };
 
 class TestSocket: public zSocket::Socket
@@ -133,9 +122,7 @@ public:
         return (&this->_addr);
     }
 
-protected:
-
-    virtual bool _open()
+    virtual bool Open()
     {
         bool status = false;
         if (!this->_opened)
@@ -146,13 +133,13 @@ protected:
         return (status);
     }
 
-    virtual void _close()
+    virtual void Close()
     {
         this->_opened = false;
         return;
     }
 
-    virtual bool _bind()
+    virtual bool Bind()
     {
         bool status = false;
         if (this->_opened && !this->_bound && !this->_connected)
@@ -163,7 +150,7 @@ protected:
         return (status);
     }
 
-    virtual bool _connect()
+    virtual bool Connect()
     {
         bool status = false;
         if (this->_opened && !this->_bound && !this->_connected)
@@ -174,20 +161,23 @@ protected:
         return (status);
     }
 
+
+protected:
+
     virtual ssize_t _send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
     {
-        zSocket::Address *addr = new zSocket::Address(this->_addr);
-        zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
-        this->Push(std::make_pair(addr, sb));
-        return (sb->Size());
+        zSocket::Address addr(this->_addr);
+        zSocket::Buffer sb(*sb_);
+        this->rxq.Push(std::make_pair(addr, sb));
+        return (sb.Size());
     }
 
     virtual ssize_t _broadcast(zSocket::Buffer *sb_)
     {
-        zSocket::Address *addr = new zSocket::Address(this->_addr);
-        zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
-        this->Push(std::make_pair(addr, sb));
-        return (sb->Size());
+        zSocket::Address addr(this->_addr);
+        zSocket::Buffer sb(*sb_);
+        this->rxq.Push(std::make_pair(addr, sb));
+        return (sb.Size());
     }
 
 private:

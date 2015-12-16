@@ -11,9 +11,11 @@
 
 #include <list>
 #include <queue>
+#include <vector>
 
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
+#include <zutils/zData.h>
 
 namespace zUtils
 {
@@ -25,19 +27,54 @@ class EventHandler;
 //**********************************************************************
 // Event Class
 //**********************************************************************
-class Event
+class Event : zData::Data
 {
+
   friend class EventHandler;
+
+  static const std::string STR_ROOT;
+  static const std::string STR_TYPE;
+  static const std::string STR_TYPE_NONE;
+  static const std::string STR_TYPE_TEST;
+  static const std::string STR_TYPE_COM;
+  static const std::string STR_TYPE_TEMP;
+  static const std::string STR_TYPE_GPIO;
+  static const std::string STR_TYPE_SOCKET;
+  static const std::string STR_ID;
 
 public:
 
-  Event();
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_TEST = 1,
+    TYPE_COM = 2,
+    TYPE_TEMP = 3,
+    TYPE_GPIO = 4,
+    TYPE_SOCKET = 5,
+    TYPE_LAST
+  };
+
+  Event(Event::TYPE type_, uint32_t id_ = 0);
 
   virtual
   ~Event();
 
+  Event::TYPE
+  GetType() const;
+
+  bool
+  SetType(const Event::TYPE &type_);
+
+  uint32_t
+  GetId();
+
+  bool
+  SetId(const uint32_t &id_);
+
   void
-  Notify();
+  Notify(void *arg_);
 
 protected:
 
@@ -61,13 +98,13 @@ class EventObserver
 {
 public:
   virtual bool
-  EventHandler(EventHandler *handler_) = 0;
+  EventHandler(Event *event_, void *arg_) = 0;
 };
 
 //**********************************************************************
 // EventHandler Class
 //**********************************************************************
-class EventHandler : private std::queue <Event *>, public zSem::Semaphore
+class EventHandler : private std::queue<Event *>, public zSem::Semaphore
 {
 
   friend class Event;
@@ -102,13 +139,56 @@ public:
 protected:
 
   void
-  notify(Event *event_);
+  notify(Event *event_, void *arg_);
 
 private:
 
   zSem::Mutex _lock;
-  std::list <Event *> _event_list;
-  std::list <EventObserver *> _obs_list;
+  std::list<Event *> _event_list;
+  std::list<EventObserver *> _obs_list;
+
+  EventHandler(EventHandler const &);
+
+  void
+  operator=(EventHandler const &);
+
+};
+
+class EventManager
+{
+
+public:
+
+  static EventManager &
+  GetInstance();
+
+  virtual
+  ~EventManager();
+
+  bool
+  RegisterEvent(Event *event_);
+
+  bool
+  UnregisterEvent(Event *event_);
+
+  bool
+  RegisterObserver(Event::TYPE type_, EventObserver *obs_);
+
+  bool
+  UnregisterObserver(Event::TYPE type_, EventObserver *obs_);
+
+protected:
+
+private:
+
+  std::vector<EventHandler> _handlers;
+
+  EventManager();
+
+  EventManager(const EventManager &);
+
+  EventManager &
+  operator=(const EventManager &);
 
 };
 

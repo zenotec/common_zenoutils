@@ -5,233 +5,205 @@
 using namespace Test;
 using namespace zUtils;
 
-int zSocketTest_InetSocketDefault(void* arg_)
+int
+zSocketTest_InetSocketDefault(void* arg_)
 {
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_InetSocketDefault()");
-    ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSocketTest_InetSocketDefault()");
+  ZLOG_DEBUG("#############################################################");
 
-    // Create new socket address and validate
-    zSocket::InetAddress myAddr("lo");
-    TEST_EQ(std::string("127.0.0.1:0"), myAddr.GetAddress());
+  // Create new socket address and validate
+  zSocket::InetAddress MyAddr("lo");
+  TEST_EQ(std::string("127.0.0.1:0"), MyAddr.GetAddress());
 
-    // Set socket address
-    TEST_TRUE(myAddr.SetAddress(std::string("127.0.0.1:9876")));
-    TEST_EQ(std::string("127.0.0.1:9876"), myAddr.GetAddress());
+  // Set socket address
+  TEST_TRUE(MyAddr.SetAddress(std::string("127.0.0.1:9876")));
+  TEST_EQ(std::string("127.0.0.1:9876"), MyAddr.GetAddress());
 
-    // Create new socket handler and validate
-    zSocket::Handler *myHandler = new zSocket::Handler;
-    TEST_ISNOT_NULL(myHandler);
+  // Create new socket and validate
+  zSocket::InetSocket *MySock = new zSocket::InetSocket(MyAddr);
+  TEST_ISNOT_NULL(MySock);
 
-    // Create new socket and validate
-    zSocket::InetSocket *mySock = new zSocket::InetSocket(myAddr);
-    TEST_ISNOT_NULL(mySock);
-    TEST_TRUE(myHandler->Bind(mySock));
+  // Cleanup
+  MySock->Close();
+  delete (MySock);
 
-    // Cleanup
-    myHandler->Close();
-    delete (mySock);
-    delete (myHandler);
-
-    // Return success
-    return (0);
+  // Return success
+  return (0);
 
 }
 
-int zSocketTest_InetSocketSendReceiveLoop(void* arg_)
+int
+zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 {
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_InetSocketSendReceiveLoop()");
-    ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSocketTest_InetSocketSendReceiveLoop()");
+  ZLOG_DEBUG("#############################################################");
 
-    unsigned int n = 0;
+  bool status = false;
 
-    // Create new socket address and validate
-    zSocket::InetAddress *srcAddr = new zSocket::InetAddress("lo");
-    TEST_EQ(std::string("127.0.0.1:0"), srcAddr->GetAddress());
+  // Create new socket address and validate
+  zSocket::InetAddress *SrcAddr = new zSocket::InetAddress("lo");
+  TEST_EQ(std::string("127.0.0.1:0"), SrcAddr->GetAddress());
 
-    // Create new socket address and validate
-    zSocket::InetAddress *dstAddr = new zSocket::InetAddress;
-    TEST_EQ(std::string("0.0.0.0:0"), dstAddr->GetAddress());
+  // Create new socket address and validate
+  zSocket::InetAddress *DstAddr = new zSocket::InetAddress;
+  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->GetAddress());
 
-    // Set socket address
-    TEST_TRUE(srcAddr->SetPort("9877"));
-    TEST_EQ(std::string("127.0.0.1:9877"), srcAddr->GetAddress());
-    TEST_TRUE(srcAddr != dstAddr);
+  // Set socket address
+  TEST_TRUE(SrcAddr->SetPort("9877"));
+  TEST_EQ(std::string("127.0.0.1:9877"), SrcAddr->GetAddress());
+  TEST_TRUE(SrcAddr != DstAddr);
 
-    // Create new socket handler and validate
-    zSocket::Handler *myHandler = new zSocket::Handler;
-    TEST_ISNOT_NULL(myHandler);
+  // Create new socket and validate
+  zSocket::InetSocket *MySock = new zSocket::InetSocket(*SrcAddr);
+  TEST_ISNOT_NULL(MySock);
+  TEST_TRUE(MySock->Open());
+  TEST_TRUE(MySock->Bind());
 
-    // Create new socket and validate
-    zSocket::InetSocket *mySock = new zSocket::InetSocket(*srcAddr);
-    TEST_ISNOT_NULL(mySock);
-    TEST_TRUE(myHandler->Bind(mySock));
+  // Create new observer and validate
+  TestObserver *MyObserver = new TestObserver;
+  TEST_ISNOT_NULL(MyObserver);
 
-    // Send string and validate
-    std::string expStr = "Hello Universe";
-    TEST_EQ((int )mySock->Send(srcAddr, expStr), (int )expStr.size());
+  // Register observer with socket
+  MySock->RegisterObserver(MyObserver);
 
-    // Do not need a context switch as the underlying code puts the buffer into the queue
-    //   and therefore the buffer is immediately available
+  // Send string and validate
+  std::string ExpStr = "Hello Universe";
+  TEST_EQ((int )MySock->Send(SrcAddr, ExpStr), (int )ExpStr.size());
 
-    // Receive string back and validate
-    std::string obsStr;
-    TEST_EQ((int )mySock->Receive(dstAddr, obsStr), (int )expStr.size());
-    TEST_EQ(srcAddr->GetAddress(), dstAddr->GetAddress());
-    TEST_EQ(expStr, obsStr);
+  // Wait for packet to be sent
+  status = MyObserver->TxSem.TimedWait(100000);
+  TEST_TRUE(status);
 
-    // Cleanup
-    myHandler->Close();
-    delete (mySock);
-    delete (myHandler);
-    delete (dstAddr);
-    delete (srcAddr);
+  // Wait for packet to be received
+  status = MyObserver->RxSem.TimedWait(100000);
+  TEST_TRUE(status);
 
-    // Return success
-    return (0);
+  // Verify no errors
+  status = MyObserver->ErrSem.TryWait();
+  TEST_FALSE(status);
+
+  // Receive string back and validate
+  std::string obsStr;
+  TEST_EQ((int )MySock->Receive(DstAddr, obsStr), (int )ExpStr.size());
+  TEST_EQ(SrcAddr->GetAddress(), DstAddr->GetAddress());
+  TEST_EQ(ExpStr, obsStr);
+
+  // Cleanup
+  MySock->UnregisterObserver(MyObserver);
+  delete(MyObserver);
+  MySock->Close();
+  delete (MySock);
+  delete (DstAddr);
+  delete (SrcAddr);
+
+  // Return success
+  return (0);
 
 }
 
-int zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
+int
+zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSocketTest_InetSocketSendReceiveSock2Sock()");
+  ZLOG_DEBUG("#############################################################");
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_InetSocketSendReceiveSock2Sock()");
-    ZLOG_DEBUG("#############################################################");
+  bool status = false;
 
-    // Create new socket address and validate
-    zSocket::InetAddress *srcAddr = new zSocket::InetAddress;
-    TEST_EQ(std::string("0.0.0.0:0"), srcAddr->GetAddress());
+  // Create new source address and validate
+  zSocket::InetAddress *SrcAddr = new zSocket::InetAddress;
+  TEST_EQ(std::string("0.0.0.0:0"), SrcAddr->GetAddress());
 
-    // Create new socket address and validate
-    zSocket::InetAddress *dstAddr = new zSocket::InetAddress;
-    TEST_EQ(std::string("0.0.0.0:0"), dstAddr->GetAddress());
+  // Set socket address
+  TEST_TRUE(SrcAddr->SetAddress("127.0.1.1:9878"));
+  TEST_EQ(std::string("127.0.1.1:9878"), SrcAddr->GetAddress());
 
-    // Set socket address
-    TEST_TRUE(srcAddr->SetAddress("127.0.1.1:9878"));
-    TEST_EQ(std::string("127.0.1.1:9878"), srcAddr->GetAddress());
+  // Create new destination address and validate
+  zSocket::InetAddress *DstAddr = new zSocket::InetAddress;
+  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->GetAddress());
 
-    // Set socket address
-    TEST_TRUE(dstAddr->SetAddress("127.0.2.1:9878"));
-    TEST_EQ(std::string("127.0.2.1:9878"), dstAddr->GetAddress());
+  // Set socket address
+  TEST_TRUE(DstAddr->SetAddress("127.0.2.1:9878"));
+  TEST_EQ(std::string("127.0.2.1:9878"), DstAddr->GetAddress());
 
-    // Create new socket handler and validate
-    zSocket::Handler *myHandler1 = new zSocket::Handler;
-    TEST_ISNOT_NULL(myHandler1);
+  // Create new socket and validate
+  zSocket::InetSocket *MySock1 = new zSocket::InetSocket(*SrcAddr);
+  TEST_ISNOT_NULL(MySock1);
+  TEST_TRUE(MySock1->Open());
+  TEST_TRUE(MySock1->Bind());
 
-    // Create new socket and validate
-    zSocket::InetSocket *mySock1 = new zSocket::InetSocket(*srcAddr);
-    TEST_ISNOT_NULL(mySock1);
-    TEST_TRUE(myHandler1->Bind(mySock1));
+  // Create new observer and validate
+  TestObserver *MyObserver1 = new TestObserver;
+  TEST_ISNOT_NULL(MyObserver1);
 
-    // Create new socket handler and validate
-    zSocket::Handler *myHandler2 = new zSocket::Handler;
-    TEST_ISNOT_NULL(myHandler2);
+  // Register observer
+  MySock1->RegisterObserver(MyObserver1);
 
-    // Create new socket and validate
-    zSocket::InetSocket *mySock2 = new zSocket::InetSocket(*dstAddr);
-    TEST_ISNOT_NULL(mySock2);
-    TEST_TRUE(myHandler2->Bind(mySock2));
+  // Create new socket and validate
+  zSocket::InetSocket *MySock2 = new zSocket::InetSocket(*DstAddr);
+  TEST_ISNOT_NULL(MySock2);
+  TEST_TRUE(MySock2->Open());
+  TEST_TRUE(MySock2->Bind());
 
-    // Send string and validate
-    std::string expStr = "Hello Universe";
-    TEST_EQ((int )mySock1->Send(dstAddr, expStr), (int )expStr.size());
+  // Create new observer and validate
+  TestObserver *MyObserver2 = new TestObserver;
+  TEST_ISNOT_NULL(MyObserver2);
 
-    // Sleep a moment to allow context switch
-    usleep(100000);
+  // Register observer
+  MySock2->RegisterObserver(MyObserver2);
 
-    // Receive string back and validate
-    zSocket::InetAddress *obsAddr = new zSocket::InetAddress;
-    std::string obsStr;
-    TEST_EQ((int )mySock2->Receive(obsAddr, obsStr), (int )expStr.size());
-    TEST_EQ(obsAddr->GetAddress(), srcAddr->GetAddress());
-    TEST_EQ(obsAddr->GetType(), srcAddr->GetType());
-    TEST_TRUE(*obsAddr == *srcAddr);
-    TEST_EQ(expStr, obsStr);
-    delete (obsAddr);
+  // Send string and validate
+  std::string expStr = "Hello Universe";
+  TEST_EQ((int )MySock1->Send(DstAddr, expStr), (int )expStr.size());
 
-    // Cleanup
-    myHandler1->Close();
-    delete (mySock1);
-    delete (myHandler1);
+  // Wait for packet to be sent
+  status = MyObserver1->TxSem.TimedWait(100000);
+  TEST_TRUE(status);
 
-    myHandler2->Close();
-    delete (mySock2);
-    delete (myHandler2);
+  // Verify no errors
+  status = MyObserver1->ErrSem.TryWait();
+  TEST_FALSE(status);
 
-    delete (dstAddr);
-    delete (srcAddr);
+  // Wait for packet to be received
+  status = MyObserver2->RxSem.TimedWait(100000);
+  TEST_TRUE(status);
 
-    // Return success
-    return (0);
+  // Verify no errors
+  status = MyObserver2->ErrSem.TryWait();
+  TEST_FALSE(status);
 
-}
+  // Receive string back and validate
+  zSocket::InetAddress *ObsAddr = new zSocket::InetAddress;
+  std::string obsStr;
+  TEST_EQ((int )MySock2->Receive(ObsAddr, obsStr), (int )expStr.size());
+  TEST_EQ(ObsAddr->GetAddress(), SrcAddr->GetAddress());
+  TEST_EQ(ObsAddr->GetType(), SrcAddr->GetType());
+  TEST_TRUE(*ObsAddr == *SrcAddr);
+  TEST_EQ(expStr, obsStr);
+  delete (ObsAddr);
 
-int zSocketTest_InetSocketObserver(void* arg_)
-{
+  // Cleanup
+  MySock1->UnregisterObserver(MyObserver1);
+  delete(MyObserver1);
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_InetSocketObserver()");
-    ZLOG_DEBUG("#############################################################");
+  MySock2->UnregisterObserver(MyObserver2);
+  delete(MyObserver2);
 
-    // Create new socket address and validate
-    zSocket::InetAddress *srcAddr = new zSocket::InetAddress;
-    TEST_EQ(std::string("0.0.0.0:0"), srcAddr->GetAddress());
+  MySock1->Close();
+  delete (MySock1);
 
-    // Create new socket address and validate
-    zSocket::InetAddress *dstAddr = new zSocket::InetAddress;
-    TEST_EQ(std::string("0.0.0.0:0"), dstAddr->GetAddress());
+  MySock2->Close();
+  delete (MySock2);
 
-    // Set socket address
-    TEST_TRUE(srcAddr->SetAddress("127.0.0.1:9879"));
-    TEST_EQ(std::string("127.0.0.1:9879"), srcAddr->GetAddress());
-    TEST_TRUE(srcAddr != dstAddr);
+  delete (DstAddr);
+  delete (SrcAddr);
 
-    // Create new socket handler and validate
-    zSocket::Handler *myHandler = new zSocket::Handler;
-    TEST_ISNOT_NULL(myHandler);
-
-    // Create new observer and validate
-    TestObserver myObserver;
-
-    // Register handler
-    TEST_TRUE(myHandler->Register(&myObserver));
-
-    // Start listening thread
-    TEST_TRUE(myHandler->StartListener());
-
-    // Create new socket and validate
-    zSocket::InetSocket *mySock = new zSocket::InetSocket(*srcAddr);
-    TEST_ISNOT_NULL(mySock);
-    TEST_TRUE(myHandler->Bind(mySock));
-
-    // Send string and validate
-    std::string expStr = "Hello Universe";
-    TEST_EQ((int )mySock->Send(srcAddr, expStr), (int )expStr.size());
-
-    // Sleep a moment to allow context switch
-    usleep(100000);
-
-    // Wait for socket observer to be notified
-    zSocket::Buffer *sb = myObserver.WaitForPacket(1000);
-    TEST_ISNOT_NULL(sb);
-
-    // Cleanup
-    delete (sb);
-    TEST_TRUE(myHandler->StopListener());
-    myHandler->Unregister(&myObserver);
-    myHandler->Close();
-    delete (mySock);
-    delete (myHandler);
-
-    delete (dstAddr);
-    delete (srcAddr);
-
-    // Return success
-    return (0);
+  // Return success
+  return (0);
 
 }
 

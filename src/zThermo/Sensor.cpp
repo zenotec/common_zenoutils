@@ -16,6 +16,17 @@ namespace zThermo
 // Sensor Class
 //*****************************************************************************
 
+Sensor::Sensor() :
+    zEvent::Event(zEvent::Event::TYPE_TEMP), _max_temp(0), _min_temp(0)
+{
+
+}
+
+Sensor::~Sensor()
+{
+
+}
+
 bool
 Sensor::Temperature(double &temp_)
 {

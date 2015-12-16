@@ -19,6 +19,7 @@
 #include <zutils/zSem.h>
 #include <zutils/zThread.h>
 #include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {
@@ -39,6 +40,8 @@ public:
 
   Buffer(Buffer &other_);
 
+  Buffer(const Buffer &other_);
+
   Buffer(const size_t size_ = 1500);
 
   virtual
@@ -46,6 +49,9 @@ public:
 
   Buffer &
   operator=(Buffer &other_);
+
+  Buffer &
+  operator=(const Buffer &other_);
 
   bool
   operator==(Buffer &other_);
@@ -93,11 +99,6 @@ protected:
 
 private:
 
-  Buffer(const Buffer &other_);
-
-  Buffer &
-  operator=(const Buffer &other_);
-
   uint8_t *_head;
   size_t _data;
   size_t _tail;
@@ -121,6 +122,16 @@ public:
 
   Address(zSocket::Address::TYPE type = zSocket::Address::TYPE_NONE, const std::string &addr_ =
       std::string(""));
+
+  Address(Address &other_);
+
+  Address(const Address &other_);
+
+  Address &
+  operator=(Address &other_);
+
+  Address &
+  operator=(const Address &other_);
 
   virtual
   ~Address();
@@ -154,61 +165,88 @@ private:
 };
 
 //**********************************************************************
+// zSocket::SocketEvent Class
+//**********************************************************************
+
+class SocketEvent : public zEvent::Event
+{
+public:
+
+  enum EVENTID
+  {
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_PKT_RCVD = 1,
+    EVENTID_PKT_SENT = 2,
+    EVENTID_PKT_ERR = 3,
+    EVENTID_LAST
+  };
+
+  SocketEvent(const SocketEvent::EVENTID id_);
+
+  virtual
+  ~SocketEvent();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
 // zSocket::Socket Class
 //**********************************************************************
 
-class Socket : public zQueue<std::pair<zSocket::Address *, zSocket::Buffer *> >
+class Socket : public zEvent::EventHandler
 {
-  friend class Handler;
 
 public:
 
+  Socket();
+
+  virtual
+  ~Socket();
+
   enum TYPE
   {
-    TYPE_ERR = -1, TYPE_NONE = 0, TYPE_ETH = 1, TYPE_IPV4 = 2, TYPE_IPV6 = 3, TYPE_LAST
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_ETH = 1,
+    TYPE_IPV4 = 2,
+    TYPE_IPV6 = 3,
+    TYPE_LAST
   };
 
   virtual const zSocket::Address *
-  GetAddress() = 0;
+  GetAddress();
 
   ssize_t
   Receive(zSocket::Address *from_, zSocket::Buffer *sb_);
+
   ssize_t
   Receive(zSocket::Address *from_, std::string &str_);
 
   ssize_t
   Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
+
   ssize_t
   Send(const zSocket::Address *to_, const std::string &str_);
 
   ssize_t
   Broadcast(zSocket::Buffer *sb_);
+
   ssize_t
   Broadcast(const std::string &str_);
 
 protected:
 
-  virtual bool
-  _open() = 0;
-
-  virtual void
-  _close() = 0;
-
-  virtual bool
-  _bind() = 0;
-
-  virtual bool
-  _connect() = 0;
-
-  virtual ssize_t
-  _send(const zSocket::Address *addr_, zSocket::Buffer *sb_) = 0;
-
-  virtual ssize_t
-  _broadcast(zSocket::Buffer *sb_) = 0;
-
-protected:
-
   zSocket::Socket::TYPE _type;
+
+  zEvent::Event rx_event;
+  zQueue<std::pair<zSocket::Address, zSocket::Buffer> > rxq;
+
+  zEvent::Event tx_event;
+  zQueue<std::pair<zSocket::Address, zSocket::Buffer> > txq;
 
 private:
 
@@ -235,89 +273,6 @@ public:
 protected:
 
 private:
-
-};
-
-//**********************************************************************
-// zSocket::Observer Class
-//**********************************************************************
-
-class Observer
-{
-public:
-  virtual bool
-  SocketRecv(zSocket::Socket *sock_, const zSocket::Address *addr_, zSocket::Buffer *sb_) = 0;
-};
-
-//**********************************************************************
-// zSocket::Handler Class
-//**********************************************************************
-
-class Handler : private zThread::Function
-{
-
-public:
-
-  Handler();
-
-  virtual
-  ~Handler();
-
-  bool
-  Register(zSocket::Observer *obs_);
-
-  void
-  Unregister(zSocket::Observer *obs_);
-
-  bool
-  Bind(zSocket::Socket *sock_);
-
-  bool
-  Connect(zSocket::Socket *sock_);
-
-  bool
-  Listen(zSocket::Socket *sock_);
-
-  ssize_t
-  Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
-
-  ssize_t
-  Send(const zSocket::Address *to_, const std::string &str_);
-
-  ssize_t
-  Broadcast(zSocket::Buffer *sb_);
-
-  ssize_t
-  Broadcast(const std::string &str_);
-
-  void
-  Close(Socket *sock_ = NULL);
-
-  bool
-  StartListener();
-
-  bool
-  StopListener();
-
-protected:
-
-  virtual void *
-  ThreadFunction(void *arg_);
-
-  zSocket::Socket *_sock;
-
-private:
-
-  void
-  _notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::Buffer *buf_);
-
-  std::list<zSocket::Socket *> _sockList;
-
-  std::list<zSocket::Observer *> _obsList;
-  zEvent::EventHandler _waitList;
-
-  zSem::Mutex _lock;
-  zThread::Thread _thread;
 
 };
 

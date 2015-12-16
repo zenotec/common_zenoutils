@@ -1,7 +1,7 @@
 //*****************************************************************************
-//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2015 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zEvent.cpp
+//    File: Handler.cpp
 //    Description:
 //
 //*****************************************************************************
@@ -107,9 +107,8 @@ EventHandler::Size()
 }
 
 void
-EventHandler::notify(Event *event_)
+EventHandler::notify(Event *event_, void *arg_)
 {
-  ZLOG_DEBUG("Event notification");
 
   // Never call this routine directly; Only should be called by the event class
   if (this->_lock.Lock())
@@ -124,7 +123,7 @@ EventHandler::notify(Event *event_)
     {
       EventObserver *obs = obs_list.front();
       obs_list.pop_front();
-      obs->EventHandler(this);
+      obs->EventHandler(event_, arg_);
     }
   }
 }

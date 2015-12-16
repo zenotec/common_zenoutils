@@ -4,35 +4,20 @@ int
 zEventTest_Defaults(void * arg_)
 {
   // Create new event and validate
-  zEvent::Event MyEvent;
+  zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
+  TEST_ISNOT_NULL(MyEvent);
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
+  TEST_EQ(0, MyEvent->GetId());
 
-  // Return success
-  return (0);
-}
+  // Create new event handler and validate
+  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
+  TEST_ISNOT_NULL(MyHandler);
 
-int
-zEventTest_EventHandler(void* arg_)
-{
-  // Create new event and validate
-  zEvent::Event *MyEvent = new zEvent::Event;
-
-  // Create new event list and validate
-  zEvent::EventHandler MyList;
-  TEST_FALSE(MyList.TimedWait(1));
-
-  // Register event with list
-  MyList.RegisterEvent(MyEvent);
-  TEST_FALSE(MyList.TimedWait(1));
-
-  // Notify
-  MyEvent->Notify();
-  TEST_TRUE(MyList.TimedWait(1));
-
-  // Unregister
-  MyList.UnregisterEvent(MyEvent);
-  TEST_FALSE(MyList.TimedWait(1));
+  // Get instance of event manager
+  zEvent::EventManager &manager = zEvent::EventManager::GetInstance();
 
   // Cleanup
+  delete (MyHandler);
   delete (MyEvent);
 
   // Return success

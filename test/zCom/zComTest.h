@@ -39,6 +39,55 @@ zComTest_TtyPortSendRecvBuf(void *arg_);
 int
 zComTest_TtyPortSendRecvString(void *arg_);
 
+class TestPortObserver : public zEvent::EventObserver
+{
+public:
+  TestPortObserver()
+  {
+  }
+
+  virtual
+  ~TestPortObserver()
+  {
+  }
+
+  zSem::Semaphore RxSem;
+  zSem::Semaphore TxSem;
+  zSem::Semaphore ErrSem;
+
+protected:
+
+  virtual bool
+  EventHandler(zEvent::Event *event_, void *arg_)
+  {
+    bool status = false;
+    if (event_ && (event_->GetType() == zEvent::Event::TYPE_COM))
+    {
+      zCom::PortEvent::EVENTID id = (zCom::PortEvent::EVENTID)event_->GetId();
+      switch(id)
+      {
+      case zCom::PortEvent::EVENTID_CHAR_RCVD:
+        this->RxSem.Post();
+        status = true;
+        break;
+      case zCom::PortEvent::EVENTID_CHAR_SENT:
+        this->TxSem.Post();
+        status = true;
+        break;
+      default:
+        this->ErrSem.Post();
+        status = false;
+        break;
+      }
+    }
+    return (status);
+  }
+
+private:
+
+
+};
+
 class TestPort : public zCom::Port, public zThread::Function
 {
 public:
@@ -71,17 +120,12 @@ public:
   virtual void *
   ThreadFunction(void *arg_)
   {
-    bool status = false;
     TestPort *self = (TestPort *) arg_;
     while (self->txq.TimedWait(10000))
     {
       self->rxq.Push(self->txq.Front());
       self->txq.Pop();
-      status = true;
-    }
-    if (status)
-    {
-      self->Notify();
+      self->rx_event.Notify(NULL);
     }
     return (0);
   }
@@ -108,13 +152,13 @@ public:
 
     int ret = 0;
 
-    ZLOG_INFO("TtyTestPort::TtyTestPort: Created new TTY test port");
+    ZLOG_INFO("Created new TTY test port");
 
     this->_master_fd = posix_openpt(O_RDWR | O_NOCTTY);
     if (this->_master_fd < 0)
     {
       std::string errmsg = "Error opening pseudo terminal";
-      ZLOG_ERR("TtyTestPort::TtyTestPort: " + errmsg);
+      ZLOG_ERR(errmsg);
       throw errmsg;
     }
 
@@ -122,7 +166,7 @@ public:
     if (ret < 0)
     {
       std::string errmsg = "Error setting permissions on master pseudo terminal";
-      ZLOG_ERR("TtyTestPort::TtyTestPort: " + errmsg);
+      ZLOG_ERR(errmsg);
       throw errmsg;
     }
 
@@ -130,7 +174,7 @@ public:
     if (ret < 0)
     {
       std::string errmsg = "Error setting permissions on slave pseudo terminal";
-      ZLOG_ERR("TtyTestPort::TtyTestPort: " + errmsg);
+      ZLOG_ERR(errmsg);
       throw errmsg;
     }
 
@@ -141,7 +185,7 @@ public:
   virtual
   ~TtyTestPort()
   {
-    ZLOG_INFO("TtyTestPort::~TtyTestPort: Destroying TTY test port");
+    ZLOG_INFO("Destroying TTY test port");
     close(this->_master_fd);
   }
 
@@ -168,14 +212,14 @@ public:
       _test_port(port_), _thread(this, this)
   {
 
-    ZLOG_INFO("TtyTestThread::TtyTestThread: Created new test thread");
+    ZLOG_INFO("Created new test thread");
     this->_thread.Run();
   }
 
   virtual
   ~TtyTestThread()
   {
-    ZLOG_INFO("TtyTestThread::~TtyTestThread: Destroying test thread");
+    ZLOG_INFO("Destroying test thread");
     this->_thread.Join();
   }
 
@@ -204,12 +248,12 @@ protected:
       if (bytes > 0)
       {
         std::string str(buf);
-        ZLOG_INFO("TtyTestThread::ThreadFunction: Received " + zLog::IntStr(bytes) + " bytes");
+        ZLOG_INFO("Received " + zLog::IntStr(bytes) + " bytes");
         ZLOG_DEBUG("STR: '" + str + "'");
         bytes = write(self->_test_port->_master_fd, str.c_str(), str.size());
         if (bytes > 0)
         {
-          ZLOG_INFO("TtyTestThread::ThreadFunction: Sent " + zLog::IntStr(bytes) + " bytes");
+          ZLOG_INFO("Sent " + zLog::IntStr(bytes) + " bytes");
           ZLOG_DEBUG("STR: '" + str + "'");
         }
       }

@@ -3,19 +3,16 @@ SUBDIRS = \
 	zProgOpt \
 	zData \
 	zConf \
-	zTimer \
 	zThread \
 	zEvent \
 	zQueue \
 	zSem \
-	zSocket \
 	zSwitch \
 	zThermo \
-	zMessage \
-	zNode \
 	zCom \
 	zGpio \
-	zLed
+	zLed \
+	zSocket
 
 if COND_VALGRIND
 VALGRIND_TESTS = \
@@ -35,7 +32,8 @@ VALGRIND_TESTS = \
     zThermo/valgrind.sh \
     zCom/valgrind.sh \
     zGpio/valgrind.sh \
-    zLed/valgrind.sh
+    zLed/valgrind.sh \
+    zSocket/valgrind.sh
 endif
 
 GCOV_TESTS = \
@@ -46,16 +44,13 @@ GCOV_TESTS = \
     zSem/zSemUnitTest \
     zEvent/zEventUnitTest \
     zThread/zThreadUnitTest \
-    zTimer/zTimerUnitTest \
     zQueue/zQueueUnitTest \
-    zSocket/zSocketUnitTest \
-    zMessage/zMessageUnitTest \
-    zNode/zNodeUnitTest \
     zSwitch/zSwitchUnitTest \
     zThermo/zThermoUnitTest \
     zCom/zComUnitTest \
     zGpio/zGpioUnitTest \
-    zLed/zLedUnitTest
+    zLed/zLedUnitTest \
+    zSocket/zSocketUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)

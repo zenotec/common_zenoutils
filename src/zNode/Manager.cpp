@@ -251,7 +251,7 @@ Manager::_helloMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
 bool
 Manager::_ackMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
 {
-
+  return(false);
 }
 
 bool

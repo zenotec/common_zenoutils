@@ -19,7 +19,7 @@ namespace zUtils
 {
 
 template<typename T>
-  class zQueue : private std::queue<T>, public zEvent::Event, public zSem::Semaphore
+  class zQueue : private std::queue<T>, public zSem::Semaphore
   {
   public:
     zQueue()
@@ -37,7 +37,7 @@ template<typename T>
     Front()
     {
       T item;
-      if(this->_lock.Lock())
+      if (this->_lock.Lock())
       {
         item = this->front();
         this->_lock.Unlock();
@@ -49,7 +49,7 @@ template<typename T>
     Back()
     {
       T item;
-      if(this->_lock.Lock())
+      if (this->_lock.Lock())
       {
         item = this->back();
         this->_lock.Unlock();
@@ -64,7 +64,6 @@ template<typename T>
       {
         this->push(item_);
         this->Post();
-        this->Notify();
         this->_lock.Unlock();
       }
     }
@@ -72,7 +71,7 @@ template<typename T>
     void
     Pop()
     {
-      if(this->_lock.Lock())
+      if (this->_lock.Lock())
       {
         this->pop();
         this->_lock.Unlock();
@@ -95,7 +94,7 @@ template<typename T>
     Empty()
     {
       bool empty = true;
-      if(this->_lock.Lock())
+      if (this->_lock.Lock())
       {
         empty = this->empty();
         this->_lock.Unlock();
@@ -106,9 +105,9 @@ template<typename T>
     void
     Clear()
     {
-      if(this->_lock.Lock())
+      if (this->_lock.Lock())
       {
-        while(!this->empty())
+        while (!this->empty())
         {
           this->pop();
         }

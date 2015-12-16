@@ -20,7 +20,32 @@ namespace zUtils
 namespace zCom
 {
 
-class Port : public zEvent::Event
+class PortEvent : public zEvent::Event
+{
+public:
+
+  enum EVENTID
+  {
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_CHAR_RCVD = 1,
+    EVENTID_CHAR_SENT = 2,
+    EVENTID_CHAR_ERR = 3,
+    EVENTID_LAST
+  };
+
+  PortEvent(const PortEvent::EVENTID id_);
+
+  virtual
+  ~PortEvent();
+
+protected:
+
+private:
+
+};
+
+class Port : public zEvent::EventHandler
 {
 
 public:
@@ -29,12 +54,6 @@ public:
 
   virtual
   ~Port();
-
-  virtual bool
-  Open(const std::string &dev_);
-
-  virtual void
-  Close();
 
   ssize_t
   RecvBuf(void *buf_, size_t len_);
@@ -57,7 +76,10 @@ public:
 protected:
 
   zQueue<char> rxq;
+  PortEvent rx_event;
+
   zQueue<char> txq;
+  PortEvent tx_event;
 
 private:
 

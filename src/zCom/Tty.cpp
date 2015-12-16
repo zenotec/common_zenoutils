@@ -333,23 +333,23 @@ TtyPort::SetBlocking(bool blocking_)
 void *
 TtyPortRecv::ThreadFunction(void *arg_)
 {
-  TtyPort *self = (TtyPort *) arg_;
+  TtyPort *port = (TtyPort *) arg_;
 
   ZLOG_DEBUG("RX: Polling TTY for data");
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = self->_fd;
+  fds[0].fd = port->_fd;
   fds[0].events = (POLLIN | POLLERR);
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLIN))
   {
     char c = 0;
-    if ((read(self->_fd, &c, 1) == 1))
+    if ((read(port->_fd, &c, 1) == 1))
     {
       ZLOG_DEBUG(std::string("Received char: '") + c + "'");
-      self->rxq.Push(c);
-      self->Notify();
+      port->rxq.Push(c);
+      port->rx_event.Notify(port);
     }
   }
 
@@ -359,23 +359,24 @@ TtyPortRecv::ThreadFunction(void *arg_)
 void *
 TtyPortSend::ThreadFunction(void *arg_)
 {
-  TtyPort *self = (TtyPort *) arg_;
+  TtyPort *port = (TtyPort *) arg_;
 
   ZLOG_DEBUG("TX: Polling TTY for data");
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = self->_fd;
+  fds[0].fd = port->_fd;
   fds[0].events = (POLLOUT | POLLERR);
   int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT) && self->txq.TimedWait(100000))
+  if (ret > 0 && (fds[0].revents == POLLOUT) && port->txq.TimedWait(100000))
   {
-    char c = self->txq.Front();
+    char c = port->txq.Front();
     ZLOG_DEBUG(std::string("Sending byte: '") + c + "'");
-    if ((write(self->_fd, &c, 1) == 1))
+    if ((write(port->_fd, &c, 1) == 1))
     {
       ZLOG_DEBUG(std::string("Byte Sent: '") + c + "'");
-      self->txq.Pop();
+      port->txq.Pop();
+      port->tx_event.Notify(port);
     }
   }
 

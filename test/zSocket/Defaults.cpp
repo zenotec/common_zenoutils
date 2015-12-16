@@ -90,16 +90,3 @@ zSocketTest_SocketDefaults( void* arg_ )
     return (0);
 
 }
-
-int
-zSocketTest_HandlerDefaults( void* arg_ )
-{
-
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_HandlerDefaults()");
-    ZLOG_DEBUG("#############################################################");
-
-    zSocket::Handler myHandler;
-    // Return success
-    return (0);
-}

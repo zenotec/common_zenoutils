@@ -97,17 +97,27 @@ public:
 
   enum PARITY
   {
-    PARITY_ERR = -1, PARITY_DEF = 0, PARITY_NONE = 0, PARITY_ODD = 1, PARITY_EVEN = 2, PARITY_LAST
+    PARITY_ERR = -1,
+    PARITY_DEF = 0,
+    PARITY_NONE = 0,
+    PARITY_ODD = 1,
+    PARITY_EVEN = 2,
+    PARITY_LAST
   };
 
   enum FLOWCNTL
   {
-    FLOWCNTL_ERR = -1, FLOWCNTL_NONE = 0, FLOWCNTL_DEF = 0, FLOWCNTL_HARD = 1, FLOWCNTL_LAST
+    FLOWCNTL_ERR = -1,
+    FLOWCNTL_NONE = 0,
+    FLOWCNTL_DEF = 0,
+    FLOWCNTL_HARD = 1,
+    FLOWCNTL_LAST
   };
 
-  TtyPort(TtyPort::BAUD baud_ = TtyPort::BAUD_DEF, TtyPort::DATABITS dbits_ = TtyPort::DATABITS_DEF,
-      TtyPort::STOPBITS sbits_ = TtyPort::STOPBITS_DEF, TtyPort::PARITY parity_ =
-          TtyPort::PARITY_DEF,
+  TtyPort(TtyPort::BAUD baud_ = TtyPort::BAUD_DEF,
+      TtyPort::DATABITS dbits_ = TtyPort::DATABITS_DEF,
+      TtyPort::STOPBITS sbits_ = TtyPort::STOPBITS_DEF,
+      TtyPort::PARITY parity_ = TtyPort::PARITY_DEF,
       TtyPort::FLOWCNTL flowcntl_ = TtyPort::FLOWCNTL_DEF,
       bool blocking_ = false);
 

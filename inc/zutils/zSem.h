@@ -53,6 +53,13 @@ protected:
 private:
   sem_t _sem;
 
+  Mutex(Mutex &other_);
+
+  Mutex(const Mutex &other_);
+
+  Mutex &
+  operator=(const Mutex &other_);
+
 };
 
 //**********************************************************************

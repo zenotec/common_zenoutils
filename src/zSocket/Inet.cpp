@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/select.h>
+#include <sys/poll.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <ifaddrs.h>
@@ -109,6 +109,34 @@ InetAddress::InetAddress(const std::string &ifname_) :
     throw(errMsg);
   }
   freeifaddrs(iflist);
+}
+
+InetAddress::InetAddress(InetAddress &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+}
+
+InetAddress::InetAddress(const InetAddress &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+}
+
+InetAddress &
+InetAddress::operator=(InetAddress &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+  return (*this);
+}
+
+InetAddress &
+InetAddress::operator=(const InetAddress &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+  return (*this);
 }
 
 InetAddress::~InetAddress()
@@ -249,19 +277,100 @@ InetAddress::SetBroadcast(const std::string &bcast_)
 }
 
 //**********************************************************************
-// InetSocket Class
+// zSocket::InetSocketRecv Class
+//**********************************************************************
+
+void *
+InetSocketRecv::ThreadFunction(void *arg_)
+{
+  InetSocket *sock = (InetSocket *) arg_;
+  ssize_t bytes = -1;
+
+  if (!sock->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return ((void*) -1);
+  }
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = sock->_sock;
+  fds[0].events = (POLLIN | POLLERR);
+  int ret = poll(fds, 1, 100);
+  if (ret > 0 && (fds[0].revents == POLLIN))
+  {
+    ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
+    Address addr;
+    Buffer sb;
+    bytes = sock->_recv(&addr, &sb);
+    if (bytes > 0)
+    {
+      sb.Put(bytes);
+      sock->rxq.Push(std::make_pair(addr, sb));
+      sock->rx_event.Notify(sock);
+    }
+  } // end if
+
+  if (ret < 0)
+  {
+    ZLOG_ERR("Error selecting on socket: " + std::string(strerror(errno)));
+  } // end if
+
+  return (0);
+
+}
+
+//**********************************************************************
+// zSocket::InetSocketSend Class
+//**********************************************************************
+
+void *
+InetSocketSend::ThreadFunction(void *arg_)
+{
+  InetSocket *sock = (InetSocket *) arg_;
+  ssize_t bytes = -1;
+
+  ZLOG_DEBUG("TX: Polling TTY for data");
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = sock->_sock;
+  fds[0].events = (POLLOUT | POLLERR);
+  int ret = poll(fds, 1, 100);
+  if (ret > 0 && (fds[0].revents == POLLOUT) && sock->txq.TimedWait(100000))
+  {
+    std::pair<const zSocket::Address, zSocket::Buffer> p = sock->txq.Front();
+    ZLOG_DEBUG("Sending packet: " + p.first.GetAddress() + "(" + zLog::IntStr(p.second.Size()) + ")");
+    if ((bytes = sock->_send(&p.first, &p.second)) == p.second.Size())
+    {
+      sock->txq.Pop();
+      sock->tx_event.Notify(sock);
+    }
+    else
+    {
+      ZLOG_ERR("Error sending packet: " + zLog::IntStr(bytes));
+    }
+  }
+
+  return (0);
+
+}
+
+//**********************************************************************
+// zSocket::InetSocket Class
 //**********************************************************************
 
 InetSocket::InetSocket(const InetAddress &addr_) :
-    _thread(this, this), _sock(0), _inetaddr(addr_)
+    _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this),
+        _sock(0), _inetaddr(addr_)
 {
-  ZLOG_DEBUG("InetSocket::InetSocket: New socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("New socket: " + zLog::IntStr(this->_sock));
 }
 
 InetSocket::~InetSocket()
 {
-  ZLOG_DEBUG("InetSocket::~InetSocket: Destroying socket: " + zLog::IntStr(this->_sock));
-  this->_close();
+  ZLOG_DEBUG("Destroying socket: " + zLog::IntStr(this->_sock));
+  this->Close();
 }
 
 const zSocket::Address *
@@ -270,55 +379,8 @@ InetSocket::GetAddress()
   return (&this->_inetaddr);
 }
 
-void *
-InetSocket::ThreadFunction(void *arg_)
-{
-  InetSocket *self = (InetSocket *) arg_;
-  ssize_t bytes = -1;
-
-  if (!self->_sock)
-  {
-    ZLOG_CRIT(std::string("InetSocket::ThreadFunction: Socket not opened"));
-    return ((void*) -1);
-  }
-
-  fd_set rxFds;
-  struct timeval to;
-
-  // Setup for select loop
-  FD_ZERO(&rxFds);
-  FD_SET(self->_sock, &rxFds);
-  to.tv_sec = 0;
-  to.tv_usec = 10000;
-
-  // Select on socket
-  int ret = select(self->_sock + 1, &rxFds, NULL, NULL, &to);
-  if (ret > 0 && FD_ISSET(self->_sock, &rxFds))
-  {
-    ZLOG_INFO("InetSocket::ThreadFunction: Received packet on socket: "
-        + zLog::IntStr(self->_sock));
-    Address *addr = new InetAddress;
-    Buffer *sb = new Buffer;
-    bytes = self->_recv(addr, sb);
-    if (bytes > 0)
-    {
-      sb->Put(bytes);
-      self->Push(std::make_pair(addr, sb));
-    }
-  } // end if
-
-  if (ret < 0)
-  {
-    ZLOG_ERR("InetSocket::ThreadFunction: Error selecting on socket: " +
-        std::string(strerror(errno)));
-  } // end if
-
-  return (0);
-
-}
-
 bool
-InetSocket::_open()
+InetSocket::Open()
 {
 
   if (!this->_sock)
@@ -328,98 +390,101 @@ InetSocket::_open()
     this->_sock = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
     if (this->_sock < 0)
     {
-      ZLOG_CRIT("InetSocket::_open: Cannot create socket: " + std::string(strerror(errno)));
+      ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
       return (false);
     } // end if
 
-    ZLOG_DEBUG("InetSocket::_open: Opening socket: " + zLog::IntStr(this->_sock));
+    ZLOG_DEBUG("Opening socket: " + zLog::IntStr(this->_sock));
 
     // Enable sending to broadcast address
     int bcastEnable = 1;
     if (setsockopt(this->_sock, SOL_SOCKET, SO_BROADCAST, &bcastEnable, sizeof(bcastEnable))
         < 0)
     {
-      ZLOG_CRIT(
-          "InetSocket::_open: Cannot configure socket: " + std::string(strerror(errno)));
+      ZLOG_CRIT("Cannot configure socket: " + std::string(strerror(errno)));
       return (false);
     }
 
   } // end if
   else
   {
-    ZLOG_WARN("InetSocket::_open: Socket already open");
+    ZLOG_WARN("Socket already open");
   }
   return (true);
 }
 
 void
-InetSocket::_close()
+InetSocket::Close()
 {
-  ZLOG_DEBUG("InetSocket::_close: Closing socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Closing socket: " + zLog::IntStr(this->_sock));
   // Close socket
-  if (this->_sock && this->_thread.Join())
+  if (this->_sock && this->_rx_thread.Join() && this->_tx_thread.Join())
   {
-    ZLOG_DEBUG("InetSocket::_close: Socket Closed: " + zLog::IntStr(this->_sock));
+    ZLOG_DEBUG("Socket Closed: " + zLog::IntStr(this->_sock));
     close(this->_sock);
     this->_sock = 0;
   } // end if
 }
 
 bool
-InetSocket::_bind()
+InetSocket::Bind()
 {
 
   if (!this->_sock)
   {
-    ZLOG_CRIT(std::string("InetSocket::_bind: Socket not opened"));
+    ZLOG_CRIT(std::string("Socket not opened"));
     return (false);
   }
 
-  ZLOG_DEBUG("InetSocket::_bind: Bind on socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Bind on socket: " + zLog::IntStr(this->_sock));
 
   // Convert string notation address to sockaddr_in
   struct sockaddr_in addr = { 0 };
   if (!_get_sockaddr(&this->_inetaddr, &addr))
   {
-    ZLOG_CRIT("InetSocket::_bind: Cannot convert socket address: "
+    ZLOG_CRIT("Cannot convert socket address: "
         + std::string(strerror(errno)));
     return (false);
   }
 
   // Override address to always listen on all interfaces
-  addr.sin_addr.s_addr = INADDR_ANY;
+//  addr.sin_addr.s_addr = INADDR_ANY;
 
   // Bind address to socket
   int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
-    ZLOG_CRIT("InetSocket::_bind: Cannot bind socket: " + this->_inetaddr.GetAddress() +
+    ZLOG_CRIT("Cannot bind socket: " + this->_inetaddr.GetAddress() +
         ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  this->_thread.Run();
+  if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
+  {
+    ZLOG_ERR("Error starting listening threads");
+    return (false);
+  }
 
   return (true);
 
 }
 
 bool
-InetSocket::_connect()
+InetSocket::Connect()
 {
 
   if (!this->_sock)
   {
-    ZLOG_CRIT(std::string("InetSocket::_connect: Socket not opened"));
+    ZLOG_CRIT(std::string("Socket not opened"));
     return (false);
   }
 
-  ZLOG_DEBUG("InetSocket::_connect: Connect on socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Connect on socket: " + zLog::IntStr(this->_sock));
 
   struct sockaddr_in addr = { 0 };
   if (!_get_sockaddr(&this->_inetaddr, &addr))
   {
-    ZLOG_CRIT("InetSocket::_connect: Cannot convert socket address: "
+    ZLOG_CRIT("Cannot convert socket address: "
         + std::string(strerror(errno)));
     return (false);
   }
@@ -427,11 +492,15 @@ InetSocket::_connect()
   int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
-    ZLOG_CRIT("InetSocket::_connect: Cannot connect socket: " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot connect socket: " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  this->_thread.Run();
+  if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
+  {
+    ZLOG_ERR("Error starting listening threads");
+    return (false);
+  }
 
   return (true);
 
@@ -444,13 +513,13 @@ InetSocket::_send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
 
   if (!this->_sock)
   {
-    ZLOG_CRIT(std::string("InetSocket::_send: Socket not opened"));
+    ZLOG_CRIT(std::string("Socket not opened"));
     return (-1);
   }
 
   if (addr_->GetType() != Address::TYPE_INET)
   {
-    ZLOG_CRIT(std::string("InetSocket::_send: Invalid address type: " +
+    ZLOG_CRIT(std::string("Invalid address type: " +
         zLog::IntStr(addr_->GetType())));
     return (false);
   }
@@ -465,11 +534,12 @@ InetSocket::_send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
 
   if (addr_->GetAddress() == this->_inetaddr.GetAddress())
   {
-    ZLOG_INFO("InetSocket::_send: Address match");
-    InetAddress *addr = new InetAddress(*(const InetAddress *) addr_);
-    zSocket::Buffer *sb = new zSocket::Buffer(*sb_);
-    this->Push(std::make_pair(addr, sb));
-    return (sb->Size());
+    ZLOG_INFO("Address match");
+    InetAddress addr(*(const InetAddress *) addr_);
+    zSocket::Buffer sb(*sb_);
+    this->rxq.Push(std::make_pair(addr, sb));
+    this->rx_event.Notify(this);
+    return (sb.Size());
   }
   else
   {
@@ -477,7 +547,7 @@ InetSocket::_send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
     struct sockaddr_in src = { 0 };
     if (!_get_sockaddr((InetAddress *) addr_, &src))
     {
-      ZLOG_CRIT("InetSocket::_send: Cannot convert socket address: " +
+      ZLOG_CRIT("Cannot convert socket address: " +
           std::string(strerror(errno)));
     }
     socklen_t slen = sizeof(struct sockaddr_in);
@@ -486,7 +556,7 @@ InetSocket::_send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
         (struct sockaddr *) &src, slen);
     if (bytes_sent < 0)
     {
-      ZLOG_ERR(std::string("InetSocket::_send: Cannot send packet: " +
+      ZLOG_ERR(std::string("Cannot send packet: " +
           std::string(strerror(errno))));
     }
 
@@ -510,13 +580,13 @@ InetSocket::_recv(zSocket::Address *addr_, zSocket::Buffer *sb_)
 {
   if (!this->_sock)
   {
-    ZLOG_CRIT(std::string("InetSocket::_recv: Socket not opened"));
+    ZLOG_CRIT(std::string("Socket not opened"));
     return (false);
   }
 
   if (addr_->GetType() != Address::TYPE_INET)
   {
-    ZLOG_CRIT(std::string("InetSocket::_recv: Invalid address type"));
+    ZLOG_CRIT(std::string("Invalid address type"));
     return (false);
   }
 

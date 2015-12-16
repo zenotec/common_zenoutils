@@ -23,25 +23,31 @@ namespace zCom
 {
 
 //*****************************************************************************
+// PortEvent Class
+//*****************************************************************************
+PortEvent::PortEvent(const PortEvent::EVENTID id_) :
+    zEvent::Event(zEvent::Event::TYPE_COM, id_)
+{
+}
+
+PortEvent::~PortEvent()
+{
+}
+
+//*****************************************************************************
 // Port Class
 //*****************************************************************************
-Port::Port()
+Port::Port() :
+    rx_event(PortEvent::EVENTID_CHAR_RCVD), tx_event(PortEvent::EVENTID_CHAR_SENT)
 {
+  this->RegisterEvent(&this->rx_event);
+  this->RegisterEvent(&this->tx_event);
 }
 
 Port::~Port()
 {
-}
-
-bool
-Port::Open(const std::string &dev_)
-{
-  return (false);
-}
-
-void
-Port::Close()
-{
+  this->UnregisterEvent(&this->rx_event);
+  this->UnregisterEvent(&this->tx_event);
 }
 
 ssize_t

@@ -12,13 +12,19 @@ zComTest_PortSendRecvChar(void *arg_)
   ZLOG_DEBUG( "# zComTest_PortSendRecvChar()" );
   ZLOG_DEBUG( "#############################################################" );
 
+  zEvent::Event *MyEvent = NULL;
   bool status = false;
+
+  // Create new port and validate
   TestPort *MyPort = new TestPort;
   TEST_ISNOT_ZERO(MyPort);
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
 
-  MyHandler->RegisterEvent(MyPort);
+  // Create new observer and validate
+  TestPortObserver *MyObserver = new TestPortObserver;
+  TEST_ISNOT_ZERO(MyObserver);
+
+  // Register observer
+  MyPort->RegisterObserver(MyObserver);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");
@@ -28,9 +34,19 @@ zComTest_PortSendRecvChar(void *arg_)
   status = MyPort->SendChar('a');
   TEST_TRUE(status);
 
-  // Wait for byte
-  status = MyHandler->TimedWait(100000);
+  // Wait for byte to be received
+  status = MyObserver->RxSem.TimedWait(100000);
   TEST_TRUE(status);
+
+  // Verify no errors
+  status = MyObserver->ErrSem.TryWait();
+  TEST_FALSE(status);
+
+  // Verify byte received
+  MyEvent = MyPort->GetEvent();
+  TEST_ISNOT_NULL(MyEvent);
+  TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
+  TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
 
   // Receive byte back
   char c = 0;
@@ -38,10 +54,12 @@ zComTest_PortSendRecvChar(void *arg_)
   TEST_TRUE(status);
   TEST_EQ('a', c);
 
+  // Unregister observer
+  MyPort->UnregisterObserver(MyObserver);
+
   // Cleanup
+  delete(MyObserver);
   MyPort->Close();
-  MyHandler->UnregisterEvent(MyPort);
-  delete (MyHandler);
   delete (MyPort);
 
   // Return success
@@ -57,42 +75,60 @@ zComTest_PortSendRecvBuf(void *arg_)
   ZLOG_DEBUG( "# zComTest_PortSendRecvBuf()" );
   ZLOG_DEBUG( "#############################################################" );
 
+  int cnt = 0;
   bool status = false;
-  TestPort *MyPort = new TestPort;
-  TEST_ISNOT_ZERO(MyPort);
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
-
   char exp_buf[256] = { 0 };
   char obs_buf[256] = { 0 };
   ssize_t bytes = 0;
+  zEvent::Event *MyEvent = NULL;
 
-  MyHandler->RegisterEvent(MyPort);
+  // Create new test port and validate
+  TestPort *MyPort = new TestPort;
+  TEST_ISNOT_ZERO(MyPort);
+
+  // Create new observer and validate
+  TestPortObserver *MyObserver = new TestPortObserver;
+  TEST_ISNOT_ZERO(MyObserver);
+
+  // Register observer
+  MyPort->RegisterObserver(MyObserver);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");
   TEST_TRUE(status);
 
-  // Send byte
+  // Send data
   memset(exp_buf, 0x55, 100);
   bytes = MyPort->SendBuf(exp_buf, 100);
   TEST_EQ(100, bytes);
 
-  // Wait for byte
-  status = MyHandler->TimedWait(100000);
-  TEST_TRUE(status);
+  cnt = 0;
+  // Verify data was received
+  while (MyObserver->RxSem.TimedWait(100000))
+  {
+    MyEvent = MyPort->GetEvent();
+    TEST_ISNOT_NULL(MyEvent);
+    TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
+    TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
+    ++cnt;
+  }
+  TEST_EQ(cnt, 100);
 
-  // Receive byte back
+  // Verify no errors
+  status = MyObserver->ErrSem.TryWait();
+  TEST_FALSE(status);
+
+  // Receive data and validate
   bytes = MyPort->RecvBuf(obs_buf, 256);
   TEST_EQ(100, bytes);
-
-  // Verify
   TEST_IS_ZERO(memcmp(exp_buf, obs_buf, bytes));
 
+  // Unregister observer
+  MyPort->UnregisterObserver(MyObserver);
+
   // Cleanup
+  delete(MyObserver);
   MyPort->Close();
-  MyHandler->UnregisterEvent(MyPort);
-  delete (MyHandler);
   delete (MyPort);
 
   // Return success
@@ -108,36 +144,57 @@ zComTest_PortSendRecvString(void *arg_)
   ZLOG_DEBUG( "# zComTest_PortSendRecvString()" );
   ZLOG_DEBUG( "#############################################################" );
 
+  zEvent::Event *MyEvent = NULL;
+  int cnt = 0;
   bool status = false;
+
+  // Create new port and validate
   TestPort *MyPort = new TestPort;
   TEST_ISNOT_ZERO(MyPort);
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
 
-  MyHandler->RegisterEvent(MyPort);
+  // Create new observer and validate
+  TestPortObserver *MyObserver = new TestPortObserver;
+  TEST_ISNOT_ZERO(MyObserver);
+
+  // Register observer
+  MyPort->RegisterObserver(MyObserver);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");
   TEST_TRUE(status);
 
-  // Send byte
+  // Send string
   status = MyPort->SendString("test string");
   TEST_TRUE(status);
 
-  // Wait for byte
-  status = MyHandler->TimedWait(100000);
-  TEST_TRUE(status);
+  // Verify data was received
+  cnt = 0;
+  while (MyObserver->RxSem.TimedWait(100000))
+  {
+    MyEvent = MyPort->GetEvent();
+    TEST_ISNOT_NULL(MyEvent);
+    TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
+    TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
+    ++cnt;
+  }
+  TEST_EQ(cnt, 11);
 
-  // Receive byte back
+  // Verify no errors
+  status = MyObserver->ErrSem.TryWait();
+  TEST_FALSE(status);
+
+  // Receive string
   std::string str;
   status = MyPort->RecvString(str);
   TEST_TRUE(status);
   TEST_EQ(std::string("test string"), str);
 
+  // Unregister observer
+  MyPort->UnregisterObserver(MyObserver);
+
   // Cleanup
+  delete(MyObserver);
   MyPort->Close();
-  MyHandler->UnregisterEvent(MyPort);
-  delete (MyHandler);
   delete (MyPort);
 
   // Return success

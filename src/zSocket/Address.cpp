@@ -17,6 +17,34 @@ Address::Address(Address::TYPE type_, const std::string &addr_) :
 {
 }
 
+Address::Address(Address &other_) :
+    _type(other_._type)
+{
+  this->SetAddress(other_.GetAddress());
+}
+
+Address::Address(const Address &other_) :
+        _type(other_._type)
+{
+  this->SetAddress(other_.GetAddress());
+}
+
+Address &
+Address::operator=(Address &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+  return (*this);
+}
+
+Address &
+Address::operator=(const Address &other_)
+{
+  this->_type = other_._type;
+  this->SetAddress(other_.GetAddress());
+  return (*this);
+}
+
 Address::~Address()
 {
 }

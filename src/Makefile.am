@@ -7,16 +7,12 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zLog \
-	zSocket \
-	zMessage \
-	zNode \
 	zProgOpt \
 	zSem \
+	zSocket \
 	zSwitch \
 	zThermo \
-	zThread \
-	zTimer
-	
+	zThread	
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -69,12 +65,12 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zGpio/libzGpio.la \
     ${top_builddir}/src/zLed/libzLed.la \
     ${top_builddir}/src/zLog/libzLog.la \
-    ${top_builddir}/src/zMessage/libzMessage.la \
-    ${top_builddir}/src/zNode/libzNode.la \
     ${top_builddir}/src/zProgOpt/libzProgOpt.la \
     ${top_builddir}/src/zSem/libzSem.la \
-    ${top_builddir}/src/zSocket/libzSocket.la \
     ${top_builddir}/src/zSwitch/libzSwitch.la \
     ${top_builddir}/src/zThermo/libzThermo.la \
     ${top_builddir}/src/zThread/libzThread.la \
-    ${top_builddir}/src/zTimer/libzTimer.la
+    ${top_builddir}/src/zSocket/libzSocket.la \
+    ${top_builddir}/src/zMessage/libzMessage.la
+    
+    
