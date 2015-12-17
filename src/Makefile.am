@@ -70,7 +70,6 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zSwitch/libzSwitch.la \
     ${top_builddir}/src/zThermo/libzThermo.la \
     ${top_builddir}/src/zThread/libzThread.la \
-    ${top_builddir}/src/zSocket/libzSocket.la \
-    ${top_builddir}/src/zMessage/libzMessage.la
+    ${top_builddir}/src/zSocket/libzSocket.la
     
     
