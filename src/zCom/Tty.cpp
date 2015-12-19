@@ -347,7 +347,7 @@ TtyPortRecv::ThreadFunction(void *arg_)
     char c = 0;
     if ((read(port->_fd, &c, 1) == 1))
     {
-      ZLOG_DEBUG(std::string("Received char: '") + c + "'");
+      ZLOG_DEBUG(std::string("Received char: '") + zLog::IntStr(c) + ": " + c + "'");
       port->rxq.Push(c);
       port->rx_event.Notify(port);
     }

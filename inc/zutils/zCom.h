@@ -56,13 +56,13 @@ public:
   ~Port();
 
   ssize_t
-  RecvBuf(void *buf_, size_t len_);
+  RecvBuf(void *buf_, size_t len_, size_t timeout_ = 1000000 /* 1 sec */);
 
   bool
-  RecvChar(char *c_);
+  RecvChar(char *c_, size_t timeout_ = 1000000 /* 1 sec */);
 
   bool
-  RecvString(std::string &str_);
+  RecvString(std::string &str_, size_t timeout_ = 1000000 /* 1 sec */);
 
   ssize_t
   SendBuf(const void *buf_, size_t len_);

@@ -180,7 +180,7 @@ zComTest_TtyPortSendRecvString(void *arg_)
   TEST_TRUE(status);
 
   // Send string
-  status = MyPort->SendString("test string");
+  status = MyPort->SendString("test string\n");
   TEST_TRUE(status);
 
   cnt = 0;
@@ -189,7 +189,7 @@ zComTest_TtyPortSendRecvString(void *arg_)
   {
     ++cnt;
   }
-  TEST_EQ(cnt, 11);
+  TEST_EQ(cnt, 12);
 
   cnt = 0;
   // Verify data was received
@@ -197,7 +197,7 @@ zComTest_TtyPortSendRecvString(void *arg_)
   {
     ++cnt;
   }
-  TEST_EQ(cnt, 11);
+  TEST_EQ(cnt, 12);
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();

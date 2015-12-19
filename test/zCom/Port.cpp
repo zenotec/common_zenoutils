@@ -164,7 +164,7 @@ zComTest_PortSendRecvString(void *arg_)
   TEST_TRUE(status);
 
   // Send string
-  status = MyPort->SendString("test string");
+  status = MyPort->SendString("test string\n");
   TEST_TRUE(status);
 
   // Verify data was received
@@ -177,7 +177,7 @@ zComTest_PortSendRecvString(void *arg_)
     TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
     ++cnt;
   }
-  TEST_EQ(cnt, 11);
+  TEST_EQ(cnt, 12);
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();

@@ -51,12 +51,12 @@ Port::~Port()
 }
 
 ssize_t
-Port::RecvBuf(void *buf_, size_t len_)
+Port::RecvBuf(void *buf_, size_t len_, size_t timeout_)
 {
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
   ZLOG_DEBUG("Receiving");
-  while (!this->rxq.Empty() && len_--)
+  while (this->rxq.TimedWait(timeout_) && len_--)
   {
     buf[bytes++] = this->rxq.Front();
     this->rxq.Pop();
@@ -66,11 +66,11 @@ Port::RecvBuf(void *buf_, size_t len_)
 }
 
 bool
-Port::RecvChar(char *c_)
+Port::RecvChar(char *c_, size_t timeout_)
 {
   bool status = false;
   ZLOG_DEBUG("Receiving");
-  if (!this->rxq.Empty())
+  if (this->rxq.TimedWait(timeout_))
   {
     *c_ = this->rxq.Front();
     this->rxq.Pop();
@@ -81,27 +81,31 @@ Port::RecvChar(char *c_)
 }
 
 bool
-Port::RecvString(std::string &str_)
+Port::RecvString(std::string &str_, size_t timeout_)
 {
+  bool status = false;
   ZLOG_DEBUG("Receiving");
-  while (!this->rxq.Empty())
+  str_.clear();
+  while (this->rxq.TimedWait(timeout_))
   {
     char c = 0;
     c = this->rxq.Front();
     this->rxq.Pop();
     if (iscntrl(c))
     {
+      status = true;
       break;
     }
     str_ += c;
   }
   ZLOG_DEBUG(std::string("Received string: '") + str_ + "'");
-  return (!str_.empty());
+  return (status);
 }
 
 ssize_t
 Port::SendBuf(const void *buf_, size_t len_)
 {
+
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
   ZLOG_DEBUG("Sending " + zLog::IntStr(len_) + " bytes");
