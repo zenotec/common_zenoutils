@@ -135,7 +135,7 @@ Handler::Close(Socket *sock_)
 }
 
 ssize_t
-Handler::Send(const zSocket::Address *to_, zSocket::Buffer *sb_)
+Handler::Send(const zSocket::SocketAddress *to_, zSocket::SocketBuffer *sb_)
 {
   ssize_t size = -1;
   if (this->_sock)
@@ -146,7 +146,7 @@ Handler::Send(const zSocket::Address *to_, zSocket::Buffer *sb_)
 }
 
 ssize_t
-Handler::Send(const zSocket::Address *to_, const std::string &str_)
+Handler::Send(const zSocket::SocketAddress *to_, const std::string &str_)
 {
   ssize_t size = -1;
   if (this->_sock)
@@ -157,7 +157,7 @@ Handler::Send(const zSocket::Address *to_, const std::string &str_)
 }
 
 ssize_t
-Handler::Broadcast(zSocket::Buffer *sb_)
+Handler::Broadcast(zSocket::SocketBuffer *sb_)
 {
   ssize_t size = -1;
   if (this->_sock)
@@ -210,8 +210,8 @@ Handler::ThreadFunction(void *arg_)
     ZLOG_DEBUG("zSocket::Handler::ThreadFunction(): Received socket event....");
 
     zSocket::Socket *sock = static_cast<zSocket::Socket *>(self->_waitList.GetEvent());
-    Address *addr = new Address;
-    Buffer *sb = new Buffer;
+    SocketAddress *addr = new SocketAddress;
+    SocketBuffer *sb = new SocketBuffer;
     int n = sock->Receive(addr, sb);
     if (n > 0)
     {
@@ -224,7 +224,7 @@ Handler::ThreadFunction(void *arg_)
 }
 
 void
-Handler::_notify(zSocket::Socket *sock_, zSocket::Address *addr_, zSocket::Buffer *buf_)
+Handler::_notify(zSocket::Socket *sock_, zSocket::SocketAddress *addr_, zSocket::SocketBuffer *buf_)
 {
   bool status = false;
 

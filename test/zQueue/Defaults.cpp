@@ -13,10 +13,12 @@ zQueueTest_Defaults(void* arg_)
   // Create new queue and validate
   zQueue<std::string> MyQueue;
   TEST_TRUE(MyQueue.Empty());
+  TEST_FALSE(MyQueue.TryWait());
   TEST_IS_ZERO(MyQueue.Size());
 
   // Push string on to back of queue and validate
   MyQueue.Push(exp_str + "_1");
+  TEST_TRUE(MyQueue.TryWait());
   TEST_FALSE(MyQueue.Empty());
   TEST_EQ(1, MyQueue.Size());
   obs_str = MyQueue.Front();
@@ -30,6 +32,7 @@ zQueueTest_Defaults(void* arg_)
 
   // Push second string on to back of queue and validate
   MyQueue.Push(exp_str + "_2");
+  TEST_TRUE(MyQueue.TryWait());
   TEST_FALSE(MyQueue.Empty());
   TEST_EQ(2, MyQueue.Size());
   obs_str = MyQueue.Front();
@@ -50,6 +53,8 @@ zQueueTest_Defaults(void* arg_)
   MyQueue.Pop();
   TEST_TRUE(MyQueue.Empty());
   TEST_IS_ZERO(MyQueue.Size());
+
+  TEST_FALSE(MyQueue.TryWait());
 
   // Return success
   return (0);

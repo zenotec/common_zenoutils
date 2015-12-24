@@ -27,37 +27,37 @@ namespace zSocket
 {
 
 class Handler;
-class Factory;
+class SocketFactory;
 
 //**********************************************************************
-// zSocket::Buffer Class
+// zSocket::SocketBuffer Class
 //**********************************************************************
 
-class Buffer
+class SocketBuffer
 {
 
 public:
 
-  Buffer(Buffer &other_);
+  SocketBuffer(SocketBuffer &other_);
 
-  Buffer(const Buffer &other_);
+  SocketBuffer(const SocketBuffer &other_);
 
-  Buffer(const size_t size_ = 1500);
+  SocketBuffer(const size_t size_ = 1500);
 
   virtual
-  ~Buffer();
+  ~SocketBuffer();
 
-  Buffer &
-  operator=(Buffer &other_);
+  SocketBuffer &
+  operator=(SocketBuffer &other_);
 
-  Buffer &
-  operator=(const Buffer &other_);
-
-  bool
-  operator==(Buffer &other_);
+  SocketBuffer &
+  operator=(const SocketBuffer &other_);
 
   bool
-  operator!=(Buffer &other_);
+  operator==(SocketBuffer &other_);
+
+  bool
+  operator!=(SocketBuffer &other_);
 
   uint8_t *
   Head();
@@ -107,10 +107,10 @@ private:
 };
 
 //**********************************************************************
-// zSocket::Address Class
+// zSocket::SocketAddress Class
 //**********************************************************************
 
-class Address
+class SocketAddress
 {
 
 public:
@@ -120,32 +120,32 @@ public:
     TYPE_ERR = -1, TYPE_NONE = 0, TYPE_LOOP = 1, TYPE_INET = 2, TYPE_LAST
   };
 
-  Address(zSocket::Address::TYPE type = zSocket::Address::TYPE_NONE, const std::string &addr_ =
+  SocketAddress(zSocket::SocketAddress::TYPE type = zSocket::SocketAddress::TYPE_NONE, const std::string &addr_ =
       std::string(""));
 
-  Address(Address &other_);
+  SocketAddress(SocketAddress &other_);
 
-  Address(const Address &other_);
+  SocketAddress(const SocketAddress &other_);
 
-  Address &
-  operator=(Address &other_);
+  SocketAddress &
+  operator=(SocketAddress &other_);
 
-  Address &
-  operator=(const Address &other_);
+  SocketAddress &
+  operator=(const SocketAddress &other_);
 
   virtual
-  ~Address();
+  ~SocketAddress();
 
   bool
-  operator ==(const zSocket::Address &other_) const;
+  operator ==(const zSocket::SocketAddress &other_) const;
   bool
-  operator !=(const zSocket::Address &other_) const;
+  operator !=(const zSocket::SocketAddress &other_) const;
   bool
-  operator <(const zSocket::Address &other_) const;
+  operator <(const zSocket::SocketAddress &other_) const;
   bool
-  operator >(const zSocket::Address &other_) const;
+  operator >(const zSocket::SocketAddress &other_) const;
 
-  Address::TYPE
+  SocketAddress::TYPE
   GetType() const;
 
   virtual std::string
@@ -156,7 +156,7 @@ public:
 
 protected:
 
-  Address::TYPE _type;
+  SocketAddress::TYPE _type;
 
 private:
 
@@ -194,6 +194,19 @@ private:
 };
 
 //**********************************************************************
+// zSocket::SocketObserver Class
+//**********************************************************************
+
+class SocketObserver : public zEvent::EventObserver
+{
+public:
+  SocketObserver();
+
+  virtual
+  ~SocketObserver();
+};
+
+//**********************************************************************
 // zSocket::Socket Class
 //**********************************************************************
 
@@ -217,58 +230,67 @@ public:
     TYPE_LAST
   };
 
-  virtual const zSocket::Address *
+  virtual const zSocket::SocketAddress *
   GetAddress();
 
-  ssize_t
-  Receive(zSocket::Address *from_, zSocket::Buffer *sb_);
+  virtual bool
+  Open();
+
+  virtual void
+  Close();
+
+  virtual bool
+  Bind();
+
+  virtual bool
+  Connect(const zSocket::SocketAddress &addr_);
 
   ssize_t
-  Receive(zSocket::Address *from_, std::string &str_);
+  Receive(zSocket::SocketAddress *from_, zSocket::SocketBuffer *sb_);
 
   ssize_t
-  Send(const zSocket::Address *to_, zSocket::Buffer *sb_);
+  Receive(zSocket::SocketAddress *from_, std::string &str_);
 
   ssize_t
-  Send(const zSocket::Address *to_, const std::string &str_);
+  Send(const zSocket::SocketAddress *to_, zSocket::SocketBuffer *sb_);
 
   ssize_t
-  Broadcast(zSocket::Buffer *sb_);
-
-  ssize_t
-  Broadcast(const std::string &str_);
+  Send(const zSocket::SocketAddress *to_, const std::string &str_);
 
 protected:
 
   zSocket::Socket::TYPE _type;
 
   zEvent::Event rx_event;
-  zQueue<std::pair<zSocket::Address, zSocket::Buffer> > rxq;
+  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > rxq;
 
   zEvent::Event tx_event;
-  zQueue<std::pair<zSocket::Address, zSocket::Buffer> > txq;
+  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > txq;
+
+  zEvent::Event err_event;
+  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > errq;
 
 private:
 
 };
 
 //**********************************************************************
-// zSocket::Factory Class
+// zSocket::SocketFactory Class
 //**********************************************************************
 
-class Factory
+class SocketFactory
 {
 
 public:
 
-  static zSocket::Address *
-  Create(const zSocket::Address::TYPE &type_);
+  static zSocket::SocketAddress *
+  Create(const zSocket::SocketAddress::TYPE &type_);
 
-  static zSocket::Address *
-  Create(const zSocket::Address::TYPE &type_, const std::string &ifname_);
+  static zSocket::SocketAddress *
+  Create(const zSocket::SocketAddress::TYPE &type_, const std::string &ifname_);
 
   static zSocket::Socket *
-  Create(const zSocket::Socket::TYPE &type_, const zSocket::Address *addr_);
+  Create(const zSocket::Socket::TYPE &type_, const zSocket::SocketAddress *addr_);
 
 protected:
 

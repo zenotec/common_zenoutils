@@ -6,6 +6,10 @@ zEventTest_EventTest(void* arg_)
 
   bool status = false;
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zEventTest_EventTest()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new event and validate
   zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_NONE);
   TEST_ISNOT_NULL(MyEvent);

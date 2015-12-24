@@ -1,13 +1,15 @@
 #include "zMessageTest.h"
 
+#include <zutils/zInet.h>
+
 using namespace Test;
 using namespace zUtils;
 
-int zMessageTest_Defaults(void* arg_)
+int zMessageTest_MessageDefaults(void* arg_)
 {
 
     ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zMessageTest_Defaults()");
+    ZLOG_DEBUG("# zMessageTest_MessageDefaults()");
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
@@ -24,4 +26,30 @@ int zMessageTest_Defaults(void* arg_)
     // Return success
     return (0);
 
+}
+
+int zMessageTest_MessageSocketDefaults(void* arg_)
+{
+
+    ZLOG_DEBUG("#############################################################");
+    ZLOG_DEBUG("# zMessageTest_MessageSocketDefaults()");
+    ZLOG_DEBUG("#############################################################");
+
+    // Setup network socket
+    zSocket::InetAddress MyAddr("lo");
+    TEST_TRUE(MyAddr.SetPort("8888"));
+    zSocket::InetSocket *MySock = new zSocket::InetSocket(MyAddr);
+    TEST_ISNOT_NULL(MySock);
+
+    // Create new message socket and validate
+    zMessage::MessageSocket *MyMsgSock = new zMessage::MessageSocket(MySock);
+    TEST_ISNOT_NULL(MyMsgSock);
+
+    // Clean up
+    delete (MyMsgSock);
+    MySock->Close();
+    delete (MySock);
+
+    // Return success
+    return (0);
 }

@@ -7,6 +7,7 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zLog \
+	zMessage \
 	zProgOpt \
 	zSem \
 	zSocket \
@@ -65,6 +66,7 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zGpio/libzGpio.la \
     ${top_builddir}/src/zLed/libzLed.la \
     ${top_builddir}/src/zLog/libzLog.la \
+    ${top_builddir}/src/zMessage/libzMessage.la \
     ${top_builddir}/src/zProgOpt/libzProgOpt.la \
     ${top_builddir}/src/zSem/libzSem.la \
     ${top_builddir}/src/zSwitch/libzSwitch.la \

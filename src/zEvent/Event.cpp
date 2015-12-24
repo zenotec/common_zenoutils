@@ -19,9 +19,10 @@ const std::string Event::STR_TYPE = "Type";
 const std::string Event::STR_TYPE_NONE = "NONE";
 const std::string Event::STR_TYPE_TEST = "TEST";
 const std::string Event::STR_TYPE_COM = "COM";
-const std::string Event::STR_TYPE_SOCKET = "SOCKET";
 const std::string Event::STR_TYPE_TEMP = "TEMP";
 const std::string Event::STR_TYPE_GPIO = "GPIO";
+const std::string Event::STR_TYPE_SOCKET = "SOCKET";
+const std::string Event::STR_TYPE_MSG = "MSG";
 const std::string Event::STR_ID = "Id";
 
 //**********************************************************************
@@ -80,6 +81,10 @@ Event::GetType() const
   {
     return (Event::TYPE_SOCKET);
   }
+  else if (type == Event::STR_TYPE_MSG)
+  {
+    return (Event::TYPE_MSG);
+  }
   else
   {
     return (Event::TYPE_ERR);
@@ -110,6 +115,9 @@ Event::SetType(const Event::TYPE &type_)
   case Event::TYPE_SOCKET:
     status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_SOCKET);
     break;
+  case Event::TYPE_MSG:
+    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_MSG);
+    break;
   default:
     status = false;
     break;
@@ -134,9 +142,9 @@ Event::SetId(const uint32_t &id_)
 void
 Event::Notify(void *arg_)
 {
-  ZLOG_DEBUG("Notifying handlers");
   if (this->_lock.Lock())
   {
+    ZLOG_DEBUG("Notifying handlers");
     // Make a copy of the handler list
     std::list<EventHandler *> handler_list(this->_handler_list);
     this->_lock.Unlock();

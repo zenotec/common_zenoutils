@@ -107,7 +107,7 @@ private:
 class TestSocket: public zSocket::Socket
 {
 public:
-    TestSocket(const zSocket::Address *addr_) :
+    TestSocket(const zSocket::SocketAddress *addr_) :
             _addr(*addr_), _opened(false), _bound(false), _connected(false)
     {
     }
@@ -116,7 +116,7 @@ public:
     {
     }
 
-    virtual const zSocket::Address *
+    virtual const zSocket::SocketAddress *
     GetAddress()
     {
         return (&this->_addr);
@@ -164,25 +164,25 @@ public:
 
 protected:
 
-    virtual ssize_t _send(const zSocket::Address *addr_, zSocket::Buffer *sb_)
+    virtual ssize_t _send(const zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb_)
     {
-        zSocket::Address addr(this->_addr);
-        zSocket::Buffer sb(*sb_);
+        zSocket::SocketAddress addr(this->_addr);
+        zSocket::SocketBuffer sb(*sb_);
         this->rxq.Push(std::make_pair(addr, sb));
         return (sb.Size());
     }
 
-    virtual ssize_t _broadcast(zSocket::Buffer *sb_)
+    virtual ssize_t _broadcast(zSocket::SocketBuffer *sb_)
     {
-        zSocket::Address addr(this->_addr);
-        zSocket::Buffer sb(*sb_);
+        zSocket::SocketAddress addr(this->_addr);
+        zSocket::SocketBuffer sb(*sb_);
         this->rxq.Push(std::make_pair(addr, sb));
         return (sb.Size());
     }
 
 private:
 
-    const zSocket::Address _addr;
+    const zSocket::SocketAddress _addr;
     bool _opened;
     bool _bound;
     bool _connected;

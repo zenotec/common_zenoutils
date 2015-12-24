@@ -12,7 +12,7 @@ zSocketTest_BufferDefaults( void* arg_ )
     ZLOG_DEBUG( "#############################################################" );
 
     // Create new packet and validate
-    zSocket::Buffer mySb1;
+    zSocket::SocketBuffer mySb1;
     TEST_ISNOT_NULL( mySb1.Head() );
     TEST_EQ( mySb1.Head(), mySb1.Data() );
     TEST_IS_ZERO( mySb1.Length() );
@@ -21,7 +21,7 @@ zSocketTest_BufferDefaults( void* arg_ )
     TEST_EQ( std::string( "" ), mySb1.Str() );
 
     // Create new packet of set size and validate
-    zSocket::Buffer mySb2( 500 );
+    zSocket::SocketBuffer mySb2( 500 );
     TEST_ISNOT_NULL( mySb2.Head() );
     TEST_EQ( mySb1.Head(), mySb1.Data() );
     TEST_ISNOT_NULL( mySb2.Data() );
@@ -44,13 +44,13 @@ zSocketTest_AddressDefaults( void* arg_ )
     ZLOG_DEBUG( "#############################################################" );
 
     // Create new socket address and validate
-    zSocket::Address myAddr1;
-    TEST_EQ( zSocket::Address::TYPE_NONE, myAddr1.GetType() );
+    zSocket::SocketAddress myAddr1;
+    TEST_EQ( zSocket::SocketAddress::TYPE_NONE, myAddr1.GetType() );
     TEST_EQ( std::string( "" ), myAddr1.GetAddress() );
 
     // Create Socket address using string notation
-    zSocket::Address myAddr2( zSocket::Address::TYPE_INET, "1.2.3.4:56789" );
-    TEST_EQ( zSocket::Address::TYPE_INET, myAddr2.GetType() );
+    zSocket::SocketAddress myAddr2( zSocket::SocketAddress::TYPE_INET, "1.2.3.4:56789" );
+    TEST_EQ( zSocket::SocketAddress::TYPE_INET, myAddr2.GetType() );
     TEST_EQ( std::string( "1.2.3.4:56789" ), myAddr2.GetAddress() );
 
     // Return success
@@ -80,8 +80,8 @@ zSocketTest_SocketDefaults( void* arg_ )
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddr;
-    TEST_EQ( zSocket::Address::TYPE_NONE, myAddr.GetType() );
+    zSocket::SocketAddress myAddr;
+    TEST_EQ( zSocket::SocketAddress::TYPE_NONE, myAddr.GetType() );
     TEST_EQ( std::string( "" ), myAddr.GetAddress() );
 
     TestSocket mySocket( &myAddr );

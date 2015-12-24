@@ -28,6 +28,15 @@ namespace zCom
 class TtyPortRecv : public zThread::Function
 {
 public:
+  TtyPortRecv()
+  {
+
+  }
+  virtual
+  ~TtyPortRecv()
+  {
+  }
+
   virtual void *
   ThreadFunction(void *arg_);
 
@@ -38,6 +47,15 @@ private:
 class TtyPortSend : public zThread::Function
 {
 public:
+  TtyPortSend()
+  {
+
+  }
+  virtual
+  ~TtyPortSend()
+  {
+  }
+
   virtual void *
   ThreadFunction(void *arg_);
 

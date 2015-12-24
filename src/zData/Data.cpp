@@ -33,18 +33,6 @@ Data::~Data()
     this->_pt.clear();
 }
 
-bool
-Data::operator ==( const Data &other_ ) const
-{
-    return (this->_pt == other_._pt);
-}
-
-bool
-Data::operator !=( const Data &other_ ) const
-{
-    return (this->_pt != other_._pt);
-}
-
 std::string
 Data::GetKey() const
 {

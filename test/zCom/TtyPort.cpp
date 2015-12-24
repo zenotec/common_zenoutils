@@ -23,7 +23,7 @@ zComTest_TtyPortSendRecvChar(void *arg_)
   TEST_ISNOT_ZERO(MyThread);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
 
   // Register observer
@@ -92,7 +92,7 @@ zComTest_TtyPortSendRecvBuf(void *arg_)
   TEST_ISNOT_ZERO(MyThread);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
 
   // Register observer
@@ -169,7 +169,7 @@ zComTest_TtyPortSendRecvString(void *arg_)
   TEST_ISNOT_ZERO(MyThread);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
 
   // Register observer

@@ -12,7 +12,8 @@ SUBDIRS = \
 	zCom \
 	zGpio \
 	zLed \
-	zSocket
+	zSocket \
+	zMessage
 
 if COND_VALGRIND
 VALGRIND_TESTS = \
@@ -50,7 +51,8 @@ GCOV_TESTS = \
     zCom/zComUnitTest \
     zGpio/zGpioUnitTest \
     zLed/zLedUnitTest \
-    zSocket/zSocketUnitTest
+    zSocket/zSocketUnitTest \
+    zMessage/zMessageUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)

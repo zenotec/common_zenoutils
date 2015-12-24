@@ -19,7 +19,7 @@ namespace zSocket
 //*****************************************************************************
 // Class Buffer
 //*****************************************************************************
-Buffer::Buffer(size_t size_) :
+SocketBuffer::SocketBuffer(size_t size_) :
     _head(0), _data(0), _tail(0), _end(size_)
 {
   this->_head = (uint8_t *) malloc(size_);
@@ -32,7 +32,7 @@ Buffer::Buffer(size_t size_) :
   memset(this->_head, 0, size_);
 }
 
-Buffer::Buffer(Buffer &other_) :
+SocketBuffer::SocketBuffer(SocketBuffer &other_) :
     _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
 {
   this->_head = (uint8_t *) malloc(other_._end);
@@ -47,7 +47,7 @@ Buffer::Buffer(Buffer &other_) :
 }
 
 
-Buffer::Buffer(const Buffer &other_) :
+SocketBuffer::SocketBuffer(const SocketBuffer &other_) :
     _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
 {
   this->_head = (uint8_t *) malloc(other_._end);
@@ -61,7 +61,7 @@ Buffer::Buffer(const Buffer &other_) :
   memcpy(this->_head, other_._head, other_._tail);
 }
 
-Buffer::~Buffer()
+SocketBuffer::~SocketBuffer()
 {
   if (this->_head)
   {
@@ -70,8 +70,8 @@ Buffer::~Buffer()
   } // end if
 }
 
-Buffer &
-Buffer::operator=(Buffer &other_)
+SocketBuffer &
+SocketBuffer::operator=(SocketBuffer &other_)
 {
   // Free previous buffer if it is a different size
   if (this->_head && (this->_end != other_._end))
@@ -93,8 +93,8 @@ Buffer::operator=(Buffer &other_)
   return (*this);
 }
 
-Buffer &
-Buffer::operator=(const Buffer &other_)
+SocketBuffer &
+SocketBuffer::operator=(const SocketBuffer &other_)
 {
   // Free previous buffer if it is a different size
   if (this->_head && (this->_end != other_._end))
@@ -117,7 +117,7 @@ Buffer::operator=(const Buffer &other_)
 }
 
 bool
-Buffer::operator ==(Buffer &other_)
+SocketBuffer::operator ==(SocketBuffer &other_)
 {
   bool stat = false;
   if (this->Size() == other_.Size())
@@ -128,7 +128,7 @@ Buffer::operator ==(Buffer &other_)
 }
 
 bool
-Buffer::operator !=(Buffer &other_)
+SocketBuffer::operator !=(SocketBuffer &other_)
 {
   bool stat = false;
   if (this->Size() == other_.Size())
@@ -139,13 +139,13 @@ Buffer::operator !=(Buffer &other_)
 }
 
 uint8_t *
-Buffer::Head()
+SocketBuffer::Head()
 {
   return (this->_head);
 }
 
 bool
-Buffer::Put(off_t off_)
+SocketBuffer::Put(off_t off_)
 {
   bool ret = false;
   if ((this->_tail + off_) <= this->_end)
@@ -157,7 +157,7 @@ Buffer::Put(off_t off_)
 }
 
 bool
-Buffer::Push(off_t off_)
+SocketBuffer::Push(off_t off_)
 {
   bool ret = false;
   if ((this->_data - off_) >= 0)
@@ -169,7 +169,7 @@ Buffer::Push(off_t off_)
 }
 
 bool
-Buffer::Pull(off_t off_)
+SocketBuffer::Pull(off_t off_)
 {
   bool ret = false;
   if ((this->_data + off_) <= this->_tail)
@@ -181,7 +181,7 @@ Buffer::Pull(off_t off_)
 }
 
 uint8_t *
-Buffer::Data(off_t off_)
+SocketBuffer::Data(off_t off_)
 {
   uint8_t *data = 0;
   if ((this->_data + off_) <= this->_tail)
@@ -193,43 +193,43 @@ Buffer::Data(off_t off_)
 }
 
 uint8_t *
-Buffer::Tail()
+SocketBuffer::Tail()
 {
   return (this->_head + this->_tail);
 }
 
 uint8_t *
-Buffer::End()
+SocketBuffer::End()
 {
   return (this->_head + this->_end);
 }
 
 size_t
-Buffer::Length()
+SocketBuffer::Length()
 {
   return (this->_tail - this->_data);
 }
 
 size_t
-Buffer::Size()
+SocketBuffer::Size()
 {
   return (this->_tail);
 }
 
 size_t
-Buffer::TotalSize()
+SocketBuffer::TotalSize()
 {
   return (this->_end);
 }
 
 std::string
-Buffer::Str()
+SocketBuffer::Str()
 {
   return (std::string((const char *) this->Head(), this->Size()));
 }
 
 bool
-Buffer::Str(const std::string &str_)
+SocketBuffer::Str(const std::string &str_)
 {
   bool status = false;
   void *ret = memcpy(this->Head(), str_.c_str(), str_.size());

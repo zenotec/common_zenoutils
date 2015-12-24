@@ -58,6 +58,9 @@ private:
   Mutex(const Mutex &other_);
 
   Mutex &
+  operator=(Mutex &other_);
+
+  Mutex &
   operator=(const Mutex &other_);
 
 };
@@ -96,6 +99,9 @@ private:
   Semaphore(Semaphore &other_);
 
   Semaphore(const Semaphore &other_);
+
+  Semaphore &
+  operator=(Semaphore &other_);
 
   Semaphore &
   operator=(const Semaphore &other_);

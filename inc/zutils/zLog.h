@@ -55,12 +55,15 @@ enum LogLevel
 std::string
 IntStr(int n_);
 
+std::string
+PointerStr(void *p_);
+
 template<typename T>
   std::string
   HexStr(T n_)
   {
     char str[256];
-    sprintf(str, "%#*x", (int) sizeof(T), n_);
+    snprintf(str, 256, "%#*x", (int) sizeof(T), n_);
     return (std::string(str));
   }
 

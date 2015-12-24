@@ -17,7 +17,7 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
 
-  UTEST_TEST(zMessageTest_Defaults, 0);
+  UTEST_TEST(zMessageTest_MessageDefaults, 0);
 
   UTEST_TEST(zMessageTest_FactoryError, 0);
   UTEST_TEST(zMessageTest_FactoryAuth, 0);
@@ -30,6 +30,8 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zMessageTest_MessageGetSet, 0);
   UTEST_TEST(zMessageTest_MessageCopy, 0);
+
+  UTEST_TEST(zMessageTest_MessageSocket, 0);
 
   UTEST_TEST(zMessageTest_MessageHandler, 0);
 

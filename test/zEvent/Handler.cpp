@@ -3,6 +3,10 @@
 int
 zEventTest_EventHandlerTest(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zEventTest_EventHandlerTest()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new event and validate
   zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
   TEST_ISNOT_NULL(MyEvent);
@@ -12,37 +16,39 @@ zEventTest_EventHandlerTest(void* arg_)
   // Create new event handler and validate
   zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_NULL(MyHandler);
-  TEST_TRUE(MyHandler->Empty());
-  TEST_IS_ZERO(MyHandler->Size());
-  TEST_FALSE(MyHandler->TimedWait(1));
 
   // Register event with handler
   MyHandler->RegisterEvent(MyEvent);
-  TEST_FALSE(MyHandler->TimedWait(1));
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_NULL(MyObserver);
+  TEST_FALSE(MyObserver->TryWait());
+  TEST_IS_ZERO(MyObserver->Size());
+  TEST_TRUE(MyObserver->Empty());
 
   // Register observer with handler
   MyHandler->RegisterObserver(MyObserver);
-  TEST_FALSE(MyObserver->TimedWait(1));
+  TEST_FALSE(MyObserver->TryWait());
+  TEST_IS_ZERO(MyObserver->Size());
+  TEST_TRUE(MyObserver->Empty());
 
   // Notify
   MyEvent->Notify(NULL);
-  TEST_TRUE(MyHandler->TimedWait(100));
-  TEST_TRUE(MyObserver->TimedWait(100));
-  TEST_FALSE(MyHandler->Empty());
-  TEST_EQ(1, MyHandler->Size());
-  TEST_TRUE(MyEvent == MyHandler->GetEvent());
+  TEST_TRUE(MyObserver->TryWait());
+  TEST_EQ(MyObserver->Size(), 1);
+  TEST_FALSE(MyObserver->Empty());
+  TEST_TRUE(MyObserver->Front() == MyEvent);
+  MyObserver->Pop();
 
   // Unregister observer with handler
   MyHandler->UnregisterObserver(MyObserver);
-  TEST_FALSE(MyObserver->TimedWait(1));
+  TEST_FALSE(MyObserver->TryWait());
+  TEST_IS_ZERO(MyObserver->Size());
+  TEST_TRUE(MyObserver->Empty());
 
   // Unregister event with handler
   MyHandler->UnregisterEvent(MyEvent);
-  TEST_FALSE(MyHandler->TimedWait(1));
 
   // Cleanup
   delete (MyObserver);

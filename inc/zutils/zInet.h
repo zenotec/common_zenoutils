@@ -25,7 +25,7 @@ namespace zSocket
 // InetAddress Class
 //**********************************************************************
 
-class InetAddress : public Address
+class InetAddress : public SocketAddress
 {
 
 public:
@@ -107,6 +107,15 @@ private:
 class InetSocketRecv : public zThread::Function
 {
 public:
+  InetSocketRecv()
+  {
+
+  }
+  virtual
+  ~InetSocketRecv()
+  {
+
+  }
   virtual void *
   ThreadFunction(void *arg_);
 };
@@ -118,6 +127,17 @@ public:
 class InetSocketSend : public zThread::Function
 {
 public:
+  InetSocketSend()
+  {
+
+  }
+
+  virtual
+  ~InetSocketSend()
+  {
+
+  }
+
   virtual void *
   ThreadFunction(void *arg_);
 };
@@ -139,7 +159,7 @@ public:
   virtual
   ~InetSocket();
 
-  virtual const zSocket::Address *
+  virtual const zSocket::SocketAddress *
   GetAddress();
 
   virtual bool
@@ -159,13 +179,13 @@ protected:
   int _sock;
 
   virtual ssize_t
-  _recv(zSocket::Address *src_, zSocket::Buffer *sb_);
+  _recv(zSocket::SocketAddress *src_, zSocket::SocketBuffer *sb_);
 
   virtual ssize_t
-  _send(const zSocket::Address *dst_, zSocket::Buffer *sb_);
+  _send(const zSocket::SocketAddress *dst_, zSocket::SocketBuffer *sb_);
 
   virtual ssize_t
-  _broadcast(zSocket::Buffer *sb_);
+  _broadcast(zSocket::SocketBuffer *sb_);
 
 private:
 

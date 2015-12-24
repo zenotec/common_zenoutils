@@ -20,8 +20,8 @@ int zSocketTest_HandlerRegister(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddr;
-    TEST_EQ(zSocket::Address::TYPE_NONE, myAddr.GetType());
+    zSocket::SocketAddress myAddr;
+    TEST_EQ(zSocket::SocketAddress::TYPE_NONE, myAddr.GetType());
     TEST_EQ(std::string(""), myAddr.GetAddress());
 
     // Create new observer and validate
@@ -55,7 +55,7 @@ int zSocketTest_HandlerStartStop(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    zSocket::SocketAddress myAddress(zSocket::SocketAddress::TYPE_LOOP, "lo");
     TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
     // Create new observer and validate
@@ -105,7 +105,7 @@ int zSocketTest_HandlerSendRecv(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    zSocket::SocketAddress myAddress(zSocket::SocketAddress::TYPE_LOOP, "lo");
     TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
     // Create new observer and validate
@@ -134,7 +134,7 @@ int zSocketTest_HandlerSendRecv(void* arg_)
     TEST_TRUE(myHandler->Send(&myAddress, expStr));
 
     // Wait for socket observer to be notified
-    zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
+    zSocket::SocketBuffer *sb = myObserver->WaitForPacket(1000);
     TEST_ISNOT_NULL(sb);
     delete (sb);
 
@@ -161,7 +161,7 @@ int zSocketTest_HandlerBroadcast(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddress(zSocket::Address::TYPE_LOOP, "lo");
+    zSocket::SocketAddress myAddress(zSocket::SocketAddress::TYPE_LOOP, "lo");
     TEST_EQ(std::string("lo"), myAddress.GetAddress());
 
     // Create new observer and validate
@@ -190,7 +190,7 @@ int zSocketTest_HandlerBroadcast(void* arg_)
     TEST_TRUE(myHandler->Broadcast(expStr));
 
     // Wait for socket observer to be notified
-    zSocket::Buffer *sb = myObserver->WaitForPacket(1000);
+    zSocket::SocketBuffer *sb = myObserver->WaitForPacket(1000);
     TEST_ISNOT_NULL(sb);
     delete (sb);
 

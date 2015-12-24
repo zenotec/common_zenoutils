@@ -14,7 +14,7 @@ int zSocketTest_InetAddressGetSet(void* arg_)
 
     // Create new socket address and validate
     zSocket::InetAddress myAddr;
-    TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
+    TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr.GetType());
     TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
     TEST_EQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
     TEST_EQ(std::string("0"), myAddr.GetPort());
@@ -41,12 +41,12 @@ int zSocketTest_InetAddressCompare(void* arg_)
 
     // Create new socket address and validate
     zSocket::InetAddress myAddr1;
-    TEST_EQ(zSocket::Address::TYPE_INET, myAddr1.GetType());
+    TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr1.GetType());
     TEST_EQ(std::string("0.0.0.0:0"), myAddr1.GetAddress());
 
     // Create second socket address and validate
     zSocket::InetAddress myAddr2;
-    TEST_EQ(zSocket::Address::TYPE_INET, myAddr2.GetType());
+    TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr2.GetType());
     TEST_EQ(std::string("0.0.0.0:0"), myAddr2.GetAddress());
 
     // Compare address (match)
@@ -91,7 +91,7 @@ int zSocketTest_InetAddressIface(void* arg_)
 
     // Create new socket address and validate
     zSocket::InetAddress myAddr("eth0");
-    TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
+    TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr.GetType());
     TEST_NEQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
     TEST_NEQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
     TEST_EQ(std::string("0"), myAddr.GetPort());

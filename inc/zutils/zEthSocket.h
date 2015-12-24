@@ -30,7 +30,7 @@ class EthAddress
 public:
   static const unsigned int ETHADDR_LEN;
 
-  EthAddress(const Address &addr_);
+  EthAddress(const SocketAddress &addr_);
   EthAddress(const std::string &addr_ = std::string("00:00:00:00:00:00"));
   EthAddress(const struct sockaddr_in &addr_);
 
@@ -46,7 +46,7 @@ public:
   bool
   operator >(const EthAddress &other_) const;
 
-  Address
+  SocketAddress
   GetAddr() const;
   std::string
   GetAddrString() const;
@@ -54,14 +54,14 @@ public:
   GetAddrSockAddr() const;
 
   bool
-  GetAddr(Address &addr_) const;
+  GetAddr(SocketAddress &addr_) const;
   bool
   GetAddr(std::string &addr_) const;
   bool
   GetAddr(struct sockaddr_in &addr_) const;
 
   bool
-  SetAddr(const Address &addr_);
+  SetAddr(const SocketAddress &addr_);
   bool
   SetAddr(const std::string &addr_);
   bool

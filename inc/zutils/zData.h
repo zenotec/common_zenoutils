@@ -31,13 +31,44 @@ public:
 
   Data(const std::string &key_ = "");
 
+  Data(Data &other_)
+  {
+    this->_pt = other_._pt;
+  }
+
+  Data(const Data &other_)
+  {
+    this->_pt = other_._pt;
+  }
+
   virtual
   ~Data();
 
+  Data &
+  operator=(Data &other_)
+  {
+    this->_pt = other_._pt;
+    return (*this);
+  }
+
+  Data &
+  operator=(const Data &other_)
+  {
+    this->_pt = other_._pt;
+    return (*this);
+  }
+
   bool
-  operator ==(const Data &other_) const;
+  operator ==(const Data &other_) const
+      {
+    return (this->_pt == other_._pt);
+  }
+
   bool
-  operator !=(const Data &other_) const;
+  operator !=(const Data &other_) const
+      {
+    return (this->_pt != other_._pt);
+  }
 
   std::string
   GetKey() const;

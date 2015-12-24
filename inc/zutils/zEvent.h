@@ -40,6 +40,7 @@ class Event : zData::Data
   static const std::string STR_TYPE_TEMP;
   static const std::string STR_TYPE_GPIO;
   static const std::string STR_TYPE_SOCKET;
+  static const std::string STR_TYPE_MSG;
   static const std::string STR_ID;
 
 public:
@@ -53,10 +54,11 @@ public:
     TYPE_TEMP = 3,
     TYPE_GPIO = 4,
     TYPE_SOCKET = 5,
+    TYPE_MSG = 6,
     TYPE_LAST
   };
 
-  Event(Event::TYPE type_, uint32_t id_ = 0);
+  Event(Event::TYPE type_ = TYPE_NONE, uint32_t id_ = 0);
 
   virtual
   ~Event();
@@ -104,7 +106,7 @@ public:
 //**********************************************************************
 // EventHandler Class
 //**********************************************************************
-class EventHandler : private std::queue<Event *>, public zSem::Semaphore
+class EventHandler
 {
 
   friend class Event;
@@ -126,15 +128,6 @@ public:
 
   void
   UnregisterObserver(EventObserver *obs_);
-
-  Event *
-  GetEvent();
-
-  bool
-  Empty();
-
-  size_t
-  Size();
 
 protected:
 

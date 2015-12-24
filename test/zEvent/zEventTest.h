@@ -8,8 +8,8 @@
 #ifndef _ZEVENTTEST_H_
 #define _ZEVENTTEST_H_
 
+#include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
-#include <zutils/zSem.h>
 
 #include "UnitTest.h"
 
@@ -25,24 +25,24 @@ zEventTest_EventManagerTest(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TestObserver : public zEvent::EventObserver, public zSem::Semaphore
+class TestObserver : public zEvent::EventObserver, public zQueue<zEvent::Event *>
 {
 public:
   TestObserver()
   {
-
   }
 
   virtual
   ~TestObserver()
   {
-
   }
 
   virtual bool
   EventHandler(zEvent::Event *event_, void *arg_)
   {
-    return (this->Post());
+    ZLOG_DEBUG("Handling event");
+    this->Push(event_);
+    return (true);
   }
 };
 

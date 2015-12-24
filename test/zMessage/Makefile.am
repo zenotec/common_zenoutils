@@ -13,8 +13,9 @@ zMessageUnitTest_SOURCES = \
     zMessageTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Factory.cpp \
     Message.cpp \
+    Factory.cpp \
+    Socket.cpp \
     Handler.cpp
 
 zMessageUnitTest_LDADD = \

@@ -20,8 +20,11 @@ zComTest_PortSendRecvChar(void *arg_)
   TEST_ISNOT_ZERO(MyPort);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
+  TEST_FALSE(MyObserver->RxSem.TryWait());
+  TEST_FALSE(MyObserver->TxSem.TryWait());
+  TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Register observer
   MyPort->RegisterObserver(MyObserver);
@@ -41,12 +44,6 @@ zComTest_PortSendRecvChar(void *arg_)
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
-
-  // Verify byte received
-  MyEvent = MyPort->GetEvent();
-  TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
-  TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
 
   // Receive byte back
   char c = 0;
@@ -87,7 +84,7 @@ zComTest_PortSendRecvBuf(void *arg_)
   TEST_ISNOT_ZERO(MyPort);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
 
   // Register observer
@@ -106,10 +103,6 @@ zComTest_PortSendRecvBuf(void *arg_)
   // Verify data was received
   while (MyObserver->RxSem.TimedWait(100000))
   {
-    MyEvent = MyPort->GetEvent();
-    TEST_ISNOT_NULL(MyEvent);
-    TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
-    TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
     ++cnt;
   }
   TEST_EQ(cnt, 100);
@@ -153,7 +146,7 @@ zComTest_PortSendRecvString(void *arg_)
   TEST_ISNOT_ZERO(MyPort);
 
   // Create new observer and validate
-  TestPortObserver *MyObserver = new TestPortObserver;
+  TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_ZERO(MyObserver);
 
   // Register observer
@@ -171,10 +164,6 @@ zComTest_PortSendRecvString(void *arg_)
   cnt = 0;
   while (MyObserver->RxSem.TimedWait(100000))
   {
-    MyEvent = MyPort->GetEvent();
-    TEST_ISNOT_NULL(MyEvent);
-    TEST_EQ(zEvent::Event::TYPE_COM, MyEvent->GetType());
-    TEST_EQ(zCom::PortEvent::EVENTID_CHAR_RCVD, MyEvent->GetId());
     ++cnt;
   }
   TEST_EQ(cnt, 12);

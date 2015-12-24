@@ -11,8 +11,8 @@ int zSocketTest_AddressGetSet(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddr(zSocket::Address::TYPE_INET);
-    TEST_EQ(zSocket::Address::TYPE_INET, myAddr.GetType());
+    zSocket::SocketAddress myAddr(zSocket::SocketAddress::TYPE_INET);
+    TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr.GetType());
     TEST_EQ(std::string(""), myAddr.GetAddress());
     TEST_TRUE(myAddr.SetAddress(std::string("some_address")));
     TEST_EQ(std::string("some_address"), myAddr.GetAddress());
@@ -29,11 +29,11 @@ int zSocketTest_AddressCompare(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new socket address and validate
-    zSocket::Address myAddr1(zSocket::Address::TYPE_INET);
+    zSocket::SocketAddress myAddr1(zSocket::SocketAddress::TYPE_INET);
     TEST_EQ(std::string(""), myAddr1.GetAddress());
 
     // Create another new socket address and validate
-    zSocket::Address myAddr2(zSocket::Address::TYPE_INET);
+    zSocket::SocketAddress myAddr2(zSocket::SocketAddress::TYPE_INET);
     TEST_EQ(std::string(""), myAddr2.GetAddress());
 
     // Compare the addresses

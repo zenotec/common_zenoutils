@@ -9,8 +9,9 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzSocket.la
 
 libzSocket_la_SOURCES = \
-    Buffer.cpp \
-    Address.cpp \
+    SocketBuffer.cpp \
+    SocketAddress.cpp \
     Socket.cpp \
+    SocketFactory.cpp \
     Inet.cpp
 

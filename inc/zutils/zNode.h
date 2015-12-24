@@ -216,7 +216,7 @@ private:
 //**********************************************************************
 // zNode::Manager Class
 //**********************************************************************
-class Manager: public zNode::Node, private zMessage::Observer, private zNode::Observer
+class Manager: public zNode::Node, private zMessage::MessageObserver, private zNode::Observer
 {
 
 public:
@@ -227,10 +227,10 @@ public:
     ~Manager();
 
     bool
-    AddMessageHandler( zMessage::Handler *handler_ );
+    AddMessageHandler( zMessage::MessageHandler *handler_ );
 
     bool
-    RemMessageHandler( zMessage::Handler *handler_ );
+    RemMessageHandler( zMessage::MessageHandler *handler_ );
 
     bool
     Announce();
@@ -241,7 +241,7 @@ public:
 protected:
 
     virtual bool
-    MessageRecv( zMessage::Handler &handler_, zMessage::Message &msg_ );
+    MessageRecv( zMessage::MessageHandler &handler_, zMessage::Message &msg_ );
 
     virtual void
     EventHandler( zNode::Observer::EVENT event_, const zNode::Node &node_ );
@@ -250,19 +250,19 @@ private:
 
     Table _nodeTable;
 
-    std::list<zMessage::Handler *> _messageHandlers;
+    std::list<zMessage::MessageHandler *> _messageHandlers;
 
     bool
-    _helloMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+    _helloMsgHandler( zMessage::MessageHandler &handler_, zNode::Message &msg_ );
 
     bool
-    _ackMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+    _ackMsgHandler( zMessage::MessageHandler &handler_, zNode::Message &msg_ );
 
     bool
-    _byeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+    _byeMsgHandler( zMessage::MessageHandler &handler_, zNode::Message &msg_ );
 
     bool
-    _nodeMsgHandler( zMessage::Handler &handler_, zNode::Message &msg_ );
+    _nodeMsgHandler( zMessage::MessageHandler &handler_, zNode::Message &msg_ );
 
 };
 

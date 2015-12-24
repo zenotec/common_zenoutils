@@ -39,15 +39,15 @@ zComTest_TtyPortSendRecvBuf(void *arg_);
 int
 zComTest_TtyPortSendRecvString(void *arg_);
 
-class TestPortObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::EventObserver
 {
 public:
-  TestPortObserver()
+  TestObserver()
   {
   }
 
   virtual
-  ~TestPortObserver()
+  ~TestObserver()
   {
   }
 

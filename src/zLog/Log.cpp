@@ -18,15 +18,23 @@ namespace zUtils
 namespace zLog
 {
 
-static const char *levelStr[] = { "CRIT", "ERROR", "WARN", "INFO", "DEBUG" };
-
 std::string
 IntStr(int n_)
 {
   char str[256];
-  sprintf(str, "%d", n_);
+  snprintf(str, 256, "%d", n_);
   return (std::string(str));
 }
+
+std::string
+PointerStr(void *p_)
+{
+  char str[256];
+  snprintf(str, 256, "%p", p_);
+  return (std::string(str));
+}
+
+static const char *levelStr[] = { "CRIT", "ERROR", "WARN", "INFO", "DEBUG" };
 
 //*****************************************************************************
 // Connector Class

@@ -20,16 +20,19 @@ namespace zEvent
 
 EventHandler::EventHandler()
 {
+  ZLOG_DEBUG("Creating handler: '" + zLog::PointerStr(this) + "'");
   this->_lock.Unlock();
 }
 
 EventHandler::~EventHandler()
 {
+  ZLOG_DEBUG("Destroying handler: '" + zLog::PointerStr(this) + "'");
 }
 
 void
 EventHandler::RegisterEvent(Event *event_)
 {
+  ZLOG_DEBUG("Registering event: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(event_) + "'");
   if (event_ && this->_lock.Lock())
   {
     this->_event_list.push_back(event_);
@@ -41,6 +44,7 @@ EventHandler::RegisterEvent(Event *event_)
 void
 EventHandler::UnregisterEvent(Event *event_)
 {
+  ZLOG_DEBUG("Unregistering event: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(event_) + "'");
   if (event_ && this->_lock.Lock())
   {
     this->_event_list.remove(event_);
@@ -52,6 +56,7 @@ EventHandler::UnregisterEvent(Event *event_)
 void
 EventHandler::RegisterObserver(EventObserver *obs_)
 {
+  ZLOG_DEBUG("Registering observer: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(obs_) + "'");
   if (obs_ && this->_lock.Lock())
   {
     this->_obs_list.push_back(obs_);
@@ -62,48 +67,12 @@ EventHandler::RegisterObserver(EventObserver *obs_)
 void
 EventHandler::UnregisterObserver(EventObserver *obs_)
 {
+  ZLOG_DEBUG("Unregistering observer: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(obs_) + "'");
   if (obs_ && this->_lock.Lock())
   {
     this->_obs_list.remove(obs_);
     this->_lock.Unlock();
   }
-}
-
-Event *
-EventHandler::GetEvent()
-{
-  Event *event = NULL;
-  if (!this->empty() && this->_lock.Lock())
-  {
-    event = this->front();
-    this->pop();
-    this->_lock.Unlock();
-  }
-  return (event);
-}
-
-bool
-EventHandler::Empty()
-{
-  bool empty = true;
-  if (this->_lock.Lock())
-  {
-    empty = this->_event_list.empty();
-    this->_lock.Unlock();
-  }
-  return (empty);
-}
-
-size_t
-EventHandler::Size()
-{
-  size_t size = 0;
-  if (this->_lock.Lock())
-  {
-    size = this->_event_list.size();
-    this->_lock.Unlock();
-  }
-  return (size);
 }
 
 void
@@ -114,8 +83,6 @@ EventHandler::notify(Event *event_, void *arg_)
   if (this->_lock.Lock())
   {
     std::list<EventObserver *> obs_list(this->_obs_list);
-    this->push(event_);
-    this->Post();
     this->_lock.Unlock();
 
     // Notify all registered observers

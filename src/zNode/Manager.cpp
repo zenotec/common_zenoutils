@@ -25,8 +25,8 @@ Manager::Manager() :
 Manager::~Manager()
 {
   this->_nodeTable.Unregister(this);
-  std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
-  std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();
+  std::list<zMessage::MessageHandler *>::iterator it = this->_messageHandlers.begin();
+  std::list<zMessage::MessageHandler *>::iterator end = this->_messageHandlers.end();
   for (; it != end; ++it)
   {
     (*it)->Unregister(zMessage::Message::TYPE_HELLO, this);
@@ -38,7 +38,7 @@ Manager::~Manager()
 }
 
 bool
-Manager::AddMessageHandler(zMessage::Handler *handler_)
+Manager::AddMessageHandler(zMessage::MessageHandler *handler_)
 {
   bool status = false;
 
@@ -68,7 +68,7 @@ Manager::AddMessageHandler(zMessage::Handler *handler_)
 }
 
 bool
-Manager::RemMessageHandler(zMessage::Handler *handler_)
+Manager::RemMessageHandler(zMessage::MessageHandler *handler_)
 {
   bool status = false;
 
@@ -106,8 +106,8 @@ Manager::Announce()
 
   zNode::Message *HelloMsg = new zNode::Message(zMessage::Message::TYPE_HELLO, *this);
 
-  std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
-  std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();
+  std::list<zMessage::MessageHandler *>::iterator it = this->_messageHandlers.begin();
+  std::list<zMessage::MessageHandler *>::iterator end = this->_messageHandlers.end();
   for (; it != end; ++it)
   {
     if (!(*it)->Broadcast(*HelloMsg))
@@ -127,8 +127,8 @@ Manager::Leave()
 
   zMessage::Message *ByeMsg = zMessage::Factory::Create(zMessage::Message::TYPE_BYE);
 
-  std::list<zMessage::Handler *>::iterator it = this->_messageHandlers.begin();
-  std::list<zMessage::Handler *>::iterator end = this->_messageHandlers.end();
+  std::list<zMessage::MessageHandler *>::iterator it = this->_messageHandlers.begin();
+  std::list<zMessage::MessageHandler *>::iterator end = this->_messageHandlers.end();
   for (; it != end; ++it)
   {
     if (!(*it)->Broadcast(*ByeMsg))
@@ -140,7 +140,7 @@ Manager::Leave()
 }
 
 bool
-Manager::MessageRecv(zMessage::Handler &handler_, zMessage::Message &msg_)
+Manager::MessageRecv(zMessage::MessageHandler &handler_, zMessage::Message &msg_)
 {
   bool status = false;
 
@@ -222,7 +222,7 @@ Manager::EventHandler(zNode::Observer::EVENT event_, const zNode::Node &node_)
 }
 
 bool
-Manager::_helloMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
+Manager::_helloMsgHandler(zMessage::MessageHandler &handler_, zNode::Message &msg_)
 {
   bool status = false;
 
@@ -249,13 +249,13 @@ Manager::_helloMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
 }
 
 bool
-Manager::_ackMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
+Manager::_ackMsgHandler(zMessage::MessageHandler &handler_, zNode::Message &msg_)
 {
   return(false);
 }
 
 bool
-Manager::_byeMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
+Manager::_byeMsgHandler(zMessage::MessageHandler &handler_, zNode::Message &msg_)
 {
   bool status = false;
 
@@ -275,7 +275,7 @@ Manager::_byeMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
 }
 
 bool
-Manager::_nodeMsgHandler(zMessage::Handler &handler_, zNode::Message &msg_)
+Manager::_nodeMsgHandler(zMessage::MessageHandler &handler_, zNode::Message &msg_)
 {
   bool status = false;
 
