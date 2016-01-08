@@ -84,7 +84,7 @@ zSocketTest_SocketDefaults( void* arg_ )
     TEST_EQ( zSocket::SocketAddress::TYPE_NONE, myAddr.GetType() );
     TEST_EQ( std::string( "" ), myAddr.GetAddress() );
 
-    TestSocket mySocket( &myAddr );
+    TestSocket mySocket( myAddr );
 
     // Return success
     return (0);

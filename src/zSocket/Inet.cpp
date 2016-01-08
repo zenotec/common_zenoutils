@@ -51,7 +51,7 @@ _get_sockaddr(const InetAddress *addr_, struct sockaddr_in *sockaddr_)
 {
   memset((void *) sockaddr_, 0, sizeof(struct sockaddr_in));
   sockaddr_->sin_family = AF_INET;
-  inet_pton( AF_INET, addr_->GetIpAddr().c_str(), &sockaddr_->sin_addr);
+  inet_pton( AF_INET, addr_->GetIp().c_str(), &sockaddr_->sin_addr);
   int port = 0;
   sscanf(addr_->GetPort().c_str(), "%d", &port);
   sockaddr_->sin_port = htons(port);
@@ -61,7 +61,7 @@ _get_sockaddr(const InetAddress *addr_, struct sockaddr_in *sockaddr_)
 static bool
 _get_inetaddress(struct sockaddr_in *sockaddr_, InetAddress *addr_)
 {
-  addr_->SetIpAddr(_get_ipaddr_string(sockaddr_));
+  addr_->SetIp(_get_ipaddr_string(sockaddr_));
   addr_->SetPort(_get_port_string(sockaddr_));
   return (true);
 }
@@ -73,7 +73,7 @@ _get_inetaddress(struct sockaddr_in *sockaddr_, InetAddress *addr_)
 InetAddress::InetAddress() :
     zSocket::SocketAddress(zSocket::SocketAddress::TYPE_INET)
 {
-  this->SetIpAddr("0.0.0.0");
+  this->SetIp("0.0.0.0");
   this->SetPort("0");
   this->SetNetmask("0.0.0.0");
   this->SetBroadcast("0.0.0.0");
@@ -91,7 +91,7 @@ InetAddress::InetAddress(const std::string &ifname_) :
       if ((strcmp(ifaddr->ifa_name, ifname_.c_str()) == 0)
           && (ifaddr->ifa_addr->sa_family == AF_INET))
       {
-        this->SetIpAddr(_get_ipaddr_string((struct sockaddr_in *) ifaddr->ifa_addr));
+        this->SetIp(_get_ipaddr_string((struct sockaddr_in *) ifaddr->ifa_addr));
         this->SetPort(_get_port_string((struct sockaddr_in *) ifaddr->ifa_addr));
         this->SetNetmask(
             _get_ipaddr_string((struct sockaddr_in *) ifaddr->ifa_netmask));
@@ -111,43 +111,47 @@ InetAddress::InetAddress(const std::string &ifname_) :
   freeifaddrs(iflist);
 }
 
-InetAddress::InetAddress(InetAddress &other_)
+InetAddress::InetAddress(SocketAddress &other_)
 {
-  this->_type = other_._type;
+  ZLOG_DEBUG("copy constructor");
+  this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
 }
 
-InetAddress::InetAddress(const InetAddress &other_)
+InetAddress::InetAddress(const SocketAddress &other_)
 {
-  this->_type = other_._type;
+  ZLOG_DEBUG("const copy constructor");
+  this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
-}
-
-InetAddress &
-InetAddress::operator=(InetAddress &other_)
-{
-  this->_type = other_._type;
-  this->SetAddress(other_.GetAddress());
-  return (*this);
-}
-
-InetAddress &
-InetAddress::operator=(const InetAddress &other_)
-{
-  this->_type = other_._type;
-  this->SetAddress(other_.GetAddress());
-  return (*this);
 }
 
 InetAddress::~InetAddress()
 {
 }
 
+InetAddress &
+InetAddress::operator=(SocketAddress &other_)
+{
+  ZLOG_DEBUG("copy operator");
+  this->SetType(other_.GetType());
+  this->SetAddress(other_.GetAddress());
+  return (*this);
+}
+
+InetAddress &
+InetAddress::operator=(const SocketAddress &other_)
+{
+  ZLOG_DEBUG("const copy operator");
+  this->SetType(other_.GetType());
+  this->SetAddress(other_.GetAddress());
+  return (*this);
+}
+
 bool
 InetAddress::operator ==(const InetAddress &other_) const
-    {
+{
   bool status = true;
-  status = (status && (this->_ipaddr == other_._ipaddr));
+  status = (status && (this->_ip == other_._ip));
   status = (status && (this->_port == other_._port));
   status = (status && (this->_netmask == other_._netmask));
   status = (status && (this->_bcast == other_._bcast));
@@ -156,9 +160,9 @@ InetAddress::operator ==(const InetAddress &other_) const
 
 bool
 InetAddress::operator !=(const InetAddress &other_) const
-    {
+{
   bool status = true;
-  status = (status && (this->_ipaddr == other_._ipaddr));
+  status = (status && (this->_ip == other_._ip));
   status = (status && (this->_port == other_._port));
   status = (status && (this->_netmask == other_._netmask));
   status = (status && (this->_bcast == other_._bcast));
@@ -167,14 +171,14 @@ InetAddress::operator !=(const InetAddress &other_) const
 
 bool
 InetAddress::operator <(const InetAddress &other_) const
-    {
+{
   bool status = false;
   return (status);
 }
 
 bool
 InetAddress::operator >(const InetAddress &other_) const
-    {
+{
   bool status = false;
   return (status);
 }
@@ -182,7 +186,8 @@ InetAddress::operator >(const InetAddress &other_) const
 std::string
 InetAddress::GetAddress() const
 {
-  std::string addr = this->_ipaddr + std::string(":") + this->_port;
+  std::string addr = this->_ip + std::string(":") + this->_port;
+  ZLOG_DEBUG("getting inet socket address: " + addr);
   return (addr);
 }
 
@@ -193,11 +198,14 @@ InetAddress::SetAddress(const std::string &addr_)
   char *str = 0;
   char *c = 0;
 
+  ZLOG_DEBUG("setting inet socket address: " + addr_);
+  zSocket::SocketAddress::SetAddress(addr_);
+
   str = strdup(addr_.c_str());
   if (str != NULL)
   {
     c = strtok(str, ":");
-    if ((c != NULL) && this->SetIpAddr(std::string(c)))
+    if ((c != NULL) && this->SetIp(std::string(c)))
     {
       c = strtok( NULL, ":");
       if ((c != NULL) && this->SetPort(std::string(c)))
@@ -212,36 +220,24 @@ InetAddress::SetAddress(const std::string &addr_)
 }
 
 std::string
-InetAddress::GetIpAddr() const
+InetAddress::GetIp() const
 {
-  return (this->_ipaddr);
+  return (this->_ip);
+}
+
+bool
+InetAddress::SetIp(const std::string &ipaddr_)
+{
+  bool status = true;
+  // TODO: Add error checking
+  this->_ip = ipaddr_;
+  return (status);
 }
 
 std::string
 InetAddress::GetPort() const
 {
   return (this->_port);
-}
-
-std::string
-InetAddress::GetNetmask() const
-{
-  return (this->_netmask);
-}
-
-std::string
-InetAddress::GetBroadcast() const
-{
-  return (this->_bcast);
-}
-
-bool
-InetAddress::SetIpAddr(const std::string &ipaddr_)
-{
-  bool status = true;
-  // TODO: Add error checking
-  this->_ipaddr = ipaddr_;
-  return (status);
 }
 
 bool
@@ -258,6 +254,12 @@ InetAddress::SetPort(const std::string &port_)
   return (status);
 }
 
+std::string
+InetAddress::GetNetmask() const
+{
+  return (this->_netmask);
+}
+
 bool
 InetAddress::SetNetmask(const std::string &netmask_)
 {
@@ -265,6 +267,12 @@ InetAddress::SetNetmask(const std::string &netmask_)
   // TODO: Add error checking
   this->_netmask = netmask_;
   return (status);
+}
+
+std::string
+InetAddress::GetBroadcast() const
+{
+  return (this->_bcast);
 }
 
 bool
@@ -300,9 +308,9 @@ InetSocketRecv::ThreadFunction(void *arg_)
   if (ret > 0 && (fds[0].revents == POLLIN))
   {
     ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
-    SocketAddress addr;
+    InetAddress addr;
     SocketBuffer sb;
-    bytes = sock->_recv(&addr, &sb);
+    bytes = sock->_recv(addr, sb);
     if (bytes > 0)
     {
       sock->rxq.Push(std::make_pair(addr, sb));
@@ -338,10 +346,12 @@ InetSocketSend::ThreadFunction(void *arg_)
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT) && sock->txq.TimedWait(100000))
   {
-    std::pair<const zSocket::SocketAddress, zSocket::SocketBuffer> p = sock->txq.Front();
-    ZLOG_DEBUG(
-        "Sending packet: " + p.first.GetAddress() + "(" + zLog::IntStr(p.second.Size()) + ")");
-    if ((bytes = sock->_send(&p.first, &p.second)) == p.second.Size())
+    InetAddress addr(sock->txq.Front().first);
+    SocketBuffer sb(sock->txq.Front().second);
+
+    ZLOG_DEBUG("Sending packet: " + addr.GetAddress() + "(" + zLog::IntStr(sb.Size()) + ")");
+
+    if ((bytes = sock->_send(addr, sb)) == sb.Size())
     {
       sock->txq.Pop();
       sock->tx_event.Notify(sock);
@@ -360,11 +370,13 @@ InetSocketSend::ThreadFunction(void *arg_)
 // zSocket::InetSocket Class
 //**********************************************************************
 
-InetSocket::InetSocket(const InetAddress &addr_) :
-    _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this),
-        _sock(0), _inetaddr(addr_)
+InetSocket::InetSocket() :
+        _rx_thread(&this->_rx_func, this),
+        _tx_thread(&this->_tx_func, this),
+        _sock(0)
 {
   ZLOG_DEBUG("New socket: " + zLog::IntStr(this->_sock));
+  this->SetType(zSocket::Socket::TYPE_IPV4);
 }
 
 InetSocket::~InetSocket()
@@ -373,10 +385,17 @@ InetSocket::~InetSocket()
   this->Close();
 }
 
-const zSocket::SocketAddress *
+const zSocket::InetAddress &
 InetSocket::GetAddress()
 {
-  return (&this->_inetaddr);
+  return(this->_inetaddr);
+}
+
+bool
+InetSocket::SetAddress(const zSocket::InetAddress &addr_)
+{
+  this->_inetaddr = addr_;
+  return(true);
 }
 
 bool
@@ -507,7 +526,43 @@ InetSocket::Connect()
 }
 
 ssize_t
-InetSocket::_send(const zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb_)
+InetSocket::_recv(zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
+{
+  if (!this->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return (false);
+  }
+
+  if (addr_.GetType() != SocketAddress::TYPE_INET)
+  {
+    ZLOG_CRIT(std::string("Invalid address type"));
+    return (false);
+  }
+
+  struct sockaddr_in src = { 0 };
+  socklen_t len = sizeof(src);
+
+  int n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, (struct sockaddr *) &src, &len);
+  if (n > 0)
+  {
+    sb_.Put(n);
+    _get_inetaddress(&src, &addr_);
+
+    std::string logstr;
+    logstr += "Receiving on socket:\t";
+    logstr += "To: " + this->_inetaddr.GetAddress() + ";\t";
+    logstr += "From: " + addr_.GetAddress() + ";\t";
+    logstr += "Size: " + zLog::IntStr(n) + ";";
+    ZLOG_INFO(logstr);
+
+  } // end if
+
+  return (n);
+}
+
+ssize_t
+InetSocket::_send(const zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
 {
 
   if (!this->_sock)
@@ -516,31 +571,23 @@ InetSocket::_send(const zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb
     return (-1);
   }
 
-  if (addr_->GetType() != SocketAddress::TYPE_INET)
-  {
-    ZLOG_CRIT(std::string("Invalid address type: " +
-        zLog::IntStr(addr_->GetType())));
-    return (-1);
-  }
-
   // Log info message about message being sent
   std::string logstr;
   logstr += "Sending on socket:\t";
-  logstr += "To: " + addr_->GetAddress() + ";\t";
+  logstr += "To: " + addr_.GetAddress() + ";\t";
   logstr += "From: " + this->_inetaddr.GetAddress() + ";\t";
-  logstr += "Size: " + zLog::IntStr(sb_->Size()) + ";";
+  logstr += "Size: " + zLog::IntStr(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
   struct sockaddr_in src = { 0 };
-  if (!_get_sockaddr((InetAddress *) addr_, &src))
+  if (!_get_sockaddr(&addr_, &src))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (-1);
   }
   socklen_t slen = sizeof(struct sockaddr_in);
 
-  ssize_t bytes_sent = sendto(this->_sock, sb_->Head(), sb_->Size(), 0,
-      (struct sockaddr *) &src, slen);
+  ssize_t bytes_sent = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &src, slen);
   if (bytes_sent < 0)
   {
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
@@ -551,50 +598,13 @@ InetSocket::_send(const zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb
 }
 
 ssize_t
-InetSocket::_broadcast(zSocket::SocketBuffer *sb_)
+InetSocket::_broadcast(zSocket::SocketBuffer &sb_)
 {
   zSocket::InetAddress *addr = new zSocket::InetAddress;
   addr->SetAddress(this->_inetaddr.GetBroadcast() + ":" + this->_inetaddr.GetPort());
-  ssize_t size = this->_send(addr, sb_);
+  ssize_t size = this->_send(*addr, sb_);
   delete (addr);
   return (size);
-}
-
-ssize_t
-InetSocket::_recv(zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb_)
-{
-  if (!this->_sock)
-  {
-    ZLOG_CRIT(std::string("Socket not opened"));
-    return (false);
-  }
-
-  if (addr_->GetType() != SocketAddress::TYPE_INET)
-  {
-    ZLOG_CRIT(std::string("Invalid address type"));
-    return (false);
-  }
-
-  struct sockaddr_in src = { 0 };
-  socklen_t len = sizeof(src);
-
-  int n = recvfrom(this->_sock, sb_->Head(), sb_->TotalSize(), 0, (struct sockaddr *) &src,
-      &len);
-  if (n > 0)
-  {
-    sb_->Put(n);
-    _get_inetaddress(&src, (InetAddress *) addr_);
-
-    std::string logstr;
-    logstr += "Receiving on socket:\t";
-    logstr += "To: " + this->_inetaddr.GetAddress() + ";\t";
-    logstr += "From: " + addr_->GetAddress() + ";\t";
-    logstr += "Size: " + zLog::IntStr(n) + ";";
-    ZLOG_INFO(logstr);
-
-  } // end if
-
-  return (n);
 }
 
 }

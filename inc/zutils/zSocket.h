@@ -117,24 +117,30 @@ public:
 
   enum TYPE
   {
-    TYPE_ERR = -1, TYPE_NONE = 0, TYPE_LOOP = 1, TYPE_INET = 2, TYPE_LAST
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_LOOP = 1,
+    TYPE_INET = 2,
+    TYPE_MCAST = 3,
+    TYPE_BCAST = 4,
+    TYPE_LAST
   };
 
-  SocketAddress(zSocket::SocketAddress::TYPE type = zSocket::SocketAddress::TYPE_NONE, const std::string &addr_ =
-      std::string(""));
+  SocketAddress(zSocket::SocketAddress::TYPE type = zSocket::SocketAddress::TYPE_NONE,
+      const std::string &addr_ = std::string(""));
 
   SocketAddress(SocketAddress &other_);
 
   SocketAddress(const SocketAddress &other_);
+
+  virtual
+  ~SocketAddress();
 
   SocketAddress &
   operator=(SocketAddress &other_);
 
   SocketAddress &
   operator=(const SocketAddress &other_);
-
-  virtual
-  ~SocketAddress();
 
   bool
   operator ==(const zSocket::SocketAddress &other_) const;
@@ -147,6 +153,9 @@ public:
 
   SocketAddress::TYPE
   GetType() const;
+
+  bool
+  SetType(const SocketAddress::TYPE &type_);
 
   virtual std::string
   GetAddress() const;
@@ -230,8 +239,17 @@ public:
     TYPE_LAST
   };
 
-  virtual const zSocket::SocketAddress *
+  Socket::TYPE
+  GetType();
+
+  bool
+  SetType(const Socket::TYPE type_);
+
+  virtual const zSocket::SocketAddress &
   GetAddress();
+
+  virtual bool
+  SetAddress(const zSocket::SocketAddress &addr_);
 
   virtual bool
   Open();
@@ -246,16 +264,16 @@ public:
   Connect(const zSocket::SocketAddress &addr_);
 
   ssize_t
-  Receive(zSocket::SocketAddress *from_, zSocket::SocketBuffer *sb_);
+  Receive(zSocket::SocketAddress &from_, zSocket::SocketBuffer &sb_);
 
   ssize_t
-  Receive(zSocket::SocketAddress *from_, std::string &str_);
+  Receive(zSocket::SocketAddress &from_, std::string &str_);
 
   ssize_t
-  Send(const zSocket::SocketAddress *to_, zSocket::SocketBuffer *sb_);
+  Send(const zSocket::SocketAddress &to_, zSocket::SocketBuffer &sb_);
 
   ssize_t
-  Send(const zSocket::SocketAddress *to_, const std::string &str_);
+  Send(const zSocket::SocketAddress &to_, const std::string &str_);
 
 protected:
 
@@ -272,29 +290,7 @@ protected:
 
 private:
 
-};
-
-//**********************************************************************
-// zSocket::SocketFactory Class
-//**********************************************************************
-
-class SocketFactory
-{
-
-public:
-
-  static zSocket::SocketAddress *
-  Create(const zSocket::SocketAddress::TYPE &type_);
-
-  static zSocket::SocketAddress *
-  Create(const zSocket::SocketAddress::TYPE &type_, const std::string &ifname_);
-
-  static zSocket::Socket *
-  Create(const zSocket::Socket::TYPE &type_, const zSocket::SocketAddress *addr_);
-
-protected:
-
-private:
+  zSocket::SocketAddress _addr;
 
 };
 

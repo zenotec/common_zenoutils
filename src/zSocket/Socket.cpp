@@ -52,10 +52,29 @@ Socket::~Socket()
   this->UnregisterEvent(&this->err_event);
 }
 
-const zSocket::SocketAddress *
+zSocket::Socket::TYPE
+Socket::GetType()
+{
+  return(this->_type);
+}
+
+bool
+Socket::SetType(zSocket::Socket::TYPE type_)
+{
+  this->_type = type_;
+  return(true);
+}
+
+const zSocket::SocketAddress &
 Socket::GetAddress()
 {
-  return (NULL);
+  return (this->_addr);
+}
+
+bool
+Socket::SetAddress(const zSocket::SocketAddress &addr_)
+{
+  return(this->_addr.SetAddress(addr_.GetAddress()));
 }
 
 bool
@@ -82,7 +101,7 @@ Socket::Connect(const zSocket::SocketAddress &addr_)
 }
 
 ssize_t
-Socket::Receive(SocketAddress *addr_, SocketBuffer *sb_)
+Socket::Receive(SocketAddress &addr_, SocketBuffer &sb_)
 {
 
   ssize_t bytes = -1;
@@ -90,18 +109,22 @@ Socket::Receive(SocketAddress *addr_, SocketBuffer *sb_)
   if (this->rxq.TimedWait(100000) && !this->rxq.Empty())
   {
 
-    // Get first pair off queue and copy to caller's space */
-    std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> p(this->rxq.Front());
-    this->rxq.Pop();
-
     // Copy address */
-    addr_->SetAddress(p.first.GetAddress());
+    addr_ = this->rxq.Front().first;
 
     // Copy to caller's socket buffer */
-    *sb_ = p.second;
+    sb_ = this->rxq.Front().second;
 
     // Update number of bytes received
-    bytes = sb_->Size();
+    bytes = sb_.Size();
+
+    ZLOG_DEBUG("Received packet: " + this->rxq.Front().first.GetAddress() +
+        "(" + zLog::IntStr(this->rxq.Front().second.Size()) + ")");
+
+    ZLOG_DEBUG("Received packet: " + addr_.GetAddress() + "(" + zLog::IntStr(sb_.Size()) + ")");
+
+    // Remove from queue
+    this->rxq.Pop();
 
   }
 
@@ -111,7 +134,7 @@ Socket::Receive(SocketAddress *addr_, SocketBuffer *sb_)
 }
 
 ssize_t
-Socket::Receive(SocketAddress *addr_, std::string &str_)
+Socket::Receive(SocketAddress &addr_, std::string &str_)
 {
   ssize_t bytes = 0;
   zSocket::SocketBuffer *sb = new zSocket::SocketBuffer;
@@ -121,7 +144,7 @@ Socket::Receive(SocketAddress *addr_, std::string &str_)
     ZLOG_CRIT(errMsg);
     throw errMsg;
   }
-  bytes = Receive(addr_, sb);
+  bytes = this->Receive(addr_, *sb);
   if (bytes > 0)
   {
     str_ = sb->Str();
@@ -131,13 +154,14 @@ Socket::Receive(SocketAddress *addr_, std::string &str_)
 }
 
 ssize_t
-Socket::Send(const SocketAddress *addr_, SocketBuffer *sb_)
+Socket::Send(const SocketAddress &addr_, SocketBuffer &sb_)
 {
-  std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> p(*addr_, *sb_);
-  ZLOG_DEBUG("Sending packet: " + p.first.GetAddress() + "(" + zLog::IntStr(p.second.Size()) + ")");
+  ZLOG_DEBUG("Sending packet: " + addr_.GetAddress() + "(" + zLog::IntStr(sb_.Size()) + ")");
+  std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> p(addr_, sb_);
   // Check for address match
-  if (addr_->GetAddress() == this->GetAddress()->GetAddress())
+  if (addr_.GetAddress() == this->GetAddress().GetAddress())
   {
+    ZLOG_INFO("Address matches self");
     this->rxq.Push(p);
     this->tx_event.Notify(this);
     this->rx_event.Notify(this);
@@ -146,17 +170,18 @@ Socket::Send(const SocketAddress *addr_, SocketBuffer *sb_)
   {
     this->txq.Push(p);
   }
-  return (sb_->Size());
+  return (sb_.Size());
 }
 
 ssize_t
-Socket::Send(const SocketAddress *addr_, const std::string &str_)
+Socket::Send(const SocketAddress &addr_, const std::string &str_)
 {
   ssize_t bytes = 0;
   SocketBuffer *sb = new SocketBuffer;
   memcpy(sb->Head(), str_.c_str(), str_.size());
   sb->Put(str_.size());
-  bytes = Send(addr_, sb);
+  bytes = this->Send(addr_, *sb);
+  delete(sb);
   return (bytes);
 }
 

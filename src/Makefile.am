@@ -1,4 +1,6 @@
 SUBDIRS = \
+	zLog \
+	zSem \
 	zData \
 	zCom \
 	zConf \
@@ -6,11 +8,9 @@ SUBDIRS = \
 	zException \
 	zGpio \
 	zLed \
-	zLog \
+	zSocket \
 	zMessage \
 	zProgOpt \
-	zSem \
-	zSocket \
 	zSwitch \
 	zThermo \
 	zThread	

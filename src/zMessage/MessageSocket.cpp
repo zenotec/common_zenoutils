@@ -45,10 +45,12 @@ MessageSocket::Send(zMessage::Message &msg_)
 {
   bool status = true;
 
-  const zSocket::SocketAddress *srcAddr = this->_sock->GetAddress();
-  msg_.SetSrc(srcAddr->GetAddress());
-  zSocket::SocketAddress *dstAddr = zSocket::SocketFactory::Create(srcAddr->GetType());
-  dstAddr->SetAddress(msg_.GetDst());
+  msg_.SetSrc(this->_sock->GetAddress().GetAddress());
+  zSocket::SocketAddress dstAddr;
+  dstAddr.SetAddress(msg_.GetDst());
+
+  ZLOG_INFO("Sending message: " + msg_.GetId());
+  ZLOG_DEBUG(msg_.GetJson());
 
   ssize_t size = this->_sock->Send(dstAddr, msg_.GetJson());
   if (size != msg_.GetJson().size())
@@ -56,9 +58,6 @@ MessageSocket::Send(zMessage::Message &msg_)
     ZLOG_ERR("Failed to send message: bytes sent: " + zLog::IntStr(size));
     status = false;
   }
-
-  // Clean up
-  delete (dstAddr);
 
   // Return status
   return (status);
@@ -85,7 +84,7 @@ MessageSocket::EventHandler(zEvent::Event *event_, void *arg_)
     std::string str;
 
     // Receive message string
-    if (sock->Receive(&addr, str) <= 0)
+    if (sock->Receive(addr, str) <= 0)
     {
       ZLOG_ERR("Error receiving message string");
       this->_err_event.Notify(this);

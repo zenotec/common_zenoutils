@@ -34,15 +34,15 @@ public:
 
   InetAddress(const std::string &ifname_);
 
-  InetAddress(InetAddress &other_);
+  InetAddress(SocketAddress &other_);
 
-  InetAddress(const InetAddress &other_);
-
-  InetAddress &
-  operator=(InetAddress &other_);
+  InetAddress(const SocketAddress &other_);
 
   InetAddress &
-  operator=(const InetAddress &other_);
+  operator=(SocketAddress &other_);
+
+  InetAddress &
+  operator=(const SocketAddress &other_);
 
   virtual
   ~InetAddress();
@@ -66,7 +66,7 @@ public:
   SetAddress(const std::string &addr_);
 
   std::string
-  GetIpAddr() const;
+  GetIp() const;
 
   std::string
   GetPort() const;
@@ -78,7 +78,7 @@ public:
   GetBroadcast() const;
 
   bool
-  SetIpAddr(const std::string &ipaddr_);
+  SetIp(const std::string &ip_);
 
   bool
   SetPort(const std::string &port_);
@@ -93,7 +93,7 @@ protected:
 
 private:
 
-  std::string _ipaddr;
+  std::string _ip;
   std::string _port;
   std::string _netmask;
   std::string _bcast;
@@ -154,13 +154,16 @@ class InetSocket : public Socket
 
 public:
 
-  InetSocket(const InetAddress &addr_);
+  InetSocket();
 
   virtual
   ~InetSocket();
 
-  virtual const zSocket::SocketAddress *
+  const zSocket::InetAddress &
   GetAddress();
+
+  bool
+  SetAddress(const zSocket::InetAddress &addr_);
 
   virtual bool
   Open();
@@ -179,13 +182,13 @@ protected:
   int _sock;
 
   virtual ssize_t
-  _recv(zSocket::SocketAddress *src_, zSocket::SocketBuffer *sb_);
+  _recv(zSocket::InetAddress &src_, zSocket::SocketBuffer &sb_);
 
   virtual ssize_t
-  _send(const zSocket::SocketAddress *dst_, zSocket::SocketBuffer *sb_);
+  _send(const zSocket::InetAddress &dst_, zSocket::SocketBuffer &sb_);
 
   virtual ssize_t
-  _broadcast(zSocket::SocketBuffer *sb_);
+  _broadcast(zSocket::SocketBuffer &sb_);
 
 private:
 
@@ -194,7 +197,7 @@ private:
   zThread::Thread _tx_thread;
   InetSocketSend _tx_func;
 
-  const InetAddress _inetaddr;
+  InetAddress _inetaddr;
 
 };
 

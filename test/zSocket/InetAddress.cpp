@@ -16,7 +16,7 @@ int zSocketTest_InetAddressGetSet(void* arg_)
     zSocket::InetAddress myAddr;
     TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr.GetType());
     TEST_EQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
-    TEST_EQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
+    TEST_EQ(std::string("0.0.0.0"), myAddr.GetIp());
     TEST_EQ(std::string("0"), myAddr.GetPort());
     TEST_EQ(std::string("0.0.0.0"), myAddr.GetNetmask());
     TEST_EQ(std::string("0.0.0.0"), myAddr.GetBroadcast());
@@ -93,7 +93,7 @@ int zSocketTest_InetAddressIface(void* arg_)
     zSocket::InetAddress myAddr("eth0");
     TEST_EQ(zSocket::SocketAddress::TYPE_INET, myAddr.GetType());
     TEST_NEQ(std::string("0.0.0.0:0"), myAddr.GetAddress());
-    TEST_NEQ(std::string("0.0.0.0"), myAddr.GetIpAddr());
+    TEST_NEQ(std::string("0.0.0.0"), myAddr.GetIp());
     TEST_EQ(std::string("0"), myAddr.GetPort());
     TEST_NEQ(std::string("0.0.0.0"), myAddr.GetNetmask());
     TEST_NEQ(std::string("0.0.0.0"), myAddr.GetBroadcast());
