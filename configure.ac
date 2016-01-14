@@ -68,6 +68,7 @@ AC_CONFIG_FILES([
     Makefile
       src/Makefile
         src/zCom/Makefile
+        src/zCommand/Makefile
         src/zConf/Makefile
         src/zData/Makefile
         src/zEvent/Makefile
@@ -86,6 +87,7 @@ AC_CONFIG_FILES([
         src/zTimer/Makefile
       test/Makefile
         test/zCom/Makefile
+        test/zCommand/Makefile
         test/zConf/Makefile
         test/zData/Makefile
         test/zEvent/Makefile

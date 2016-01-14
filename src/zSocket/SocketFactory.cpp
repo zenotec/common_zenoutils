@@ -50,7 +50,7 @@ SocketFactory::Create(const zSocket::SocketAddress::TYPE &type_, const std::stri
 zSocket::Socket *
 SocketFactory::Create(const zSocket::Socket::TYPE &type_, const zSocket::SocketAddress *addr_)
 {
-
+  return(NULL);
 }
 
 }

@@ -13,13 +13,15 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zSocket \
-	zMessage
+	zMessage \
+	zCommand
 
 if COND_VALGRIND
 VALGRIND_TESTS = \
     zProgOpt/valgrind.sh \
     zLog/valgrind.sh \
     zData/valgrind.sh \
+    zCommand/valgrind.sh \
     zConf/valgrind.sh \
     zSem/valgrind.sh \
     zEvent/valgrind.sh \
@@ -41,6 +43,7 @@ GCOV_TESTS = \
     zProgOpt/zProgOptUnitTest \
     zLog/zLogUnitTest \
     zData/zDataUnitTest \
+    zCommand/zCommandUnitTest \
     zConf/zConfUnitTest \
     zSem/zSemUnitTest \
     zEvent/zEventUnitTest \

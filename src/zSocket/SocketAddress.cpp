@@ -17,17 +17,15 @@ SocketAddress::SocketAddress(SocketAddress::TYPE type_, const std::string &addr_
 {
 }
 
-SocketAddress::SocketAddress(SocketAddress &other_)
+SocketAddress::SocketAddress(SocketAddress &other_) :
+    _type(other_._type)
 {
-  ZLOG_DEBUG("copy constructor");
-  this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
 }
 
-SocketAddress::SocketAddress(const SocketAddress &other_)
+SocketAddress::SocketAddress(const SocketAddress &other_) :
+  _type(other_._type)
 {
-  ZLOG_DEBUG("const copy constructor");
-  this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
 }
 
@@ -38,7 +36,6 @@ SocketAddress::~SocketAddress()
 SocketAddress &
 SocketAddress::operator=(SocketAddress &other_)
 {
-  ZLOG_DEBUG("copy operator");
   this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
   return (*this);
@@ -47,7 +44,6 @@ SocketAddress::operator=(SocketAddress &other_)
 SocketAddress &
 SocketAddress::operator=(const SocketAddress &other_)
 {
-  ZLOG_DEBUG("const copy operator");
   this->SetType(other_.GetType());
   this->SetAddress(other_.GetAddress());
   return (*this);
