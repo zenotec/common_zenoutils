@@ -14,16 +14,32 @@ namespace zCommand
 
 const std::string Command::ROOT = "zCommand";
 const std::string Command::NAME = "Name";
-const std::string Command::ARG = "Arg";
+const std::string Command::ARG = "Argument";
 
-Command::Command() :
+Command::Command(const std::string &command_) :
     zData::Data(Command::ROOT)
 {
-  this->SetName("");
-  this->SetArgument("");
+
+  size_t pos = 0;
+  size_t npos = 0;
+
+  // Parse command name from string
+  pos = command_.find_first_not_of(' ');
+  if (pos != command_.npos)
+  {
+    npos = command_.find_first_of(' ', pos + 1);
+    this->SetName(command_.substr(pos, npos));
+    // Conditionally parse argument from string
+    if (npos != command_.npos)
+    {
+      pos = command_.find_first_not_of(' ', npos);
+      this->SetArgument(command_.substr(pos, command_.npos));
+    }
+  }
+
 }
 
-Command::Command(zData::Data &data_) :
+Command::Command(const zData::Data &data_) :
     zData::Data(Command::ROOT)
 {
   this->SetJson(data_.GetJson());
@@ -35,18 +51,18 @@ Command::~Command()
 
 bool
 Command::operator ==(const Command &other_) const
-    {
-  return (this->_pt == other_._pt);
+{
+  return (this->GetName() == other_.GetName());
 }
 
 bool
 Command::operator !=(const Command &other_) const
-    {
-  return (this->_pt != other_._pt);
+{
+  return (this->GetName() != other_.GetName());
 }
 
 std::string
-Command::GetName()
+Command::GetName() const
 {
   std::string str;
   this->GetValue(Command::NAME, str);
@@ -60,7 +76,7 @@ Command::SetName(const std::string name_)
 }
 
 std::string
-Command::GetArgument()
+Command::GetArgument() const
 {
   std::string str;
   this->GetValue(Command::ARG, str);
@@ -82,7 +98,13 @@ Command::Execute(const std::string &arg_)
 bool
 Command::EventHandler(zEvent::Event *event_, void *arg_)
 {
-  return (this->Execute(""));
+  bool status = false;
+  Command *cmd = static_cast<Command *>(arg_);
+  if (cmd && cmd->GetName() == this->GetName())
+  {
+    status = this->Execute(cmd->GetArgument());
+  }
+  return (status);
 }
 
 }

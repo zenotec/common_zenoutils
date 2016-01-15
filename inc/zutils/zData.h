@@ -76,11 +76,11 @@ public:
   std::string
   GetValue(const std::string &key_) const;
   bool
-  GetValue(const std::string &key_, std::string &value_);
+  GetValue(const std::string &key_, std::string &value_) const;
   bool
-  GetValue(const std::string &key_, int &value_);
+  GetValue(const std::string &key_, int &value_) const;
   bool
-  GetValue(const std::string &key_, unsigned int &value_);
+  GetValue(const std::string &key_, unsigned int &value_) const;
 
   bool
   SetValue(const std::string &key_, const std::string &value_);

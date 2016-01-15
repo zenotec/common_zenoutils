@@ -10,5 +10,6 @@ noinst_LTLIBRARIES = libzCommand.la
 
 libzCommand_la_SOURCES = \
     Command.cpp \
+    CommandMessage.cpp \
     CommandHandler.cpp
     

@@ -13,13 +13,14 @@
 
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
+#include <zutils/zMessage.h>
 
 namespace zUtils
 {
 namespace zCommand
 {
 
-class Command : public zEvent::EventObserver, private zData::Data
+class Command : public zEvent::EventObserver, public zData::Data
 {
 public:
 
@@ -27,9 +28,9 @@ public:
   static const std::string NAME;
   static const std::string ARG;
 
-  Command();
+  Command(const std::string &command_ = std::string(""));
 
-  Command(zData::Data &data_);
+  Command(const zData::Data &data_);
 
   virtual
   ~Command();
@@ -41,13 +42,13 @@ public:
   operator !=(const Command &other_) const;
 
   std::string
-  GetName();
+  GetName() const;
 
   bool
   SetName(const std::string name_);
 
   std::string
-  GetArgument();
+  GetArgument() const;
 
   bool
   SetArgument(const std::string arg_);
@@ -70,8 +71,13 @@ public:
 
   CommandMessage();
 
+  CommandMessage(const zCommand::Command &command_);
+
   virtual
   ~CommandMessage();
+
+  bool
+  AddCommand(const zCommand::Command &command_);
 
 protected:
 
@@ -101,7 +107,7 @@ private:
 
 };
 
-class CommandHandler : public zEvent::EventHandler, private zEvent::EventObserver
+class CommandHandler : public zEvent::EventHandler
 {
 public:
 
@@ -120,9 +126,6 @@ public:
   ProcessCommandString(const std::string &str_);
 
 protected:
-
-  virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
 
 private:
 

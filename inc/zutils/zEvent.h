@@ -100,7 +100,7 @@ class EventObserver
 {
 public:
   virtual bool
-  EventHandler(Event *event_, void *arg_) = 0;
+  EventHandler(zEvent::Event *event_, void *arg_) = 0;
 };
 
 //**********************************************************************

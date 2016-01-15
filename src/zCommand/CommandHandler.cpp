@@ -1,5 +1,5 @@
 /*
- * Command.cpp
+ * CommandHandler.cpp
  *
  *  Created on: Jan 10, 2016
  *      Author: kmahoney
@@ -79,32 +79,17 @@ CommandHandler::ProcessCommandString(const std::string &str_)
   // Process each command sequentially
   while (status && !commands.empty())
   {
-    std::string cmd;
-    std::string name;
-    std::string arg;
 
     // Get command string off the list
-    cmd = commands.front();
+    Command cmd(commands.front());
     commands.pop_front();
-
-    // Parse command name from string
-    pos = cmd.find_first_not_of(' ');
-    npos = cmd.find_first_of(' ', pos + 1);
-    name = cmd.substr(pos, npos);
-
-    // Conditionally parse argument from string
-    if (npos != cmd.npos)
-    {
-      pos = cmd.find_first_not_of(' ', npos);
-      arg = cmd.substr(pos, cmd.npos);
-    }
 
     // Lookup command name in table and execute
     std::map<std::string, zCommand::Command *>::iterator it;
-    it = this->_cmd_table.find(name);
+    it = this->_cmd_table.find(cmd.GetName());
     if (it != this->_cmd_table.end() && it->second)
     {
-      status = it->second->Execute(arg);
+      status = it->second->Execute(cmd.GetArgument());
     }
     else
     {

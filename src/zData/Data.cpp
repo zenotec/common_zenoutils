@@ -83,7 +83,7 @@ Data::GetValue( const std::string &name_ ) const
 }
 
 bool
-Data::GetValue( const std::string &name_, std::string &value_ )
+Data::GetValue( const std::string &name_, std::string &value_ ) const
 {
     bool status = false;
     std::string name;
@@ -104,7 +104,7 @@ Data::GetValue( const std::string &name_, std::string &value_ )
 }
 
 bool
-Data::GetValue( const std::string &name_, int &value_ )
+Data::GetValue( const std::string &name_, int &value_ ) const
 {
     bool status = false;
     std::string name;
@@ -125,7 +125,7 @@ Data::GetValue( const std::string &name_, int &value_ )
 }
 
 bool
-Data::GetValue( const std::string &name_, unsigned int &value_ )
+Data::GetValue( const std::string &name_, unsigned int &value_ ) const
 {
     bool status = false;
     std::string name;
