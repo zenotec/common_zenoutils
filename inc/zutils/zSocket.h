@@ -279,13 +279,13 @@ protected:
 
   zSocket::Socket::TYPE _type;
 
-  zEvent::Event rx_event;
+  zSocket::SocketEvent rx_event;
   zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > rxq;
 
-  zEvent::Event tx_event;
+  zSocket::SocketEvent tx_event;
   zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > txq;
 
-  zEvent::Event err_event;
+  zSocket::SocketEvent err_event;
   zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > errq;
 
 private:

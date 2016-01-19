@@ -20,7 +20,7 @@ zTimerTest_StartStop(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TimerTestObserver : public zTimer::Observer
+class TimerTestObserver : public zEvent::EventObserver
 {
 public:
   TimerTestObserver() :
@@ -33,9 +33,10 @@ public:
   {
   }
 
-  virtual void
-  TimerTick()
+  virtual bool
+  EventHandler(zEvent::Event *event_, void *arg_)
   {
+    std::cout << "Test timer event handler" << std::endl;
     this->_cnt++;
   }
 

@@ -137,7 +137,7 @@ private:
 //**********************************************************************
 // zNode::Table Class
 //**********************************************************************
-class Table: private zTimer::Observer
+class Table: private zTimer::TimerObserver
 {
 public:
 

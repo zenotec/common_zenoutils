@@ -21,29 +21,44 @@ namespace zTimer
 {
 
 //**********************************************************************
-// TimerObserver Class
+// zTimer::TimerEvent Class
 //**********************************************************************
-class Observer
+
+class TimerEvent : public zEvent::Event
 {
 public:
-  virtual void
-  TimerTick() = 0;
+
+  enum EVENTID
+  {
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_TICK = 1,
+    EVENTID_LAST
+  };
+
+  TimerEvent(const TimerEvent::EVENTID id_);
+
+  virtual
+  ~TimerEvent();
 
 protected:
+
 private:
+
 };
 
 //**********************************************************************
-// Timer Class
+// zTimer::Timer Class
 //**********************************************************************
-class Timer : public zEvent::Event
+class Timer : public zEvent::EventHandler
 {
+
 public:
 
-  Timer(void);
+  Timer();
 
   virtual
-  ~Timer(void);
+  ~Timer();
 
   void
   Start(uint32_t usec_);
@@ -51,19 +66,18 @@ public:
   void
   Stop(void);
 
-  void
-  Register(Observer *obs_);
-
-  void
-  Unregister(Observer *obs_);
-
-  void
-  Notify(void);
-
 protected:
 
+  static void
+  timer_handler(union sigval sv_);
+
 private:
+
+  zSem::Mutex _lock;
+  uint32_t _interval;
   timer_t _timerid;
+
+  zTimer::TimerEvent _tick_event;
 
   void
   _start(void);
@@ -71,10 +85,6 @@ private:
   void
   _stop(void);
 
-  uint32_t _interval;
-
-  zSem::Mutex _lock;
-  std::list<Observer *> _observers;
 };
 
 }

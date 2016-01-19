@@ -8,6 +8,10 @@ using namespace zUtils;
 int
 zTimerTest_StartStop(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zTimerTest_StartStop()");
+  ZLOG_DEBUG("#############################################################");
+
   uint32_t interval = 50000;
   int n = 50;
 
@@ -17,7 +21,7 @@ zTimerTest_StartStop(void* arg_)
   // Create new timer observer and register with timer
   TimerTestObserver *MyObsvr = new TimerTestObserver;
   TEST_IS_ZERO(MyObsvr->GetCnt());
-  MyTimer->Register(MyObsvr);
+  MyTimer->RegisterObserver(MyObsvr);
 
   // Start the timer
   MyTimer->Start(interval);
@@ -33,7 +37,7 @@ zTimerTest_StartStop(void* arg_)
   TEST_LT(MyObsvr->GetCnt(), (n + 1));
 
   // Cleanup
-  MyTimer->Unregister(MyObsvr);
+  MyTimer->UnregisterObserver(MyObsvr);
   delete (MyObsvr);
   delete (MyTimer);
 

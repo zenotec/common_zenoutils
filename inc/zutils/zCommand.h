@@ -77,7 +77,7 @@ public:
   ~CommandMessage();
 
   bool
-  AddCommand(const zCommand::Command &command_);
+  SetCommand(const zCommand::Command &command_);
 
 protected:
 
@@ -121,6 +121,9 @@ public:
 
   bool
   UnregisterCommand(zCommand::Command *cmd_);
+
+  bool
+  ProcessCommand(const zCommand::Command &cmd_);
 
   bool
   ProcessCommandString(const std::string &str_);

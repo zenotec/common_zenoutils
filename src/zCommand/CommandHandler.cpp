@@ -58,6 +58,33 @@ CommandHandler::UnregisterCommand(zCommand::Command *cmd_)
 }
 
 bool
+CommandHandler::ProcessCommand(const zCommand::Command &cmd_)
+{
+  bool status = true;
+
+  ZLOG_INFO("Processing command: '" + cmd_.GetName() + "'");
+
+  // Lookup command name in table and execute
+  std::map<std::string, zCommand::Command *>::iterator it;
+  if (this->_lock.Lock())
+  {
+    it = this->_cmd_table.find(cmd_.GetName());
+    this->_lock.Unlock();
+    if (it != this->_cmd_table.end() && it->second)
+    {
+      status = it->second->Execute(cmd_.GetArgument());
+    }
+    else
+    {
+      status = false;
+    }
+  }
+
+  return (status);
+
+}
+
+bool
 CommandHandler::ProcessCommandString(const std::string &str_)
 {
   bool status = true;

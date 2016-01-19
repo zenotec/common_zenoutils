@@ -4,12 +4,14 @@ SUBDIRS = \
 	zData \
 	zEvent \
 	zThread	\
+	zTimer	\
 	zCom \
 	zCommand \
 	zConf \
 	zException \
 	zGpio \
 	zLed \
+	zLcd \
 	zSocket \
 	zMessage \
 	zProgOpt \
@@ -40,6 +42,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zProgOpt.h \
     $(top_srcdir)/inc/zutils/zGpio.h \
     $(top_srcdir)/inc/zutils/zLed.h \
+    $(top_srcdir)/inc/zutils/zLcd.h \
     $(top_srcdir)/inc/zutils/zLog.h \
     $(top_srcdir)/inc/zutils/zMessage.h \
     $(top_srcdir)/inc/zutils/zNode.h \
@@ -68,6 +71,7 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zException/libzException.la \
     ${top_builddir}/src/zGpio/libzGpio.la \
     ${top_builddir}/src/zLed/libzLed.la \
+    ${top_builddir}/src/zLcd/libzLcd.la \
     ${top_builddir}/src/zLog/libzLog.la \
     ${top_builddir}/src/zMessage/libzMessage.la \
     ${top_builddir}/src/zProgOpt/libzProgOpt.la \
@@ -75,6 +79,7 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zSwitch/libzSwitch.la \
     ${top_builddir}/src/zThermo/libzThermo.la \
     ${top_builddir}/src/zThread/libzThread.la \
+    ${top_builddir}/src/zTimer/libzTimer.la \
     ${top_builddir}/src/zSocket/libzSocket.la
     
     

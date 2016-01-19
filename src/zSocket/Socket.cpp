@@ -34,9 +34,9 @@ SocketEvent::~SocketEvent()
 //*****************************************************************************
 Socket::Socket() :
     _type(TYPE_NONE),
-        rx_event(zEvent::Event::TYPE_SOCKET, SocketEvent::EVENTID_PKT_RCVD),
-        tx_event(zEvent::Event::TYPE_SOCKET, SocketEvent::EVENTID_PKT_SENT),
-        err_event(zEvent::Event::TYPE_SOCKET, SocketEvent::EVENTID_PKT_ERR)
+        rx_event(SocketEvent::EVENTID_PKT_RCVD),
+        tx_event(SocketEvent::EVENTID_PKT_SENT),
+        err_event(SocketEvent::EVENTID_PKT_ERR)
 {
   ZLOG_DEBUG("Creating socket: '" + zLog::PointerStr(this) + "'");
   this->RegisterEvent(&this->rx_event);

@@ -20,7 +20,8 @@ CommandMessage::CommandMessage()
 
 CommandMessage::CommandMessage(const zCommand::Command &command_)
 {
-  this->AddCommand(command_);
+  this->SetType(zMessage::Message::TYPE_CMD);
+  this->SetCommand(command_);
 }
 
 CommandMessage::~CommandMessage()
@@ -28,11 +29,9 @@ CommandMessage::~CommandMessage()
 }
 
 bool
-CommandMessage::AddCommand(const zCommand::Command &command_)
+CommandMessage::SetCommand(const zCommand::Command &command_)
 {
-  zData::Data data = this->GetData();
-  data.AddChild("zCommand", command_);
-  this->SetData(data);
+  return(this->SetData(command_));
 }
 
 }
