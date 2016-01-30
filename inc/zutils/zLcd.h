@@ -28,7 +28,28 @@ class Lcd;
 // zLcd::LcdUpdateCmd Class
 //*****************************************************************************
 
-class LcdUpdateCmd : public zCommand::Command
+class LcdCommand : public zCommand::Command
+{
+
+public:
+  LcdCommand(const std::string &name_, zLcd::Lcd &lcd_);
+
+  virtual
+  ~LcdCommand();
+
+protected:
+
+  zLcd::Lcd &_lcd;
+
+private:
+
+};
+
+//*****************************************************************************
+// zLcd::LcdUpdateCmd Class
+//*****************************************************************************
+
+class LcdUpdateCmd : public LcdCommand
 {
 
 public:
@@ -37,14 +58,34 @@ public:
   virtual
   ~LcdUpdateCmd();
 
-protected:
-
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
+  Execute(const std::string &arg_ = "");
+
+protected:
 
 private:
 
-  zLcd::Lcd &_lcd;
+};
+
+//*****************************************************************************
+// zLcd::LcdClearCmd Class
+//*****************************************************************************
+
+class LcdClearCmd : public LcdCommand
+{
+
+public:
+  LcdClearCmd(zLcd::Lcd &lcd_);
+
+  virtual
+  ~LcdClearCmd();
+
+  virtual bool
+  Execute(const std::string &arg_ = "");
+
+protected:
+
+private:
 
 };
 
@@ -132,10 +173,10 @@ public:
   bool
   DeleteVar(zLcd::LcdVar *var_);
 
-  bool
+  virtual bool
   Update(const std::string &str_, const size_t row_ = 0, const size_t col_ = 0);
 
-  bool
+  virtual bool
   Clear();
 
 protected:
@@ -155,11 +196,14 @@ private:
 
   zTimer::Timer _timer;
 
-  virtual bool
-  _update(std::vector<std::vector<char> > buf_) = 0;
+  LcdUpdateCmd _update_cmd;
+  LcdClearCmd _clear_cmd;
 
   virtual bool
-  _clear() = 0;
+  _clear();
+
+  virtual bool
+  _update(std::vector<std::vector<char> > &buf_);
 
 };
 

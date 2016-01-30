@@ -14,7 +14,7 @@ namespace zLcd
 {
 
 Lcd::Lcd() :
-    _rows(0), _cols(0)
+    _rows(0), _cols(0), _update_cmd(*this), _clear_cmd(*this)
 {
   this->_timer.RegisterObserver(this);
   this->_lock.Unlock();
@@ -156,6 +156,18 @@ Lcd::EventHandler(zEvent::Event *event_, void *arg_)
     this->_lock.Unlock();
   }
   return (status);
+}
+
+bool
+Lcd::_clear()
+{
+  return(false);
+}
+
+bool
+Lcd::_update(std::vector<std::vector<char> >& buf_)
+{
+  return(false);
 }
 
 }
