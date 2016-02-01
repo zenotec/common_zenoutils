@@ -15,27 +15,15 @@ namespace zCommand
 const std::string Command::ROOT = "zCommand";
 const std::string Command::NAME = "Name";
 const std::string Command::ARG = "Argument";
+const std::string Command::OUT = "Output";
 
-Command::Command(const std::string &command_) :
+Command::Command(const std::string &cmd_, const std::string &arg_) :
     zData::Data(Command::ROOT)
 {
 
-  size_t pos = 0;
-  size_t npos = 0;
-
-  // Parse command name from string
-  pos = command_.find_first_not_of(' ');
-  if (pos != command_.npos)
-  {
-    npos = command_.find_first_of(' ', pos + 1);
-    this->SetName(command_.substr(pos, npos));
-    // Conditionally parse argument from string
-    if (npos != command_.npos)
-    {
-      pos = command_.find_first_not_of(' ', npos);
-      this->SetArgument(command_.substr(pos, command_.npos));
-    }
-  }
+  this->SetName(cmd_);
+  this->SetArgument(arg_);
+  this->SetOutput("");
 
 }
 
@@ -87,6 +75,20 @@ bool
 Command::SetArgument(const std::string arg_)
 {
   return (this->SetValue(Command::ARG, arg_));
+}
+
+std::string
+Command::GetOutput() const
+{
+  std::string str;
+  this->GetValue(Command::OUT, str);
+  return (str);
+}
+
+bool
+Command::SetOutput(const std::string arg_)
+{
+  return (this->SetValue(Command::OUT, arg_));
 }
 
 bool

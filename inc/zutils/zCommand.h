@@ -27,8 +27,9 @@ public:
   static const std::string ROOT;
   static const std::string NAME;
   static const std::string ARG;
+  static const std::string OUT;
 
-  Command(const std::string &command_ = std::string(""));
+  Command(const std::string &cmd_ = std::string(""), const std::string &arg_ = std::string(""));
 
   Command(const zData::Data &data_);
 
@@ -52,6 +53,12 @@ public:
 
   bool
   SetArgument(const std::string arg_);
+
+  std::string
+  GetOutput() const;
+
+  bool
+  SetOutput(const std::string arg_);
 
   virtual bool
   Execute(const std::string &arg_ = "");

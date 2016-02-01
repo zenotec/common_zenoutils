@@ -151,7 +151,7 @@ private:
 // zLcd::Lcd Class
 //*****************************************************************************
 
-class Lcd : public zCommand::CommandHandler, public zEvent::EventObserver
+class Lcd : public zEvent::EventObserver
 {
 
 public:
@@ -160,6 +160,9 @@ public:
 
   virtual
   ~Lcd();
+
+  bool
+  RegisterCommands(zCommand::CommandHandler *handler_);
 
   bool
   SetLimits(const size_t rows_, const size_t cols_);
@@ -184,6 +187,12 @@ protected:
   virtual bool
   EventHandler(zEvent::Event *event_, void *arg_);
 
+  virtual bool
+  _update(std::vector<std::vector<char> > &buf_);
+
+  virtual bool
+  _clear();
+
 private:
 
   zSem::Mutex _lock;
@@ -198,12 +207,6 @@ private:
 
   LcdUpdateCmd _update_cmd;
   LcdClearCmd _clear_cmd;
-
-  virtual bool
-  _clear();
-
-  virtual bool
-  _update(std::vector<std::vector<char> > &buf_);
 
 };
 

@@ -52,19 +52,24 @@ TimerEvent::~TimerEvent()
 //**********************************************************************
 
 Timer::Timer() :
-    _timerid(0), _interval(0), _tick_event(zTimer::TimerEvent::EVENTID_TICK)
+    _interval(0), _sigev(NULL), _timerid(0), _tick_event(zTimer::TimerEvent::EVENTID_TICK)
 {
 
   this->RegisterEvent(&this->_tick_event);
 
   // Create timer
-  struct sigevent sev = { 0 };
-  sev.sigev_notify = SIGEV_THREAD;
-  sev.sigev_notify_function = this->timer_handler;
-  sev.sigev_notify_attributes = NULL;
-  sev.sigev_value.sival_int = 0;
-  sev.sigev_value.sival_ptr = this;
-  int stat = timer_create(CLOCK_REALTIME, &sev, &this->_timerid);
+  this->_sigev = static_cast<struct sigevent *>(calloc(1, sizeof(struct sigevent)));
+  if (!this->_sigev)
+  {
+    ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
+    throw;
+  } // end if
+  this->_sigev->sigev_notify = SIGEV_THREAD;
+  this->_sigev->sigev_notify_function = this->timer_handler;
+  this->_sigev->sigev_notify_attributes = NULL;
+  this->_sigev->sigev_value.sival_int = 0;
+  this->_sigev->sigev_value.sival_ptr = this;
+  int stat = timer_create(CLOCK_REALTIME, this->_sigev, &this->_timerid);
   if (stat != 0)
   {
     ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
@@ -75,7 +80,9 @@ Timer::Timer() :
 
 Timer::~Timer()
 {
-  this->_lock.Lock();
+  this->Stop();
+  usleep(100000);
+  this->_lock.TimedLock(1000);
   if (this->_timerid)
   {
     int stat = timer_delete(this->_timerid);
@@ -83,6 +90,7 @@ Timer::~Timer()
     {
       ZLOG_ERR("Cannot delete timer: " + std::string(strerror(errno)));
     } // end if
+    free(this->_sigev);
   } // end if
 }
 
@@ -110,9 +118,12 @@ Timer::Stop(void)
 void
 Timer::timer_handler(union sigval sv_)
 {
-  ZLOG_DEBUG("Timer expired");
   Timer *self = (Timer *) sv_.sival_ptr;
-  self->_tick_event.Notify(self);
+  if (self->_lock.TryLock())
+  {
+    self->_tick_event.Notify(self);
+    self->_lock.Unlock();
+  }
   pthread_detach(pthread_self());
   pthread_exit(0);
 }

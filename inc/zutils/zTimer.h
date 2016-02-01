@@ -75,6 +75,7 @@ private:
 
   zSem::Mutex _lock;
   uint32_t _interval;
+  struct sigevent *_sigev;
   timer_t _timerid;
 
   zTimer::TimerEvent _tick_event;

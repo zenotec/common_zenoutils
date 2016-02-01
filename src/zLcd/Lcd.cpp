@@ -26,6 +26,13 @@ Lcd::~Lcd()
 }
 
 bool
+Lcd::RegisterCommands(zCommand::CommandHandler *handler_)
+{
+  handler_->RegisterCommand(&this->_update_cmd);
+  handler_->RegisterCommand(&this->_clear_cmd);
+}
+
+bool
 Lcd::SetLimits(const size_t rows_, const size_t cols_)
 {
   this->_disp_buf.resize(rows_);
@@ -89,8 +96,12 @@ bool
 Lcd::Update(const std::string &str_, const size_t row_, const size_t col_)
 {
   bool status = false;
-  ZLOG_INFO("Updating display buffer: [" + zLog::IntStr(row_) + "," + zLog::IntStr(col_) + "]: '" + str_ + "'");
-  ZLOG_DEBUG("Limits: " + zLog::IntStr(this->_rows) + "," + zLog::IntStr(this->_cols) + ": " + zLog::IntStr(str_.size()));
+  ZLOG_INFO(
+      "Updating display buffer: [" + zLog::IntStr(row_) + "," + zLog::IntStr(col_) + "]: '" + str_
+          + "'");
+  ZLOG_DEBUG(
+      "Limits: " + zLog::IntStr(this->_rows) + "," + zLog::IntStr(this->_cols) + ": "
+          + zLog::IntStr(str_.size()));
   if ((row_ < this->_rows) && (col_ < this->_cols))
   {
     if (this->_lock.Lock())
@@ -99,7 +110,9 @@ Lcd::Update(const std::string &str_, const size_t row_, const size_t col_)
       {
         for (int col = col_; ((i < str_.size()) && (col < this->_cols)); i++, col++)
         {
-          ZLOG_DEBUG("Updating display char: " + zLog::IntStr(row) + "," + zLog::IntStr(col) + " = " + str_[i]);
+          ZLOG_DEBUG(
+              "Updating display char: " + zLog::IntStr(row) + "," + zLog::IntStr(col) + " = "
+                  + str_[i]);
           this->_disp_buf[row][col] = str_[i];
         }
       }
@@ -142,15 +155,21 @@ Lcd::EventHandler(zEvent::Event *event_, void *arg_)
     std::list<zLcd::LcdVar *>::iterator end = this->_vars.end();
     for (; it != end; ++it)
     {
+      int i;
       size_t row = (*it)->GetRow();
       size_t col = (*it)->GetCol();
       size_t len = (*it)->GetLength();
       std::string val = (*it)->GetValue();
-      for (int i = 0; i < len; i++, col++)
+      for (i = 0; i < val.size(); i++, col++)
       {
         this->_disp_buf[row][col] = val[i];
       }
+      for (; i < len; i++, col++)
+      {
+        this->_disp_buf[row][col] = ' ';
+      }
     }
+    ZLOG_DEBUG("Updating display");
     this->_update(this->_disp_buf);
     status = true;
     this->_lock.Unlock();
@@ -159,15 +178,17 @@ Lcd::EventHandler(zEvent::Event *event_, void *arg_)
 }
 
 bool
-Lcd::_clear()
+Lcd::_update(std::vector<std::vector<char> >& buf_)
 {
-  return(false);
+  ZLOG_ERR("Calling unimplemented function");
+  return (false);
 }
 
 bool
-Lcd::_update(std::vector<std::vector<char> >& buf_)
+Lcd::_clear()
 {
-  return(false);
+  ZLOG_ERR("Calling unimplemented function");
+  return (false);
 }
 
 }
