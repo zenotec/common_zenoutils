@@ -36,6 +36,7 @@ class Event : zData::Data
   static const std::string STR_TYPE;
   static const std::string STR_TYPE_NONE;
   static const std::string STR_TYPE_TEST;
+  static const std::string STR_TYPE_SIGNAL;
   static const std::string STR_TYPE_TIMER;
   static const std::string STR_TYPE_COM;
   static const std::string STR_TYPE_TEMP;
@@ -52,11 +53,12 @@ public:
     TYPE_NONE = 0,
     TYPE_TEST = 1,
     TYPE_TIMER = 2,
-    TYPE_COM = 3,
-    TYPE_TEMP = 4,
-    TYPE_GPIO = 5,
-    TYPE_SOCKET = 6,
-    TYPE_MSG = 7,
+    TYPE_SIGNAL = 3,
+    TYPE_COM = 4,
+    TYPE_TEMP = 5,
+    TYPE_GPIO = 6,
+    TYPE_SOCKET = 7,
+    TYPE_MSG = 8,
     TYPE_LAST
   };
 

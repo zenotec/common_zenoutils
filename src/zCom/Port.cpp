@@ -91,6 +91,7 @@ Port::RecvString(std::string &str_, size_t timeout_)
     char c = 0;
     c = this->rxq.Front();
     this->rxq.Pop();
+    ZLOG_DEBUG(std::string("Received character: ") + c);
     if (iscntrl(c))
     {
       status = true;

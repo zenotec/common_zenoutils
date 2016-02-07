@@ -3,6 +3,7 @@ SUBDIRS = \
 	zSem \
 	zData \
 	zEvent \
+	zSignal \
 	zThread	\
 	zTimer	\
 	zCom \

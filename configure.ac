@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([foreign parallel-tests color-tests])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
+AC_LANG_CPLUSPLUS
+AX_CXX_COMPILE_STDCXX_11
 
 # Checks for programs.
 AC_PROG_CXX
@@ -81,6 +83,7 @@ AC_CONFIG_FILES([
         src/zNode/Makefile
         src/zProgOpt/Makefile
         src/zSem/Makefile
+        src/zSignal/Makefile
         src/zSocket/Makefile
         src/zSwitch/Makefile
         src/zThermo/Makefile

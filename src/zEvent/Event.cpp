@@ -18,6 +18,7 @@ const std::string Event::STR_ROOT = "zEvent";
 const std::string Event::STR_TYPE = "Type";
 const std::string Event::STR_TYPE_NONE = "NONE";
 const std::string Event::STR_TYPE_TEST = "TEST";
+const std::string Event::STR_TYPE_SIGNAL = "SIGNAL";
 const std::string Event::STR_TYPE_TIMER = "TIMER";
 const std::string Event::STR_TYPE_COM = "COM";
 const std::string Event::STR_TYPE_TEMP = "TEMP";
@@ -66,6 +67,10 @@ Event::GetType() const
   {
     return (Event::TYPE_TEST);
   }
+  else if (type == Event::STR_TYPE_SIGNAL)
+  {
+    return (Event::TYPE_SIGNAL);
+  }
   else if (type == Event::STR_TYPE_TIMER)
   {
     return (Event::TYPE_TIMER);
@@ -107,6 +112,9 @@ Event::SetType(const Event::TYPE &type_)
     break;
   case Event::TYPE_TEST:
     status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_TEST);
+    break;
+  case Event::TYPE_SIGNAL:
+    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_SIGNAL);
     break;
   case Event::TYPE_TIMER:
     status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_TIMER);

@@ -107,6 +107,7 @@ template<typename T>
     {
       if (this->_lock.Lock())
       {
+        while (this->TryWait());
         while (!this->empty())
         {
           this->pop();
