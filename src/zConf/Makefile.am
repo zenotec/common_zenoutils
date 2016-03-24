@@ -9,5 +9,6 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzConf.la
 
 libzConf_la_SOURCES = \
-    Data.cpp \
-    File.cpp
+    ConfigurationConnector.cpp \
+    Configuration.cpp \
+    ConfigurationHandler.cpp

@@ -1,158 +1,150 @@
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
+
 #ifndef _ZGPIO_H_
 #define _ZGPIO_H_
-
-#include <stdint.h>
-
-#include <string>
-#include <list>
-
-#include <zutils/zThread.h>
-#include <zutils/zSwitch.h>
-#include <zutils/zConf.h>
 
 namespace zUtils
 {
 namespace zGpio
 {
 
-class Handler;
+//**********************************************************************
+// Class: Configuration
+//**********************************************************************
 
-class Port: zConf::Data
+class Configuration : public zConf::Configuration
 {
-    friend class Handler;
 
 public:
 
-    static const std::string EXPORT_FILENAME_KEY;
-    static const std::string EXPORT_FILENAME_DEF;
+  static const std::string ConfigRoot;
 
-    static const std::string UNEXPORT_FILENAME_KEY;
-    static const std::string UNEXPORT_FILENAME_DEF;
+  static const std::string ConfigIdentifierValuePath;
+  static const int ConfigIdentifierValueDefault;
 
-    static const std::string ID_VALUE_KEY;
+  static const std::string ConfigExportFilenamePath;
+  static const std::string ConfigExportFilenameDefault;
 
-    static const std::string DIR_FILENAME_KEY;
-    static const std::string DIR_FILENAME_DEF;
-    static const std::string DIR_VALUE_KEY;
-    static const std::string DIR_VALUE_DEF;
-    static const std::string DIR_VALUE_IN;
-    static const std::string DIR_VALUE_OUT;
+  static const std::string ConfigUnexportFilenamePath;
+  static const std::string ConfigUnexportFilenameDefault;
 
-    static const std::string STATE_FILENAME_KEY;
-    static const std::string STATE_FILENAME_DEF;
-    static const std::string STATE_VALUE_ACTIVE;
-    static const std::string STATE_VALUE_INACTIVE;
+  static const std::string ConfigDirectionFilenamePath;
+  static const std::string ConfigDirectionFilenameDefault;
+  static const std::string ConfigDirectionValuePath;
+  static const std::string ConfigDirectionValueIn;
+  static const std::string ConfigDirectionValueOut;
+  static const std::string ConfigDirectionValueDefault;
 
-    static const std::string EDGE_FILENAME_KEY;
-    static const std::string EDGE_FILENAME_DEF;
-    static const std::string EDGE_VALUE_KEY;
-    static const std::string EDGE_VALUE_DEF;
-    static const std::string EDGE_VALUE_NONE;
-    static const std::string EDGE_VALUE_LO_HI;
-    static const std::string EDGE_VALUE_HI_LO;
-    static const std::string EDGE_VALUE_BOTH;
+  static const std::string ConfigStateFilenamePath;
+  static const std::string ConfigStateFilenameDefault;
+  static const std::string ConfigStateValuePath;
+  static const std::string ConfigStateValueActive;
+  static const std::string ConfigStateValueInactive;
+  static const std::string ConfigStateValueDefault;
 
-    enum DIR
-    {
-        DIR_ERR = -1,
-        DIR_NONE = 0,
-        DIR_IN = 1,
-        DIR_DEF = 1,
-        DIR_OUT = 2,
-        DIR_INOUT = 3,
-        DIR_LAST
-    };
+  static const std::string ConfigEdgeFilenamePath;
+  static const std::string ConfigEdgeFilenameDefault;
+  static const std::string ConfigEdgeValuePath;
+  static const std::string ConfigEdgeValueNone;
+  static const std::string ConfigEdgeValueLoHi;
+  static const std::string ConfigEdgeValueHiLo;
+  static const std::string ConfigEdgeValueBoth;
+  static const std::string ConfigEdgeValueDefault;
 
-    enum STATE
-    {
-        STATE_ERR = -1,
-        STATE_NONE = 0,
-        STATE_DEF = 0,
-        STATE_ACTIVE = 1,
-        STATE_INACTIVE = 2,
-        STATE_LAST
-    };
+  Configuration();
 
-    enum EDGE
-    {
-        EDGE_ERR = -1,
-        EDGE_NONE = 0,
-        EDGE_DEF = 0,
-        EDGE_LO_HI = 1,
-        EDGE_HI_LO = 2,
-        EDGE_BOTH = 3,
-        EDGE_LAST
-    };
+  Configuration(zData::Data &data_);
 
-    Port( uint32_t id_ );
-    Port( zConf::Data &conf_ );
+  Configuration(zConf::Configuration &config_);
 
-    virtual
-    ~Port();
+  virtual
+  ~Configuration();
 
-    uint32_t
-    GetId();
+  zConf::Configuration&
+  GetConfig();
 
-    Port::DIR
-    GetDirection();
+  int
+  Identifier() const;
 
-    bool
-    SetDirection( Port::DIR dir_ );
+  bool
+  Identifier(const int id_);
 
-    Port::STATE
-    GetState();
+  std::string
+  ExportFilename() const;
 
-    bool
-    SetState( Port::STATE state_ );
+  bool
+  ExportFilename(const std::string &filename_);
 
-    Port::EDGE
-    GetEdge();
+  std::string
+  UnexportFilename() const;
 
-    bool
-    SetEdge( Port::EDGE edge_ );
+  bool
+  UnexportFilename(const std::string &filename_);
 
-protected:
+  std::string
+  DirectionFilename() const;
 
-    int _state_file;
+  bool
+  DirectionFilename(const std::string &filename_);
 
-    bool
-    _open();
+  std::string
+  Direction() const;
 
-    bool
-    _close();
+  bool
+  Direction(const std::string &dir_);
 
-private:
+  std::string
+  StateFilename() const;
 
-    std::string
-    _conf_get_export_filename();
+  bool
+  StateFilename(const std::string &filename_);
 
-    std::string
-    _conf_get_unexport_filename();
+  std::string
+  State() const;
 
-    std::string
-    _conf_get_direction_filename();
+  bool
+  State(const std::string &state_);
 
-    std::string
-    _conf_get_direction_value();
+  std::string
+  EdgeFilename() const;
 
-    std::string
-    _conf_get_state_filename();
+  bool
+  EdgeFilename(const std::string &filename_);
 
-    std::string
-    _conf_get_edge_filename();
+  std::string
+  Edge() const;
 
-    std::string
-    _conf_get_edge_value();
+  bool
+  Edge(const std::string &edge_);
 
 };
 
-class Observer
+//**********************************************************************
+// Class: Event
+//**********************************************************************
+
+class Event : public zEvent::Event
 {
 
 public:
 
-    virtual void
-    PortHandler( zGpio::Port &port_ ) = 0;
+  enum EVENTID
+  {
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_LAST
+  };
+
+  Event();
+
+  virtual
+  ~Event();
 
 protected:
 
@@ -160,71 +152,150 @@ private:
 
 };
 
-class Handler: public zThread::Function
+//**********************************************************************
+// Class: Port
+//**********************************************************************
+
+class Port : public zGpio::Configuration
 {
 
 public:
 
-    Handler();
+  enum DIR
+  {
+    DIR_ERR = -1,
+    DIR_NONE = 0,
+    DIR_IN = 1,
+    DIR_DEF = 1,
+    DIR_OUT = 2,
+    DIR_INOUT = 3,
+    DIR_LAST
+  };
 
-    virtual
-    ~Handler();
+  enum STATE
+  {
+    STATE_ERR = -1,
+    STATE_NONE = 0,
+    STATE_DEF = 0,
+    STATE_ACTIVE = 1,
+    STATE_INACTIVE = 2,
+    STATE_LAST
+  };
 
-    bool
-    AddPort( Port *port_ );
+  enum EDGE
+  {
+    EDGE_ERR = -1,
+    EDGE_NONE = 0,
+    EDGE_DEF = 0,
+    EDGE_LO_HI = 1,
+    EDGE_HI_LO = 2,
+    EDGE_BOTH = 3,
+    EDGE_LAST
+  };
 
-    Port*
-    GetPort( uint32_t id_ );
+  Port();
 
-    Port::STATE
-    GetState();
+  Port(zConf::Configuration& config_);
 
-    bool
-    SetState( Port::STATE state_ );
+  virtual
+  ~Port();
 
-    bool
-    Register( Observer *obs_ );
+  bool
+  Open();
 
-    bool
-    Unregister( Observer *obs_ );
+  bool
+  Close();
+
+  Port::STATE
+  Get();
+
+  bool
+  Set(Port::STATE state_);
 
 protected:
 
-    virtual void *
-    ThreadFunction( void *arg_ );
-
 private:
 
-    std::list<Port *> _portList;
+  zGpio::Configuration _config;
 
-    std::list<zGpio::Observer *> _obsList;
+  Port::DIR
+  _direction() const;
 
-    zThread::Thread _thread;
+  bool
+  _direction(const Port::DIR dir_);
 
-    void
-    _notify( zGpio::Port &port_ );
+  Port::STATE
+  _state() const;
+
+  bool
+  _state(const Port::STATE state_);
+
+  Port::EDGE
+  _edge() const;
+
+  bool
+  _edge(const Port::EDGE edge_);
 
 };
 
-class Switch: public zSwitch::Switch, public Handler
+//**********************************************************************
+// Class: Handler
+//**********************************************************************
+
+class Handler : public zThread::Function
 {
 
 public:
 
-    Switch( zSwitch::Switch::STATE state_ );
+  Handler();
 
-    virtual
-    ~Switch();
+  virtual
+  ~Handler();
+
+  bool
+  Add(Port *port_);
+
+  Port::STATE
+  Get();
+
+  bool
+  Set(Port::STATE state_);
+
+protected:
+
+  virtual void *
+  ThreadFunction(void *arg_);
+
+private:
+
+  std::list<Port *> _portList;
+  zThread::Thread _thread;
+
+};
+
+//**********************************************************************
+// Class: Configuration
+//**********************************************************************
+
+class Switch : public zSwitch::Switch, public Handler
+{
+
+public:
+
+  Switch(zSwitch::Switch::STATE state_);
+
+  virtual
+  ~Switch();
 
 protected:
 
 private:
 
-    virtual bool
-    _turnOn();
+  virtual bool
+  _turnOn();
 
-    virtual bool
-    _turnOff();
+  virtual bool
+  _turnOff();
 
 };
 

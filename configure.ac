@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libzutils], [0.1], [kevin.mahoney@zenotec.net])
+AC_INIT([libzutils], [1.0], [kevin.mahoney@zenotec.net])
 AM_INIT_AUTOMAKE([foreign parallel-tests color-tests])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -66,51 +66,57 @@ AC_CHECK_FUNCS([memset getpid sem_init strerror])
 com_incdir='-I${top_srcdir}/inc'
 AC_SUBST([com_incdir])
 
+#AC_CONFIG_FILES([
+#    Makefile
+#      src/Makefile
+#        src/zCom/Makefile
+#        src/zCommand/Makefile
+#        src/zException/Makefile
+#        src/zLcd/Makefile
+#        src/zLed/Makefile
+#        src/zMessage/Makefile
+#        src/zNode/Makefile
+#        src/zSocket/Makefile
+#        src/zSwitch/Makefile
+#        src/zThermo/Makefile
+#      test/Makefile
+#        test/zCom/Makefile
+#        test/zCommand/Makefile
+#        test/zLed/Makefile
+#        test/zLcd/Makefile
+#        test/zMessage/Makefile
+#        test/zNode/Makefile
+#        test/zSocket/Makefile
+#        test/zSwitch/Makefile
+#        test/zThermo/Makefile
+#])
+
 AC_CONFIG_FILES([
     Makefile
       src/Makefile
-        src/zCom/Makefile
-        src/zCommand/Makefile
-        src/zConf/Makefile
-        src/zData/Makefile
-        src/zEvent/Makefile
-        src/zException/Makefile
-        src/zGpio/Makefile
-        src/zLcd/Makefile
-        src/zLed/Makefile
-        src/zLog/Makefile
-        src/zMessage/Makefile
-        src/zNode/Makefile
-        src/zProgOpt/Makefile
-        src/zSem/Makefile
         src/zSignal/Makefile
-        src/zSocket/Makefile
-        src/zSwitch/Makefile
-        src/zThermo/Makefile
         src/zThread/Makefile
         src/zTimer/Makefile
+        src/zProgOpt/Makefile
+        src/zLog/Makefile
+        src/zSem/Makefile
+        src/zData/Makefile
+        src/zEvent/Makefile
+        src/zConf/Makefile
+        src/zGpio/Makefile
       test/Makefile
-        test/zCom/Makefile
-        test/zCommand/Makefile
-        test/zConf/Makefile
-        test/zData/Makefile
-        test/zEvent/Makefile
-        test/zGpio/Makefile
-        test/zLed/Makefile
-        test/zLcd/Makefile
-        test/zLog/Makefile
-        test/zMessage/Makefile
-        test/zNode/Makefile
-        test/zProgOpt/Makefile
-        test/zQueue/Makefile
-        test/zSem/Makefile
-        test/zSocket/Makefile
-        test/zSwitch/Makefile
-        test/zThermo/Makefile
         test/zThread/Makefile
         test/zTimer/Makefile
+        test/zProgOpt/Makefile
+        test/zLog/Makefile
+        test/zSem/Makefile
+        test/zData/Makefile
+        test/zQueue/Makefile
+        test/zEvent/Makefile
+        test/zConf/Makefile
+        test/zGpio/Makefile
 ])
-                 
+
 # Boost checks
 BOOST_REQUIRE([1.41.1])
 

@@ -1,198 +1,164 @@
 //*****************************************************************************
-//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zEvent.cpp
+//    File:
 //    Description:
 //
 //*****************************************************************************
 
-#include "zutils/zLog.h"
-#include "zutils/zEvent.h"
+#include <stdint.h>
+
+#include <mutex>
+#include <list>
+#include <queue>
+#include <vector>
+
+#include <zutils/zLog.h>
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {
 namespace zEvent
 {
 
-const std::string Event::STR_ROOT = "zEvent";
-const std::string Event::STR_TYPE = "Type";
-const std::string Event::STR_TYPE_NONE = "NONE";
-const std::string Event::STR_TYPE_TEST = "TEST";
-const std::string Event::STR_TYPE_SIGNAL = "SIGNAL";
-const std::string Event::STR_TYPE_TIMER = "TIMER";
-const std::string Event::STR_TYPE_COM = "COM";
-const std::string Event::STR_TYPE_TEMP = "TEMP";
-const std::string Event::STR_TYPE_GPIO = "GPIO";
-const std::string Event::STR_TYPE_SOCKET = "SOCKET";
-const std::string Event::STR_TYPE_MSG = "MSG";
-const std::string Event::STR_ID = "Id";
-
 //**********************************************************************
 // Event Class
 //**********************************************************************
 
-Event::Event(Event::TYPE type_, uint32_t id_) :
-    zData::Data(Event::STR_ROOT)
+Event::Event (Event::TYPE type_, uint32_t id_) :
+    _type (type_), _id (id_)
 {
-  // Initialize message
-  if (!this->SetType(type_))
-  {
-    std::string errmsg = "Error setting event type: " + zLog::IntStr(type_);
-    ZLOG_ERR(errmsg);
-    throw errmsg;
-  }
-  if (!this->SetId(id_))
-  {
-    std::string errmsg = "Error setting event ID: " + zLog::IntStr(type_);
-    ZLOG_ERR(errmsg);
-    throw errmsg;
-  }
-
-  this->_lock.Unlock();
 }
 
-Event::~Event()
+Event::Event (Event &other_) :
+    _type (other_._type), _id (other_._id)
+{
+  other_._lock.lock();
+  // Copy of the handler list
+  this->_handler_list = other_._handler_list;
+  other_._lock.unlock();
+}
+
+Event::~Event ()
 {
 }
 
 Event::TYPE
-Event::GetType() const
+Event::GetType ()
 {
-  std::string type = this->GetValue(Event::STR_TYPE);
-  if (type == Event::STR_TYPE_NONE)
-  {
-    return (Event::TYPE_NONE);
-  }
-  else if (type == Event::STR_TYPE_TEST)
-  {
-    return (Event::TYPE_TEST);
-  }
-  else if (type == Event::STR_TYPE_SIGNAL)
-  {
-    return (Event::TYPE_SIGNAL);
-  }
-  else if (type == Event::STR_TYPE_TIMER)
-  {
-    return (Event::TYPE_TIMER);
-  }
-  else if (type == Event::STR_TYPE_COM)
-  {
-    return (Event::TYPE_COM);
-  }
-  else if (type == Event::STR_TYPE_TEMP)
-  {
-    return (Event::TYPE_TEMP);
-  }
-  else if (type == Event::STR_TYPE_GPIO)
-  {
-    return (Event::TYPE_GPIO);
-  }
-  else if (type == Event::STR_TYPE_SOCKET)
-  {
-    return (Event::TYPE_SOCKET);
-  }
-  else if (type == Event::STR_TYPE_MSG)
-  {
-    return (Event::TYPE_MSG);
-  }
-  else
-  {
-    return (Event::TYPE_ERR);
-  }
+  Event::TYPE type = Event::TYPE_ERR;
+
+  // Start critical section
+  this->_lock.lock ();
+
+  type = this->_type;
+
+  // End critical section
+  this->_lock.unlock ();
+
+  return (type);
 }
 
 bool
-Event::SetType(const Event::TYPE &type_)
+Event::SetType (const Event::TYPE &type_)
 {
   bool status = false;
-  switch (type_)
-  {
-  case Event::TYPE_NONE:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_NONE);
-    break;
-  case Event::TYPE_TEST:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_TEST);
-    break;
-  case Event::TYPE_SIGNAL:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_SIGNAL);
-    break;
-  case Event::TYPE_TIMER:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_TIMER);
-    break;
-  case Event::TYPE_COM:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_COM);
-    break;
-  case Event::TYPE_TEMP:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_TEMP);
-    break;
-  case Event::TYPE_GPIO:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_GPIO);
-    break;
-  case Event::TYPE_SOCKET:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_SOCKET);
-    break;
-  case Event::TYPE_MSG:
-    status = this->SetValue(Event::STR_TYPE, Event::STR_TYPE_MSG);
-    break;
-  default:
-    status = false;
-    break;
-  }
+
+  // Start critical section
+  this->_lock.lock ();
+
+  this->_type = type_;
+  status = (this->_type == type_);
+
+  // End critical section
+  this->_lock.unlock ();
+
   return (status);
 }
 
 uint32_t
-Event::GetId()
+Event::GetId ()
 {
-  unsigned int val = 0;
-  this->GetValue(Event::STR_ID, val);
-  return (val);
+  uint32_t id = 0;
+
+  // Start critical section
+  this->_lock.lock ();
+
+  // Get copy of identifier to return to caller
+  id = this->_id;
+
+  // End critical section
+  this->_lock.unlock ();
+
+  return (id);
+
 }
 
 bool
-Event::SetId(const uint32_t &id_)
+Event::SetId (const uint32_t &id_)
 {
-  return (this->SetValue(Event::STR_ID, id_));
+  bool status = false;
+
+  // Start critical section
+  this->_lock.lock ();
+
+  // Update identifier
+  this->_id = id_;
+  status = (this->_id == id_);
+
+  // End critical section
+  this->_lock.unlock ();
+
+  // Return status
+  return (status);
+
 }
 
 void
-Event::Notify(void *arg_)
+Event::Notify (void *arg_)
 {
-  if (this->_lock.Lock())
-  {
-    ZLOG_DEBUG("Notifying handlers");
-    // Make a copy of the handler list
-    std::list<EventHandler *> handler_list(this->_handler_list);
-    this->_lock.Unlock();
+  // Start critical section
+  this->_lock.lock ();
 
-    // Notify all registered event handlers
-    while (!handler_list.empty())
-    {
-      EventHandler *handler = handler_list.front();
-      handler_list.pop_front();
-      handler->notify(this, arg_);
-    }
-  } // end if
+  // Make a copy of the handler list
+  std::list<EventHandler *> handler_list (this->_handler_list);
+
+  // End critical section
+  this->_lock.unlock ();
+
+  // Notify all registered event handlers
+  while (!handler_list.empty ())
+  {
+    EventHandler *handler = handler_list.front ();
+    handler_list.pop_front ();
+    handler->notify (this, arg_);
+  }
 }
 
 void
-Event::registerHandler(EventHandler *list_)
+Event::registerHandler (EventHandler *handler_)
 {
-  if (this->_lock.Lock())
-  {
-    this->_handler_list.push_front(list_);
-    this->_lock.Unlock();
-  } // end if
+  // Start critical section
+  this->_lock.lock ();
+
+  // Add handler to list
+  this->_handler_list.push_front (handler_);
+
+  // End critical section
+  this->_lock.unlock ();
 }
 
 void
-Event::unregisterHandler(EventHandler *list_)
+Event::unregisterHandler (EventHandler *handler_)
 {
-  if (this->_lock.Lock())
-  {
-    this->_handler_list.remove(list_);
-    this->_lock.Unlock();
-  } // end if
+  // Start critical section
+  this->_lock.lock ();
+
+  // Remove handler from list
+  this->_handler_list.remove (handler_);
+
+  // End critical section
+  this->_lock.unlock ();
 }
 
 }

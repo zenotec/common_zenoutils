@@ -1,349 +1,408 @@
-/*
- * Data.cpp
- *
- *  Created on: May 8, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
 
-#include "zutils/zLog.h"
-#include "zutils/zData.h"
+#include <zutils/zData.h>
 
 namespace zUtils
 {
+
 namespace zData
 {
 
 //**********************************************************************
-// Data Class
+// Class: zData::Data
 //**********************************************************************
 
-const std::string Data::ROOT = "zData";
+const std::string Data::ROOT = "Data";
 const std::string Data::KEY = "Key";
 
-Data::Data( const std::string &key_ )
+Data::Data(const std::string &key_)
 {
-    ZLOG_DEBUG( "Creating new zData object: " + key_ );
-    this->_setKey( key_ );
-    this->_pt.put( key_, "" );
+  this->key(key_);
+  this->put("", key_);
 }
 
 Data::~Data()
 {
-    ZLOG_DEBUG( "Destroying zData object: " + this->GetKey() );
-    this->_pt.clear();
+  this->_pt.clear();
+}
+
+std::unique_ptr<Data>
+Data::operator [](int pos_)
+{
+  int i = 0;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  std::unique_ptr<Data> d(new Data(this->key()));
+
+  try
+  {
+
+    for (auto& item : this->_pt.get_child(this->key()))
+    {
+      if (i++ == pos_)
+      {
+        d->put(item.second, this->key());
+        break;
+      }
+    }
+
+  }
+  catch (boost::property_tree::ptree_bad_path &e)
+  {
+    d = NULL;
+  }
+
+  // End critical section
+  this->_lock.unlock();
+
+  return (std::move(d));
+
+}
+
+std::unique_ptr<Data>
+Data::operator [](const std::string &path_)
+{
+  std::unique_ptr<Data> d(new Data(this->Key()));
+  if (!this->Get(*d, path_))
+  {
+    d = NULL;
+  }
+  return (std::move(d));
 }
 
 std::string
-Data::GetKey() const
+Data::Key()
 {
-    std::string key;
-    try
+  std::string key;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  key = this->key();
+
+  // End critical section
+  this->_lock.unlock();
+
+  return (key);
+}
+
+ssize_t
+Data::Size()
+{
+  ssize_t size = 0;
+
+  try
+  {
+    for (auto& item : this->_pt.get_child(this->key()))
     {
-        key = this->_pt.get<std::string>( Data::KEY );
+      size++;
     }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "zData key does not exist, returning empty key" );
-    }
-    return (key);
+  }
+  catch (boost::property_tree::ptree_bad_path &e)
+  {
+    size = -1;
+  }
+  return (size);
+}
+
+void
+Data::Clear()
+{
+  this->Del();
 }
 
 bool
-Data::_setKey( const std::string &key_ )
+Data::Get(Data &data_, const std::string &path_) const
 {
-    bool status = false;
-    try
-    {
-        this->_pt.put( Data::KEY, key_ );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_ERR( "Cannot set zData key value, leaving blank" );
-    }
-    return (status);
+
+  bool status = false;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  // Setup path
+  std::string path = this->key();
+  if (!path_.empty())
+  {
+    path = Data::PathConcat(path, path_);
+  }
+
+  boost::property_tree::ptree pt;
+  if (this->get(pt, path))
+  {
+    data_._lock.lock();
+    std::string key = Data::PathLast(path);
+    data_.key(key);
+    status = data_.put(pt, key);
+    data_._lock.unlock();
+  }
+
+//  std::cout << "Getting data: " << path << " Data: " << data_.key () << std::endl;
+
+  // End critical section
+  this->_lock.unlock();
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::Put(Data &data_, const std::string &path_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  // Setup path
+  std::string path = this->key();
+  if (!path_.empty())
+  {
+    path = Data::PathConcat(path, path_);
+  }
+
+//  std::cout << "Putting data: " << path << " Data: " << data_.key () << std::endl;
+
+  boost::property_tree::ptree pt;
+  if (data_.Get(pt))
+  {
+    status = this->put(pt, path);
+  }
+
+  // End critical section
+  this->_lock.unlock();
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::Add(Data &data_, const std::string &path_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  // Setup path
+  std::string path = this->key();
+  if (!path_.empty())
+  {
+    path = Data::PathConcat(path, path_);
+  }
+
+//  std::cout << "Adding data: " << path << " Data: " << data_.key () << std::endl;
+
+  boost::property_tree::ptree pt;
+  if (data_.Get(pt))
+  {
+    status = this->add(pt, path);
+  }
+
+  // End critical section
+  this->_lock.unlock();
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::Del(const std::string &path_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  this->_lock.lock();
+
+  // Setup path
+  std::string path = this->key();
+  if (!path_.empty())
+  {
+    path = Data::PathConcat(path, path_);
+  }
+
+//  std::cout << "Deleting data: " << path << std::endl;
+
+  status = this->del(path);
+
+//  this->DisplayJson();
+
+// End critical section
+  this->_lock.unlock();
+
+  // Return status
+  return (status);
+
 }
 
 std::string
-Data::GetValue( const std::string &name_ ) const
+Data::GetJson()
 {
-    std::string name;
-    std::string value;
+  std::stringstream json;
+  boost::property_tree::write_json(json, this->_pt);
+  return (json.str());
+}
+
+bool
+Data::SetJson(const std::string &json_)
+{
+  bool status = false;
+  std::stringstream json(json_);
+  try
+  {
+    boost::property_tree::read_json(json, this->_pt);
+    status = true;
+  }
+  catch (boost::property_tree::json_parser_error const &e)
+  {
+    status = false;
+  }
+  return (status);
+}
+
+void
+Data::DisplayJson()
+{
+  std::cout << this->GetJson() << std::endl;
+}
+
+std::string
+Data::GetXml()
+{
+  std::stringstream xml;
+  boost::property_tree::write_xml(xml, this->_pt);
+  return (xml.str());
+}
+
+bool
+Data::SetXml(const std::string &xml_)
+{
+  bool status = false;
+  std::stringstream xml(xml_);
+  try
+  {
+    boost::property_tree::read_xml(xml, this->_pt);
+    status = true;
+  }
+  catch (boost::property_tree::xml_parser_error const &e)
+  {
+    status = false;
+  }
+  return (status);
+}
+
+void
+Data::DisplayXml()
+{
+  std::cout << this->GetXml() << std::endl;
+}
+
+bool
+Data::get(boost::property_tree::ptree &pt_, const std::string &path_) const
+{
+  bool status = false;
+
+  if (!path_.empty())
+  {
+//    std::cout << "Getting child: " << path_ << std::endl;
     try
     {
-        name = this->GetKey() + "." + name_;
-        value = this->_pt.get<std::string>( name );
-        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + value );
+      pt_ = this->_pt.get_child(path_);
+      status = true;
     }
     catch (boost::property_tree::ptree_bad_path const &e)
     {
-        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
+      status = false;
     }
-    return (value);
+  }
+
+  return (status);
 }
 
 bool
-Data::GetValue( const std::string &name_, std::string &value_ ) const
+Data::put(const boost::property_tree::ptree &pt_, const std::string &path_)
 {
-    bool status = false;
-    std::string name;
-    std::string value;
-    try
-    {
-        name = this->GetKey() + "." + name_;
-        value = this->_pt.get<std::string>( name );
-        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + value );
-        value_ = value;
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path &e)
-    {
-        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
-    }
-    return (status);
-}
+  bool status = false;
 
-bool
-Data::GetValue( const std::string &name_, int &value_ ) const
-{
-    bool status = false;
-    std::string name;
-    int value;
+  if (!path_.empty())
+  {
+//    std::cout << "Putting child: " << path_ << std::endl;
     try
     {
-        name = this->GetKey() + "." + name_;
-        value = this->_pt.get<int>( name );
-        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + zLog::IntStr(value) );
-        value_ = value;
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path &e)
-    {
-        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
-    }
-    return (status);
-}
-
-bool
-Data::GetValue( const std::string &name_, unsigned int &value_ ) const
-{
-    bool status = false;
-    std::string name;
-    int value;
-    try
-    {
-        name = this->GetKey() + "." + name_;
-        value = this->_pt.get<unsigned int>( name );
-        ZLOG_DEBUG( "Getting zData value: " + name_ + " = " + zLog::IntStr(value) );
-        value_ = value;
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path &e)
-    {
-        ZLOG_WARN( "zData value '" + name + "' does not exist, returning empty value" );
-    }
-    return (status);
-}
-
-boost::property_tree::ptree
-Data::_getValue( const std::string &name_ ) const
-{
-    boost::property_tree::ptree value;
-    try
-    {
-        value = this->_pt.get_child( name_ );
+      this->_pt.put_child(path_, pt_);
+      status = true;
     }
     catch (boost::property_tree::ptree_bad_path const &e)
     {
-        ZLOG_WARN( "zData value '" + name_ + "' does not exist, returning empty value" );
+      status = false;
     }
-    return (value);
+  }
+
+  return (status);
 }
 
 bool
-Data::SetValue( const std::string &name_, const std::string &value_ )
+Data::add(const boost::property_tree::ptree &pt_, const std::string &path_)
 {
-    bool status = false;
-    std::string name;
-    try
-    {
-        name = this->GetKey() + "." + name_;
-        this->_pt.put( name, value_ );
-        ZLOG_DEBUG( "Setting zData value: " + name + " = " + value_ );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot set zData value:" + name );
-    }
-    return (status);
-}
+  bool status = false;
 
-bool
-Data::SetValue( const std::string &name_, const int &value_ )
-{
-    bool status = false;
-    std::string name;
-    try
-    {
-        name = this->GetKey() + "." + name_;
-        this->_pt.put( name, value_ );
-        ZLOG_DEBUG( "Setting zData value: " + name + " = " + zLog::IntStr(value_) );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot set zData value:" + name );
-    }
-    return (status);
-}
-
-bool
-Data::SetValue( const std::string &name_, const unsigned int &value_ )
-{
-    bool status = false;
-    std::string name;
-    try
-    {
-        name = this->GetKey() + "." + name_;
-        this->_pt.put( name, value_ );
-        ZLOG_DEBUG( "Setting zData value: " + name + " = " + zLog::IntStr(value_) );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot set zData value:" + name );
-    }
-    return (status);
-}
-
-bool
-Data::_setValue( const std::string &name_, const boost::property_tree::ptree &pt_ )
-{
-    bool status = false;
-    try
-    {
-        this->_pt.put_child( name_, pt_ );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot set zData value:" + name_ );
-    }
-    return (status);
-}
-
-bool
-Data::GetChild( const std::string &name_, Data &child_ ) const
-{
-    bool status = false;
-    std::string name = this->GetKey() + "." + name_;
-    ZLOG_DEBUG( "Getting zData child: '" + name + "'" );
-    try
-    {
-        child_._setKey( name_ );
-        child_._setValue( name_, this->_pt.get_child( name ) );
-        ZLOG_DEBUG( "\n" + child_.GetJson() );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot get zData child: " + name );
-    }
-    return (status);
-}
-
-bool
-Data::PutChild( const std::string &name_, const Data &child_ )
-{
-    bool status = false;
-    std::string name = this->GetKey() + "." + name_;
-    ZLOG_DEBUG( "Putting zData child: '" + name + "'\n" + child_.GetJson() );
-    try
-    {
-        this->_pt.put_child( name, child_._getValue( child_.GetKey() ) );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot put zData child: " + name );
-    }
-    return (status);
-}
-
-bool
-Data::AddChild( const std::string &name_, const Data &child_ )
-{
-    bool status = false;
-    std::string name = this->GetKey() + "." + name_;
-    ZLOG_DEBUG( "Adding zData child: '" + name + "'\n" + child_.GetJson() );
-
+  if (!path_.empty())
+  {
+//    std::cout << "Adding child: " << path_ << std::endl;
     boost::property_tree::ptree parent;
-    boost::property_tree::ptree pt;
+    this->get(parent, path_); // Ignore return value
+    parent.push_back(std::make_pair("", pt_));
+    status = this->put(parent, path_);
+  }
 
-    // Get the parent node to add to
-    try
-    {
-        parent = this->_pt.get_child( name );
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "zData parent does not exist: " + name );
-    }
-
-    try
-    {
-        pt = child_._getValue( child_.GetKey() );
-        parent.push_back(std::make_pair("", pt));
-        this->_pt.put_child( name, parent );
-        status = true;
-    }
-    catch (boost::property_tree::ptree_bad_path const &e)
-    {
-        ZLOG_WARN( "Cannot add zData child: " + name );
-    }
-    return (status);
-}
-
-std::string
-Data::GetJson() const
-{
-    std::stringstream json;
-    boost::property_tree::write_json( json, this->_pt );
-    return (json.str());
+  return (status);
 }
 
 bool
-Data::SetJson( const std::string &json_ )
+Data::del(const std::string &path_)
 {
-    bool status = false;
-    std::stringstream json( json_ );
-    try
+  bool status = false;
+
+  if (!path_.empty())
+  {
+//    std::cout << "Deleting child: " << path_ << std::endl;
+    boost::property_tree::ptree parent;
+    boost::property_tree::ptree empty;
+    if (this->get(parent, path_))
     {
-        boost::property_tree::read_json( json, this->_pt );
-        status = true;
+      status = this->put(empty, path_);
     }
-    catch (boost::property_tree::json_parser_error const &e)
-    {
-        ZLOG_ERR( "Cannot set data from JSON: " + json_ );
-    }
-    return (status);
+  }
+
+  return (status);
 }
 
 std::string
-Data::GetXml() const
+Data::key() const
 {
-    std::stringstream xml;
-    boost::property_tree::write_xml( xml, this->_pt );
-    return (xml.str());
+  std::string key;
+  this->get(key, Data::KEY);
+  return (key);
 }
 
 bool
-Data::SetXml( const std::string &xml_ )
+Data::key(const std::string &key_)
 {
-    std::stringstream xml( xml_ );
-    boost::property_tree::read_xml( xml, this->_pt );
-    return (true);
+  return (this->put(key_, Data::KEY));
 }
 
 }

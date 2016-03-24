@@ -1,8 +1,16 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include <string>
+#include <list>
+#include <mutex>
 
 #include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+#include <zutils/zConf.h>
+#include <zutils/zSwitch.h>
+
+#include <zutils/zGpio.h>
 
 #include "zGpioTest.h"
 
@@ -28,12 +36,18 @@ main(int argc, const char **argv)
     mkdir(TESTDIR.c_str(), 0777);
   }
 
+  UTEST_TEST(zGpioTest_ConfigurationDefaults, 0);
+  UTEST_TEST(zGpioTest_ConfigurationCtor, 0);
+  UTEST_TEST(zGpioTest_ConfigurationGetSet, 0);
+
   UTEST_TEST(zGpioTest_PortDefaults, 0);
+
   UTEST_TEST(zGpioTest_HandlerDefaults, 0);
-  UTEST_TEST(zGpioTest_HandlerAddPort, 0);
-  UTEST_TEST(zGpioTest_HandlerOnOff, 0);
-  UTEST_TEST(zGpioTest_SwitchDefaults, 0);
-  UTEST_TEST(zGpioTest_SwitchOnOff, 0);
+//  UTEST_TEST(zGpioTest_HandlerAddPort, 0);
+//  UTEST_TEST(zGpioTest_HandlerOnOff, 0);
+
+//  UTEST_TEST(zGpioTest_SwitchDefaults, 0);
+//  UTEST_TEST(zGpioTest_SwitchOnOff, 0);
 
   if (stat(TESTDIR.c_str(), &st) != -1)
   {

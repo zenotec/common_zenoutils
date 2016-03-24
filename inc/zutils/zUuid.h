@@ -1,9 +1,10 @@
-/*
- * zUuid.h
- *
- *  Created on: Jan 28, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
 
 #ifndef _ZUUID_H_
 #define _ZUUID_H_

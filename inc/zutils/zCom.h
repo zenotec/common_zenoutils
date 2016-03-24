@@ -9,12 +9,6 @@
 #ifndef __ZCOM_H__
 #define __ZCOM_H__
 
-#include <string>
-#include <list>
-
-#include <zutils/zEvent.h>
-#include <zutils/zQueue.h>
-
 namespace zUtils
 {
 namespace zCom

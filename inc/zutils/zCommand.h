@@ -37,10 +37,10 @@ public:
   ~Command();
 
   bool
-  operator ==(const Command &other_) const;
+  operator ==(const Command &other_);
 
   bool
-  operator !=(const Command &other_) const;
+  operator !=(const Command &other_);
 
   std::string
   GetName() const;

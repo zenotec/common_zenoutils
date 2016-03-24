@@ -1,7 +1,7 @@
 //*****************************************************************************
-//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zThread.cpp
+//    File:
 //    Description:
 //
 //*****************************************************************************
@@ -10,8 +10,12 @@
 #include <errno.h>
 #include <string.h>
 
-#include "zutils/zThread.h"
-#include "zutils/zLog.h"
+#include <list>
+#include <mutex>
+
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zLog.h>
 
 namespace zUtils
 {

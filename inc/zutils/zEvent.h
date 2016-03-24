@@ -1,21 +1,14 @@
 //*****************************************************************************
-//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zEvent.h
+//    File:
 //    Description:
 //
 //*****************************************************************************
 
-#ifndef __ZEVENT_H__
-#define __ZEVENT_H__
+#ifndef __EVENT_H__
+#define __EVENT_H__
 
-#include <list>
-#include <queue>
-#include <vector>
-
-#include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zData.h>
 
 namespace zUtils
 {
@@ -25,25 +18,13 @@ namespace zEvent
 class EventHandler;
 
 //**********************************************************************
-// Event Class
+// Class: Event
 //**********************************************************************
-class Event : zData::Data
+
+class Event
 {
 
   friend class EventHandler;
-
-  static const std::string STR_ROOT;
-  static const std::string STR_TYPE;
-  static const std::string STR_TYPE_NONE;
-  static const std::string STR_TYPE_TEST;
-  static const std::string STR_TYPE_SIGNAL;
-  static const std::string STR_TYPE_TIMER;
-  static const std::string STR_TYPE_COM;
-  static const std::string STR_TYPE_TEMP;
-  static const std::string STR_TYPE_GPIO;
-  static const std::string STR_TYPE_SOCKET;
-  static const std::string STR_TYPE_MSG;
-  static const std::string STR_ID;
 
 public:
 
@@ -54,61 +35,61 @@ public:
     TYPE_TEST = 1,
     TYPE_TIMER = 2,
     TYPE_SIGNAL = 3,
-    TYPE_COM = 4,
-    TYPE_TEMP = 5,
-    TYPE_GPIO = 6,
-    TYPE_SOCKET = 7,
-    TYPE_MSG = 8,
+    TYPE_CONFIG = 4,
     TYPE_LAST
   };
 
-  Event(Event::TYPE type_ = TYPE_NONE, uint32_t id_ = 0);
+  Event (Event::TYPE type_ = TYPE_NONE, uint32_t id_ = 0);
+
+  Event (Event &other_);
 
   virtual
-  ~Event();
+  ~Event ();
 
   Event::TYPE
-  GetType() const;
+  GetType ();
 
   bool
-  SetType(const Event::TYPE &type_);
+  SetType (const Event::TYPE &type_);
 
   uint32_t
-  GetId();
+  GetId ();
 
   bool
-  SetId(const uint32_t &id_);
+  SetId (const uint32_t &id_);
 
   void
-  Notify(void *arg_);
+  Notify (void *arg_);
 
 protected:
 
   void
-  registerHandler(EventHandler *list_);
+  registerHandler (EventHandler *list_);
 
   void
-  unregisterHandler(EventHandler *list_);
+  unregisterHandler (EventHandler *list_);
 
 private:
 
-  zSem::Mutex _lock;
+  std::mutex _lock;
   std::list<EventHandler *> _handler_list;
+  Event::TYPE _type;
+  uint32_t _id;
 
 };
 
 //**********************************************************************
-// EventObserver Class
+// Class: EventObserver
 //**********************************************************************
 class EventObserver
 {
 public:
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_) = 0;
+  EventHandler (Event *event_, void *arg_) = 0;
 };
 
 //**********************************************************************
-// EventHandler Class
+// Class: EventHandler
 //**********************************************************************
 class EventHandler
 {
@@ -116,80 +97,73 @@ class EventHandler
   friend class Event;
 
 public:
-  EventHandler();
+  EventHandler ();
 
   virtual
-  ~EventHandler();
+  ~EventHandler ();
 
   void
-  RegisterEvent(Event *event_);
+  RegisterEvent (Event *event_);
 
   void
-  UnregisterEvent(Event *event_);
+  UnregisterEvent (Event *event_);
 
-  void
-  RegisterObserver(EventObserver *obs_);
+  bool
+  RegisterObserver (EventObserver *obs_);
 
-  void
-  UnregisterObserver(EventObserver *obs_);
+  bool
+  UnregisterObserver (EventObserver *obs_);
 
 protected:
 
   void
-  notify(Event *event_, void *arg_);
+  notify (Event *event_, void *arg_);
 
 private:
 
-  zSem::Mutex _lock;
+  std::mutex _lock;
   std::list<Event *> _event_list;
   std::list<EventObserver *> _obs_list;
 
-  EventHandler(EventHandler const &);
+  EventHandler (EventHandler const &);
 
   void
-  operator=(EventHandler const &);
+  operator= (EventHandler const &);
 
 };
 
-class EventManager
-{
+//**********************************************************************
+// Class: EventManager
+//**********************************************************************
 
+class EventManager : public EventHandler
+{
 public:
 
-  static EventManager &
-  GetInstance();
-
-  virtual
-  ~EventManager();
-
-  bool
-  RegisterEvent(Event *event_);
-
-  bool
-  UnregisterEvent(Event *event_);
-
-  bool
-  RegisterObserver(Event::TYPE type_, EventObserver *obs_);
-
-  bool
-  UnregisterObserver(Event::TYPE type_, EventObserver *obs_);
+  static EventManager&
+  Instance ()
+  {
+    static EventManager instance;
+    return instance;
+  }
 
 protected:
 
 private:
 
-  std::vector<EventHandler> _handlers;
+  EventManager ()
+  {
+  }
 
-  EventManager();
+  EventManager (EventManager const&);
 
-  EventManager(const EventManager &);
-
-  EventManager &
-  operator=(const EventManager &);
+  void
+  operator= (EventManager const&);
 
 };
 
+
 }
 }
 
-#endif /* __ZEVENT_H__ */
+#endif /* __EVENT_H__ */

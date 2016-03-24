@@ -1,23 +1,25 @@
+#SUBDIRS = \
+#	zCom \
+#	zCommand \
+#	zException \
+#	zLed \
+#	zLcd \
+#	zSocket \
+#	zMessage \
+#	zSwitch \
+#	zThermo
+
 SUBDIRS = \
 	zLog \
-	zSem \
-	zData \
-	zEvent \
 	zSignal \
+	zProgOpt \
+	zSem \
 	zThread	\
 	zTimer	\
-	zCom \
-	zCommand \
+	zData \
+	zEvent \
 	zConf \
-	zException \
-	zGpio \
-	zLed \
-	zLcd \
-	zSocket \
-	zMessage \
-	zProgOpt \
-	zSwitch \
-	zThermo
+	zGpio
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -63,24 +65,27 @@ libzutils_la_HEADERS = \
 libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
+#libzutils_la_LIBADD = \
+#    ${top_builddir}/src/zCom/libzCom.la \
+#    ${top_builddir}/src/zCommand/libzCommand.la \
+#    ${top_builddir}/src/zException/libzException.la \
+#    ${top_builddir}/src/zLed/libzLed.la \
+#    ${top_builddir}/src/zLcd/libzLcd.la \
+#    ${top_builddir}/src/zMessage/libzMessage.la \
+#    ${top_builddir}/src/zSwitch/libzSwitch.la \
+#    ${top_builddir}/src/zThermo/libzThermo.la \
+#    ${top_builddir}/src/zSocket/libzSocket.la
+
 libzutils_la_LIBADD = \
-    ${top_builddir}/src/zData/libzData.la \
-    ${top_builddir}/src/zCom/libzCom.la \
-    ${top_builddir}/src/zCommand/libzCommand.la \
-    ${top_builddir}/src/zConf/libzConf.la \
-    ${top_builddir}/src/zEvent/libzEvent.la \
-    ${top_builddir}/src/zException/libzException.la \
-    ${top_builddir}/src/zGpio/libzGpio.la \
-    ${top_builddir}/src/zLed/libzLed.la \
-    ${top_builddir}/src/zLcd/libzLcd.la \
     ${top_builddir}/src/zLog/libzLog.la \
-    ${top_builddir}/src/zMessage/libzMessage.la \
+    ${top_builddir}/src/zSignal/libzSignal.la \
     ${top_builddir}/src/zProgOpt/libzProgOpt.la \
     ${top_builddir}/src/zSem/libzSem.la \
-    ${top_builddir}/src/zSwitch/libzSwitch.la \
-    ${top_builddir}/src/zThermo/libzThermo.la \
     ${top_builddir}/src/zThread/libzThread.la \
     ${top_builddir}/src/zTimer/libzTimer.la \
-    ${top_builddir}/src/zSocket/libzSocket.la
+    ${top_builddir}/src/zData/libzData.la \
+    ${top_builddir}/src/zEvent/libzEvent.la \
+    ${top_builddir}/src/zConf/libzConf.la \
+    ${top_builddir}/src/zGpio/libzGpio.la
     
     

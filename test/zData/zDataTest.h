@@ -8,9 +8,9 @@ int
 zDataTest_Defaults(void* arg);
 
 int
-zDataTest_SetValueMultiple(void* arg_);
+zDataTest_PutValueMultiple(void* arg_);
 int
-zDataTest_SetValueSingle(void* arg_);
+zDataTest_PutValueSingle(void* arg_);
 
 int
 zDataTest_GetChildSingle(void* arg_);

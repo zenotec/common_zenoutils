@@ -28,9 +28,8 @@ Command::Command(const std::string &cmd_, const std::string &arg_) :
 }
 
 Command::Command(const zData::Data &data_) :
-    zData::Data(Command::ROOT)
+    zData::Data(data_)
 {
-  this->SetJson(data_.GetJson());
 }
 
 Command::~Command()
@@ -38,13 +37,13 @@ Command::~Command()
 }
 
 bool
-Command::operator ==(const Command &other_) const
+Command::operator ==(const Command &other_)
 {
   return (this->GetName() == other_.GetName());
 }
 
 bool
-Command::operator !=(const Command &other_) const
+Command::operator !=(const Command &other_)
 {
   return (this->GetName() != other_.GetName());
 }
@@ -53,42 +52,42 @@ std::string
 Command::GetName() const
 {
   std::string str;
-  this->GetValue(Command::NAME, str);
+  this->Get(str, Command::NAME);
   return (str);
 }
 
 bool
 Command::SetName(const std::string name_)
 {
-  return (this->SetValue(Command::NAME, name_));
+  return (this->Put(name_, Command::NAME));
 }
 
 std::string
 Command::GetArgument() const
 {
   std::string str;
-  this->GetValue(Command::ARG, str);
+  this->Get(str, Command::ARG);
   return (str);
 }
 
 bool
 Command::SetArgument(const std::string arg_)
 {
-  return (this->SetValue(Command::ARG, arg_));
+  return (this->Put(arg_, Command::ARG));
 }
 
 std::string
 Command::GetOutput() const
 {
   std::string str;
-  this->GetValue(Command::OUT, str);
+  this->Get(str, Command::OUT);
   return (str);
 }
 
 bool
 Command::SetOutput(const std::string arg_)
 {
-  return (this->SetValue(Command::OUT, arg_));
+  return (this->Put(arg_, Command::OUT));
 }
 
 bool

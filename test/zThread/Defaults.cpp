@@ -1,3 +1,10 @@
+
+#include <list>
+#include <mutex>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+
 #include "zThreadTest.h"
 
 using namespace Test;

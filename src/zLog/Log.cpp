@@ -1,9 +1,10 @@
-/*
- * zLog.cpp
- *
- *  Created on: May 14, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
 
 #include <stdlib.h>
 #include <sys/types.h>
@@ -11,7 +12,7 @@
 
 #include <iostream>
 
-#include "zutils/zLog.h"
+#include <zutils/zLog.h>
 
 namespace zUtils
 {

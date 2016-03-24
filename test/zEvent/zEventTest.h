@@ -8,6 +8,13 @@
 #ifndef _ZEVENTTEST_H_
 #define _ZEVENTTEST_H_
 
+#include <stdint.h>
+
+#include <mutex>
+#include <list>
+#include <queue>
+#include <vector>
+
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
 

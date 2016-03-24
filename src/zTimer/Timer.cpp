@@ -1,7 +1,7 @@
 //*****************************************************************************
-//    Copyright (C) 2014 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zTimer.cpp
+//    File:
 //    Description:
 //
 //*****************************************************************************
@@ -9,8 +9,10 @@
 #include <errno.h>
 #include <string.h>
 #include <signal.h>
-
+#include <unistd.h>
 #include <time.h>
+
+#include <mutex>
 
 #include <zutils/zTimer.h>
 #include <zutils/zLog.h>

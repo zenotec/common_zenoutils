@@ -1,116 +1,175 @@
 //*****************************************************************************
-//    Copyright (C) 2015 ZenoTec LLC (http://www.zenotec.net)
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: zConf.h
+//    File:
 //    Description:
 //
 //*****************************************************************************
 
-#ifndef __ZCONF_H__
-#define __ZCONF_H__
-
-#include <string>
-#include <list>
-
-#include <zutils/zData.h>
+#ifndef _ZCONF_H_
+#define _ZCONF_H_
 
 namespace zUtils
 {
 namespace zConf
 {
 
-class Observer;
-class Connector;
+class ConfigurationConnector;
 
-class Data: private zData::Data
+//**********************************************************************
+// Class: ConfigurationEvent
+//**********************************************************************
+
+class ConfigurationEvent : public zEvent::Event
 {
-    static const std::string ROOT;
+public:
+
+  enum EVENTID
+  {
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_UPDATE,
+    EVENTID_COMMIT,
+    EVENTID_LAST
+  };
+
+  ConfigurationEvent(ConfigurationEvent::EVENTID id_);
+
+  virtual
+  ~ConfigurationEvent();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: Configuration
+//**********************************************************************
+
+class Configuration
+{
 
 public:
 
-    enum STATE
+  static const std::string ROOT;
+
+  Configuration();
+
+  Configuration(Configuration &other_);
+
+  Configuration(const Configuration &other_);
+
+  Configuration(zData::Data &data_);
+
+  virtual
+  ~Configuration();
+
+  bool
+  operator ==(const Configuration &other_) const;
+
+  bool
+  operator !=(const Configuration &other_) const;
+
+  std::unique_ptr<Configuration>
+  operator [](const std::string &key_);
+
+  void
+  Display()
+  {
+    this->_working.DisplayJson();
+  }
+
+  void
+  RegisterEvents(zEvent::EventHandler &handler_);
+
+  void
+  UnregisterEvents(zEvent::EventHandler &handler_);
+
+  bool
+  IsModified();
+
+  bool
+  Commit();
+
+  bool
+  Restore();
+
+  template<typename T>
+    bool
+    Get(T &value_, const std::string &path_ = std::string("")) const
+        {
+//      std::cout << "Getting configuration value: " << path_ << std::endl;
+      return (this->_working.Get<T>(value_, path_));
+    }
+
+  bool
+  Get(zData::Data &data_, const std::string &path_ = std::string("")) const;
+
+  bool
+  Get(Configuration &conf_, const std::string &path_ = std::string("")) const;
+
+  template<typename T>
+    bool
+    Put(T &value_, const std::string &path_ = std::string(""))
     {
-        STATE_ERR = -1,
-        STATE_NONE = 0,
-        STATE_PREGET = 1,
-        STATE_PRESET = 2,
-        STATE_POSTGET = 3,
-        STATE_POSTSET = 4,
-        STATE_PRECOMMIT = 5,
-        STATE_POSTCOMMIT = 6,
-        STATE_LAST
-    };
+//      std::cout << "Putting configuration value: " << path_ << std::endl;
+      return (this->_staging.Put<T>(value_, path_));
+    }
 
-    Data();
+  bool
+  Put(zData::Data &data_, const std::string &path_ = std::string(""));
 
-    virtual
-    ~Data();
+  bool
+  Put(Configuration &conf_, const std::string &path_ = std::string(""));
 
+  template<typename T>
     bool
-    operator ==( const Data &other_ ) const;
+    Add(T &value_, const std::string &path_ = std::string(""))
+    {
+//      std::cout << "Adding configuration value: " << path_ << std::endl;
+      return (this->_staging.Add<T>(value_, path_));
+    }
 
-    bool
-    operator !=( const Data &other_ ) const;
+  bool
+  Add(zData::Data &data_, const std::string &path_ = std::string(""));
 
-    bool
-    Get( const std::string &key_, std::string &value_ );
-
-    bool
-    Get( const std::string &key_, int &value_ );
-
-    bool
-    Get( const std::string &key_, unsigned int &value_ );
-
-    bool
-    Get( zData::Data &data_ );
-
-    bool
-    Set( const std::string &key_, const std::string &value_ );
-
-    bool
-    Set( const std::string &key_, const int &value_ );
-
-    bool
-    Set( const std::string &key_, const unsigned int &value_ );
-
-    bool
-    Set( zData::Data &data_ );
-
-    bool
-    Connect( zConf::Connector *connector_);
-
-    bool
-    Load();
-
-    bool
-    Commit();
-
-    bool
-    Register( zConf::Observer *obs_ );
-
-    bool
-    Unregister( zConf::Observer *obs_ );
+  bool
+  Add(Configuration &conf_, const std::string &path_ = std::string(""));
 
 protected:
 
 private:
 
-    void
-    _notify( zConf::Data::STATE state_ );
+  Configuration(const zData::Data &data_); // Not supported; Cannot ensure thread safeness
 
-    std::list<zConf::Observer *> _obsList;
+  mutable std::mutex _lock;
 
-    zConf::Connector *_connector;
+  bool _modified;
+
+  zData::Data _staging;
+  zData::Data _working;
+
+  ConfigurationEvent _update_event;
+  ConfigurationEvent _commit_event;
 
 };
 
-class Observer
+//**********************************************************************
+// Class: ConfigurationConnector
+//**********************************************************************
+
+class ConfigurationConnector
 {
 
 public:
 
-    virtual void
-    Handle( Data::STATE state_, zData::Data &item_ ) = 0;
+  virtual bool
+  Load(zData::Data &data_) = 0;
+
+  virtual bool
+  Store(zData::Data &data_) = 0;
 
 protected:
 
@@ -118,65 +177,114 @@ private:
 
 };
 
-class Connector
-{
+//**********************************************************************
+// Class: ConfigurationFileConnector
+//**********************************************************************
 
+class ConfigurationFileConnector : public ConfigurationConnector
+{
 public:
 
-    virtual bool
-    Load( zConf::Data &data_ ) = 0;
+  ConfigurationFileConnector(const std::string &filename_);
 
-    virtual bool
-    Store( zConf::Data &data_ ) = 0;
+  virtual
+  ~ConfigurationFileConnector();
+
+  virtual bool
+  Load(zData::Data &data_);
+
+  virtual bool
+  Store(zData::Data &data_);
 
 protected:
 
 private:
+
+  std::string _filename;
 
 };
 
-class FileConnector: public Connector
+//**********************************************************************
+// Class: ConfigurationHandler
+//**********************************************************************
+
+class ConfigurationHandler : public zEvent::EventHandler
 {
 public:
 
-    FileConnector( const std::string &filename_ );
+  enum STATE
+  {
+    STATE_ERR = -1,
+    STATE_NONE = 0,
+    STATE_PREGET = 1,
+    STATE_PRESET = 2,
+    STATE_POSTGET = 3,
+    STATE_POSTSET = 4,
+    STATE_PRECOMMIT = 5,
+    STATE_POSTCOMMIT = 6,
+    STATE_LAST
+  };
 
-    virtual
-    ~FileConnector();
+  ConfigurationHandler();
 
-    virtual bool
-    Load( zConf::Data &data_ );
+  virtual
+  ~ConfigurationHandler();
 
-    virtual bool
-    Store( zConf::Data &data_ );
+  bool
+  Connect(ConfigurationConnector *connector_);
+
+  bool
+  Load();
+
+  bool
+  Store();
+
+  bool
+  Get(Configuration &data_, const std::string &path_ = std::string(""));
+
+  bool
+  Set(Configuration &data_, const std::string &path_ = std::string(""));
 
 protected:
 
 private:
 
-    std::string _filename;
+  ConfigurationConnector *_connector;
+  Configuration _working;
 
 };
 
-class Handler
-{
+//**********************************************************************
+// Class: ConfigurationManager
+//**********************************************************************
 
+class ConfigurationManager : public ConfigurationHandler
+{
 public:
 
-    Handler();
-
-    virtual
-    ~Handler();
+  static ConfigurationManager&
+  Instance()
+  {
+    static ConfigurationManager instance;
+    return instance;
+  }
 
 protected:
 
 private:
 
-    std::list<zConf::Data *> _obsList;
+  ConfigurationManager()
+  {
+  }
+
+  ConfigurationManager(ConfigurationManager const&);
+
+  void
+  operator=(ConfigurationManager const&);
 
 };
 
 }
 }
 
-#endif /* __ZCONF_H__ */
+#endif /* _ZCONF_H_ */

@@ -1,9 +1,11 @@
-/*
- * Select.cpp
- *
- *  Created on: Jan 13, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
+
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>

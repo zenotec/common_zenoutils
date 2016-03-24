@@ -1,9 +1,11 @@
-/*
- * Select.cpp
- *
- *  Created on: Jan 13, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
+
 #include <string.h>
 
 #include <zutils/zLog.h>

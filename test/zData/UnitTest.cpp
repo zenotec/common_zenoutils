@@ -21,8 +21,8 @@ main(int argc, const char **argv)
 
   UTEST_TEST( zDataTest_Defaults, 0);
 
-  UTEST_TEST( zDataTest_SetValueSingle, 0);
-  UTEST_TEST( zDataTest_SetValueMultiple, 0);
+  UTEST_TEST( zDataTest_PutValueSingle, 0);
+  UTEST_TEST( zDataTest_PutValueMultiple, 0);
 
   UTEST_TEST( zDataTest_GetChildSingle, 0);
   UTEST_TEST( zDataTest_GetChildMultiple, 0);

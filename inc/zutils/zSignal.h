@@ -1,16 +1,14 @@
-/*
- * zSignal.h
- *
- *  Created on: Feb 4, 2016
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
 
 #ifndef _ZSIGNAL_H_
 #define _ZSIGNAL_H_
 
-#include <signal.h>
-
-#include <zutils/zEvent.h>
 
 namespace zUtils
 {
@@ -18,7 +16,7 @@ namespace zSignal
 {
 
 //**********************************************************************
-// Class: SignalHandler
+// Class: SignalEvent
 //**********************************************************************
 
 class SignalEvent : public zEvent::Event

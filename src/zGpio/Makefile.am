@@ -9,7 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzGpio.la
 
 libzGpio_la_SOURCES = \
-    Port.cpp \
-    Handler.cpp \
-    Switch.cpp
+    GpioPortConfiguration.cpp \
+    GpioPort.cpp \
+    GpioHandler.cpp
 

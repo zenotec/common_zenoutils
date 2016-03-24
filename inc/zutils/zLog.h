@@ -1,9 +1,10 @@
-/*
- * zLog.h
- *
- *  Created on: May 14, 2014
- *      Author: kmahoney
- */
+//*****************************************************************************
+//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
+//
+//    File:
+//    Description:
+//
+//*****************************************************************************
 
 #ifndef __ZLOG_H__
 #define __ZLOG_H__

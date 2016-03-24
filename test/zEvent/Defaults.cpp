@@ -14,7 +14,7 @@ zEventTest_Defaults(void * arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Get instance of event manager
-  zEvent::EventManager &manager = zEvent::EventManager::GetInstance();
+  zEvent::EventManager &manager = zEvent::EventManager::Instance();
 
   // Cleanup
   delete (MyHandler);
