@@ -70,14 +70,14 @@ MessageSocket::EventHandler(zEvent::Event *event_, void *arg_)
   bool status = false;
 
   // Handle only socket events
-  if (!event_ || !arg_ || (event_->GetType() != zEvent::Event::TYPE_SOCKET))
+  if (!event_ || !arg_ || (event_->Type() != zEvent::Event::TYPE_SOCKET))
   {
     return (false);
   }
 
   ZLOG_DEBUG("Handling socket event: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(event_) + ", " + zLog::PointerStr(arg_) + "'");
 
-  if (event_->GetId() == zSocket::SocketEvent::EVENTID_PKT_RCVD)
+  if (event_->Id() == zSocket::SocketEvent::EVENTID_PKT_RCVD)
   {
     zSocket::Socket *sock = static_cast<zSocket::Socket *>(arg_);
     zSocket::SocketAddress addr;
@@ -108,7 +108,7 @@ MessageSocket::EventHandler(zEvent::Event *event_, void *arg_)
     delete(message);
 
   }
-  if (event_->GetId() == zSocket::SocketEvent::EVENTID_PKT_SENT)
+  if (event_->Id() == zSocket::SocketEvent::EVENTID_PKT_SENT)
   {
     this->_tx_event.Notify(this);
   }

@@ -18,13 +18,13 @@ main( int argc, const char **argv )
 
     // Test all classes
     UTEST_INIT();
-    UTEST_TEST( zConfTest_DataDefaults, 0 );
-    UTEST_TEST( zConfTest_ConnectorDefaults, 0 );
-    UTEST_TEST( zConfTest_DataGetSetKeyValue, 0 );
-    UTEST_TEST( zConfTest_DataGetSetData, 0 );
-    UTEST_TEST( zConfTest_DataCompare, 0 );
-    UTEST_TEST( zConfTest_FileLoadStore, 0 );
-    UTEST_TEST( zConfTest_DataLoadStore, 0 );
+    UTEST_TEST( zConfigTest_DataDefaults, 0 );
+    UTEST_TEST( zConfigTest_ConnectorDefaults, 0 );
+    UTEST_TEST( zConfigTest_ConfigurationGetSetData, 0 );
+    UTEST_TEST( zConfigTest_ConfigurationCompare, 0 );
+    UTEST_TEST( zConfigTest_ConfigurationDataArray, 0 );
+    UTEST_TEST( zConfigTest_FileLoadStore, 0 );
+    UTEST_TEST( zConfigTest_HandlerLoadStore, 0 );
     UTEST_FINI();
 
     // Exit

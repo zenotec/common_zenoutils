@@ -7,7 +7,7 @@
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 
 #include <zutils/zGpio.h>
@@ -27,38 +27,38 @@ zGpioTest_ConfigurationCtor(void* arg)
   ZLOG_DEBUG("# zGpioTest_ConfigurationCtor()");
   ZLOG_DEBUG("#############################################################");
 
-  zConf::Configuration config;
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigIdentifierValuePath);
+  zConfig::Configuration config;
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigIdentifierPath);
   config.Put("8", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigExportFilenamePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigExportFilenamePath);
   config.Put("export", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigUnexportFilenamePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigUnexportFilenamePath);
   config.Put("unexport", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigDirectionFilenamePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigDirectionFilenamePath);
   config.Put("direction", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigDirectionValuePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigDirectionValuePath);
   config.Put("out", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigStateFilenamePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigStateFilenamePath);
   config.Put("state", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigStateValuePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigStateValuePath);
   config.Put("active", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigEdgeFilenamePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigEdgeFilenamePath);
   config.Put("edge", path);
-  path = zData::Data::PathConcat(zGpio::Configuration::ConfigRoot,
-      zGpio::Configuration::ConfigEdgeValuePath);
+  path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
+      zGpio::GpioConfiguration::ConfigEdgeValuePath);
   config.Put("both", path);
   config.Commit();
 
   // Create new GPIO port configuration and verify
-  zGpio::Configuration *MyConfig = new zGpio::Configuration(config);
+  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration(config);
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(MyConfig->Identifier(), 8);
   TEST_EQ(MyConfig->ExportFilename(), "export");
@@ -80,17 +80,17 @@ int
 zGpioTest_ConfigurationGetSet(void* arg)
 {
   // Create new GPIO port configuration and verify
-  zGpio::Configuration *MyConfig = new zGpio::Configuration;
+  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(MyConfig->Identifier(), zGpio::Configuration::ConfigIdentifierValueDefault);
-  TEST_EQ(MyConfig->ExportFilename(), zGpio::Configuration::ConfigExportFilenameDefault);
-  TEST_EQ(MyConfig->UnexportFilename(), zGpio::Configuration::ConfigUnexportFilenameDefault);
-  TEST_EQ(MyConfig->DirectionFilename(), zGpio::Configuration::ConfigDirectionFilenameDefault);
-  TEST_EQ(MyConfig->Direction(), zGpio::Configuration::ConfigDirectionValueDefault);
-  TEST_EQ(MyConfig->StateFilename(), zGpio::Configuration::ConfigStateFilenameDefault);
-  TEST_EQ(MyConfig->State(), zGpio::Configuration::ConfigStateValueDefault);
-  TEST_EQ(MyConfig->EdgeFilename(), zGpio::Configuration::ConfigEdgeFilenameDefault);
-  TEST_EQ(MyConfig->Edge(), zGpio::Configuration::ConfigEdgeValueDefault);
+  TEST_EQ(MyConfig->Identifier(), zGpio::GpioConfiguration::ConfigIdentifierDefault);
+  TEST_EQ(MyConfig->ExportFilename(), zGpio::GpioConfiguration::ConfigExportFilenameDefault);
+  TEST_EQ(MyConfig->UnexportFilename(), zGpio::GpioConfiguration::ConfigUnexportFilenameDefault);
+  TEST_EQ(MyConfig->DirectionFilename(), zGpio::GpioConfiguration::ConfigDirectionFilenameDefault);
+  TEST_EQ(MyConfig->Direction(), zGpio::GpioConfiguration::ConfigDirectionValueDefault);
+  TEST_EQ(MyConfig->StateFilename(), zGpio::GpioConfiguration::ConfigStateFilenameDefault);
+  TEST_EQ(MyConfig->State(), zGpio::GpioConfiguration::ConfigStateValueDefault);
+  TEST_EQ(MyConfig->EdgeFilename(), zGpio::GpioConfiguration::ConfigEdgeFilenameDefault);
+  TEST_EQ(MyConfig->Edge(), zGpio::GpioConfiguration::ConfigEdgeValueDefault);
 
   // Set all configuration parameters
   TEST_TRUE(MyConfig->Identifier(8));

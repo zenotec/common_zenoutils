@@ -13,7 +13,7 @@
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 
 #include <zutils/zGpio.h>
@@ -26,54 +26,54 @@ namespace zGpio
 //*****************************************************************************
 // Handler Class
 //*****************************************************************************
-Handler::Handler() :
-    _thread(this, this)
+GpioHandler::GpioHandler() :
+    _thread(this, this), _event(zEvent::Event::TYPE_GPIO)
 {
 }
 
-Handler::~Handler()
+GpioHandler::~GpioHandler()
 {
-  if (!this->_portList.empty())
+  if (!this->_port_list.empty())
   {
     this->_thread.Join();
   }
-//  std::list<Port*>::iterator it = this->_portList.begin();
-//  std::list<Port*>::iterator end = this->_portList.end();
-//  for (; it != end; ++it)
-//  {
-//    (*it)->_close();
-//  }
-  this->_portList.clear();
+  std::list<GpioPort*>::iterator it = this->_port_list.begin();
+  std::list<GpioPort*>::iterator end = this->_port_list.end();
+  for (; it != end; ++it)
+  {
+    (*it)->Close();
+  }
+  this->_port_list.clear();
 }
 
 bool
-Handler::Add(Port* port_)
+GpioHandler::Add(GpioPort* port_)
 {
   bool status = false;
-//  if (port_->_open())
-//  {
-//    this->_portList.push_back(port_);
-//    this->_portList.unique();
-//    status = true;
-//  }
-//  if (this->_portList.size() == 1)
-//  {
-//    this->_thread.Run();
-//  }
+  if (port_->Open() >= 0)
+  {
+    this->_port_list.push_back(port_);
+    this->_port_list.unique();
+    status = true;
+  }
+  if (this->_port_list.size() == 1)
+  {
+    this->_thread.Run();
+  }
   return (status);
 }
 
-Port::STATE
-Handler::Get()
+GpioPort::STATE
+GpioHandler::Get()
 {
-  Port::STATE state = Port::STATE_NONE;
-  std::list<Port*>::iterator it = this->_portList.begin();
-  std::list<Port*>::iterator end = this->_portList.end();
+  GpioPort::STATE state = GpioPort::STATE_NONE;
+  std::list<GpioPort*>::iterator it = this->_port_list.begin();
+  std::list<GpioPort*>::iterator end = this->_port_list.end();
   for (; it != end; ++it)
   {
-    if ((state != Port::STATE_NONE) && (state != (*it)->Get()))
+    if ((state != GpioPort::STATE_NONE) && (state != (*it)->Get()))
     {
-      return (Port::STATE_ERR);
+      return (GpioPort::STATE_ERR);
     }
     state = (*it)->Get();
   }
@@ -81,11 +81,11 @@ Handler::Get()
 }
 
 bool
-Handler::Set(Port::STATE state_)
+GpioHandler::Set(GpioPort::STATE state_)
 {
-  Port::STATE state = Port::STATE_NONE;
-  std::list<Port*>::iterator it = this->_portList.begin();
-  std::list<Port*>::iterator end = this->_portList.end();
+  GpioPort::STATE state = GpioPort::STATE_NONE;
+  std::list<GpioPort*>::iterator it = this->_port_list.begin();
+  std::list<GpioPort*>::iterator end = this->_port_list.end();
   for (; it != end; ++it)
   {
     if (!(*it)->Set(state_) || (state_ != (*it)->Get()))
@@ -97,41 +97,56 @@ Handler::Set(Port::STATE state_)
 }
 
 void *
-Handler::ThreadFunction(void *arg_)
+GpioHandler::ThreadFunction(void *arg_)
 {
 
   int nfds = 0;
-  Handler *self = (Handler *) arg_;
-  std::list<Port*>::iterator it;
-  std::list<Port*>::iterator end = self->_portList.end();
+  GpioHandler *self = (GpioHandler *) arg_;
+  std::list<GpioPort*>::iterator it;
+  std::list<GpioPort*>::iterator end = self->_port_list.end();
 
   // TODO: Start critical section
 
-//  // Setup for poll loop
-//  struct pollfd fds[self->_portList.size()];
-//  for (it = self->_portList.begin(), nfds = 0; it != end; ++it, nfds++)
-//  {
-//    fds[nfds].fd = (*it)->_state_file;
-//    fds[nfds].events = (POLLPRI | POLLERR);
-//  }
-//
-//  // Poll on GPIO ports
-//  int ret = poll(fds, nfds, 100);
-//  if (ret > 0)
-//  {
-//    it = self->_portList.begin();
-//    for (it = self->_portList.begin(), nfds = 0; it != end; ++it, nfds++)
-//    {
-//      char buf[2] = { 0 };
-//      int fd = (*it)->_state_file;
-//      if ((fds[nfds].revents & POLLPRI) && pread(fd, buf, sizeof(buf), 0))
-//      {
-//        self->_notify(*(*it));
-//      }
-//    }
-//  }
+  // Setup for poll loop
+  struct pollfd fds[self->_port_list.size()];
+  for (it = self->_port_list.begin(), nfds = 0; it != end; ++it, nfds++)
+  {
+    fds[nfds].fd = (*it)->Fd();
+    fds[nfds].events = (POLLPRI | POLLERR);
+  }
+
+  // Poll on GPIO ports
+  int ret = poll(fds, nfds, 100);
+  if (ret > 0)
+  {
+    it = self->_port_list.begin();
+    for (it = self->_port_list.begin(), nfds = 0; it != end; ++it, nfds++)
+    {
+      char buf[2] = { 0 };
+      int fd = (*it)->Fd();
+      if ((fds[nfds].revents & POLLPRI) && pread(fd, buf, sizeof(buf), 0))
+      {
+        zGpio::GpioNotification notification(*it);
+        self->_event.Notify(&notification);
+      }
+    }
+  }
 
   return (0);
+}
+//**********************************************************************
+// Class: Notification
+//**********************************************************************
+
+GpioNotification::GpioNotification(zGpio::GpioPort* port_) :
+    _port(port_)
+{
+
+}
+
+GpioNotification::~GpioNotification()
+{
+
 }
 
 }

@@ -69,7 +69,6 @@ AC_SUBST([com_incdir])
 #AC_CONFIG_FILES([
 #    Makefile
 #      src/Makefile
-#        src/zCom/Makefile
 #        src/zCommand/Makefile
 #        src/zException/Makefile
 #        src/zLcd/Makefile
@@ -80,7 +79,6 @@ AC_SUBST([com_incdir])
 #        src/zSwitch/Makefile
 #        src/zThermo/Makefile
 #      test/Makefile
-#        test/zCom/Makefile
 #        test/zCommand/Makefile
 #        test/zLed/Makefile
 #        test/zLcd/Makefile
@@ -94,27 +92,29 @@ AC_SUBST([com_incdir])
 AC_CONFIG_FILES([
     Makefile
       src/Makefile
-        src/zSignal/Makefile
         src/zThread/Makefile
-        src/zTimer/Makefile
         src/zProgOpt/Makefile
         src/zLog/Makefile
         src/zSem/Makefile
         src/zData/Makefile
         src/zEvent/Makefile
-        src/zConf/Makefile
+        src/zSignal/Makefile
+        src/zTimer/Makefile
+        src/zConfig/Makefile
         src/zGpio/Makefile
+        src/zSerial/Makefile
       test/Makefile
         test/zThread/Makefile
-        test/zTimer/Makefile
         test/zProgOpt/Makefile
         test/zLog/Makefile
         test/zSem/Makefile
         test/zData/Makefile
         test/zQueue/Makefile
         test/zEvent/Makefile
-        test/zConf/Makefile
+        test/zTimer/Makefile
+        test/zConfig/Makefile
         test/zGpio/Makefile
+        test/zSerial/Makefile
 ])
 
 # Boost checks

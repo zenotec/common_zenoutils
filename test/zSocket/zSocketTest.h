@@ -78,9 +78,9 @@ protected:
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (event_ && (event_->GetType() == zEvent::Event::TYPE_SOCKET))
+    if (event_ && (event_->Type() == zEvent::Event::TYPE_SOCKET))
     {
-      zSocket::SocketEvent::EVENTID id = (zSocket::SocketEvent::EVENTID)event_->GetId();
+      zSocket::SocketEvent::EVENTID id = (zSocket::SocketEvent::EVENTID)event_->Id();
       switch(id)
       {
       case zSocket::SocketEvent::EVENTID_PKT_RCVD:

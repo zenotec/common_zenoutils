@@ -147,7 +147,7 @@ bool
 Lcd::EventHandler(zEvent::Event *event_, void *arg_)
 {
   bool status = false;
-  if (event_ && (event_->GetType() == zEvent::Event::TYPE_TIMER) && this->_lock.Lock())
+  if (event_ && (event_->Type() == zEvent::Event::TYPE_TIMER) && this->_lock.Lock())
   {
     ZLOG_DEBUG("Handling LCD timer event");
     // Iterate over all variables and update buffer

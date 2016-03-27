@@ -5,10 +5,10 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zConfTest_DataDefaults( void* arg_ )
+zConfigTest_DataDefaults( void* arg_ )
 {
     // Create new configuration data item and verify
-    zConf::Data *myData = new zConf::Data;
+    zConfig::Configuration *myData = new zConfig::Configuration;
     TEST_ISNOT_NULL(myData);
 
     // Cleanup
@@ -19,7 +19,7 @@ zConfTest_DataDefaults( void* arg_ )
 }
 
 int
-zConfTest_ConnectorDefaults( void* arg_ )
+zConfigTest_ConnectorDefaults( void* arg_ )
 {
     // Create new configuration data connector and verify
     TestConnector *myConnector = new TestConnector;
@@ -27,6 +27,20 @@ zConfTest_ConnectorDefaults( void* arg_ )
 
     // Cleanup
     delete (myConnector);
+
+    // Return success
+    return (0);
+}
+
+int
+zConfigTest_HandlerDefaults( void* arg_ )
+{
+    // Create new configuration data connector and verify
+    zConfig::ConfigurationHandler *MyHandler = new zConfig::ConfigurationHandler;
+    TEST_ISNOT_NULL(MyHandler);
+
+    // Cleanup
+    delete (MyHandler);
 
     // Return success
     return (0);

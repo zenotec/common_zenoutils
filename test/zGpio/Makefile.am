@@ -9,12 +9,6 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 check_PROGRAMS = zGpioUnitTest
 
 #zGpioUnitTest_SOURCES = \
-#    valgrind.sh \
-#    zGpioTest.h \
-#    UnitTest.cpp \
-#    Defaults.cpp \
-#    Port.cpp \
-#    Handler.cpp \
 #    Switch.cpp
 
 zGpioUnitTest_SOURCES = \
@@ -22,7 +16,9 @@ zGpioUnitTest_SOURCES = \
     zGpioTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Configuration.cpp
+    Configuration.cpp \
+    Port.cpp \
+    Handler.cpp
 
 zGpioUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

@@ -10,22 +10,22 @@ namespace zGpio
 // Switch Class
 //*****************************************************************************
 
-Switch::Switch(zSwitch::Switch::STATE state_) :
+GpioSwitch::GpioSwitch(zSwitch::Switch::STATE state_) :
         zSwitch::Switch(state_)
 {
 }
 
-Switch::~Switch()
+GpioSwitch::~GpioSwitch()
 {
 
 }
 
-bool Switch::_turnOn()
+bool GpioSwitch::_turnOn()
 {
     return (this->SetState(Port::STATE_ACTIVE));
 }
 
-bool Switch::_turnOff()
+bool GpioSwitch::_turnOff()
 {
     return (this->SetState(Port::STATE_INACTIVE));
 }

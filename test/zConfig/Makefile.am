@@ -6,16 +6,17 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-check_PROGRAMS = zComUnitTest
+check_PROGRAMS = zConfigUnitTest
 
-zComUnitTest_SOURCES = \
+zConfigUnitTest_SOURCES = \
     valgrind.sh \
-    zComTest.h \
+    zConfTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Port.cpp \
-    TtyPort.cpp
+    Configuration.cpp \
+    File.cpp \
+    Handler.cpp
 
-zComUnitTest_LDADD = \
+zConfigUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la
 

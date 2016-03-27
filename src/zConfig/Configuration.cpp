@@ -12,59 +12,40 @@
 
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 
 namespace zUtils
 {
-namespace zConf
+namespace zConfig
 {
-
-//**********************************************************************
-// Class: ConfigurationEvent
-//**********************************************************************
-
-ConfigurationEvent::ConfigurationEvent (ConfigurationEvent::EVENTID id_) :
-    zEvent::Event (zEvent::Event::TYPE_CONFIG, id_)
-{
-}
-
-ConfigurationEvent::~ConfigurationEvent ()
-{
-}
 
 //**********************************************************************
 // Class: Configuration
 //**********************************************************************
 
-const std::string Configuration::ROOT = "Config";
+const std::string Configuration::ROOT = "zConfig";
 
 Configuration::Configuration () :
     _staging (Configuration::ROOT), _working (Configuration::ROOT),
-        _update_event (ConfigurationEvent::EVENTID_UPDATE),
-        _commit_event (ConfigurationEvent::EVENTID_COMMIT)
+        _event (zEvent::Event::TYPE_CONFIG)
 {
-  this->_lock.lock ();
-  this->_lock.unlock ();
 }
 
 Configuration::Configuration (Configuration &other_) :
     _staging (other_._staging), _working (other_._working),
-        _update_event (ConfigurationEvent::EVENTID_UPDATE),
-        _commit_event (ConfigurationEvent::EVENTID_COMMIT)
+    _event (zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration (const Configuration &other_) :
     _staging (other_._staging), _working (other_._working),
-        _update_event (ConfigurationEvent::EVENTID_UPDATE),
-        _commit_event (ConfigurationEvent::EVENTID_COMMIT)
+    _event (zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration (zData::Data &data_) :
     _staging (Configuration::ROOT), _working (Configuration::ROOT),
-        _update_event (ConfigurationEvent::EVENTID_UPDATE),
-        _commit_event (ConfigurationEvent::EVENTID_COMMIT)
+    _event (zEvent::Event::TYPE_CONFIG)
 {
   this->_lock.lock ();
   this->_staging.Put (data_, data_.Key ());
@@ -96,15 +77,13 @@ Configuration::operator != (const Configuration &other_) const
 void
 Configuration::RegisterEvents (zEvent::EventHandler &handler_)
 {
-  handler_.RegisterEvent (&this->_update_event);
-  handler_.RegisterEvent (&this->_commit_event);
+  handler_.RegisterEvent (&this->_event);
 }
 
 void
 Configuration::UnregisterEvents (zEvent::EventHandler &handler_)
 {
-  handler_.UnregisterEvent (&this->_update_event);
-  handler_.UnregisterEvent (&this->_commit_event);
+  handler_.UnregisterEvent (&this->_event);
 }
 
 bool
@@ -209,8 +188,6 @@ Configuration::Put (zData::Data &data_, const std::string &path_)
 // End critical section
   this->_lock.unlock ();
 
-  this->_update_event.Notify (this);
-
   // Return status
   return (status);
 }
@@ -247,8 +224,6 @@ Configuration::Add (zData::Data &data_, const std::string &path_)
 // End critical section
   this->_lock.unlock ();
 
-  this->_update_event.Notify (this);
-
   // Return status
   return (status);
 }
@@ -266,6 +241,25 @@ Configuration::Add (Configuration &conf_, const std::string &path_)
     status = this->Commit ();
   }
   return (status);
+}
+
+//**********************************************************************
+// Class: ConfigurationNotification
+//**********************************************************************
+
+ConfigurationNotification::ConfigurationNotification (ConfigurationNotification::ID id_) :
+    _id(id_)
+{
+}
+
+ConfigurationNotification::~ConfigurationNotification ()
+{
+}
+
+ConfigurationNotification::ID
+ConfigurationNotification::Id()
+{
+  return(this->_id);
 }
 
 }

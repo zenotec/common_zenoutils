@@ -18,12 +18,16 @@
 #include <vector>
 
 #include <zutils/zThread.h>
-#include <zutils/zCom.h>
+#include <zutils/zSerial.h>
 
 namespace zUtils
 {
-namespace zCom
+namespace zSerial
 {
+
+//**********************************************************************
+// Class: TtyPortRecv
+//**********************************************************************
 
 class TtyPortRecv : public zThread::Function
 {
@@ -44,6 +48,10 @@ protected:
 private:
 };
 
+//**********************************************************************
+// Class: TtyPortSend
+//**********************************************************************
+
 class TtyPortSend : public zThread::Function
 {
 public:
@@ -63,7 +71,11 @@ protected:
 private:
 };
 
-class TtyPort : public zCom::Port
+//**********************************************************************
+// Class: TtyPort
+//**********************************************************************
+
+class TtyPort : public zSerial::SerialPort
 {
 
   friend TtyPortRecv;

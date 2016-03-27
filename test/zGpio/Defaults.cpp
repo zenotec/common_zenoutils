@@ -7,12 +7,10 @@
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 
 #include <zutils/zGpio.h>
-
-#include "zGpioTest.h"
 
 #include "zGpioTest.h"
 
@@ -28,17 +26,17 @@ zGpioTest_ConfigurationDefaults(void* arg)
   ZLOG_DEBUG("#############################################################");
 
   // Create new GPIO port configuration and verify
-  zGpio::Configuration *MyConfig = new zGpio::Configuration;
+  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(MyConfig->Identifier(), zGpio::Configuration::ConfigIdentifierValueDefault);
-  TEST_EQ(MyConfig->ExportFilename(), zGpio::Configuration::ConfigExportFilenameDefault);
-  TEST_EQ(MyConfig->UnexportFilename(), zGpio::Configuration::ConfigUnexportFilenameDefault);
-  TEST_EQ(MyConfig->DirectionFilename(), zGpio::Configuration::ConfigDirectionFilenameDefault);
-  TEST_EQ(MyConfig->Direction(), zGpio::Configuration::ConfigDirectionValueDefault);
-  TEST_EQ(MyConfig->StateFilename(), zGpio::Configuration::ConfigStateFilenameDefault);
-  TEST_EQ(MyConfig->State(), zGpio::Configuration::ConfigStateValueDefault);
-  TEST_EQ(MyConfig->EdgeFilename(), zGpio::Configuration::ConfigEdgeFilenameDefault);
-  TEST_EQ(MyConfig->Edge(), zGpio::Configuration::ConfigEdgeValueDefault);
+  TEST_EQ(MyConfig->Identifier(), zGpio::GpioConfiguration::ConfigIdentifierDefault);
+  TEST_EQ(MyConfig->ExportFilename(), zGpio::GpioConfiguration::ConfigExportFilenameDefault);
+  TEST_EQ(MyConfig->UnexportFilename(), zGpio::GpioConfiguration::ConfigUnexportFilenameDefault);
+  TEST_EQ(MyConfig->DirectionFilename(), zGpio::GpioConfiguration::ConfigDirectionFilenameDefault);
+  TEST_EQ(MyConfig->Direction(), zGpio::GpioConfiguration::ConfigDirectionValueDefault);
+  TEST_EQ(MyConfig->StateFilename(), zGpio::GpioConfiguration::ConfigStateFilenameDefault);
+  TEST_EQ(MyConfig->State(), zGpio::GpioConfiguration::ConfigStateValueDefault);
+  TEST_EQ(MyConfig->EdgeFilename(), zGpio::GpioConfiguration::ConfigEdgeFilenameDefault);
+  TEST_EQ(MyConfig->Edge(), zGpio::GpioConfiguration::ConfigEdgeValueDefault);
 
   // Clean up
   delete (MyConfig);
@@ -58,7 +56,7 @@ zGpioTest_PortDefaults(void* arg)
   TEST_ISNOT_NULL(MyConfig);
 
   // Create new GPIO port and verify
-  zGpio::Port *MyPort = new zGpio::Port(*MyConfig);
+  zGpio::GpioPort *MyPort = new zGpio::GpioPort(*MyConfig);
   TEST_ISNOT_NULL(MyPort);
 
   // Clean up
@@ -75,13 +73,12 @@ zGpioTest_HandlerDefaults(void* arg)
   ZLOG_DEBUG("# zGpioTest_HandlerDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-//    // Create new GPIO handler and verify
-//    zGpio::Handler *myHandler = new zGpio::Handler;
-//    TEST_ISNOT_NULL( myHandler );
-//    TEST_IS_NULL( myHandler->GetPort( 1 ) );
+  // Create new GPIO handler and verify
+  zGpio::GpioHandler *myHandler = new zGpio::GpioHandler;
+  TEST_ISNOT_NULL(myHandler);
 
-// Clean up
-//    delete (myHandler);
+  // Clean up
+  delete (myHandler);
   return (0);
 }
 

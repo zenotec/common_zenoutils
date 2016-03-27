@@ -16,25 +16,6 @@ namespace zSignal
 {
 
 //**********************************************************************
-// Class: SignalEvent
-//**********************************************************************
-
-class SignalEvent : public zEvent::Event
-{
-public:
-
-  SignalEvent();
-
-  virtual
-  ~SignalEvent();
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
 // Class: Signal
 //**********************************************************************
 
@@ -61,13 +42,46 @@ public:
     ID_LAST
   };
 
-  Signal(const Signal::ID &id_);
+  Signal();
 
   virtual
   ~Signal();
 
   Signal::ID
-  GetId() const;
+  Id() const;
+
+  bool
+  Id (const Signal::ID id_);
+
+  void
+  Notify();
+
+protected:
+
+private:
+
+  Signal::ID _id;
+  zEvent::Event _event;
+
+  void (*_prev_handler)(int);
+
+  static void
+  _signal_handler_function (int sig_);
+
+};
+
+//**********************************************************************
+// Class: SignalNotification
+//**********************************************************************
+
+class SignalNotification : public zEvent::EventNotification
+{
+public:
+
+  SignalNotification(Signal::ID id_);
+
+  virtual
+  ~SignalNotification();
 
 protected:
 
@@ -75,10 +89,50 @@ private:
 
   Signal::ID _id;
 
-  void (*_prev_handler)(int);
+};
 
-  static void
-  _signal_handler_function (int sig_);
+//**********************************************************************
+// Class: SignalManager
+//**********************************************************************
+
+class SignalManager
+{
+public:
+
+  static SignalManager&
+  Instance()
+  {
+    static SignalManager instance;
+    return instance;
+  }
+
+  void
+  Notify(const Signal::ID id_)
+  {
+    if ((id_ > Signal::ID_NONE) && (id_ < Signal::ID_LAST))
+    {
+      this->_sigtbl[id_].Notify();
+    }
+  }
+
+protected:
+
+private:
+
+  Signal _sigtbl[Signal::ID_LAST];
+
+  SignalManager()
+  {
+    for (int sig = Signal::ID_NONE; sig < Signal::ID_LAST; sig++)
+    {
+      this->_sigtbl[sig].Id((Signal::ID)sig);
+    }
+  }
+
+  SignalManager(SignalManager const&);
+
+  void
+  operator=(SignalManager const&);
 
 };
 

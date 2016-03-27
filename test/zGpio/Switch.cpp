@@ -18,17 +18,17 @@ zGpioTest_SwitchOnOff( void* arg )
     TEST_ISNOT_NULL( myConf );
 
     // Create new GPIO port and verify
-    zGpio::Port *myPort = new zGpio::Port( *myConf );
+    zGpio::GpioPort *myPort = new zGpio::GpioPort( *myConf );
     TEST_ISNOT_NULL( myPort );
-    TEST_EQ( zGpio::Port::DIR_DEF, myPort->GetDirection() );
-    TEST_EQ( zGpio::Port::STATE_ERR, myPort->GetState() );
-    TEST_EQ( zGpio::Port::EDGE_DEF, myPort->GetEdge() );
+    TEST_EQ( zGpio::GpioPort::DIR_DEF, myPort->GetDirection() );
+    TEST_EQ( zGpio::GpioPort::STATE_ERR, myPort->GetState() );
+    TEST_EQ( zGpio::GpioPort::EDGE_DEF, myPort->GetEdge() );
 
     // Configure port to be output
-    TEST_TRUE( myPort->SetDirection( zGpio::Port::DIR_OUT ) );
+    TEST_TRUE( myPort->SetDirection( zGpio::GpioPort::DIR_OUT ) );
 
     // Create new Switch and verify
-    zGpio::Switch* mySwitch = new zGpio::Switch( zSwitch::Switch::STATE_OFF );
+    zGpio::GpioSwitch* mySwitch = new zGpio::GpioSwitch( zSwitch::Switch::STATE_OFF );
     TEST_ISNOT_NULL( mySwitch );
     TEST_FALSE( mySwitch->IsOn() );
     TEST_TRUE( mySwitch->IsOff() );
@@ -40,23 +40,23 @@ zGpioTest_SwitchOnOff( void* arg )
 
     // Turn switch off and verify
     TEST_TRUE( mySwitch->Off() );
-    TEST_EQ( zGpio::Port::STATE_INACTIVE, myPort->GetState() );
-    TEST_EQ( zGpio::Port::STATE_INACTIVE, mySwitch->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_INACTIVE, myPort->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_INACTIVE, mySwitch->GetState() );
 
     // Turn switch on and verify
     TEST_TRUE( mySwitch->On() );
-    TEST_EQ( zGpio::Port::STATE_ACTIVE, myPort->GetState() );
-    TEST_EQ( zGpio::Port::STATE_ACTIVE, mySwitch->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_ACTIVE, myPort->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_ACTIVE, mySwitch->GetState() );
 
     // Toggle switch off and verify
     TEST_TRUE( mySwitch->Toggle() );
-    TEST_EQ( zGpio::Port::STATE_INACTIVE, myPort->GetState() );
-    TEST_EQ( zGpio::Port::STATE_INACTIVE, mySwitch->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_INACTIVE, myPort->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_INACTIVE, mySwitch->GetState() );
 
     // Toggle switch on and verify
     TEST_TRUE( mySwitch->Toggle() );
-    TEST_EQ( zGpio::Port::STATE_ACTIVE, myPort->GetState() );
-    TEST_EQ( zGpio::Port::STATE_ACTIVE, mySwitch->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_ACTIVE, myPort->GetState() );
+    TEST_EQ( zGpio::GpioPort::STATE_ACTIVE, mySwitch->GetState() );
 
     // Clean up
     delete (mySwitch);

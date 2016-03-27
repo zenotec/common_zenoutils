@@ -32,7 +32,7 @@ zEventTest_EventManagerTest(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TestObserver : public zEvent::EventObserver, public zQueue<zEvent::Event *>
+class TestObserver : public zEvent::EventObserver, public zQueue<zEvent::EventNotification>
 {
 public:
   TestObserver()
@@ -45,10 +45,10 @@ public:
   }
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_)
+  EventHandler(const zEvent::EventNotification* notification_)
   {
     ZLOG_DEBUG("Handling event");
-    this->Push(event_);
+    this->Push(*notification_);
     return (true);
   }
 };

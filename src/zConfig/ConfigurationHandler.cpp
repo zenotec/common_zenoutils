@@ -12,11 +12,11 @@
 
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 
 namespace zUtils
 {
-namespace zConf
+namespace zConfig
 {
 
 //**********************************************************************
@@ -51,7 +51,7 @@ ConfigurationHandler::Load ()
   zData::Data data;
   if (this->_connector && this->_connector->Load (data))
   {
-    data.DisplayJson();
+    //data.DisplayJson();
     if(data.Key() == Configuration::ROOT)
     {
       this->_working.Put(data);
@@ -75,13 +75,19 @@ ConfigurationHandler::Store ()
 }
 
 bool
+ConfigurationHandler::Commit ()
+{
+  return(this->_working.Commit());
+}
+
+bool
 ConfigurationHandler::Get (Configuration &conf_, const std::string &path_)
 {
   return (this->_working.Get(conf_, path_));
 }
 
 bool
-ConfigurationHandler::Set (Configuration &conf_, const std::string &path_)
+ConfigurationHandler::Put (Configuration &conf_, const std::string &path_)
 {
   return (this->_working.Put(conf_, path_));
 }

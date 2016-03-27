@@ -15,12 +15,12 @@
 
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 
 namespace zUtils
 {
 
-namespace zConf
+namespace zConfig
 {
 
 //**********************************************************************

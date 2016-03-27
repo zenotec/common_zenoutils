@@ -8,8 +8,7 @@ zEventTest_EventManagerTest(void* arg_)
   // Create new event and validate
   zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
-  TEST_EQ(0, MyEvent->GetId());
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
 
   // Register event with handler
   zEvent::EventManager::Instance().RegisterEvent(MyEvent);

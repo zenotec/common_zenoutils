@@ -54,7 +54,7 @@ MessageHandler::EventHandler(zEvent::Event *event_, void *arg_)
   bool status = false;
 
   // Handle only socket events
-  if (!event_ || !arg_ || (event_->GetType() != zEvent::Event::TYPE_MSG))
+  if (!event_ || !arg_ || (event_->Type() != zEvent::Event::TYPE_MSG))
   {
     return (false);
   }
@@ -63,7 +63,7 @@ MessageHandler::EventHandler(zEvent::Event *event_, void *arg_)
       "Handling message socket event: '" + zLog::PointerStr(this) + ", " + zLog::PointerStr(event_)
           + ", " + zLog::PointerStr(arg_) + "'");
 
-  switch (event_->GetId())
+  switch (event_->Id())
   {
   case zMessage::MessageEvent::EVENTID_MSG_RCVD:
     {

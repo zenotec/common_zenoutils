@@ -15,18 +15,18 @@ namespace zGpio
 {
 
 //**********************************************************************
-// Class: Configuration
+// Class: GpioConfiguration
 //**********************************************************************
 
-class Configuration : public zConf::Configuration
+class GpioConfiguration : public zConfig::Configuration
 {
 
 public:
 
   static const std::string ConfigRoot;
 
-  static const std::string ConfigIdentifierValuePath;
-  static const int ConfigIdentifierValueDefault;
+  static const std::string ConfigIdentifierPath;
+  static const int ConfigIdentifierDefault;
 
   static const std::string ConfigExportFilenamePath;
   static const std::string ConfigExportFilenameDefault;
@@ -57,16 +57,16 @@ public:
   static const std::string ConfigEdgeValueBoth;
   static const std::string ConfigEdgeValueDefault;
 
-  Configuration();
+  GpioConfiguration();
 
-  Configuration(zData::Data &data_);
+  GpioConfiguration(zData::Data &data_);
 
-  Configuration(zConf::Configuration &config_);
+  GpioConfiguration(zConfig::Configuration &config_);
 
   virtual
-  ~Configuration();
+  ~GpioConfiguration();
 
-  zConf::Configuration&
+  zConfig::Configuration&
   GetConfig();
 
   int
@@ -126,37 +126,10 @@ public:
 };
 
 //**********************************************************************
-// Class: Event
+// Class: GpioPort
 //**********************************************************************
 
-class Event : public zEvent::Event
-{
-
-public:
-
-  enum EVENTID
-  {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_LAST
-  };
-
-  Event();
-
-  virtual
-  ~Event();
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
-// Class: Port
-//**********************************************************************
-
-class Port : public zGpio::Configuration
+class GpioPort : public GpioConfiguration
 {
 
 public:
@@ -193,73 +166,95 @@ public:
     EDGE_LAST
   };
 
-  Port();
+  GpioPort();
 
-  Port(zConf::Configuration& config_);
+  GpioPort(zConfig::Configuration& config_);
 
   virtual
-  ~Port();
+  ~GpioPort();
 
-  bool
+  int
   Open();
 
   bool
   Close();
 
-  Port::STATE
+  int
+  Fd();
+
+  GpioPort::STATE
   Get();
 
   bool
-  Set(Port::STATE state_);
+  Set(GpioPort::STATE state_);
+
+  GpioPort::DIR
+  Direction() const;
+
+  bool
+  Direction(const GpioPort::DIR dir_);
+
+  GpioPort::STATE
+  State() const;
+
+  bool
+  State(const GpioPort::STATE state_);
+
+  GpioPort::EDGE
+  Edge() const;
+
+  bool
+  Edge(const GpioPort::EDGE edge_);
 
 protected:
 
 private:
 
-  zGpio::Configuration _config;
+  int _fd;
+  zGpio::GpioConfiguration _config;
 
-  Port::DIR
+  GpioPort::DIR
   _direction() const;
 
   bool
-  _direction(const Port::DIR dir_);
+  _direction(const GpioPort::DIR dir_);
 
-  Port::STATE
+  GpioPort::STATE
   _state() const;
 
   bool
-  _state(const Port::STATE state_);
+  _state(const GpioPort::STATE state_);
 
-  Port::EDGE
+  GpioPort::EDGE
   _edge() const;
 
   bool
-  _edge(const Port::EDGE edge_);
+  _edge(const GpioPort::EDGE edge_);
 
 };
 
 //**********************************************************************
-// Class: Handler
+// Class: GpioHandler
 //**********************************************************************
 
-class Handler : public zThread::Function
+class GpioHandler : public zThread::Function , public zEvent::EventHandler
 {
 
 public:
 
-  Handler();
+  GpioHandler();
 
   virtual
-  ~Handler();
+  ~GpioHandler();
 
   bool
-  Add(Port *port_);
+  Add(GpioPort *port_);
 
-  Port::STATE
+  GpioPort::STATE
   Get();
 
   bool
-  Set(Port::STATE state_);
+  Set(GpioPort::STATE state_);
 
 protected:
 
@@ -268,24 +263,77 @@ protected:
 
 private:
 
-  std::list<Port *> _portList;
+  std::list<GpioPort *> _port_list;
   zThread::Thread _thread;
+  zEvent::Event _event;
 
 };
 
 //**********************************************************************
-// Class: Configuration
+// Class: GpioNotification
 //**********************************************************************
 
-class Switch : public zSwitch::Switch, public Handler
+class GpioNotification : public zEvent::EventNotification
 {
 
 public:
 
-  Switch(zSwitch::Switch::STATE state_);
+  GpioNotification(zGpio::GpioPort* port_);
 
   virtual
-  ~Switch();
+  ~GpioNotification();
+
+protected:
+
+private:
+
+  zGpio::GpioPort* _port;
+
+};
+
+//**********************************************************************
+// Class: GpioManager
+//**********************************************************************
+
+class GpioManager : public GpioHandler
+{
+public:
+
+  static GpioManager&
+  Instance()
+  {
+    static GpioManager instance;
+    return instance;
+  }
+
+protected:
+
+private:
+
+  GpioManager()
+  {
+  }
+
+  GpioManager(GpioManager const&);
+
+  void
+  operator=(GpioManager const&);
+
+};
+
+//**********************************************************************
+// Class: GpioSwitch
+//**********************************************************************
+
+class GpioSwitch : public zSwitch::Switch, public GpioHandler
+{
+
+public:
+
+  GpioSwitch(zSwitch::Switch::STATE state_);
+
+  virtual
+  ~GpioSwitch();
 
 protected:
 

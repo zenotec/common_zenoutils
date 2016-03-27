@@ -112,7 +112,7 @@ EventHandler::UnregisterObserver (EventObserver *obs_)
 }
 
 void
-EventHandler::notify (Event *event_, void *arg_)
+EventHandler::notify (const EventNotification* notification_)
 {
 
   // Note: never call this routine directly; Only should be called by the event class
@@ -131,7 +131,7 @@ EventHandler::notify (Event *event_, void *arg_)
   {
     EventObserver *obs = obs_list.front ();
     obs_list.pop_front ();
-    obs->EventHandler (event_, arg_);
+    obs->EventHandler (notification_);
   }
 }
 

@@ -71,9 +71,9 @@ protected:
   virtual bool
   EventHandler(zEvent::Event *event_, void *arg_)
   {
-    if (event_ && arg_ && (event_->GetType() == zEvent::Event::TYPE_MSG))
+    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
     {
-      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->GetId();
+      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
       switch(id)
       {
       case zMessage::MessageEvent::EVENTID_MSG_RCVD:
@@ -134,9 +134,9 @@ protected:
   virtual bool
   EventHandler(zEvent::Event *event_, void *arg_)
   {
-    if (event_ && arg_ && (event_->GetType() == zEvent::Event::TYPE_MSG))
+    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
     {
-      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->GetId();
+      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
       switch(id)
       {
       case zMessage::MessageEvent::EVENTID_MSG_RCVD:

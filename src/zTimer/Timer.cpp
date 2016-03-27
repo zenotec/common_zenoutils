@@ -37,27 +37,14 @@ _add_time(struct timespec *ts_, uint32_t us_)
 }
 
 //**********************************************************************
-// zTimer::TimerEvent Class
-//**********************************************************************
-
-TimerEvent::TimerEvent(const TimerEvent::EVENTID id_) :
-    zEvent::Event(zEvent::Event::TYPE_TIMER, id_)
-{
-}
-
-TimerEvent::~TimerEvent()
-{
-}
-
-//**********************************************************************
 // zTimer::Timer Class
 //**********************************************************************
 
 Timer::Timer() :
-    _interval(0), _sigev(NULL), _timerid(0), _tick_event(zTimer::TimerEvent::EVENTID_TICK)
+    _interval(0), _sigev(NULL), _timerid(0), _tick(0), _event(zEvent::Event::TYPE_TIMER)
 {
 
-  this->RegisterEvent(&this->_tick_event);
+  this->RegisterEvent(&this->_event);
 
   // Create timer
   this->_sigev = static_cast<struct sigevent *>(calloc(1, sizeof(struct sigevent)));
@@ -83,8 +70,7 @@ Timer::Timer() :
 Timer::~Timer()
 {
   this->Stop();
-  usleep(100000);
-  this->_lock.TimedLock(1000);
+  this->_lock.TimedLock(100000);
   if (this->_timerid)
   {
     int stat = timer_delete(this->_timerid);
@@ -123,7 +109,9 @@ Timer::timer_handler(union sigval sv_)
   Timer *self = (Timer *) sv_.sival_ptr;
   if (self->_lock.TryLock())
   {
-    self->_tick_event.Notify(self);
+    self->_tick++;
+    TimerNotification notification(self->_tick);
+    self->_event.Notify(&notification);
     self->_lock.Unlock();
   }
   pthread_detach(pthread_self());
@@ -154,8 +142,27 @@ Timer::_stop()
   int stat = timer_settime(this->_timerid, 0, &its, NULL);
   if (stat != 0)
   {
-    ZLOG_ERR("Cannot start timer: " + std::string(strerror(errno)));
+    ZLOG_ERR("Cannot stop timer: " + std::string(strerror(errno)));
   } // end if
+}
+
+//**********************************************************************
+// zTimer::TimerNotification Class
+//**********************************************************************
+
+TimerNotification::TimerNotification(const uint64_t tick_) :
+    _tick(tick_)
+{
+}
+
+TimerNotification::~TimerNotification()
+{
+}
+
+uint64_t
+TimerNotification::Tick()
+{
+  return(this->_tick);
 }
 
 }

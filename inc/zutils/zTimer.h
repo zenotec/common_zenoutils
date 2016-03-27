@@ -21,33 +21,6 @@ namespace zTimer
 {
 
 //**********************************************************************
-// zTimer::TimerEvent Class
-//**********************************************************************
-
-class TimerEvent : public zEvent::Event
-{
-public:
-
-  enum EVENTID
-  {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_TICK = 1,
-    EVENTID_LAST
-  };
-
-  TimerEvent(const TimerEvent::EVENTID id_);
-
-  virtual
-  ~TimerEvent();
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
 // zTimer::Timer Class
 //**********************************************************************
 class Timer : public zEvent::EventHandler
@@ -77,14 +50,39 @@ private:
   uint32_t _interval;
   struct sigevent *_sigev;
   timer_t _timerid;
+  uint64_t _tick;
 
-  zTimer::TimerEvent _tick_event;
+  zEvent::Event _event;
 
   void
   _start(void);
 
   void
   _stop(void);
+
+};
+
+//**********************************************************************
+// zTimer::TimerNotification Class
+//**********************************************************************
+
+class TimerNotification : public zEvent::EventNotification
+{
+public:
+
+  TimerNotification(const uint64_t tick_);
+
+  virtual
+  ~TimerNotification();
+
+  uint64_t
+  Tick();
+
+protected:
+
+private:
+
+  uint64_t _tick;
 
 };
 

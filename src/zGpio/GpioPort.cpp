@@ -12,6 +12,7 @@
 #include <string>
 #include <list>
 #include <mutex>
+#include <memory>
 #include <sstream>
 #include <fstream>
 
@@ -20,7 +21,7 @@
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 
 #include <zutils/zGpio.h>
@@ -30,331 +31,420 @@ namespace zUtils
 namespace zGpio
 {
 
+static std::string
+filename(const int id, const std::string &fmt)
+{
+  char str[1024] = { 0 };
+  snprintf(str, sizeof(str), fmt.c_str(), id);
+  return (std::string(str));
+}
+
+static std::unique_ptr<std::fstream>
+fs_open(const int id, const std::string &fmt)
+{
+  std::unique_ptr<std::fstream> fs(new std::fstream);
+
+  // Generate full path and filename of sysfs file to read
+  fs->open(filename(id, fmt), (std::fstream::in | std::fstream::out));
+
+  return (fs);
+}
+
+static std::string
+dir2str(const GpioPort::DIR dir_)
+{
+  std::string str;
+  switch (dir_)
+  {
+  case GpioPort::DIR_IN:
+    str = GpioPort::ConfigDirectionValueIn;
+    break;
+  case GpioPort::DIR_OUT:
+    str = GpioPort::ConfigDirectionValueOut;
+    break;
+  default:
+    break;
+  }
+  return (str);
+}
+
+static GpioPort::DIR
+str2dir(const std::string &str_)
+{
+  GpioPort::DIR dir = GpioPort::DIR_ERR;
+  // Convert from string to enum
+  if (GpioPort::ConfigDirectionValueIn == str_)
+  {
+    dir = GpioPort::DIR_IN;
+  }
+  else if (GpioPort::ConfigDirectionValueOut == str_)
+  {
+    dir = GpioPort::DIR_OUT;
+  }
+  else
+  {
+    dir = GpioPort::DIR_ERR;
+  }
+  return (dir);
+}
+
+static std::string
+state2str(const GpioPort::STATE state_)
+{
+  std::string str;
+  switch (state_)
+  {
+  case GpioPort::STATE_ACTIVE:
+    str = GpioPort::ConfigStateValueActive;
+    break;
+  case GpioPort::STATE_INACTIVE:
+    str = GpioPort::ConfigStateValueInactive;
+    break;
+  default:
+    break;
+  }
+  return (str);
+}
+
+static GpioPort::STATE
+str2state(const std::string &str_)
+{
+  GpioPort::STATE state = GpioPort::STATE_ERR;
+  // Convert from string to enum
+  if (GpioPort::ConfigStateValueActive == str_)
+  {
+    state = GpioPort::STATE_ACTIVE;
+  }
+  else if (GpioPort::ConfigStateValueInactive == str_)
+  {
+    state = GpioPort::STATE_INACTIVE;
+  }
+  else
+  {
+    state = GpioPort::STATE_ERR;
+  }
+  return (state);
+}
+
+static std::string
+edge2str(const GpioPort::EDGE edge_)
+{
+  std::string str;
+  switch (edge_)
+  {
+  case GpioPort::EDGE_NONE:
+    str = GpioPort::ConfigEdgeValueNone;
+    break;
+  case GpioPort::EDGE_LO_HI:
+    str = GpioPort::ConfigEdgeValueLoHi;
+    break;
+  case GpioPort::EDGE_HI_LO:
+    str = GpioPort::ConfigEdgeValueHiLo;
+    break;
+  case GpioPort::EDGE_BOTH:
+    str = GpioPort::ConfigEdgeValueBoth;
+    break;
+  default:
+    break;
+  }
+  return (str);
+}
+
+static GpioPort::EDGE
+str2edge(const std::string &str_)
+{
+  GpioPort::EDGE edge = GpioPort::EDGE_ERR;
+  // Convert from string to enum
+  if (GpioPort::ConfigEdgeValueNone == str_)
+  {
+    edge = GpioPort::EDGE_NONE;
+  }
+  else if (GpioPort::ConfigEdgeValueLoHi == str_)
+  {
+    edge = GpioPort::EDGE_LO_HI;
+  }
+  else if (GpioPort::ConfigEdgeValueHiLo == str_)
+  {
+    edge = GpioPort::EDGE_HI_LO;
+  }
+  else if (GpioPort::ConfigEdgeValueBoth == str_)
+  {
+    edge = GpioPort::EDGE_BOTH;
+  }
+  else
+  {
+    edge = GpioPort::EDGE_ERR;
+  }
+  return (edge);
+}
 
 //**********************************************************************
 // Class: Port
 //**********************************************************************
 
-Port::Port()
+GpioPort::GpioPort() :
+    _fd(0)
 {
 }
 
-Port::Port(zConf::Configuration &config_) :
-    zGpio::Configuration(config_)
+GpioPort::GpioPort(zConfig::Configuration &config_) :
+    zGpio::GpioConfiguration(config_), _fd(0)
 {
 }
 
-Port::~Port()
+GpioPort::~GpioPort()
 {
   this->Close();
 }
 
-
-Port::DIR
-Port::_direction() const
+int
+GpioPort::Open()
 {
-  Port::DIR dir = Port::DIR_ERR;
-  char str[1024] = { 0 };
-  std::fstream fs;
-  std::string val;
 
-  // Generate full path and filename of sysfs file to read
-  if (snprintf(str, sizeof(str), this->DirectionFilename().c_str(), this->Identifier()) > 0)
+  std::unique_ptr<std::fstream> fs;
+
+  ZLOG_INFO("Opening GPIO Port: " + zLog::IntStr(this->Identifier()));
+
+  // Open export file and verify
+  fs = fs_open(this->Identifier(), this->ExportFilename());
+  if (!fs->is_open())
   {
-    // Open direction file and read direction
-    fs.open(str, std::fstream::in);
-    if (fs.is_open())
+    ZLOG_ERR("Failed to open export file: " + this->ExportFilename());
+    return (-1);
+  }
+
+  // Write the GPIO identifier to initialize GPIO
+  *fs << this->Identifier() << std::endl;
+  fs->close();
+
+  // Set the initial direction of the port
+  if (!this->_direction(this->Direction()))
+  {
+    ZLOG_ERR("Failed to set direction");
+    return (-1);
+  }
+
+  // Set the type of edge to generate an interrupt on
+  if (!this->_edge(this->Edge()))
+  {
+    ZLOG_ERR("Failed to set interrupt edge");
+    return (-1);
+  }
+
+  // Conditionally set initial state
+  if ((this->Direction() == GpioPort::DIR_OUT) || (this->Direction() == GpioPort::DIR_INOUT))
+  {
+    if (!this->_state(this->State()))
     {
-      fs >> val;
-      fs.close();
+      ZLOG_ERR("Failed to set initial state");
+      return (-1);
     }
   }
-  ZLOG_DEBUG("zGpio::Port::GetDirection: Direction: '" + val + "'");
 
-  // Convert from string to enum
-  if (Port::ConfigDirectionValueIn == val)
+  // Open the value file for watching for state changes
+  if ((this->Edge() == GpioPort::EDGE_LO_HI) || (this->Edge() == GpioPort::EDGE_HI_LO)
+      || (this->Edge() == GpioPort::EDGE_BOTH))
   {
-    dir = Port::DIR_IN;
-  }
-  else if (Port::ConfigDirectionValueOut == val)
-  {
-    dir = Port::DIR_OUT;
-  }
-  else
-  {
-    dir = Port::DIR_ERR;
+    this->_fd = open(filename(this->Identifier(), this->StateFilename()).c_str(),
+        (O_RDONLY | O_NONBLOCK));
   }
 
-  // Return port direction
-  return (dir);
-}
+  return (this->_fd);
 
-//bool
-//Port::SetDirection(Port::DIR dir_)
-//{
-//  bool status = false;
-//  if (!this->_state_file)
-//  {
-//    if (Port::DIR_IN == dir_)
-//    {
-//      status = this->Set(Port::ConfigDirectionValuePath, Port::ConfigDirectionValueIn);
-//    }
-//    else if (Port::DIR_OUT == dir_)
-//    {
-//      status = this->Set(Port::ConfigDirectionValuePath, Port::ConfigDirectionValueOut);
-//    }
-//    else
-//    {
-//      status = false;
-//    }
-//  }
-//  return (status);
-//}
-
-Port::STATE
-Port::Get()
-{
-  Port::STATE state = Port::STATE_ERR;
-//  std::string val;
-//
-//  if (this->_state_file)
-//  {
-//    std::fstream fs;
-//
-//    // Open value file and read value
-//    fs.open(this->_conf_get_state_filename().c_str(), std::fstream::in);
-//    if (fs.is_open())
-//    {
-//      fs >> val;
-//      fs.close();
-//    }
-//
-//    ZLOG_DEBUG("zGpio::Port::GetState: State: '" + val + "'");
-//
-//    if (Configuration::STATE_VALUE_ACTIVE == val)
-//    {
-//      state = Port::STATE_ACTIVE;
-//    }
-//    else if (Configuration::STATE_VALUE_INACTIVE == val)
-//    {
-//      state = Port::STATE_INACTIVE;
-//    }
-//    else
-//    {
-//      state = Port::STATE_ERR;
-//    }
-//  }
-
-  return (state);
 }
 
 bool
-Port::Set(Port::STATE state_)
+GpioPort::Close()
+{
+
+  std::unique_ptr<std::fstream> fs;
+
+  ZLOG_INFO("Closing GPIO Port: " + zLog::IntStr(this->Identifier()));
+
+  // Open export file and verify
+  fs = fs_open(this->Identifier(), this->UnexportFilename());
+  if (!fs->is_open())
+  {
+    ZLOG_ERR("Failed to open unexport file: " + this->UnexportFilename());
+    return (false);
+  }
+
+  // Write the GPIO identifier to uninitialize GPIO
+  *fs << this->Identifier() << std::endl;
+  fs->close();
+
+  if (this->_fd)
+  {
+    close(this->_fd);
+    this->_fd = 0;
+  }
+
+  return (true);
+}
+
+int
+GpioPort::Fd()
+{
+  return(this->_fd);
+}
+
+GpioPort::STATE
+GpioPort::Get()
+{
+  return (this->_state());
+}
+
+bool
+GpioPort::Set(GpioPort::STATE state_)
+{
+  return (this->_state(state_));
+}
+
+GpioPort::DIR
+GpioPort::Direction() const
+{
+  return (str2dir(GpioConfiguration::Direction()));
+}
+
+bool
+GpioPort::Direction(const GpioPort::DIR dir_)
+{
+  return (GpioConfiguration::Direction(dir2str(dir_)));
+}
+
+GpioPort::STATE
+GpioPort::State() const
+{
+  return (str2state(GpioConfiguration::State()));
+}
+
+bool
+GpioPort::State(GpioPort::STATE state_)
+{
+  return (GpioConfiguration::State(state2str(state_)));
+}
+
+GpioPort::EDGE
+GpioPort::Edge() const
+{
+  return (str2edge(GpioConfiguration::Edge()));
+}
+
+bool
+GpioPort::Edge(const GpioPort::EDGE edge_)
+{
+  return (GpioConfiguration::Edge(edge2str(edge_)));
+}
+
+GpioPort::DIR
+GpioPort::_direction() const
+{
+  std::unique_ptr<std::fstream> fs;
+  std::string val;
+
+  // Open direction file and read direction
+  fs = fs_open(this->Identifier(), this->DirectionFilename());
+  if (fs->is_open())
+  {
+    *fs >> val;
+    fs->close();
+  }
+  ZLOG_DEBUG("Direction: '" + val + "'");
+
+  // Return port direction
+  return (str2dir(val));
+}
+
+bool
+GpioPort::_direction(const GpioPort::DIR dir_)
 {
   bool status = false;
-//  if (this->_state_file && (this->GetDirection() == Configuration::DIR_OUT))
-//  {
-//    std::fstream fs;
-//
-//    // Open value file and write value
-//    fs.open(this->_conf_get_state_filename().c_str(), std::fstream::out);
-//    if (fs.is_open())
-//    {
-//      if (Port::STATE_ACTIVE == state_)
-//      {
-//        ZLOG_DEBUG("zGpio::Port::SetState: State: '" + Configuration::STATE_VALUE_ACTIVE + "'");
-//        fs << Configuration::STATE_VALUE_ACTIVE;
-//        status = true;
-//      }
-//      else if (Port::STATE_INACTIVE == state_)
-//      {
-//        ZLOG_DEBUG(
-//            "zGpio::Port::SetState: State: '" + Configuration::STATE_VALUE_INACTIVE + "'");
-//        fs << Configuration::STATE_VALUE_INACTIVE;
-//        status = true;
-//      }
-//      else
-//      {
-//        ZLOG_ERR("zGpio::Port::SetState: Bad state: " + zLog::IntStr(state_));
-//        status = false;
-//      }
-//      fs.flush();
-//      fs.close();
-//    }
-//  }
+  std::unique_ptr<std::fstream> fs;
+
+  // Open direction file and write direction
+  fs = fs_open(this->Identifier(), this->DirectionFilename());
+  if (fs->is_open())
+  {
+    *fs << dir2str(dir_);
+    fs->close();
+    status = true;
+  }
+
   return (status);
 }
 
-//Port::EDGE
-//Port::GetEdge()
-//{
-//  Port::EDGE edge = Port::EDGE_ERR;
-//  std::string val;
-//
-//  if (this->_state_file)
-//  {
-//    std::fstream fs;
-//    // Open edge file and read direction
-//    fs.open(this->_conf_get_edge_filename().c_str(), std::fstream::in);
-//    if (fs.is_open())
-//    {
-//      fs >> val;
-//      fs.close();
-//    }
-//  }
-//  else
-//  {
-//    val = this->_conf_get_edge_value();
-//  }
-//  ZLOG_DEBUG("zGpio::Port::GetEdge: Edge: '" + val + "'");
-//
-//  // Convert from string to enum
-//  if (Configuration::ConfigEdgeValueNone == val)
-//  {
-//    edge = Port::EDGE_NONE;
-//  }
-//  else if (Configuration::ConfigEdgeValueLoHi == val)
-//  {
-//    edge = Port::EDGE_LO_HI;
-//  }
-//  else if (Configuration::ConfigEdgeValueHiLo == val)
-//  {
-//    edge = Port::EDGE_HI_LO;
-//  }
-//  else if (Configuration::ConfigEdgeValueBoth == val)
-//  {
-//    edge = Port::EDGE_BOTH;
-//  }
-//  else
-//  {
-//    edge = Port::EDGE_ERR;
-//  }
-//
-//  // Return port edge configuration
-//  return (edge);
-//}
-//
-//bool
-//Port::SetEdge(Port::EDGE edge_)
-//{
-//  bool status = false;
-//  if (!this->_state_file)
-//  {
-//    if (Port::EDGE_NONE == edge_)
-//    {
-//      status = this->Set(Configuration::ConfigEdgeValuePath,
-//          Configuration::ConfigEdgeValueNone);
-//    }
-//    else if (Port::EDGE_LO_HI == edge_)
-//    {
-//      status = this->Set(Configuration::ConfigEdgeValuePath,
-//          Configuration::ConfigEdgeValueLoHi);
-//    }
-//    else if (Port::EDGE_HI_LO == edge_)
-//    {
-//      status = this->Set(Configuration::ConfigEdgeValuePath,
-//          Configuration::ConfigEdgeValueHiLo);
-//    }
-//    else if (Port::EDGE_BOTH == edge_)
-//    {
-//      status = this->Set(Configuration::ConfigEdgeValuePath,
-//          Configuration::ConfigEdgeValueBoth);
-//    }
-//    else
-//    {
-//      status = false;
-//    }
-//  }
-//  return (status);
-//}
-
-bool
-Port::Open()
+GpioPort::STATE
+GpioPort::_state() const
 {
+  std::unique_ptr<std::fstream> fs;
+  std::string val;
 
-//  std::fstream fs;
-//  std::string val;
-//
-//  if (!this->_state_file)
-//  {
-//
-//    ZLOG_INFO("zGpio::Port::_open: Opening GPIO Port: " + zLog::IntStr(this->GetId()));
-//
-//    // Open export file and write the GPIO identifier
-//    fs.open(this->_conf_get_export_filename().c_str(), std::fstream::out);
-//    if (!fs.is_open())
-//    {
-//      ZLOG_ERR("zGpio::Port::_open: Failed to open export file: "
-//          + this->_conf_get_export_filename());
-//      return (false);
-//    }
-//    else
-//    {
-//      fs << this->GetId() << std::endl;
-//      fs.flush();
-//      fs.close();
-//    }
-//
-//    // Set the direction of the port
-//    fs.open(this->_conf_get_direction_filename().c_str(), std::fstream::out);
-//    if (!fs.is_open())
-//    {
-//      ZLOG_ERR("zGpio::Port::_open: Failed to open direction file: "
-//          + this->_conf_get_direction_filename());
-//      return (false);
-//    }
-//    else
-//    {
-//      fs << this->_conf_get_direction_value() << std::endl;
-//      fs.flush();
-//      fs.close();
-//    }
-//
-//    // Set the type of edge to generate an interrupt on
-//    fs.open(this->_conf_get_edge_filename().c_str(), std::fstream::out);
-//    if (!fs.is_open())
-//    {
-//      ZLOG_ERR("zGpio::Port::_open: Failed to open edge file: "
-//          + this->_conf_get_edge_filename());
-//      return (false);
-//    }
-//    else
-//    {
-//      fs << this->_conf_get_edge_value() << std::endl;
-//      fs.flush();
-//      fs.close();
-//    }
-//
-//    // Open the value file for watching for state changes
-//    this->_state_file = open(this->_conf_get_state_filename().c_str(), (O_RDONLY | O_NONBLOCK));
-//
-//  }
+  // Open direction file and read direction
+  fs = fs_open(this->Identifier(), this->StateFilename());
+  if (fs->is_open())
+  {
+    *fs >> val;
+    fs->close();
+  }
+  ZLOG_DEBUG("State: '" + val + "'");
 
-  return (false);
+  // Return port direction
+  return (str2state(val));
 }
 
 bool
-Port::Close()
+GpioPort::_state(const GpioPort::STATE dir_)
 {
-//  if (this->_state_file)
-//  {
-//    std::fstream fs;
-//
-//    ZLOG_INFO("zGpio::Port::_close: Closing GPIO Port: " + zLog::IntStr(this->GetId()));
-//
-//    // Open unexport file and write the GPIO id
-//    fs.open(this->_conf_get_unexport_filename().c_str(), std::fstream::out);
-//    if (fs.is_open())
-//    {
-//      fs << this->GetId() << std::endl;
-//      fs.flush();
-//      fs.close();
-//    }
-//
-//    close(this->_state_file);
-//    this->_state_file = 0;
-//  }
-  return (false);
+  bool status = false;
+  std::unique_ptr<std::fstream> fs;
+
+  // Open direction file and write direction
+  fs = fs_open(this->Identifier(), this->StateFilename());
+  if (fs->is_open())
+  {
+    *fs << state2str(dir_);
+    fs->close();
+    status = true;
+  }
+
+  return (status);
+}
+
+GpioPort::EDGE
+GpioPort::_edge() const
+{
+  std::unique_ptr<std::fstream> fs;
+  std::string val;
+
+  // Open direction file and read direction
+  fs = fs_open(this->Identifier(), this->EdgeFilename());
+  if (fs->is_open())
+  {
+    *fs >> val;
+    fs->close();
+  }
+  ZLOG_DEBUG("State: '" + val + "'");
+
+  // Return port direction
+  return (str2edge(val));
+}
+
+bool
+GpioPort::_edge(const GpioPort::EDGE dir_)
+{
+  bool status = false;
+  std::unique_ptr<std::fstream> fs;
+
+  // Open direction file and write direction
+  fs = fs_open(this->Identifier(), this->EdgeFilename());
+  if (fs->is_open())
+  {
+    *fs << edge2str(dir_);
+    fs->close();
+    status = true;
+  }
+
+  return (status);
 }
 
 }

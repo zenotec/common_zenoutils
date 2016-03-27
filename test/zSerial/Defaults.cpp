@@ -1,11 +1,23 @@
+
+#include <list>
+#include <mutex>
+
+#include <zutils/zLog.h>
+#include <zutils/zQueue.h>
+#include <zutils/zThread.h>
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+#include <zutils/zConfig.h>
+#include <zutils/zSerial.h>
+
 #include "UnitTest.h"
-#include "zComTest.h"
+#include "zSerialTest.h"
 
 using namespace Test;
 using namespace zUtils;
 
 int
-zComTest_PortDefaults(void *arg_)
+zSerialTest_PortDefaults(void *arg_)
 {
 
   ZLOG_DEBUG( "#############################################################" );
@@ -25,7 +37,7 @@ zComTest_PortDefaults(void *arg_)
 }
 
 int
-zComTest_TtyPortDefaults(void *arg_)
+zSerialTest_TtyPortDefaults(void *arg_)
 {
 
   ZLOG_DEBUG( "#############################################################" );

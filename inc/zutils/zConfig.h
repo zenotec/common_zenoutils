@@ -11,36 +11,48 @@
 
 namespace zUtils
 {
-namespace zConf
+namespace zConfig
 {
 
 class ConfigurationConnector;
 
 //**********************************************************************
-// Class: ConfigurationEvent
+// Class: ConfigurationNotification
 //**********************************************************************
 
-class ConfigurationEvent : public zEvent::Event
+class ConfigurationNotification : public zEvent::EventNotification
 {
 public:
 
-  enum EVENTID
+  enum ID
   {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_UPDATE,
-    EVENTID_COMMIT,
-    EVENTID_LAST
+    ID_ERR = -1,
+    ID_NONE = 0,
+    ID_PRELOAD,
+    ID_LOAD,
+    ID_POSTLOAD,
+    ID_PREUPDATE,
+    ID_UPDATE,
+    ID_POSTUPDATE,
+    ID_PRECOMMIT,
+    ID_COMMIT,
+    ID_POSTCOMMIT,
+    ID_LAST
   };
 
-  ConfigurationEvent(ConfigurationEvent::EVENTID id_);
+  ConfigurationNotification(ConfigurationNotification::ID id_);
 
   virtual
-  ~ConfigurationEvent();
+  ~ConfigurationNotification();
+
+  ConfigurationNotification::ID
+  Id();
 
 protected:
 
 private:
+
+  ConfigurationNotification::ID _id;
 
 };
 
@@ -151,8 +163,7 @@ private:
   zData::Data _staging;
   zData::Data _working;
 
-  ConfigurationEvent _update_event;
-  ConfigurationEvent _commit_event;
+  zEvent::Event _event;
 
 };
 
@@ -240,10 +251,13 @@ public:
   Store();
 
   bool
-  Get(Configuration &data_, const std::string &path_ = std::string(""));
+  Commit();
 
   bool
-  Set(Configuration &data_, const std::string &path_ = std::string(""));
+  Get(Configuration &config_, const std::string &path_ = std::string(""));
+
+  bool
+  Put(Configuration &config_, const std::string &path_ = std::string(""));
 
 protected:
 

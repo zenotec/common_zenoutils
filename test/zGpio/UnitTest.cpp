@@ -7,7 +7,7 @@
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
-#include <zutils/zConf.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 
 #include <zutils/zGpio.h>
@@ -41,10 +41,11 @@ main(int argc, const char **argv)
   UTEST_TEST(zGpioTest_ConfigurationGetSet, 0);
 
   UTEST_TEST(zGpioTest_PortDefaults, 0);
+  UTEST_TEST(zGpioTest_PortGetSet, 0);
 
   UTEST_TEST(zGpioTest_HandlerDefaults, 0);
-//  UTEST_TEST(zGpioTest_HandlerAddPort, 0);
-//  UTEST_TEST(zGpioTest_HandlerOnOff, 0);
+  UTEST_TEST(zGpioTest_HandlerAddPort, 0);
+  UTEST_TEST(zGpioTest_HandlerOnOff, 0);
 
 //  UTEST_TEST(zGpioTest_SwitchDefaults, 0);
 //  UTEST_TEST(zGpioTest_SwitchOnOff, 0);

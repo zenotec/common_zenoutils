@@ -6,8 +6,9 @@ endif
 AM_CPPFLAGS := $(com_incdir) $(BOOST_CPPFLAGS) $(CPPFLAGS_GCOV)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-noinst_LTLIBRARIES = libzCom.la
+noinst_LTLIBRARIES = libzConfig.la
 
-libzCom_la_SOURCES = \
-    Port.cpp \
-    Tty.cpp
+libzConfig_la_SOURCES = \
+    ConfigurationConnector.cpp \
+    Configuration.cpp \
+    ConfigurationHandler.cpp

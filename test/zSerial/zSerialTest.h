@@ -1,5 +1,5 @@
 /*
- * zComTest.h
+ * zSerialTest.h
  *
  *  Created on: Dec 9, 2015
  *      Author: kmahoney
@@ -17,27 +17,27 @@
 
 #include <zutils/zLog.h>
 #include <zutils/zThread.h>
-#include <zutils/zCom.h>
+#include <zutils/zSerial.h>
 #include <zutils/zTty.h>
 
 using namespace zUtils;
 
 int
-zComTest_PortDefaults(void* arg_);
+zSerialTest_PortDefaults(void* arg_);
 int
-zComTest_PortSendRecvChar(void *arg_);
+zSerialTest_PortSendRecvChar(void *arg_);
 int
-zComTest_PortSendRecvBuf(void *arg_);
+zSerialTest_PortSendRecvBuf(void *arg_);
 int
-zComTest_PortSendRecvString(void *arg_);
+zSerialTest_PortSendRecvString(void *arg_);
 int
-zComTest_TtyPortDefaults(void* arg_);
+zSerialTest_TtyPortDefaults(void* arg_);
 int
-zComTest_TtyPortSendRecvChar(void *arg_);
+zSerialTest_TtyPortSendRecvChar(void *arg_);
 int
-zComTest_TtyPortSendRecvBuf(void *arg_);
+zSerialTest_TtyPortSendRecvBuf(void *arg_);
 int
-zComTest_TtyPortSendRecvString(void *arg_);
+zSerialTest_TtyPortSendRecvString(void *arg_);
 
 class TestObserver : public zEvent::EventObserver
 {
@@ -58,19 +58,19 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_)
+  EventHandler(const zEvent::EventNotification* notification_)
   {
     bool status = false;
-    if (event_ && (event_->GetType() == zEvent::Event::TYPE_COM))
+    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SERIAL))
     {
-      zCom::PortEvent::EVENTID id = (zCom::PortEvent::EVENTID)event_->GetId();
-      switch(id)
+      zSerial::SerialNotification *n = (zSerial::SerialNotification *)notification_;
+      switch(n->Id())
       {
-      case zCom::PortEvent::EVENTID_CHAR_RCVD:
+      case zSerial::SerialNotification::ID_CHAR_RCVD:
         this->RxSem.Post();
         status = true;
         break;
-      case zCom::PortEvent::EVENTID_CHAR_SENT:
+      case zSerial::SerialNotification::ID_CHAR_SENT:
         this->TxSem.Post();
         status = true;
         break;
@@ -88,7 +88,7 @@ private:
 
 };
 
-class TestPort : public zCom::Port, public zThread::Function
+class TestPort : public zSerial::SerialPort, public zThread::Function
 {
 public:
   TestPort() :
@@ -121,11 +121,10 @@ public:
   ThreadFunction(void *arg_)
   {
     TestPort *self = (TestPort *) arg_;
-    while (self->txq.TimedWait(10000))
+    char c = 0;
+    while (self->txchar(&c, 10000))
     {
-      self->rxq.Push(self->txq.Front());
-      self->txq.Pop();
-      self->rx_event.Notify(NULL);
+      self->rxchar(c);
     }
     return (0);
   }
@@ -140,7 +139,7 @@ private:
 
 class TtyTestThread;
 
-class TtyTestPort : public zCom::TtyPort
+class TtyTestPort : public zSerial::TtyPort
 {
 
   friend TtyTestThread;

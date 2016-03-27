@@ -14,12 +14,19 @@
 #include <sys/ioctl.h>
 
 #include <iostream>
+#include <list>
+#include <mutex>
 
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+#include <zutils/zConfig.h>
+#include <zutils/zQueue.h>
+#include <zutils/zThread.h>
 #include <zutils/zTty.h>
 
 namespace zUtils
 {
-namespace zCom
+namespace zSerial
 {
 
 //*****************************************************************************
@@ -349,8 +356,7 @@ TtyPortRecv::ThreadFunction(void *arg_)
     {
       printf("1:%c\n", c);
       ZLOG_DEBUG(std::string("Received char: '") + zLog::IntStr(c) + ": " + c + "'");
-      port->rxq.Push(c);
-      port->rx_event.Notify(port);
+      port->rxchar(c);
     }
   }
 
@@ -369,15 +375,13 @@ TtyPortSend::ThreadFunction(void *arg_)
   fds[0].fd = port->_fd;
   fds[0].events = (POLLOUT | POLLERR);
   int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT) && port->txq.TimedWait(100000))
+  char c = 0;
+  if (ret > 0 && (fds[0].revents == POLLOUT) && port->txchar(&c, 100000))
   {
-    char c = port->txq.Front();
     ZLOG_DEBUG(std::string("Sending byte: '") + c + "'");
     if ((write(port->_fd, &c, 1) == 1))
     {
       ZLOG_DEBUG(std::string("Byte Sent: '") + c + "'");
-      port->txq.Pop();
-      port->tx_event.Notify(port);
     }
   }
 

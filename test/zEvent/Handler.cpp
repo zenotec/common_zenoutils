@@ -10,8 +10,7 @@ zEventTest_EventHandlerTest(void* arg_)
   // Create new event and validate
   zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
-  TEST_EQ(0, MyEvent->GetId());
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
 
   // Create new event handler and validate
   zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
@@ -34,11 +33,12 @@ zEventTest_EventHandlerTest(void* arg_)
   TEST_TRUE(MyObserver->Empty());
 
   // Notify
-  MyEvent->Notify(NULL);
+  zEvent::EventNotification MyNotification;
+  MyEvent->Notify(&MyNotification);
   TEST_TRUE(MyObserver->TryWait());
   TEST_EQ(MyObserver->Size(), 1);
   TEST_FALSE(MyObserver->Empty());
-  TEST_TRUE(MyObserver->Front() == MyEvent);
+  TEST_TRUE(MyObserver->Front().Type() == zEvent::Event::TYPE_TEST);
   MyObserver->Pop();
 
   // Unregister observer with handler

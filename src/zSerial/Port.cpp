@@ -13,45 +13,34 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 
-#include <iostream>
+#include <list>
+#include <mutex>
 
-#include <zutils/zCom.h>
+#include <zutils/zQueue.h>
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+#include <zutils/zConfig.h>
+#include <zutils/zSerial.h>
 
 namespace zUtils
 {
-namespace zCom
+namespace zSerial
 {
 
-//*****************************************************************************
-// PortEvent Class
-//*****************************************************************************
-PortEvent::PortEvent(const PortEvent::EVENTID id_) :
-    zEvent::Event(zEvent::Event::TYPE_COM, id_)
+//**********************************************************************
+// Class: SerialPort
+//**********************************************************************
+
+SerialPort::SerialPort()
 {
 }
 
-PortEvent::~PortEvent()
+SerialPort::~SerialPort()
 {
-}
-
-//*****************************************************************************
-// Port Class
-//*****************************************************************************
-Port::Port() :
-    rx_event(PortEvent::EVENTID_CHAR_RCVD), tx_event(PortEvent::EVENTID_CHAR_SENT)
-{
-  this->RegisterEvent(&this->rx_event);
-  this->RegisterEvent(&this->tx_event);
-}
-
-Port::~Port()
-{
-  this->UnregisterEvent(&this->rx_event);
-  this->UnregisterEvent(&this->tx_event);
 }
 
 ssize_t
-Port::RecvBuf(void *buf_, size_t len_, size_t timeout_)
+SerialPort::RecvBuf(void *buf_, size_t len_, size_t timeout_)
 {
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
@@ -66,7 +55,7 @@ Port::RecvBuf(void *buf_, size_t len_, size_t timeout_)
 }
 
 bool
-Port::RecvChar(char *c_, size_t timeout_)
+SerialPort::RecvChar(char *c_, size_t timeout_)
 {
   bool status = false;
   ZLOG_DEBUG("Receiving");
@@ -81,7 +70,7 @@ Port::RecvChar(char *c_, size_t timeout_)
 }
 
 bool
-Port::RecvString(std::string &str_, size_t timeout_)
+SerialPort::RecvString(std::string &str_, size_t timeout_)
 {
   bool status = false;
   ZLOG_DEBUG("Receiving");
@@ -104,7 +93,7 @@ Port::RecvString(std::string &str_, size_t timeout_)
 }
 
 ssize_t
-Port::SendBuf(const void *buf_, size_t len_)
+SerialPort::SendBuf(const void *buf_, size_t len_)
 {
 
   ssize_t bytes = 0;
@@ -118,7 +107,7 @@ Port::SendBuf(const void *buf_, size_t len_)
 }
 
 bool
-Port::SendChar(const char c_)
+SerialPort::SendChar(const char c_)
 {
   ZLOG_DEBUG(std::string("Sending '") + c_ + "'");
   this->txq.Push(c_);
@@ -126,11 +115,54 @@ Port::SendChar(const char c_)
 }
 
 bool
-Port::SendString(const std::string &str_)
+SerialPort::SendString(const std::string &str_)
 {
   ZLOG_DEBUG("Sending string '" + str_ + "'");
   return (this->SendBuf(str_.data(), str_.size()) == str_.size());
 }
+
+bool
+SerialPort::rxchar(const char c_)
+{
+  ZLOG_DEBUG(std::string("Processing rxchar '") + c_ + "'");
+  this->rxq.Push(c_);
+  return (true);
+}
+
+bool
+SerialPort::txchar(char *c_, size_t timeout_)
+{
+  bool status = false;
+  ZLOG_DEBUG("Getting txchar");
+  if (this->txq.TimedWait(timeout_))
+  {
+    *c_ = this->rxq.Front();
+    this->rxq.Pop();
+    status = true;
+  }
+  ZLOG_DEBUG(std::string("Got character: ") + *c_);
+  return (status);
+}
+
+//**********************************************************************
+// Class: SerialNotification
+//**********************************************************************
+
+SerialNotification::SerialNotification(const SerialNotification::ID id_) :
+    _id(id_)
+{
+}
+
+SerialNotification::~SerialNotification()
+{
+}
+
+SerialNotification::ID
+SerialNotification::Id() const
+{
+  return(this->_id);
+}
+
 
 }
 }
