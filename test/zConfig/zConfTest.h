@@ -26,6 +26,8 @@ int
 zConfigTest_HandlerDefaults(void* arg_);
 
 int
+zConfigTest_ConfigurationCtor(void* arg_);
+int
 zConfigTest_ConfigurationGetSetData(void* arg_);
 int
 zConfigTest_ConfigurationCompare(void* arg_);

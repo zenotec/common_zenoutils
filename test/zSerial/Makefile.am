@@ -10,7 +10,7 @@ check_PROGRAMS = zSerialUnitTest
 
 zSerialUnitTest_SOURCES = \
     valgrind.sh \
-    zComTest.h \
+    zSerialTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Port.cpp \

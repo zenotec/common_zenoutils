@@ -11,5 +11,6 @@ noinst_LTLIBRARIES = libzGpio.la
 libzGpio_la_SOURCES = \
     GpioPortConfiguration.cpp \
     GpioPort.cpp \
+    GpioNotification.cpp \
     GpioHandler.cpp
 

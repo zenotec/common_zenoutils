@@ -87,7 +87,7 @@ Configuration::UnregisterEvents (zEvent::EventHandler &handler_)
 }
 
 bool
-Configuration::IsModified ()
+Configuration::IsModified () const
 {
   bool mod = false;
 
@@ -109,6 +109,7 @@ Configuration::Commit ()
 
   this->_working = this->_staging;
   status = (this->_working == this->_staging);
+  this->_modified = false;
 
   // End critical section
   this->_lock.unlock ();
@@ -127,6 +128,7 @@ Configuration::Restore ()
 
   this->_staging = this->_working;
   status = (this->_working == this->_staging);
+  this->_modified = false;
 
   // End critical section
   this->_lock.unlock ();
@@ -182,6 +184,7 @@ Configuration::Put (zData::Data &data_, const std::string &path_)
 //  std::cout << "Putting configuration data: " << path_ << std::endl;
 
   status = this->_staging.Put (data_, path_);
+  this->_modified = true;
 
 //  this->_staging.DisplayJson ();
 
@@ -218,6 +221,7 @@ Configuration::Add (zData::Data &data_, const std::string &path_)
 //  std::cout << "Adding configuration data: " << path_ << std::endl;
 
   status = this->_staging.Add (data_, path_);
+  this->_modified = true;
 
 //  this->_staging.DisplayJson ();
 

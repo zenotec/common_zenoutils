@@ -38,18 +38,21 @@ zDataTest_Array(void* arg)
     TEST_TRUE(myParent->Add(val.str()));
   }
 
+  TEST_EQ(num, myParent->Size());
+
   // Parse value array and validate
   for (int i = 0; i < num; i++)
   {
     std::stringstream val;
     val << "value" << i;
-    std::unique_ptr < zData::Data > myChild = myParent->operator [](i);
+    std::unique_ptr<zData::Data> myChild = myParent->operator [](i);
     TEST_TRUE(myChild != NULL);
     TEST_TRUE(myChild->Get(obs));
     TEST_EQ(obs, val.str());
   }
 
   myParent->Clear();
+  TEST_IS_ZERO(myParent->Size());
 
   // Create new data array and validate
   for (int i = 0; i < num; i++)
@@ -63,19 +66,24 @@ zDataTest_Array(void* arg)
     delete (myChild);
   }
 
+  TEST_EQ(1, myParent->Size());
+
   // Parse data array and validate
   for (int i = 0; i < num; i++)
   {
     std::stringstream val;
     std::string obs;
     val << "value" << i;
-    std::unique_ptr < zData::Data > myChild = myParent->operator []("child");
+    std::unique_ptr<zData::Data> myChild = myParent->operator []("child");
     TEST_TRUE(myChild != NULL);
     myChild = myChild->operator [](i);
     TEST_TRUE(myChild != NULL);
     TEST_TRUE(myChild->Get(obs, key));
     TEST_EQ(obs, val.str());
   }
+
+  myParent->Clear();
+  TEST_IS_ZERO(myParent->Size());
 
   // Cleanup
   if (myParent)

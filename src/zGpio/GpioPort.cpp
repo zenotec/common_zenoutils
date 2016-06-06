@@ -8,6 +8,9 @@
 
 #include <stdio.h>
 #include <fcntl.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/poll.h>
 
 #include <string>
 #include <list>
@@ -183,12 +186,12 @@ str2edge(const std::string &str_)
 //**********************************************************************
 
 GpioPort::GpioPort() :
-    _fd(0)
+    _fd(0), _thread(this, this), zEvent::Event(zEvent::Event::TYPE_GPIO)
 {
 }
 
 GpioPort::GpioPort(zConfig::Configuration &config_) :
-    zGpio::GpioConfiguration(config_), _fd(0)
+    zGpio::GpioConfiguration(config_), _fd(0), _thread(this, this), zEvent::Event(zEvent::Event::TYPE_GPIO)
 {
 }
 
@@ -197,7 +200,7 @@ GpioPort::~GpioPort()
   this->Close();
 }
 
-int
+bool
 GpioPort::Open()
 {
 
@@ -210,7 +213,7 @@ GpioPort::Open()
   if (!fs->is_open())
   {
     ZLOG_ERR("Failed to open export file: " + this->ExportFilename());
-    return (-1);
+    return (false);
   }
 
   // Write the GPIO identifier to initialize GPIO
@@ -221,14 +224,14 @@ GpioPort::Open()
   if (!this->_direction(this->Direction()))
   {
     ZLOG_ERR("Failed to set direction");
-    return (-1);
+    return (false);
   }
 
   // Set the type of edge to generate an interrupt on
   if (!this->_edge(this->Edge()))
   {
     ZLOG_ERR("Failed to set interrupt edge");
-    return (-1);
+    return (false);
   }
 
   // Conditionally set initial state
@@ -237,7 +240,7 @@ GpioPort::Open()
     if (!this->_state(this->State()))
     {
       ZLOG_ERR("Failed to set initial state");
-      return (-1);
+      return (false);
     }
   }
 
@@ -245,11 +248,22 @@ GpioPort::Open()
   if ((this->Edge() == GpioPort::EDGE_LO_HI) || (this->Edge() == GpioPort::EDGE_HI_LO)
       || (this->Edge() == GpioPort::EDGE_BOTH))
   {
+    ZLOG_INFO(std::string("Opening 'state' GPIO file: ") + filename(this->Identifier(), this->StateFilename()));
     this->_fd = open(filename(this->Identifier(), this->StateFilename()).c_str(),
         (O_RDONLY | O_NONBLOCK));
+    if (this->_fd > 0)
+    {
+      // Start monitoring for state changes
+      this->_thread.Run();
+    }
+    else
+    {
+      this->_fd = 0;
+      return(false);
+    }
   }
 
-  return (this->_fd);
+  return (true);
 
 }
 
@@ -260,6 +274,14 @@ GpioPort::Close()
   std::unique_ptr<std::fstream> fs;
 
   ZLOG_INFO("Closing GPIO Port: " + zLog::IntStr(this->Identifier()));
+
+  if (this->_fd)
+  {
+    // Stop monitoring for state changes
+    this->_thread.Join();
+    close(this->_fd);
+    this->_fd = 0;
+  }
 
   // Open export file and verify
   fs = fs_open(this->Identifier(), this->UnexportFilename());
@@ -273,19 +295,7 @@ GpioPort::Close()
   *fs << this->Identifier() << std::endl;
   fs->close();
 
-  if (this->_fd)
-  {
-    close(this->_fd);
-    this->_fd = 0;
-  }
-
   return (true);
-}
-
-int
-GpioPort::Fd()
-{
-  return(this->_fd);
 }
 
 GpioPort::STATE
@@ -334,6 +344,33 @@ bool
 GpioPort::Edge(const GpioPort::EDGE edge_)
 {
   return (GpioConfiguration::Edge(edge2str(edge_)));
+}
+
+void *
+GpioPort::ThreadFunction(void *arg_)
+{
+
+  GpioPort *self = (GpioPort *) arg_;
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = self->_fd;
+  fds[0].events = (POLLPRI | POLLERR);
+
+  // Poll on GPIO ports
+  int ret = poll(fds, 1, 100);
+  if (ret > 0)
+  {
+    char buf[2] = { 0 };
+    if ((fds[0].revents & POLLPRI) && pread(self->_fd, buf, sizeof(buf), 0))
+    {
+      zGpio::GpioPort::STATE state = self->_state();
+      zGpio::GpioNotification notification(state, self);
+      self->Notify(&notification);
+    }
+  }
+
+  return (0);
 }
 
 GpioPort::DIR

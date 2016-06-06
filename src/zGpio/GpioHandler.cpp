@@ -1,6 +1,3 @@
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/poll.h>
 
 #include <string>
 #include <list>
@@ -26,21 +23,17 @@ namespace zGpio
 //*****************************************************************************
 // Handler Class
 //*****************************************************************************
-GpioHandler::GpioHandler() :
-    _thread(this, this), _event(zEvent::Event::TYPE_GPIO)
+GpioHandler::GpioHandler()
 {
 }
 
 GpioHandler::~GpioHandler()
 {
-  if (!this->_port_list.empty())
-  {
-    this->_thread.Join();
-  }
   std::list<GpioPort*>::iterator it = this->_port_list.begin();
   std::list<GpioPort*>::iterator end = this->_port_list.end();
   for (; it != end; ++it)
   {
+    this->UnregisterEvent(*it);
     (*it)->Close();
   }
   this->_port_list.clear();
@@ -54,11 +47,8 @@ GpioHandler::Add(GpioPort* port_)
   {
     this->_port_list.push_back(port_);
     this->_port_list.unique();
+    this->RegisterEvent(port_);
     status = true;
-  }
-  if (this->_port_list.size() == 1)
-  {
-    this->_thread.Run();
   }
   return (status);
 }
@@ -94,59 +84,6 @@ GpioHandler::Set(GpioPort::STATE state_)
     }
   }
   return (true);
-}
-
-void *
-GpioHandler::ThreadFunction(void *arg_)
-{
-
-  int nfds = 0;
-  GpioHandler *self = (GpioHandler *) arg_;
-  std::list<GpioPort*>::iterator it;
-  std::list<GpioPort*>::iterator end = self->_port_list.end();
-
-  // TODO: Start critical section
-
-  // Setup for poll loop
-  struct pollfd fds[self->_port_list.size()];
-  for (it = self->_port_list.begin(), nfds = 0; it != end; ++it, nfds++)
-  {
-    fds[nfds].fd = (*it)->Fd();
-    fds[nfds].events = (POLLPRI | POLLERR);
-  }
-
-  // Poll on GPIO ports
-  int ret = poll(fds, nfds, 100);
-  if (ret > 0)
-  {
-    it = self->_port_list.begin();
-    for (it = self->_port_list.begin(), nfds = 0; it != end; ++it, nfds++)
-    {
-      char buf[2] = { 0 };
-      int fd = (*it)->Fd();
-      if ((fds[nfds].revents & POLLPRI) && pread(fd, buf, sizeof(buf), 0))
-      {
-        zGpio::GpioNotification notification(*it);
-        self->_event.Notify(&notification);
-      }
-    }
-  }
-
-  return (0);
-}
-//**********************************************************************
-// Class: Notification
-//**********************************************************************
-
-GpioNotification::GpioNotification(zGpio::GpioPort* port_) :
-    _port(port_)
-{
-
-}
-
-GpioNotification::~GpioNotification()
-{
-
 }
 
 }

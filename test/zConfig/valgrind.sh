@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DIR=zConf
-BIN=.libs/zConfUnitTest
+DIR=zConfig
+BIN=.libs/zConfigUnitTest
 TEST=$(pwd)/${DIR}/${BIN}
 LOG=$(pwd)/${DIR}/valgrind.log
 

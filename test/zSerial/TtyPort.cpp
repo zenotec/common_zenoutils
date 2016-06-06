@@ -48,6 +48,9 @@ zSerialTest_TtyPortSendRecvChar(void *arg_)
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
+  // Register port with handler
+  MyHandler->Add(MyPort);
+
   // Open port
   status = MyPort->Open(MyPort->Dev());
   TEST_TRUE(status);
@@ -124,6 +127,9 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
+
+  // Register port with handler
+  MyHandler->Add(MyPort);
 
   // Open port
   status = MyPort->Open(MyPort->Dev());
@@ -209,6 +215,9 @@ zSerialTest_TtyPortSendRecvString(void *arg_)
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
+
+  // Register port with handler
+  MyHandler->Add(MyPort);
 
   // Open port
   status = MyPort->Open(MyPort->Dev());

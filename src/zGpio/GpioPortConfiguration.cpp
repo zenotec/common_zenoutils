@@ -79,7 +79,7 @@ GpioConfiguration::GpioConfiguration()
   this->Edge(ConfigEdgeValueDefault);
 }
 
-GpioConfiguration::GpioConfiguration(zData::Data& data_) :
+GpioConfiguration::GpioConfiguration(zData::Data &data_) :
     zConfig::Configuration(data_)
 {
   this->Identifier(this->Identifier());

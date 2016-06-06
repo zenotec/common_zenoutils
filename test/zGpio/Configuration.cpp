@@ -27,6 +27,22 @@ zGpioTest_ConfigurationCtor(void* arg)
   ZLOG_DEBUG("# zGpioTest_ConfigurationCtor()");
   ZLOG_DEBUG("#############################################################");
 
+  // Create new GPIO port configuration and verify
+  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration();
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(MyConfig->Identifier(), 0);
+  TEST_EQ(MyConfig->ExportFilename(), zGpio::GpioConfiguration::ConfigExportFilenameDefault);
+  TEST_EQ(MyConfig->UnexportFilename(), zGpio::GpioConfiguration::ConfigUnexportFilenameDefault);
+  TEST_EQ(MyConfig->DirectionFilename(), zGpio::GpioConfiguration::ConfigDirectionFilenameDefault);
+  TEST_EQ(MyConfig->Direction(), zGpio::GpioConfiguration::ConfigDirectionValueDefault);
+  TEST_EQ(MyConfig->StateFilename(), zGpio::GpioConfiguration::ConfigStateFilenameDefault);
+  TEST_EQ(MyConfig->State(), zGpio::GpioConfiguration::ConfigStateValueDefault);
+  TEST_EQ(MyConfig->EdgeFilename(), zGpio::GpioConfiguration::ConfigEdgeFilenameDefault);
+  TEST_EQ(MyConfig->Edge(), zGpio::GpioConfiguration::ConfigEdgeValueDefault);
+
+  // Clean up
+  delete (MyConfig);
+
   zConfig::Configuration config;
   path = zData::Data::PathConcat(zGpio::GpioConfiguration::ConfigRoot,
       zGpio::GpioConfiguration::ConfigIdentifierPath);
@@ -58,7 +74,7 @@ zGpioTest_ConfigurationCtor(void* arg)
   config.Commit();
 
   // Create new GPIO port configuration and verify
-  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration(config);
+  MyConfig = new zGpio::GpioConfiguration(config);
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(MyConfig->Identifier(), 8);
   TEST_EQ(MyConfig->ExportFilename(), "export");
@@ -72,6 +88,7 @@ zGpioTest_ConfigurationCtor(void* arg)
 
   // Clean up
   delete (MyConfig);
+
   return (0);
 }
 

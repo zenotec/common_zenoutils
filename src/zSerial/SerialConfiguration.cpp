@@ -38,28 +38,29 @@ const std::string SerialConfiguration::ConfigTypeTty("TTY");
 
 SerialConfiguration::SerialConfiguration()
 {
-
+  this->Type(ConfigTypeNone);
 }
 
-SerialConfiguration::SerialConfiguration(zData::Data &data_)
+SerialConfiguration::SerialConfiguration(zData::Data &data_) :
+    zConfig::Configuration(data_)
 {
-
+  this->Type(this->Type());
 }
 
-SerialConfiguration::SerialConfiguration(zConfig::Configuration &config_)
+SerialConfiguration::SerialConfiguration(zConfig::Configuration &config_) :
+    zConfig::Configuration(config_)
 {
-
+  this->Type(this->Type());
 }
 
 SerialConfiguration::~SerialConfiguration()
 {
-
 }
 
 zConfig::Configuration&
 SerialConfiguration::GetConfig()
 {
-
+  return (*this);
 }
 
 std::string
@@ -73,7 +74,7 @@ SerialConfiguration::Type() const
 }
 
 bool
-SerialConfiguration::Type (const std::string& type_)
+SerialConfiguration::Type(const std::string& type_)
 {
   bool status = false;
   std::string path = zData::Data::PathConcat(SerialConfiguration::ConfigRoot,

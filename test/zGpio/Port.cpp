@@ -34,7 +34,7 @@ zGpioTest_PortGetSet(void* arg)
   TEST_ISNOT_NULL(MyPort);
 
   // Open port
-  TEST_TRUE(MyPort->Open());
+  TEST_TRUE(MyPort->Open() >= 0);
 
   // Verify configured state and current state match
   TEST_TRUE(MyPort->State() == MyPort->Get());

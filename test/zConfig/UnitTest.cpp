@@ -20,6 +20,7 @@ main( int argc, const char **argv )
     UTEST_INIT();
     UTEST_TEST( zConfigTest_DataDefaults, 0 );
     UTEST_TEST( zConfigTest_ConnectorDefaults, 0 );
+    UTEST_TEST( zConfigTest_ConfigurationCtor, 0 );
     UTEST_TEST( zConfigTest_ConfigurationGetSetData, 0 );
     UTEST_TEST( zConfigTest_ConfigurationCompare, 0 );
     UTEST_TEST( zConfigTest_ConfigurationDataArray, 0 );

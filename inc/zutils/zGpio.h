@@ -129,7 +129,7 @@ public:
 // Class: GpioPort
 //**********************************************************************
 
-class GpioPort : public GpioConfiguration
+class GpioPort : public GpioConfiguration, public zThread::Function, public zEvent::Event
 {
 
 public:
@@ -173,14 +173,11 @@ public:
   virtual
   ~GpioPort();
 
-  int
+  bool
   Open();
 
   bool
   Close();
-
-  int
-  Fd();
 
   GpioPort::STATE
   Get();
@@ -208,10 +205,15 @@ public:
 
 protected:
 
+  virtual void *
+  ThreadFunction(void *arg_);
+
 private:
 
   int _fd;
   zGpio::GpioConfiguration _config;
+  zThread::Thread _thread;
+  zSem::Mutex _lock;
 
   GpioPort::DIR
   _direction() const;
@@ -237,7 +239,7 @@ private:
 // Class: GpioHandler
 //**********************************************************************
 
-class GpioHandler : public zThread::Function , public zEvent::EventHandler
+class GpioHandler : public zEvent::EventHandler
 {
 
 public:
@@ -258,14 +260,9 @@ public:
 
 protected:
 
-  virtual void *
-  ThreadFunction(void *arg_);
-
 private:
 
   std::list<GpioPort *> _port_list;
-  zThread::Thread _thread;
-  zEvent::Event _event;
 
 };
 
@@ -278,7 +275,7 @@ class GpioNotification : public zEvent::EventNotification
 
 public:
 
-  GpioNotification(zGpio::GpioPort* port_);
+  GpioNotification(zGpio::GpioPort::STATE state_, zGpio::GpioPort* port_);
 
   virtual
   ~GpioNotification();
@@ -287,6 +284,7 @@ protected:
 
 private:
 
+  zGpio::GpioPort::STATE _state;
   zGpio::GpioPort* _port;
 
 };

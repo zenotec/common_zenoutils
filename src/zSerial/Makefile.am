@@ -9,7 +9,8 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzSerial.la
 
 libzSerial_la_SOURCES = \
-    Configuration.cpp \
-    Port.cpp \
-    Handler.cpp \
+    SerialConfiguration.cpp \
+    SerialPort.cpp \
+    SerialNotification.cpp \
+    SerialHandler.cpp \
     Tty.cpp

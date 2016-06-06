@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DIR=zCom
-BIN=.libs/zComUnitTest
+DIR=zSerial
+BIN=.libs/zSerialUnitTest
 TEST=$(pwd)/${DIR}/${BIN}
 LOG=$(pwd)/${DIR}/valgrind.log
 

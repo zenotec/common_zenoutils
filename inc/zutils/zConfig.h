@@ -100,7 +100,7 @@ public:
   UnregisterEvents(zEvent::EventHandler &handler_);
 
   bool
-  IsModified();
+  IsModified() const;
 
   bool
   Commit();

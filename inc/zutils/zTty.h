@@ -26,6 +26,60 @@ namespace zSerial
 {
 
 //**********************************************************************
+// Class: SerialConfiguration
+//**********************************************************************
+
+class TtySerialConfiguration : public SerialConfiguration
+{
+
+public:
+
+  static const std::string ConfigBaudPath;
+  static const std::string ConfigBaudNone;
+  static const std::string ConfigBaud9600;
+  static const std::string ConfigBaud19200;
+  static const std::string ConfigBaud38400;
+  static const std::string ConfigBaud57600;
+  static const std::string ConfigBaud115200;
+  static const std::string ConfigBaudDefault;
+
+  static const std::string ConfigDatabitsPath;
+  static const std::string ConfigDatabitsNone;
+  static const std::string ConfigDatabits5;
+  static const std::string ConfigDatabits6;
+  static const std::string ConfigDatabits7;
+  static const std::string ConfigDatabits8;
+  static const std::string ConfigDatabitsDefault;
+
+  static const std::string ConfigStopbitsPath;
+  static const std::string ConfigStopbitsNone;
+  static const std::string ConfigStopbits1;
+  static const std::string ConfigStopbits2;
+  static const std::string ConfigStopbitsDefault;
+
+  static const std::string ConfigParityPath;
+  static const std::string ConfigParityNone;
+  static const std::string ConfigParityOdd;
+  static const std::string ConfigParityEven;
+  static const std::string ConfigParityDefault;
+
+  static const std::string ConfigFlowPath;
+  static const std::string ConfigFlowNone;
+  static const std::string ConfigFlowHard;
+  static const std::string ConfigFlowDefault;
+
+  TtySerialConfiguration();
+
+  TtySerialConfiguration(zData::Data &data_);
+
+  TtySerialConfiguration(zConfig::Configuration &config_);
+
+  virtual
+  ~TtySerialConfiguration();
+
+};
+
+//**********************************************************************
 // Class: TtyPortRecv
 //**********************************************************************
 
@@ -157,7 +211,7 @@ public:
   virtual bool
   Open(const std::string &dev_);
 
-  virtual void
+  virtual bool
   Close();
 
   TtyPort::BAUD

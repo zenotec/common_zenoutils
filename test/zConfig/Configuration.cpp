@@ -12,11 +12,48 @@ using namespace Test;
 using namespace zUtils;
 
 int
+zConfigTest_ConfigurationCtor(void* arg_)
+{
+
+  // Create new data item and verify
+  zData::Data *MyData = new zData::Data("employee");
+  TEST_ISNOT_NULL(MyData);
+
+  // Setup data item and verify
+  std::string key = "name";
+  std::string val = "Elvis";
+  std::string obs = "";
+  TEST_TRUE(MyData->Put(val, key));
+  TEST_TRUE(MyData->Get(obs, key));
+  TEST_EQ(obs, val);
+
+  // Create const configuration data item from data item and verify
+  const zConfig::Configuration ConstConfig(*MyData);
+  TEST_FALSE(ConstConfig.IsModified());
+
+  // Create new configuration data item and verify
+  zConfig::Configuration *MyConfig = new zConfig::Configuration(ConstConfig);
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_FALSE(MyConfig->IsModified());
+
+  zData::Data ObsData;
+
+  TEST_TRUE(MyConfig->Get(ObsData, "employee"));
+  TEST_TRUE(ObsData == *MyData);
+  TEST_TRUE(ObsData.Get(obs, key));
+  TEST_EQ(obs, val);
+
+  return(0);
+
+}
+
+int
 zConfigTest_ConfigurationGetSetData(void* arg_)
 {
   // Create new configuration data item and verify
-  zConfig::Configuration *MyConf = new zConfig::Configuration;
-  TEST_ISNOT_NULL(MyConf);
+  zConfig::Configuration *MyConfig = new zConfig::Configuration;
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_FALSE(MyConfig->IsModified());
 
   // Create new data item and verify
   zData::Data *MyData = new zData::Data("employee");
@@ -34,26 +71,26 @@ zConfigTest_ConfigurationGetSetData(void* arg_)
   zData::Data ObsData;
 
   // Verify the key doesn't exist and isn't set
-  TEST_TRUE(MyConf->Get(ConfData));
+  TEST_TRUE(MyConfig->Get(ConfData));
   TEST_FALSE(ConfData.Get(ObsData, "employee"));
 
   // Set the data and verify (only updates staging data)
-  TEST_TRUE(MyConf->Get(ConfData));
+  TEST_TRUE(MyConfig->Get(ConfData));
   TEST_TRUE(ConfData.Put(*MyData, "employee"));
-  TEST_TRUE(MyConf->Put(ConfData));
-  TEST_TRUE(MyConf->Get(ConfData));
+  TEST_TRUE(MyConfig->Put(ConfData));
+  TEST_TRUE(MyConfig->Get(ConfData));
   TEST_FALSE(ConfData.Get(ObsData, "employee"));
 
   // Commit data and verify
-  TEST_TRUE(MyConf->Commit());
-  TEST_TRUE(MyConf->Get(ConfData));
+  TEST_TRUE(MyConfig->Commit());
+  TEST_TRUE(MyConfig->Get(ConfData));
   TEST_TRUE(ConfData.Get(ObsData, "employee"));
   TEST_TRUE(ObsData.Get(obs, key));
   TEST_EQ(obs, val);
 
   // Cleanup
   delete (MyData);
-  delete (MyConf);
+  delete (MyConfig);
 
   // Return success
   return (0);
@@ -66,10 +103,12 @@ zConfigTest_ConfigurationCompare(void* arg_)
   // Create new configuration data item and verify
   zConfig::Configuration *MyConfig1 = new zConfig::Configuration;
   TEST_ISNOT_NULL(MyConfig1);
+  TEST_FALSE(MyConfig1->IsModified());
 
   // Create second configuration data item and verify
   zConfig::Configuration *MyConfig2 = new zConfig::Configuration;
   TEST_ISNOT_NULL(MyConfig2);
+  TEST_FALSE(MyConfig2->IsModified());
 
   // Verify both are equal
   TEST_TRUE(*MyConfig1 == *MyConfig2);
@@ -82,6 +121,7 @@ zConfigTest_ConfigurationCompare(void* arg_)
 
   // Modify first configuration data item
   TEST_TRUE(MyConfig1->Put(MyData));
+  TEST_TRUE(MyConfig1->IsModified());
 
   // Verify both are still equal
   TEST_TRUE(*MyConfig1 == *MyConfig2);
@@ -89,12 +129,15 @@ zConfigTest_ConfigurationCompare(void* arg_)
 
   // Commit data and verify they are no longer equal
   TEST_TRUE(MyConfig1->Commit());
+  TEST_FALSE(MyConfig1->IsModified());
   TEST_TRUE(MyConfig2->Commit());
+  TEST_FALSE(MyConfig2->IsModified());
   TEST_FALSE(*MyConfig1 == *MyConfig2);
   TEST_TRUE(*MyConfig1 != *MyConfig2);
 
   // Modify second configuration data item
   TEST_TRUE(MyConfig2->Put(MyData));
+  TEST_TRUE(MyConfig2->IsModified());
 
   // Verify they are still not equal
   TEST_FALSE(*MyConfig1 == *MyConfig2);
@@ -102,7 +145,9 @@ zConfigTest_ConfigurationCompare(void* arg_)
 
   // Commit and verify both are equal again
   TEST_TRUE(MyConfig1->Commit());
+  TEST_FALSE(MyConfig1->IsModified());
   TEST_TRUE(MyConfig2->Commit());
+  TEST_FALSE(MyConfig2->IsModified());
   TEST_TRUE(*MyConfig1 == *MyConfig2);
   TEST_FALSE(*MyConfig1 != *MyConfig2);
 
@@ -156,26 +201,22 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   TEST_TRUE(MyData3->Get(obs3, key));
   TEST_EQ(obs3, val3);
 
-  zData::Data ConfData;
   zData::Data ObsData;
 
-  // Verify the key doesn't exist and isn't set
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_FALSE(ConfData.Get(ObsData, "employee"));
-
-  // Set the data and verify (only updates staging data)
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_TRUE(ConfData.Add(*MyData1, "employee"));
-  TEST_TRUE(ConfData.Add(*MyData2, "employee"));
-  TEST_TRUE(ConfData.Add(*MyData3, "employee"));
-  TEST_TRUE(MyConfig->Put(ConfData));
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_FALSE(ConfData.Get(ObsData, "employee"));
+  // Add the data items and verify (only updates staging data)
+  TEST_TRUE(MyConfig->Add(*MyData1, MyData1->Key()));
+  TEST_TRUE(MyConfig->IsModified());
+  TEST_TRUE(MyConfig->Add(*MyData2, MyData2->Key()));
+  TEST_TRUE(MyConfig->IsModified());
+  TEST_TRUE(MyConfig->Add(*MyData3, MyData3->Key()));
+  TEST_TRUE(MyConfig->IsModified());
+  MyConfig->Display();
 
   // Commit data and verify
   TEST_TRUE(MyConfig->Commit());
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_TRUE(ConfData.Get(ObsData, "employee"));
+  TEST_FALSE(MyConfig->IsModified());
+  MyConfig->Display();
+  TEST_TRUE(MyConfig->Get(ObsData, "employee"));
 
   std::unique_ptr < zData::Data > d;
 

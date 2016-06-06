@@ -45,12 +45,19 @@ zSerialTest_PortSendRecvChar(void *arg_)
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
+  // Register port with handler
+  MyHandler->Add(MyPort);
+
   // Open port
   status = MyPort->Open("/dev/MyPort");
   TEST_TRUE(status);
 
   // Send byte
   status = MyPort->SendChar('a');
+  TEST_TRUE(status);
+
+  // Wait for byte to be sent
+  status = MyObserver->TxSem.TimedWait(100000);
   TEST_TRUE(status);
 
   // Wait for byte to be received
@@ -114,6 +121,9 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
+  // Register port with handler
+  MyHandler->Add(MyPort);
+
   // Open port
   status = MyPort->Open("/dev/MyPort");
   TEST_TRUE(status);
@@ -122,6 +132,14 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   memset(exp_buf, 0x55, 100);
   bytes = MyPort->SendBuf(exp_buf, 100);
   TEST_EQ(100, bytes);
+
+  cnt = 0;
+  // Verify data was sent
+  while (MyObserver->TxSem.TimedWait(100000))
+  {
+    ++cnt;
+  }
+  TEST_EQ(cnt, 100);
 
   cnt = 0;
   // Verify data was received
@@ -184,6 +202,9 @@ zSerialTest_PortSendRecvString(void *arg_)
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
+  // Register port with handler
+  MyHandler->Add(MyPort);
+
   // Open port
   status = MyPort->Open("/dev/MyPort");
   TEST_TRUE(status);
@@ -192,7 +213,15 @@ zSerialTest_PortSendRecvString(void *arg_)
   status = MyPort->SendString("test string\n");
   TEST_TRUE(status);
 
-  // Verify data was received
+  // Verify string was sent
+  cnt = 0;
+  while (MyObserver->TxSem.TimedWait(100000))
+  {
+    ++cnt;
+  }
+  TEST_EQ(cnt, 12);
+
+  // Verify string was received
   cnt = 0;
   while (MyObserver->RxSem.TimedWait(100000))
   {

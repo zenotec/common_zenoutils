@@ -111,7 +111,7 @@ public:
     return (status);
   }
 
-  virtual void
+  virtual bool
   Close()
   {
     this->_thread.Join();

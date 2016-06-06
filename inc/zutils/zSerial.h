@@ -52,7 +52,7 @@ public:
 // Class: SerialPort
 //**********************************************************************
 
-class SerialPort
+class SerialPort : public SerialConfiguration, public zEvent::Event
 {
 
 public:
@@ -67,8 +67,16 @@ public:
 
   SerialPort();
 
+  SerialPort(zConfig::Configuration& config_);
+
   virtual
   ~SerialPort();
+
+  virtual bool
+  Open();
+
+  virtual bool
+  Close();
 
   ssize_t
   RecvBuf(void *buf_, size_t len_, size_t timeout_ = 1000000 /* 1 sec */);
@@ -123,7 +131,7 @@ public:
     ID_LAST
   };
 
-  SerialNotification(const SerialNotification::ID id_);
+  SerialNotification(const SerialNotification::ID id_, SerialPort* port_);
 
   virtual
   ~SerialNotification();
@@ -136,6 +144,7 @@ protected:
 private:
 
   SerialNotification::ID _id;
+  SerialPort* _port;
 
 };
 
@@ -154,6 +163,9 @@ public:
 
   bool
   Add(SerialPort *port_);
+
+  bool
+  Remove(SerialPort *port_);
 
 protected:
 

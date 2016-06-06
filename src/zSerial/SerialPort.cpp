@@ -1,7 +1,7 @@
 //*****************************************************************************
 //    Copyright (C) 2015 ZenoTec LLC (http://www.zenotec.net)
 //
-//    File: Port.cpp
+//    File: SerialPort.cpp
 //    Description:
 //
 //*****************************************************************************
@@ -31,11 +31,28 @@ namespace zSerial
 // Class: SerialPort
 //**********************************************************************
 
-SerialPort::SerialPort()
+SerialPort::SerialPort() :
+    zEvent::Event(zEvent::Event::TYPE_SERIAL)
+{
+}
+
+SerialPort::SerialPort(zConfig::Configuration &config_) :
+    zSerial::SerialConfiguration(config_), zEvent::Event(zEvent::Event::TYPE_SERIAL)
 {
 }
 
 SerialPort::~SerialPort()
+{
+  this->Close();
+}
+
+bool
+SerialPort::Open()
+{
+}
+
+bool
+SerialPort::Close()
 {
 }
 
@@ -64,8 +81,8 @@ SerialPort::RecvChar(char *c_, size_t timeout_)
     *c_ = this->rxq.Front();
     this->rxq.Pop();
     status = true;
+    ZLOG_DEBUG(std::string("Received character: ") + *c_);
   }
-  ZLOG_DEBUG(std::string("Received character: ") + *c_);
   return (status);
 }
 
@@ -126,6 +143,8 @@ SerialPort::rxchar(const char c_)
 {
   ZLOG_DEBUG(std::string("Processing rxchar '") + c_ + "'");
   this->rxq.Push(c_);
+  SerialNotification notification(SerialNotification::ID_CHAR_RCVD, this);
+  this->Notify(&notification);
   return (true);
 }
 
@@ -136,31 +155,14 @@ SerialPort::txchar(char *c_, size_t timeout_)
   ZLOG_DEBUG("Getting txchar");
   if (this->txq.TimedWait(timeout_))
   {
-    *c_ = this->rxq.Front();
-    this->rxq.Pop();
+    *c_ = this->txq.Front();
+    this->txq.Pop();
+    SerialNotification notification(SerialNotification::ID_CHAR_SENT, this);
+    this->Notify(&notification);
     status = true;
+    ZLOG_DEBUG(std::string("Got character: ") + *c_);
   }
-  ZLOG_DEBUG(std::string("Got character: ") + *c_);
   return (status);
-}
-
-//**********************************************************************
-// Class: SerialNotification
-//**********************************************************************
-
-SerialNotification::SerialNotification(const SerialNotification::ID id_) :
-    _id(id_)
-{
-}
-
-SerialNotification::~SerialNotification()
-{
-}
-
-SerialNotification::ID
-SerialNotification::Id() const
-{
-  return(this->_id);
 }
 
 

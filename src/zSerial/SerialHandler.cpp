@@ -18,6 +18,7 @@
 
 #include <zutils/zQueue.h>
 #include <zutils/zData.h>
+#include <zutils/zThread.h>
 #include <zutils/zEvent.h>
 #include <zutils/zConfig.h>
 #include <zutils/zSerial.h>
@@ -33,18 +34,32 @@ namespace zSerial
 
 SerialHandler::SerialHandler()
 {
-
 }
 
 SerialHandler::~SerialHandler()
 {
-
+  std::list<SerialPort*>::iterator it = this->_port_list.begin();
+  std::list<SerialPort*>::iterator end = this->_port_list.end();
+  for (; it != end; ++it)
+  {
+    this->UnregisterEvent(*it);
+    (*it)->Close();
+  }
+  this->_port_list.clear();
 }
 
 bool
 SerialHandler::Add(SerialPort *port_)
 {
-
+  bool status = false;
+  if (port_ && (port_->Open()))
+  {
+    this->RegisterEvent(port_);
+    this->_port_list.push_back(port_);
+    this->_port_list.unique();
+    status = true;
+  }
+  return (status);
 }
 
 }

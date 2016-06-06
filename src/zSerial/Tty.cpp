@@ -29,6 +29,40 @@ namespace zUtils
 namespace zSerial
 {
 
+const std::string TtySerialConfiguration::ConfigBaudPath = "";
+const std::string TtySerialConfiguration::ConfigBaudNone = "";
+const std::string TtySerialConfiguration::ConfigBaud9600 = "";
+const std::string TtySerialConfiguration::ConfigBaud19200 = "";
+const std::string TtySerialConfiguration::ConfigBaud38400 = "";
+const std::string TtySerialConfiguration::ConfigBaud57600 = "";
+const std::string TtySerialConfiguration::ConfigBaud115200 = "";
+const std::string TtySerialConfiguration::ConfigBaudDefault = "";
+
+const std::string TtySerialConfiguration::ConfigDatabitsPath = "";
+const std::string TtySerialConfiguration::ConfigDatabitsNone = "";
+const std::string TtySerialConfiguration::ConfigDatabits5 = "";
+const std::string TtySerialConfiguration::ConfigDatabits6 = "";
+const std::string TtySerialConfiguration::ConfigDatabits7 = "";
+const std::string TtySerialConfiguration::ConfigDatabits8 = "";
+const std::string TtySerialConfiguration::ConfigDatabitsDefault = "";
+
+const std::string TtySerialConfiguration::ConfigStopbitsPath = "";
+const std::string TtySerialConfiguration::ConfigStopbitsNone = "";
+const std::string TtySerialConfiguration::ConfigStopbits1 = "";
+const std::string TtySerialConfiguration::ConfigStopbits2 = "";
+const std::string TtySerialConfiguration::ConfigStopbitsDefault = "";
+
+const std::string TtySerialConfiguration::ConfigParityPath = "";
+const std::string TtySerialConfiguration::ConfigParityNone = "";
+const std::string TtySerialConfiguration::ConfigParityOdd = "";
+const std::string TtySerialConfiguration::ConfigParityEven = "";
+const std::string TtySerialConfiguration::ConfigParityDefault = "";
+
+const std::string TtySerialConfiguration::ConfigFlowPath = "";
+const std::string TtySerialConfiguration::ConfigFlowNone = "";
+const std::string TtySerialConfiguration::ConfigFlowHard = "";
+const std::string TtySerialConfiguration::ConfigFlowDefault = "";
+
 //*****************************************************************************
 // TtyPort Class
 //*****************************************************************************
@@ -82,7 +116,7 @@ TtyPort::Open(const std::string &dev_)
   return (status);
 }
 
-void
+bool
 TtyPort::Close()
 {
   if (this->_fd)
@@ -93,7 +127,7 @@ TtyPort::Close()
     close(this->_fd);
     this->_fd = 0;
   }
-  return;
+  return(true);
 }
 
 TtyPort::BAUD
@@ -209,7 +243,6 @@ TtyPort::SetStopBits(TtyPort::STOPBITS sbits_)
   // Don't support changing stop bits after port is open
   if (!this->_fd)
   {
-
     switch (sbits_)
     {
     case TtyPort::STOPBITS_1:
@@ -226,7 +259,6 @@ TtyPort::SetStopBits(TtyPort::STOPBITS sbits_)
       this->_sbits = TtyPort::STOPBITS_ERR;
       status = false;
     }
-
   }
 
   return (status);
@@ -354,7 +386,6 @@ TtyPortRecv::ThreadFunction(void *arg_)
     char c = 0;
     if ((read(port->_fd, &c, 1) == 1))
     {
-      printf("1:%c\n", c);
       ZLOG_DEBUG(std::string("Received char: '") + zLog::IntStr(c) + ": " + c + "'");
       port->rxchar(c);
     }
