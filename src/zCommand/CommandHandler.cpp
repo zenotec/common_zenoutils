@@ -5,7 +5,15 @@
  *      Author: kmahoney
  */
 
+
+#include <string>
+#include <mutex>
 #include <list>
+#include <map>
+
+#include <zutils/zEvent.h>
+#include <zutils/zData.h>
+#include <zutils/zMessage.h>
 
 #include <zutils/zCommand.h>
 
@@ -108,7 +116,7 @@ CommandHandler::ProcessCommandString(const std::string &str_)
   {
 
     // Get command string off the list
-    Command cmd(commands.front());
+    zCommand::Command cmd(commands.front());
     commands.pop_front();
 
     // Lookup command name in table and execute

@@ -8,13 +8,6 @@
 #ifndef _ZCOMMAND_H_
 #define _ZCOMMAND_H_
 
-#include <string>
-#include <map>
-
-#include <zutils/zEvent.h>
-#include <zutils/zData.h>
-#include <zutils/zMessage.h>
-
 namespace zUtils
 {
 namespace zCommand
@@ -66,7 +59,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
+  EventHandler(const EventNotification* notification_);
 
 private:
 
@@ -92,21 +85,21 @@ private:
 
 };
 
-class CommandEvent : public zEvent::Event
+class CommandNotification : public zEvent::EventNotification
 {
 public:
 
-  enum EVENTID
+  enum ID
   {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_LAST
+    ID_ERR = -1,
+    ID_NONE = 0,
+    ID_LAST
   };
 
-  CommandEvent(const CommandEvent::EVENTID id_);
+  CommandNotification(const CommandNotification::ID id_);
 
   virtual
-  ~CommandEvent();
+  ~CommandNotification();
 
 protected:
 

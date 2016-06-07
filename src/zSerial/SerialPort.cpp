@@ -62,10 +62,10 @@ SerialPort::RecvBuf(void *buf_, size_t len_, size_t timeout_)
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
   ZLOG_DEBUG("Receiving");
-  while (this->rxq.TimedWait(timeout_) && len_--)
+  while (this->_rxq.TimedWait(timeout_) && len_--)
   {
-    buf[bytes++] = this->rxq.Front();
-    this->rxq.Pop();
+    buf[bytes++] = this->_rxq.Front();
+    this->_rxq.Pop();
   }
   ZLOG_DEBUG(std::string("Received Bytes: ") + zLog::IntStr(bytes));
   return (bytes);
@@ -76,10 +76,10 @@ SerialPort::RecvChar(char *c_, size_t timeout_)
 {
   bool status = false;
   ZLOG_DEBUG("Receiving");
-  if (this->rxq.TimedWait(timeout_))
+  if (this->_rxq.TimedWait(timeout_))
   {
-    *c_ = this->rxq.Front();
-    this->rxq.Pop();
+    *c_ = this->_rxq.Front();
+    this->_rxq.Pop();
     status = true;
     ZLOG_DEBUG(std::string("Received character: ") + *c_);
   }
@@ -92,11 +92,11 @@ SerialPort::RecvString(std::string &str_, size_t timeout_)
   bool status = false;
   ZLOG_DEBUG("Receiving");
   str_.clear();
-  while (this->rxq.TimedWait(timeout_))
+  while (this->_rxq.TimedWait(timeout_))
   {
     char c = 0;
-    c = this->rxq.Front();
-    this->rxq.Pop();
+    c = this->_rxq.Front();
+    this->_rxq.Pop();
     ZLOG_DEBUG(std::string("Received character: ") + c);
     if (iscntrl(c))
     {
@@ -118,7 +118,7 @@ SerialPort::SendBuf(const void *buf_, size_t len_)
   ZLOG_DEBUG("Sending " + zLog::IntStr(len_) + " bytes");
   while (len_--)
   {
-    this->txq.Push(buf[bytes++]);
+    this->_txq.Push(buf[bytes++]);
   }
   return (bytes);
 }
@@ -127,7 +127,7 @@ bool
 SerialPort::SendChar(const char c_)
 {
   ZLOG_DEBUG(std::string("Sending '") + c_ + "'");
-  this->txq.Push(c_);
+  this->_txq.Push(c_);
   return (true);
 }
 
@@ -142,7 +142,7 @@ bool
 SerialPort::rxchar(const char c_)
 {
   ZLOG_DEBUG(std::string("Processing rxchar '") + c_ + "'");
-  this->rxq.Push(c_);
+  this->_rxq.Push(c_);
   SerialNotification notification(SerialNotification::ID_CHAR_RCVD, this);
   this->Notify(&notification);
   return (true);
@@ -153,10 +153,10 @@ SerialPort::txchar(char *c_, size_t timeout_)
 {
   bool status = false;
   ZLOG_DEBUG("Getting txchar");
-  if (this->txq.TimedWait(timeout_))
+  if (this->_txq.TimedWait(timeout_))
   {
-    *c_ = this->txq.Front();
-    this->txq.Pop();
+    *c_ = this->_txq.Front();
+    this->_txq.Pop();
     SerialNotification notification(SerialNotification::ID_CHAR_SENT, this);
     this->Notify(&notification);
     status = true;

@@ -1,11 +1,9 @@
 #SUBDIRS = \
-#	zCommand \
 #	zException \
-#	zLed \
-#	zLcd \
-#	zSocket \
 #	zMessage \
 #	zSwitch \
+#	zCommand \
+#	zLcd \
 #	zThermo
 
 SUBDIRS = \
@@ -19,7 +17,9 @@ SUBDIRS = \
 	zTimer	\
 	zConfig \
 	zGpio \
-	zSerial
+	zLed \
+	zSerial \
+	zSocket
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -67,14 +67,12 @@ libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 #libzutils_la_LIBADD = \
-#    ${top_builddir}/src/zCommand/libzCommand.la \
 #    ${top_builddir}/src/zException/libzException.la \
-#    ${top_builddir}/src/zLed/libzLed.la \
-#    ${top_builddir}/src/zLcd/libzLcd.la \
 #    ${top_builddir}/src/zMessage/libzMessage.la \
 #    ${top_builddir}/src/zSwitch/libzSwitch.la \
 #    ${top_builddir}/src/zThermo/libzThermo.la \
-#    ${top_builddir}/src/zSocket/libzSocket.la
+#    ${top_builddir}/src/zCommand/libzCommand.la \
+#    ${top_builddir}/src/zLcd/libzLcd.la
 
 libzutils_la_LIBADD = \
     ${top_builddir}/src/zLog/libzLog.la \
@@ -87,6 +85,8 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zSignal/libzSignal.la \
     ${top_builddir}/src/zConfig/libzConfig.la \
     ${top_builddir}/src/zGpio/libzGpio.la \
-    ${top_builddir}/src/zSerial/libzSerial.la
+    ${top_builddir}/src/zLed/libzLed.la \
+    ${top_builddir}/src/zSerial/libzSerial.la \
+    ${top_builddir}/src/zSocket/libzSocket.la
     
     

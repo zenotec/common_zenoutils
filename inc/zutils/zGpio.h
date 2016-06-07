@@ -252,6 +252,9 @@ public:
   bool
   Add(GpioPort *port_);
 
+  bool
+  Remove(GpioPort *port_);
+
   GpioPort::STATE
   Get();
 
@@ -279,6 +282,12 @@ public:
 
   virtual
   ~GpioNotification();
+
+  zGpio::GpioPort::STATE
+  State();
+
+  zGpio::GpioPort*
+  Port();
 
 protected:
 

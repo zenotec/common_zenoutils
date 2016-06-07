@@ -39,6 +39,11 @@ SerialNotification::Id() const
   return(this->_id);
 }
 
+SerialPort*
+SerialNotification::Port()
+{
+  return(this->_port);
+}
 
 }
 }

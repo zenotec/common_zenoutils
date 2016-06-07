@@ -152,4 +152,50 @@ private:
 
 };
 
+class TestObserver : public zEvent::EventObserver
+{
+public:
+  TestObserver()
+  {
+  }
+
+  virtual
+  ~TestObserver()
+  {
+  }
+
+  zSem::Semaphore HiSem;
+  zSem::Semaphore LoSem;
+  zSem::Semaphore ErrSem;
+
+protected:
+
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_)
+  {
+    bool status = false;
+    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_GPIO))
+    {
+      zGpio::GpioNotification *n = (zGpio::GpioNotification *)notification_;
+      if (n->State() == zGpio::GpioPort::STATE_ACTIVE)
+      {
+        this->HiSem.Post();
+      }
+      else if (n->State() == zGpio::GpioPort::STATE_INACTIVE)
+      {
+        this->LoSem.Post();
+      }
+      else
+      {
+        this->ErrSem.Post();
+      }
+    }
+    return (status);
+  }
+
+private:
+
+
+};
+
 #endif /* GPIOHANDLERTEST_H_ */

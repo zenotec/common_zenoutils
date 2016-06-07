@@ -66,29 +66,6 @@ AC_CHECK_FUNCS([memset getpid sem_init strerror])
 com_incdir='-I${top_srcdir}/inc'
 AC_SUBST([com_incdir])
 
-#AC_CONFIG_FILES([
-#    Makefile
-#      src/Makefile
-#        src/zCommand/Makefile
-#        src/zException/Makefile
-#        src/zLcd/Makefile
-#        src/zLed/Makefile
-#        src/zMessage/Makefile
-#        src/zNode/Makefile
-#        src/zSocket/Makefile
-#        src/zSwitch/Makefile
-#        src/zThermo/Makefile
-#      test/Makefile
-#        test/zCommand/Makefile
-#        test/zLed/Makefile
-#        test/zLcd/Makefile
-#        test/zMessage/Makefile
-#        test/zNode/Makefile
-#        test/zSocket/Makefile
-#        test/zSwitch/Makefile
-#        test/zThermo/Makefile
-#])
-
 AC_CONFIG_FILES([
     Makefile
       src/Makefile
@@ -102,7 +79,9 @@ AC_CONFIG_FILES([
         src/zTimer/Makefile
         src/zConfig/Makefile
         src/zGpio/Makefile
+        src/zLed/Makefile
         src/zSerial/Makefile
+        src/zSocket/Makefile
       test/Makefile
         test/zThread/Makefile
         test/zProgOpt/Makefile
@@ -114,7 +93,9 @@ AC_CONFIG_FILES([
         test/zTimer/Makefile
         test/zConfig/Makefile
         test/zGpio/Makefile
+        test/zLed/Makefile
         test/zSerial/Makefile
+        test/zSocket/Makefile
 ])
 
 # Boost checks

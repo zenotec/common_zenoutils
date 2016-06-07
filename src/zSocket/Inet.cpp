@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -20,7 +21,18 @@
 
 #include <sstream>
 
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
 #include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+
+#include <zutils/zSocket.h>
 #include <zutils/zInet.h>
 
 namespace zUtils
@@ -309,12 +321,12 @@ InetSocketRecv::ThreadFunction(void *arg_)
   {
     ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
     InetAddress addr;
-    SocketBuffer sb;
-    bytes = sock->_recv(addr, sb);
+    std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
+    bytes = sock->_recv(addr, *sb);
     if (bytes > 0)
     {
-      sock->rxq.Push(std::make_pair(addr, sb));
-      sock->rx_event.Notify(sock);
+      SocketAddressBufferPair p(addr, sb);
+      sock->rxbuf(p);
     }
   } // end if
 
@@ -335,7 +347,6 @@ void *
 InetSocketSend::ThreadFunction(void *arg_)
 {
   InetSocket *sock = (InetSocket *) arg_;
-  ssize_t bytes = -1;
 
   ZLOG_DEBUG("TX: Polling socket for data");
 
@@ -344,21 +355,16 @@ InetSocketSend::ThreadFunction(void *arg_)
   fds[0].fd = sock->_sock;
   fds[0].events = (POLLOUT | POLLERR);
   int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT) && sock->txq.TimedWait(100000))
+  if (ret > 0 && (fds[0].revents == POLLOUT))
   {
-    InetAddress addr(sock->txq.Front().first);
-    SocketBuffer sb(sock->txq.Front().second);
-
-    ZLOG_DEBUG("Sending packet: " + addr.GetAddress() + "(" + zLog::IntStr(sb.Size()) + ")");
-
-    if ((bytes = sock->_send(addr, sb)) == sb.Size())
+    SocketAddressBufferPair p;
+    if (sock->txbuf(p, 100000))
     {
-      sock->txq.Pop();
-      sock->tx_event.Notify(sock);
-    }
-    else
-    {
-      ZLOG_ERR("Error sending packet: " + zLog::IntStr(bytes));
+      ZLOG_DEBUG("Sending packet: " + p.first.GetAddress() + "(" + zLog::IntStr(p.second->Size()) + ")");
+      if (sock->_send(p.first, *p.second) != p.second->Size())
+      {
+        ZLOG_ERR("Error sending packet");
+      }
     }
   }
 

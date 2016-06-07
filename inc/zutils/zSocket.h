@@ -9,25 +9,10 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
-#include <stdint.h>
-#include <netinet/in.h>
-
-#include <string>
-#include <list>
-
-#include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-
 namespace zUtils
 {
 namespace zSocket
 {
-
-class Handler;
-class SocketFactory;
 
 //**********************************************************************
 // zSocket::SocketBuffer Class
@@ -173,53 +158,14 @@ private:
 
 };
 
-//**********************************************************************
-// zSocket::SocketEvent Class
-//**********************************************************************
-
-class SocketEvent : public zEvent::Event
-{
-public:
-
-  enum EVENTID
-  {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_PKT_RCVD = 1,
-    EVENTID_PKT_SENT = 2,
-    EVENTID_PKT_ERR = 3,
-    EVENTID_LAST
-  };
-
-  SocketEvent(const SocketEvent::EVENTID id_);
-
-  virtual
-  ~SocketEvent();
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
-// zSocket::SocketObserver Class
-//**********************************************************************
-
-class SocketObserver : public zEvent::EventObserver
-{
-public:
-  SocketObserver();
-
-  virtual
-  ~SocketObserver();
-};
+typedef std::pair<SocketAddress, std::shared_ptr<SocketBuffer> > SocketAddressBufferPair;
+typedef zQueue <SocketAddressBufferPair> SocketBufferQueue;
 
 //**********************************************************************
 // zSocket::Socket Class
 //**********************************************************************
 
-class Socket : public zEvent::EventHandler
+class Socket : public zEvent::Event
 {
 
 public:
@@ -264,10 +210,16 @@ public:
   Connect(const zSocket::SocketAddress &addr_);
 
   ssize_t
+  Receive(SocketAddressBufferPair &pair_);
+
+  ssize_t
   Receive(zSocket::SocketAddress &from_, zSocket::SocketBuffer &sb_);
 
   ssize_t
   Receive(zSocket::SocketAddress &from_, std::string &str_);
+
+  ssize_t
+  Send(SocketAddressBufferPair &pair_);
 
   ssize_t
   Send(const zSocket::SocketAddress &to_, zSocket::SocketBuffer &sb_);
@@ -279,18 +231,115 @@ protected:
 
   zSocket::Socket::TYPE _type;
 
-  zSocket::SocketEvent rx_event;
-  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > rxq;
+  // Called to process a received packet
+  bool
+  rxbuf(SocketAddressBufferPair &pair_);
 
-  zSocket::SocketEvent tx_event;
-  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > txq;
-
-  zSocket::SocketEvent err_event;
-  zQueue<std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> > errq;
+  // Called to get packet to send
+  bool
+  txbuf(SocketAddressBufferPair &pair_, size_t timeout_ = 1000000 /* 1 sec */);
 
 private:
 
   zSocket::SocketAddress _addr;
+
+  SocketBufferQueue _rxq;
+  SocketBufferQueue _txq;
+
+};
+
+//**********************************************************************
+// zSocket::SocketNotification Class
+//**********************************************************************
+
+class SocketNotification : public zEvent::EventNotification
+{
+public:
+
+  enum ID
+  {
+    ID_ERR = -1,
+    ID_NONE = 0,
+    ID_PKT_RCVD = 1,
+    ID_PKT_SENT = 2,
+    ID_PKT_ERR = 3,
+    ID_LAST
+  };
+
+  SocketNotification(const SocketNotification::ID id_, Socket* sock_);
+
+  virtual
+  ~SocketNotification();
+
+  SocketNotification::ID
+  Id() const;
+
+  zSocket::Socket*
+  Sock();
+
+protected:
+
+private:
+
+  SocketNotification::ID _id;
+  Socket* _sock;
+
+};
+
+//**********************************************************************
+// Class: SocketHandler
+//**********************************************************************
+
+class SocketHandler : public zEvent::EventHandler
+{
+public:
+
+  SocketHandler();
+
+  virtual
+  ~SocketHandler();
+
+  bool
+  Add(Socket *sock_);
+
+  bool
+  Remove(Socket *sock_);
+
+protected:
+
+private:
+
+  std::list<Socket *> _sock_list;
+
+};
+
+//**********************************************************************
+// Class: SocketManager
+//**********************************************************************
+
+class SocketManager : public SocketHandler
+{
+public:
+
+  static SocketManager&
+  Instance()
+  {
+    static SocketManager instance;
+    return instance;
+  }
+
+protected:
+
+private:
+
+  SocketManager()
+  {
+  }
+
+  SocketManager(SocketManager const&);
+
+  void
+  operator=(SocketManager const&);
 
 };
 

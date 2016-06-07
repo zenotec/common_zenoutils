@@ -6,9 +6,21 @@
 //
 //*****************************************************************************
 
+#include <stdint.h>
+#include <netinet/in.h>
 #include <string.h>
 
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
 #include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -17,39 +29,17 @@ namespace zSocket
 {
 
 //*****************************************************************************
-// zSocket::SocketEvent Class
-//*****************************************************************************
-
-SocketEvent::SocketEvent(const SocketEvent::EVENTID id_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET, id_)
-{
-}
-
-SocketEvent::~SocketEvent()
-{
-}
-
-//*****************************************************************************
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket() :
-    _type(TYPE_NONE),
-        rx_event(SocketEvent::EVENTID_PKT_RCVD),
-        tx_event(SocketEvent::EVENTID_PKT_SENT),
-        err_event(SocketEvent::EVENTID_PKT_ERR)
+    _type(TYPE_NONE)
 {
   ZLOG_DEBUG("Creating socket: '" + zLog::PointerStr(this) + "'");
-  this->RegisterEvent(&this->rx_event);
-  this->RegisterEvent(&this->tx_event);
-  this->RegisterEvent(&this->err_event);
 }
 
 Socket::~Socket()
 {
   ZLOG_DEBUG("Destroying socket: '" + zLog::PointerStr(this) + "'");
-  this->UnregisterEvent(&this->rx_event);
-  this->UnregisterEvent(&this->tx_event);
-  this->UnregisterEvent(&this->err_event);
 }
 
 zSocket::Socket::TYPE
@@ -101,31 +91,35 @@ Socket::Connect(const zSocket::SocketAddress &addr_)
 }
 
 ssize_t
-Socket::Receive(SocketAddress &addr_, SocketBuffer &sb_)
+Socket::Receive(SocketAddressBufferPair &pair_)
 {
 
   ssize_t bytes = -1;
 
-  if (this->rxq.TimedWait(100000) && !this->rxq.Empty())
+  if (!this->_rxq.Empty())
   {
+    pair_ = this->_rxq.Front();
+    this->_rxq.Pop();
+    ZLOG_DEBUG("Received packet: " + pair_.first.GetAddress() + "(" + zLog::IntStr(pair_.second->Size()) + ")");
+    bytes = pair_.second->Size();
+  }
 
-    // Copy address */
-    addr_ = this->rxq.Front().first;
+  // Return number of bytes received
+  return (bytes);
 
-    // Copy to caller's socket buffer */
-    sb_ = this->rxq.Front().second;
+}
 
-    // Update number of bytes received
-    bytes = sb_.Size();
+ssize_t
+Socket::Receive(SocketAddress &addr_, SocketBuffer &sb_)
+{
 
-    ZLOG_DEBUG("Received packet: " + this->rxq.Front().first.GetAddress() +
-        "(" + zLog::IntStr(this->rxq.Front().second.Size()) + ")");
+  SocketAddressBufferPair p;
+  ssize_t bytes = this->Receive(p);
 
-    ZLOG_DEBUG("Received packet: " + addr_.GetAddress() + "(" + zLog::IntStr(sb_.Size()) + ")");
-
-    // Remove from queue
-    this->rxq.Pop();
-
+  if (bytes >= 0)
+  {
+    addr_ = p.first;
+    sb_ = *p.second;
   }
 
   // Return number of bytes received
@@ -136,53 +130,64 @@ Socket::Receive(SocketAddress &addr_, SocketBuffer &sb_)
 ssize_t
 Socket::Receive(SocketAddress &addr_, std::string &str_)
 {
-  ssize_t bytes = 0;
-  zSocket::SocketBuffer *sb = new zSocket::SocketBuffer;
-  if (!sb)
+  SocketAddressBufferPair p;
+  ssize_t bytes = this->Receive(p);
+  if (bytes >= 0)
   {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
+    addr_ = p.first;
+    str_ = p.second->Str();
   }
-  bytes = this->Receive(addr_, *sb);
-  if (bytes > 0)
-  {
-    str_ = sb->Str();
-  }
-  delete (sb);
+
   return (bytes);
+}
+
+ssize_t
+Socket::Send(SocketAddressBufferPair &pair_)
+{
+  ZLOG_DEBUG("Sending packet: " + pair_.first.GetAddress() + "(" + zLog::IntStr(pair_.second->Size()) + ")");
+  this->_txq.Push(pair_);
+  return (pair_.second->Size());
 }
 
 ssize_t
 Socket::Send(const SocketAddress &addr_, SocketBuffer &sb_)
 {
-  ZLOG_DEBUG("Sending packet: " + addr_.GetAddress() + "(" + zLog::IntStr(sb_.Size()) + ")");
-  std::pair<zSocket::SocketAddress, zSocket::SocketBuffer> p(addr_, sb_);
-  // Check for address match
-  if (addr_.GetAddress() == this->GetAddress().GetAddress())
-  {
-    ZLOG_INFO("Address matches self");
-    this->rxq.Push(p);
-    this->tx_event.Notify(this);
-    this->rx_event.Notify(this);
-  }
-  else
-  {
-    this->txq.Push(p);
-  }
-  return (sb_.Size());
+  std::shared_ptr<SocketBuffer> sb(new SocketBuffer(sb_));
+  SocketAddressBufferPair p(addr_, sb);
+  return (this->Send(p));
 }
 
 ssize_t
 Socket::Send(const SocketAddress &addr_, const std::string &str_)
 {
-  ssize_t bytes = 0;
-  SocketBuffer *sb = new SocketBuffer;
-  memcpy(sb->Head(), str_.c_str(), str_.size());
-  sb->Put(str_.size());
-  bytes = this->Send(addr_, *sb);
-  delete(sb);
-  return (bytes);
+  std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
+  sb->Str(str_);
+  SocketAddressBufferPair p(addr_, sb);
+  return (this->Send(p));
+}
+
+bool
+Socket::rxbuf(SocketAddressBufferPair &pair_)
+{
+  this->_rxq.Push(pair_);
+  SocketNotification notification(SocketNotification::ID_PKT_RCVD, this);
+  this->Notify(&notification);
+  return(true);
+}
+
+bool
+Socket::txbuf(SocketAddressBufferPair &pair_, size_t timeout_)
+{
+  bool status = false;
+  if (this->_txq.TimedWait(timeout_))
+  {
+    pair_ = this->_txq.Front();
+    this->_txq.Pop();
+    SocketNotification notification(SocketNotification::ID_PKT_SENT, this);
+    this->Notify(&notification);
+    status = true;
+  }
+  return(status);
 }
 
 }

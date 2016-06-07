@@ -38,6 +38,7 @@ public:
     TYPE_CONFIG = 4,
     TYPE_GPIO = 5,
     TYPE_SERIAL = 6,
+    TYPE_SOCKET = 7,
     TYPE_LAST
   };
 

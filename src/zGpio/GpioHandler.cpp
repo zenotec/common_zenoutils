@@ -43,11 +43,25 @@ bool
 GpioHandler::Add(GpioPort* port_)
 {
   bool status = false;
-  if (port_->Open() >= 0)
+  if (port_ && (port_->Open() >= 0))
   {
     this->_port_list.push_back(port_);
     this->_port_list.unique();
     this->RegisterEvent(port_);
+    status = true;
+  }
+  return (status);
+}
+
+bool
+GpioHandler::Remove(GpioPort* port_)
+{
+  bool status = false;
+
+  if (port_ && port_->Close())
+  {
+    this->_port_list.remove(port_);
+    this->UnregisterEvent(port_);
     status = true;
   }
   return (status);

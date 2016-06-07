@@ -9,9 +9,22 @@
 #define _ZSOCKETTEST_H_
 
 #include <unistd.h>
+#include <stdint.h>
+#include <netinet/in.h>
+#include <string.h>
+
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
 
 #include <zutils/zSocket.h>
-#include <zutils/zQueue.h>
 
 #include "UnitTest.h"
 
@@ -73,21 +86,21 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_)
+  EventHandler(const zEvent::EventNotification* notification_)
   {
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (event_ && (event_->Type() == zEvent::Event::TYPE_SOCKET))
+    zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
+    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
     {
-      zSocket::SocketEvent::EVENTID id = (zSocket::SocketEvent::EVENTID)event_->Id();
-      switch(id)
+      switch (n->Id())
       {
-      case zSocket::SocketEvent::EVENTID_PKT_RCVD:
+      case zSocket::SocketNotification::ID_PKT_RCVD:
         this->RxSem.Post();
         status = true;
         break;
-      case zSocket::SocketEvent::EVENTID_PKT_SENT:
+      case zSocket::SocketNotification::ID_PKT_SENT:
         this->TxSem.Post();
         status = true;
         break;
@@ -104,82 +117,71 @@ private:
 
 };
 
-class TestSocket: public zSocket::Socket
+class TestSocket : public zSocket::Socket
 {
 public:
-    TestSocket(const zSocket::SocketAddress &addr_) :
-            _opened(false), _bound(false), _connected(false)
-    {
-      this->SetAddress(addr_);
-    }
+  TestSocket(const zSocket::SocketAddress &addr_) :
+      _opened(false), _bound(false), _connected(false)
+  {
+    this->SetAddress(addr_);
+  }
 
-    virtual ~TestSocket()
-    {
-    }
+  virtual
+  ~TestSocket()
+  {
+  }
 
-    virtual bool Open()
+  virtual bool
+  Open()
+  {
+    bool status = false;
+    if (!this->_opened)
     {
-        bool status = false;
-        if (!this->_opened)
-        {
-            this->_opened = true;
-            status = true;
-        }
-        return (status);
+      this->_opened = true;
+      status = true;
     }
+    return (status);
+  }
 
-    virtual void Close()
+  virtual void
+  Close()
+  {
+    this->_opened = false;
+    return;
+  }
+
+  virtual bool
+  Bind()
+  {
+    bool status = false;
+    if (this->_opened && !this->_bound && !this->_connected)
     {
-        this->_opened = false;
-        return;
+      this->_bound = true;
+      status = true;
     }
+    return (status);
+  }
 
-    virtual bool Bind()
+  virtual bool
+  Connect()
+  {
+    bool status = false;
+    if (this->_opened && !this->_bound && !this->_connected)
     {
-        bool status = false;
-        if (this->_opened && !this->_bound && !this->_connected)
-        {
-            this->_bound = true;
-            status = true;
-        }
-        return (status);
+      this->_connected = true;
+      status = true;
     }
-
-    virtual bool Connect()
-    {
-        bool status = false;
-        if (this->_opened && !this->_bound && !this->_connected)
-        {
-            this->_connected = true;
-            status = true;
-        }
-        return (status);
-    }
-
+    return (status);
+  }
 
 protected:
 
-    virtual ssize_t _send(const zSocket::SocketAddress *addr_, zSocket::SocketBuffer *sb_)
-    {
-        zSocket::SocketAddress addr(this->GetAddress());
-        zSocket::SocketBuffer sb(*sb_);
-        this->rxq.Push(std::make_pair(addr, sb));
-        return (sb.Size());
-    }
-
-    virtual ssize_t _broadcast(zSocket::SocketBuffer *sb_)
-    {
-        zSocket::SocketAddress addr(this->GetAddress());
-        zSocket::SocketBuffer sb(*sb_);
-        this->rxq.Push(std::make_pair(addr, sb));
-        return (sb.Size());
-    }
 
 private:
 
-    bool _opened;
-    bool _bound;
-    bool _connected;
+  bool _opened;
+  bool _bound;
+  bool _connected;
 
 };
 

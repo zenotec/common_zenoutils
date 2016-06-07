@@ -62,5 +62,18 @@ SerialHandler::Add(SerialPort *port_)
   return (status);
 }
 
+bool
+SerialHandler::Remove(SerialPort *port_)
+{
+  bool status = false;
+  if (port_ && (port_->Close()))
+  {
+    this->UnregisterEvent(port_);
+    this->_port_list.remove(port_);
+    status = true;
+  }
+  return (status);
+}
+
 }
 }

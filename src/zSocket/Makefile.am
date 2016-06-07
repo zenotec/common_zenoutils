@@ -11,6 +11,8 @@ noinst_LTLIBRARIES = libzSocket.la
 libzSocket_la_SOURCES = \
     SocketBuffer.cpp \
     SocketAddress.cpp \
+    SocketNotification.cpp \
     Socket.cpp \
+    SocketHandler.cpp \
     Inet.cpp
 

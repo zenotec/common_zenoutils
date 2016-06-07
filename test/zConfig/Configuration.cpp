@@ -166,6 +166,7 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   // Create new configuration data item and verify
   zConfig::Configuration *MyConfig = new zConfig::Configuration;
   TEST_ISNOT_NULL(MyConfig);
+  TEST_FALSE(MyConfig->IsModified());
 
   // Create new data item and verify
   zData::Data *MyData1 = new zData::Data("employee");
@@ -210,12 +211,12 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   TEST_TRUE(MyConfig->IsModified());
   TEST_TRUE(MyConfig->Add(*MyData3, MyData3->Key()));
   TEST_TRUE(MyConfig->IsModified());
-  MyConfig->Display();
+  //MyConfig->Display();
 
   // Commit data and verify
   TEST_TRUE(MyConfig->Commit());
   TEST_FALSE(MyConfig->IsModified());
-  MyConfig->Display();
+  //MyConfig->Display();
   TEST_TRUE(MyConfig->Get(ObsData, "employee"));
 
   std::unique_ptr < zData::Data > d;

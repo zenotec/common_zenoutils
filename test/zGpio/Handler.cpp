@@ -33,21 +33,15 @@ zGpioTest_HandlerAddPort(void* arg)
   zGpio::GpioPort* MyPort = new zGpio::GpioPort(*MyConf);
   TEST_ISNOT_NULL(MyPort);
 
-//  // Create new GPIO handler and verify
-//  zGpio::Handler* MyHandler = new zGpio::Handler;
-//  TEST_ISNOT_NULL(MyHandler);
-//
-//  // Try to get nonexistent GPIO; should fail
-//  zGpio::Port* expGpioPort = myHandler->GetPort(1);
-//  TEST_IS_NULL(expGpioPort);
-//
-//  // Add GpioPort and verify
-//  TEST_TRUE(myHandler->AddPort(myPort));
-//  expGpioPort = MyHandler->GetPort(1);
-//  TEST_EQ((int )expGpioPort->GetId(), (int )MyPort->GetId());
-//
-//  // Clean up
-//  delete (MyHandler);
+  // Create new GPIO handler and verify
+  zGpio::GpioHandler* MyHandler = new zGpio::GpioHandler;
+  TEST_ISNOT_NULL(MyHandler);
+
+  // Add GpioPort and verify
+  TEST_TRUE(MyHandler->Add(MyPort));
+
+  // Clean up
+  delete (MyHandler);
   delete (MyPort);
   delete (MyConf);
   return (0);
@@ -93,34 +87,46 @@ zGpioTest_HandlerOnOff(void* arg)
   zGpio::GpioHandler* MyHandler = new zGpio::GpioHandler;
   TEST_ISNOT_NULL(MyHandler);
 
+  // Create new GPIO event observer
+  TestObserver* MyObserver = new TestObserver;
+  TEST_ISNOT_NULL(MyObserver);
+
+  // Register observer with handler
+  TEST_TRUE(MyHandler->RegisterObserver(MyObserver));
+
   // Add GPIO ports and verify
   TEST_TRUE(MyHandler->Add(MyPort1));
   TEST_TRUE(MyHandler->Add(MyPort2));
 
   // Set state to inactive
   TEST_TRUE(MyHandler->Set(zGpio::GpioPort::STATE_INACTIVE));
+  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyHandler->Get());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort1->Get());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort2->Get());
-  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyHandler->Get());
 
   // Set state to active
   TEST_TRUE(MyHandler->Set(zGpio::GpioPort::STATE_ACTIVE));
+  TEST_EQ(zGpio::GpioPort::STATE_ACTIVE, MyHandler->Get());
   TEST_EQ(zGpio::GpioPort::STATE_ACTIVE, MyPort1->Get());
   TEST_EQ(zGpio::GpioPort::STATE_ACTIVE, MyPort2->Get());
-  TEST_EQ(zGpio::GpioPort::STATE_ACTIVE, MyHandler->Get());
 
   // Set state to inactive
   TEST_TRUE(MyHandler->Set(zGpio::GpioPort::STATE_INACTIVE));
+  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyHandler->Get());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort1->Get());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort2->Get());
-  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyHandler->Get());
+
+  // Unregister observer
+  TEST_TRUE(MyHandler->UnregisterObserver(MyObserver));
 
   // Clean up
+  delete (MyObserver);
   delete (MyHandler);
   delete (MyPort2);
   delete (MyPort1);
   delete (MyConfig2);
   delete (MyConfig1);
+
   return (0);
 }
 

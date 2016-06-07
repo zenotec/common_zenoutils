@@ -64,12 +64,19 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind());
 
+  // Create new socket handler and validate
+  zSocket::SocketHandler* MyHandler = new zSocket::SocketHandler;
+  TEST_ISNOT_NULL(MyHandler);
+
+  // Add socket to handler
+  TEST_TRUE(MyHandler->Add(MySock));
+
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_NULL(MyObserver);
 
-  // Register observer with socket
-  MySock->RegisterObserver(MyObserver);
+  // Register observer with socket handler
+  MyHandler->RegisterObserver(MyObserver);
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
@@ -97,10 +104,12 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_EQ(SrcAddr->GetAddress(), DstAddr->GetAddress());
   TEST_EQ(ExpStr, obsStr);
 
+  // Unregister observer with socket handler
+  MyHandler->UnregisterObserver(MyObserver);
+
   // Cleanup
-  MySock->UnregisterObserver(MyObserver);
+  delete (MyHandler);
   delete (MyObserver);
-  MySock->Close();
   delete (MySock);
   delete (DstAddr);
   delete (SrcAddr);
@@ -145,12 +154,19 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock1->Open());
   TEST_TRUE(MySock1->Bind());
 
+  // Create new socket handler and validate
+  zSocket::SocketHandler* MyHandler = new zSocket::SocketHandler;
+  TEST_ISNOT_NULL(MyHandler);
+
+  // Add socket to handler
+  TEST_TRUE(MyHandler->Add(MySock1));
+
   // Create new observer and validate
   TestObserver *MyObserver1 = new TestObserver;
   TEST_ISNOT_NULL(MyObserver1);
 
   // Register observer
-  MySock1->RegisterObserver(MyObserver1);
+  MyHandler->RegisterObserver(MyObserver1);
 
   // Create new socket and validate
   zSocket::InetSocket *MySock2 = new zSocket::InetSocket;
@@ -159,12 +175,15 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock2->Open());
   TEST_TRUE(MySock2->Bind());
 
+  // Add socket to handler
+  TEST_TRUE(MyHandler->Add(MySock2));
+
   // Create new observer and validate
   TestObserver *MyObserver2 = new TestObserver;
   TEST_ISNOT_NULL(MyObserver2);
 
   // Register observer
-  MySock2->RegisterObserver(MyObserver2);
+  MyHandler->RegisterObserver(MyObserver2);
 
   // Send string and validate
   std::string expStr = "Hello Universe";
@@ -197,10 +216,10 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   delete (ObsAddr);
 
   // Cleanup
-  MySock1->UnregisterObserver(MyObserver1);
+  MyHandler->UnregisterObserver(MyObserver1);
   delete (MyObserver1);
 
-  MySock2->UnregisterObserver(MyObserver2);
+  MyHandler->UnregisterObserver(MyObserver2);
   delete (MyObserver2);
 
   MySock1->Close();

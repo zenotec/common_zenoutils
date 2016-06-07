@@ -39,5 +39,17 @@ GpioNotification::~GpioNotification()
   this->_state = GpioPort::STATE_ERR;
 }
 
+zGpio::GpioPort::STATE
+GpioNotification::State()
+{
+  return(this->_state);
+}
+
+zGpio::GpioPort*
+GpioNotification::Port()
+{
+  return(this->_port);
+}
+
 }
 }

@@ -9,13 +9,6 @@
 #ifndef __ZINETSOCKET_H__
 #define __ZINETSOCKET_H__
 
-#include <stdint.h>
-
-#include <string>
-
-#include <zutils/zThread.h>
-#include <zutils/zSocket.h>
-
 namespace zUtils
 {
 namespace zSocket

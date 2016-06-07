@@ -108,8 +108,8 @@ protected:
 
 private:
 
-  zQueue<char> rxq;
-  zQueue<char> txq;
+  zQueue<char> _rxq;
+  zQueue<char> _txq;
 
 };
 
@@ -138,6 +138,9 @@ public:
 
   SerialNotification::ID
   Id() const;
+
+  SerialPort*
+  Port();
 
 protected:
 
