@@ -47,7 +47,7 @@ zMessageTest_MessageGetSet(void* arg_)
 
   // Test setting "data" field
   *myData = myMessage->GetData();
-  TEST_TRUE(myData->SetValue("Key", "Value"));
+  TEST_TRUE(myData->Put("Value", "Key"));
   TEST_TRUE(myMessage->SetData(*myData));
 
   // Cleanup
@@ -74,7 +74,7 @@ zMessageTest_MessageCopy(void* arg_)
   // Create new data object and validate
   zData::Data *myData = new zData::Data;
   TEST_ISNOT_NULL(myData);
-  TEST_TRUE(myData->SetValue("Key", "Value"));
+  TEST_TRUE(myData->Put("Value", "Key"));
 
   // Create new message and validate
   zMessage::Message *myMessage1 = new zMessage::Message;

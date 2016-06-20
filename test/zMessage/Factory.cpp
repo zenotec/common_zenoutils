@@ -11,7 +11,7 @@ int zMessageTest_FactoryError(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_ERR);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ERR);
     TEST_IS_NULL(myMessage);
 
     // Return success
@@ -27,7 +27,7 @@ int zMessageTest_FactoryAuth(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_AUTH);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_AUTH);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_AUTH);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -50,7 +50,7 @@ int zMessageTest_FactoryHello(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_HELLO);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_HELLO);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_HELLO);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -73,7 +73,7 @@ int zMessageTest_FactoryAck(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_ACK);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ACK);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_ACK);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -96,7 +96,7 @@ int zMessageTest_FactoryBye(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_BYE);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_BYE);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_BYE);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -119,7 +119,7 @@ int zMessageTest_FactoryCfg(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_CFG);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_CFG);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_CFG);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -142,7 +142,7 @@ int zMessageTest_FactoryCmd(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_CMD);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_CMD);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_CMD);
     TEST_NEQ(std::string(""), myMessage->GetId());
@@ -165,7 +165,7 @@ int zMessageTest_FactoryData(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Create new node and validate
-    zMessage::Message *myMessage = zMessage::Factory::Create(zMessage::Message::TYPE_DATA);
+    zMessage::Message *myMessage = zMessage::MessageFactory::Create(zMessage::Message::TYPE_DATA);
     TEST_ISNOT_NULL(myMessage);
     TEST_EQ(myMessage->GetType(), zMessage::Message::TYPE_DATA);
     TEST_NEQ(std::string(""), myMessage->GetId());

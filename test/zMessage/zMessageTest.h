@@ -8,11 +8,27 @@
 #ifndef _ZMESSAGETEST_H_
 #define _ZMESSAGETEST_H_
 
-#include "UnitTest.h"
+#include <stdint.h>
+#include <netinet/in.h>
+#include <string.h>
 
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
+#include <zutils/zData.h>
+#include <zutils/zSocket.h>
+
 #include <zutils/zMessage.h>
+
+#include "UnitTest.h"
+
 
 int
 zMessageTest_MessageDefaults(void* arg_);
@@ -68,107 +84,136 @@ public:
   zSem::Semaphore ErrSem;
 
 protected:
+
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_)
+  EventHandler(const zEvent::EventNotification* notification_)
   {
-    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
+    ZLOG_DEBUG("Handling socket event");
+
+    bool status = false;
+    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
     {
-      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
-      switch(id)
+      zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
+      switch (n->Id())
       {
-      case zMessage::MessageEvent::EVENTID_MSG_RCVD:
-      {
-        zMessage::Message *message = static_cast<zMessage::Message *>(arg_);
-        ZLOG_DEBUG("Received message: " + zLog::IntStr(message->GetType()));
+      case zSocket::SocketNotification::ID_PKT_RCVD:
         this->RxSem.Post();
+        status = true;
         break;
-      }
-      case zMessage::MessageEvent::EVENTID_MSG_SENT:
-      {
+      case zSocket::SocketNotification::ID_PKT_SENT:
         this->TxSem.Post();
+        status = true;
         break;
-      }
-      case zMessage::MessageEvent::EVENTID_MSG_ERR:
-      {
+      default:
         this->ErrSem.Post();
+        status = false;
         break;
-      }
       }
     }
-    return (true);
+    return (status);
   }
+
+//  virtual bool
+//  EventHandler(zEvent::Event *event_, void *arg_)
+//  {
+//    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
+//    {
+//      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
+//      switch(id)
+//      {
+//      case zMessage::MessageEvent::EVENTID_MSG_RCVD:
+//      {
+//        zMessage::Message *message = static_cast<zMessage::Message *>(arg_);
+//        ZLOG_DEBUG("Received message: " + zLog::IntStr(message->GetType()));
+//        this->RxSem.Post();
+//        break;
+//      }
+//      case zMessage::MessageEvent::EVENTID_MSG_SENT:
+//      {
+//        this->TxSem.Post();
+//        break;
+//      }
+//      case zMessage::MessageEvent::EVENTID_MSG_ERR:
+//      {
+//        this->ErrSem.Post();
+//        break;
+//      }
+//      }
+//    }
+//    return (true);
+//  }
 
 private:
 };
 
-class TestHandler : public zEvent::EventObserver
-{
-public:
-
-  zSem::Semaphore RxSem[zMessage::Message::TYPE_LAST];
-  zSem::Semaphore TxSem;
-  zSem::Semaphore ErrSem;
-
-  TestHandler(zMessage::MessageSocket *sock_) :
-  _hello_handler(zMessage::Message::TYPE_HELLO, sock_),
-  _ack_handler(zMessage::Message::TYPE_ACK, sock_),
-  _bye_handler(zMessage::Message::TYPE_BYE, sock_)
-  {
-    ZLOG_DEBUG("New test handler created");
-    this->_hello_handler.RegisterObserver(this);
-    this->_ack_handler.RegisterObserver(this);
-    this->_bye_handler.RegisterObserver(this);
-  }
-
-  virtual
-  ~TestHandler()
-  {
-    ZLOG_DEBUG("Test handler deleted");
-    this->_hello_handler.UnregisterObserver(this);
-    this->_ack_handler.UnregisterObserver(this);
-    this->_bye_handler.UnregisterObserver(this);
-  }
-
-protected:
-
-  virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_)
-  {
-    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
-    {
-      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
-      switch(id)
-      {
-      case zMessage::MessageEvent::EVENTID_MSG_RCVD:
-      {
-        ZLOG_DEBUG("Received message");
-        zMessage::Message *msg = static_cast<zMessage::Message *>(arg_);
-        this->RxSem[msg->GetType()].Post();
-        break;
-      }
-      case zMessage::MessageEvent::EVENTID_MSG_SENT:
-      {
-        ZLOG_DEBUG("Message sent");
-        this->TxSem.Post();
-        break;
-      }
-      case zMessage::MessageEvent::EVENTID_MSG_ERR:
-      {
-        ZLOG_DEBUG("Message error");
-        this->ErrSem.Post();
-        break;
-      }
-      }
-    }
-    return (true);
-  }
-
-private:
-
-  zMessage::MessageHandler _hello_handler;
-  zMessage::MessageHandler _ack_handler;
-  zMessage::MessageHandler _bye_handler;
-
-};
+//class TestHandler : public zEvent::EventObserver
+//{
+//public:
+//
+//  zSem::Semaphore RxSem[zMessage::Message::TYPE_LAST];
+//  zSem::Semaphore TxSem;
+//  zSem::Semaphore ErrSem;
+//
+//  TestHandler(zMessage::MessageSocket *sock_) :
+//  _hello_handler(zMessage::Message::TYPE_HELLO, sock_),
+//  _ack_handler(zMessage::Message::TYPE_ACK, sock_),
+//  _bye_handler(zMessage::Message::TYPE_BYE, sock_)
+//  {
+//    ZLOG_DEBUG("New test handler created");
+//    this->_hello_handler.RegisterObserver(this);
+//    this->_ack_handler.RegisterObserver(this);
+//    this->_bye_handler.RegisterObserver(this);
+//  }
+//
+//  virtual
+//  ~TestHandler()
+//  {
+//    ZLOG_DEBUG("Test handler deleted");
+//    this->_hello_handler.UnregisterObserver(this);
+//    this->_ack_handler.UnregisterObserver(this);
+//    this->_bye_handler.UnregisterObserver(this);
+//  }
+//
+//protected:
+//
+//  virtual bool
+//  EventHandler(zEvent::Event *event_, void *arg_)
+//  {
+//    if (event_ && arg_ && (event_->Type() == zEvent::Event::TYPE_MSG))
+//    {
+//      zMessage::MessageEvent::EVENTID id = (zMessage::MessageEvent::EVENTID)event_->Id();
+//      switch(id)
+//      {
+//      case zMessage::MessageEvent::EVENTID_MSG_RCVD:
+//      {
+//        ZLOG_DEBUG("Received message");
+//        zMessage::Message *msg = static_cast<zMessage::Message *>(arg_);
+//        this->RxSem[msg->GetType()].Post();
+//        break;
+//      }
+//      case zMessage::MessageEvent::EVENTID_MSG_SENT:
+//      {
+//        ZLOG_DEBUG("Message sent");
+//        this->TxSem.Post();
+//        break;
+//      }
+//      case zMessage::MessageEvent::EVENTID_MSG_ERR:
+//      {
+//        ZLOG_DEBUG("Message error");
+//        this->ErrSem.Post();
+//        break;
+//      }
+//      }
+//    }
+//    return (true);
+//  }
+//
+//private:
+//
+//  zMessage::MessageHandler _hello_handler;
+//  zMessage::MessageHandler _ack_handler;
+//  zMessage::MessageHandler _bye_handler;
+//
+//};
 
 #endif /* _ZMESSAGETEST_H_ */

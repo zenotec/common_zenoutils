@@ -105,6 +105,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_EQ(ExpStr, obsStr);
 
   // Unregister observer with socket handler
+  MyHandler->Remove(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
@@ -216,9 +217,11 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   delete (ObsAddr);
 
   // Cleanup
+  MyHandler->Remove(MySock1);
   MyHandler->UnregisterObserver(MyObserver1);
   delete (MyObserver1);
 
+  MyHandler->Remove(MySock2);
   MyHandler->UnregisterObserver(MyObserver2);
   delete (MyObserver2);
 

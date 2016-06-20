@@ -82,6 +82,7 @@ AC_CONFIG_FILES([
         src/zLed/Makefile
         src/zSerial/Makefile
         src/zSocket/Makefile
+        src/zMessage/Makefile
       test/Makefile
         test/zThread/Makefile
         test/zProgOpt/Makefile
@@ -96,6 +97,7 @@ AC_CONFIG_FILES([
         test/zLed/Makefile
         test/zSerial/Makefile
         test/zSocket/Makefile
+        test/zMessage/Makefile
 ])
 
 # Boost checks

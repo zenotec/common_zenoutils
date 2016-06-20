@@ -91,9 +91,9 @@ protected:
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
     if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
     {
+      zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
       switch (n->Id())
       {
       case zSocket::SocketNotification::ID_PKT_RCVD:

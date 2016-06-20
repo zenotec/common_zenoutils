@@ -8,21 +8,13 @@
 #ifndef ZMESSAGE_H_
 #define ZMESSAGE_H_
 
-#include <map>
-
-#include <zutils/zData.h>
-#include <zutils/zSocket.h>
-#include <zutils/zEvent.h>
-
 namespace zUtils
 {
 namespace zMessage
 {
 
-class MessageHandler;
-
 //**********************************************************************
-// zMessage::Message Class
+// Class: Message
 //**********************************************************************
 
 class Message : public zData::Data
@@ -130,10 +122,10 @@ private:
 };
 
 //**********************************************************************
-// zMessage::Factory Class
+// Class: MessageFactory
 //**********************************************************************
 
-class Factory
+class MessageFactory
 {
 public:
   static zMessage::Message *
@@ -141,48 +133,40 @@ public:
 };
 
 //**********************************************************************
-// zMessage::MessageEvent Class
+// Class: MessageNotification
 //**********************************************************************
 
-class MessageEvent : public zEvent::Event
+class MessageNotification : public zEvent::EventNotification
 {
 public:
 
-  enum EVENTID
+  enum ID
   {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_MSG_RCVD = 1,
-    EVENTID_MSG_SENT = 2,
-    EVENTID_MSG_ERR = 3,
-    EVENTID_LAST
+    ID_ERR = -1,
+    ID_NONE = 0,
+    ID_MSG_RCVD = 1,
+    ID_MSG_SENT = 2,
+    ID_MSG_ERR = 3,
+    ID_LAST
   };
 
-  MessageEvent(const MessageEvent::EVENTID id_);
+  MessageNotification(const MessageNotification::ID id_);
 
   virtual
-  ~MessageEvent();
+  ~MessageNotification();
 
 protected:
 
 private:
-  MessageEvent(MessageEvent &other_);
 
-  MessageEvent(const MessageEvent &other_);
-
-  MessageEvent &
-  operator=(MessageEvent &other_);
-
-  MessageEvent &
-  operator=(const MessageEvent &other_);
 
 };
 
 //**********************************************************************
-// zMessage::MessageSocket Class
+// Class: MessageSocket
 //**********************************************************************
 
-class MessageSocket : public zEvent::EventHandler, private zEvent::EventObserver
+class MessageSocket : public zSocket::Socket, public zEvent::EventObserver
 {
 
 public:
@@ -191,75 +175,66 @@ public:
   virtual
   ~MessageSocket();
 
+  virtual const zSocket::SocketAddress &
+  GetAddress();
+
+  virtual bool
+  SetAddress(const zSocket::SocketAddress &addr_);
+
+  virtual bool
+  Open();
+
+  virtual void
+  Close();
+
+  virtual bool
+  Bind();
+
+  virtual bool
+  Connect(const zSocket::SocketAddress &addr_);
+
+  bool
+  Receive(zMessage::Message &msg_);
+
   bool
   Send(zMessage::Message &msg_);
 
 protected:
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
+  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 
-  zSocket::Socket *_sock;
-
-  zEvent::Event _rx_event;
-  zEvent::Event _tx_event;
-  zEvent::Event _err_event;
-
-  MessageSocket(MessageSocket &other_);
-
-  MessageSocket(const MessageSocket &other_);
-
-  MessageSocket &
-  operator=(MessageSocket &other_);
-
-  MessageSocket &
-  operator=(const MessageSocket &other_);
+  zSocket::Socket* _sock;
+  zSocket::SocketHandler _handler;
 
 };
 
 //**********************************************************************
-// zMessage::MessageHandler Class
+// Class: MessageObserver
 //**********************************************************************
 
-class MessageHandler : public zEvent::EventHandler, private zEvent::EventObserver
+class MessageObserver : public zEvent::EventObserver
 {
 
 public:
-  MessageHandler(zMessage::Message::TYPE type_, zMessage::MessageSocket *sock_);
+  MessageObserver(zMessage::Message::TYPE type_);
 
   virtual
-  ~MessageHandler();
+  ~MessageObserver();
 
-  bool
-  Send(zMessage::Message &msg_);
+  virtual bool
+  MessageHandler(const zMessage::MessageNotification* notification_) = 0;
 
 protected:
 
-  zMessage::MessageSocket *_sock;
-
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
+  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 
   zMessage::Message::TYPE _type;
-  zSem::Mutex _lock;
-
-  zEvent::Event _rx_event;
-  zEvent::Event _tx_event;
-  zEvent::Event _err_event;
-
-  MessageHandler(MessageHandler &other_);
-
-  MessageHandler(const MessageHandler &other_);
-
-  MessageHandler &
-  operator=(MessageHandler &other_);
-
-  MessageHandler &
-  operator=(const MessageHandler &other_);
 
 };
 

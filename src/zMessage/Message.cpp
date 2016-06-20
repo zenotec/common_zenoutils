@@ -5,6 +5,23 @@
  *      Author: kmahoney
  */
 
+#include <stdint.h>
+#include <netinet/in.h>
+#include <string.h>
+
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+#include <zutils/zData.h>
+#include <zutils/zSocket.h>
+
 #include <zutils/zMessage.h>
 
 namespace zUtils
@@ -48,6 +65,12 @@ Message::Message() :
 Message::Message(const zData::Data &msg_) :
     zData::Data(msg_)
 {
+  // Initialize message
+  this->SetId(this->GetId());
+  this->SetType(this->GetType());
+  this->SetDst(this->GetDst());
+  this->SetSrc(this->GetSrc());
+  this->SetData(this->GetData());
 }
 
 Message::~Message()
@@ -57,19 +80,22 @@ Message::~Message()
 std::string
 Message::GetId() const
 {
-  return (this->GetValue(Message::STR_ID));
+  std::string id;
+  this->Get(id, Message::STR_ID);
+  return (id);
 }
 
 bool
 Message::SetId(const std::string &id_)
 {
-  return (this->SetValue(Message::STR_ID, id_));
+  return (this->Put(id_, Message::STR_ID));
 }
 
 Message::TYPE
 Message::GetType() const
 {
-  std::string type = this->GetValue(Message::STR_TYPE);
+  std::string type;
+  this->Get(type, Message::STR_TYPE);
   if (type == Message::STR_TYPE_AUTH)
   {
     return (Message::TYPE_AUTH);
@@ -119,31 +145,31 @@ Message::SetType(const Message::TYPE &type_)
   switch (type_)
   {
   case Message::TYPE_AUTH:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_AUTH);
+    status = this->Put(Message::STR_TYPE_AUTH, Message::STR_TYPE);
     break;
   case Message::TYPE_HELLO:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_HELLO);
+    status = this->Put(Message::STR_TYPE_HELLO, Message::STR_TYPE);
     break;
   case Message::TYPE_ACK:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_ACK);
+    status = this->Put(Message::STR_TYPE_ACK, Message::STR_TYPE);
     break;
   case Message::TYPE_BYE:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_BYE);
+    status = this->Put(Message::STR_TYPE_BYE, Message::STR_TYPE);
     break;
   case Message::TYPE_NODE:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_NODE);
+    status = this->Put(Message::STR_TYPE_NODE, Message::STR_TYPE);
     break;
   case Message::TYPE_CFG:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CFG);
+    status = this->Put(Message::STR_TYPE_CFG, Message::STR_TYPE);
     break;
   case Message::TYPE_CMD:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_CMD);
+    status = this->Put(Message::STR_TYPE_CMD, Message::STR_TYPE);
     break;
   case Message::TYPE_DATA:
-    status = this->SetValue(Message::STR_TYPE, Message::STR_TYPE_DATA);
+    status = this->Put(Message::STR_TYPE_DATA, Message::STR_TYPE);
     break;
   case Message::TYPE_NONE:
-    status = this->SetValue(Message::STR_TYPE, std::string(""));
+    status = this->Put(std::string(""), Message::STR_TYPE);
     break;
   default:
     status = false;
@@ -155,39 +181,43 @@ Message::SetType(const Message::TYPE &type_)
 std::string
 Message::GetDst() const
 {
-  return (this->GetValue(Message::STR_DST));
+  std::string dst;
+  this->Get(dst, Message::STR_DST);
+  return (dst);
 }
 
 bool
 Message::SetDst(const std::string &to_)
 {
-  return (this->SetValue(Message::STR_DST, to_));
+  return (this->Put(to_, Message::STR_DST));
 }
 
 std::string
 Message::GetSrc() const
 {
-  return (this->GetValue(Message::STR_SRC));
+  std::string src;
+  this->Get(src, Message::STR_SRC);
+  return (src);
 }
 
 bool
 Message::SetSrc(const std::string &from_)
 {
-  return (this->SetValue(Message::STR_SRC, from_));
+  return (this->Put(from_, Message::STR_SRC));
 }
 
 zData::Data
 Message::GetData() const
 {
-  zData::Data data(Message::STR_DATA);
-  this->GetChild(Message::STR_DATA, data);
+  zData::Data data;
+  this->Get(data, Message::STR_DATA);
   return (data);
 }
 
 bool
 Message::SetData(const zData::Data &data_)
 {
-  return (this->PutChild(Message::STR_DATA, data_));
+  //return (this->Put(data_, Message::STR_DATA));
 }
 
 }

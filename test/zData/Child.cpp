@@ -37,7 +37,7 @@ zDataTest_GetChildSingle(void* arg_)
   TEST_EQ(obsVal, expVal);
 
   // Get the data object for the child "employee"
-  zData::Data Child(ChildKey);
+  zData::Data Child;
   TEST_TRUE(Parent.Get(Child, ChildKey));
   TEST_EQ(Child.Key(), ChildKey);
 

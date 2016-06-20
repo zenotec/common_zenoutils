@@ -1,4 +1,4 @@
-#include <zutils/zLog.h>
+
 #include "zMessageTest.h"
 
 int
@@ -33,7 +33,7 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zMessageTest_MessageSocket, 0);
 
-  UTEST_TEST(zMessageTest_MessageHandler, 0);
+//  UTEST_TEST(zMessageTest_MessageHandler, 0);
 
   UTEST_FINI();
 

@@ -51,6 +51,9 @@ Event::Type () const
 void
 Event::Notify (EventNotification* notification_)
 {
+
+  ZLOG_DEBUG("Notifying event handlers");
+
   // Start critical section
   this->_lock.lock ();
 
@@ -66,6 +69,7 @@ Event::Notify (EventNotification* notification_)
   // Notify all registered event handlers
   while (!handler_list.empty ())
   {
+    ZLOG_DEBUG("Notifying event handler: ");
     EventHandler *handler = handler_list.front ();
     handler_list.pop_front ();
     handler->notify (notification_);

@@ -15,8 +15,7 @@ zMessageUnitTest_SOURCES = \
     Defaults.cpp \
     Message.cpp \
     Factory.cpp \
-    Socket.cpp \
-    Handler.cpp
+    Socket.cpp
 
 zMessageUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

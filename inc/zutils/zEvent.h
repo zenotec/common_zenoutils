@@ -109,7 +109,7 @@ class EventObserver
 {
 public:
   virtual bool
-  EventHandler(const EventNotification* notification_) = 0;
+  EventHandler(const zEvent::EventNotification* notification_) = 0;
 };
 
 //**********************************************************************
