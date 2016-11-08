@@ -59,7 +59,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(const EventNotification* notification_);
+  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 

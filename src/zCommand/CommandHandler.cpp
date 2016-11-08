@@ -13,6 +13,8 @@
 
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
+#include <zutils/zQueue.h>
+#include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
 
 #include <zutils/zCommand.h>

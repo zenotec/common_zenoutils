@@ -12,6 +12,8 @@
 
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
+#include <zutils/zQueue.h>
+#include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
 
 #include <zutils/zCommand.h>
@@ -106,14 +108,14 @@ Command::Execute(const std::string &arg_)
 }
 
 bool
-Command::EventHandler(const EventNotification* notification_)
+Command::EventHandler(const zEvent::EventNotification* notification_)
 {
   bool status = false;
-  Command *cmd = static_cast<Command *>(arg_);
-  if (cmd && cmd->GetName() == this->GetName())
-  {
-    status = this->Execute(cmd->GetArgument());
-  }
+//  Command *cmd = static_cast<Command *>(arg_);
+//  if (cmd && cmd->GetName() == this->GetName())
+//  {
+//    status = this->Execute(cmd->GetArgument());
+//  }
   return (status);
 }
 

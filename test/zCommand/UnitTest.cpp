@@ -1,4 +1,14 @@
+#include <string>
+#include <mutex>
+#include <list>
+#include <map>
+
 #include <zutils/zLog.h>
+#include <zutils/zEvent.h>
+#include <zutils/zData.h>
+#include <zutils/zQueue.h>
+#include <zutils/zSocket.h>
+#include <zutils/zMessage.h>
 
 #include "zCommandTest.h"
 #include "UnitTest.h"

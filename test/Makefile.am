@@ -1,7 +1,6 @@
 #SUBDIRS = \
 #	zSwitch \
 #	zThermo \
-#	zCommand \
 #	zLcd
 
 SUBDIRS = \
@@ -18,7 +17,8 @@ SUBDIRS = \
 	zLed \
 	zSerial \
 	zSocket \
-	zMessage
+	zMessage \
+	zCommand
 
 
 if COND_VALGRIND
@@ -46,12 +46,8 @@ VALGRIND_TESTS = \
 endif
 
 #GCOV_TESTS = \
-#    zProgOpt/zProgOptUnitTest \
-#    zLog/zLogUnitTest \
-#    zData/zDataUnitTest \
 #    zSwitch/zSwitchUnitTest \
 #    zThermo/zThermoUnitTest \
-#    zCommand/zCommandUnitTest \
 #    zLcd/zLcdUnitTest
 
 
@@ -69,7 +65,8 @@ GCOV_TESTS = \
     zLed/zLedUnitTest \
     zSerial/zSerialUnitTest \
     zSocket/zSocketUnitTest \
-    zMessage/zMessageUnitTest
+    zMessage/zMessageUnitTest \
+    zCommand/zCommandUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)
