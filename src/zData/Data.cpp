@@ -250,7 +250,7 @@ Data::Del(const std::string &path_)
 }
 
 std::string
-Data::GetJson()
+Data::GetJson() const
 {
   std::stringstream json;
   boost::property_tree::write_json(json, this->_pt);
@@ -275,13 +275,13 @@ Data::SetJson(const std::string &json_)
 }
 
 void
-Data::DisplayJson()
+Data::DisplayJson() const
 {
   std::cout << this->GetJson() << std::endl;
 }
 
 std::string
-Data::GetXml()
+Data::GetXml() const
 {
   std::stringstream xml;
   boost::property_tree::write_xml(xml, this->_pt);
@@ -306,7 +306,7 @@ Data::SetXml(const std::string &xml_)
 }
 
 void
-Data::DisplayXml()
+Data::DisplayXml() const
 {
   std::cout << this->GetXml() << std::endl;
 }

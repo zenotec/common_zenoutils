@@ -23,11 +23,9 @@ zCommandTest_CommandHandlerNoArg(void* arg_)
   TestCommand *myCommand = new TestCommand;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_EQ(std::string(""), myCommand->GetArgument());
 
   // Set name and argument
-  TEST_TRUE(myCommand->SetName("TestName"));
-  TEST_TRUE(myCommand->SetArgument("TestArg"));
+  TEST_TRUE(myCommand->SetName("CommandHandlerNoArg"));
 
   // Create new handler and verify
   zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
@@ -37,8 +35,9 @@ zCommandTest_CommandHandlerNoArg(void* arg_)
   TEST_TRUE(myHandler->RegisterCommand(myCommand));
 
   // Execute command and validate
-  TEST_TRUE(myHandler->ProcessCommandString(std::string("TestName")));
-  TEST_EQ(std::string("TestName:"), myCommand->GetString());
+  std::string cmdString = "CommandHandlerNoArg";
+  TEST_TRUE(myHandler->ProcessCommand(cmdString));
+  TEST_EQ(std::string("CommandHandlerNoArg:"), myCommand->GetString());
 
   // Cleanup
   myHandler->UnregisterCommand(myCommand);
@@ -55,11 +54,9 @@ zCommandTest_CommandHandlerSingleArg(void* arg_)
   TestCommand *myCommand = new TestCommand;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_EQ(std::string(""), myCommand->GetArgument());
 
   // Set name and argument
-  TEST_TRUE(myCommand->SetName("TestName"));
-  TEST_TRUE(myCommand->SetArgument("TestArg"));
+  TEST_TRUE(myCommand->SetName("CommandHandlerSingleArg"));
 
   // Create new handler and verify
   zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
@@ -69,8 +66,9 @@ zCommandTest_CommandHandlerSingleArg(void* arg_)
   TEST_TRUE(myHandler->RegisterCommand(myCommand));
 
   // Execute command and validate
-  TEST_TRUE(myHandler->ProcessCommandString(std::string("TestName TestArg")));
-  TEST_EQ(std::string("TestName:TestArg"), myCommand->GetString());
+  std::string cmdString = "CommandHandlerSingleArg Arg1";
+  TEST_TRUE(myHandler->ProcessCommand(cmdString));
+  TEST_EQ(std::string("CommandHandlerSingleArg:Arg1"), myCommand->GetString());
 
   // Cleanup
   myHandler->UnregisterCommand(myCommand);
@@ -87,11 +85,9 @@ zCommandTest_CommandHandlerMultiArg(void* arg_)
   TestCommand *myCommand = new TestCommand;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_EQ(std::string(""), myCommand->GetArgument());
 
   // Set name and argument
-  TEST_TRUE(myCommand->SetName("TestName"));
-  TEST_TRUE(myCommand->SetArgument("TestArg"));
+  TEST_TRUE(myCommand->SetName("CommandHandlerMultiArg"));
 
   // Create new handler and verify
   zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
@@ -101,8 +97,9 @@ zCommandTest_CommandHandlerMultiArg(void* arg_)
   TEST_TRUE(myHandler->RegisterCommand(myCommand));
 
   // Execute command and validate
-  TEST_TRUE(myHandler->ProcessCommandString(std::string("TestName TestArg1 TestArg2")));
-  TEST_EQ(std::string("TestName:TestArg1 TestArg2"), myCommand->GetString());
+  std::string cmdString = "CommandHandlerMultiArg Arg1 Arg2";
+  TEST_TRUE(myHandler->ProcessCommand(cmdString));
+  TEST_EQ(std::string("CommandHandlerMultiArg:Arg1 Arg2"), myCommand->GetString());
 
   // Cleanup
   myHandler->UnregisterCommand(myCommand);
@@ -119,11 +116,9 @@ zCommandTest_CommandHandlerBadCommand(void* arg_)
   TestCommand *myCommand = new TestCommand;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_EQ(std::string(""), myCommand->GetArgument());
 
   // Set name and argument
   TEST_TRUE(myCommand->SetName("TestName"));
-  TEST_TRUE(myCommand->SetArgument("TestArg"));
 
   // Create new handler and verify
   zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
@@ -133,7 +128,7 @@ zCommandTest_CommandHandlerBadCommand(void* arg_)
   TEST_TRUE(myHandler->RegisterCommand(myCommand));
 
   // Execute command and validate
-  TEST_FALSE(myHandler->ProcessCommandString(std::string("TestName1 TestArg1")));
+  TEST_FALSE(myHandler->ProcessCommand(std::string("TestName1 TestArg1")));
 
   // Cleanup
   myHandler->UnregisterCommand(myCommand);
@@ -150,21 +145,17 @@ zCommandTest_CommandHandlerMultiCommand(void* arg_)
   TestCommand *myCommand1 = new TestCommand;
   TEST_ISNOT_NULL(myCommand1);
   TEST_EQ(std::string(""), myCommand1->GetName());
-  TEST_EQ(std::string(""), myCommand1->GetArgument());
 
   // Set name and argument
   TEST_TRUE(myCommand1->SetName("TestName1"));
-  TEST_TRUE(myCommand1->SetArgument("TestArg1"));
 
   // Create new command and verify
   TestCommand *myCommand2 = new TestCommand;
   TEST_ISNOT_NULL(myCommand2);
   TEST_EQ(std::string(""), myCommand2->GetName());
-  TEST_EQ(std::string(""), myCommand2->GetArgument());
 
   // Set name and argument
   TEST_TRUE(myCommand2->SetName("TestName2"));
-  TEST_TRUE(myCommand2->SetArgument("TestArg2"));
 
   // Create new handler and verify
   zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
@@ -175,7 +166,8 @@ zCommandTest_CommandHandlerMultiCommand(void* arg_)
   TEST_TRUE(myHandler->RegisterCommand(myCommand2));
 
   // Execute command and validate
-  TEST_TRUE(myHandler->ProcessCommandString(std::string("TestName1 TestArg1-1 TestArg1-2; TestName2 TestArg2-1 TestArg2-2")));
+  std::string cmdString = "TestName1 TestArg1-1 TestArg1-2; TestName2 TestArg2-1 TestArg2-2";
+  TEST_TRUE(myHandler->ProcessCommand(cmdString));
   TEST_EQ(std::string("TestName1:TestArg1-1 TestArg1-2"), myCommand1->GetString());
   TEST_EQ(std::string("TestName2:TestArg2-1 TestArg2-2"), myCommand2->GetString());
 

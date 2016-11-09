@@ -200,18 +200,18 @@ public:
   Del(const std::string &path_ = std::string(""));
 
   std::string
-  GetJson();
+  GetJson() const;
   bool
   SetJson(const std::string &json_);
   void
-  DisplayJson();
+  DisplayJson() const;
 
   std::string
-  GetXml();
+  GetXml() const;
   bool
   SetXml(const std::string &xml_);
   void
-  DisplayXml();
+  DisplayXml() const;
 
   // Path utility functions
 

@@ -42,8 +42,8 @@ CommandHandler::RegisterCommand(zCommand::Command *cmd_)
   {
     ZLOG_DEBUG("Registering command: '" + cmd_->GetName() + "'");
     this->_cmd_table[cmd_->GetName()] = cmd_;
-    this->_lock.Unlock();
     status = true;
+    this->_lock.Unlock();
   }
   return (status);
 }
@@ -70,7 +70,7 @@ CommandHandler::UnregisterCommand(zCommand::Command *cmd_)
 bool
 CommandHandler::ProcessCommand(const zCommand::Command &cmd_)
 {
-  bool status = true;
+  bool status = false;
 
   ZLOG_INFO("Processing command: '" + cmd_.GetName() + "'");
 
@@ -79,15 +79,11 @@ CommandHandler::ProcessCommand(const zCommand::Command &cmd_)
   if (this->_lock.Lock())
   {
     it = this->_cmd_table.find(cmd_.GetName());
-    this->_lock.Unlock();
     if (it != this->_cmd_table.end() && it->second)
     {
-      status = it->second->Execute(cmd_.GetArgument());
+      status = it->second->Execute(cmd_.Argc(), cmd_.GetArgv());
     }
-    else
-    {
-      status = false;
-    }
+    this->_lock.Unlock();
   }
 
   return (status);
@@ -95,9 +91,9 @@ CommandHandler::ProcessCommand(const zCommand::Command &cmd_)
 }
 
 bool
-CommandHandler::ProcessCommandString(const std::string &str_)
+CommandHandler::ProcessCommand(const std::string &str_)
 {
-  bool status = true;
+  bool status = false;
   size_t pos = 0;
   size_t npos = 0;
   std::list<std::string> commands;
@@ -114,26 +110,33 @@ CommandHandler::ProcessCommandString(const std::string &str_)
   }
 
   // Process each command sequentially
-  while (status && !commands.empty())
+  while (!commands.empty())
   {
 
     // Get command string off the list
     zCommand::Command cmd(commands.front());
     commands.pop_front();
 
-    // Lookup command name in table and execute
-    std::map<std::string, zCommand::Command *>::iterator it;
-    it = this->_cmd_table.find(cmd.GetName());
-    if (it != this->_cmd_table.end() && it->second)
-    {
-      status = it->second->Execute(cmd.GetArgument());
-    }
-    else
-    {
-      status = false;
-    }
+    ZLOG_INFO("Processing command: '" + cmd.GetName() + "'");
 
-  }
+    // Lookup command name in table and execute
+    if (this->_lock.Lock())
+    {
+      std::map<std::string, zCommand::Command *>::iterator it;
+      it = this->_cmd_table.find(cmd.GetName());
+      if (it != this->_cmd_table.end() && it->second)
+      {
+        ZLOG_INFO("Executing command: '" + it->first + "'");
+        status = it->second->Execute(cmd.Argc(), cmd.GetArgv());
+        ZLOG_DEBUG("Command exit status: '" + zLog::IntStr(status) + "'");
+        if (!status)
+        {
+          break;
+        }
+      }
+      this->_lock.Unlock();
+    }  
+  }  
 
   return (status);
 

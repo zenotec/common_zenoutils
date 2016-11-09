@@ -40,7 +40,8 @@ class TestCommand : public zCommand::Command
 {
 public:
 
-  TestCommand()
+  TestCommand(const std::string &cmd_ = std::string("")) :
+      zCommand::Command(cmd_)
   {
 
   }
@@ -58,10 +59,10 @@ public:
   }
 
   virtual bool
-  Execute(const std::string &arg_)
+  Execute(int argc, const std::vector<std::string> &argv_)
   {
-    this->SetArgument(arg_);
-    this->_string = this->GetName() + ":" + this->GetArgument();
+    //this->SetArgument(arg_);
+    //this->_string = this->GetName() + ":" + this->GetArgument();
     return(true);
   }
 

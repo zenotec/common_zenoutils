@@ -22,7 +22,7 @@ public:
   static const std::string ARG;
   static const std::string OUT;
 
-  Command(const std::string &cmd_ = std::string(""), const std::string &arg_ = std::string(""));
+  Command(const std::string &cmd_ = std::string(""));
 
   Command(const zData::Data &data_);
 
@@ -35,17 +35,23 @@ public:
   bool
   operator !=(const Command &other_);
 
+  std::vector<std::string>
+  Parse(const std::string &cmd_);
+
   std::string
   GetName() const;
 
   bool
   SetName(const std::string name_);
 
-  std::string
-  GetArgument() const;
+  size_t
+  Argc() const;
+
+  std::vector<std::string>
+  GetArgv() const;
 
   bool
-  SetArgument(const std::string arg_);
+  SetArgv(const std::vector<std::string> &argv_);
 
   std::string
   GetOutput() const;
@@ -54,7 +60,7 @@ public:
   SetOutput(const std::string arg_);
 
   virtual bool
-  Execute(const std::string &arg_ = "");
+  Execute(int argc_, const std::vector<std::string> &argv_);
 
 protected:
 
@@ -126,7 +132,7 @@ public:
   ProcessCommand(const zCommand::Command &cmd_);
 
   bool
-  ProcessCommandString(const std::string &str_);
+  ProcessCommand(const std::string &str_);
 
 protected:
 
