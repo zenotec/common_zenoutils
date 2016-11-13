@@ -10,6 +10,8 @@
 #include <list>
 #include <map>
 
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
 #include <zutils/zQueue.h>
@@ -25,50 +27,20 @@ namespace zCommand
 
 const std::string Command::ROOT = "zCommand";
 const std::string Command::NAME = "Name";
-const std::string Command::ARG = "Argument";
-const std::string Command::OUT = "Output";
+const std::string Command::OUTPUT = "Output";
 
-static std::vector<std::string>
-CommandParse(const std::string &cmd_)
-{
-
-  size_t pos = 0;
-  size_t npos = 0;
-  std::vector<std::string> argv;
-
-  while (!cmd_.empty() && npos != cmd_.npos)
-  {
-     pos = cmd_.find_first_not_of(' ', pos);
-     npos = cmd_.find_first_of(' ', pos);
-     std::cout << "Parsing: " << pos << "->" << npos << std::endl;
-     argv.push_back(cmd_.substr(pos, npos));
-     pos = npos + 1;
-  }
-
-  return (argv);
- 
-}
-
-Command::Command(const std::string &cmd_) :
+Command::Command(const std::string &name_) :
     zData::Data(Command::ROOT)
 {
-  std::string name;
-  std::vector<std::string> argv = CommandParse(cmd_);
-  if (!argv.empty())
-  {
-    name = argv[0];
-  }
-
-  this->SetName(name);
-  this->SetArgv(argv);
-  this->SetOutput("");
-
-  this->DisplayJson();
+  this->SetName(name_);
+  this->SetOutput(this->GetOutput());
 }
 
 Command::Command(const zData::Data &data_) :
     zData::Data(data_)
 {
+  this->SetName(this->GetName());
+  this->SetOutput(this->GetOutput());
 }
 
 Command::~Command()
@@ -101,97 +73,48 @@ Command::SetName(const std::string name_)
   return (this->Put(name_, Command::NAME));
 }
 
-size_t
-Command::Argc() const
+std::vector<CommandOption>
+Command::GetOptions() const
 {
-  size_t argc = 0;
-  zData::Data data;
 
-  if (!this->GetName().empty())
-  {
-    argc++;
-  }
-
-  if (this->Get(data, Command::ARG))
-  {
-    argc += data.Size();
-  }
-
-  return (argc);
-}
-
-std::vector<std::string>
-Command::GetArgv() const
-{
-  std::string arg;
-  zData::Data data;
+  zData:Data data;
   std::unique_ptr<zData::Data> child;
-  std::vector<std::string>argv;
+  std::vector<CommandOption>options;
 
-  this->DisplayJson();
-
-  if (!this->GetName().empty())
+  if (this->Get(data, CommandOption::ROOT))
   {
-    argv.push_back(this->GetName());
-  }
-
-  if (this->Get(data, Command::ARG))
-  {
-    std::cout << data.GetJson() << std::endl;
     for (int i = 0; i < data.Size(); i++)
     {
-      child = data[i];
-      if (child->Get(arg, Command::ARG))
-      {
-        argv.push_back(arg);
-      }
+      CommandOption opt(*data[i]);
+      options.push_back(opt);
     }
   }
 
-  return (argv);
+  return (options);
 }
 
 bool
-Command::SetArgv(const std::vector<std::string> &argv_)
+Command::AddOption(CommandOption &opt_)
 {
-  bool status = true;
-  std::vector<std::string>::const_iterator it = argv_.begin();
-  std::vector<std::string>::const_iterator end = argv_.end();
-  for (; it != end; ++it)
-  {
-    if (it == argv_.begin())
-    {
-      this->SetName((*it));
-      continue;
-    }
-    if (!this->Add((*it), Command::ARG))
-    {
-      status = false;
-      break;
-    }
-  }
-
-  this->DisplayJson();
-
-  return (status);
+  return (this->Add(static_cast<zData::Data &>(opt_), CommandOption::ROOT));
 }
 
 std::string
 Command::GetOutput() const
 {
   std::string str;
-  this->Get(str, Command::OUT);
+  this->Get(str, Command::OUTPUT);
   return (str);
 }
 
 bool
 Command::SetOutput(const std::string arg_)
 {
-  return (this->Put(arg_, Command::OUT));
+  return (this->Put(arg_, Command::OUTPUT));
 }
 
 bool
-Command::Execute(int argc_, const std::vector<std::string> &argv_)
+Command::Execute(zCommand::Command &cmd_)
 {
   return (false);
 }

@@ -145,7 +145,7 @@ Data::Get(Data &data_, const std::string &path_) const
     data_._lock.unlock();
   }
 
-//  std::cout << "Getting data: " << path << " Data: " << data_.key () << std::endl;
+  //std::cout << "Getting data: " << path << " Data: " << data_.key () << std::endl;
 
   // End critical section
   this->_lock.unlock();
@@ -203,7 +203,7 @@ Data::Add(Data &data_, const std::string &path_)
     path = Data::PathConcat(path, path_);
   }
 
-//  std::cout << "Adding data: " << path << " Data: " << data_.key () << std::endl;
+  //std::cout << "Adding data: " << path << " Data: " << data_.key () << std::endl;
 
   boost::property_tree::ptree pt;
   if (data_.Get(pt))

@@ -30,8 +30,6 @@ int
 zCommandTest_CommandHandlerMultiArg( void* arg_ );
 int
 zCommandTest_CommandHandlerBadCommand( void* arg_ );
-int
-zCommandTest_CommandHandlerMultiCommand( void* arg_ );
 
 using namespace Test;
 using namespace zUtils;
@@ -40,10 +38,10 @@ class TestCommand : public zCommand::Command
 {
 public:
 
-  TestCommand(const std::string &cmd_ = std::string("")) :
-      zCommand::Command(cmd_)
+  TestCommand(const std::string &name_ = std::string("")) :
+      zCommand::Command(name_)
   {
-
+    std::cout << "TestCommand::TestCommand() " << std::endl;
   }
 
   virtual
@@ -52,25 +50,22 @@ public:
 
   }
 
-  std::string
-  GetString()
-  {
-    return(this->_string);
-  }
-
   virtual bool
-  Execute(int argc, const std::vector<std::string> &argv_)
+  Execute(zCommand::Command &cmd_)
   {
-    //this->SetArgument(arg_);
-    //this->_string = this->GetName() + ":" + this->GetArgument();
-    return(true);
+    std::cout << "TestCommand::Execute() " << std::endl;
+    std::string output = cmd_.GetName() + ":";
+    std::vector<zCommand::CommandOption>opts = cmd_.GetOptions();
+    for (int i = 0; i < opts.size(); i++)
+    {
+      output += std::string(" ") + opts[i].GetOption() + std::string("=") + opts[i].GetArgument();
+    }
+    return(this->SetOutput(output));
   }
 
 protected:
 
 private:
-
-  std::string _string;
 
 };
 

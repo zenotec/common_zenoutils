@@ -23,20 +23,16 @@ zCommandTest_CommandDefaults(void* arg_)
   zCommand::Command *myCommand = new zCommand::Command;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_IS_ZERO(myCommand->Argc());
-  TEST_TRUE(myCommand->GetArgv().empty());
+  TEST_TRUE(myCommand->GetOptions().empty());
 
   // Cleanup
   delete (myCommand);
 
   // Create new command from command string and verify
-  myCommand = new zCommand::Command("CommandDefaults Arg1");
+  myCommand = new zCommand::Command("CommandDefaults");
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string("CommandDefaults"), myCommand->GetName());
-  TEST_EQ(2, myCommand->Argc());
-  TEST_FALSE(myCommand->GetArgv().empty());
-  TEST_EQ(std::string("CommandDefaults"), myCommand->GetArgv()[0]);
-  TEST_EQ(std::string("Arg1"), myCommand->GetArgv()[1]);
+  TEST_TRUE(myCommand->GetOptions().empty());
 
   // Cleanup
   delete (myCommand);
@@ -52,9 +48,7 @@ zCommandTest_TestCommandDefaults(void* arg_)
   TestCommand *myCommand = new TestCommand;
   TEST_ISNOT_NULL(myCommand);
   TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_IS_ZERO(myCommand->Argc());
-  TEST_TRUE(myCommand->GetArgv().empty());
-  TEST_EQ(std::string(""), myCommand->GetString());
+  TEST_TRUE(myCommand->GetOptions().empty());
 
   // Cleanup
   delete (myCommand);

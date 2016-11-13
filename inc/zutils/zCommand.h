@@ -13,16 +13,49 @@ namespace zUtils
 namespace zCommand
 {
 
+class CommandOption : public zData::Data
+{
+
+public:
+
+  static const std::string ROOT;
+  static const std::string OPT;
+  static const std::string ARG;
+
+  CommandOption(const std::string &opt_ = std::string(""), const std::string &arg_ = std::string(""));
+
+  CommandOption(const zData::Data &data_);
+
+  virtual
+  ~CommandOption();
+
+  std::string
+  GetOption() const;
+
+  bool
+  SetOption(const std::string opt_);
+
+  std::string
+  GetArgument() const;
+
+  bool
+  SetArgument(const std::string arg_);
+
+protected:
+
+private:
+
+};
+
 class Command : public zEvent::EventObserver, public zData::Data
 {
 public:
 
   static const std::string ROOT;
   static const std::string NAME;
-  static const std::string ARG;
-  static const std::string OUT;
+  static const std::string OUTPUT;
 
-  Command(const std::string &cmd_ = std::string(""));
+  Command(const std::string &name_ = std::string(""));
 
   Command(const zData::Data &data_);
 
@@ -35,23 +68,17 @@ public:
   bool
   operator !=(const Command &other_);
 
-  std::vector<std::string>
-  Parse(const std::string &cmd_);
-
   std::string
   GetName() const;
 
   bool
   SetName(const std::string name_);
 
-  size_t
-  Argc() const;
-
-  std::vector<std::string>
-  GetArgv() const;
+  std::vector<CommandOption>
+  GetOptions() const;
 
   bool
-  SetArgv(const std::vector<std::string> &argv_);
+  AddOption(zCommand::CommandOption &opt_);
 
   std::string
   GetOutput() const;
@@ -60,7 +87,7 @@ public:
   SetOutput(const std::string arg_);
 
   virtual bool
-  Execute(int argc_, const std::vector<std::string> &argv_);
+  Execute(zCommand::Command &cmd_);
 
 protected:
 
@@ -129,10 +156,7 @@ public:
   UnregisterCommand(zCommand::Command *cmd_);
 
   bool
-  ProcessCommand(const zCommand::Command &cmd_);
-
-  bool
-  ProcessCommand(const std::string &str_);
+  ProcessCommand(zCommand::Command &cmd_);
 
 protected:
 

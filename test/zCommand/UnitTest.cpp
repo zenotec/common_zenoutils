@@ -37,7 +37,6 @@ main(int argc, const char **argv)
   UTEST_TEST(zCommandTest_CommandHandlerSingleArg, 0);
   UTEST_TEST(zCommandTest_CommandHandlerMultiArg, 0);
   UTEST_TEST(zCommandTest_CommandHandlerBadCommand, 0);
-  UTEST_TEST(zCommandTest_CommandHandlerMultiCommand, 0);
   UTEST_FINI();
 
   // Exit
