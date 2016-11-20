@@ -23,7 +23,7 @@ namespace zTimer
 //**********************************************************************
 // zTimer::Timer Class
 //**********************************************************************
-class Timer : public zEvent::EventHandler
+class Timer : public zEvent::Event, public zEvent::EventObserver
 {
 
 public:
@@ -39,25 +39,29 @@ public:
   void
   Stop(void);
 
-protected:
+  bool
+  Notify();
 
-  static void
-  timer_handler(union sigval sv_);
+protected:
 
 private:
 
   zSem::Mutex _lock;
   uint32_t _interval;
-  struct sigevent *_sigev;
+  sigevent_t _sigev;
   timer_t _timerid;
   uint64_t _tick;
 
-  zEvent::Event _event;
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_);
 
-  void
+  static void
+  timer_handler(union sigval sv_);
+
+  virtual void
   _start(void);
 
-  void
+  virtual void
   _stop(void);
 
 };
@@ -68,9 +72,11 @@ private:
 
 class TimerNotification : public zEvent::EventNotification
 {
+  friend Timer;
+
 public:
 
-  TimerNotification(const uint64_t tick_);
+  TimerNotification(Timer* timer_);
 
   virtual
   ~TimerNotification();
@@ -79,6 +85,9 @@ public:
   Tick();
 
 protected:
+
+  void
+  tick(uint64_t tick_);
 
 private:
 

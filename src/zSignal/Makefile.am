@@ -9,5 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzSignal.la
 
 libzSignal_la_SOURCES = \
+    SignalNotification.cpp \
+    SignalHandler.cpp \
     Signal.cpp
     

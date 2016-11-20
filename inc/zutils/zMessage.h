@@ -133,36 +133,6 @@ public:
 };
 
 //**********************************************************************
-// Class: MessageNotification
-//**********************************************************************
-
-class MessageNotification : public zEvent::EventNotification
-{
-public:
-
-  enum ID
-  {
-    ID_ERR = -1,
-    ID_NONE = 0,
-    ID_MSG_RCVD = 1,
-    ID_MSG_SENT = 2,
-    ID_MSG_ERR = 3,
-    ID_LAST
-  };
-
-  MessageNotification(const MessageNotification::ID id_);
-
-  virtual
-  ~MessageNotification();
-
-protected:
-
-private:
-
-
-};
-
-//**********************************************************************
 // Class: MessageSocket
 //**********************************************************************
 
@@ -208,6 +178,50 @@ private:
 
   zSocket::Socket* _sock;
   zSocket::SocketHandler _handler;
+
+};
+
+//**********************************************************************
+// Class: MessageNotification
+//**********************************************************************
+
+class MessageNotification : public zEvent::EventNotification
+{
+public:
+
+  enum ID
+  {
+    ID_ERR = -1,
+    ID_NONE = 0,
+    ID_MSG_RCVD = 1,
+    ID_MSG_SENT = 2,
+    ID_MSG_ERR = 3,
+    ID_LAST
+  };
+
+  MessageNotification(const MessageNotification::ID id_);
+
+  virtual
+  ~MessageNotification();
+
+  zMessage::MessageSocket*
+  Sock() const;
+
+  bool
+  Sock(zMessage::MessageSocket* sock_);
+
+  zMessage::Message*
+  Message() const;
+
+  bool
+  Message(zMessage::Message* msg_);
+
+protected:
+
+private:
+
+  zMessage::MessageSocket* _sock;
+  zMessage::Message* _msg;
 
 };
 

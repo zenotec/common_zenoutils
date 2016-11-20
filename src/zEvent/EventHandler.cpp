@@ -79,6 +79,9 @@ EventHandler::RegisterObserver (EventObserver *obs_)
   bool status = false;
   if (obs_)
   {
+
+    ZLOG_DEBUG("Registering observer");
+
     // Start critical section
     this->_lock.lock ();
 
@@ -98,6 +101,9 @@ EventHandler::UnregisterObserver (EventObserver *obs_)
   bool status = false;
   if (obs_)
   {
+
+    ZLOG_DEBUG("Unregistering observer");
+
     // Start critical section
     this->_lock.lock ();
 
@@ -132,6 +138,30 @@ EventHandler::notify (const EventNotification* notification_)
     EventObserver *obs = obs_list.front ();
     obs_list.pop_front ();
     obs->EventHandler (notification_);
+  }
+}
+
+void
+EventHandler::notify (const EventNotification& notification_)
+{
+
+  // Note: never call this routine directly; Only should be called by the event class
+
+  // Start critical section
+  this->_lock.lock ();
+
+  // Create copy of the observer list
+  std::list<EventObserver *> obs_list (this->_obs_list);
+
+  // End critical section
+  this->_lock.unlock ();
+
+  // Notify all registered observers
+  while (!obs_list.empty ())
+  {
+    EventObserver *obs = obs_list.front ();
+    obs_list.pop_front ();
+    obs->EventHandler (&notification_);
   }
 }
 

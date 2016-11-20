@@ -6,8 +6,8 @@
 //
 //*****************************************************************************
 
-#ifndef _ZCONF_H_
-#define _ZCONF_H_
+#ifndef _ZCONFIG_H_
+#define _ZCONFIG_H_
 
 namespace zUtils
 {
@@ -60,7 +60,7 @@ private:
 // Class: Configuration
 //**********************************************************************
 
-class Configuration
+class Configuration : public zEvent::Event
 {
 
 public:
@@ -92,12 +92,6 @@ public:
   {
     this->_working.DisplayJson();
   }
-
-  void
-  RegisterEvents(zEvent::EventHandler &handler_);
-
-  void
-  UnregisterEvents(zEvent::EventHandler &handler_);
 
   bool
   IsModified() const;
@@ -152,6 +146,12 @@ public:
 
 protected:
 
+  virtual zEvent::EventNotification*
+  CreateNotification();
+
+  virtual zEvent::EventNotification*
+  CreateNotification2();
+
 private:
 
   Configuration(const zData::Data &data_); // Not supported; Cannot ensure thread safeness
@@ -162,8 +162,6 @@ private:
 
   zData::Data _staging;
   zData::Data _working;
-
-  zEvent::Event _event;
 
 };
 
@@ -301,4 +299,4 @@ private:
 }
 }
 
-#endif /* _ZCONF_H_ */
+#endif /* _ZCONFIG_H_ */

@@ -5,6 +5,14 @@
  *      Author: kmahoney
  */
 
+#include <string>
+#include <mutex>
+#include <list>
+#include <map>
+
+#include <zutils/zSem.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
 #include <zutils/zThermo.h>
 
 namespace zUtils

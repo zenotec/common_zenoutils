@@ -8,15 +8,6 @@
 #ifndef __ZLCD_H__
 #define __ZLCD_H__
 
-#include <string>
-#include <vector>
-#include <list>
-
-#include <zutils/zSem.h>
-#include <zutils/zCommand.h>
-#include <zutils/zEvent.h>
-#include <zutils/zTimer.h>
-
 namespace zUtils
 {
 namespace zLcd

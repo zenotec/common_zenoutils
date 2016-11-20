@@ -37,7 +37,7 @@ SerialPort::SerialPort() :
 }
 
 SerialPort::SerialPort(zConfig::Configuration &config_) :
-    zSerial::SerialConfiguration(config_), zEvent::Event(zEvent::Event::TYPE_SERIAL)
+    _config(config_), zEvent::Event(zEvent::Event::TYPE_SERIAL)
 {
 }
 
@@ -143,7 +143,9 @@ SerialPort::rxchar(const char c_)
 {
   ZLOG_DEBUG(std::string("Processing rxchar '") + c_ + "'");
   this->_rxq.Push(c_);
-  SerialNotification notification(SerialNotification::ID_CHAR_RCVD, this);
+  SerialNotification notification(this);
+  notification.id(SerialNotification::ID_CHAR_RCVD);
+  notification.data(c_);
   this->Notify(&notification);
   return (true);
 }
@@ -157,14 +159,15 @@ SerialPort::txchar(char *c_, size_t timeout_)
   {
     *c_ = this->_txq.Front();
     this->_txq.Pop();
-    SerialNotification notification(SerialNotification::ID_CHAR_SENT, this);
+    SerialNotification notification(this);
+    notification.id(SerialNotification::ID_CHAR_SENT);
+    notification.data(*c_);
     this->Notify(&notification);
     status = true;
     ZLOG_DEBUG(std::string("Got character: ") + *c_);
   }
   return (status);
 }
-
 
 }
 }

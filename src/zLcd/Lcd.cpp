@@ -5,7 +5,24 @@
  *      Author: kmahoney
  */
 
+#include <signal.h>
+
+#include <string>
+#include <mutex>
+#include <list>
+#include <vector>
+#include <map>
+
+#include <zutils/zSem.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+#include <zutils/zTimer.h>
 #include <zutils/zLog.h>
+#include <zutils/zData.h>
+#include <zutils/zSocket.h>
+#include <zutils/zMessage.h>
+#include <zutils/zCommand.h>
+
 #include <zutils/zLcd.h>
 
 namespace zUtils
@@ -16,7 +33,7 @@ namespace zLcd
 Lcd::Lcd() :
     _rows(0), _cols(0), _update_cmd(*this), _clear_cmd(*this)
 {
-  this->_timer.RegisterObserver(this);
+//  this->_timer.RegisterObserver(this);
   this->_lock.Unlock();
 }
 

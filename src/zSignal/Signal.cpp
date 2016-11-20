@@ -6,12 +6,16 @@
 //
 //*****************************************************************************
 
+#include <string.h>
 #include <signal.h>
 
 #include <mutex>
 #include <list>
+#include <map>
 
+#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
+
 #include <zutils/zSignal.h>
 
 namespace zUtils
@@ -87,20 +91,37 @@ _sig2id(int sig_)
   return (id);
 }
 
+static void
+_sigaction_func(int sig_, siginfo_t *info_, void *arg_)
+{
+  Signal::ID id = _sig2id(sig_);
+  ZLOG_DEBUG("Notifying signal observer: " + zLog::IntStr(id));
+  SignalManager::Instance().Notify(id, info_);
+}
+
 //**********************************************************************
 // Class: Signal
 //**********************************************************************
 
-Signal::Signal() :
-    _id(Signal::ID_NONE), _event(zEvent::Event::TYPE_SIGNAL)
+Signal::Signal(const Signal::ID id_) :
+    _id(id_), zEvent::Event(zEvent::Event::TYPE_SIGNAL)
 {
+  memset(&this->_act, 0, sizeof(this->_act));
+  memset(&this->_oldact, 0, sizeof(this->_oldact));
+  this->_act.sa_sigaction = _sigaction_func;
+  this->_act.sa_flags = SA_SIGINFO;
+  sigemptyset(&this->_act.sa_mask);
+  int sig = _id2sig(id_);
+  if (sig >= 0)
+  {
+    sigaction(sig, &this->_act, &this->_oldact);
+  }
 }
 
 Signal::~Signal()
 {
   int sig = _id2sig(this->_id);
-  this->UnregisterEvent(&this->_event);
-  signal(sig, this->_prev_handler);
+  sigaction(sig, &this->_oldact, NULL);
 }
 
 Signal::ID
@@ -110,47 +131,16 @@ Signal::Id() const
 }
 
 bool
-Signal::Id(const Signal::ID id_)
+Signal::Notify(siginfo_t *info_)
 {
-  bool status = false;
-  if ((id_ > Signal::ID_NONE) || (id_ < Signal::ID_LAST))
-  {
-    this->RegisterEvent(&this->_event);
-    int sig = _id2sig(id_);
-    if (sig >= 0)
-    {
-      this->_prev_handler = signal(sig, &this->_signal_handler_function);
-      status = true;
-    }
-  }
-  return(status);
-}
-
-void
-Signal::Notify()
-{
-  SignalNotification notification(this->_id);
-  this->_event.Notify(&notification);
-}
-
-void
-Signal::_signal_handler_function(int sig_)
-{
-  Signal::ID id = _sig2id(sig_);
-
-}
-
-//**********************************************************************
-// Class: SignalNotification
-//**********************************************************************
-SignalNotification::SignalNotification (Signal::ID id_) :
-    _id(id_)
-{
-}
-
-SignalNotification::~SignalNotification()
-{
+  SignalNotification notification(this);
+  notification.id(this->_id);
+  notification.siginfo(info_);
+  ZLOG_DEBUG("Notifying signal observer: " + zLog::IntStr(this->_id));
+  zEvent::Event::Notify(static_cast<zEvent::EventNotification&>(notification));
+  return true;
 }
 
 }
 }
+

@@ -39,10 +39,13 @@ public:
     TYPE_GPIO = 5,
     TYPE_SERIAL = 6,
     TYPE_SOCKET = 7,
+    TYPE_MSG = 8,
+    TYPE_TEMP = 9,
     TYPE_LAST
   };
 
-  Event(Event::TYPE type_ = TYPE_NONE);
+//  Event(Event::TYPE type_ = TYPE_NONE);
+  Event(Event::TYPE type_);
 
   virtual
   ~Event();
@@ -52,6 +55,9 @@ public:
 
   void
   Notify(EventNotification* notification_);
+
+  void
+  Notify(EventNotification& notification_);
 
 protected:
 
@@ -68,12 +74,12 @@ private:
   Event::TYPE _type;
 
   Event(Event &other_);
-  Event(const Event &other_);
+    Event(const Event &other_);
 
 };
 
 //**********************************************************************
-// Class: Notification
+// Class: EventNotification
 //**********************************************************************
 
 class EventNotification
@@ -83,22 +89,28 @@ class EventNotification
 
 public:
 
-  EventNotification();
+  EventNotification(zEvent::Event::TYPE type_ = zEvent::Event::TYPE_NONE);
+
+  EventNotification(zEvent::Event* event_);
 
   virtual
   ~EventNotification();
 
-  Event::TYPE
+  zEvent::Event::TYPE
   Type() const;
+
+  zEvent::Event*
+  GetEvent() const;
 
 protected:
 
-  bool
-  type(const Event::TYPE type_);
+  void
+  type(zEvent::Event::TYPE type_);
 
 private:
 
-  Event::TYPE _type;
+  zEvent::Event::TYPE _type;
+  zEvent::Event *_event;
 
 };
 
@@ -127,27 +139,30 @@ public:
   ~EventHandler();
 
   void
-  RegisterEvent(Event *event_);
+  RegisterEvent(Event* event_);
 
   void
-  UnregisterEvent(Event *event_);
+  UnregisterEvent(Event* event_);
 
   bool
-  RegisterObserver(EventObserver *obs_);
+  RegisterObserver(EventObserver* obs_);
 
   bool
-  UnregisterObserver(EventObserver *obs_);
+  UnregisterObserver(EventObserver* obs_);
 
 protected:
 
   void
   notify(const EventNotification* notification_);
 
+  void
+  notify(const EventNotification& notification_);
+
 private:
 
   std::mutex _lock;
   std::list<Event *> _event_list;
-  std::list<EventObserver *> _obs_list;
+  std::list<EventObserver*> _obs_list;
 
   EventHandler(EventHandler const &);
 

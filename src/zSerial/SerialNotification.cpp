@@ -24,8 +24,8 @@ namespace zSerial
 // Class: SerialNotification
 //**********************************************************************
 
-SerialNotification::SerialNotification(const SerialNotification::ID id_, SerialPort* port_) :
-    _id(id_), _port(port_)
+SerialNotification::SerialNotification(SerialPort* port_) :
+    _id(SerialNotification::ID_NONE), zEvent::EventNotification(port_)
 {
 }
 
@@ -36,13 +36,33 @@ SerialNotification::~SerialNotification()
 SerialNotification::ID
 SerialNotification::Id() const
 {
-  return(this->_id);
+  return (this->_id);
+}
+
+void
+SerialNotification::id(SerialNotification::ID id_)
+{
+  this->_id = id_;
+  return;
 }
 
 SerialPort*
 SerialNotification::Port()
 {
-  return(this->_port);
+  return (static_cast<SerialPort*>(this->GetEvent()));
+}
+
+char
+SerialNotification::Data() const
+{
+  return (this->_c);
+}
+
+bool
+SerialNotification::data(const char c_)
+{
+  this->_c = c_;
+  return (true);
 }
 
 }

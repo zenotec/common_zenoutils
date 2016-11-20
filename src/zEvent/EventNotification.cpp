@@ -20,37 +20,47 @@ namespace zEvent
 {
 
 //**********************************************************************
-// Class: Notification
+// Class: EventNotification
 //**********************************************************************
 
-EventNotification::EventNotification() :
-    _type(Event::TYPE_NONE)
-{
 
+EventNotification::EventNotification(zEvent::Event::TYPE type_) :
+    _type(type_), _event(NULL)
+{
+}
+
+EventNotification::EventNotification(zEvent::Event* event_) :
+    _event(event_)
+{
+  if (event_)
+  {
+    this->type(event_->Type());
+  }
 }
 
 EventNotification::~EventNotification()
 {
-
 }
 
-Event::TYPE
+zEvent::Event::TYPE
 EventNotification::Type() const
 {
   return(this->_type);
 }
 
-bool
-EventNotification::type(const Event::TYPE type_)
+void
+EventNotification::type(zEvent::Event::TYPE type_)
 {
-  bool status = false;
-  if ((type_ > Event::TYPE_NONE) && (type_ < Event::TYPE_LAST))
-  {
-    this->_type = type_;
-    status = true;
-  }
-  return(status);
+  this->_type = type_;
+  return;
 }
+
+zEvent::Event*
+EventNotification::GetEvent() const
+{
+  return(this->_event);
+}
+
 
 }
 }

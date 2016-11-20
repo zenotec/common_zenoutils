@@ -36,7 +36,6 @@ public:
   virtual bool
   EventHandler(const zEvent::EventNotification* notification_)
   {
-    std::cout << "Test timer event handler" << std::endl;
     this->_cnt++;
   }
 

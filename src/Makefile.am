@@ -1,8 +1,6 @@
 #SUBDIRS = \
 #	zException \
-#	zSwitch \
-#	zLcd \
-#	zThermo
+#
 
 SUBDIRS = \
 	zLog \
@@ -19,7 +17,10 @@ SUBDIRS = \
 	zSerial \
 	zSocket \
 	zMessage \
-	zCommand
+	zCommand \
+	zSwitch \
+	zLcd \
+	zThermo
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -60,7 +61,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zThread.h \
     $(top_srcdir)/inc/zutils/zTimer.h \
     $(top_srcdir)/inc/zutils/zTty.h \
-    $(top_srcdir)/inc/zutils/zUuid.h 
+    $(top_srcdir)/inc/zutils/zUuid.h
 
 # Sources to include in the package
 libzutils_la_SOURCES = \
@@ -68,9 +69,7 @@ libzutils_la_SOURCES = \
 
 #libzutils_la_LIBADD = \
 #    ${top_builddir}/src/zException/libzException.la \
-#    ${top_builddir}/src/zSwitch/libzSwitch.la \
-#    ${top_builddir}/src/zThermo/libzThermo.la \
-#    ${top_builddir}/src/zLcd/libzLcd.la
+#
 
 libzutils_la_LIBADD = \
     ${top_builddir}/src/zLog/libzLog.la \
@@ -79,14 +78,17 @@ libzutils_la_LIBADD = \
     ${top_builddir}/src/zThread/libzThread.la \
     ${top_builddir}/src/zData/libzData.la \
     ${top_builddir}/src/zEvent/libzEvent.la \
-    ${top_builddir}/src/zTimer/libzTimer.la \
     ${top_builddir}/src/zSignal/libzSignal.la \
+    ${top_builddir}/src/zTimer/libzTimer.la \
     ${top_builddir}/src/zConfig/libzConfig.la \
     ${top_builddir}/src/zGpio/libzGpio.la \
     ${top_builddir}/src/zLed/libzLed.la \
     ${top_builddir}/src/zSerial/libzSerial.la \
     ${top_builddir}/src/zSocket/libzSocket.la \
     ${top_builddir}/src/zMessage/libzMessage.la \
-    ${top_builddir}/src/zCommand/libzCommand.la
+    ${top_builddir}/src/zCommand/libzCommand.la \
+    ${top_builddir}/src/zSwitch/libzSwitch.la \
+    ${top_builddir}/src/zThermo/libzThermo.la \
+    ${top_builddir}/src/zLcd/libzLcd.la
     
     

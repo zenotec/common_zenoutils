@@ -27,25 +27,25 @@ const std::string Configuration::ROOT = "zConfig";
 
 Configuration::Configuration() :
     _modified(false), _staging(Configuration::ROOT),
-        _working(Configuration::ROOT), _event(zEvent::Event::TYPE_CONFIG)
+        _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(Configuration &other_) :
     _modified(false), _staging(other_._staging),
-        _working(other_._working), _event(zEvent::Event::TYPE_CONFIG)
+        _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(const Configuration &other_) :
     _modified(false), _staging(other_._staging),
-        _working(other_._working), _event(zEvent::Event::TYPE_CONFIG)
+        _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(zData::Data &data_) :
     _modified(false), _staging(Configuration::ROOT),
-        _working(Configuration::ROOT), _event(zEvent::Event::TYPE_CONFIG)
+        _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
   this->_lock.lock();
   this->_staging.Put(data_, data_.Key());
@@ -72,18 +72,6 @@ Configuration::operator !=(const Configuration &other_) const
   bool status = false;
   status = (this->_working != other_._working);
   return (status);
-}
-
-void
-Configuration::RegisterEvents(zEvent::EventHandler &handler_)
-{
-  handler_.RegisterEvent(&this->_event);
-}
-
-void
-Configuration::UnregisterEvents(zEvent::EventHandler &handler_)
-{
-  handler_.UnregisterEvent(&this->_event);
 }
 
 bool
@@ -245,6 +233,16 @@ Configuration::Add(Configuration &conf_, const std::string &path_)
     status = this->Commit();
   }
   return (status);
+}
+
+zEvent::EventNotification*
+Configuration::CreateNotification()
+{
+}
+
+zEvent::EventNotification*
+Configuration::CreateNotification2()
+{
 }
 
 //**********************************************************************

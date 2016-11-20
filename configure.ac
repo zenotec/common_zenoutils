@@ -66,6 +66,9 @@ AC_CHECK_FUNCS([memset getpid sem_init strerror])
 com_incdir='-I${top_srcdir}/inc'
 AC_SUBST([com_incdir])
 
+num_cpus='$(grep -c ^processor /proc/cpuinfo)'
+AC_SUBST([num_cpus])
+
 AC_CONFIG_FILES([
     Makefile
       src/Makefile
@@ -84,6 +87,9 @@ AC_CONFIG_FILES([
         src/zSocket/Makefile
         src/zMessage/Makefile
         src/zCommand/Makefile
+        src/zSwitch/Makefile
+        src/zThermo/Makefile
+        src/zLcd/Makefile
       test/Makefile
         test/zThread/Makefile
         test/zProgOpt/Makefile

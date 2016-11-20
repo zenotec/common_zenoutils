@@ -8,9 +8,14 @@ zEventTest_EventHandlerTest(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new event and validate
-  zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
+  TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
   TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
+
+  // Create new event notification and validate
+  TestEventNotification *MyNotification = new TestEventNotification(MyEvent);
+  TEST_ISNOT_NULL(MyNotification);
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyNotification->Type());
 
   // Create new event handler and validate
   zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
@@ -33,12 +38,11 @@ zEventTest_EventHandlerTest(void* arg_)
   TEST_TRUE(MyObserver->Empty());
 
   // Notify
-  zEvent::EventNotification MyNotification;
-  MyEvent->Notify(&MyNotification);
+  MyEvent->Notify(MyNotification);
   TEST_TRUE(MyObserver->TryWait());
   TEST_EQ(MyObserver->Size(), 1);
   TEST_FALSE(MyObserver->Empty());
-  TEST_TRUE(MyObserver->Front().Type() == zEvent::Event::TYPE_TEST);
+  TEST_TRUE(MyObserver->Front()->Type() == zEvent::Event::TYPE_TEST);
   MyObserver->Pop();
 
   // Unregister observer with handler
@@ -53,6 +57,7 @@ zEventTest_EventHandlerTest(void* arg_)
   // Cleanup
   delete (MyObserver);
   delete (MyHandler);
+  delete (MyNotification);
   delete (MyEvent);
 
   // Return success

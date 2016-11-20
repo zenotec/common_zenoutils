@@ -19,7 +19,7 @@ namespace zSignal
 // Class: Signal
 //**********************************************************************
 
-class Signal : public zEvent::EventHandler
+class Signal : public zEvent::Event
 {
 
 public:
@@ -28,21 +28,19 @@ public:
   {
     ID_ERR = -1,
     ID_NONE = 0,
-    ID_SIGCHLD,
-    ID_SIGTERM,
-    ID_SIGSEGV,
-    ID_SIGINT,
-    ID_SIGILL,
-    ID_SIGABRT,
-    ID_SIGALRM,
-    ID_SIGKILL,
-    ID_SIGFPE,
-    ID_SIGUSR1,
-    ID_SIGUSR2,
+    ID_SIGCHLD = 1,
+    ID_SIGTERM = 2,
+    ID_SIGSEGV = 3,
+    ID_SIGINT = 4,
+    ID_SIGILL = 5,
+    ID_SIGABRT = 6,
+    ID_SIGALRM = 7,
+    ID_SIGUSR1 = 8,
+    ID_SIGUSR2 = 9,
     ID_LAST
   };
 
-  Signal();
+  Signal(const Signal::ID id_);
 
   virtual
   ~Signal();
@@ -51,22 +49,15 @@ public:
   Id() const;
 
   bool
-  Id (const Signal::ID id_);
-
-  void
-  Notify();
+  Notify(siginfo_t *info_);
 
 protected:
 
 private:
 
   Signal::ID _id;
-  zEvent::Event _event;
-
-  void (*_prev_handler)(int);
-
-  static void
-  _signal_handler_function (int sig_);
+  struct sigaction _act;
+  struct sigaction _oldact;
 
 };
 
@@ -76,18 +67,64 @@ private:
 
 class SignalNotification : public zEvent::EventNotification
 {
+
+  friend Signal;
+
 public:
 
-  SignalNotification(Signal::ID id_);
+  SignalNotification(Signal* signal_);
 
   virtual
   ~SignalNotification();
+
+  Signal::ID
+  Id() const;
+
+  const siginfo_t*
+  SigInfo() const;
+
+protected:
+
+  void
+  id(Signal::ID);
+
+  void
+  siginfo(const siginfo_t *info_);
+
+private:
+
+  Signal::ID _id;
+  const siginfo_t *_info;
+
+};
+
+//**********************************************************************
+// Class: SignalHandler
+//**********************************************************************
+
+class SignalHandler
+{
+public:
+
+  SignalHandler();
+
+  ~SignalHandler();
+
+  bool
+  RegisterObserver (Signal::ID id_, zEvent::EventObserver *obs_);
+
+  bool
+  UnregisterObserver (Signal::ID id_, zEvent::EventObserver *obs_);
+
+  bool
+  Notify(Signal::ID id_, siginfo_t *info_);
 
 protected:
 
 private:
 
-  Signal::ID _id;
+  std::map<Signal::ID, zEvent::EventHandler> _sig_handlers;
+  std::map<Signal::ID, Signal*> _sigs;
 
 };
 
@@ -95,7 +132,7 @@ private:
 // Class: SignalManager
 //**********************************************************************
 
-class SignalManager
+class SignalManager : public SignalHandler
 {
 public:
 
@@ -106,27 +143,12 @@ public:
     return instance;
   }
 
-  void
-  Notify(const Signal::ID id_)
-  {
-    if ((id_ > Signal::ID_NONE) && (id_ < Signal::ID_LAST))
-    {
-      this->_sigtbl[id_].Notify();
-    }
-  }
-
 protected:
 
 private:
 
-  Signal _sigtbl[Signal::ID_LAST];
-
   SignalManager()
   {
-    for (int sig = Signal::ID_NONE; sig < Signal::ID_LAST; sig++)
-    {
-      this->_sigtbl[sig].Id((Signal::ID)sig);
-    }
   }
 
   SignalManager(SignalManager const&);
@@ -134,7 +156,9 @@ private:
   void
   operator=(SignalManager const&);
 
+
 };
+
 
 }
 }

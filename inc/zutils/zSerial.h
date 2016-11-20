@@ -52,7 +52,7 @@ public:
 // Class: SerialPort
 //**********************************************************************
 
-class SerialPort : public SerialConfiguration, public zEvent::Event
+class SerialPort : public zEvent::Event
 {
 
 public:
@@ -108,6 +108,7 @@ protected:
 
 private:
 
+  SerialConfiguration _config;
   zQueue<char> _rxq;
   zQueue<char> _txq;
 
@@ -119,6 +120,9 @@ private:
 
 class SerialNotification : public zEvent::EventNotification
 {
+
+  friend SerialPort;
+
 public:
 
   enum ID
@@ -131,7 +135,7 @@ public:
     ID_LAST
   };
 
-  SerialNotification(const SerialNotification::ID id_, SerialPort* port_);
+  SerialNotification(SerialPort* port_);
 
   virtual
   ~SerialNotification();
@@ -142,39 +146,21 @@ public:
   SerialPort*
   Port();
 
+  char
+  Data() const;
+
 protected:
+
+  void
+  id(SerialNotification::ID id_);
+
+  bool
+  data(const char c_);
 
 private:
 
   SerialNotification::ID _id;
-  SerialPort* _port;
-
-};
-
-//**********************************************************************
-// Class: SerialHandler
-//**********************************************************************
-
-class SerialHandler : public zEvent::EventHandler
-{
-public:
-
-  SerialHandler();
-
-  virtual
-  ~SerialHandler();
-
-  bool
-  Add(SerialPort *port_);
-
-  bool
-  Remove(SerialPort *port_);
-
-protected:
-
-private:
-
-  std::list<SerialPort *> _port_list;
+  char _c;
 
 };
 
@@ -182,7 +168,7 @@ private:
 // Class: SerialManager
 //**********************************************************************
 
-class SerialManager : public SerialHandler
+class SerialManager : public zEvent::EventHandler
 {
 public:
 

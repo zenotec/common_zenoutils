@@ -1,5 +1,6 @@
 
 #include <unistd.h>
+#include <signal.h>
 
 #include <mutex>
 
@@ -16,32 +17,45 @@ zTimerTest_StartStop(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   uint32_t interval = 50000;
-  int n = 50;
+  int n = 10;
+
+  // Create new event handler and validate
+  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
+  TEST_ISNOT_ZERO(MyHandler);
 
   // Create new timer and validate
   zTimer::Timer *MyTimer = new zTimer::Timer;
+  TEST_ISNOT_ZERO(MyTimer);
+  MyHandler->RegisterEvent(MyTimer);
 
   // Create new timer observer and register with timer
-  TimerTestObserver *MyObsvr = new TimerTestObserver;
-  TEST_IS_ZERO(MyObsvr->GetCnt());
-  MyTimer->RegisterObserver(MyObsvr);
+  TimerTestObserver *MyObserver = new TimerTestObserver;
+  TEST_ISNOT_ZERO(MyObserver);
+  TEST_IS_ZERO(MyObserver->GetCnt());
+  MyHandler->RegisterObserver(MyObserver);
 
   // Start the timer
   MyTimer->Start(interval);
 
   // Delay for n intervals
-  usleep((n * interval) + (interval / 2));
+  for (int i = 0; i < n; i++)
+  {
+    usleep(interval);
+  }
 
   // Stop the timer
   MyTimer->Stop();
 
-  // Validate ((n - 3) < cnt < (n + 1))
-  TEST_GT(MyObsvr->GetCnt(), (n - 3));
-  TEST_LT(MyObsvr->GetCnt(), (n + 1));
+  usleep((interval));
+
+  // Validate
+  TEST_EQ(n, MyObserver->GetCnt());
 
   // Cleanup
-  MyTimer->UnregisterObserver(MyObsvr);
-  delete (MyObsvr);
+  MyHandler->UnregisterObserver(MyObserver);
+  MyHandler->UnregisterEvent(MyTimer);
+  delete (MyObserver);
+  delete (MyHandler);
   delete (MyTimer);
 
   // Return success

@@ -5,6 +5,24 @@
  *      Author: kmahoney
  */
 
+#include <signal.h>
+
+#include <string>
+#include <mutex>
+#include <list>
+#include <vector>
+#include <map>
+
+#include <zutils/zSem.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+#include <zutils/zTimer.h>
+#include <zutils/zLog.h>
+#include <zutils/zData.h>
+#include <zutils/zSocket.h>
+#include <zutils/zMessage.h>
+#include <zutils/zCommand.h>
+
 #include <zutils/zLcd.h>
 
 namespace zUtils
@@ -17,7 +35,7 @@ namespace zLcd
 //*****************************************************************************
 
 LcdVar::LcdVar(const std::string &name_) :
-  _name(name_), _row(0), _col(0), _len(0)
+    _name(name_), _row(0), _col(0), _len(0)
 {
   this->_lock.Unlock();
 }
@@ -60,7 +78,7 @@ LcdVar::SetValue(const std::string &value_)
     status = true;
     this->_lock.Unlock();
   }
-  return(status);
+  return (status);
 }
 
 ssize_t
@@ -72,7 +90,7 @@ LcdVar::GetCol()
     col = this->_col;
     this->_lock.Unlock();
   }
-  return(col);
+  return (col);
 }
 
 void
@@ -94,7 +112,7 @@ LcdVar::GetRow()
     row = this->_row;
     this->_lock.Unlock();
   }
-  return(row);
+  return (row);
 }
 
 void
@@ -116,7 +134,7 @@ LcdVar::GetLength()
     size = this->_len;
     this->_lock.Unlock();
   }
-  return(size);
+  return (size);
 }
 
 void

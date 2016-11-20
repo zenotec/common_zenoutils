@@ -21,7 +21,14 @@
 #include "UnitTest.h"
 
 int
-zEventTest_Defaults(void * arg_);
+zEventTest_EventDefaults(void * arg_);
+int
+zEventTest_EventNotificationDefaults(void * arg_);
+int
+zEventTest_EventHandlerDefaults(void * arg_);
+int
+zEventTest_EventManagerDefaults(void * arg_);
+
 int
 zEventTest_EventTest(void* arg_);
 int
@@ -32,7 +39,35 @@ zEventTest_EventManagerTest(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TestObserver : public zEvent::EventObserver, public zQueue<zEvent::EventNotification>
+class TestEventNotification : public zEvent::EventNotification
+{
+public:
+  TestEventNotification(zEvent::Event* event_) :
+    zEvent::EventNotification(event_)
+  {
+
+  }
+  ~TestEventNotification()
+  {
+
+  }
+};
+
+class TestEvent : public zEvent::Event
+{
+public:
+  TestEvent() :
+      zEvent::Event(zEvent::Event::TYPE_TEST)
+  {
+
+  }
+  ~TestEvent()
+  {
+
+  }
+};
+
+class TestObserver : public zEvent::EventObserver, public zQueue<const zEvent::EventNotification*>
 {
 public:
   TestObserver()
@@ -48,7 +83,7 @@ public:
   EventHandler(const zEvent::EventNotification* notification_)
   {
     ZLOG_DEBUG("Handling event");
-    this->Push(*notification_);
+    this->Push(notification_);
     return (true);
   }
 };

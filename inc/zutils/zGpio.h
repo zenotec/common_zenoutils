@@ -129,7 +129,7 @@ public:
 // Class: GpioPort
 //**********************************************************************
 
-class GpioPort : public GpioConfiguration, public zThread::Function, public zEvent::Event
+class GpioPort : public zEvent::Event, public zThread::Function
 {
 
 public:

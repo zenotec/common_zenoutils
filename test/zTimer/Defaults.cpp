@@ -1,4 +1,6 @@
 
+#include <signal.h>
+
 #include <unistd.h>
 
 #include <mutex>
@@ -11,6 +13,9 @@ using namespace zUtils;
 int
 zTimerTest_Defaults(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zTimerTest_Defaults()");
+  ZLOG_DEBUG("#############################################################");
 
   // Create new timer and validate
   zTimer::Timer *MyTimer = new zTimer::Timer;

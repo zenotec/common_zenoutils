@@ -1,4 +1,6 @@
 
+#include <signal.h>
+
 #include <mutex>
 
 #include <zutils/zLog.h>

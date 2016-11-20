@@ -51,19 +51,19 @@ MessageSocket::~MessageSocket()
 const zSocket::SocketAddress &
 MessageSocket::GetAddress()
 {
-  return(this->_sock->GetAddress());
+  return (this->_sock->GetAddress());
 }
 
 bool
 MessageSocket::SetAddress(const zSocket::SocketAddress &addr_)
 {
-  return(this->_sock->SetAddress(addr_));
+  return (this->_sock->SetAddress(addr_));
 }
 
 bool
 MessageSocket::Open()
 {
-  return(this->_sock->Open());
+  return (this->_sock->Open());
 }
 
 void
@@ -76,13 +76,13 @@ MessageSocket::Close()
 bool
 MessageSocket::Bind()
 {
-  return(this->_sock->Bind());
+  return (this->_sock->Bind());
 }
 
 bool
 MessageSocket::Connect(const zSocket::SocketAddress &addr_)
 {
-  return(this->_sock->Connect(addr_));
+  return (this->_sock->Connect(addr_));
 }
 
 bool
@@ -95,7 +95,7 @@ MessageSocket::Receive(zMessage::Message &msg_)
     msg_.SetJson(p.second->Str());
     status = true;
   }
-  return(status);
+  return (status);
 }
 
 bool
@@ -121,7 +121,7 @@ MessageSocket::Send(zMessage::Message &msg_)
   }
 
   // Return status
-  return(status);
+  return (status);
 }
 
 bool
@@ -132,11 +132,12 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
   bool status = false;
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
   {
-    zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
+    const zSocket::SocketNotification *n =
+        static_cast<const zSocket::SocketNotification *>(notification_);
     switch (n->Id())
     {
     case zSocket::SocketNotification::ID_PKT_RCVD:
-    {
+      {
       zSocket::SocketAddressBufferPair p;
       this->_sock->Receive(p);
       this->rxbuf(p);
@@ -144,7 +145,7 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
       break;
     }
     case zSocket::SocketNotification::ID_PKT_SENT:
-    {
+      {
       zSocket::SocketNotification notification(zSocket::SocketNotification::ID_PKT_SENT, this);
       this->Notify(&notification);
       status = true;

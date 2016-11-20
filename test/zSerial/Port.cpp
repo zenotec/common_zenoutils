@@ -39,14 +39,14 @@ zSerialTest_PortSendRecvChar(void *arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
-  zSerial::SerialHandler *MyHandler = new zSerial::SerialHandler;
+  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_ZERO(MyHandler);
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
   // Register port with handler
-  MyHandler->Add(MyPort);
+  MyHandler->RegisterEvent(MyPort);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");
@@ -115,14 +115,14 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
-  zSerial::SerialHandler *MyHandler = new zSerial::SerialHandler;
+  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_ZERO(MyHandler);
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
   // Register port with handler
-  MyHandler->Add(MyPort);
+  MyHandler->RegisterEvent(MyPort);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");
@@ -196,14 +196,14 @@ zSerialTest_PortSendRecvString(void *arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
-  zSerial::SerialHandler *MyHandler = new zSerial::SerialHandler;
+  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_ZERO(MyHandler);
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
 
   // Register port with handler
-  MyHandler->Add(MyPort);
+  MyHandler->RegisterEvent(MyPort);
 
   // Open port
   status = MyPort->Open("/dev/MyPort");

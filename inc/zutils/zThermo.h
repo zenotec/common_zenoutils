@@ -8,10 +8,6 @@
 #ifndef _ZTHERMO_H_
 #define _ZTHERMO_H_
 
-#include <zutils/zSem.h>
-#include <zutils/zEvent.h>
-#include <zutils/zThread.h>
-
 namespace zUtils
 {
 namespace zThermo

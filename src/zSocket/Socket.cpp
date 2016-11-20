@@ -32,7 +32,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket() :
-    _type(TYPE_NONE)
+    _type(TYPE_NONE), zEvent::Event(zEvent::Event::TYPE_SOCKET)
 {
   ZLOG_DEBUG("Creating socket: '" + zLog::PointerStr(this) + "'");
 }
