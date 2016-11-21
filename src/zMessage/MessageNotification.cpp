@@ -33,13 +33,45 @@ namespace zMessage
 // Class: MessageNotification
 //**********************************************************************
 
-MessageNotification::MessageNotification(const MessageNotification::ID id_) :
-    _id(id_)
+MessageNotification::MessageNotification(zMessage::MessageSocket *sock_) :
+    _id(MessageNotification::ID_NONE), zEvent::EventNotification(sock_)
 {
 }
 
 MessageNotification::~MessageNotification()
 {
+}
+
+MessageNotification::ID
+MessageNotification::Id() const
+{
+  return (this->_id);
+}
+
+bool
+MessageNotification::id(MessageNotification::ID id_)
+{
+  this->_id = id_;
+  return (true);
+}
+
+zMessage::MessageSocket*
+MessageNotification::Sock() const
+{
+  return (static_cast<zMessage::MessageSocket*>(this->GetEvent()));
+}
+
+zMessage::Message*
+MessageNotification::Message() const
+{
+  return (this->_msg);
+}
+
+bool
+MessageNotification::message(zMessage::Message* msg_)
+{
+  this->_msg = msg_;
+  return (true);
 }
 
 }

@@ -9,6 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzMessage.la
 
 libzMessage_la_SOURCES = \
+	MessageNotification.cpp \
     Message.cpp \
     MessageFactory.cpp \
     MessageSocket.cpp

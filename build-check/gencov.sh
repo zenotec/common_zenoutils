@@ -3,7 +3,7 @@
 TOPDIR=$(pwd)
 SRCDIR="${TOPDIR}/src"
 TESTDIR="${TOPDIR}/test"
-TESTS="zLog zProgOpt zSem zThread zData zEvent zSignal zTimer zConfig zGpio zSerial zLed zSocket"
+TESTS="zLog zProgOpt zSem zThread zData zEvent zSignal zTimer zConfig zGpio zSerial zLed zSocket zMessage zCommand"
 COVDIR="${TOPDIR}/coverage"
 
 rm -rf ${SRCDIR} ${TESTDIR} ${COVDIR}

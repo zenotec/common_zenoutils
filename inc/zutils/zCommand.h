@@ -13,6 +13,10 @@ namespace zUtils
 namespace zCommand
 {
 
+//**********************************************************************
+// Class: CommandOption
+//**********************************************************************
+
 class CommandOption : public zData::Data
 {
 
@@ -47,7 +51,11 @@ private:
 
 };
 
-class Command : public zEvent::EventObserver, public zData::Data
+//**********************************************************************
+// Class: Command
+//**********************************************************************
+
+class Command : public zData::Data, public zEvent::Event
 {
 public:
 
@@ -98,6 +106,10 @@ private:
 
 };
 
+//**********************************************************************
+// Class: CommandMessage
+//**********************************************************************
+
 class CommandMessage : public zMessage::Message
 {
 public:
@@ -118,6 +130,10 @@ private:
 
 };
 
+//**********************************************************************
+// Class: CommandNotification
+//**********************************************************************
+
 class CommandNotification : public zEvent::EventNotification
 {
 public:
@@ -129,7 +145,7 @@ public:
     ID_LAST
   };
 
-  CommandNotification(const CommandNotification::ID id_);
+  CommandNotification(Command* cmd_);
 
   virtual
   ~CommandNotification();
@@ -138,7 +154,13 @@ protected:
 
 private:
 
+  CommandNotification::ID _id;
+
 };
+
+//**********************************************************************
+// Class: CommandHandler
+//**********************************************************************
 
 class CommandHandler : public zEvent::EventHandler
 {
@@ -164,6 +186,36 @@ private:
 
   zSem::Mutex _lock;
   std::map<std::string, zCommand::Command *> _cmd_table;
+
+};
+
+//**********************************************************************
+// Class: CommandManager
+//**********************************************************************
+
+class CommandManager : public zEvent::EventHandler
+{
+public:
+
+  static CommandManager&
+  Instance()
+  {
+    static CommandManager instance;
+    return instance;
+  }
+
+protected:
+
+private:
+
+  CommandManager()
+  {
+  }
+
+  CommandManager(CommandManager const&);
+
+  void
+  operator=(CommandManager const&);
 
 };
 

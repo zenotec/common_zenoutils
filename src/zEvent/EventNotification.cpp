@@ -23,7 +23,6 @@ namespace zEvent
 // Class: EventNotification
 //**********************************************************************
 
-
 EventNotification::EventNotification(zEvent::Event::TYPE type_) :
     _type(type_), _event(NULL)
 {
@@ -45,7 +44,7 @@ EventNotification::~EventNotification()
 zEvent::Event::TYPE
 EventNotification::Type() const
 {
-  return(this->_type);
+  return (this->_type);
 }
 
 void
@@ -58,9 +57,8 @@ EventNotification::type(zEvent::Event::TYPE type_)
 zEvent::Event*
 EventNotification::GetEvent() const
 {
-  return(this->_event);
+  return (this->_event);
 }
-
 
 }
 }

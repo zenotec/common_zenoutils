@@ -34,18 +34,18 @@ namespace zMessage
 //**********************************************************************
 
 MessageSocket::MessageSocket(zSocket::Socket *sock_) :
-    _sock(sock_)
+    _sock(sock_), zEvent::Event(zEvent::Event::TYPE_MSG)
 {
   ZLOG_DEBUG("Creating message socket: '" + zLog::PointerStr(this) + "'");
+  this->_handler.RegisterEvent(this->_sock);
   this->_handler.RegisterObserver(this);
-  this->_handler.Add(sock_);
 }
 
 MessageSocket::~MessageSocket()
 {
   ZLOG_DEBUG("Destroying message socket: '" + zLog::PointerStr(this) + "'");
   this->_handler.UnregisterObserver(this);
-  this->_handler.Remove(this->_sock);
+  this->_handler.UnregisterEvent(this->_sock);
 }
 
 const zSocket::SocketAddress &
@@ -83,19 +83,6 @@ bool
 MessageSocket::Connect(const zSocket::SocketAddress &addr_)
 {
   return (this->_sock->Connect(addr_));
-}
-
-bool
-MessageSocket::Receive(zMessage::Message &msg_)
-{
-  bool status = false;
-  zSocket::SocketAddressBufferPair p;
-  if (zSocket::Socket::Receive(p) > 0)
-  {
-    msg_.SetJson(p.second->Str());
-    status = true;
-  }
-  return (status);
 }
 
 bool
@@ -138,16 +125,22 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
     {
     case zSocket::SocketNotification::ID_PKT_RCVD:
       {
-      zSocket::SocketAddressBufferPair p;
-      this->_sock->Receive(p);
-      this->rxbuf(p);
+      zSocket::SocketAddressBufferPair p = n->Pkt();
+      zMessage::Message msg(p.second->Str());
+      zMessage::MessageNotification notification(this);
+      notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
+      notification.message(&msg);
+      this->Notify(notification);
       status = true;
       break;
     }
     case zSocket::SocketNotification::ID_PKT_SENT:
-      {
-      zSocket::SocketNotification notification(zSocket::SocketNotification::ID_PKT_SENT, this);
-      this->Notify(&notification);
+    {
+      zSocket::SocketAddressBufferPair p = n->Pkt();
+      zMessage::MessageNotification notification(this);
+      notification.id(zMessage::MessageNotification::ID_MSG_SENT);
+      notification.message(NULL);
+      this->Notify(notification);
       status = true;
       break;
     }

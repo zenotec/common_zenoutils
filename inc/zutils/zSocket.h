@@ -210,15 +210,6 @@ public:
   Connect(const zSocket::SocketAddress &addr_);
 
   ssize_t
-  Receive(SocketAddressBufferPair &pair_);
-
-  ssize_t
-  Receive(zSocket::SocketAddress &from_, zSocket::SocketBuffer &sb_);
-
-  ssize_t
-  Receive(zSocket::SocketAddress &from_, std::string &str_);
-
-  ssize_t
   Send(SocketAddressBufferPair &pair_);
 
   ssize_t
@@ -254,6 +245,9 @@ private:
 
 class SocketNotification : public zEvent::EventNotification
 {
+
+  friend Socket;
+
 public:
 
   enum ID
@@ -266,7 +260,7 @@ public:
     ID_LAST
   };
 
-  SocketNotification(const SocketNotification::ID id_, Socket* sock_);
+  SocketNotification(Socket* sock_);
 
   virtual
   ~SocketNotification();
@@ -277,39 +271,21 @@ public:
   zSocket::Socket*
   Sock();
 
+  SocketAddressBufferPair
+  Pkt() const;
+
 protected:
+
+  void
+  id(SocketNotification::ID id_);
+
+  void
+  pkt(SocketAddressBufferPair &pkt_);
 
 private:
 
   SocketNotification::ID _id;
-  Socket* _sock;
-
-};
-
-//**********************************************************************
-// Class: SocketHandler
-//**********************************************************************
-
-class SocketHandler : public zEvent::EventHandler
-{
-public:
-
-  SocketHandler();
-
-  virtual
-  ~SocketHandler();
-
-  bool
-  Add(Socket *sock_);
-
-  bool
-  Remove(Socket *sock_);
-
-protected:
-
-private:
-
-  std::list<Socket *> _sock_list;
+  SocketAddressBufferPair _pkt;
 
 };
 
@@ -317,7 +293,7 @@ private:
 // Class: SocketManager
 //**********************************************************************
 
-class SocketManager : public SocketHandler
+class SocketManager : public zEvent::EventHandler
 {
 public:
 

@@ -27,11 +27,11 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_ISNOT_NULL(MsgSock);
 
   // Create new socket hander and validate
-  zSocket::SocketHandler *MyHandler = new zSocket::SocketHandler;
+  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Register socket with handler and validate
-  TEST_TRUE(MyHandler->Add(MsgSock));
+  MyHandler->RegisterEvent(MsgSock);
 
   // Create new message socket observer and validate
   TestSocketObserver *MyObserver = new TestSocketObserver;
@@ -43,7 +43,8 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_FALSE(MyObserver->TxSem.TryWait());
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
-  // Bind socket
+  // Open and bind socket
+  TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind());
 
   // Send hello message to self
@@ -131,7 +132,7 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Clean up
-  TEST_TRUE(MyHandler->Remove(MsgSock));
+  MyHandler->UnregisterEvent(MsgSock);
   MyHandler->UnregisterObserver(MyObserver);
   delete(MyHandler);
   delete(MyObserver);

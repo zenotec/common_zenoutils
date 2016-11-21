@@ -73,6 +73,17 @@ Message::Message(const zData::Data &msg_) :
   this->SetData(this->GetData());
 }
 
+Message::Message(const std::string &json_)
+{
+  // Initialize message
+  this->SetJson(json_);
+  this->SetId(this->GetId());
+  this->SetType(this->GetType());
+  this->SetDst(this->GetDst());
+  this->SetSrc(this->GetSrc());
+  this->SetData(this->GetData());
+}
+
 Message::~Message()
 {
 }

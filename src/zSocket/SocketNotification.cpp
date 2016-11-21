@@ -32,10 +32,9 @@ namespace zSocket
 // zSocket::SocketNotification Class
 //*****************************************************************************
 
-SocketNotification::SocketNotification(const SocketNotification::ID id_, Socket* sock_) :
-    _id(id_), _sock(sock_)
+SocketNotification::SocketNotification(Socket* sock_) :
+    _id(SocketNotification::ID_NONE), zEvent::EventNotification(sock_)
 {
-  this->type(zEvent::Event::TYPE_SOCKET);
 }
 
 SocketNotification::~SocketNotification()
@@ -48,10 +47,30 @@ SocketNotification::Id() const
   return(this->_id);
 }
 
+void
+SocketNotification::id(SocketNotification::ID id_)
+{
+  this->_id = id_;
+  return;
+}
+
 zSocket::Socket*
 SocketNotification::Sock()
 {
-  return(this->_sock);
+  return(static_cast<zSocket::Socket*>(this->GetEvent()));
+}
+
+SocketAddressBufferPair
+SocketNotification::Pkt() const
+{
+  return(this->_pkt);
+}
+
+void
+SocketNotification::pkt(SocketAddressBufferPair &pkt_)
+{
+  this->_pkt = pkt_;
+  return;
 }
 
 }

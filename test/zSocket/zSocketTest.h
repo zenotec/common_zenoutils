@@ -79,9 +79,9 @@ public:
   {
   }
 
-  zSem::Semaphore RxSem;
-  zSem::Semaphore TxSem;
-  zSem::Semaphore ErrSem;
+  zQueue<zSocket::SocketAddressBufferPair> RxSem;
+  zQueue<zSocket::SocketAddressBufferPair> TxSem;
+  zQueue<zSocket::SocketAddressBufferPair> ErrSem;
 
 protected:
 
@@ -97,15 +97,16 @@ protected:
       switch (n->Id())
       {
       case zSocket::SocketNotification::ID_PKT_RCVD:
-        this->RxSem.Post();
+        this->RxSem.Push(n->Pkt());
         status = true;
         break;
       case zSocket::SocketNotification::ID_PKT_SENT:
+        this->TxSem.Push(n->Pkt());
         this->TxSem.Post();
         status = true;
         break;
       default:
-        this->ErrSem.Post();
+        this->ErrSem.Push(n->Pkt());
         status = false;
         break;
       }

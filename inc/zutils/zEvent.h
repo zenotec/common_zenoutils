@@ -44,7 +44,6 @@ public:
     TYPE_LAST
   };
 
-//  Event(Event::TYPE type_ = TYPE_NONE);
   Event(Event::TYPE type_);
 
   virtual

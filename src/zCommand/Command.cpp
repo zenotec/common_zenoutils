@@ -30,14 +30,14 @@ const std::string Command::NAME = "Name";
 const std::string Command::OUTPUT = "Output";
 
 Command::Command(const std::string &name_) :
-    zData::Data(Command::ROOT)
+    zData::Data(Command::ROOT), zEvent::Event(zEvent::Event::TYPE_NONE)
 {
   this->SetName(name_);
   this->SetOutput(this->GetOutput());
 }
 
 Command::Command(const zData::Data &data_) :
-    zData::Data(data_)
+    zData::Data(data_), zEvent::Event(zEvent::Event::TYPE_NONE)
 {
   this->SetName(this->GetName());
   this->SetOutput(this->GetOutput());
@@ -77,9 +77,9 @@ std::vector<CommandOption>
 Command::GetOptions() const
 {
 
-  zData:Data data;
+  zData: Data data;
   std::unique_ptr<zData::Data> child;
-  std::vector<CommandOption>options;
+  std::vector<CommandOption> options;
 
   if (this->Get(data, CommandOption::ROOT))
   {
@@ -123,11 +123,6 @@ bool
 Command::EventHandler(const zEvent::EventNotification* notification_)
 {
   bool status = false;
-//  Command *cmd = static_cast<Command *>(arg_);
-//  if (cmd && cmd->GetName() == this->GetName())
-//  {
-//    status = this->Execute(cmd->GetArgument());
-//  }
   return (status);
 }
 

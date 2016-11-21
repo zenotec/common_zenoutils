@@ -91,57 +91,6 @@ Socket::Connect(const zSocket::SocketAddress &addr_)
 }
 
 ssize_t
-Socket::Receive(SocketAddressBufferPair &pair_)
-{
-
-  ssize_t bytes = -1;
-
-  if (!this->_rxq.Empty())
-  {
-    pair_ = this->_rxq.Front();
-    this->_rxq.Pop();
-    ZLOG_DEBUG("Received packet: " + pair_.first.GetAddress() + "(" + zLog::IntStr(pair_.second->Size()) + ")");
-    bytes = pair_.second->Size();
-  }
-
-  // Return number of bytes received
-  return (bytes);
-
-}
-
-ssize_t
-Socket::Receive(SocketAddress &addr_, SocketBuffer &sb_)
-{
-
-  SocketAddressBufferPair p;
-  ssize_t bytes = this->Receive(p);
-
-  if (bytes >= 0)
-  {
-    addr_ = p.first;
-    sb_ = *p.second;
-  }
-
-  // Return number of bytes received
-  return (bytes);
-
-}
-
-ssize_t
-Socket::Receive(SocketAddress &addr_, std::string &str_)
-{
-  SocketAddressBufferPair p;
-  ssize_t bytes = this->Receive(p);
-  if (bytes >= 0)
-  {
-    addr_ = p.first;
-    str_ = p.second->Str();
-  }
-
-  return (bytes);
-}
-
-ssize_t
 Socket::Send(SocketAddressBufferPair &pair_)
 {
   ZLOG_DEBUG("Sending packet: " + pair_.first.GetAddress() + "(" + zLog::IntStr(pair_.second->Size()) + ")");
@@ -169,8 +118,9 @@ Socket::Send(const SocketAddress &addr_, const std::string &str_)
 bool
 Socket::rxbuf(SocketAddressBufferPair &pair_)
 {
-  this->_rxq.Push(pair_);
-  SocketNotification notification(SocketNotification::ID_PKT_RCVD, this);
+  SocketNotification notification(this);
+  notification.id(SocketNotification::ID_PKT_RCVD);
+  notification.pkt(pair_);
   this->Notify(&notification);
   return(true);
 }
@@ -183,7 +133,9 @@ Socket::txbuf(SocketAddressBufferPair &pair_, size_t timeout_)
   {
     pair_ = this->_txq.Front();
     this->_txq.Pop();
-    SocketNotification notification(SocketNotification::ID_PKT_SENT, this);
+    SocketNotification notification(this);
+    notification.id(SocketNotification::ID_PKT_SENT);
+    notification.pkt(pair_);
     this->Notify(&notification);
     status = true;
   }

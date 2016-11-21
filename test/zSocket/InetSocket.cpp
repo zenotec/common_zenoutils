@@ -65,11 +65,11 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_TRUE(MySock->Bind());
 
   // Create new socket handler and validate
-  zSocket::SocketHandler* MyHandler = new zSocket::SocketHandler;
+  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  TEST_TRUE(MyHandler->Add(MySock));
+  MyHandler->RegisterEvent(MySock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -85,6 +85,8 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100000);
   TEST_TRUE(status);
+  zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
+  MyObserver->TxSem.Pop();
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
@@ -93,19 +95,19 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100000);
   TEST_TRUE(status);
+  zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
+  MyObserver->RxSem.Pop();
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
 
-  // Receive string back and validate
-  std::string obsStr;
-  TEST_EQ((int)MySock->Receive(*DstAddr, obsStr), (int)ExpStr.size());
-  TEST_EQ(SrcAddr->GetAddress(), DstAddr->GetAddress());
-  TEST_EQ(ExpStr, obsStr);
+  // Validate messages match
+  TEST_EQ(txp.first.GetAddress(), rxp.first.GetAddress());
+  TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Unregister observer with socket handler
-  MyHandler->Remove(MySock);
+  MyHandler->UnregisterEvent(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
@@ -156,18 +158,22 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock1->Bind());
 
   // Create new socket handler and validate
-  zSocket::SocketHandler* MyHandler = new zSocket::SocketHandler;
-  TEST_ISNOT_NULL(MyHandler);
+  zEvent::EventHandler* MyHandler1 = new zEvent::EventHandler;
+  TEST_ISNOT_NULL(MyHandler1);
 
-  // Add socket to handler
-  TEST_TRUE(MyHandler->Add(MySock1));
+  // Create new socket handler and validate
+  zEvent::EventHandler* MyHandler2 = new zEvent::EventHandler;
+  TEST_ISNOT_NULL(MyHandler2);
+
+  // Register socket with handler
+  MyHandler1->RegisterEvent(MySock1);
 
   // Create new observer and validate
   TestObserver *MyObserver1 = new TestObserver;
   TEST_ISNOT_NULL(MyObserver1);
 
   // Register observer
-  MyHandler->RegisterObserver(MyObserver1);
+  MyHandler1->RegisterObserver(MyObserver1);
 
   // Create new socket and validate
   zSocket::InetSocket *MySock2 = new zSocket::InetSocket;
@@ -176,15 +182,15 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock2->Open());
   TEST_TRUE(MySock2->Bind());
 
-  // Add socket to handler
-  TEST_TRUE(MyHandler->Add(MySock2));
+  // Register socket with handler
+  MyHandler2->RegisterEvent(MySock2);
 
   // Create new observer and validate
   TestObserver *MyObserver2 = new TestObserver;
   TEST_ISNOT_NULL(MyObserver2);
 
   // Register observer
-  MyHandler->RegisterObserver(MyObserver2);
+  MyHandler2->RegisterObserver(MyObserver2);
 
   // Send string and validate
   std::string expStr = "Hello Universe";
@@ -193,6 +199,10 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Wait for packet to be sent
   status = MyObserver1->TxSem.TimedWait(100000);
   TEST_TRUE(status);
+  status = MyObserver2->TxSem.TryWait();
+  TEST_FALSE(status);
+  zSocket::SocketAddressBufferPair txp = MyObserver1->TxSem.Front();
+  MyObserver1->TxSem.Pop();
 
   // Verify no errors
   status = MyObserver1->ErrSem.TryWait();
@@ -201,35 +211,34 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Wait for packet to be received
   status = MyObserver2->RxSem.TimedWait(100000);
   TEST_TRUE(status);
+  status = MyObserver1->RxSem.TryWait();
+  TEST_FALSE(status);
+  zSocket::SocketAddressBufferPair rxp = MyObserver2->RxSem.Front();
+  MyObserver2->RxSem.Pop();
 
   // Verify no errors
   status = MyObserver2->ErrSem.TryWait();
   TEST_FALSE(status);
 
-  // Receive string back and validate
-  zSocket::SocketAddress *ObsAddr = new zSocket::SocketAddress;
-  std::string obsStr;
-  TEST_EQ((int )MySock2->Receive(*ObsAddr, obsStr), (int )expStr.size());
-  TEST_EQ(ObsAddr->GetAddress(), SrcAddr->GetAddress());
-  TEST_EQ(ObsAddr->GetType(), SrcAddr->GetType());
-  TEST_TRUE(*ObsAddr == *SrcAddr);
-  TEST_EQ(expStr, obsStr);
-  delete (ObsAddr);
+  // Validate messages match
+  TEST_EQ(txp.first.GetAddress(), DstAddr->GetAddress());
+  TEST_EQ(rxp.first.GetAddress(), SrcAddr->GetAddress());
+  TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Cleanup
-  MyHandler->Remove(MySock1);
-  MyHandler->UnregisterObserver(MyObserver1);
+  MyHandler1->UnregisterEvent(MySock1);
+  MyHandler1->UnregisterObserver(MyObserver1);
   delete (MyObserver1);
-
-  MyHandler->Remove(MySock2);
-  MyHandler->UnregisterObserver(MyObserver2);
-  delete (MyObserver2);
-
   MySock1->Close();
   delete (MySock1);
+  delete (MyHandler1);
 
+  MyHandler1->UnregisterEvent(MySock2);
+  MyHandler1->UnregisterObserver(MyObserver2);
+  delete (MyObserver2);
   MySock2->Close();
   delete (MySock2);
+  delete (MyHandler2);
 
   delete (DstAddr);
   delete (SrcAddr);

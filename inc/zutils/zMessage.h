@@ -136,7 +136,7 @@ public:
 // Class: MessageSocket
 //**********************************************************************
 
-class MessageSocket : public zSocket::Socket, public zEvent::EventObserver
+class MessageSocket : public zEvent::Event, public zEvent::EventObserver
 {
 
 public:
@@ -164,9 +164,6 @@ public:
   Connect(const zSocket::SocketAddress &addr_);
 
   bool
-  Receive(zMessage::Message &msg_);
-
-  bool
   Send(zMessage::Message &msg_);
 
 protected:
@@ -177,7 +174,7 @@ protected:
 private:
 
   zSocket::Socket* _sock;
-  zSocket::SocketHandler _handler;
+  zEvent::EventHandler _handler;
 
 };
 
@@ -187,6 +184,9 @@ private:
 
 class MessageNotification : public zEvent::EventNotification
 {
+
+  friend MessageSocket;
+
 public:
 
   enum ID
@@ -199,28 +199,31 @@ public:
     ID_LAST
   };
 
-  MessageNotification(const MessageNotification::ID id_);
+  MessageNotification(zMessage::MessageSocket *sock_);
 
   virtual
   ~MessageNotification();
 
+  MessageNotification::ID
+  Id() const;
+
   zMessage::MessageSocket*
   Sock() const;
-
-  bool
-  Sock(zMessage::MessageSocket* sock_);
 
   zMessage::Message*
   Message() const;
 
-  bool
-  Message(zMessage::Message* msg_);
-
 protected:
+
+  bool
+  id(MessageNotification::ID id_);
+
+  bool
+  message(zMessage::Message* msg_);
 
 private:
 
-  zMessage::MessageSocket* _sock;
+  MessageNotification::ID _id;
   zMessage::Message* _msg;
 
 };

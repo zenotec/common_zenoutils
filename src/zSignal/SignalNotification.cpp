@@ -27,10 +27,6 @@ namespace zSignal
 SignalNotification::SignalNotification(Signal* signal_) :
     _id(Signal::ID_NONE), zEvent::EventNotification(signal_)
 {
-  if (signal_)
-  {
-    this->type(signal_->Type());
-  }
 }
 
 SignalNotification::~SignalNotification()
