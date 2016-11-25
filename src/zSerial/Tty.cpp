@@ -85,6 +85,9 @@ TtyPort::TtyPort(TtyPort::BAUD baud_, TtyPort::DATABITS dbits_, TtyPort::STOPBIT
   this->SetFlowControl(flowcntl_);
   this->SetBlocking(blocking_);
 
+  this->_rx_thread.Name(std::string("RxTty"));
+  this->_tx_thread.Name(std::string("TxTty"));
+
 }
 
 TtyPort::~TtyPort()
@@ -380,11 +383,13 @@ TtyPortRecv::ThreadFunction(void *arg_)
   struct pollfd fds[1];
   fds[0].fd = port->_fd;
   fds[0].events = (POLLIN | POLLERR);
+
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLIN))
   {
     char c = 0;
-    if ((read(port->_fd, &c, 1) == 1))
+    ret = read(port->_fd, &c, 1);
+    if (ret == 1)
     {
       ZLOG_DEBUG(std::string("Received char: '") + zLog::IntStr(c) + ": " + c + "'");
       port->rxchar(c);

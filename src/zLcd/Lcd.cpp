@@ -33,12 +33,15 @@ namespace zLcd
 Lcd::Lcd() :
     _rows(0), _cols(0), _update_cmd(*this), _clear_cmd(*this)
 {
-//  this->_timer.RegisterObserver(this);
+  this->_timer_handler.RegisterObserver(this);
+  this->_timer_handler.RegisterEvent(&this->_timer);
   this->_lock.Unlock();
 }
 
 Lcd::~Lcd()
 {
+  this->_timer_handler.UnregisterEvent(&this->_timer);
+  this->_timer_handler.UnregisterObserver(this);
   this->_timer.Stop();
 }
 
@@ -161,12 +164,17 @@ Lcd::Clear()
 }
 
 bool
-Lcd::EventHandler(zEvent::Event *event_, void *arg_)
+Lcd::EventHandler(const zEvent::EventNotification *notification_)
 {
+  const zTimer::TimerNotification *n = NULL;
+
+  ZLOG_DEBUG("Handling LCD timer event");
+
   bool status = false;
-  if (event_ && (event_->Type() == zEvent::Event::TYPE_TIMER) && this->_lock.Lock())
+  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
   {
-    ZLOG_DEBUG("Handling LCD timer event");
+    n = static_cast<const zTimer::TimerNotification *>(notification_);
+
     // Iterate over all variables and update buffer
     std::list<zLcd::LcdVar *>::iterator it = this->_vars.begin();
     std::list<zLcd::LcdVar *>::iterator end = this->_vars.end();
@@ -194,19 +202,19 @@ Lcd::EventHandler(zEvent::Event *event_, void *arg_)
   return (status);
 }
 
-bool
-Lcd::_update(std::vector<std::vector<char> >& buf_)
-{
-  ZLOG_ERR("Calling unimplemented function");
-  return (false);
-}
-
-bool
-Lcd::_clear()
-{
-  ZLOG_ERR("Calling unimplemented function");
-  return (false);
-}
+//bool
+//Lcd::_update(std::vector<std::vector<char> >& buf_)
+//{
+//  ZLOG_ERR("Calling unimplemented function");
+//  return (false);
+//}
+//
+//bool
+//Lcd::_clear()
+//{
+//  ZLOG_ERR("Calling unimplemented function");
+//  return (false);
+//}
 
 }
 }

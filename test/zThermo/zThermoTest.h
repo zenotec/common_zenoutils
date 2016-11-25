@@ -10,8 +10,6 @@
 
 #include "UnitTest.h"
 
-#include <zutils/zThermo.h>
-
 int
 zThermoTest_Defaults(void* arg_);
 
@@ -38,13 +36,13 @@ protected:
   virtual bool
   _open()
   {
-    return(true);
+    return (true);
   }
 
   virtual bool
   _close()
   {
-    return(true);
+    return (true);
   }
 
 private:
@@ -52,13 +50,13 @@ private:
   virtual bool
   _read_temperature(double &temp_)
   {
-    return(true);
+    return (true);
   }
 
   virtual bool
   _set_alarm(double &min_temp_, double &max_temp_)
   {
-    return(true);
+    return (true);
   }
 
 };

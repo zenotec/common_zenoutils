@@ -51,9 +51,8 @@ protected:
 private:
 
   std::string _buf;
-
   virtual bool
-  _update(std::vector<std::vector<char> > buf_)
+  _update(std::vector<std::vector<char> > &buf_)
   {
     this->_buf.clear();
     for (int row = 0; row < buf_.size(); row++)

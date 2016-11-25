@@ -176,13 +176,13 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::Event *event_, void *arg_);
+  EventHandler(const zEvent::EventNotification *notification_);
 
   virtual bool
-  _update(std::vector<std::vector<char> > &buf_);
+  _update(std::vector<std::vector<char> > &buf_) = 0;
 
   virtual bool
-  _clear();
+  _clear() = 0;
 
 private:
 
@@ -195,6 +195,7 @@ private:
   std::list<zLcd::LcdVar *> _vars;
 
   zTimer::Timer _timer;
+  zEvent::EventHandler _timer_handler;
 
   LcdUpdateCmd _update_cmd;
   LcdClearCmd _clear_cmd;

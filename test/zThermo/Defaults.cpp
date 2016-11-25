@@ -1,3 +1,15 @@
+
+#include <string>
+#include <mutex>
+#include <list>
+#include <map>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+#include <zutils/zThermo.h>
+
 #include "UnitTest.h"
 #include "zThermoTest.h"
 

@@ -57,59 +57,6 @@ SerialPort::Close()
 }
 
 ssize_t
-SerialPort::RecvBuf(void *buf_, size_t len_, size_t timeout_)
-{
-  ssize_t bytes = 0;
-  char *buf = (char *) buf_;
-  ZLOG_DEBUG("Receiving");
-  while (this->_rxq.TimedWait(timeout_) && len_--)
-  {
-    buf[bytes++] = this->_rxq.Front();
-    this->_rxq.Pop();
-  }
-  ZLOG_DEBUG(std::string("Received Bytes: ") + zLog::IntStr(bytes));
-  return (bytes);
-}
-
-bool
-SerialPort::RecvChar(char *c_, size_t timeout_)
-{
-  bool status = false;
-  ZLOG_DEBUG("Receiving");
-  if (this->_rxq.TimedWait(timeout_))
-  {
-    *c_ = this->_rxq.Front();
-    this->_rxq.Pop();
-    status = true;
-    ZLOG_DEBUG(std::string("Received character: ") + *c_);
-  }
-  return (status);
-}
-
-bool
-SerialPort::RecvString(std::string &str_, size_t timeout_)
-{
-  bool status = false;
-  ZLOG_DEBUG("Receiving");
-  str_.clear();
-  while (this->_rxq.TimedWait(timeout_))
-  {
-    char c = 0;
-    c = this->_rxq.Front();
-    this->_rxq.Pop();
-    ZLOG_DEBUG(std::string("Received character: ") + c);
-    if (iscntrl(c))
-    {
-      status = true;
-      break;
-    }
-    str_ += c;
-  }
-  ZLOG_DEBUG(std::string("Received string: '") + str_ + "'");
-  return (status);
-}
-
-ssize_t
 SerialPort::SendBuf(const void *buf_, size_t len_)
 {
 
@@ -141,12 +88,15 @@ SerialPort::SendString(const std::string &str_)
 bool
 SerialPort::rxchar(const char c_)
 {
-  ZLOG_DEBUG(std::string("Processing rxchar '") + c_ + "'");
-  this->_rxq.Push(c_);
+  ZLOG_DEBUG(std::string("Processing rxchar: '") + c_ + "'");
+
   SerialNotification notification(this);
   notification.id(SerialNotification::ID_CHAR_RCVD);
   notification.data(c_);
   this->Notify(&notification);
+
+  ZLOG_DEBUG(std::string("Processing complete '") + c_ + "'");
+
   return (true);
 }
 

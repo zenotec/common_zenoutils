@@ -22,11 +22,13 @@ namespace zUtils
 namespace zThread
 {
 
+unsigned int zThreadId = 0;
+
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
 Thread::Thread(Function *func_, void *arg_) :
-    _id(0), _func(func_), _arg(arg_), _exit(true)
+    _id(zThreadId++), _tid(0), _func(func_), _arg(arg_), _exit(true)
 {
   // Starting with the mutex in the locked state so that when the thread is
   //   started, it unlocks it
@@ -76,9 +78,9 @@ Thread::Run()
 
   if (this->_mutex.TimedLock(1000000))
   {
-    this->_id = id;
+    this->_tid = id;
     this->_mutex.Unlock();
-    ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t )this->_id));
+    ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t )this->_tid));
     status = true;
   }
 
@@ -90,20 +92,33 @@ Thread::Join()
 {
   bool status = false;
   this->_exit = true;
-  if (this->_id && this->_mutex.TimedLock(1000000))
+  if (this->_tid && this->_mutex.TimedLock(1000000))
   {
-    ZLOG_INFO("Joining thread: " + zLog::HexStr((uint32_t )this->_id));
-    pthread_join(this->_id, 0);
-    this->_id = 0;
+    ZLOG_INFO("Joining thread: " + zLog::HexStr((uint32_t )this->_tid));
+    pthread_join(this->_tid, 0);
+    this->_tid = 0;
     status = true;
   } // end if
   return (status);
 }
 
 unsigned long
-Thread::GetId()
+Thread::Id()
 {
   return (this->_id);
+}
+
+std::string
+Thread::Name()
+{
+  return (this->_name);
+}
+
+void
+Thread::Name(const std::string &name_)
+{
+  this->_name = name_;
+  return;
 }
 
 void *

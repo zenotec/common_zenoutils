@@ -34,13 +34,13 @@ namespace zLog
 #define ZLOG_HEX(x_)    zUtils::zLog::HexStr((x_))
 
 #define ZLOG_LOGGER(l_,m_)  \
-  { \
+  do { \
     zUtils::zLog::Message msg((l_), __FILE__, __LINE__); \
     msg.AddStr(std::string(__func__)); \
     msg.AddStr(std::string(": ")); \
     msg.AddStr((m_)); \
     zUtils::zLog::Log::Instance().LogMsg(msg); \
-  }
+  } while(false);
 
 #define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::CRIT,(x))
 #define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::ERROR,(x))

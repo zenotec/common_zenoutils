@@ -114,13 +114,14 @@ MessageSocket::Send(zMessage::Message &msg_)
 bool
 MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
 {
+  const zSocket::SocketNotification *n = NULL;
+
   ZLOG_DEBUG("Handling socket event");
 
   bool status = false;
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
   {
-    const zSocket::SocketNotification *n =
-        static_cast<const zSocket::SocketNotification *>(notification_);
+    n = static_cast<const zSocket::SocketNotification *>(notification_);
     switch (n->Id())
     {
     case zSocket::SocketNotification::ID_PKT_RCVD:
@@ -135,7 +136,7 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
       break;
     }
     case zSocket::SocketNotification::ID_PKT_SENT:
-    {
+      {
       zSocket::SocketAddressBufferPair p = n->Pkt();
       zMessage::MessageNotification notification(this);
       notification.id(zMessage::MessageNotification::ID_MSG_SENT);

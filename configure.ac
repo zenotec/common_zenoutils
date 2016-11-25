@@ -106,6 +106,9 @@ AC_CONFIG_FILES([
         test/zSocket/Makefile
         test/zMessage/Makefile
         test/zCommand/Makefile
+        test/zSwitch/Makefile
+        test/zThermo/Makefile
+        test/zLcd/Makefile
 ])
 
 # Boost checks

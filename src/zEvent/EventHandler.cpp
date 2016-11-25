@@ -25,56 +25,56 @@ namespace zEvent
 // Class: EventHandler
 //**********************************************************************
 
-EventHandler::EventHandler ()
+EventHandler::EventHandler()
 {
   // Start critical section
-  this->_lock.lock ();
+  EventHandler::_lock.lock();
 
   // End critical section
-  this->_lock.unlock ();
+  EventHandler::_lock.unlock();
 }
 
-EventHandler::~EventHandler ()
+EventHandler::~EventHandler()
 {
 }
 
 void
-EventHandler::RegisterEvent (Event *event_)
+EventHandler::RegisterEvent(Event *event_)
 {
 
   if (event_)
   {
     // Start critical section
-    this->_lock.lock ();
+    EventHandler::_lock.lock();
 
     // Register handler
-    this->_event_list.push_back (event_);
-    event_->registerHandler (this);
+    EventHandler::_event_list.push_back(event_);
+    event_->registerHandler(this);
 
     // End critical section
-    this->_lock.unlock ();
+    EventHandler::_lock.unlock();
   }
 }
 
 void
-EventHandler::UnregisterEvent (Event *event_)
+EventHandler::UnregisterEvent(Event *event_)
 {
   if (event_)
   {
     // Start critical section
-    this->_lock.lock ();
+    EventHandler::_lock.lock();
 
     // Unregister handler
-    this->_event_list.remove (event_);
-    event_->unregisterHandler (this);
+    EventHandler::_event_list.remove(event_);
+    event_->unregisterHandler(this);
 
     // End critical section
-    this->_lock.unlock ();
+    EventHandler::_lock.unlock();
   }
 }
 
 bool
-EventHandler::RegisterObserver (EventObserver *obs_)
+EventHandler::RegisterObserver(EventObserver *obs_)
 {
   bool status = false;
   if (obs_)
@@ -83,20 +83,20 @@ EventHandler::RegisterObserver (EventObserver *obs_)
     ZLOG_DEBUG("Registering observer");
 
     // Start critical section
-    this->_lock.lock ();
+    EventHandler::_lock.lock();
 
     // Register observer
-    this->_obs_list.push_back (obs_);
+    EventHandler::_obs_list.push_back(obs_);
     status = true;
 
     // End critical section
-    this->_lock.unlock ();
+    EventHandler::_lock.unlock();
   }
-  return(status);
+  return (status);
 }
 
 bool
-EventHandler::UnregisterObserver (EventObserver *obs_)
+EventHandler::UnregisterObserver(EventObserver *obs_)
 {
   bool status = false;
   if (obs_)
@@ -105,64 +105,72 @@ EventHandler::UnregisterObserver (EventObserver *obs_)
     ZLOG_DEBUG("Unregistering observer");
 
     // Start critical section
-    this->_lock.lock ();
+    EventHandler::_lock.lock();
 
     // Unregister observer
-    this->_obs_list.remove (obs_);
+    EventHandler::_obs_list.remove(obs_);
     status = true;
 
     // End critical section
-    this->_lock.unlock ();
+    EventHandler::_lock.unlock();
   }
-  return(status);
+  return (status);
 }
 
 void
-EventHandler::notify (const EventNotification* notification_)
+EventHandler::notify(const EventNotification* notification_)
 {
 
   // Note: never call this routine directly; Only should be called by the event class
 
   // Start critical section
-  this->_lock.lock ();
+  EventHandler::_lock.lock();
 
   // Create copy of the observer list
-  std::list<EventObserver *> obs_list (this->_obs_list);
+  std::list<EventObserver *> obs_list(EventHandler::_obs_list);
 
   // End critical section
-  this->_lock.unlock ();
+  EventHandler::_lock.unlock();
+
+  int cnt = obs_list.size();
 
   // Notify all registered observers
-  while (!obs_list.empty ())
+  while (!obs_list.empty())
   {
-    EventObserver *obs = obs_list.front ();
-    obs_list.pop_front ();
-    obs->EventHandler (notification_);
+    EventObserver *obs = obs_list.front();
+    obs_list.pop_front();
+    obs->EventHandler(notification_);
   }
+
+  return;
 }
 
 void
-EventHandler::notify (const EventNotification& notification_)
+EventHandler::notify(const EventNotification& notification_)
 {
 
   // Note: never call this routine directly; Only should be called by the event class
 
   // Start critical section
-  this->_lock.lock ();
+  EventHandler::_lock.lock();
 
   // Create copy of the observer list
-  std::list<EventObserver *> obs_list (this->_obs_list);
+  std::list<EventObserver *> obs_list(EventHandler::_obs_list);
 
   // End critical section
-  this->_lock.unlock ();
+  EventHandler::_lock.unlock();
+
+  int cnt = obs_list.size();
 
   // Notify all registered observers
-  while (!obs_list.empty ())
+  while (!obs_list.empty())
   {
-    EventObserver *obs = obs_list.front ();
-    obs_list.pop_front ();
-    obs->EventHandler (&notification_);
+    EventObserver *obs = obs_list.front();
+    obs_list.pop_front();
+    obs->EventHandler(&notification_);
   }
+
+  return;
 }
 
 }

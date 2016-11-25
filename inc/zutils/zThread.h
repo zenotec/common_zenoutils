@@ -37,13 +37,20 @@ public:
 class Thread
 {
 public:
+
   Thread(Function *func_, void *arg_);
 
   virtual
   ~Thread();
 
   unsigned long
-  GetId();
+  Id();
+
+  std::string
+  Name();
+
+  void
+  Name(const std::string &name_);
 
   bool
   Run();
@@ -58,7 +65,9 @@ private:
   _threadHandler(void *arg_);
 
   zSem::Mutex _mutex;
-  pthread_t _id;
+  std::string _name;
+  unsigned int _id;
+  pthread_t _tid;
   Function *_func;
   void *_arg;
   bool _exit;

@@ -33,7 +33,7 @@ EventNotification::EventNotification(zEvent::Event* event_) :
 {
   if (event_)
   {
-    this->type(event_->Type());
+    EventNotification::type(event_->Type());
   }
 }
 
@@ -44,20 +44,20 @@ EventNotification::~EventNotification()
 zEvent::Event::TYPE
 EventNotification::Type() const
 {
-  return (this->_type);
+  return (EventNotification::_type);
 }
 
 void
 EventNotification::type(zEvent::Event::TYPE type_)
 {
-  this->_type = type_;
+  EventNotification::_type = type_;
   return;
 }
 
 zEvent::Event*
 EventNotification::GetEvent() const
 {
-  return (this->_event);
+  return (EventNotification::_event);
 }
 
 }

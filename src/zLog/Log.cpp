@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <iomanip>
 
 #include <zutils/zLog.h>
 
@@ -160,7 +161,8 @@ Message::_getTimestamp() const
   struct timespec ts;
   std::stringstream timestamp;
   clock_gettime(CLOCK_REALTIME, &ts);
-  timestamp << ts.tv_sec << "." << ts.tv_nsec;
+  timestamp << std::setprecision(20)
+      << ((double) ts.tv_sec + (double) ts.tv_nsec / (double) (1000000000));
   return (timestamp.str());
 }
 
