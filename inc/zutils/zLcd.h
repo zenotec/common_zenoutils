@@ -156,6 +156,9 @@ public:
   RegisterCommands(zCommand::CommandHandler *handler_);
 
   bool
+  UnregisterCommands(zCommand::CommandHandler *handler_);
+
+  bool
   SetLimits(const size_t rows_, const size_t cols_);
 
   bool

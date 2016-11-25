@@ -53,6 +53,13 @@ Lcd::RegisterCommands(zCommand::CommandHandler *handler_)
 }
 
 bool
+Lcd::UnregisterCommands(zCommand::CommandHandler *handler_)
+{
+  handler_->UnregisterCommand(&this->_update_cmd);
+  handler_->UnregisterCommand(&this->_clear_cmd);
+}
+
+bool
 Lcd::SetLimits(const size_t rows_, const size_t cols_)
 {
   this->_disp_buf.resize(rows_);
