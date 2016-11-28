@@ -25,6 +25,7 @@
 #include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
 #include <zutils/zLoopSocket.h>
+#include <zutils/zUnixSocket.h>
 
 #include "zSocketTest.h"
 
@@ -32,24 +33,24 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zSocketTest_LoopSocketDefault(void* arg_)
+zSocketTest_UnixSocketDefault(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_LoopSocketDefault()");
+  ZLOG_DEBUG("# zSocketTest_UnixSocketDefault()");
   ZLOG_DEBUG("#############################################################");
 
   // Create new socket address and validate
-  zSocket::LoopAddress MyAddr;
-  TEST_EQ(SocketType::TYPE_LOOP, MyAddr.Type());
+  zSocket::UnixAddress MyAddr;
+  TEST_EQ(SocketType::TYPE_UNIX, MyAddr.Type());
   TEST_EQ(std::string(""), MyAddr.Address());
 
   // Set socket address
-  TEST_TRUE(MyAddr.Address(std::string("lo")));
-  TEST_EQ(std::string("lo"), MyAddr.Address());
+  TEST_TRUE(MyAddr.Address(std::string("/tmp/UnixTestSock")));
+  TEST_EQ(std::string("/tmp/UnixTestSock"), MyAddr.Address());
 
   // Create new socket and validate
-  zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
+  zSocket::UnixSocket *MySock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MySock);
 
   // Cleanup
@@ -62,42 +63,50 @@ zSocketTest_LoopSocketDefault(void* arg_)
 }
 
 int
-zSocketTest_LoopSocketSendReceive(void* arg_)
+zSocketTest_UnixSocketSendReceive(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_LoopSocketSendReceiveLoop()");
+  ZLOG_DEBUG("# zSocketTest_UnixSocketSendReceiveUnix()");
   ZLOG_DEBUG("#############################################################");
 
   bool status = false;
 
   // Create new socket address and validate
-  zSocket::LoopAddress *SrcAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, SrcAddr->Type());
+  zSocket::UnixAddress *SrcAddr = new zSocket::UnixAddress;
+  TEST_EQ(SocketType::TYPE_UNIX, SrcAddr->Type());
   TEST_EQ(std::string(""), SrcAddr->Address());
-  TEST_TRUE(SrcAddr->Address("lo"));
-  TEST_EQ(std::string("lo"), SrcAddr->Address());
-
-  // Create new socket address and validate
-  zSocket::LoopAddress *DstAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, DstAddr->Type());
-  TEST_EQ(std::string(""), DstAddr->Address());
-  TEST_TRUE(DstAddr->Address("lo"));
-  TEST_EQ(std::string("lo"), DstAddr->Address());
+  TEST_TRUE(SrcAddr->Address(std::string("/tmp/UnixSrcSock")));
+  TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->Address());
 
   // Create new socket and validate
-  zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
-  TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Address(SrcAddr));
-  TEST_TRUE(MySock->Open());
-  TEST_TRUE(MySock->Bind());
+  zSocket::UnixSocket *MySrcSock = new zSocket::UnixSocket;
+  TEST_ISNOT_NULL(MySrcSock);
+  TEST_TRUE(MySrcSock->Address(SrcAddr));
+  TEST_TRUE(MySrcSock->Open());
+  TEST_TRUE(MySrcSock->Bind());
+
+  // Create new socket address and validate
+  zSocket::UnixAddress *DstAddr = new zSocket::UnixAddress;
+  TEST_EQ(SocketType::TYPE_UNIX, DstAddr->Type());
+  TEST_EQ(std::string(""), DstAddr->Address());
+  TEST_TRUE(DstAddr->Address(std::string("/tmp/UnixDstSock")));
+  TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->Address());
+
+  // Create new socket and validate
+  zSocket::UnixSocket *MyDstSock = new zSocket::UnixSocket;
+  TEST_ISNOT_NULL(MyDstSock);
+  TEST_TRUE(MyDstSock->Address(DstAddr));
+  TEST_TRUE(MyDstSock->Open());
+  TEST_TRUE(MyDstSock->Bind());
 
   // Create new socket handler and validate
   zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterEvent(MySock);
+  MyHandler->RegisterEvent(MySrcSock);
+  MyHandler->RegisterEvent(MyDstSock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -108,7 +117,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  TEST_EQ((int)MySock->Send(*DstAddr, ExpStr), (int)ExpStr.size());
+  TEST_EQ((int)MySrcSock->Send(*DstAddr, ExpStr), (int)ExpStr.size());
 
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100000);
@@ -131,17 +140,20 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), rxp.first->Address());
+  TEST_EQ(txp.first->Address(), DstAddr->Address());
+  TEST_EQ(rxp.first->Address(), SrcAddr->Address());
   TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterEvent(MySock);
+  MyHandler->UnregisterEvent(MySrcSock);
+  MyHandler->UnregisterEvent(MyDstSock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
   delete (MyHandler);
   delete (MyObserver);
-  delete (MySock);
+  delete (MySrcSock);
+  delete (MyDstSock);
   delete (DstAddr);
   delete (SrcAddr);
 

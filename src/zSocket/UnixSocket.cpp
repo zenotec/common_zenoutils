@@ -157,9 +157,9 @@ UnixSocketSend::ThreadFunction(void *arg_)
   fds[0].events = (POLLOUT | POLLERR);
 
   // Wait for data to send
-  if (sock->txbuf(p, 1000000))
+  if (sock->txbuf(p, 100000))
   {
-    int ret = poll(fds, 1, 1000);
+    int ret = poll(fds, 1, 100);
     if (ret > 0 && (fds[0].revents == POLLOUT))
     {
       ZLOG_DEBUG("Sending packet: " + p.first->Address() +
@@ -204,7 +204,7 @@ UnixSocket::Open()
   {
 
     // Create a AF_UNIX socket
-    this->_sock = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+    this->_sock = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
     if (this->_sock < 0)
     {
       ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
@@ -225,20 +225,34 @@ void
 UnixSocket::Close()
 {
   ZLOG_DEBUG("Closing socket: " + zLog::IntStr(this->_sock));
+
+  if (!this->_sock)
+  {
+    return;
+  }
+
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
+  {
+    return;
+  }
+
+  // Convert string notation address to sockaddr_un
+  struct sockaddr_un addr = { 0 };
+  if (!_addr2sock(this->Address()->Address(), addr))
+  {
+    ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
+    return;
+  }
+
   // Close socket
-  if (this->_sock)
+  if (this->_rx_thread.Join() && this->_tx_thread.Join())
   {
-    if (this->_rx_thread.Join() && this->_tx_thread.Join())
-    {
-      ZLOG_DEBUG("Socket Closed: " + zLog::IntStr(this->_sock));
-      close(this->_sock);
-      this->_sock = 0;
-    } // end if
-  }
-  else
-  {
-    ZLOG_WARN("Socket not open");
-  }
+    close(this->_sock);
+    this->_sock = 0;
+    unlink(addr.sun_path);
+    ZLOG_DEBUG("Socket Closed: " + zLog::IntStr(this->_sock));
+  } // end if
+
 }
 
 bool

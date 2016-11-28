@@ -54,6 +54,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_UnixAddressGetSet, 0);
   UTEST_TEST(zSocketTest_UnixAddressCompare, 0);
 
+  UTEST_TEST(zSocketTest_UnixSocketDefault, 0);
+  UTEST_TEST(zSocketTest_UnixSocketSendReceive, 0);
+
   UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
   UTEST_TEST(zSocketTest_InetAddressCompare, 0);
 

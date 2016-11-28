@@ -45,6 +45,11 @@ int
 zSocketTest_UnixAddressCompare(void* arg_);
 
 int
+zSocketTest_UnixSocketDefault(void* arg_);
+int
+zSocketTest_UnixSocketSendReceive(void* arg_);
+
+int
 zSocketTest_InetAddressGetSet(void* arg_);
 int
 zSocketTest_InetAddressCompare(void* arg_);

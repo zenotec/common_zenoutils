@@ -18,6 +18,7 @@ zSocketUnitTest_SOURCES = \
     LoopAddress.cpp \
     LoopSocket.cpp \
     UnixAddress.cpp \
+    UnixSocket.cpp \
     InetAddress.cpp \
     InetSocket.cpp
 
