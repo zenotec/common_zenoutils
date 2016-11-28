@@ -26,7 +26,7 @@ zSerialTest_PortDefaults(void *arg_)
 
   bool status = false;
   TestPort *MyPort = new TestPort;
-  TEST_ISNOT_ZERO(MyPort);
+  TEST_ISNOT_NULL(MyPort);
 
   // Cleanup
   delete (MyPort);
@@ -46,7 +46,7 @@ zSerialTest_TtyPortDefaults(void *arg_)
 
   bool status = false;
   TtyTestPort *MyPort = new TtyTestPort;
-  TEST_ISNOT_ZERO(MyPort);
+  TEST_ISNOT_NULL(MyPort);
 
   // Cleanup
   delete (MyPort);

@@ -26,6 +26,7 @@
 #include <zutils/zSocket.h>
 
 #include <zutils/zMessage.h>
+#include <zutils/zMessageSocket.h>
 
 #include "UnitTest.h"
 

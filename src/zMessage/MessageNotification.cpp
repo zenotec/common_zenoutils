@@ -23,6 +23,7 @@
 #include <zutils/zSocket.h>
 
 #include <zutils/zMessage.h>
+#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {

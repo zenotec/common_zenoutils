@@ -107,30 +107,6 @@ private:
 };
 
 //**********************************************************************
-// Class: CommandMessage
-//**********************************************************************
-
-class CommandMessage : public zMessage::Message
-{
-public:
-
-  CommandMessage();
-
-  CommandMessage(const zCommand::Command &command_);
-
-  virtual
-  ~CommandMessage();
-
-  bool
-  SetCommand(const zCommand::Command &command_);
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
 // Class: CommandNotification
 //**********************************************************************
 

@@ -29,15 +29,11 @@ zSerialTest_PortSendRecvChar(void *arg_);
 int
 zSerialTest_PortSendRecvBuf(void *arg_);
 int
-zSerialTest_PortSendRecvString(void *arg_);
-int
 zSerialTest_TtyPortDefaults(void* arg_);
 int
 zSerialTest_TtyPortSendRecvChar(void *arg_);
 int
 zSerialTest_TtyPortSendRecvBuf(void *arg_);
-int
-zSerialTest_TtyPortSendRecvString(void *arg_);
 
 class TestObserver : public zEvent::EventObserver
 {
@@ -51,9 +47,9 @@ public:
   {
   }
 
-  zSem::Semaphore RxSem;
-  zSem::Semaphore TxSem;
-  zSem::Semaphore ErrSem;
+  zQueue<char> RxSem;
+  zQueue<char> TxSem;
+  zQueue<char> ErrSem;
 
 protected:
 
@@ -67,15 +63,15 @@ protected:
       switch(n->Id())
       {
       case zSerial::SerialNotification::ID_CHAR_RCVD:
-        this->RxSem.Post();
+        this->RxSem.Push(n->Data());
         status = true;
         break;
       case zSerial::SerialNotification::ID_CHAR_SENT:
-        this->TxSem.Post();
+        this->TxSem.Push(n->Data());
         status = true;
         break;
       default:
-        this->ErrSem.Post();
+        this->ErrSem.Push(n->Data());
         status = false;
         break;
       }

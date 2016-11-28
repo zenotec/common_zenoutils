@@ -106,28 +106,28 @@ do { \
 #define TEST_IS_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Eq( __LINE__, (x), NULL, std::string( "" ) ) != true ) \
+  if( utest && utest->Eq<void*>( __LINE__, (void*)(x), (void*)NULL, std::string( "" ) ) != true ) \
       return (1); \
 } while(0)
 
 #define TEST_ISNOT_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Neq( __LINE__, (x), NULL, std::string( "" ) ) != true ) \
+  if( utest && utest->Neq<void*>( __LINE__, (x), NULL, std::string( "" ) ) != true ) \
       return (1); \
 } while(0)
 
 #define TEST_IS_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Eq( __LINE__, (x), 0, std::string( "" ) ) != true ) \
+  if( utest && utest->Eq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
       return (1); \
 } while(0)
 
 #define TEST_ISNOT_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Neq( __LINE__, (x), 0, std::string( "" ) ) != true ) \
+  if( utest && utest->Neq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
       return (2); \
 } while(0)
 
@@ -149,7 +149,7 @@ do { \
 #define TEST_EQ_MSG(x, y, msg) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Eq( __LINE__, (x), (y), (msg) ) != true ) \
+  if( utest && utest->Eq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (3); \
 } while(0)
 
@@ -157,7 +157,7 @@ do { \
 #define TEST_NEQ_MSG(x, y, msg) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Neq( __LINE__, (x), (y), (msg) ) != true ) \
+  if( utest && utest->Neq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (4); \
 } while(0)
 
@@ -165,7 +165,7 @@ do { \
 #define TEST_LT_MSG(x, y, msg) \
 do { \
   UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Lt( __LINE__, (x), (y), (msg) ) != true ) \
+  if( utest && utest->Lt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (5); \
 } while(0)
 
@@ -173,7 +173,7 @@ do { \
 #define TEST_GT_MSG(x, y, msg) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->Gt( __LINE__, (x), (y), (msg) ) != true ) \
+  if( utest && utest->Gt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (6); \
 } while(0)
 
@@ -195,39 +195,43 @@ namespace Test
 class Log
 {
 public:
-    Log(const unsigned int line_, const std::string &msg_) :
-            _line(line_), _msg(msg_)
-    {
-        clock_gettime(CLOCK_REALTIME, &this->_timestamp);
-    }
+  Log(const unsigned int line_, const std::string &msg_) :
+      _line(line_), _msg(msg_)
+  {
+    clock_gettime(CLOCK_REALTIME, &this->_timestamp);
+  }
 
-    virtual ~Log()
-    {
-    }
+  virtual
+  ~Log()
+  {
+  }
 
-    std::string GetTimeStamp()
-    {
-        std::stringstream timestamp;
-        timestamp << this->_timestamp.tv_sec << "." << this->_timestamp.tv_nsec;
-        return (timestamp.str());
-    }
+  std::string
+  GetTimeStamp()
+  {
+    std::stringstream timestamp;
+    timestamp << this->_timestamp.tv_sec << "." << this->_timestamp.tv_nsec;
+    return (timestamp.str());
+  }
 
-    int GetLine()
-    {
-        return (this->_line);
-    }
+  int
+  GetLine()
+  {
+    return (this->_line);
+  }
 
-    std::string GetMsg()
-    {
-        return (this->_msg);
-    }
+  std::string
+  GetMsg()
+  {
+    return (this->_msg);
+  }
 
 protected:
 
 private:
-    struct timespec _timestamp;
-    int _line;
-    std::string _msg;
+  struct timespec _timestamp;
+  int _line;
+  std::string _msg;
 };
 
 class UnitTest
@@ -235,296 +239,265 @@ class UnitTest
 
 public:
 
-    static UnitTest*
-    GetInstance()
-    {
-        static UnitTest utest;
-        return &utest;
-    }
+  static UnitTest*
+  GetInstance()
+  {
+    static UnitTest utest;
+    return &utest;
+  }
 
-    std::string GetName()
-    {
-        return (this->_name);
-    }
+  std::string
+  GetName()
+  {
+    return (this->_name);
+  }
 
-    void SetName(const std::string &name_)
-    {
-        this->_name = name_;
-    }
+  void
+  SetName(const std::string &name_)
+  {
+    this->_name = name_;
+  }
 
-    // Boolean test
-    bool True(const int line_, const bool &val_, const std::string &msg_)
+  // Boolean test
+  bool
+  True(const int line_, const bool &val_, const std::string &msg_)
+  {
+    if (val_ != true)
     {
-        if (val_ != true)
-        {
-            std::stringstream errmsg;
-            errmsg << "Not true" << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool False(const int line_, const bool &val_, const std::string &msg)
+      std::stringstream errmsg;
+      errmsg << "Not true" << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
     {
-        if (val_ != false)
-        {
-            std::stringstream errmsg;
-            errmsg << "Not false" << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
+      return (true);
+    } // end else
+  }
+  bool
+  False(const int line_, const bool &val_, const std::string &msg)
+  {
+    if (val_ != false)
+    {
+      std::stringstream errmsg;
+      errmsg << "Not false" << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
 
-// Pointer comparison
-    bool Eq(const int line_, void *s1_, void *s2_, const std::string &msg_)
-    {
-        if (s1_ != s2_)
-        {
-            std::stringstream errmsg;
-            errmsg << s1_ << " != " << s2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Neq(const int line_, void *s1_, void *s2_, const std::string &msg_)
-    {
-        if (s1_ == s2_)
-        {
-            std::stringstream errmsg;
-            errmsg << s1_ << " == " << s2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
+//// Pointer comparison
+//  bool
+//  Eq(const int line_, void *s1_, void *s2_, const std::string &msg_)
+//  {
+//    if (s1_ != s2_)
+//    {
+//      std::stringstream errmsg;
+//      errmsg << s1_ << " != " << s2_ << std::endl;
+//      this->LogMsg(line_, errmsg.str());
+//      return (false);
+//    } // end if
+//    else
+//    {
+//      return (true);
+//    } // end else
+//  }
+//  bool
+//  Neq(const int line_, void *s1_, void *s2_, const std::string &msg_)
+//  {
+//    if (s1_ == s2_)
+//    {
+//      std::stringstream errmsg;
+//      errmsg << s1_ << " == " << s2_ << std::endl;
+//      this->LogMsg(line_, errmsg.str());
+//      return (false);
+//    } // end if
+//    else
+//    {
+//      return (true);
+//    } // end else
+//  }
 
-// String comparison
-    bool Eq(const int line_, const std::string &s1_, const std::string &s2_,
-            const std::string &msg_)
-    {
-        if (s1_ != s2_)
-        {
-            std::stringstream errmsg;
-            errmsg << s1_ << " != " << s2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Neq(const int line_, const std::string &s1_, const std::string &s2_,
-            const std::string &msg_)
-    {
-        if (s1_ == s2_)
-        {
-            std::stringstream errmsg;
-            errmsg << s1_ << " == " << s2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
+//// String comparison
+//  bool
+//  Eq(const int line_, const std::string &s1_, const std::string &s2_,
+//      const std::string &msg_)
+//  {
+//    if (s1_ != s2_)
+//    {
+//      std::stringstream errmsg;
+//      errmsg << s1_ << " != " << s2_ << std::endl;
+//      this->LogMsg(line_, errmsg.str());
+//      return (false);
+//    } // end if
+//    else
+//    {
+//      return (true);
+//    } // end else
+//  }
+//  bool
+//  Neq(const int line_, const std::string &s1_, const std::string &s2_,
+//      const std::string &msg_)
+//  {
+//    if (s1_ == s2_)
+//    {
+//      std::stringstream errmsg;
+//      errmsg << s1_ << " == " << s2_ << std::endl;
+//      this->LogMsg(line_, errmsg.str());
+//      return (false);
+//    } // end if
+//    else
+//    {
+//      return (true);
+//    } // end else
+//  }
 
-// Integer comparison
-    bool Eq(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
-    {
-        if (i1_ != i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " != " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Neq(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
-    {
-        if (i1_ == i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " == " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Lt(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
-    {
-        if (i1_ >= i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " >= " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Gt(const int line_, const int &i1_, const int &i2_, const std::string &msg_)
-    {
-        if (i1_ <= i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " <= " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
+  // Comparison
 
-// Float comparison
-    bool Eq(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+  template<typename T>
+    bool
+  Eq(const int line_, T i1_, T i2_, const std::string &msg_)
+  {
+    if (i1_ != i2_)
     {
-        if (i1_ != i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " != " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Neq(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
+      std::stringstream errmsg;
+      errmsg << i1_ << " != " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
     {
-        if (i1_ == i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " == " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Lt(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
-    {
-        if (i1_ >= i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " >= " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
-    bool Gt(const int line_, const double &i1_, const double &i2_, const std::string &msg_)
-    {
-        if (i1_ <= i2_)
-        {
-            std::stringstream errmsg;
-            errmsg << i1_ << " <= " << i2_ << std::endl;
-            this->LogMsg(line_, errmsg.str());
-            return (false);
-        } // end if
-        else
-        {
-            return (true);
-        } // end else
-    }
+      return (true);
+    } // end else
+  }
 
-    void LogMsg(const int line_, const std::string &msg_)
+  template<typename T>
+    bool
+  Neq(const int line_, T i1_, T i2_, const std::string &msg_)
+  {
+    if (i1_ == i2_)
     {
-        Log log(line_, msg_);
-        this->_log.push(log);
-    }
+      std::stringstream errmsg;
+      errmsg << i1_ << " == " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
 
-    void DisplayHeader()
+  template<typename T>
+    bool
+  Lt(const int line_, T i1_, T i2_, const std::string &msg_)
+  {
+    if (i1_ >= i2_)
     {
-        clock_gettime(CLOCK_REALTIME, &this->_start);
-        IPRINTF("\nExecuting unit tests: %s\n", this->GetName().c_str());
-    }
+      std::stringstream errmsg;
+      errmsg << i1_ << " >= " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
 
-    void DisplayFooter()
+  template<typename T>
+    bool
+  Gt(const int line_, T i1_, T i2_, const std::string &msg_)
+  {
+    if (i1_ <= i2_)
     {
-        double diff = 0;
-        clock_gettime(CLOCK_REALTIME, &this->_stop);
-        diff = (this->_stop.tv_sec - this->_start.tv_sec)
-                + (double) (this->_stop.tv_nsec - this->_start.tv_nsec) / (double) 1000000000ULL;
-        IPRINTF("Complete: %lf seconds\n", diff);
-    }
+      std::stringstream errmsg;
+      errmsg << i1_ << " <= " << i2_ << std::endl;
+      this->LogMsg(line_, errmsg.str());
+      return (false);
+    } // end if
+    else
+    {
+      return (true);
+    } // end else
+  }
 
-    void DisplayLog()
-    {
-        std::cout.flush();
-        std::cerr.flush();
-        while (!this->_log.empty())
-        {
-            std::cerr << this->_log.front().GetTimeStamp() << ": ";
-            std::cerr << "LINE #";
-            std::cerr << this->_log.front().GetLine() << ": ";
-            std::cerr << this->_log.front().GetMsg() << std::endl;
-            std::cerr.flush();
-            this->_log.pop();
-        } // end while
-        std::cout.flush();
-        std::cerr.flush();
-    }
+  void
+  LogMsg(const int line_, const std::string &msg_)
+  {
+    Log log(line_, msg_);
+    this->_log.push(log);
+  }
 
-    int GetStatus()
-    {
-        return (this->_status);
-    }
+  void
+  DisplayHeader()
+  {
+    clock_gettime(CLOCK_REALTIME, &this->_start);
+    IPRINTF("\nExecuting unit tests: %s\n", this->GetName().c_str());
+  }
 
-    void SetStatus(int status_)
+  void
+  DisplayFooter()
+  {
+    double diff = 0;
+    clock_gettime(CLOCK_REALTIME, &this->_stop);
+    diff = (this->_stop.tv_sec - this->_start.tv_sec)
+        + (double) (this->_stop.tv_nsec - this->_start.tv_nsec) / (double) 1000000000ULL;
+    IPRINTF("Complete: %lf seconds\n", diff);
+  }
+
+  void
+  DisplayLog()
+  {
+    std::cout.flush();
+    std::cerr.flush();
+    while (!this->_log.empty())
     {
-        this->_status = status_;
-    }
+      std::cerr << this->_log.front().GetTimeStamp() << ": ";
+      std::cerr << "LINE #";
+      std::cerr << this->_log.front().GetLine() << ": ";
+      std::cerr << this->_log.front().GetMsg() << std::endl;
+      std::cerr.flush();
+      this->_log.pop();
+    } // end while
+    std::cout.flush();
+    std::cerr.flush();
+  }
+
+  int
+  GetStatus()
+  {
+    return (this->_status);
+  }
+
+  void
+  SetStatus(int status_)
+  {
+    this->_status = status_;
+  }
 
 protected:
-    UnitTest() :
-            _status(0)
-    {
-    }
+  UnitTest() :
+      _status(0)
+  {
+  }
 
-    virtual ~UnitTest()
-    {
-    }
+  virtual
+  ~UnitTest()
+  {
+  }
 
 private:
 
-    std::string _name;
-    int _status;
-    struct timespec _start;
-    struct timespec _stop;
-    std::queue<Log> _log;
+  std::string _name;
+  int _status;
+  struct timespec _start;
+  struct timespec _stop;
+  std::queue<Log> _log;
 
 };
 

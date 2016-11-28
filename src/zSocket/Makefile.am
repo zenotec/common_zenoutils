@@ -13,5 +13,6 @@ libzSocket_la_SOURCES = \
     SocketAddress.cpp \
     SocketNotification.cpp \
     Socket.cpp \
-    Inet.cpp
-
+    LoopSocket.cpp \
+    UnixSocket.cpp \
+    InetSocket.cpp

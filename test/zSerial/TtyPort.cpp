@@ -28,22 +28,22 @@ zSerialTest_TtyPortSendRecvChar(void *arg_)
 
   // Create new TTY test port and validate
   TtyTestPort *MyPort = new TtyTestPort;
-  TEST_ISNOT_ZERO(MyPort);
+  TEST_ISNOT_NULL(MyPort);
 
   // Create new TTY test thread for looping back data and validate
   TtyTestThread *MyThread = new TtyTestThread(MyPort);
-  TEST_ISNOT_ZERO(MyThread);
+  TEST_ISNOT_NULL(MyThread);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
-  TEST_ISNOT_ZERO(MyObserver);
+  TEST_ISNOT_NULL(MyObserver);
   TEST_FALSE(MyObserver->RxSem.TryWait());
   TEST_FALSE(MyObserver->TxSem.TryWait());
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
   zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
+  TEST_ISNOT_NULL(MyHandler);
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
@@ -62,20 +62,18 @@ zSerialTest_TtyPortSendRecvChar(void *arg_)
   // Wait for byte to be sent
   status = MyObserver->TxSem.TimedWait(100000);
   TEST_TRUE(status);
+  TEST_EQ('a', MyObserver->TxSem.Front());
+  MyObserver->TxSem.Pop();
 
   // Wait for byte to be received
   status = MyObserver->RxSem.TimedWait(100000);
   TEST_TRUE(status);
+  TEST_EQ('a', MyObserver->RxSem.Front());
+  MyObserver->RxSem.Pop();
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
-
-  // Receive byte back
-  char c = 0;
-  status = MyPort->RecvChar(&c);
-  TEST_TRUE(status);
-  TEST_EQ('a', c);
 
   // Unregister observer
   MyHandler->UnregisterObserver(MyObserver);
@@ -108,22 +106,22 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
 
   // Create new TTY test port and validate
   TtyTestPort *MyPort = new TtyTestPort;
-  TEST_ISNOT_ZERO(MyPort);
+  TEST_ISNOT_NULL(MyPort);
 
   // Create new TTY test thread for looping back data and validate
   TtyTestThread *MyThread = new TtyTestThread(MyPort);
-  TEST_ISNOT_ZERO(MyThread);
+  TEST_ISNOT_NULL(MyThread);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
-  TEST_ISNOT_ZERO(MyObserver);
+  TEST_ISNOT_NULL(MyObserver);
   TEST_FALSE(MyObserver->RxSem.TryWait());
   TEST_FALSE(MyObserver->TxSem.TryWait());
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
   zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
+  TEST_ISNOT_NULL(MyHandler);
 
   // Register observer
   MyHandler->RegisterObserver(MyObserver);
@@ -136,36 +134,32 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   TEST_TRUE(status);
 
   // Send data
-  memset(exp_buf, 0x55, 100);
-  bytes = MyPort->SendBuf(exp_buf, 100);
-  TEST_EQ(100, bytes);
+  for (cnt = 0; cnt < sizeof(exp_buf); cnt++)
+  {
+    exp_buf[cnt] = (cnt + 7);
+  }
+  bytes = MyPort->SendBuf(exp_buf, sizeof(exp_buf));
+  TEST_EQ(sizeof(exp_buf), bytes);
 
-  cnt = 0;
   // Verify data was sent
-  while (MyObserver->TxSem.TimedWait(100000))
+  for (cnt = 0; MyObserver->TxSem.TimedWait(100000); cnt++)
   {
-    ++cnt;
+    TEST_EQ(exp_buf[cnt], MyObserver->TxSem.Front());
+    MyObserver->TxSem.Pop();
   }
-  TEST_EQ(cnt, 100);
+  TEST_EQ(cnt, sizeof(exp_buf));
 
-  cnt = 0;
   // Verify data was received
-  while (MyObserver->RxSem.TimedWait(100000))
+  for (cnt = 0; MyObserver->RxSem.TimedWait(100000); cnt++)
   {
-    ++cnt;
+    TEST_EQ(exp_buf[cnt], MyObserver->RxSem.Front());
+    MyObserver->RxSem.Pop();
   }
-  TEST_EQ(cnt, 100);
+  TEST_EQ(cnt, sizeof(exp_buf));
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
-
-  // Receive data
-  bytes = MyPort->RecvBuf(obs_buf, 256);
-  TEST_EQ(100, bytes);
-
-  // Verify data
-  TEST_IS_ZERO(memcmp(exp_buf, obs_buf, bytes));
 
   // Unregister observer
   MyHandler->UnregisterObserver(MyObserver);
@@ -182,88 +176,3 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
 
 }
 
-int
-zSerialTest_TtyPortSendRecvString(void *arg_)
-{
-
-  ZLOG_DEBUG( "#############################################################" );
-  ZLOG_DEBUG( "# zSerialTest_TtyPortSendRecvString()" );
-  ZLOG_DEBUG( "#############################################################" );
-
-  int cnt = 0;
-  bool status = false;
-  zEvent::Event *MyEvent = NULL;
-
-  // Create new TTY test port and validate
-  TtyTestPort *MyPort = new TtyTestPort;
-  TEST_ISNOT_ZERO(MyPort);
-
-  // Create new TTY test thread for looping back data and validate
-  TtyTestThread *MyThread = new TtyTestThread(MyPort);
-  TEST_ISNOT_ZERO(MyThread);
-
-  // Create new observer and validate
-  TestObserver *MyObserver = new TestObserver;
-  TEST_ISNOT_ZERO(MyObserver);
-  TEST_FALSE(MyObserver->RxSem.TryWait());
-  TEST_FALSE(MyObserver->TxSem.TryWait());
-  TEST_FALSE(MyObserver->ErrSem.TryWait());
-
-  // Create new handler and validate
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
-  TEST_ISNOT_ZERO(MyHandler);
-
-  // Register observer
-  MyHandler->RegisterObserver(MyObserver);
-
-  // Register port with handler
-  MyHandler->RegisterEvent(MyPort);
-
-  // Open port
-  status = MyPort->Open(MyPort->Dev());
-  TEST_TRUE(status);
-
-  // Send string
-  status = MyPort->SendString("test string\n");
-  TEST_TRUE(status);
-
-  cnt = 0;
-  // Verify data was sent
-  while (MyObserver->TxSem.TimedWait(100000))
-  {
-    ++cnt;
-  }
-  TEST_EQ(cnt, 12);
-
-  cnt = 0;
-  // Verify data was received
-  while (MyObserver->RxSem.TimedWait(100000))
-  {
-    ++cnt;
-  }
-  TEST_EQ(cnt, 12);
-
-  // Verify no errors
-  status = MyObserver->ErrSem.TryWait();
-  TEST_FALSE(status);
-
-  // Receive string
-  std::string str;
-  status = MyPort->RecvString(str);
-  TEST_TRUE(status);
-  TEST_EQ(std::string("test string"), str);
-
-  // Unregister observer
-  MyHandler->UnregisterObserver(MyObserver);
-
-  // Cleanup
-  delete(MyHandler);
-  delete(MyObserver);
-  delete(MyThread);
-  MyPort->Close();
-  delete (MyPort);
-
-  // Return success
-  return (0);
-
-}

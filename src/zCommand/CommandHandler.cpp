@@ -41,6 +41,7 @@ CommandHandler::RegisterCommand(zCommand::Command *cmd_)
   if (cmd_ && this->_lock.Lock())
   {
     ZLOG_DEBUG("Registering command: '" + cmd_->GetName() + "'");
+    this->RegisterEvent(cmd_);
     this->_cmd_table[cmd_->GetName()] = cmd_;
     status = true;
     this->_lock.Unlock();
@@ -55,6 +56,7 @@ CommandHandler::UnregisterCommand(zCommand::Command *cmd_)
   if (cmd_ && this->_lock.Lock())
   {
     ZLOG_DEBUG("Unregistering command: '" + cmd_->GetName() + "'");
+    this->UnregisterEvent(cmd_);
     std::map<std::string, zCommand::Command *>::iterator it;
     it = this->_cmd_table.find(cmd_->GetName());
     if (it != this->_cmd_table.end())

@@ -26,21 +26,19 @@ namespace zUtils
 namespace zSocket
 {
 
-SocketAddress::SocketAddress(SocketAddress::TYPE type_, const std::string &addr_) :
+SocketAddress::SocketAddress(SocketType type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
 {
 }
 
 SocketAddress::SocketAddress(SocketAddress &other_) :
-    _type(other_._type)
+    _type(other_._type), _addr(other_._addr)
 {
-  this->SetAddress(other_.GetAddress());
 }
 
 SocketAddress::SocketAddress(const SocketAddress &other_) :
-  _type(other_._type)
+        _type(other_._type), _addr(other_._addr)
 {
-  this->SetAddress(other_.GetAddress());
 }
 
 SocketAddress::~SocketAddress()
@@ -50,81 +48,88 @@ SocketAddress::~SocketAddress()
 SocketAddress &
 SocketAddress::operator=(SocketAddress &other_)
 {
-  this->SetType(other_.GetType());
-  this->SetAddress(other_.GetAddress());
+  this->_type = other_._type;
+  this->_addr = other_._addr;
   return (*this);
 }
 
 SocketAddress &
 SocketAddress::operator=(const SocketAddress &other_)
 {
-  this->SetType(other_.GetType());
-  this->SetAddress(other_.GetAddress());
+  this->_type = other_._type;
+  this->_addr = other_._addr;
   return (*this);
 }
 
 bool
 SocketAddress::operator ==(const SocketAddress &other_) const
 {
-  return ((this->GetType() == other_.GetType()) && (this->GetAddress() == other_.GetAddress()));
+  return ((this->_type == other_._type) && (this->_addr == other_._addr));
 }
 
 bool
 SocketAddress::operator !=(const SocketAddress &other_) const
 {
-  return ((this->GetType() != other_.GetType()) || (this->GetAddress() != other_.GetAddress()));
+  return ((this->_type != other_._type) || (this->_addr != other_._addr));
 }
 
 bool
 SocketAddress::operator <(const SocketAddress &other_) const
-    {
-  return ((this->GetType() != other_.GetType()) || (this->GetAddress() < other_.GetAddress()));
+{
+  return ((this->_type != other_._type) || (this->_addr < other_._addr));
 }
 
 bool
 SocketAddress::operator >(const SocketAddress &other_) const
-    {
-  return ((this->GetType() != other_.GetType()) || (this->GetAddress() > other_.GetAddress()));
+{
+  return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
-SocketAddress::TYPE
-SocketAddress::GetType() const
+const SocketType
+SocketAddress::Type() const
 {
   return (this->_type);
 }
 
 bool
-SocketAddress::SetType(const SocketAddress::TYPE &type_)
+SocketAddress::Type(const SocketType &type_)
 {
-  bool status = false;
   switch (type_)
   {
-  case SocketAddress::TYPE_LOOP:
-  case SocketAddress::TYPE_INET:
-  case SocketAddress::TYPE_MCAST:
-  case SocketAddress::TYPE_BCAST:
+  case SocketType::TYPE_LOOP:
+
+  case SocketType::TYPE_UNIX:
+
+  case SocketType::TYPE_ETH:
+
+  case SocketType::TYPE_INET:
+
     this->_type = type_;
-    status = true;
-    break;
+    return (this->verify(this->_type, this->_addr));
   default:
-    status = false;
+    return(false);
   }
-  return(status);
 }
 
 std::string
-SocketAddress::GetAddress() const
+SocketAddress::Address() const
 {
   ZLOG_DEBUG("getting socket address: " + this->_addr);
   return (this->_addr);
 }
 
 bool
-SocketAddress::SetAddress(const std::string &addr_)
+SocketAddress::Address(const std::string &addr_)
 {
   ZLOG_DEBUG("setting socket address: " + addr_);
   this->_addr = addr_;
-  return (true);
+  return (this->verify(this->_type, this->_addr));
+}
+
+bool
+SocketAddress::verify(SocketType type_, const std::string &addr_)
+{
+  return (type_ == SocketType::TYPE_NONE);
 }
 
 }

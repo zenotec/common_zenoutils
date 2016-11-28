@@ -17,7 +17,7 @@ zThreadTest_Defaults(void* arg_)
   TestFunction *myFunc = new TestFunction;
   TEST_ISNOT_NULL(myFunc);
   TEST_IS_ZERO(myFunc->Id());
-  TEST_EQ(1, myFunc->GetCount());
+  TEST_EQ((unsigned int)1, myFunc->GetCount());
   delete (myFunc);
   return (0);
 }

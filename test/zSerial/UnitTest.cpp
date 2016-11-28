@@ -32,10 +32,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zSerialTest_TtyPortDefaults, 0);
   UTEST_TEST(zSerialTest_PortSendRecvChar, 0);
   UTEST_TEST(zSerialTest_PortSendRecvBuf, 0);
-  UTEST_TEST(zSerialTest_PortSendRecvString, 0);
   UTEST_TEST(zSerialTest_TtyPortSendRecvChar, 0);
   UTEST_TEST(zSerialTest_TtyPortSendRecvBuf, 0);
-  UTEST_TEST(zSerialTest_TtyPortSendRecvString, 0);
   UTEST_FINI();
 
   // Exit

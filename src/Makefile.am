@@ -52,7 +52,9 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zQueue.h \
     $(top_srcdir)/inc/zutils/zSem.h \
     $(top_srcdir)/inc/zutils/zSocket.h \
-    $(top_srcdir)/inc/zutils/zInet.h \
+    $(top_srcdir)/inc/zutils/zLoopSocket.h \
+    $(top_srcdir)/inc/zutils/zInetSocket.h \
+    $(top_srcdir)/inc/zutils/zUnixSocket.h \
     $(top_srcdir)/inc/zutils/zEthSocket.h \
     $(top_srcdir)/inc/zutils/zSerial.h \
     $(top_srcdir)/inc/zutils/zSignal.h \

@@ -17,6 +17,7 @@
 #include <zutils/zMessage.h>
 
 #include <zutils/zCommand.h>
+#include <zutils/zCommandMessage.h>
 
 namespace zUtils
 {

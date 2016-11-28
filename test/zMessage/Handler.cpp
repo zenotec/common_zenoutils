@@ -14,7 +14,7 @@ int zMessageTest_MessageHandler(void* arg_)
 
     // Setup network socket
     zSocket::InetAddress MyAddr("lo");
-    TEST_TRUE(MyAddr.SetPort("8888"));
+    TEST_TRUE(MyAddr.Port("8888"));
 
     // Create new socket and validate
     zSocket::InetSocket *MySock = new zSocket::InetSocket;

@@ -31,8 +31,9 @@ namespace zSocket
 {
 
 //*****************************************************************************
-// Class Buffer
+// Class: SocketBuffer
 //*****************************************************************************
+
 SocketBuffer::SocketBuffer(size_t size_) :
     _head(0), _data(0), _tail(0), _end(size_)
 {
@@ -44,6 +45,11 @@ SocketBuffer::SocketBuffer(size_t size_) :
     throw errMsg;
   }
   memset(this->_head, 0, size_);
+}
+
+SocketBuffer::SocketBuffer(const std::string &str_)
+{
+  this->Str(str_);
 }
 
 SocketBuffer::SocketBuffer(SocketBuffer &other_) :

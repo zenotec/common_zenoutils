@@ -1,6 +1,5 @@
 #include "zMessageTest.h"
 
-#include <zutils/zInet.h>
 
 using namespace Test;
 using namespace zUtils;

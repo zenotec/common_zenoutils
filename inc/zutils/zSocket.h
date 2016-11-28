@@ -14,6 +14,17 @@ namespace zUtils
 namespace zSocket
 {
 
+typedef enum SocketType
+{
+  TYPE_ERR = -1,
+  TYPE_NONE = 0,
+  TYPE_LOOP = 1,
+  TYPE_UNIX = 2,
+  TYPE_ETH = 3,
+  TYPE_INET = 4,
+  TYPE_LAST
+} SocketType;
+
 //**********************************************************************
 // zSocket::SocketBuffer Class
 //**********************************************************************
@@ -23,11 +34,13 @@ class SocketBuffer
 
 public:
 
+  SocketBuffer(const size_t size_ = 1500);
+
+  SocketBuffer(const std::string &str_);
+
   SocketBuffer(SocketBuffer &other_);
 
   SocketBuffer(const SocketBuffer &other_);
-
-  SocketBuffer(const size_t size_ = 1500);
 
   virtual
   ~SocketBuffer();
@@ -100,18 +113,7 @@ class SocketAddress
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_LOOP = 1,
-    TYPE_INET = 2,
-    TYPE_MCAST = 3,
-    TYPE_BCAST = 4,
-    TYPE_LAST
-  };
-
-  SocketAddress(zSocket::SocketAddress::TYPE type = zSocket::SocketAddress::TYPE_NONE,
+  SocketAddress(SocketType type = SocketType::TYPE_NONE,
       const std::string &addr_ = std::string(""));
 
   SocketAddress(SocketAddress &other_);
@@ -128,38 +130,40 @@ public:
   operator=(const SocketAddress &other_);
 
   bool
-  operator ==(const zSocket::SocketAddress &other_) const;
+  operator ==(const SocketAddress &other_) const;
   bool
-  operator !=(const zSocket::SocketAddress &other_) const;
+  operator !=(const SocketAddress &other_) const;
   bool
-  operator <(const zSocket::SocketAddress &other_) const;
+  operator <(const SocketAddress &other_) const;
   bool
-  operator >(const zSocket::SocketAddress &other_) const;
+  operator >(const SocketAddress &other_) const;
 
-  SocketAddress::TYPE
-  GetType() const;
+  const SocketType
+  Type() const;
 
   bool
-  SetType(const SocketAddress::TYPE &type_);
+  Type(const SocketType &type_);
 
-  virtual std::string
-  GetAddress() const;
+  std::string
+  Address() const;
 
-  virtual bool
-  SetAddress(const std::string &addr_);
+  bool
+  Address(const std::string &addr_);
 
 protected:
 
-  SocketAddress::TYPE _type;
+  virtual bool
+  verify(SocketType type_, const std::string &addr_);
 
 private:
 
+  SocketType _type;
   std::string _addr;
 
 };
 
-typedef std::pair<SocketAddress, std::shared_ptr<SocketBuffer> > SocketAddressBufferPair;
-typedef zQueue <SocketAddressBufferPair> SocketBufferQueue;
+typedef std::pair<std::shared_ptr<const SocketAddress>, std::shared_ptr<SocketBuffer> > SocketAddressBufferPair;
+typedef zQueue<SocketAddressBufferPair> SocketBufferQueue;
 
 //**********************************************************************
 // zSocket::Socket Class
@@ -170,72 +174,66 @@ class Socket : public zEvent::Event
 
 public:
 
-  Socket();
+  Socket(SocketType type_ = SocketType::TYPE_NONE);
 
   virtual
   ~Socket();
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_ETH = 1,
-    TYPE_IPV4 = 2,
-    TYPE_IPV6 = 3,
-    TYPE_LAST
-  };
+  const SocketType
+  Type() const;
 
-  Socket::TYPE
-  GetType();
+  const SocketAddress*
+  Address() const;
 
   bool
-  SetType(const Socket::TYPE type_);
-
-  virtual const zSocket::SocketAddress &
-  GetAddress();
+  Address(const SocketAddress *addr_);
 
   virtual bool
-  SetAddress(const zSocket::SocketAddress &addr_);
-
-  virtual bool
-  Open();
+  Open() = 0;
 
   virtual void
-  Close();
+  Close() = 0;
 
   virtual bool
-  Bind();
+  Bind() = 0;
 
   virtual bool
-  Connect(const zSocket::SocketAddress &addr_);
+  Connect(const SocketAddress* addr_) = 0;
 
   ssize_t
   Send(SocketAddressBufferPair &pair_);
 
   ssize_t
-  Send(const zSocket::SocketAddress &to_, zSocket::SocketBuffer &sb_);
+  Send(const SocketAddress &to_, SocketBuffer &sb_);
 
   ssize_t
-  Send(const zSocket::SocketAddress &to_, const std::string &str_);
+  Send(const SocketAddress &to_, const std::string &str_);
 
 protected:
 
-  zSocket::Socket::TYPE _type;
-
-  // Called to process a received packet
+  // Called by derived class to process a received packet
   bool
   rxbuf(SocketAddressBufferPair &pair_);
 
-  // Called to get packet to send
+  // Called by derived class to get packet to send
   bool
-  txbuf(SocketAddressBufferPair &pair_, size_t timeout_ = 1000000 /* 1 sec */);
+  txbuf(SocketAddressBufferPair &pair_, size_t timeout_ = 1000000 /* usec */);
 
 private:
 
-  zSocket::SocketAddress _addr;
-
-  SocketBufferQueue _rxq;
+  const SocketType _type;
+  const SocketAddress* _addr;
   SocketBufferQueue _txq;
+
+  Socket(Socket &other_);
+
+  Socket(const Socket &other_);
+
+  Socket &
+  operator=(Socket &other_);
+
+  Socket &
+  operator=(const Socket &other_);
 
 };
 
@@ -268,7 +266,7 @@ public:
   SocketNotification::ID
   Id() const;
 
-  zSocket::Socket*
+  Socket*
   Sock();
 
   SocketAddressBufferPair

@@ -23,6 +23,7 @@
 #include <zutils/zSocket.h>
 
 #include <zutils/zMessage.h>
+#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {
@@ -37,27 +38,15 @@ MessageSocket::MessageSocket(zSocket::Socket *sock_) :
     _sock(sock_), zEvent::Event(zEvent::Event::TYPE_MSG)
 {
   ZLOG_DEBUG("Creating message socket: '" + zLog::PointerStr(this) + "'");
-  this->_handler.RegisterEvent(this->_sock);
-  this->_handler.RegisterObserver(this);
+  this->_sock_handler.RegisterEvent(this->_sock);
+  this->_sock_handler.RegisterObserver(this);
 }
 
 MessageSocket::~MessageSocket()
 {
   ZLOG_DEBUG("Destroying message socket: '" + zLog::PointerStr(this) + "'");
-  this->_handler.UnregisterObserver(this);
-  this->_handler.UnregisterEvent(this->_sock);
-}
-
-const zSocket::SocketAddress &
-MessageSocket::GetAddress()
-{
-  return (this->_sock->GetAddress());
-}
-
-bool
-MessageSocket::SetAddress(const zSocket::SocketAddress &addr_)
-{
-  return (this->_sock->SetAddress(addr_));
+  this->_sock_handler.UnregisterObserver(this);
+  this->_sock_handler.UnregisterEvent(this->_sock);
 }
 
 bool
@@ -80,29 +69,18 @@ MessageSocket::Bind()
 }
 
 bool
-MessageSocket::Connect(const zSocket::SocketAddress &addr_)
+MessageSocket::Connect(const zSocket::SocketAddress* addr_)
 {
   return (this->_sock->Connect(addr_));
 }
 
 bool
-MessageSocket::Send(zMessage::Message &msg_)
+MessageSocket::Send(const zSocket::SocketAddress& addr_, zMessage::Message &msg_)
 {
   bool status = false;
 
-  // Get destination address from message
-  zSocket::SocketAddress addr;
-  addr.SetAddress(msg_.GetDst());
-
-  // Copy message contents to socket buffer
-  std::shared_ptr<zSocket::SocketBuffer> sb(new zSocket::SocketBuffer);
-  sb->Str(msg_.GetJson());
-
-  // Create address / buffer pair
-  zSocket::SocketAddressBufferPair p(addr, sb);
-
   // Send message
-  if (this->_sock->Send(p) == sb->Size())
+  if (this->_sock->Send(addr_, msg_.GetJson()) == msg_.GetJson().size())
   {
     status = true;
   }
