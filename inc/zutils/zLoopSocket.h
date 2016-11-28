@@ -33,7 +33,7 @@ public:
 protected:
 
   virtual bool
-  verify(SocketType type_, const std::string &addr_);
+  verify(const SocketType type_, const std::string &addr_);
 
 private:
 
@@ -86,7 +86,7 @@ public:
   Bind();
 
   virtual bool
-  Connect();
+  Connect(const SocketAddress* addr_);
 
 protected:
 
@@ -94,6 +94,9 @@ private:
 
   zThread::Thread _rx_thread;
   LoopSocketRecv _rx_func;
+  bool _opened;
+  bool _bound;
+  bool _connected;
 
 };
 

@@ -35,7 +35,7 @@ int zMessageTest_MessageSocketDefaults(void* arg_)
     ZLOG_DEBUG("#############################################################");
 
     // Setup network socket
-    zSocket::InetSocket *MySock = new zSocket::InetSocket;
+    zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
     TEST_ISNOT_NULL(MySock);
 
     // Create new message socket and validate

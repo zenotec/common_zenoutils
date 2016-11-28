@@ -1,7 +1,26 @@
+#include <stdint.h>
+#include <netinet/in.h>
+#include <string.h>
+
+#include <string>
+#include <list>
+#include <mutex>
+#include <memory>
+
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
+
+#include <zutils/zSocket.h>
+#include <zutils/zLoopSocket.h>
+
 #include "zSocketTest.h"
 
 using namespace Test;
 using namespace zUtils;
+using namespace zSocket;
 
 int
 zSocketTest_BufferDefaults( void* arg_ )
@@ -12,7 +31,7 @@ zSocketTest_BufferDefaults( void* arg_ )
     ZLOG_DEBUG( "#############################################################" );
 
     // Create new packet and validate
-    zSocket::SocketBuffer mySb1;
+    SocketBuffer mySb1;
     TEST_ISNOT_NULL( mySb1.Head() );
     TEST_EQ( mySb1.Head(), mySb1.Data() );
     TEST_IS_ZERO( mySb1.Length() );
@@ -21,7 +40,7 @@ zSocketTest_BufferDefaults( void* arg_ )
     TEST_EQ( std::string( "" ), mySb1.Str() );
 
     // Create new packet of set size and validate
-    zSocket::SocketBuffer mySb2( 500 );
+    SocketBuffer mySb2( 500 );
     TEST_ISNOT_NULL( mySb2.Head() );
     TEST_EQ( mySb1.Head(), mySb1.Data() );
     TEST_ISNOT_NULL( mySb2.Data() );
@@ -44,14 +63,11 @@ zSocketTest_AddressDefaults( void* arg_ )
     ZLOG_DEBUG( "#############################################################" );
 
     // Create new socket address and validate
-    zSocket::SocketAddress myAddr1;
-    TEST_EQ( zSocket::SocketAddress::TYPE_NONE, myAddr1.GetType() );
-    TEST_EQ( std::string( "" ), myAddr1.GetAddress() );
-
-    // Create Socket address using string notation
-    zSocket::SocketAddress myAddr2( zSocket::SocketAddress::TYPE_INET, "1.2.3.4:56789" );
-    TEST_EQ( zSocket::SocketAddress::TYPE_INET, myAddr2.GetType() );
-    TEST_EQ( std::string( "1.2.3.4:56789" ), myAddr2.GetAddress() );
+    SocketAddress *myAddr = new SocketAddress;
+    TEST_ISNOT_NULL(myAddr);
+    TEST_EQ( SocketType::TYPE_NONE, myAddr->Type() );
+    TEST_EQ( std::string( "" ), myAddr->Address() );
+    delete(myAddr);
 
     // Return success
     return (0);
@@ -65,7 +81,9 @@ zSocketTest_ObserverDefaults( void* arg_ )
     ZLOG_DEBUG("# zSocketTest_ObserverDefaults()");
     ZLOG_DEBUG("#############################################################");
 
-    TestObserver myObserver;
+    TestObserver *myObserver = new TestObserver;
+    TEST_ISNOT_NULL(myObserver);
+    delete(myObserver);
 
     // Return success
     return (0);
@@ -79,12 +97,9 @@ zSocketTest_SocketDefaults( void* arg_ )
     ZLOG_DEBUG("# zSocketTest_SocketDefaults()");
     ZLOG_DEBUG("#############################################################");
 
-    // Create new socket address and validate
-    zSocket::SocketAddress myAddr;
-    TEST_EQ( zSocket::SocketAddress::TYPE_NONE, myAddr.GetType() );
-    TEST_EQ( std::string( "" ), myAddr.GetAddress() );
-
-    TestSocket mySocket( myAddr );
+    TestSocket *mySocket = new TestSocket;
+    TEST_ISNOT_NULL(mySocket);
+    delete(mySocket);
 
     // Return success
     return (0);

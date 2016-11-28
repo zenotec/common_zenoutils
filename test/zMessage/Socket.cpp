@@ -1,9 +1,8 @@
 #include "zMessageTest.h"
 
-#include <zutils/zInet.h>
-
 using namespace Test;
 using namespace zUtils;
+using namespace zSocket;
 
 int
 zMessageTest_MessageSocket(void* arg_)
@@ -16,11 +15,10 @@ zMessageTest_MessageSocket(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Setup network socket
-  zSocket::InetAddress MyAddr("lo");
-  TEST_TRUE(MyAddr.Port("8888"));
-  zSocket::InetSocket *MySock = new zSocket::InetSocket;
+  LoopAddress MyAddr("lo");
+  LoopSocket *MySock = new LoopSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->SetAddress(MyAddr));
+  TEST_TRUE(MySock->Address(&MyAddr));
 
   // Create new message socket and validate
   zMessage::MessageSocket *MsgSock = new zMessage::MessageSocket(MySock);
@@ -51,10 +49,10 @@ zMessageTest_MessageSocket(void* arg_)
   zMessage::Message *helloMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_HELLO);
   TEST_ISNOT_NULL(helloMsg);
   TEST_TRUE(helloMsg->SetId("helloMsg"));
-  TEST_TRUE(helloMsg->SetDst(MyAddr.GetAddress()));
-  TEST_TRUE(helloMsg->SetSrc(MyAddr.GetAddress()));
+  TEST_TRUE(helloMsg->SetDst(MyAddr.Address()));
+  TEST_TRUE(helloMsg->SetSrc(MyAddr.Address()));
   ZLOG_DEBUG(helloMsg->GetJson());
-  TEST_TRUE(MsgSock->Send(*helloMsg));
+  TEST_TRUE(MsgSock->Send(MyAddr, *helloMsg));
   delete (helloMsg);
 
   // Wait for message to be sent
@@ -79,10 +77,10 @@ zMessageTest_MessageSocket(void* arg_)
   zMessage::Message *ackMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ACK);
   TEST_ISNOT_NULL(ackMsg);
   TEST_TRUE(ackMsg->SetId("ackMsg"));
-  TEST_TRUE(ackMsg->SetDst(MyAddr.GetAddress()));
-  TEST_TRUE(ackMsg->SetSrc(MyAddr.GetAddress()));
+  TEST_TRUE(ackMsg->SetDst(MyAddr.Address()));
+  TEST_TRUE(ackMsg->SetSrc(MyAddr.Address()));
   ZLOG_DEBUG(ackMsg->GetJson());
-  TEST_TRUE(MsgSock->Send(*ackMsg));
+  TEST_TRUE(MsgSock->Send(MyAddr, *ackMsg));
   delete (ackMsg);
 
   // Wait for message to be sent
@@ -107,10 +105,10 @@ zMessageTest_MessageSocket(void* arg_)
   zMessage::Message *byeMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_BYE);
   TEST_ISNOT_NULL(byeMsg);
   TEST_TRUE(byeMsg->SetId("byeMsg"));
-  TEST_TRUE(byeMsg->SetDst(MyAddr.GetAddress()));
-  TEST_TRUE(byeMsg->SetSrc(MyAddr.GetAddress()));
+  TEST_TRUE(byeMsg->SetDst(MyAddr.Address()));
+  TEST_TRUE(byeMsg->SetSrc(MyAddr.Address()));
   ZLOG_DEBUG(byeMsg->GetJson());
-  TEST_TRUE(MsgSock->Send(*byeMsg));
+  TEST_TRUE(MsgSock->Send(MyAddr, *byeMsg));
   delete (byeMsg);
 
   // Wait for message to be sent

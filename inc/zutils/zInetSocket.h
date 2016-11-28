@@ -25,7 +25,7 @@ class InetAddress : public SocketAddress
 
 public:
 
-  InetAddress(const std::string &ifname_ = std::string(""));
+  InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
 
   InetAddress(SocketAddress &addr_);
 
@@ -39,7 +39,7 @@ protected:
 private:
 
   virtual bool
-  verify(SocketType type_, const std::string &addr_);
+  verify(const SocketType type_, const std::string &addr_);
 
 };
 
@@ -124,7 +124,7 @@ public:
   Bind();
 
   virtual bool
-  Connect();
+  Connect(const SocketAddress* addr_);
 
 protected:
 

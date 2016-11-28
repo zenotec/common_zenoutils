@@ -31,7 +31,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(SocketType type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(NULL)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _src(NULL)
 {
   ZLOG_DEBUG("Creating socket: '" + zLog::PointerStr(this) + "'");
 }
@@ -50,21 +50,21 @@ Socket::Type() const
 const zSocket::SocketAddress*
 Socket::Address() const
 {
-  return (this->_addr);
+  return (this->_src);
 }
 
 bool
 Socket::Address(const zSocket::SocketAddress* addr_)
 {
-  this->_addr = addr_;
+  this->_src = addr_;
   return (true);
 }
 
 ssize_t
 Socket::Send(SocketAddressBufferPair &pair_)
 {
-  ZLOG_DEBUG(
-      "Sending packet: " + pair_.first->Address() + "(" + zLog::IntStr(pair_.second->Size()) + ")");
+  ZLOG_DEBUG("Sending packet: " + pair_.first->Address() +
+      "(" + zLog::IntStr(pair_.second->Size()) + ")");
   this->_txq.Push(pair_);
   return (pair_.second->Size());
 }

@@ -18,10 +18,12 @@ typedef enum SocketType
 {
   TYPE_ERR = -1,
   TYPE_NONE = 0,
-  TYPE_LOOP = 1,
-  TYPE_UNIX = 2,
-  TYPE_ETH = 3,
-  TYPE_INET = 4,
+  TYPE_TEST = 1,
+  TYPE_LOOP = 2,
+  TYPE_UNIX = 3,
+  TYPE_ETH = 4,
+  TYPE_INET = 5,
+  TYPE_INET6 = 6,
   TYPE_LAST
 } SocketType;
 
@@ -113,7 +115,7 @@ class SocketAddress
 
 public:
 
-  SocketAddress(SocketType type = SocketType::TYPE_NONE,
+  SocketAddress(const SocketType type = SocketType::TYPE_NONE,
       const std::string &addr_ = std::string(""));
 
   SocketAddress(SocketAddress &other_);
@@ -142,7 +144,7 @@ public:
   Type() const;
 
   bool
-  Type(const SocketType &type_);
+  Type(const SocketType type_);
 
   std::string
   Address() const;
@@ -153,7 +155,7 @@ public:
 protected:
 
   virtual bool
-  verify(SocketType type_, const std::string &addr_);
+  verify(const SocketType type_, const std::string &addr_);
 
 private:
 
@@ -222,7 +224,8 @@ protected:
 private:
 
   const SocketType _type;
-  const SocketAddress* _addr;
+  const SocketAddress* _src;
+  const SocketAddress* _dst;
   SocketBufferQueue _txq;
 
   Socket(Socket &other_);

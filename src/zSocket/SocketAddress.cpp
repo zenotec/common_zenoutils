@@ -26,7 +26,7 @@ namespace zUtils
 namespace zSocket
 {
 
-SocketAddress::SocketAddress(SocketType type_, const std::string &addr_) :
+SocketAddress::SocketAddress(const SocketType type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
 {
 }
@@ -37,7 +37,7 @@ SocketAddress::SocketAddress(SocketAddress &other_) :
 }
 
 SocketAddress::SocketAddress(const SocketAddress &other_) :
-        _type(other_._type), _addr(other_._addr)
+    _type(other_._type), _addr(other_._addr)
 {
 }
 
@@ -63,25 +63,25 @@ SocketAddress::operator=(const SocketAddress &other_)
 
 bool
 SocketAddress::operator ==(const SocketAddress &other_) const
-{
+    {
   return ((this->_type == other_._type) && (this->_addr == other_._addr));
 }
 
 bool
 SocketAddress::operator !=(const SocketAddress &other_) const
-{
+    {
   return ((this->_type != other_._type) || (this->_addr != other_._addr));
 }
 
 bool
 SocketAddress::operator <(const SocketAddress &other_) const
-{
+    {
   return ((this->_type != other_._type) || (this->_addr < other_._addr));
 }
 
 bool
 SocketAddress::operator >(const SocketAddress &other_) const
-{
+    {
   return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
@@ -92,8 +92,9 @@ SocketAddress::Type() const
 }
 
 bool
-SocketAddress::Type(const SocketType &type_)
+SocketAddress::Type(const SocketType type_)
 {
+  bool status = false;
   switch (type_)
   {
   case SocketType::TYPE_LOOP:
@@ -103,12 +104,16 @@ SocketAddress::Type(const SocketType &type_)
   case SocketType::TYPE_ETH:
 
   case SocketType::TYPE_INET:
-
-    this->_type = type_;
-    return (this->verify(this->_type, this->_addr));
+    if (this->verify(type_, this->_addr))
+    {
+      this->_type = type_;
+      status = true;
+    }
+    break;
   default:
-    return(false);
+    break;
   }
+  return (status);
 }
 
 std::string
@@ -121,15 +126,20 @@ SocketAddress::Address() const
 bool
 SocketAddress::Address(const std::string &addr_)
 {
+  bool status = false;
   ZLOG_DEBUG("setting socket address: " + addr_);
-  this->_addr = addr_;
-  return (this->verify(this->_type, this->_addr));
+  if (this->verify(this->_type, addr_))
+  {
+    this->_addr = addr_;
+    status = true;
+  }
+  return (status);
 }
 
 bool
-SocketAddress::verify(SocketType type_, const std::string &addr_)
+SocketAddress::verify(const SocketType type_, const std::string &addr_)
 {
-  return (type_ == SocketType::TYPE_NONE);
+  return ((type_ == SocketType::TYPE_NONE) || (type_ == SocketType::TYPE_TEST));
 }
 
 }

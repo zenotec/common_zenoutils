@@ -24,6 +24,7 @@
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
 #include <zutils/zSocket.h>
+#include <zutils/zLoopSocket.h>
 
 #include <zutils/zMessage.h>
 #include <zutils/zMessageSocket.h>

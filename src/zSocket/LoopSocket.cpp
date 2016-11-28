@@ -39,9 +39,9 @@ LoopAddress::~LoopAddress()
 }
 
 bool
-LoopAddress::verify(SocketType type_, const std::string &addr_)
+LoopAddress::verify(const SocketType type_, const std::string &addr_)
 {
-  return(type_ == SocketType::TYPE_LOOP);
+  return (type_ == SocketType::TYPE_LOOP);
 }
 
 //**********************************************************************
@@ -57,8 +57,7 @@ LoopSocketRecv::ThreadFunction(void *arg_)
 
   if (sock->txbuf(p, 100000))
   {
-    ZLOG_DEBUG(
-        "Sending packet: " + p.first->Address() + "(" + zLog::IntStr(p.second->Size()) + ")");
+    ZLOG_DEBUG("Sending packet: " + p.first->Address() + "(" + zLog::IntStr(p.second->Size()) + ")");
     if (!sock->rxbuf(p))
     {
       ZLOG_ERR("Error sending packet");
@@ -74,7 +73,8 @@ LoopSocketRecv::ThreadFunction(void *arg_)
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SocketType::TYPE_LOOP), _rx_thread(&this->_rx_func, this)
+    Socket(SocketType::TYPE_LOOP), _rx_thread(&this->_rx_func, this),
+        _opened(false), _bound(false), _connected(false)
 {
   return;
 }
@@ -88,25 +88,89 @@ LoopSocket::~LoopSocket()
 bool
 LoopSocket::Open()
 {
-  return (true);
+  bool status = false;
+
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (false);
+  }
+
+  if (!this->_opened)
+  {
+    this->_opened = true;
+    status = true;
+  }
+  return (status);
 }
 
 void
 LoopSocket::Close()
 {
+  this->_opened = false;
   return;
 }
 
 bool
 LoopSocket::Bind()
 {
-  return (true);
+  bool status = false;
+
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (false);
+  }
+
+  if (this->_opened && !this->_bound && !this->_connected)
+  {
+    // Start listener threads
+    if (this->_rx_thread.Run())
+    {
+      this->_bound = true;
+      status = true;
+    }
+    else
+    {
+      ZLOG_ERR("Error starting listening threads");
+    }
+  }
+
+  return (status);
 }
 
 bool
-LoopSocket::Connect()
+LoopSocket::Connect(const SocketAddress* addr_)
 {
-  return (true);
+  bool status = false;
+
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (false);
+  }
+
+  if (addr_->Type() != SocketType::TYPE_LOOP)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address type"));
+    return (false);
+  }
+
+  if (this->_opened && !this->_bound && !this->_connected)
+  {
+    // Start listener threads
+    if (this->_rx_thread.Run())
+    {
+      this->_connected = true;
+      status = true;
+    }
+    else
+    {
+      ZLOG_ERR("Error starting listening threads");
+    }
+  }
+
+  return (status);
 }
 
 }

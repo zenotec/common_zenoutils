@@ -40,18 +40,18 @@ namespace zSocket
 {
 
 static bool
-_addr2sock(const SocketAddress *addr_, struct sockaddr_un *sockaddr_)
+_addr2sock(const std::string &addr_, struct sockaddr_un &sockaddr_)
 {
-  memset((void *) sockaddr_, 0, sizeof(struct sockaddr_un));
-  sockaddr_->sun_family = AF_UNIX;
-  strncpy(sockaddr_->sun_path, addr_->Address().c_str(), 108);
+  memset((void *) &sockaddr_, 0, sizeof(struct sockaddr_un));
+  sockaddr_.sun_family = AF_UNIX;
+  strncpy(sockaddr_.sun_path, addr_.c_str(), (sizeof(sockaddr_.sun_path) - 1));
   return (true);
 }
 
 static bool
-_sock2addr(struct sockaddr_un *sockaddr_, SocketAddress *addr_)
+_sock2addr(struct sockaddr_un &sockaddr_, std::string &addr_)
 {
-  addr_->Address(std::string(sockaddr_->sun_path));
+  addr_ = std::string(sockaddr_.sun_path);
   return (true);
 }
 
@@ -59,8 +59,8 @@ _sock2addr(struct sockaddr_un *sockaddr_, SocketAddress *addr_)
 // UnixAddress Class
 //**********************************************************************
 
-UnixAddress::UnixAddress() :
-    SocketAddress(SocketType::TYPE_UNIX)
+UnixAddress::UnixAddress(const std::string &addr_) :
+    SocketAddress(SocketType::TYPE_UNIX, addr_)
 {
 }
 
@@ -79,10 +79,10 @@ UnixAddress::~UnixAddress()
 }
 
 bool
-UnixAddress::verify(SocketType type_, const std::string &addr_)
+UnixAddress::verify(const SocketType type_, const std::string &addr_)
 {
-  struct sockaddr_un sockaddr;
-  return ((type_ == SocketType::TYPE_UNIX) && (_addr2sock(this, &sockaddr)));
+  struct sockaddr_un sockaddr = { 0 };
+  return ((type_ == SocketType::TYPE_UNIX) && (_addr2sock(addr_, sockaddr)));
 }
 
 //**********************************************************************
@@ -95,16 +95,20 @@ UnixSocketRecv::ThreadFunction(void *arg_)
   UnixSocket *sock = (UnixSocket *) arg_;
   ssize_t bytes = -1;
 
-  if (!sock->_sock)
+  if (!sock || !sock->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
     return ((void*) -1);
   }
 
+  ZLOG_DEBUG("Waiting for RX data on Unix socket");
+
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = sock->_sock;
   fds[0].events = (POLLIN | POLLERR);
+
+  // Poll for received data
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLIN))
   {
@@ -135,22 +139,31 @@ UnixSocketRecv::ThreadFunction(void *arg_)
 void *
 UnixSocketSend::ThreadFunction(void *arg_)
 {
-  UnixSocket *sock = (UnixSocket *) arg_;
 
-  ZLOG_DEBUG("TX: Polling socket for data");
+  UnixSocket *sock = (UnixSocket *) arg_;
+  SocketAddressBufferPair p;
+
+  if (!sock || !sock->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return ((void*) -1);
+  }
+
+  ZLOG_DEBUG("Waiting for TX data on Unix socket");
 
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = sock->_sock;
   fds[0].events = (POLLOUT | POLLERR);
-  int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT))
+
+  // Wait for data to send
+  if (sock->txbuf(p, 1000000))
   {
-    SocketAddressBufferPair p;
-    if (sock->txbuf(p, 100000))
+    int ret = poll(fds, 1, 1000);
+    if (ret > 0 && (fds[0].revents == POLLOUT))
     {
-      ZLOG_DEBUG(
-          "Sending packet: " + p.first->Address() + "(" + zLog::IntStr(p.second->Size()) + ")");
+      ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+          "(" + zLog::IntStr(p.second->Size()) + ")");
       if (sock->_send(*p.first, *p.second) != p.second->Size())
       {
         ZLOG_ERR("Error sending packet");
@@ -181,9 +194,9 @@ bool
 UnixSocket::Open()
 {
 
-  if (this->Address() == NULL)
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
   {
-    ZLOG_ERR("Failed to open Unix Socket, address not set.");
+    ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
@@ -232,24 +245,27 @@ bool
 UnixSocket::Bind()
 {
 
+  ZLOG_DEBUG("Bind on socket: " + zLog::IntStr(this->_sock));
+
   if (!this->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
     return (false);
   }
 
-  ZLOG_DEBUG("Bind on socket: " + zLog::IntStr(this->_sock));
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (false);
+  }
 
   // Convert string notation address to sockaddr_un
   struct sockaddr_un addr = { 0 };
-  if (!_addr2sock(this->Address(), &addr))
+  if (!_addr2sock(this->Address()->Address(), addr))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (false);
   }
-
-  // Override address to always listen on all interfaces
-//  addr.sin_addr.s_addr = INADDR_ANY;
 
   // Bind address to socket
   int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
@@ -260,6 +276,7 @@ UnixSocket::Bind()
     return (false);
   } // end if
 
+  // Start listener threads
   if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
   {
     ZLOG_ERR("Error starting listening threads");
@@ -271,8 +288,10 @@ UnixSocket::Bind()
 }
 
 bool
-UnixSocket::Connect()
+UnixSocket::Connect(const SocketAddress* addr_)
 {
+
+  ZLOG_DEBUG("Connect on socket: " + zLog::IntStr(this->_sock));
 
   if (!this->_sock)
   {
@@ -280,16 +299,27 @@ UnixSocket::Connect()
     return (false);
   }
 
-  ZLOG_DEBUG("Connect on socket: " + zLog::IntStr(this->_sock));
-
-  struct sockaddr_un addr = { 0 };
-  if (!_addr2sock(this->Address(), &addr))
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
   {
-    ZLOG_CRIT("Cannot convert socket address: "
-        + std::string(strerror(errno)));
+    ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
+  if (addr_->Type() != SocketType::TYPE_UNIX)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address type"));
+    return (false);
+  }
+
+  // Convert string notation address to sockaddr_un
+  struct sockaddr_un addr = { 0 };
+  if (!_addr2sock(addr_->Address(), addr))
+  {
+    ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
+    return (false);
+  }
+
+  // Connect to target address
   int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
@@ -297,6 +327,7 @@ UnixSocket::Connect()
     return (false);
   } // end if
 
+  // Start listener threads
   if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
   {
     ZLOG_ERR("Error starting listening threads");
@@ -310,26 +341,36 @@ UnixSocket::Connect()
 ssize_t
 UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
 {
+
+  ssize_t n = -1;
+
   if (!this->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
-    return (false);
+    return (-1);
   }
 
-  if (this->Address()->Type() != SocketType::TYPE_UNIX)
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
   {
-    ZLOG_CRIT(std::string("Invalid address type"));
-    return (false);
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (-1);
   }
 
   struct sockaddr_un src = { 0 };
   socklen_t len = sizeof(src);
 
-  int n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, (struct sockaddr *) &src, &len);
+  n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, (struct sockaddr *) &src, &len);
   if (n > 0)
   {
     sb_.Put(n);
-    _sock2addr(&src, &addr_);
+    std::string addr;
+    if (_sock2addr(src, addr))
+    {
+      if (!addr_.Type(SocketType::TYPE_UNIX) || !addr_.Address(addr))
+      {
+        ZLOG_WARN("Error occurred setting source address");
+      }
+    }
 
     std::string logstr;
     logstr += "Receiving on socket:\t";
@@ -347,9 +388,23 @@ ssize_t
 UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
 {
 
+  ssize_t n = -1;
+
   if (!this->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
+    return (-1);
+  }
+
+  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_UNIX)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (-1);
+  }
+
+  if (addr_.Type() != SocketType::TYPE_UNIX)
+  {
+    ZLOG_CRIT(std::string("Invalid destination address type"));
     return (-1);
   }
 
@@ -361,22 +416,20 @@ UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
   logstr += "Size: " + zLog::IntStr(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
-  struct sockaddr_un src = { 0 };
-  if (!_addr2sock(&addr_, &src))
+  struct sockaddr_un dst = { 0 };
+  if (!_addr2sock(addr_.Address(), dst))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (-1);
   }
-  socklen_t slen = sizeof(struct sockaddr_un);
 
-  ssize_t bytes_sent = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &src,
-      slen);
-  if (bytes_sent < 0)
+  n = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
+  if (n < 0)
   {
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 
-  return (bytes_sent);
+  return (n);
 
 }
 

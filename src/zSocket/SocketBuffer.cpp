@@ -37,18 +37,27 @@ namespace zSocket
 SocketBuffer::SocketBuffer(size_t size_) :
     _head(0), _data(0), _tail(0), _end(size_)
 {
-  this->_head = (uint8_t *) malloc(size_);
+  this->_head = (uint8_t *) malloc(this->_end);
   if (!this->_head)
   {
     std::string errMsg = "Error allocating memory for socket buffer";
     ZLOG_CRIT(errMsg);
     throw errMsg;
   }
-  memset(this->_head, 0, size_);
+  memset(this->_head, 0, this->_end);
 }
 
-SocketBuffer::SocketBuffer(const std::string &str_)
+SocketBuffer::SocketBuffer(const std::string &str_) :
+    _head(0), _data(0), _tail(0), _end(str_.size())
 {
+  this->_head = (uint8_t *) malloc(this->_end);
+  if (!this->_head)
+  {
+    std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
+    throw errMsg;
+  }
+  memset(this->_head, 0, this->_end);
   this->Str(str_);
 }
 
@@ -65,7 +74,6 @@ SocketBuffer::SocketBuffer(SocketBuffer &other_) :
   memset(this->_head, 0, other_._end);
   memcpy(this->_head, other_._head, other_._tail);
 }
-
 
 SocketBuffer::SocketBuffer(const SocketBuffer &other_) :
     _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)

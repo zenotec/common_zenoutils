@@ -8,24 +8,6 @@
 #ifndef _ZSOCKETTEST_H_
 #define _ZSOCKETTEST_H_
 
-#include <unistd.h>
-#include <stdint.h>
-#include <netinet/in.h>
-#include <string.h>
-
-#include <string>
-#include <list>
-#include <mutex>
-#include <memory>
-
-#include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-
-#include <zutils/zSocket.h>
-
 #include "UnitTest.h"
 
 int
@@ -48,11 +30,24 @@ int
 zSocketTest_AddressCompare(void* arg_);
 
 int
+zSocketTest_LoopAddressGetSet(void* arg_);
+int
+zSocketTest_LoopAddressCompare(void* arg_);
+
+int
+zSocketTest_LoopSocketDefault(void* arg_);
+int
+zSocketTest_LoopSocketSendReceive(void* arg_);
+
+int
+zSocketTest_UnixAddressGetSet(void* arg_);
+int
+zSocketTest_UnixAddressCompare(void* arg_);
+
+int
 zSocketTest_InetAddressGetSet(void* arg_);
 int
 zSocketTest_InetAddressCompare(void* arg_);
-int
-zSocketTest_InetAddressIface(void* arg_);
 
 int
 zSocketTest_InetSocketDefault(void* arg_);
@@ -66,6 +61,7 @@ zSocketTest_InetSocketObserver(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
+using namespace zSocket;
 
 class TestObserver : public zEvent::EventObserver
 {
@@ -79,9 +75,9 @@ public:
   {
   }
 
-  zQueue<zSocket::SocketAddressBufferPair> RxSem;
-  zQueue<zSocket::SocketAddressBufferPair> TxSem;
-  zQueue<zSocket::SocketAddressBufferPair> ErrSem;
+  zQueue<SocketAddressBufferPair> RxSem;
+  zQueue<SocketAddressBufferPair> TxSem;
+  zQueue<SocketAddressBufferPair> ErrSem;
 
 protected:
 
@@ -93,14 +89,14 @@ protected:
     bool status = false;
     if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
     {
-      zSocket::SocketNotification *n = (zSocket::SocketNotification *) notification_;
+      SocketNotification *n = (SocketNotification *) notification_;
       switch (n->Id())
       {
-      case zSocket::SocketNotification::ID_PKT_RCVD:
+      case SocketNotification::ID_PKT_RCVD:
         this->RxSem.Push(n->Pkt());
         status = true;
         break;
-      case zSocket::SocketNotification::ID_PKT_SENT:
+      case SocketNotification::ID_PKT_SENT:
         this->TxSem.Push(n->Pkt());
         this->TxSem.Post();
         status = true;
@@ -118,13 +114,11 @@ private:
 
 };
 
-class TestSocket : public zSocket::Socket
+class TestSocket : public LoopSocket
 {
 public:
-  TestSocket(const zSocket::SocketAddress &addr_) :
-      _opened(false), _bound(false), _connected(false)
+  TestSocket()
   {
-    this->SetAddress(addr_);
   }
 
   virtual
@@ -132,57 +126,10 @@ public:
   {
   }
 
-  virtual bool
-  Open()
-  {
-    bool status = false;
-    if (!this->_opened)
-    {
-      this->_opened = true;
-      status = true;
-    }
-    return (status);
-  }
-
-  virtual void
-  Close()
-  {
-    this->_opened = false;
-    return;
-  }
-
-  virtual bool
-  Bind()
-  {
-    bool status = false;
-    if (this->_opened && !this->_bound && !this->_connected)
-    {
-      this->_bound = true;
-      status = true;
-    }
-    return (status);
-  }
-
-  virtual bool
-  Connect()
-  {
-    bool status = false;
-    if (this->_opened && !this->_bound && !this->_connected)
-    {
-      this->_connected = true;
-      status = true;
-    }
-    return (status);
-  }
-
 protected:
 
 
 private:
-
-  bool _opened;
-  bool _bound;
-  bool _connected;
 
 };
 

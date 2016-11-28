@@ -25,7 +25,7 @@ class UnixAddress : public SocketAddress
 
 public:
 
-  UnixAddress();
+  UnixAddress(const std::string &addr_ = std::string(""));
 
   UnixAddress(SocketAddress &addr_);
 
@@ -37,7 +37,7 @@ public:
 protected:
 
   virtual bool
-  verify(SocketType type_, const std::string &addr_);
+  verify(const SocketType type_, const std::string &addr_);
 
 private:
 
@@ -123,14 +123,11 @@ public:
   Bind();
 
   virtual bool
-  Connect();
+  Connect(const SocketAddress* addr_);
 
 protected:
 
   int _sock;
-
-  virtual bool
-  verify(SocketType type_, const std::string &addr_);
 
   virtual ssize_t
   _recv(zSocket::UnixAddress &src_, zSocket::SocketBuffer &sb_);
