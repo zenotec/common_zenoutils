@@ -24,11 +24,11 @@ zThreadTest_RunMultiple(void* arg_);
 using namespace Test;
 using namespace zUtils;
 
-class TestFunction : public zThread::Function, public zThread::Thread
+class TestFunction : public zThread::ThreadFunction
 {
 public:
-  TestFunction(unsigned int cnt_ = 1) :
-      _cnt(cnt_), zThread::Thread(this, this)
+  TestFunction(int cnt_ = 1) :
+      _cnt(cnt_)
   {
   }
 
@@ -37,26 +37,55 @@ public:
   {
   }
 
-  unsigned int
+  int
   GetCount()
   {
     return (this->_cnt);
   }
 
-  virtual void *
-  ThreadFunction(void *arg_)
+  bool
+  SetCount(int cnt_)
   {
-    usleep(1000);
-    if (this->_cnt > 0)
-      this->_cnt--;
-    if (!this->_cnt)
-      return ((void*) 1);
-    else
-      return (NULL);
+    this->_cnt = cnt_;
+    return (true);
+  }
+
+  virtual void
+  Run(zThread::ThreadArg *arg_)
+  {
+    while (!this->Exit() && this->_cnt--)
+    {
+      usleep(100000);
+    }
   }
 
 private:
-  unsigned int _cnt;
+
+  int _cnt;
+
+};
+
+class TestThread : public zThread::Thread, public zThread::ThreadArg
+{
+
+public:
+
+  TestThread(int loops_) :
+    zThread::Thread(&this->TestFunc, this), TestFunc(loops_)
+  {
+  }
+
+  virtual
+  ~TestThread()
+  {
+  }
+
+  TestFunction TestFunc;
+
+protected:
+
+private:
+
 
 };
 

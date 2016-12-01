@@ -6,6 +6,7 @@
 //
 //*****************************************************************************
 
+#include <zutils/zLog.h>
 #include <zutils/zData.h>
 
 namespace zUtils
@@ -121,7 +122,7 @@ Data::Clear()
 
 bool
 Data::Get(Data &data_, const std::string &path_) const
-{
+    {
 
   bool status = false;
 
@@ -145,7 +146,7 @@ Data::Get(Data &data_, const std::string &path_) const
     data_._lock.unlock();
   }
 
-  //std::cout << "Getting data: " << path << " Data: " << data_.key () << std::endl;
+  ZLOG_DEBUG("Getting data: " + path + "; Data: " + data_.key());
 
   // End critical section
   this->_lock.unlock();
@@ -156,7 +157,7 @@ Data::Get(Data &data_, const std::string &path_) const
 }
 
 bool
-Data::Put(Data &data_, const std::string &path_)
+Data::Put(const Data &data_, const std::string &path_)
 {
 
   bool status = false;
@@ -171,7 +172,7 @@ Data::Put(Data &data_, const std::string &path_)
     path = Data::PathConcat(path, path_);
   }
 
-//  std::cout << "Putting data: " << path << " Data: " << data_.key () << std::endl;
+  ZLOG_DEBUG("Putting data: " + path + "; Data: " + data_.key());
 
   boost::property_tree::ptree pt;
   if (data_.Get(pt))
@@ -188,7 +189,7 @@ Data::Put(Data &data_, const std::string &path_)
 }
 
 bool
-Data::Add(Data &data_, const std::string &path_)
+Data::Add(const Data &data_, const std::string &path_)
 {
 
   bool status = false;
@@ -203,7 +204,7 @@ Data::Add(Data &data_, const std::string &path_)
     path = Data::PathConcat(path, path_);
   }
 
-  //std::cout << "Adding data: " << path << " Data: " << data_.key () << std::endl;
+  ZLOG_DEBUG("Adding data: " + path + "; Data: " + data_.key());
 
   boost::property_tree::ptree pt;
   if (data_.Get(pt))
@@ -235,13 +236,11 @@ Data::Del(const std::string &path_)
     path = Data::PathConcat(path, path_);
   }
 
-//  std::cout << "Deleting data: " << path << std::endl;
+  ZLOG_DEBUG("Deleting data: " + path);
 
   status = this->del(path);
 
-//  this->DisplayJson();
-
-// End critical section
+  // End critical section
   this->_lock.unlock();
 
   // Return status
@@ -313,7 +312,7 @@ Data::DisplayXml() const
 
 bool
 Data::get(boost::property_tree::ptree &pt_, const std::string &path_) const
-{
+    {
   bool status = false;
 
   if (!path_.empty())

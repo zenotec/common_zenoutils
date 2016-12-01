@@ -12,7 +12,9 @@
 #include "UnitTest.h"
 
 int
-zSemTest_Defaults(void* arg_);
+zSemTest_MutexDefaults(void* arg_);
+int
+zSemTest_SemaphoreDefaults(void* arg_);
 int
 zSemTest_Mutex(void* arg_);
 int

@@ -9,6 +9,9 @@
 #ifndef __ZUNIXSOCKET_H__
 #define __ZUNIXSOCKET_H__
 
+#include <string>
+
+#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -47,7 +50,7 @@ private:
 // zSocket::UnixSocketRecv Class
 //**********************************************************************
 
-class UnixSocketRecv : public zThread::Function
+class UnixSocketRecv : public zThread::ThreadFunction
 {
 public:
 
@@ -60,8 +63,8 @@ public:
   {
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 
@@ -73,7 +76,7 @@ private:
 // zSocket::UnixSocketSend Class
 //**********************************************************************
 
-class UnixSocketSend : public zThread::Function
+class UnixSocketSend : public zThread::ThreadFunction
 {
 public:
 
@@ -87,8 +90,8 @@ public:
 
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 
@@ -100,7 +103,7 @@ private:
 // zSocket::UnixSocket Class
 //**********************************************************************
 
-class UnixSocket : public Socket
+class UnixSocket : public Socket, public zThread::ThreadArg
 {
 
   friend UnixSocketRecv;

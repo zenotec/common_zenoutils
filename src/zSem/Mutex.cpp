@@ -6,8 +6,6 @@
 //
 //*****************************************************************************
 
-#include <string.h>
-
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
 
@@ -16,107 +14,63 @@ namespace zUtils
 namespace zSem
 {
 
-static void
-_add_time(struct timespec *ts_, uint32_t us_)
-{
-  // Compute seconds
-  ts_->tv_sec += (us_ / 1000000);
-
-  // Compute nanoseconds
-  uint32_t nsec = ((us_ % 1000000) * 1000);
-  if ((ts_->tv_nsec + nsec) < ts_->tv_nsec)
-  {
-    ts_->tv_sec++;
-  } // end if
-  ts_->tv_nsec += nsec;
-
-}
-
 //*****************************************************************************
 // zMutex Class
 //*****************************************************************************
 
-Mutex::Mutex(Mutex::STATE state_)
+Mutex::Mutex(Mutex::STATE state_) :
+    _lock(this->_mutex)
 {
-  memset(&this->_sem, 0, sizeof(this->_sem));
-  switch (state_)
+  ZLOG_DEBUG("Create mutex: " + zLog::PointerStr(this));
+  if (state_ == Mutex::UNLOCKED)
   {
-    case Mutex::LOCKED:
-    case Mutex::UNLOCKED:
-    {
-      int ret = sem_init(&this->_sem, 0, state_);
-      if (ret != 0)
-      {
-        ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
-        throw;
-      } // end if
-      break;
-    }
-    default:
-    {
-      ZLOG_CRIT("Invalid mutex state: " + zLog::IntStr(state_));
-      throw;
-    }
+    this->_lock.unlock();
   }
 }
 
 Mutex::~Mutex()
 {
-  int ret = sem_destroy(&this->_sem);
-  if (ret != 0)
-  {
-    ZLOG_CRIT("Cannot destroy lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
+//  ZLOG_DEBUG("Delete mutex: " + zLog::PointerStr(this));
 }
 
 bool
 Mutex::Lock()
 {
-  return (sem_wait(&this->_sem) == 0);
+  ZLOG_DEBUG("Lock mutex: " + zLog::PointerStr(this));
+  this->_lock.lock();
+  return (true);
 }
 
 bool
 Mutex::TryLock()
 {
-  return (sem_trywait(&this->_sem) == 0);
+  ZLOG_DEBUG("Try to lock mutex: " + zLog::PointerStr(this));
+  return (!this->_lock.owns_lock() && this->_lock.try_lock());
 }
 
 bool
 Mutex::TimedLock(uint32_t us_)
 {
-
-  struct timespec ts;
-
-  // Get current time
-  if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
-  {
-    return (false);
-  } // end if
-
-  // Compute absolute time
-  _add_time(&ts, us_);
-
-  return (sem_timedwait(&this->_sem, &ts) == 0);
+  return (!this->_lock.owns_lock() && TIMED_LOCK(this->_lock, (us_ * 1000)));
 }
 
 bool
 Mutex::Unlock()
 {
-  int ret = 0;
-  if (this->State() == Mutex::LOCKED) // possible race condition here
-  {
-    ret = sem_post(&this->_sem);
-  } // end if
-  return (ret == 0);
+  ZLOG_DEBUG("Unlock mutex: " + zLog::PointerStr(this));
+  this->_lock.unlock();
+  return (true);
 }
 
 Mutex::STATE
 Mutex::State()
 {
-  int val;
-  sem_getvalue(&this->_sem, &val);
-  return ((Mutex::STATE) val);
+  Mutex::STATE state = Mutex::UNLOCKED;
+  if (this->_lock.owns_lock())
+  {
+    state = Mutex::LOCKED;
+  }
+  return(state);
 }
 
 }

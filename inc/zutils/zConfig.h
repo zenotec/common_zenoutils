@@ -9,6 +9,12 @@
 #ifndef _ZCONFIG_H_
 #define _ZCONFIG_H_
 
+#include <string>
+
+#include <zutils/zSem.h>
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+
 namespace zUtils
 {
 namespace zConfig
@@ -156,7 +162,7 @@ private:
 
   Configuration(const zData::Data &data_); // Not supported; Cannot ensure thread safeness
 
-  mutable std::mutex _lock;
+  mutable zSem::Mutex _lock;
 
   bool _modified;
 

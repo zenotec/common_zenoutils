@@ -10,11 +10,11 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
 #include <zutils/zSem.h>
+#include <zutils/zLog.h>
+#include <zutils/zEvent.h>
 #include <zutils/zThread.h>
 #include <zutils/zData.h>
-#include <zutils/zEvent.h>
 #include <zutils/zConfig.h>
 #include <zutils/zSwitch.h>
 

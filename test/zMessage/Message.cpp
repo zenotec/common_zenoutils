@@ -72,9 +72,9 @@ zMessageTest_MessageCopy(void* arg_)
   std::string from;
 
   // Create new data object and validate
-  zData::Data *myData = new zData::Data;
-  TEST_ISNOT_NULL(myData);
-  TEST_TRUE(myData->Put("Value", "Key"));
+  zData::Data myData("MsgData");
+  TEST_EQ_MSG(std::string("MsgData"), myData.Key(), myData.GetJson());
+  TEST_TRUE_MSG(myData.Put("Value"), myData.GetJson());
 
   // Create new message and validate
   zMessage::Message *myMessage1 = new zMessage::Message;
@@ -95,11 +95,12 @@ zMessageTest_MessageCopy(void* arg_)
 
   // Setup first message
   std::string id = "0123456789";
-  TEST_TRUE(myMessage1->SetId(id));
-  TEST_TRUE(myMessage1->SetType(zMessage::Message::TYPE_DATA));
-  TEST_TRUE(myMessage1->SetDst(to));
-  TEST_TRUE(myMessage1->SetSrc(from));
-  TEST_TRUE(myMessage1->SetData(*myData));
+  TEST_TRUE_MSG(myMessage1->SetId(id), myMessage1->GetJson());
+  TEST_TRUE_MSG(myMessage1->SetType(zMessage::Message::TYPE_DATA), myMessage1->GetJson());
+  TEST_TRUE_MSG(myMessage1->SetDst(to), myMessage1->GetJson());
+  TEST_TRUE_MSG(myMessage1->SetSrc(from), myMessage1->GetJson());
+  myData.DisplayJson();
+  TEST_TRUE_MSG(myMessage1->SetData(myData), myMessage1->GetJson());
 
   // Verify messages are NOT the same
   TEST_TRUE(*myMessage1 != *myMessage2);
@@ -113,7 +114,6 @@ zMessageTest_MessageCopy(void* arg_)
   // Cleanup
   delete (myMessage1);
   delete (myMessage2);
-  delete (myData);
 
   // Return success
   return (0);

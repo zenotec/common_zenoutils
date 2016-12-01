@@ -9,6 +9,7 @@
 #ifndef _ZSIGNAL_H_
 #define _ZSIGNAL_H_
 
+#include <signal.h>
 
 namespace zUtils
 {

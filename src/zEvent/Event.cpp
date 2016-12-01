@@ -26,6 +26,8 @@ namespace zEvent
 Event::Event(Event::TYPE type_) :
     _type(type_)
 {
+  // End critical section
+  Event::_lock.Unlock();
 }
 
 Event::~Event()
@@ -38,12 +40,12 @@ Event::Type() const
   Event::TYPE type = Event::TYPE_ERR;
 
   // Start critical section
-  Event::_lock.lock();
+  Event::_lock.Lock();
 
   type = Event::_type;
 
   // End critical section
-  Event::_lock.unlock();
+  Event::_lock.Unlock();
 
   return (type);
 }
@@ -55,13 +57,13 @@ Event::Notify(zEvent::EventNotification* notification_)
   ZLOG_DEBUG("Notifying event handlers");
 
   // Start critical section
-  Event::_lock.lock();
+  Event::_lock.Lock();
 
   // Make a copy of the handler list
   std::list<EventHandler *> handler_list(Event::_handler_list);
 
   // End critical section
-  Event::_lock.unlock();
+  Event::_lock.Unlock();
 
   int cnt = handler_list.size();
 
@@ -84,13 +86,13 @@ Event::Notify(zEvent::EventNotification& notification_)
   ZLOG_DEBUG("Notifying event handlers");
 
   // Start critical section
-  Event::_lock.lock();
+  Event::_lock.Lock();
 
   // Make a copy of the handler list
   std::list<EventHandler *> handler_list(Event::_handler_list);
 
   // End critical section
-  Event::_lock.unlock();
+  Event::_lock.Unlock();
 
   int cnt = handler_list.size();
 
@@ -110,26 +112,26 @@ void
 Event::registerHandler(EventHandler *handler_)
 {
   // Start critical section
-  Event::_lock.lock();
+  Event::_lock.Lock();
 
   // Add handler to list
   Event::_handler_list.push_front(handler_);
 
   // End critical section
-  Event::_lock.unlock();
+  Event::_lock.Unlock();
 }
 
 void
 Event::unregisterHandler(EventHandler *handler_)
 {
   // Start critical section
-  Event::_lock.lock();
+  Event::_lock.Lock();
 
   // Remove handler from list
   Event::_handler_list.remove(handler_);
 
   // End critical section
-  Event::_lock.unlock();
+  Event::_lock.Unlock();
 }
 
 }

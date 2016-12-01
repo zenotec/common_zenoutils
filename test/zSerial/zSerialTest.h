@@ -1,8 +1,17 @@
 /*
- * zSerialTest.h
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
- *  Created on: Dec 9, 2015
- *      Author: kmahoney
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #ifndef _ZCOMTEST_H_
@@ -18,7 +27,9 @@
 #include <zutils/zLog.h>
 #include <zutils/zThread.h>
 #include <zutils/zSerial.h>
-#include <zutils/zTty.h>
+
+#include <zutils/zEchoSerialPort.h>
+#include <zutils/zTtySerialPort.h>
 
 using namespace zUtils;
 
@@ -59,14 +70,18 @@ protected:
     bool status = false;
     if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SERIAL))
     {
-      zSerial::SerialNotification *n = (zSerial::SerialNotification *)notification_;
-      switch(n->Id())
+      zSerial::SerialNotification *n = (zSerial::SerialNotification *) notification_;
+      switch (n->Id())
       {
       case zSerial::SerialNotification::ID_CHAR_RCVD:
+        ZLOG_DEBUG("zSerialTest::EventHandler(): ID_CHAR_RCVD: " + zLog::CharStr(n->Data()))
+        ;
         this->RxSem.Push(n->Data());
         status = true;
         break;
       case zSerial::SerialNotification::ID_CHAR_SENT:
+        ZLOG_DEBUG("zSerialTest::EventHandler(): ID_CHAR_SENT: " + zLog::CharStr(n->Data()))
+        ;
         this->TxSem.Push(n->Data());
         status = true;
         break;
@@ -81,68 +96,58 @@ protected:
 
 private:
 
-
 };
 
-class TestPort : public zSerial::SerialPort, public zThread::Function
+class TestPort : public zSerial::EchoSerialPort
 {
 public:
-  TestPort() :
-      _thread(this, this)
+
+  TestPort()
   {
-    ZLOG_INFO("TestPort::TestPort: Creating test port");
+    ZLOG_INFO("TestEchoPort::TestEchoPort: Creating test port");
   }
 
   virtual
   ~TestPort()
   {
-    ZLOG_INFO("TestPort::~TestPort: Destroying test port");
-  }
-
-  virtual bool
-  Open(const std::string &dev_)
-  {
-    bool status = false;
-    status = this->_thread.Run();
-    return (status);
-  }
-
-  virtual bool
-  Close()
-  {
-    this->_thread.Join();
-  }
-
-  virtual void *
-  ThreadFunction(void *arg_)
-  {
-    TestPort *self = (TestPort *) arg_;
-    char c = 0;
-    while (self->txchar(&c, 10000))
-    {
-      self->rxchar(c);
-    }
-    return (0);
+    ZLOG_INFO("TestEchoPort::~TestEchoPort: Destroying test port");
   }
 
 protected:
 
 private:
 
-  zThread::Thread _thread;
+};
+
+class TtyTestPort;
+
+class TtyTestThread : public zThread::ThreadFunction
+{
+public:
+  TtyTestThread(TtyTestPort *port_);
+  virtual
+  ~TtyTestThread();
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+  TtyTestPort* _port;
 
 };
 
-class TtyTestThread;
-
-class TtyTestPort : public zSerial::TtyPort
+class TtyTestPort : public zSerial::TtySerialPort
 {
 
   friend TtyTestThread;
 
 public:
 
-  TtyTestPort()
+  TtyTestPort() :
+      _func(this), _thread(&this->_func, NULL)
   {
 
     int ret = 0;
@@ -198,68 +203,7 @@ private:
 
   std::string _slave_dev;
 
-};
-
-class TtyTestThread : public zThread::Function
-{
-public:
-  TtyTestThread(TtyTestPort *port_) :
-      _test_port(port_), _thread(this, this)
-  {
-
-    ZLOG_INFO("Created new test thread");
-    this->_thread.Run();
-  }
-
-  virtual
-  ~TtyTestThread()
-  {
-    ZLOG_INFO("Destroying test thread");
-    this->_thread.Join();
-  }
-
-protected:
-
-  virtual void *
-  ThreadFunction(void *arg_)
-  {
-
-    int usecs = 1000000;
-    fd_set rxFdSet;
-    struct timeval to = { 0 };
-    ssize_t bytes = -1;
-    char buf[256] = { 0 };
-
-    TtyTestThread *self = (TtyTestThread *) arg_;
-
-    // Setup for poll loop
-    struct pollfd fds[1];
-    fds[0].fd = self->_test_port->_master_fd;
-    fds[0].events = (POLLIN | POLLERR);
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && ((fds[0].revents & POLLIN) == POLLIN))
-    {
-      bytes = read(self->_test_port->_master_fd, buf, sizeof(buf));
-      if (bytes > 0)
-      {
-        std::string str(buf);
-        ZLOG_INFO("Received " + zLog::IntStr(bytes) + " bytes");
-        ZLOG_DEBUG("STR: '" + str + "'");
-        bytes = write(self->_test_port->_master_fd, str.c_str(), str.size());
-        if (bytes > 0)
-        {
-          ZLOG_INFO("Sent " + zLog::IntStr(bytes) + " bytes");
-          ZLOG_DEBUG("STR: '" + str + "'");
-        }
-      }
-    }
-
-    return (0);
-  }
-
-private:
-
-  TtyTestPort *_test_port;
+  TtyTestThread _func;
   zThread::Thread _thread;
 
 };

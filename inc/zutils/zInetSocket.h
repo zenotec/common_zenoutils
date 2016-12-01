@@ -9,6 +9,9 @@
 #ifndef __ZINETSOCKET_H__
 #define __ZINETSOCKET_H__
 
+#include <string>
+
+#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -47,7 +50,7 @@ private:
 // zSocket::InetSocketRecv Class
 //**********************************************************************
 
-class InetSocketRecv : public zThread::Function
+class InetSocketRecv : public zThread::ThreadFunction
 {
 
 public:
@@ -61,8 +64,8 @@ public:
   {
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 
@@ -74,7 +77,7 @@ private:
 // zSocket::InetSocketSend Class
 //**********************************************************************
 
-class InetSocketSend : public zThread::Function
+class InetSocketSend : public zThread::ThreadFunction
 {
 
 public:
@@ -88,8 +91,8 @@ public:
   {
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 
@@ -101,7 +104,7 @@ private:
 // zSocket::InetSocket Class
 //**********************************************************************
 
-class InetSocket : public Socket
+class InetSocket : public Socket, public zThread::ThreadArg
 {
 
   friend InetSocketRecv;

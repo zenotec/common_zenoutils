@@ -21,10 +21,9 @@ zSerialTest_PortSendRecvChar(void *arg_)
 {
 
   ZLOG_DEBUG( "#############################################################" );
-  ZLOG_DEBUG( "# zComTest_PortSendRecvChar()" );
+  ZLOG_DEBUG( "# zSerialTest_PortSendRecvChar()" );
   ZLOG_DEBUG( "#############################################################" );
 
-  zEvent::Event *MyEvent = NULL;
   bool status = false;
 
   // Create new port and validate
@@ -49,7 +48,7 @@ zSerialTest_PortSendRecvChar(void *arg_)
   MyHandler->RegisterEvent(MyPort);
 
   // Open port
-  status = MyPort->Open("/dev/MyPort");
+  status = MyPort->Open();
   TEST_TRUE(status);
 
   // Send byte
@@ -91,7 +90,7 @@ zSerialTest_PortSendRecvBuf(void *arg_)
 {
 
   ZLOG_DEBUG( "#############################################################" );
-  ZLOG_DEBUG( "# zComTest_PortSendRecvBuf()" );
+  ZLOG_DEBUG( "# zSerialTest_PortSendRecvBuf()" );
   ZLOG_DEBUG( "#############################################################" );
 
   int cnt = 0;
@@ -123,7 +122,7 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   MyHandler->RegisterEvent(MyPort);
 
   // Open port
-  status = MyPort->Open("/dev/MyPort");
+  status = MyPort->Open();
   TEST_TRUE(status);
 
   // Send data

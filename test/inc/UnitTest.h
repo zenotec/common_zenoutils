@@ -131,17 +131,19 @@ do { \
       return (2); \
 } while(0)
 
-#define TEST_TRUE(x) \
+#define TEST_TRUE(x) TEST_TRUE_MSG(x, std::string( "" ))
+#define TEST_TRUE_MSG(x, msg) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->True( __LINE__, (x), std::string( "" ) ) != true ) \
+  if( utest && utest->True( __LINE__, (x), msg ) != true ) \
       return (1); \
 } while(0)
 
-#define TEST_FALSE(x) \
+#define TEST_FALSE(x) TEST_FALSE_MSG(x, std::string( "" ))
+#define TEST_FALSE_MSG(x, msg) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
-  if( utest && utest->False( __LINE__, (x), std::string( "" ) ) != true ) \
+  if( utest && utest->False( __LINE__, (x), msg ) != true ) \
       return (2); \
 } while(0)
 
@@ -265,7 +267,7 @@ public:
     if (val_ != true)
     {
       std::stringstream errmsg;
-      errmsg << "Not true" << std::endl;
+      errmsg << "Not true" << std::endl << msg_ << std::endl;
       this->LogMsg(line_, errmsg.str());
       return (false);
     } // end if
@@ -275,12 +277,12 @@ public:
     } // end else
   }
   bool
-  False(const int line_, const bool &val_, const std::string &msg)
+  False(const int line_, const bool &val_, const std::string &msg_)
   {
     if (val_ != false)
     {
       std::stringstream errmsg;
-      errmsg << "Not false" << std::endl;
+      errmsg << "Not false" << std::endl << msg_ << std::endl;
       this->LogMsg(line_, errmsg.str());
       return (false);
     } // end if
@@ -289,142 +291,76 @@ public:
       return (true);
     } // end else
   }
-
-//// Pointer comparison
-//  bool
-//  Eq(const int line_, void *s1_, void *s2_, const std::string &msg_)
-//  {
-//    if (s1_ != s2_)
-//    {
-//      std::stringstream errmsg;
-//      errmsg << s1_ << " != " << s2_ << std::endl;
-//      this->LogMsg(line_, errmsg.str());
-//      return (false);
-//    } // end if
-//    else
-//    {
-//      return (true);
-//    } // end else
-//  }
-//  bool
-//  Neq(const int line_, void *s1_, void *s2_, const std::string &msg_)
-//  {
-//    if (s1_ == s2_)
-//    {
-//      std::stringstream errmsg;
-//      errmsg << s1_ << " == " << s2_ << std::endl;
-//      this->LogMsg(line_, errmsg.str());
-//      return (false);
-//    } // end if
-//    else
-//    {
-//      return (true);
-//    } // end else
-//  }
-
-//// String comparison
-//  bool
-//  Eq(const int line_, const std::string &s1_, const std::string &s2_,
-//      const std::string &msg_)
-//  {
-//    if (s1_ != s2_)
-//    {
-//      std::stringstream errmsg;
-//      errmsg << s1_ << " != " << s2_ << std::endl;
-//      this->LogMsg(line_, errmsg.str());
-//      return (false);
-//    } // end if
-//    else
-//    {
-//      return (true);
-//    } // end else
-//  }
-//  bool
-//  Neq(const int line_, const std::string &s1_, const std::string &s2_,
-//      const std::string &msg_)
-//  {
-//    if (s1_ == s2_)
-//    {
-//      std::stringstream errmsg;
-//      errmsg << s1_ << " == " << s2_ << std::endl;
-//      this->LogMsg(line_, errmsg.str());
-//      return (false);
-//    } // end if
-//    else
-//    {
-//      return (true);
-//    } // end else
-//  }
 
   // Comparison
 
   template<typename T>
     bool
-  Eq(const int line_, T i1_, T i2_, const std::string &msg_)
-  {
-    if (i1_ != i2_)
+    Eq(const int line_, T i1_, T i2_, const std::string &msg_)
     {
-      std::stringstream errmsg;
-      errmsg << i1_ << " != " << i2_ << std::endl;
-      this->LogMsg(line_, errmsg.str());
-      return (false);
-    } // end if
-    else
-    {
-      return (true);
-    } // end else
-  }
+      if (i1_ != i2_)
+      {
+        std::stringstream errmsg;
+        errmsg << i1_ << " != " << i2_ << std::endl << msg_ << std::endl;
+        this->LogMsg(line_, errmsg.str());
+        return (false);
+      } // end if
+      else
+      {
+        return (true);
+      } // end else
+    }
 
   template<typename T>
     bool
-  Neq(const int line_, T i1_, T i2_, const std::string &msg_)
-  {
-    if (i1_ == i2_)
+    Neq(const int line_, T i1_, T i2_, const std::string &msg_)
     {
-      std::stringstream errmsg;
-      errmsg << i1_ << " == " << i2_ << std::endl;
-      this->LogMsg(line_, errmsg.str());
-      return (false);
-    } // end if
-    else
-    {
-      return (true);
-    } // end else
-  }
+      if (i1_ == i2_)
+      {
+        std::stringstream errmsg;
+        errmsg << i1_ << " == " << i2_ << std::endl << msg_ << std::endl;
+        this->LogMsg(line_, errmsg.str());
+        return (false);
+      } // end if
+      else
+      {
+        return (true);
+      } // end else
+    }
 
   template<typename T>
     bool
-  Lt(const int line_, T i1_, T i2_, const std::string &msg_)
-  {
-    if (i1_ >= i2_)
+    Lt(const int line_, T i1_, T i2_, const std::string &msg_)
     {
-      std::stringstream errmsg;
-      errmsg << i1_ << " >= " << i2_ << std::endl;
-      this->LogMsg(line_, errmsg.str());
-      return (false);
-    } // end if
-    else
-    {
-      return (true);
-    } // end else
-  }
+      if (i1_ >= i2_)
+      {
+        std::stringstream errmsg;
+        errmsg << i1_ << " >= " << i2_ << std::endl << msg_ << std::endl;
+        this->LogMsg(line_, errmsg.str());
+        return (false);
+      } // end if
+      else
+      {
+        return (true);
+      } // end else
+    }
 
   template<typename T>
     bool
-  Gt(const int line_, T i1_, T i2_, const std::string &msg_)
-  {
-    if (i1_ <= i2_)
+    Gt(const int line_, T i1_, T i2_, const std::string &msg_)
     {
-      std::stringstream errmsg;
-      errmsg << i1_ << " <= " << i2_ << std::endl;
-      this->LogMsg(line_, errmsg.str());
-      return (false);
-    } // end if
-    else
-    {
-      return (true);
-    } // end else
-  }
+      if (i1_ <= i2_)
+      {
+        std::stringstream errmsg;
+        errmsg << i1_ << " <= " << i2_ << std::endl << msg_ << std::endl;
+        this->LogMsg(line_, errmsg.str());
+        return (false);
+      } // end if
+      else
+      {
+        return (true);
+      } // end else
+    }
 
   void
   LogMsg(const int line_, const std::string &msg_)

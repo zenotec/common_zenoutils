@@ -33,7 +33,7 @@ class Data
 
 public:
 
-  Data(const std::string &key_ = "");
+  Data(const std::string &key_ = std::string(""));
 
   Data(const boost::property_tree::ptree &pt_) :
       _pt(pt_)
@@ -136,6 +136,9 @@ public:
 
     }
 
+  bool
+  Put(const Data &child_, const std::string &path_ = std::string(""));
+
   template<typename T>
     bool
     Put(const T &value_, const std::string &path_ = std::string(""))
@@ -164,7 +167,7 @@ public:
     }
 
   bool
-  Put(Data &child_, const std::string &path_ = std::string(""));
+  Add(const Data &child_, const std::string &path_ = std::string(""));
 
   template<typename T>
     bool
@@ -192,9 +195,6 @@ public:
       return (status);
 
     }
-
-  bool
-  Add(Data &child_, const std::string &path_ = std::string(""));
 
   bool
   Del(const std::string &path_ = std::string(""));

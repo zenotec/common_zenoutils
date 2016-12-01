@@ -1,13 +1,30 @@
-//*****************************************************************************
-//    Copyright (C) 2015 ZenoTec LLC (http://www.zenotec.net)
-//
-//    File: zSerial.h
-//    Description:
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef __ZSERIAL_H__
 #define __ZSERIAL_H__
+
+#include <stdio.h>
+
+#include <string>
+
+#include <zutils/zQueue.h>
+#include <zutils/zData.h>
+#include <zutils/zConfig.h>
+
 
 namespace zUtils
 {
@@ -26,6 +43,7 @@ public:
   static const std::string ConfigRoot;
   static const std::string ConfigTypePath;
   static const std::string ConfigTypeNone;
+  static const std::string ConfigTypeEcho;
   static const std::string ConfigTypeTty;
 
   SerialConfiguration();
@@ -73,10 +91,10 @@ public:
   ~SerialPort();
 
   virtual bool
-  Open();
+  Open() = 0;
 
   virtual bool
-  Close();
+  Close() = 0;
 
   ssize_t
   SendBuf(const void *buf_, size_t len_);

@@ -1,3 +1,4 @@
+#include <zutils/zLog.h>
 #include "zSemTest.h"
 
 using namespace Test;
@@ -6,6 +7,11 @@ using namespace zUtils;
 int
 zSemTest_Semaphore(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSemTest_Semaphore()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new semaphore with defaults and validate
   zSem::Semaphore MySem1;
   TEST_IS_ZERO(MySem1.Value());

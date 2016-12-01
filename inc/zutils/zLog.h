@@ -31,7 +31,8 @@ namespace zLog
 {
 
 #define ZLOG_INT(n_)    zUtils::zLog::IntStr((n_))
-#define ZLOG_HEX(x_)    zUtils::zLog::HexStr((x_))
+#define ZLOG_UINT(n_)    zUtils::zLog::IntStr((n_))
+#define ZLOG_HEX(x_)    zUtils::zLog::HexStr<typeof(x_)>((x_))
 
 #define ZLOG_LOGGER(l_,m_)  \
   do { \
@@ -53,18 +54,68 @@ enum LogLevel
   CRIT = 0, ERROR, WARN, INFO, DBG, LAST
 };
 
-std::string
-IntStr(int n_);
+inline std::string
+CharStr(char n_)
+{
+  char str[256];
+  snprintf(str, 256, "%hhd", n_);
+  return (std::string(str));
+}
 
-std::string
-PointerStr(void *p_);
+inline std::string
+UcharStr(unsigned char n_)
+{
+  char str[256];
+  snprintf(str, 256, "%hhu", n_);
+  return (std::string(str));
+}
+
+inline std::string
+IntStr(int n_)
+{
+  char str[256];
+  snprintf(str, 256, "%d", n_);
+  return (std::string(str));
+}
+
+inline std::string
+UintStr(unsigned int n_)
+{
+  char str[256];
+  snprintf(str, 256, "%u", n_);
+  return (std::string(str));
+}
+
+inline std::string
+LongStr(long n_)
+{
+  char str[256];
+  snprintf(str, 256, "%ld", n_);
+  return (std::string(str));
+}
+
+inline std::string
+UlongStr(unsigned long n_)
+{
+  char str[256];
+  snprintf(str, 256, "%lu", n_);
+  return (std::string(str));
+}
+
+inline std::string
+PointerStr(void *p_)
+{
+  char str[256];
+  snprintf(str, 256, "%p", p_);
+  return (std::string(str));
+}
 
 template<typename T>
-  std::string
+  inline std::string
   HexStr(T n_)
   {
     char str[256];
-    snprintf(str, 256, "%#*x", (int) sizeof(T), n_);
+    snprintf(str, 256, "%#*x", (int) sizeof(T), (T) n_);
     return (std::string(str));
   }
 

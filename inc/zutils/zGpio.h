@@ -9,6 +9,12 @@
 #ifndef _ZGPIO_H_
 #define _ZGPIO_H_
 
+#include <string>
+
+#include <zutils/zEvent.h>
+#include <zutils/zThread.h>
+#include <zutils/zConfig.h>
+
 namespace zUtils
 {
 namespace zGpio
@@ -129,7 +135,7 @@ public:
 // Class: GpioPort
 //**********************************************************************
 
-class GpioPort : public zEvent::Event, public zThread::Function
+class GpioPort : public zEvent::Event, public zThread::ThreadFunction
 {
 
 public:
@@ -205,8 +211,8 @@ public:
 
 protected:
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 private:
 

@@ -9,8 +9,7 @@
 #ifndef __ZSEMAPHORE_H__
 #define __ZSEMAPHORE_H__
 
-#include <stdint.h>
-#include <semaphore.h>
+#include <zutils/zCompatibility.h>
 
 namespace zUtils
 {
@@ -51,7 +50,9 @@ public:
 protected:
 
 private:
-  sem_t _sem;
+
+  TIMED_MUTEX _mutex;
+  UNIQUE_LOCK(TIMED_MUTEX) _lock;
 
   Mutex(Mutex &other_);
 
@@ -106,7 +107,9 @@ private:
   Semaphore &
   operator=(const Semaphore &other_);
 
-  sem_t _sem;
+  Mutex _lock;
+  Mutex _mutex;
+  uint32_t _value;
 
 };
 

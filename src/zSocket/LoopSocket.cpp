@@ -45,35 +45,11 @@ LoopAddress::verify(const SocketType type_, const std::string &addr_)
 }
 
 //**********************************************************************
-// zSocket::LoopSocketRecv Class
-//**********************************************************************
-
-void *
-LoopSocketRecv::ThreadFunction(void *arg_)
-{
-
-  LoopSocket *sock = (LoopSocket *) arg_;
-  SocketAddressBufferPair p;
-
-  if (sock->txbuf(p, 100000))
-  {
-    ZLOG_DEBUG("Sending packet: " + p.first->Address() + "(" + zLog::IntStr(p.second->Size()) + ")");
-    if (!sock->rxbuf(p))
-    {
-      ZLOG_ERR("Error sending packet");
-    }
-  }
-
-  return (0);
-
-}
-
-//**********************************************************************
 // zSocket::LoopSocket Class
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SocketType::TYPE_LOOP), _rx_thread(&this->_rx_func, this),
+    Socket(SocketType::TYPE_LOOP), _thread(this, NULL),
         _opened(false), _bound(false), _connected(false)
 {
   return;
@@ -125,7 +101,7 @@ LoopSocket::Bind()
   if (this->_opened && !this->_bound && !this->_connected)
   {
     // Start listener threads
-    if (this->_rx_thread.Run())
+    if (this->_thread.Start())
     {
       this->_bound = true;
       status = true;
@@ -159,7 +135,7 @@ LoopSocket::Connect(const SocketAddress* addr_)
   if (this->_opened && !this->_bound && !this->_connected)
   {
     // Start listener threads
-    if (this->_rx_thread.Run())
+    if (this->_thread.Start())
     {
       this->_connected = true;
       status = true;
@@ -171,6 +147,31 @@ LoopSocket::Connect(const SocketAddress* addr_)
   }
 
   return (status);
+}
+
+void
+LoopSocket::Run(zThread::ThreadArg *arg_)
+{
+
+  SocketAddressBufferPair p;
+
+  while (!this->Exit())
+  {
+
+    if (this->txbuf(p, 100000))
+    {
+      ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+          "(" + zLog::IntStr(p.second->Size()) + ")");
+      if (!this->rxbuf(p))
+      {
+        ZLOG_ERR("Error sending packet");
+      }
+    }
+
+  }
+
+  return;
+
 }
 
 }

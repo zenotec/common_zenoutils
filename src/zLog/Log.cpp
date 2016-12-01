@@ -20,22 +20,6 @@ namespace zUtils
 namespace zLog
 {
 
-std::string
-IntStr(int n_)
-{
-  char str[256];
-  snprintf(str, 256, "%d", n_);
-  return (std::string(str));
-}
-
-std::string
-PointerStr(void *p_)
-{
-  char str[256];
-  snprintf(str, 256, "%p", p_);
-  return (std::string(str));
-}
-
 static const char *levelStr[] = { "CRIT", "ERROR", "WARN", "INFO", "DEBUG" };
 
 //*****************************************************************************
@@ -244,10 +228,15 @@ Log::UnregisterConnector(zLog::LogLevel level_)
 void
 Log::LogMsg(const Message &msg_)
 {
-  if ((msg_.GetLevel() <= this->_maxLevel) && (this->_connTable[msg_.GetLevel()]))
+  if (msg_.GetLevel() <= this->_maxLevel)
   {
     this->_lock();
-    this->_connTable[msg_.GetLevel()]->Logger(msg_.GetStr());
+    std::string str = msg_.GetStr();
+    Connector *conn = this->_connTable[msg_.GetLevel()];
+    if (conn != NULL)
+    {
+      conn->Logger(str);
+    }
     this->_unlock();
   }
 }

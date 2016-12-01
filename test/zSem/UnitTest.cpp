@@ -1,4 +1,4 @@
-#include "zutils/zLog.h"
+#include <zutils/zLog.h>
 #include "zSemTest.h"
 
 int
@@ -12,11 +12,12 @@ main(int argc, const char **argv)
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::INFO);
+  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
 
   // Test all classes
   UTEST_INIT();
-  UTEST_TEST(zSemTest_Defaults, 0);
+  UTEST_TEST(zSemTest_MutexDefaults, 0);
+  UTEST_TEST(zSemTest_SemaphoreDefaults, 0);
   UTEST_TEST(zSemTest_Mutex, 0);
   UTEST_TEST(zSemTest_Semaphore, 0);
   UTEST_FINI();

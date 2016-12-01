@@ -13,11 +13,12 @@
 #include <termios.h>
 
 #include <string>
-#include <fstream>
-#include <list>
-#include <vector>
 
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
 #include <zutils/zThread.h>
+#include <zutils/zData.h>
+#include <zutils/zConfig.h>
 #include <zutils/zSerial.h>
 
 namespace zUtils
@@ -34,8 +35,9 @@ class TtySerialConfiguration : public SerialConfiguration
 
 public:
 
+  static const std::string ConfigDevicePath;
+
   static const std::string ConfigBaudPath;
-  static const std::string ConfigBaudNone;
   static const std::string ConfigBaud9600;
   static const std::string ConfigBaud19200;
   static const std::string ConfigBaud38400;
@@ -44,7 +46,6 @@ public:
   static const std::string ConfigBaudDefault;
 
   static const std::string ConfigDatabitsPath;
-  static const std::string ConfigDatabitsNone;
   static const std::string ConfigDatabits5;
   static const std::string ConfigDatabits6;
   static const std::string ConfigDatabits7;
@@ -52,7 +53,6 @@ public:
   static const std::string ConfigDatabitsDefault;
 
   static const std::string ConfigStopbitsPath;
-  static const std::string ConfigStopbitsNone;
   static const std::string ConfigStopbits1;
   static const std::string ConfigStopbits2;
   static const std::string ConfigStopbitsDefault;
@@ -77,13 +77,49 @@ public:
   virtual
   ~TtySerialConfiguration();
 
+  std::string
+  GetDevice() const;
+
+  bool
+  SetDevice(const std::string& dev_);
+
+  std::string
+  GetBaud() const;
+
+  bool
+  SetBaud(const std::string& baud_);
+
+  std::string
+  GetDataBits() const;
+
+  bool
+  SetDataBits(const std::string& dbits_);
+
+  std::string
+  GetStopBits() const;
+
+  bool
+  SetStopBits(const std::string& sbits_);
+
+  std::string
+  GetParity() const;
+
+  bool
+  SetParity(const std::string parity_);
+
+  std::string
+  GetFlowControl() const;
+
+  bool
+  SetFlowControl(const std::string& flowcntl_);
+
 };
 
 //**********************************************************************
 // Class: TtyPortRecv
 //**********************************************************************
 
-class TtyPortRecv : public zThread::Function
+class TtyPortRecv : public zThread::ThreadFunction
 {
 public:
   TtyPortRecv()
@@ -95,8 +131,8 @@ public:
   {
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 private:
@@ -106,7 +142,7 @@ private:
 // Class: TtyPortSend
 //**********************************************************************
 
-class TtyPortSend : public zThread::Function
+class TtyPortSend : public zThread::ThreadFunction
 {
 public:
   TtyPortSend()
@@ -118,8 +154,8 @@ public:
   {
   }
 
-  virtual void *
-  ThreadFunction(void *arg_);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
 protected:
 private:
@@ -129,7 +165,8 @@ private:
 // Class: TtyPort
 //**********************************************************************
 
-class TtyPort : public zSerial::SerialPort
+class TtySerialPort :
+    public zSerial::SerialPort, public zThread::ThreadArg
 {
 
   friend TtyPortRecv;
@@ -141,19 +178,19 @@ public:
   {
     BAUD_ERR = -1,
     BAUD_NONE = 0,
-    BAUD_300 = B300,
-    BAUD_600 = B600,
-    BAUD_1200 = B1200,
-    BAUD_1800 = B1800,
-    BAUD_2400 = B2400,
-    BAUD_4800 = B4800,
-    BAUD_9600 = B9600,
-    BAUD_19200 = B19200,
-    BAUD_38400 = B38400,
-    BAUD_57600 = B57600,
-    BAUD_115200 = B115200,
-    BAUD_DEF = B115200,
-    BAUD_230400 = B230400,
+    BAUD_300 = 1,
+    BAUD_600 = 2,
+    BAUD_1200 = 3,
+    BAUD_1800 = 4,
+    BAUD_2400 = 5,
+    BAUD_4800 = 6,
+    BAUD_9600 = 7,
+    BAUD_19200 = 8,
+    BAUD_38400 = 9,
+    BAUD_57600 = 10,
+    BAUD_115200 = 11,
+    BAUD_DEF = BAUD_115200,
+    BAUD_230400 = 12,
     BAUD_LAST
   };
 
@@ -161,11 +198,11 @@ public:
   {
     DATABITS_ERR = -1,
     DATABITS_NONE = 0,
-    DATABITS_5 = 5,
-    DATABITS_6 = 6,
-    DATABITS_7 = 7,
-    DATABITS_8 = 8,
-    DATABITS_DEF = 8,
+    DATABITS_5 = 1,
+    DATABITS_6 = 2,
+    DATABITS_7 = 3,
+    DATABITS_8 = 4,
+    DATABITS_DEF = DATABITS_8,
     DATABITS_LAST
   };
 
@@ -174,7 +211,7 @@ public:
     STOPBITS_ERR = -1,
     STOPBITS_NONE = 0,
     STOPBITS_1 = 1,
-    STOPBITS_DEF = 1,
+    STOPBITS_DEF = STOPBITS_1,
     STOPBITS_2 = 2,
     STOPBITS_LAST
   };
@@ -182,8 +219,8 @@ public:
   enum PARITY
   {
     PARITY_ERR = -1,
-    PARITY_DEF = 0,
     PARITY_NONE = 0,
+    PARITY_DEF = PARITY_NONE,
     PARITY_ODD = 1,
     PARITY_EVEN = 2,
     PARITY_LAST
@@ -193,72 +230,76 @@ public:
   {
     FLOWCNTL_ERR = -1,
     FLOWCNTL_NONE = 0,
-    FLOWCNTL_DEF = 0,
+    FLOWCNTL_DEF = FLOWCNTL_NONE,
     FLOWCNTL_HARD = 1,
     FLOWCNTL_LAST
   };
 
-  TtyPort(TtyPort::BAUD baud_ = TtyPort::BAUD_DEF,
-      TtyPort::DATABITS dbits_ = TtyPort::DATABITS_DEF,
-      TtyPort::STOPBITS sbits_ = TtyPort::STOPBITS_DEF,
-      TtyPort::PARITY parity_ = TtyPort::PARITY_DEF,
-      TtyPort::FLOWCNTL flowcntl_ = TtyPort::FLOWCNTL_DEF,
-      bool blocking_ = false);
+  TtySerialPort();
+
+  TtySerialPort(const TtySerialConfiguration& config_);
 
   virtual
-  ~TtyPort();
+  ~TtySerialPort();
 
   virtual bool
-  Open(const std::string &dev_);
+  Open();
 
   virtual bool
   Close();
 
-  TtyPort::BAUD
-  GetBaud();
-  bool
-  SetBaud(TtyPort::BAUD baud_);
-
-  TtyPort::DATABITS
-  GetDataBits();
-  bool
-  SetDataBits(TtyPort::DATABITS dbits_);
-
-  TtyPort::STOPBITS
-  GetStopBits();
-  bool
-  SetStopBits(TtyPort::STOPBITS sbits_);
-
-  TtyPort::PARITY
-  GetParity();
-  bool
-  SetParity(TtyPort::PARITY parity_);
-
-  TtyPort::FLOWCNTL
-  GetFlowControl();
-  bool
-  SetFlowControl(TtyPort::FLOWCNTL flowcntl_);
+  std::string
+  GetDevice() const;
 
   bool
-  GetBlocking();
+  SetDevice(const std::string &dev_);
+
+  TtySerialPort::BAUD
+  GetBaud() const;
+
+  bool
+  SetBaud(TtySerialPort::BAUD baud_);
+
+  TtySerialPort::DATABITS
+  GetDataBits() const;
+
+  bool
+  SetDataBits(TtySerialPort::DATABITS dbits_);
+
+  TtySerialPort::STOPBITS
+  GetStopBits() const;
+
+  bool
+  SetStopBits(TtySerialPort::STOPBITS sbits_);
+
+  TtySerialPort::PARITY
+  GetParity() const;
+
+  bool
+  SetParity(TtySerialPort::PARITY parity_);
+
+  TtySerialPort::FLOWCNTL
+  GetFlowControl() const;
+
+  bool
+  SetFlowControl(TtySerialPort::FLOWCNTL flowcntl_);
+
+  bool
+  GetBlocking() const;
+
   bool
   SetBlocking(bool blocking_);
 
 protected:
+
   int _fd;
 
 private:
 
-  std::string _device;
+  TtySerialConfiguration _config;
 
   struct termios _termios;
   struct termios _savedTermios;
-
-  TtyPort::BAUD _baud;
-  TtyPort::DATABITS _dbits;
-  TtyPort::STOPBITS _sbits;
-  TtyPort::PARITY _parity;
-  TtyPort::FLOWCNTL _flowcntl;
   int _options;
 
   zThread::Thread _rx_thread;

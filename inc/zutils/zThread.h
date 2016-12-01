@@ -9,8 +9,8 @@
 #ifndef __ZTHREAD_H__
 #define __ZTHREAD_H__
 
-#include <stdint.h>
-#include <pthread.h>
+#include <string>
+#include <thread>
 
 #include <zutils/zEvent.h>
 
@@ -20,25 +20,58 @@ namespace zThread
 {
 
 //**********************************************************************
-// Function Class
+// Class: ThreadArg
 //**********************************************************************
 
-class Function
+class ThreadArg
 {
 public:
-  virtual void *
-  ThreadFunction(void *arg_) = 0;
+
+protected:
+
+private:
+
 };
 
 //**********************************************************************
-// Thread Class
+// Class: ThreadFunction
 //**********************************************************************
 
-class Thread
+class ThreadFunction
 {
 public:
 
-  Thread(Function *func_, void *arg_);
+  ThreadFunction();
+
+  virtual
+  ~ThreadFunction();
+
+  virtual void
+  Run(zThread::ThreadArg *arg_) = 0;
+
+  bool
+  Exit();
+
+  bool
+  Exit(bool flag_);
+
+protected:
+
+private:
+
+  zSem::Mutex _exit;
+
+};
+
+//**********************************************************************
+// Class: Thread
+//**********************************************************************
+
+class Thread : public zEvent::EventObserver
+{
+public:
+
+  Thread(ThreadFunction *func_, ThreadArg *arg_);
 
   virtual
   ~Thread();
@@ -53,24 +86,28 @@ public:
   Name(const std::string &name_);
 
   bool
-  Run();
+  Start();
 
   bool
   Join();
 
+  bool
+  Stop();
+
 protected:
 
-private:
-  static void *
-  _threadHandler(void *arg_);
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_);
 
-  zSem::Mutex _mutex;
+private:
+
+  std::thread *_thread;
+
+  zEvent::EventHandler _sighandler;
+
   std::string _name;
-  unsigned int _id;
-  pthread_t _tid;
-  Function *_func;
-  void *_arg;
-  bool _exit;
+  ThreadFunction *_func;
+  ThreadArg *_arg;
 
 };
 

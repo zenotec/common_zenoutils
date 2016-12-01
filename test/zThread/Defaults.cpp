@@ -1,4 +1,3 @@
-
 #include <list>
 #include <mutex>
 
@@ -13,38 +12,43 @@ using namespace zUtils;
 int
 zThreadTest_Defaults(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zThreadTest_Defaults()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create test thread and validate
-  TestFunction *myFunc = new TestFunction;
-  TEST_ISNOT_NULL(myFunc);
-  TEST_IS_ZERO(myFunc->Id());
-  TEST_EQ((unsigned int)1, myFunc->GetCount());
-  delete (myFunc);
+  TestThread *myThread = new TestThread(0);
+  TEST_ISNOT_NULL(myThread);
+  TEST_EQ(std::string(""), myThread->Name());
+  TEST_IS_ZERO(myThread->TestFunc.GetCount());
+  delete (myThread);
   return (0);
 }
 
 int
 zThreadTest_RunOnce(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zThreadTest_RunOnce()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create test thread and validate
-  TestFunction *myFunc = new TestFunction(1);
-  TEST_ISNOT_NULL(myFunc);
-  TEST_IS_ZERO(myFunc->Id());
-  TEST_EQ(1, myFunc->GetCount());
+  TestThread *myThread = new TestThread(1);
+  TEST_ISNOT_NULL(myThread);
+  TEST_EQ(std::string(""), myThread->Name());
+  TEST_EQ(1, myThread->TestFunc.GetCount());
 
   // Run thread function until it exits
-  TEST_TRUE(myFunc->Run());
-  TEST_ISNOT_ZERO(myFunc->Id());
+  TEST_TRUE(myThread->Start());
+  TEST_TRUE(myThread->Join());
 
-  // Wait for the thread to finish
-  usleep(2 * 1 * 1000); // wait twice the period
-
-  // Join thread and validate
-  TEST_TRUE(myFunc->Join());
-  TEST_IS_ZERO(myFunc->Id());
-  TEST_IS_ZERO(myFunc->GetCount());
+  // Verify
+  TEST_IS_ZERO(myThread->TestFunc.GetCount());
 
   // Cleanup
-  delete (myFunc);
+  delete (myThread);
 
   // Return success
   return (0);
@@ -53,26 +57,30 @@ zThreadTest_RunOnce(void* arg_)
 int
 zThreadTest_RunMultiple(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zThreadTest_RunMultiple()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create test thread and validate
-  TestFunction *myFunc = new TestFunction(50);
-  TEST_ISNOT_NULL(myFunc);
-  TEST_IS_ZERO(myFunc->Id());
-  TEST_EQ(50, myFunc->GetCount());
+  TestThread *myThread = new TestThread(1);
+  TEST_ISNOT_NULL(myThread);
+  TEST_EQ(1, myThread->TestFunc.GetCount());
 
   // Run thread function until it exits
-  TEST_TRUE(myFunc->Run());
-  TEST_ISNOT_ZERO(myFunc->Id());
+  TEST_TRUE(myThread->Start());
 
   // Wait for the thread to finish
-  usleep(2 * 50 * 1000); // wait twice the period
+  sleep(1);
 
   // Join thread and validate
-  TEST_TRUE(myFunc->Join());
-  TEST_IS_ZERO(myFunc->Id());
-  TEST_IS_ZERO(myFunc->GetCount());
+  TEST_TRUE(myThread->Stop());
+
+  // Verify
+  TEST_IS_ZERO(myThread->TestFunc.GetCount());
 
   // Cleanup
-  delete (myFunc);
+  delete (myThread);
 
   // Return success
   return (0);

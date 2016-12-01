@@ -18,121 +18,118 @@ namespace zUtils
 namespace zSem
 {
 
-static void
-_add_time(struct timespec *ts_, uint32_t us_)
-{
-
-  // Compute nanoseconds
-  uint32_t nsec = ((us_ % 1000000) * 1000);
-  if ((ts_->tv_nsec + nsec) < ts_->tv_nsec)
-  {
-    ts_->tv_sec++;
-  } // end if
-  ts_->tv_nsec += nsec;
-
-  // Compute seconds
-  ts_->tv_sec += (us_ / 1000000);
-  if (ts_->tv_nsec >= 1000000000)
-  {
-    ts_->tv_sec++;
-    ts_->tv_nsec %= 1000000000;
-  }
-
-}
-
 //*****************************************************************************
 // Semaphore Class
 //*****************************************************************************
 
-Semaphore::Semaphore(const uint32_t value_)
+Semaphore::Semaphore(const uint32_t value_) :
+    _lock(Mutex::LOCKED), _mutex(Mutex::LOCKED), _value(value_)
 {
-  int ret = sem_init(&this->_sem, 0, value_);
-  if (ret != 0)
+  ZLOG_DEBUG("Create semaphore: " + zLog::PointerStr(this));
+  if (this->_value)
   {
-    ZLOG_CRIT("Cannot initialize lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
-  ZLOG_INFO("Created system semaphore: " + zLog::PointerStr(&this->_sem) + ":" + zLog::IntStr(value_));
+    this->_mutex.Unlock();
+  }
+  this->_lock.Unlock();
 }
 
 Semaphore::~Semaphore()
 {
-  ZLOG_INFO("Destroying system semaphore: " + zLog::PointerStr(&this->_sem));
-  int ret = sem_destroy(&this->_sem);
-  if (ret != 0)
-  {
-    ZLOG_CRIT("Cannot destroy lock: " + zLog::IntStr(ret));
-    throw;
-  } // end if
+//  ZLOG_DEBUG("Delete semaphore: " + zLog::PointerStr(this));
 }
 
 bool
 Semaphore::Post(uint32_t value_)
 {
-  int stat = 0;
-  while (!stat && value_--)
+  bool status = false;
+  ZLOG_DEBUG("Post semaphore(" + zLog::PointerStr(this) + "): " + zLog::UintStr(value_));
+  if (this->_lock.Lock())
   {
-    stat = sem_post(&this->_sem);
-  } // end while
-  return (stat == 0);
+    this->_value += value_;
+    if ((this->_value > 0) && (this->_mutex.State() == Mutex::LOCKED))
+    {
+      this->_mutex.Unlock();
+    }
+    status = true;
+    this->_lock.Unlock();
+  }
+  return (status);
 }
 
 bool
 Semaphore::Wait()
 {
+  bool status = false;
 
-  ZLOG_DEBUG("Waiting on system semaphore " + zLog::PointerStr(&this->_sem));
+  ZLOG_DEBUG("Wait for semaphore: " + zLog::PointerStr(this));
 
-  if (sem_wait(&this->_sem) != 0)
+  if (this->_lock.Lock())
   {
-    ZLOG_CRIT("Error waiting on system semaphore: " + std::string(strerror(errno)));
-    return(false);
+    if (this->_mutex.Lock())
+    {
+      this->_value--;
+      if (this->_value > 0)
+      {
+        this->_mutex.Unlock();
+      }
+      status = true;
+    }
+    this->_lock.Unlock();
   }
-
-  return (true);
+  return (status);
 }
 
 bool
 Semaphore::TryWait()
 {
-  if (sem_trywait(&this->_sem) != 0)
+  bool status = false;
+  ZLOG_DEBUG("Try to wait for semaphore: " + zLog::PointerStr(this));
+  if (this->_lock.Lock())
   {
-    return(false);
+    if (this->_mutex.TryLock())
+    {
+      this->_value--;
+      if (this->_value > 0)
+      {
+        this->_mutex.Unlock();
+      }
+      status = true;
+    }
+    this->_lock.Unlock();
   }
-
-  return (true);
+  return (status);
 }
 
 bool
 Semaphore::TimedWait(uint32_t us_)
 {
-  struct timespec ts;
-
-  ZLOG_DEBUG("Waiting on system semaphore " + zLog::PointerStr(&this->_sem));
-
-  // Get current time
-  if (clock_gettime(CLOCK_REALTIME, &ts) != 0)
+  bool status = false;
+  if (this->_lock.Lock())
   {
-    return (false);
-  } // end if
-
-  // Compute absolute time
-  _add_time(&ts, us_);
-
-  if (sem_timedwait(&this->_sem, &ts) != 0)
-  {
-    return(false);
+    if (this->_mutex.TimedLock(us_))
+    {
+      this->_value--;
+      if (this->_value > 0)
+      {
+        this->_mutex.Unlock();
+      }
+      status = true;
+    }
+    this->_lock.Unlock();
   }
-
-  return (true);
+  return (status);
 }
 
 uint32_t
 Semaphore::Value()
 {
-  int val;
-  sem_getvalue(&this->_sem, &val);
-  return ((uint32_t) val);
+  uint32_t value = 0;
+  if (this->_lock.Lock())
+  {
+    value = this->_value;
+    this->_lock.Unlock();
+  }
+  return (value);
 }
 
 }

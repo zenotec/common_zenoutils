@@ -9,6 +9,9 @@
 #ifndef __ZLOOPSOCKET_H__
 #define __ZLOOPSOCKET_H__
 
+#include <string>
+
+#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -40,34 +43,11 @@ private:
 };
 
 //**********************************************************************
-// zSocket::LoopSocketRecv Class
-//**********************************************************************
-
-class LoopSocketRecv : public zThread::Function
-{
-public:
-  LoopSocketRecv()
-  {
-
-  }
-  virtual
-  ~LoopSocketRecv()
-  {
-
-  }
-  virtual void *
-  ThreadFunction(void *arg_);
-};
-
-
-//**********************************************************************
 // zSocket::LoopSocket Class
 //**********************************************************************
 
-class LoopSocket : public Socket
+class LoopSocket : public Socket, public zThread::ThreadFunction
 {
-
-  friend LoopSocketRecv;
 
 public:
 
@@ -90,10 +70,12 @@ public:
 
 protected:
 
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
 private:
 
-  zThread::Thread _rx_thread;
-  LoopSocketRecv _rx_func;
+  zThread::Thread _thread;
   bool _opened;
   bool _bound;
   bool _connected;

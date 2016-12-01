@@ -34,6 +34,7 @@ namespace zSerial
 const std::string SerialConfiguration::ConfigRoot("zSerial");
 const std::string SerialConfiguration::ConfigTypePath("Type");
 const std::string SerialConfiguration::ConfigTypeNone("NONE");
+const std::string SerialConfiguration::ConfigTypeEcho("Echo");
 const std::string SerialConfiguration::ConfigTypeTty("TTY");
 
 SerialConfiguration::SerialConfiguration()

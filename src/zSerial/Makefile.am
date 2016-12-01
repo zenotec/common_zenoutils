@@ -12,4 +12,5 @@ libzSerial_la_SOURCES = \
     SerialConfiguration.cpp \
     SerialPort.cpp \
     SerialNotification.cpp \
-    Tty.cpp
+    EchoSerialPort.cpp \
+    TtySerialPort.cpp

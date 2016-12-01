@@ -47,15 +47,15 @@ Configuration::Configuration(zData::Data &data_) :
     _modified(false), _staging(Configuration::ROOT),
         _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
-  this->_lock.lock();
+  this->_lock.Lock();
   this->_staging.Put(data_, data_.Key());
   this->_working = this->_staging;
-  this->_lock.unlock();
+  this->_lock.Unlock();
 }
 
 Configuration::~Configuration()
 {
-  this->_lock.lock();
+  this->_lock.Lock();
 }
 
 bool
@@ -80,10 +80,10 @@ Configuration::IsModified() const
   bool mod = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
   mod = this->_modified;
   // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
   return (mod);
 }
 
@@ -93,14 +93,14 @@ Configuration::Commit()
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
 
   this->_working = this->_staging;
   status = (this->_working == this->_staging);
   this->_modified = false;
 
   // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
 
   // Return status
   return (status);
@@ -112,14 +112,14 @@ Configuration::Restore()
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
 
   this->_staging = this->_working;
   status = (this->_working == this->_staging);
   this->_modified = false;
 
   // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
 
   // Return status
   return (status);
@@ -131,7 +131,7 @@ Configuration::Get(zData::Data &data_, const std::string &path_) const
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
 
 //  std::cout << "Getting configuration data: " << path_ << std::endl;
 
@@ -140,7 +140,7 @@ Configuration::Get(zData::Data &data_, const std::string &path_) const
 //  data_.DisplayJson ();
 
 // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
 
   // Return status
   return (status);
@@ -167,7 +167,7 @@ Configuration::Put(zData::Data &data_, const std::string &path_)
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
 
 //  std::cout << "Putting configuration data: " << path_ << std::endl;
 
@@ -177,7 +177,7 @@ Configuration::Put(zData::Data &data_, const std::string &path_)
 //  this->_staging.DisplayJson ();
 
 // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
 
   // Return status
   return (status);
@@ -204,7 +204,7 @@ Configuration::Add(zData::Data &data_, const std::string &path_)
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
+  this->_lock.Lock();
 
 //  std::cout << "Adding configuration data: " << path_ << std::endl;
 
@@ -214,7 +214,7 @@ Configuration::Add(zData::Data &data_, const std::string &path_)
 //  this->_staging.DisplayJson ();
 
 // End critical section
-  this->_lock.unlock();
+  this->_lock.Unlock();
 
   // Return status
   return (status);

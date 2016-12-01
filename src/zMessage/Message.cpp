@@ -228,7 +228,7 @@ Message::GetData() const
 bool
 Message::SetData(const zData::Data &data_)
 {
-  //return (this->Put(data_, Message::STR_DATA));
+  return (this->Put(data_, Message::STR_DATA));
 }
 
 }

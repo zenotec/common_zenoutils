@@ -186,12 +186,12 @@ str2edge(const std::string &str_)
 //**********************************************************************
 
 GpioPort::GpioPort() :
-    _fd(0), _thread(this, this), zEvent::Event(zEvent::Event::TYPE_GPIO)
+    _fd(0), _thread(this, NULL), zEvent::Event(zEvent::Event::TYPE_GPIO)
 {
 }
 
 GpioPort::GpioPort(zConfig::Configuration &config_) :
-    _config(config_), _fd(0), _thread(this, this), zEvent::Event(zEvent::Event::TYPE_GPIO)
+    _config(config_), _fd(0), _thread(this, NULL), zEvent::Event(zEvent::Event::TYPE_GPIO)
 {
 }
 
@@ -248,18 +248,20 @@ GpioPort::Open()
   if ((this->Edge() == GpioPort::EDGE_LO_HI) || (this->Edge() == GpioPort::EDGE_HI_LO)
       || (this->Edge() == GpioPort::EDGE_BOTH))
   {
-    ZLOG_INFO(std::string("Opening 'state' GPIO file: ") + filename(this->_config.Identifier(), this->_config.StateFilename()));
+    ZLOG_INFO(
+        std::string("Opening 'state' GPIO file: ")
+            + filename(this->_config.Identifier(), this->_config.StateFilename()));
     this->_fd = open(filename(this->_config.Identifier(), this->_config.StateFilename()).c_str(),
         (O_RDONLY | O_NONBLOCK));
     if (this->_fd > 0)
     {
       // Start monitoring for state changes
-      this->_thread.Run();
+      this->_thread.Start();
     }
     else
     {
       this->_fd = 0;
-      return(false);
+      return (false);
     }
   }
 
@@ -346,31 +348,32 @@ GpioPort::Edge(const GpioPort::EDGE edge_)
   return (this->_config.Edge(edge2str(edge_)));
 }
 
-void *
-GpioPort::ThreadFunction(void *arg_)
+void
+GpioPort::Run(zThread::ThreadArg *arg_)
 {
 
-  GpioPort *self = (GpioPort *) arg_;
-
   // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = self->_fd;
+  struct pollfd fds[1] = { 0 };
+  fds[0].fd = this->_fd;
   fds[0].events = (POLLPRI | POLLERR);
 
   // Poll on GPIO ports
-  int ret = poll(fds, 1, 100);
-  if (ret > 0)
+  while (!this->Exit())
   {
-    char buf[2] = { 0 };
-    if ((fds[0].revents & POLLPRI) && pread(self->_fd, buf, sizeof(buf), 0))
+    int ret = poll(fds, 1, 100);
+    if (ret > 0)
     {
-      zGpio::GpioPort::STATE state = self->_state();
-      zGpio::GpioNotification notification(state, self);
-      self->Notify(static_cast<zEvent::EventNotification&>(notification));
+      char buf[2] = { 0 };
+      if ((fds[0].revents & POLLPRI) && pread(this->_fd, buf, sizeof(buf), 0))
+      {
+        zGpio::GpioPort::STATE state = this->_state();
+        zGpio::GpioNotification notification(state, this);
+        this->Notify(static_cast<zEvent::EventNotification&>(notification));
+      }
     }
   }
 
-  return (0);
+  return;
 }
 
 GpioPort::DIR

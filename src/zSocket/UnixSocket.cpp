@@ -89,8 +89,8 @@ UnixAddress::verify(const SocketType type_, const std::string &addr_)
 // zSocket::UnixSocketRecv Class
 //**********************************************************************
 
-void *
-UnixSocketRecv::ThreadFunction(void *arg_)
+void
+UnixSocketRecv::Run(zThread::ThreadArg *arg_)
 {
   UnixSocket *sock = (UnixSocket *) arg_;
   ssize_t bytes = -1;
@@ -98,7 +98,7 @@ UnixSocketRecv::ThreadFunction(void *arg_)
   if (!sock || !sock->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
-    return ((void*) -1);
+    return;
   }
 
   ZLOG_DEBUG("Waiting for RX data on Unix socket");
@@ -108,27 +108,32 @@ UnixSocketRecv::ThreadFunction(void *arg_)
   fds[0].fd = sock->_sock;
   fds[0].events = (POLLIN | POLLERR);
 
-  // Poll for received data
-  int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLIN))
+  while (!this->Exit())
   {
-    ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
-    std::shared_ptr<UnixAddress> addr(new UnixAddress);
-    std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
-    bytes = sock->_recv(*addr, *sb);
-    if (bytes > 0)
+
+    // Poll for received data
+    int ret = poll(fds, 1, 100);
+    if (ret > 0 && (fds[0].revents == POLLIN))
     {
-      SocketAddressBufferPair p(addr, sb);
-      sock->rxbuf(p);
-    }
-  } // end if
+      ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
+      std::shared_ptr<UnixAddress> addr(new UnixAddress);
+      std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
+      bytes = sock->_recv(*addr, *sb);
+      if (bytes > 0)
+      {
+        SocketAddressBufferPair p(addr, sb);
+        sock->rxbuf(p);
+      }
+    } // end if
 
-  if (ret < 0)
-  {
-    ZLOG_ERR("Error selecting on socket: " + std::string(strerror(errno)));
-  } // end if
+    if (ret < 0)
+    {
+      ZLOG_ERR("Error selecting on socket: " + std::string(strerror(errno)));
+    } // end if
 
-  return (0);
+  }
+
+  return;
 
 }
 
@@ -136,8 +141,8 @@ UnixSocketRecv::ThreadFunction(void *arg_)
 // zSocket::UnixSocketSend Class
 //**********************************************************************
 
-void *
-UnixSocketSend::ThreadFunction(void *arg_)
+void
+UnixSocketSend::Run(zThread::ThreadArg *arg_)
 {
 
   UnixSocket *sock = (UnixSocket *) arg_;
@@ -146,32 +151,37 @@ UnixSocketSend::ThreadFunction(void *arg_)
   if (!sock || !sock->_sock)
   {
     ZLOG_CRIT(std::string("Socket not opened"));
-    return ((void*) -1);
+    return;
   }
 
   ZLOG_DEBUG("Waiting for TX data on Unix socket");
 
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = sock->_sock;
-  fds[0].events = (POLLOUT | POLLERR);
-
-  // Wait for data to send
-  if (sock->txbuf(p, 100000))
+  while (!this->Exit())
   {
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLOUT))
+
+    // Setup for poll loop
+    struct pollfd fds[1];
+    fds[0].fd = sock->_sock;
+    fds[0].events = (POLLOUT | POLLERR);
+
+    // Wait for data to send
+    if (sock->txbuf(p, 100000))
     {
-      ZLOG_DEBUG("Sending packet: " + p.first->Address() +
-          "(" + zLog::IntStr(p.second->Size()) + ")");
-      if (sock->_send(*p.first, *p.second) != p.second->Size())
+      int ret = poll(fds, 1, 100);
+      if (ret > 0 && (fds[0].revents == POLLOUT))
       {
-        ZLOG_ERR("Error sending packet");
+        ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+            "(" + zLog::IntStr(p.second->Size()) + ")");
+        if (sock->_send(*p.first, *p.second) != p.second->Size())
+        {
+          ZLOG_ERR("Error sending packet");
+        }
       }
     }
+
   }
 
-  return (0);
+  return;
 
 }
 
@@ -291,7 +301,7 @@ UnixSocket::Bind()
   } // end if
 
   // Start listener threads
-  if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
+  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
   {
     ZLOG_ERR("Error starting listening threads");
     return (false);
@@ -342,7 +352,7 @@ UnixSocket::Connect(const SocketAddress* addr_)
   } // end if
 
   // Start listener threads
-  if (!this->_rx_thread.Run() || !this->_tx_thread.Run())
+  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
   {
     ZLOG_ERR("Error starting listening threads");
     return (false);

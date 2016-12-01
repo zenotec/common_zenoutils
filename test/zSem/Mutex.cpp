@@ -1,3 +1,4 @@
+#include <zutils/zLog.h>
 #include "zSemTest.h"
 
 using namespace Test;
@@ -6,6 +7,11 @@ using namespace zUtils;
 int
 zSemTest_Mutex(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSemTest_Mutex()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new mutex with defaults and validate
   zSem::Mutex MyMutex1;
   TEST_EQ(zSem::Mutex::LOCKED, MyMutex1.State());

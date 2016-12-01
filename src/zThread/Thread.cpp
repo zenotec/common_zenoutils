@@ -6,32 +6,58 @@
 //
 //*****************************************************************************
 
-#include <unistd.h>
-#include <errno.h>
 #include <string.h>
 
-#include <list>
 #include <mutex>
+#include <list>
+#include <map>
 
 #include <zutils/zSem.h>
-#include <zutils/zThread.h>
 #include <zutils/zLog.h>
+#include <zutils/zEvent.h>
+#include <zutils/zSignal.h>
+
+#include <zutils/zThread.h>
 
 namespace zUtils
 {
 namespace zThread
 {
 
-unsigned int zThreadId = 0;
+//**********************************************************************
+// Class: ThreadFunction
+//**********************************************************************
+
+ThreadFunction::ThreadFunction() :
+    _exit(zSem::Mutex::LOCKED)
+{
+}
+
+ThreadFunction::~ThreadFunction()
+{
+}
+
+bool
+ThreadFunction::Exit()
+{
+  return (this->_exit.TryLock());
+}
+
+bool
+ThreadFunction::Exit(bool flag_)
+{
+  bool status = false;
+  return (status);
+}
 
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
-Thread::Thread(Function *func_, void *arg_) :
-    _id(zThreadId++), _tid(0), _func(func_), _arg(arg_), _exit(true)
+Thread::Thread(ThreadFunction *func_, ThreadArg *arg_) :
+    _thread(NULL), _func(func_), _arg(arg_)
 {
-  // Starting with the mutex in the locked state so that when the thread is
-  //   started, it unlocks it
+  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
+  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
 }
 
 Thread::~Thread()
@@ -41,49 +67,14 @@ Thread::~Thread()
 }
 
 bool
-Thread::Run()
+Thread::Start()
 {
-
   bool status = false;
-  pthread_t id = 0;
-  pthread_attr_t attr;
-
-  if (pthread_attr_init(&attr))
+  if (this->_func)
   {
-    std::string errmsg = "Cannot initialize thread attributes: " + std::string(strerror(errno));
-    ZLOG_CRIT(errmsg);
-    throw errmsg;
-  } /* end if */
-
-  if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE))
-  {
-    std::string errmsg = "Cannot set detached state: " + std::string(strerror(errno));
-    ZLOG_CRIT(errmsg);
-    throw errmsg;
-  } /* end if */
-
-  if (pthread_create(&id, &attr, Thread::_threadHandler, this))
-  {
-    std::string errmsg = "Cannot create listen thread: " + std::string(strerror(errno));
-    ZLOG_CRIT(errmsg);
-    throw errmsg;
-  } // end if
-
-  if (pthread_attr_destroy(&attr))
-  {
-    std::string errmsg = "Cannot destroy thread attributes: " + std::string(strerror(errno));
-    ZLOG_CRIT(errmsg);
-    throw errmsg;
-  } /* end if */
-
-  if (this->_mutex.TimedLock(1000000))
-  {
-    this->_tid = id;
-    this->_mutex.Unlock();
-    ZLOG_INFO("Created new thread: " + zLog::HexStr((uint32_t )this->_tid));
+    this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
     status = true;
   }
-
   return (status);
 }
 
@@ -91,21 +82,25 @@ bool
 Thread::Join()
 {
   bool status = false;
-  this->_exit = true;
-  if (this->_tid && this->_mutex.TimedLock(1000000))
+  if (this->_func && this->_thread && this->_thread->joinable())
   {
-    ZLOG_INFO("Joining thread: " + zLog::HexStr((uint32_t )this->_tid));
-    pthread_join(this->_tid, 0);
-    this->_tid = 0;
+    this->_thread->join();
+    this->_thread = NULL;
     status = true;
-  } // end if
+  }
   return (status);
 }
 
-unsigned long
-Thread::Id()
+bool
+Thread::Stop()
 {
-  return (this->_id);
+  bool status = false;
+  if (this->_func)
+  {
+    this->_func->Exit(true);
+    status = this->Join();
+  }
+  return (status);
 }
 
 std::string
@@ -121,36 +116,21 @@ Thread::Name(const std::string &name_)
   return;
 }
 
-void *
-Thread::_threadHandler(void *arg_)
+bool
+Thread::EventHandler(const zEvent::EventNotification* notification_)
 {
-  Thread *self = (Thread *) arg_;
-  std::string logstr;
+  bool status = false;
+  const zSignal::SignalNotification *n = NULL;
 
-  self->_exit = false;
-  self->_mutex.Unlock();
-
-  ZLOG_INFO("Thread::_threadHandler: Thread starting");
-
-  // Pause a moment to allow context switch
-  usleep(1000);
-
-  while (self && !self->_exit && self->_func)
+  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SIGNAL))
   {
-    if (self->_mutex.TimedLock(1000000))
+    n = static_cast<const zSignal::SignalNotification*>(notification_);
+    switch (n->Id())
     {
-      if (self->_func->ThreadFunction(self->_arg))
-      {
-        self->_exit = true;
-      }
-      self->_mutex.Unlock();
+
     }
   }
-
-  ZLOG_INFO("Thread::_threadHandler: Thread exiting");
-
-  pthread_exit(0);
-  return (0);
+  return status;
 }
 
 }

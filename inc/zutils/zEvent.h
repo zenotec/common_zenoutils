@@ -9,6 +9,11 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
+#include <string>
+#include <list>
+
+#include <zutils/zSem.h>
+
 namespace zUtils
 {
 namespace zEvent
@@ -68,12 +73,13 @@ protected:
 
 private:
 
-  mutable std::mutex _lock;
+  mutable zSem::Mutex _lock;
   std::list<EventHandler *> _handler_list;
   Event::TYPE _type;
 
   Event(Event &other_);
-    Event(const Event &other_);
+
+  Event(const Event &other_);
 
 };
 
@@ -159,7 +165,7 @@ protected:
 
 private:
 
-  std::mutex _lock;
+  zSem::Mutex _lock;
   std::list<Event *> _event_list;
   std::list<EventObserver*> _obs_list;
 
