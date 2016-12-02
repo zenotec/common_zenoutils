@@ -33,12 +33,12 @@ namespace zSocket
 Socket::Socket(SocketType type_) :
     zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _src(NULL)
 {
-  ZLOG_DEBUG("Creating socket: '" + zLog::PointerStr(this) + "'");
+  ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
 
 Socket::~Socket()
 {
-  ZLOG_DEBUG("Destroying socket: '" + zLog::PointerStr(this) + "'");
+  ZLOG_DEBUG("Destroying socket: '" + ZLOG_P(this) + "'");
 }
 
 const SocketType

@@ -44,15 +44,11 @@ public:
   bool
   Unlock();
 
-  Mutex::STATE
-  State();
-
 protected:
 
 private:
 
-  TIMED_MUTEX _mutex;
-  UNIQUE_LOCK(TIMED_MUTEX) _lock;
+  TIMED_MUTEX _lock;
 
   Mutex(Mutex &other_);
 
@@ -79,7 +75,7 @@ public:
   ~Semaphore();
 
   bool
-  Post(uint32_t value_ = 1);
+  Post();
 
   bool
   Wait();
@@ -88,10 +84,7 @@ public:
   TryWait();
 
   bool
-  TimedWait(uint32_t us_);
-
-  uint32_t
-  Value();
+  TimedWait(uint32_t ms_);
 
 protected:
 
@@ -108,8 +101,8 @@ private:
   operator=(const Semaphore &other_);
 
   Mutex _lock;
-  Mutex _mutex;
-  uint32_t _value;
+  Mutex _empty;
+  uint32_t _cnt;
 
 };
 

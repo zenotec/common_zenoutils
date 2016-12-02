@@ -13,28 +13,17 @@ zSemTest_Mutex(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new mutex with defaults and validate
-  zSem::Mutex MyMutex1;
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex1.State());
+  zSem::Mutex MyMutex;
+  TEST_FALSE(MyMutex.TryLock());
 
-  // Create new mutex specifying initial value and validate
-  zSem::Mutex MyMutex2(zSem::Mutex::LOCKED);
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex2.State());
-  TEST_FALSE(MyMutex2.TryLock());
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex2.State());
-  TEST_TRUE(MyMutex2.Unlock());
-  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex2.State());
-  TEST_TRUE(MyMutex2.TryLock());
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex2.State());
+  // Unlock and relock
+  TEST_TRUE(MyMutex.Unlock());
+  TEST_TRUE(MyMutex.TryLock());
 
-  // Create new mutex specifying initial value and validate
-  zSem::Mutex MyMutex3(zSem::Mutex::UNLOCKED);
-  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex3.State());
-  TEST_TRUE(MyMutex3.Lock());
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex3.State());
-  TEST_FALSE(MyMutex3.TimedLock(1000));
-  TEST_TRUE(MyMutex3.Unlock());
-  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex3.State());
-  TEST_TRUE(MyMutex3.TimedLock(1000));
+  // Timed lock
+  TEST_FALSE(MyMutex.TimedLock(100));
+  TEST_TRUE(MyMutex.Unlock());
+  TEST_TRUE(MyMutex.TimedLock(100));
 
   // Return success
   return (0);

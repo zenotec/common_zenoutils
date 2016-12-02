@@ -45,7 +45,7 @@
 #define MUTEX           std::mutex
 #define TIMED_MUTEX     std::timed_mutex
 #define UNIQUE_LOCK(t)  std::unique_lock<t>
-#define TIMED_LOCK(l,t) ((l).try_lock_for (std::chrono::milliseconds(t)))
+#define TIMED_LOCK(l,t) ((l).try_lock_for(std::chrono::milliseconds(t)))
 #define UNIQUE_PTR(p)   std::unique_ptr<p>
 #define SHARED_PTR(p)   std::shared_ptr<p>
 #define STATIC_CAST(p)  std::static_pointer_cast<p>

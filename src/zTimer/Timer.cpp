@@ -129,7 +129,7 @@ Timer::Notify()
     this->_tick++;
     TimerNotification notification(this);
     notification.tick(this->_tick);
-    zEvent::Event::Notify(static_cast<zEvent::EventNotification&>(notification));
+    zEvent::Event::Notify(&notification);
     this->_lock.Unlock();
   }
 }

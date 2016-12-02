@@ -59,7 +59,8 @@ protected:
 
 private:
 
-  zSem::Mutex _exit;
+  zSem::Mutex _thread_lock;
+  bool _exit;
 
 };
 

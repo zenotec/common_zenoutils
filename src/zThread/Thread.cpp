@@ -29,24 +29,38 @@ namespace zThread
 //**********************************************************************
 
 ThreadFunction::ThreadFunction() :
-    _exit(zSem::Mutex::LOCKED)
+    _thread_lock(zSem::Mutex::LOCKED), _exit(false)
 {
+  this->_thread_lock.Unlock();
 }
 
 ThreadFunction::~ThreadFunction()
 {
+  this->_thread_lock.Lock();
 }
 
 bool
 ThreadFunction::Exit()
 {
-  return (this->_exit.TryLock());
+  bool flag = false;
+  if (this->_thread_lock.Lock())
+  {
+    flag = this->_exit;
+    this->_thread_lock.Unlock();
+  }
+  return (flag);
 }
 
 bool
 ThreadFunction::Exit(bool flag_)
 {
   bool status = false;
+  if (this->_thread_lock.Lock())
+  {
+    this->_exit = flag_;
+    status = true;
+    this->_thread_lock.Unlock();
+  }
   return (status);
 }
 
@@ -72,6 +86,7 @@ Thread::Start()
   bool status = false;
   if (this->_func)
   {
+    ZLOG_DEBUG("Starting thread: " + ZLOG_P(this));
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
     status = true;
   }
@@ -84,7 +99,9 @@ Thread::Join()
   bool status = false;
   if (this->_func && this->_thread && this->_thread->joinable())
   {
+    ZLOG_DEBUG("Joining thread: " + ZLOG_P(this));
     this->_thread->join();
+    delete(this->_thread);
     this->_thread = NULL;
     status = true;
   }
@@ -95,10 +112,13 @@ bool
 Thread::Stop()
 {
   bool status = false;
-  if (this->_func)
+  if (this->_func && this->_thread)
   {
-    this->_func->Exit(true);
-    status = this->Join();
+    ZLOG_DEBUG("Stopping thread: " + ZLOG_P(this));
+    if (this->_func->Exit(true))
+    {
+      status = this->Join();
+    }
   }
   return (status);
 }
@@ -127,7 +147,7 @@ Thread::EventHandler(const zEvent::EventNotification* notification_)
     n = static_cast<const zSignal::SignalNotification*>(notification_);
     switch (n->Id())
     {
-
+    // TODO!
     }
   }
   return status;

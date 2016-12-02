@@ -42,10 +42,12 @@ zSerialTest_PortSendRecvChar(void *arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Register observer
-  MyHandler->RegisterObserver(MyObserver);
+  status = MyHandler->RegisterObserver(MyObserver);
+  TEST_TRUE(status);
 
   // Register port with handler
-  MyHandler->RegisterEvent(MyPort);
+  status = MyHandler->RegisterEvent(MyPort);
+  TEST_TRUE(status);
 
   // Open port
   status = MyPort->Open();
@@ -56,13 +58,13 @@ zSerialTest_PortSendRecvChar(void *arg_)
   TEST_TRUE(status);
 
   // Wait for byte to be sent
-  status = MyObserver->TxSem.TimedWait(100000);
+  status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
   TEST_EQ('a', MyObserver->TxSem.Front());
   MyObserver->TxSem.Pop();
 
   // Wait for byte to be received
-  status = MyObserver->RxSem.TimedWait(100000);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
   TEST_EQ('a', MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
@@ -72,7 +74,8 @@ zSerialTest_PortSendRecvChar(void *arg_)
   TEST_FALSE(status);
 
   // Unregister observer
-  MyHandler->UnregisterObserver(MyObserver);
+  status = MyHandler->UnregisterObserver(MyObserver);
+  TEST_TRUE(status);
 
   // Cleanup
   delete(MyHandler);
@@ -116,10 +119,12 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Register observer
-  MyHandler->RegisterObserver(MyObserver);
+  status = MyHandler->RegisterObserver(MyObserver);
+  TEST_TRUE(status);
 
   // Register port with handler
-  MyHandler->RegisterEvent(MyPort);
+  status = MyHandler->RegisterEvent(MyPort);
+  TEST_TRUE(status);
 
   // Open port
   status = MyPort->Open();
@@ -154,7 +159,8 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   TEST_FALSE(status);
 
   // Unregister observer
-  MyHandler->UnregisterObserver(MyObserver);
+  status = MyHandler->UnregisterObserver(MyObserver);
+  TEST_TRUE(status);
 
   // Cleanup
   delete(MyHandler);

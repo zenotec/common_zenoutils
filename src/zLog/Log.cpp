@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <system_error>
 
 #include <zutils/zLog.h>
 
@@ -94,7 +95,7 @@ Message::Message(zLog::LogLevel level_, const char *name_, int line_) :
   std::string name(name_);
   name = name.substr(name.find_last_of("/") + 1);
   this->_file = name;
-  this->_line = zLog::IntStr(line_);
+  this->_line = ZLOG_INT(line_);
 }
 
 Message::~Message()
@@ -129,14 +130,14 @@ Message::AddStr(const std::string &str_)
 std::string
 Message::_getProcId() const
 {
-  return (zUtils::zLog::IntStr(getpid()));
+  return (ZLOG_INT(getpid()));
 }
 
 std::string
 Message::_getThreadId() const
 {
   pthread_t tid = pthread_self();
-  return (zUtils::zLog::HexStr((uint32_t) tid));
+  return (ZLOG_HEX((uint32_t ) tid));
 }
 
 std::string
@@ -156,12 +157,6 @@ Message::_getTimestamp() const
 Log::Log() :
     _maxLevel(zLog::WARN), _connTable(zLog::LAST)
 {
-  // Initialize lock to 'locked'
-  int ret = sem_init(&this->_lockSem, 0, 0);
-  if (ret != 0)
-  {
-    throw;
-  } // end if
 
   // Initialize connector table to defaults
   for (int i = 0; i < zLog::LAST; i++)
@@ -170,29 +165,27 @@ Log::Log() :
   } // end for
 
   // Unlock
-  this->_unlock();
+  this->_log_lock.unlock();
 }
 
 Log::~Log()
 {
   // Grab lock
-  this->_lock();
-
-  // Destroy lock
-  int ret = sem_destroy(&this->_lockSem);
-  if (ret != 0)
+  this->_log_lock.lock();
+  // Initialize connector table to defaults
+  for (int i = 0; i < zLog::LAST; i++)
   {
-    throw;
-  } // end if
+    this->_connTable[i] = NULL;
+  } // end for
 }
 
 zLog::LogLevel
 Log::GetMaxLevel()
 {
   zLog::LogLevel level;
-  this->_lock();
+  this->_log_lock.lock();
   level = this->_maxLevel;
-  this->_unlock();
+  this->_log_lock.unlock();
   return (level);
 }
 
@@ -201,56 +194,65 @@ Log::SetMaxLevel(zLog::LogLevel level_)
 {
   if (level_ < zLog::LAST)
   {
-    this->_lock();
+    this->_log_lock.lock();
     this->_maxLevel = level_;
-    this->_unlock();
+    this->_log_lock.unlock();
   } // end if
+  return;
 }
 
-bool
+void
 Log::RegisterConnector(zLog::LogLevel level_, Connector *conn_)
 {
-  this->_lock();
+  this->_log_lock.lock();
   this->_connTable[level_] = conn_;
-  this->_unlock();
-  return (true);
+  this->_log_lock.unlock();
+  ZLOG_LOGGER(level_, "Connector registered");
+  return;
 }
 
-bool
+void
 Log::UnregisterConnector(zLog::LogLevel level_)
 {
-  this->_lock();
+  ZLOG_LOGGER(level_, "Connector unregistered");
+  this->_log_lock.lock();
   this->_connTable[level_] = NULL;
-  this->_unlock();
-  return (true);
+  this->_log_lock.unlock();
+  return;
 }
 
 void
 Log::LogMsg(const Message &msg_)
 {
-  if (msg_.GetLevel() <= this->_maxLevel)
+  std::cout << "+" << std::endl;
+  std::cout.flush();
+  try
   {
-    this->_lock();
-    std::string str = msg_.GetStr();
-    Connector *conn = this->_connTable[msg_.GetLevel()];
-    if (conn != NULL)
+    this->_log_lock.lock();
+    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log lock(" << &this->_log_lock << ")"
+        << std::endl;
+    std::cout.flush();
+    if (msg_.GetLevel() <= this->_maxLevel)
     {
-      conn->Logger(str);
+      if (this->_connTable[msg_.GetLevel()] != NULL)
+      {
+        std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
+        this->_connTable[msg_.GetLevel()]->Logger(msg_.GetStr());
+      }
     }
-    this->_unlock();
+    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log unlock(" << &this->_log_lock << ")"
+        << std::endl;
+    std::cout.flush();
+    this->_log_lock.unlock();
   }
-}
-
-void
-Log::_lock()
-{
-  sem_wait(&this->_lockSem);
-}
-
-void
-Log::_unlock()
-{
-  sem_post(&this->_lockSem);
+  catch (const std::system_error& e)
+  {
+    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << "Caught system error: " << e.what() << std::endl;
+    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
+    std::cout.flush();
+  }
+  std::cout << "-" << std::endl;
+  std::cout.flush();
 }
 
 }

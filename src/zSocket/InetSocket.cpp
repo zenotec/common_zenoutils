@@ -210,7 +210,7 @@ InetSocketRecv::Run(zThread::ThreadArg *arg_)
     int ret = poll(fds, 1, 100);
     if (ret > 0 && (fds[0].revents == POLLIN))
     {
-      ZLOG_INFO("Received packet on socket: " + zLog::IntStr(sock->_sock));
+      ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
       std::shared_ptr<InetAddress> addr(new InetAddress);
       std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
       bytes = sock->_recv(*addr, *sb);
@@ -265,7 +265,7 @@ InetSocketSend::Run(zThread::ThreadArg *arg_)
       if (ret > 0 && (fds[0].revents == POLLOUT))
       {
         ZLOG_DEBUG("Sending packet: " + p.first->Address() +
-            "(" + zLog::IntStr(p.second->Size()) + ")");
+            "(" + ZLOG_INT(p.second->Size()) + ")");
         if (sock->_send(*p.first, *p.second) != p.second->Size())
         {
           ZLOG_ERR("Error sending packet");
@@ -315,7 +315,7 @@ InetSocket::Open()
       return (false);
     } // end if
 
-    ZLOG_DEBUG("Opening socket: " + zLog::IntStr(this->_sock));
+    ZLOG_DEBUG("Opening socket: " + ZLOG_INT(this->_sock));
 
     // Enable sending to broadcast address
     int bcastEnable = 1;
@@ -337,13 +337,13 @@ InetSocket::Open()
 void
 InetSocket::Close()
 {
-  ZLOG_DEBUG("Closing socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Closing socket: " + ZLOG_INT(this->_sock));
   // Close socket
   if (this->_sock)
   {
     if (this->_rx_thread.Join() && this->_tx_thread.Join())
     {
-      ZLOG_DEBUG("Socket Closed: " + zLog::IntStr(this->_sock));
+      ZLOG_DEBUG("Socket Closed: " + ZLOG_INT(this->_sock));
       close(this->_sock);
       this->_sock = 0;
     } // end if
@@ -358,7 +358,7 @@ bool
 InetSocket::Bind()
 {
 
-  ZLOG_DEBUG("Bind on socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Bind on socket: " + ZLOG_INT(this->_sock));
 
   if (!this->_sock)
   {
@@ -405,7 +405,7 @@ bool
 InetSocket::Connect(const SocketAddress* addr_)
 {
 
-  ZLOG_DEBUG("Connect on socket: " + zLog::IntStr(this->_sock));
+  ZLOG_DEBUG("Connect on socket: " + ZLOG_INT(this->_sock));
 
   if (!this->_sock)
   {
@@ -491,7 +491,7 @@ InetSocket::_recv(zSocket::InetAddress & addr_, zSocket::SocketBuffer & sb_)
     logstr += "Receiving on socket:\t";
     logstr += "To: " + this->Address()->Address() + ";\t";
     logstr += "From: " + addr_.Address() + ";\t";
-    logstr += "Size: " + zLog::IntStr(n) + ";";
+    logstr += "Size: " + ZLOG_INT(n) + ";";
     ZLOG_INFO(logstr);
 
   } // end if
@@ -528,7 +528,7 @@ InetSocket::_send(const zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
   logstr += "Sending on socket:\t";
   logstr += "To: " + addr_.Address() + ";\t";
   logstr += "From: " + this->Address()->Address() + ";\t";
-  logstr += "Size: " + zLog::IntStr(sb_.Size()) + ";";
+  logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
   struct sockaddr_in dst =

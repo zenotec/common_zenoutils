@@ -53,8 +53,9 @@ public:
   virtual void
   Run(zThread::ThreadArg *arg_)
   {
-    while (!this->Exit() && this->_cnt--)
+    while (!this->Exit() && this->_cnt)
     {
+      this->_cnt--;
       usleep(100000);
     }
   }

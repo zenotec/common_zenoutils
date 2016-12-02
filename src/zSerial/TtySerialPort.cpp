@@ -6,6 +6,7 @@
 //
 //*****************************************************************************
 
+#include <string.h>
 #include <sys/poll.h>
 
 #include <zutils/zLog.h>
@@ -327,8 +328,12 @@ TtyPortSend::Run(zThread::ThreadArg *arg_)
 //*****************************************************************************
 
 TtySerialPort::TtySerialPort() :
-    _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this), _fd(0)
+    _options(0), _fd(0), _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this)
+
 {
+
+  memset(&_termios, 0, sizeof(_termios));
+  memset(&_savedTermios, 0, sizeof(_savedTermios));
 
   // Configure the port
   this->SetDevice(this->GetDevice());
@@ -345,8 +350,12 @@ TtySerialPort::TtySerialPort() :
 }
 
 TtySerialPort::TtySerialPort(const TtySerialConfiguration& config_) :
-    _config(config_), _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this), _fd(0)
+    _options(0), _fd(0), _config(config_), _rx_thread(&this->_rx_func, this),
+        _tx_thread(&this->_tx_func, this)
 {
+
+  memset(&_termios, 0, sizeof(_termios));
+  memset(&_savedTermios, 0, sizeof(_savedTermios));
 
   // Configure the port
   this->SetDevice(this->GetDevice());
@@ -364,6 +373,7 @@ TtySerialPort::TtySerialPort(const TtySerialConfiguration& config_) :
 
 TtySerialPort::~TtySerialPort()
 {
+  this->Close();
 }
 
 bool
@@ -402,8 +412,8 @@ TtySerialPort::Close()
 {
   if (this->_fd)
   {
-    this->_rx_thread.Join();
-    this->_tx_thread.Join();
+    this->_rx_thread.Stop();
+    this->_tx_thread.Stop();
     tcsetattr(this->_fd, TCSANOW, &this->_savedTermios);
     close(this->_fd);
     this->_fd = 0;

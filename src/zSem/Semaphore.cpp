@@ -23,59 +23,66 @@ namespace zSem
 //*****************************************************************************
 
 Semaphore::Semaphore(const uint32_t value_) :
-    _lock(Mutex::LOCKED), _mutex(Mutex::LOCKED), _value(value_)
+    _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
 {
-  ZLOG_DEBUG("Create semaphore: " + zLog::PointerStr(this));
-  if (this->_value)
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
+  if (this->_cnt != 0)
   {
-    this->_mutex.Unlock();
+    this->_empty.Unlock();
   }
   this->_lock.Unlock();
 }
 
 Semaphore::~Semaphore()
 {
-//  ZLOG_DEBUG("Delete semaphore: " + zLog::PointerStr(this));
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
 }
 
 bool
-Semaphore::Post(uint32_t value_)
+Semaphore::Post()
 {
   bool status = false;
-  ZLOG_DEBUG("Post semaphore(" + zLog::PointerStr(this) + "): " + zLog::UintStr(value_));
+
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
+
   if (this->_lock.Lock())
   {
-    this->_value += value_;
-    if ((this->_value > 0) && (this->_mutex.State() == Mutex::LOCKED))
+    // Test for overflow
+    if ((this->_cnt + 1) > this->_cnt)
     {
-      this->_mutex.Unlock();
+      if (this->_cnt == 0)
+      {
+        this->_empty.Unlock();
+      }
+      this->_cnt++;
     }
     status = true;
     this->_lock.Unlock();
   }
+
   return (status);
 }
 
 bool
 Semaphore::Wait()
 {
-  bool status = false;
 
-  ZLOG_DEBUG("Wait for semaphore: " + zLog::PointerStr(this));
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
 
-  if (this->_lock.Lock())
+  bool status = this->TryWait();
+
+  if (!status)
   {
-    if (this->_mutex.Lock())
+    if (this->_empty.Lock() && this->_empty.Unlock())
     {
-      this->_value--;
-      if (this->_value > 0)
-      {
-        this->_mutex.Unlock();
-      }
-      status = true;
+      status = this->TryWait();
     }
-    this->_lock.Unlock();
   }
+
   return (status);
 }
 
@@ -83,53 +90,50 @@ bool
 Semaphore::TryWait()
 {
   bool status = false;
-  ZLOG_DEBUG("Try to wait for semaphore: " + zLog::PointerStr(this));
+
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
+
   if (this->_lock.Lock())
   {
-    if (this->_mutex.TryLock())
+    ZLOG_DEBUG("Got lock");
+    if (this->_cnt != 0)
     {
-      this->_value--;
-      if (this->_value > 0)
+      ZLOG_DEBUG("Not zero");
+      this->_cnt--;
+      if (this->_cnt == 0)
       {
-        this->_mutex.Unlock();
+        ZLOG_DEBUG("Now zero");
+        this->_empty.Lock();
       }
       status = true;
     }
     this->_lock.Unlock();
+    ZLOG_DEBUG("Returned lock");
   }
+
+  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
 bool
-Semaphore::TimedWait(uint32_t us_)
+Semaphore::TimedWait(uint32_t msec_)
 {
-  bool status = false;
-  if (this->_lock.Lock())
-  {
-    if (this->_mutex.TimedLock(us_))
-    {
-      this->_value--;
-      if (this->_value > 0)
-      {
-        this->_mutex.Unlock();
-      }
-      status = true;
-    }
-    this->_lock.Unlock();
-  }
-  return (status);
-}
 
-uint32_t
-Semaphore::Value()
-{
-  uint32_t value = 0;
-  if (this->_lock.Lock())
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
+
+  bool status = this->TryWait();
+
+  if (!status)
   {
-    value = this->_value;
-    this->_lock.Unlock();
+    if (this->_empty.TimedLock(msec_) && this->_empty.Unlock())
+    {
+      status = this->TryWait();
+    }
   }
-  return (value);
+
+  return (status);
 }
 
 }

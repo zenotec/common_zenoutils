@@ -60,20 +60,17 @@ public:
   void
   Notify(EventNotification* notification_);
 
-  void
-  Notify(EventNotification& notification_);
-
 protected:
 
-  void
+  bool
   registerHandler(EventHandler *list_);
 
-  void
+  bool
   unregisterHandler(EventHandler *list_);
 
 private:
 
-  mutable zSem::Mutex _lock;
+  mutable zSem::Mutex _event_lock;
   std::list<EventHandler *> _handler_list;
   Event::TYPE _type;
 
@@ -143,10 +140,10 @@ public:
   virtual
   ~EventHandler();
 
-  void
+  bool
   RegisterEvent(Event* event_);
 
-  void
+  bool
   UnregisterEvent(Event* event_);
 
   bool
@@ -160,12 +157,9 @@ protected:
   void
   notify(const EventNotification* notification_);
 
-  void
-  notify(const EventNotification& notification_);
-
 private:
 
-  zSem::Mutex _lock;
+  zSem::Mutex _event_lock;
   std::list<Event *> _event_list;
   std::list<EventObserver*> _obs_list;
 

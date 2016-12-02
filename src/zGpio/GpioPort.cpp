@@ -206,7 +206,7 @@ GpioPort::Open()
 
   std::unique_ptr<std::fstream> fs;
 
-  ZLOG_INFO("Opening GPIO Port: " + zLog::IntStr(this->_config.Identifier()));
+  ZLOG_INFO("Opening GPIO Port: " + ZLOG_INT(this->_config.Identifier()));
 
   // Open export file and verify
   fs = fs_open(this->_config.Identifier(), this->_config.ExportFilename());
@@ -275,7 +275,7 @@ GpioPort::Close()
 
   std::unique_ptr<std::fstream> fs;
 
-  ZLOG_INFO("Closing GPIO Port: " + zLog::IntStr(this->_config.Identifier()));
+  ZLOG_INFO("Closing GPIO Port: " + ZLOG_INT(this->_config.Identifier()));
 
   if (this->_fd)
   {
@@ -368,7 +368,7 @@ GpioPort::Run(zThread::ThreadArg *arg_)
       {
         zGpio::GpioPort::STATE state = this->_state();
         zGpio::GpioNotification notification(state, this);
-        this->Notify(static_cast<zEvent::EventNotification&>(notification));
+        this->Notify(&notification);
       }
     }
   }

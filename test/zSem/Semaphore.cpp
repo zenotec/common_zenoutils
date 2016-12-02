@@ -13,24 +13,17 @@ zSemTest_Semaphore(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new semaphore with defaults and validate
-  zSem::Semaphore MySem1;
-  TEST_IS_ZERO(MySem1.Value());
-  TEST_TRUE(MySem1.Post());
-  TEST_EQ(1, MySem1.Value());
-  TEST_TRUE(MySem1.Wait());
-  TEST_IS_ZERO(MySem1.Value());
+  zSem::Semaphore MySemaphore;
+  TEST_FALSE(MySemaphore.TryWait());
 
-  // Create new semaphore specifying initial value and validate
-  zSem::Semaphore MySem2(1);
-  TEST_EQ(1, MySem2.Value());
-  TEST_TRUE(MySem2.Post(1));
-  TEST_EQ(2, MySem2.Value());
-  TEST_TRUE(MySem2.TryWait());
-  TEST_EQ(1, MySem2.Value());
-  TEST_TRUE(MySem2.TimedWait(1000));
-  TEST_IS_ZERO(MySem2.Value());
-  TEST_FALSE(MySem2.TryWait());
-  TEST_FALSE(MySem2.TimedWait(1000));
+  // Post and reWait
+  TEST_TRUE(MySemaphore.Post());
+  TEST_TRUE(MySemaphore.TryWait());
+
+  // Timed Wait
+  TEST_FALSE(MySemaphore.TimedWait(100));
+  TEST_TRUE(MySemaphore.Post());
+  TEST_TRUE(MySemaphore.TimedWait(100));
 
   // Return success
   return (0);

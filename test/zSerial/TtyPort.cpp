@@ -57,12 +57,12 @@ TtyTestThread::Run(zThread::ThreadArg *arg_)
       if (bytes > 0)
       {
         std::string str(buf);
-        ZLOG_INFO("Received " + zLog::IntStr(bytes) + " bytes");
+        ZLOG_INFO("Received " + ZLOG_INT(bytes) + " bytes");
         ZLOG_DEBUG("STR: '" + str + "'");
         bytes = write(this->_port->_master_fd, str.c_str(), str.size());
         if (bytes > 0)
         {
-          ZLOG_INFO("Sent " + zLog::IntStr(bytes) + " bytes");
+          ZLOG_INFO("Sent " + ZLOG_INT(bytes) + " bytes");
           ZLOG_DEBUG("STR: '" + str + "'");
         }
       }
@@ -205,7 +205,7 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   {
     c = MyObserver->TxSem.Front();
     MyObserver->TxSem.Pop();
-    TEST_EQ_MSG(exp_buf[cnt], c, (zLog::IntStr(cnt) + ": " + zLog::CharStr(c)));
+    TEST_EQ_MSG(exp_buf[cnt], c, (ZLOG_INT(cnt) + ": " + zLog::CharStr(c)));
   }
   TEST_EQ(cnt, sizeof(exp_buf));
 
@@ -214,7 +214,7 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   {
     c = MyObserver->RxSem.Front();
     MyObserver->RxSem.Pop();
-    TEST_EQ_MSG(exp_buf[cnt], c, (zLog::IntStr(cnt) + ": " + zLog::CharStr(c)));
+    TEST_EQ_MSG(exp_buf[cnt], c, (ZLOG_INT(cnt) + ": " + zLog::CharStr(c)));
   }
   TEST_EQ(cnt, sizeof(exp_buf));
 

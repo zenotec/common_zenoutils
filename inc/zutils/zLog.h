@@ -15,8 +15,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
-#include <semaphore.h>
 #include <time.h>
 
 #include <string>
@@ -25,14 +23,18 @@
 #include <sstream>
 #include <vector>
 
+#include <zutils/zCompatibility.h>
+
 namespace zUtils
 {
 namespace zLog
 {
 
+#define ZLOG_BOOL(b_)   ((b_) ? std::string("true") : std::string("false"))
 #define ZLOG_INT(n_)    zUtils::zLog::IntStr((n_))
-#define ZLOG_UINT(n_)    zUtils::zLog::IntStr((n_))
+#define ZLOG_UINT(n_)   zUtils::zLog::UintStr((n_))
 #define ZLOG_HEX(x_)    zUtils::zLog::HexStr<typeof(x_)>((x_))
+#define ZLOG_P(p_)      zUtils::zLog::PointerStr((void*)p_)
 
 #define ZLOG_LOGGER(l_,m_)  \
   do { \
@@ -219,6 +221,7 @@ private:
 class Log
 {
 public:
+
   virtual
   ~Log();
 
@@ -231,12 +234,14 @@ public:
 
   zLog::LogLevel
   GetMaxLevel();
+
   void
   SetMaxLevel(zLog::LogLevel level_);
 
-  bool
+  void
   RegisterConnector(zLog::LogLevel level_, Connector *conn_);
-  bool
+
+  void
   UnregisterConnector(zLog::LogLevel level_);
 
   void
@@ -245,20 +250,19 @@ public:
 protected:
 
 private:
+
   Log();
-    Log(Log const&);
+
+  Log(Log const&);
+
   void
   operator=(Log const&);
+
+  MUTEX _log_lock;
 
   zLog::LogLevel _maxLevel;
   ConsoleConnector _defConn;
   std::vector<Connector *> _connTable;
-
-  void
-  _lock();
-  void
-  _unlock();
-  sem_t _lockSem;
 
 };
 

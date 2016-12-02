@@ -25,10 +25,12 @@ namespace zSerial
 EchoSerialPort::EchoSerialPort() :
     _thread(this, NULL), _opened(false)
 {
+  this->_thread.Name("Echo");
 }
 
 EchoSerialPort::~EchoSerialPort()
 {
+  this->Close();
 }
 
 bool
@@ -56,6 +58,9 @@ EchoSerialPort::Run(zThread::ThreadArg *arg_)
 {
 
   char c = 0;
+
+  std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": Running(" << this << ")" << std::endl;
+  std::cout.flush();
 
   while (!this->Exit())
   {

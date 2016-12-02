@@ -18,10 +18,9 @@ namespace zSem
 // zMutex Class
 //*****************************************************************************
 
-Mutex::Mutex(Mutex::STATE state_) :
-    _lock(this->_mutex)
+Mutex::Mutex(Mutex::STATE state_)
 {
-  ZLOG_DEBUG("Create mutex: " + zLog::PointerStr(this));
+  ZLOG_DEBUG("Create mutex: " + ZLOG_P(this));
   if (state_ == Mutex::UNLOCKED)
   {
     this->_lock.unlock();
@@ -30,47 +29,57 @@ Mutex::Mutex(Mutex::STATE state_) :
 
 Mutex::~Mutex()
 {
-//  ZLOG_DEBUG("Delete mutex: " + zLog::PointerStr(this));
+//  ZLOG_DEBUG("Delete mutex: " + ZLOG_P(this));
 }
 
 bool
 Mutex::Lock()
 {
-  ZLOG_DEBUG("Lock mutex: " + zLog::PointerStr(this));
-  this->_lock.lock();
-  return (true);
+  bool status = false;
+  ZLOG_DEBUG("Lock mutex: " + ZLOG_P(this));
+//  if (!this->_lock.owns_lock())
+//  {
+    this->_lock.lock();
+    status = true;
+//  }
+  return (status);
 }
 
 bool
 Mutex::TryLock()
 {
-  ZLOG_DEBUG("Try to lock mutex: " + zLog::PointerStr(this));
-  return (!this->_lock.owns_lock() && this->_lock.try_lock());
+  bool status = false;
+  ZLOG_DEBUG("Try to lock mutex: " + ZLOG_P(this));
+//  if (!this->_lock.owns_lock())
+//  {
+    status = this->_lock.try_lock();
+//  }
+  return (status);
 }
 
 bool
-Mutex::TimedLock(uint32_t us_)
+Mutex::TimedLock(uint32_t msec_)
 {
-  return (!this->_lock.owns_lock() && TIMED_LOCK(this->_lock, (us_ * 1000)));
+  bool status = false;
+  ZLOG_DEBUG("Waiting for mutex(" + ZLOG_P(this) + "): " + ZLOG_UINT(msec_) + " ms(s)");
+//  if (!this->_lock.owns_lock())
+//  {
+    status = TIMED_LOCK(this->_lock, msec_);
+//  }
+  return (status);
 }
 
 bool
 Mutex::Unlock()
 {
-  ZLOG_DEBUG("Unlock mutex: " + zLog::PointerStr(this));
-  this->_lock.unlock();
-  return (true);
-}
-
-Mutex::STATE
-Mutex::State()
-{
-  Mutex::STATE state = Mutex::UNLOCKED;
-  if (this->_lock.owns_lock())
-  {
-    state = Mutex::LOCKED;
-  }
-  return(state);
+  ZLOG_DEBUG("Unlock mutex: " + ZLOG_P(this));
+  bool status = false;
+//  if (this->_lock.owns_lock())
+//  {
+    this->_lock.unlock();
+    status = true;
+//  }
+  return (status);
 }
 
 }

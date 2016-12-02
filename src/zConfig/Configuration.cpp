@@ -26,28 +26,27 @@ namespace zConfig
 const std::string Configuration::ROOT = "zConfig";
 
 Configuration::Configuration() :
-    _modified(false), _staging(Configuration::ROOT),
+    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(Configuration::ROOT),
         _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(Configuration &other_) :
-    _modified(false), _staging(other_._staging),
+    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(other_._staging),
         _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(const Configuration &other_) :
-    _modified(false), _staging(other_._staging),
+    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(other_._staging),
         _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
 }
 
 Configuration::Configuration(zData::Data &data_) :
-    _modified(false), _staging(Configuration::ROOT),
+    _lock(zSem::Mutex::LOCKED), _modified(false), _staging(Configuration::ROOT),
         _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
 {
-  this->_lock.Lock();
   this->_staging.Put(data_, data_.Key());
   this->_working = this->_staging;
   this->_lock.Unlock();
@@ -55,12 +54,11 @@ Configuration::Configuration(zData::Data &data_) :
 
 Configuration::~Configuration()
 {
-  this->_lock.Lock();
 }
 
 bool
 Configuration::operator ==(const Configuration &other_) const
-    {
+{
   bool status = false;
   status = (this->_working == other_._working);
   return (status);
@@ -68,7 +66,7 @@ Configuration::operator ==(const Configuration &other_) const
 
 bool
 Configuration::operator !=(const Configuration &other_) const
-    {
+{
   bool status = false;
   status = (this->_working != other_._working);
   return (status);

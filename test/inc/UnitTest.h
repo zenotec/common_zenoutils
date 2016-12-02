@@ -70,7 +70,7 @@ do { \
     utest->SetName( std::string(__FUNCTION__) ); \
     utest->DisplayHeader(); \
   } \
-} while(0);
+} while(false);
 
 #define UTEST_FINI() \
 do { \
@@ -80,7 +80,7 @@ do { \
     utest->DisplayFooter(); \
   } \
   return( utest->GetStatus()); \
-} while(0);
+} while(false);
 
 #define UTEST_TEST(fnc, arg) \
 do { \
@@ -101,35 +101,35 @@ do { \
         utest->DisplayLog(); \
       } \
    } \
-} while(0)
+} while(false)
 
 #define TEST_IS_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<void*>( __LINE__, (void*)(x), (void*)NULL, std::string( "" ) ) != true ) \
       return (1); \
-} while(0)
+} while(false)
 
 #define TEST_ISNOT_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<void*>( __LINE__, (x), NULL, std::string( "" ) ) != true ) \
       return (1); \
-} while(0)
+} while(false)
 
 #define TEST_IS_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
       return (1); \
-} while(0)
+} while(false)
 
 #define TEST_ISNOT_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
       return (2); \
-} while(0)
+} while(false)
 
 #define TEST_TRUE(x) TEST_TRUE_MSG(x, std::string( "" ))
 #define TEST_TRUE_MSG(x, msg) \
@@ -137,7 +137,7 @@ do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->True( __LINE__, (x), msg ) != true ) \
       return (1); \
-} while(0)
+} while(false)
 
 #define TEST_FALSE(x) TEST_FALSE_MSG(x, std::string( "" ))
 #define TEST_FALSE_MSG(x, msg) \
@@ -145,7 +145,7 @@ do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->False( __LINE__, (x), msg ) != true ) \
       return (2); \
-} while(0)
+} while(false)
 
 #define TEST_EQ(x, y) TEST_EQ_MSG(x, y, std::string( "" ))
 #define TEST_EQ_MSG(x, y, msg) \
@@ -153,7 +153,7 @@ do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (3); \
-} while(0)
+} while(false)
 
 #define TEST_NEQ(x, y) TEST_NEQ_MSG(x, y, std::string( "" ))
 #define TEST_NEQ_MSG(x, y, msg) \
@@ -161,7 +161,7 @@ do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (4); \
-} while(0)
+} while(false)
 
 #define TEST_LT(x, y) TEST_LT_MSG(x, y, std::string( "" ))
 #define TEST_LT_MSG(x, y, msg) \
@@ -169,7 +169,7 @@ do { \
   UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Lt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (5); \
-} while(0)
+} while(false)
 
 #define TEST_GT(x, y) TEST_GT_MSG((x), (y), std::string( "" ) )
 #define TEST_GT_MSG(x, y, msg) \
@@ -177,7 +177,7 @@ do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Gt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (6); \
-} while(0)
+} while(false)
 
 //*****************************************************************************
 //  Type Definitions

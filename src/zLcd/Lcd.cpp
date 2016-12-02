@@ -77,7 +77,7 @@ Lcd::SetRefresh(const size_t rate_)
   // Convert from rate in Hz to microseconds
   uint32_t usec;
   usec = 1000000 / rate_;
-  ZLOG_DEBUG("Setting refresh rate to: " + zLog::IntStr(rate_) + "(" + zLog::IntStr(usec) + ")");
+  ZLOG_DEBUG("Setting refresh rate to: " + ZLOG_INT(rate_) + "(" + ZLOG_INT(usec) + ")");
   this->_timer.Start(usec);
 }
 
@@ -123,12 +123,10 @@ bool
 Lcd::Update(const std::string &str_, const size_t row_, const size_t col_)
 {
   bool status = false;
-  ZLOG_INFO(
-      "Updating display buffer: [" + zLog::IntStr(row_) + "," + zLog::IntStr(col_) + "]: '" + str_
-          + "'");
-  ZLOG_DEBUG(
-      "Limits: " + zLog::IntStr(this->_rows) + "," + zLog::IntStr(this->_cols) + ": "
-          + zLog::IntStr(str_.size()));
+  ZLOG_INFO("Updating display buffer: [" + ZLOG_INT(row_) + "," + ZLOG_INT(col_) + "]: '" + str_
+      + "'");
+  ZLOG_DEBUG("Limits: " + ZLOG_INT(this->_rows) + "," + ZLOG_INT(this->_cols) + ": "
+      + ZLOG_INT(str_.size()));
   if ((row_ < this->_rows) && (col_ < this->_cols))
   {
     if (this->_lock.Lock())
@@ -137,9 +135,8 @@ Lcd::Update(const std::string &str_, const size_t row_, const size_t col_)
       {
         for (int col = col_; ((i < str_.size()) && (col < this->_cols)); i++, col++)
         {
-          ZLOG_DEBUG(
-              "Updating display char: " + zLog::IntStr(row) + "," + zLog::IntStr(col) + " = "
-                  + str_[i]);
+          ZLOG_DEBUG("Updating display char: " + ZLOG_INT(row) + "," + ZLOG_INT(col) + " = "
+              + str_[i]);
           this->_disp_buf[row][col] = str_[i];
         }
       }

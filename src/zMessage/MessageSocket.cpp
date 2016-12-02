@@ -37,14 +37,14 @@ namespace zMessage
 MessageSocket::MessageSocket(zSocket::Socket *sock_) :
     _sock(sock_), zEvent::Event(zEvent::Event::TYPE_MSG)
 {
-  ZLOG_DEBUG("Creating message socket: '" + zLog::PointerStr(this) + "'");
+  ZLOG_DEBUG("Creating message socket: '" + ZLOG_P(this) + "'");
   this->_sock_handler.RegisterEvent(this->_sock);
   this->_sock_handler.RegisterObserver(this);
 }
 
 MessageSocket::~MessageSocket()
 {
-  ZLOG_DEBUG("Destroying message socket: '" + zLog::PointerStr(this) + "'");
+  ZLOG_DEBUG("Destroying message socket: '" + ZLOG_P(this) + "'");
   this->_sock_handler.UnregisterObserver(this);
   this->_sock_handler.UnregisterEvent(this->_sock);
 }
@@ -109,7 +109,7 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
       zMessage::MessageNotification notification(this);
       notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
       notification.message(&msg);
-      this->Notify(notification);
+      this->Notify(&notification);
       status = true;
       break;
     }
@@ -119,7 +119,7 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
       zMessage::MessageNotification notification(this);
       notification.id(zMessage::MessageNotification::ID_MSG_SENT);
       notification.message(NULL);
-      this->Notify(notification);
+      this->Notify(&notification);
       status = true;
       break;
     }

@@ -59,7 +59,7 @@ SerialPort::SendBuf(const void *buf_, size_t len_)
 
   ssize_t bytes = 0;
   char *buf = (char *) buf_;
-  ZLOG_DEBUG("Sending " + zLog::IntStr(len_) + " bytes");
+  ZLOG_DEBUG("Sending " + ZLOG_INT(len_) + " bytes");
   while (len_--)
   {
     this->_txq.Push(buf[bytes++]);
@@ -106,12 +106,12 @@ SerialPort::txchar(char *c_, size_t timeout_)
   {
     *c_ = this->_txq.Front();
     this->_txq.Pop();
+    ZLOG_DEBUG(std::string("Got character: ") + *c_);
     SerialNotification notification(this);
     notification.id(SerialNotification::ID_CHAR_SENT);
     notification.data(*c_);
     this->Notify(&notification);
     status = true;
-    ZLOG_DEBUG(std::string("Got character: ") + *c_);
   }
   return (status);
 }

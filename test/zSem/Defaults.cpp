@@ -14,12 +14,16 @@ zSemTest_MutexDefaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new mutex with defaults and validate
-  zSem::Mutex MyMutex1(zSem::Mutex::LOCKED);
-  TEST_EQ(zSem::Mutex::LOCKED, MyMutex1.State());
+  zSem::Mutex MyMutex1;
+  TEST_FALSE(MyMutex1.TryLock());
 
   // Create new mutex with defaults and validate
-  zSem::Mutex MyMutex2(zSem::Mutex::UNLOCKED);
-  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex2.State());
+  zSem::Mutex MyMutex2(zSem::Mutex::LOCKED);
+  TEST_FALSE(MyMutex2.TryLock());
+
+  // Create new mutex with defaults and validate
+  zSem::Mutex MyMutex3(zSem::Mutex::UNLOCKED);
+  TEST_TRUE(MyMutex3.TryLock());
 
   // Return success
   return (0);
@@ -35,11 +39,15 @@ zSemTest_SemaphoreDefaults(void* arg_)
 
   // Create new semaphore with defaults and validate
   zSem::Semaphore MySem1;
-  TEST_IS_ZERO(MySem1.Value());
+  TEST_FALSE(MySem1.TryWait());
 
   // Create new semaphore with defaults and validate
-  zSem::Semaphore MySem2(10);
-  TEST_EQ(10, MySem2.Value());
+  zSem::Semaphore MySem2(0);
+  TEST_FALSE(MySem2.TryWait());
+
+  // Create new semaphore with defaults and validate
+  zSem::Semaphore MySem3(1);
+  TEST_TRUE(MySem3.TryWait());
 
   // Return success
   return (0);

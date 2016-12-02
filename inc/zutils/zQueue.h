@@ -24,23 +24,23 @@ template<typename T>
   public:
     zQueue()
     {
-      this->_lock.Unlock();
+      this->_queue_lock.Unlock();
     }
 
     virtual
     ~zQueue()
     {
-      this->_lock.Lock();
+      this->_queue_lock.Lock();
     }
 
     T
     Front()
     {
       T item;
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         item = this->front();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
       return (item);
     }
@@ -49,10 +49,10 @@ template<typename T>
     Back()
     {
       T item;
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         item = this->back();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
       return (item);
     }
@@ -60,21 +60,21 @@ template<typename T>
     void
     Push(T item_)
     {
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         this->push(item_);
         this->Post();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
     }
 
     void
     Pop()
     {
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         this->pop();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
     }
 
@@ -82,10 +82,10 @@ template<typename T>
     Size()
     {
       ssize_t size = -1;
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         size = this->size();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
       return (size);
     }
@@ -94,10 +94,10 @@ template<typename T>
     Empty()
     {
       bool empty = true;
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         empty = this->empty();
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
       return (empty);
     }
@@ -105,14 +105,14 @@ template<typename T>
     void
     Clear()
     {
-      if (this->_lock.Lock())
+      if (this->_queue_lock.Lock())
       {
         while (this->TryWait());
         while (!this->empty())
         {
           this->pop();
         }
-        this->_lock.Unlock();
+        this->_queue_lock.Unlock();
       }
       return;
     }
@@ -120,7 +120,7 @@ template<typename T>
   protected:
 
   private:
-    zSem::Mutex _lock;
+    zSem::Mutex _queue_lock;
 
   };
 

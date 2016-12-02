@@ -59,7 +59,7 @@ private:
     {
       for (int col = 0; col < buf_[row].size(); col++)
       {
-        ZLOG_DEBUG("Updating display: " + zLog::IntStr(row) + "," + zLog::IntStr(col) + " = " + buf_[row][col]);
+        ZLOG_DEBUG("Updating display: " + ZLOG_INT(row) + "," + ZLOG_INT(col) + " = " + buf_[row][col]);
         if (buf_[row][col])
         {
           this->_buf += buf_[row][col];
