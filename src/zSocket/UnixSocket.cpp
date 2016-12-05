@@ -255,7 +255,7 @@ UnixSocket::Close()
   }
 
   // Close socket
-  if (this->_rx_thread.Join() && this->_tx_thread.Join())
+  if (this->_rx_thread.Stop() && this->_tx_thread.Stop())
   {
     close(this->_sock);
     this->_sock = 0;

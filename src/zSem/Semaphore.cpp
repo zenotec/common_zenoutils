@@ -129,7 +129,6 @@ Semaphore::TimedWait(uint32_t msec_)
 
   if (!status)
   {
-    std::cout << "Waiting for: " << msec_ << std::endl;
     if (this->_empty.TimedLock(msec_))
     {
       this->_empty.Unlock();

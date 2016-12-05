@@ -83,7 +83,13 @@ LoopSocket::Open()
 void
 LoopSocket::Close()
 {
-  this->_opened = false;
+  // Close socket
+  if (this->_thread.Stop())
+  {
+    this->_opened = false;
+    ZLOG_DEBUG("Socket Closed");
+  } // end if
+
   return;
 }
 
