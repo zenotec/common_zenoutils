@@ -111,7 +111,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_EQ((int)MySock->Send(*DstAddr, ExpStr), (int)ExpStr.size());
 
   // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100000);
+  status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
   zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
   MyObserver->TxSem.Pop();
@@ -121,7 +121,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Wait for packet to be received
-  status = MyObserver->RxSem.TimedWait(100000);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
   zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
   MyObserver->RxSem.Pop();

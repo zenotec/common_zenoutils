@@ -116,13 +116,13 @@ zSerialTest_TtyPortSendRecvChar(void *arg_)
   TEST_TRUE(status);
 
 // Wait for byte to be sent
-  status = MyObserver->TxSem.TimedWait(100000);
+  status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
   TEST_EQ('a', MyObserver->TxSem.Front());
   MyObserver->TxSem.Pop();
 
 // Wait for byte to be received
-  status = MyObserver->RxSem.TimedWait(100000);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
   TEST_EQ('a', MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
@@ -201,7 +201,7 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   TEST_EQ(sizeof(exp_buf), bytes);
 
 // Verify data was sent
-  for (cnt = 0; MyObserver->TxSem.TimedWait(100000); cnt++)
+  for (cnt = 0; MyObserver->TxSem.TimedWait(100); cnt++)
   {
     c = MyObserver->TxSem.Front();
     MyObserver->TxSem.Pop();
@@ -210,7 +210,7 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   TEST_EQ(cnt, sizeof(exp_buf));
 
 // Verify data was received
-  for (cnt = 0; MyObserver->RxSem.TimedWait(100000); cnt++)
+  for (cnt = 0; MyObserver->RxSem.TimedWait(100); cnt++)
   {
     c = MyObserver->RxSem.Front();
     MyObserver->RxSem.Pop();

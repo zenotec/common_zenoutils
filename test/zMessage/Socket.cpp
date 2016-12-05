@@ -56,7 +56,7 @@ zMessageTest_MessageSocket(void* arg_)
   delete (helloMsg);
 
   // Wait for message to be sent
-  TEST_TRUE(MyObserver->TxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
   // No more messages should have been sent
   TEST_FALSE(MyObserver->TxSem.TryWait());
@@ -65,7 +65,7 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Wait for message to be received
-  TEST_TRUE(MyObserver->RxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
 
   // No more messages should be waiting
   TEST_FALSE(MyObserver->RxSem.TryWait());
@@ -84,7 +84,7 @@ zMessageTest_MessageSocket(void* arg_)
   delete (ackMsg);
 
   // Wait for message to be sent
-  TEST_TRUE(MyObserver->TxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
   // No more messages should have been sent
   TEST_FALSE(MyObserver->TxSem.TryWait());
@@ -93,7 +93,7 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Wait for message to be received
-  TEST_TRUE(MyObserver->RxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
 
   // No more messages should be waiting
   TEST_FALSE(MyObserver->RxSem.TryWait());
@@ -112,7 +112,7 @@ zMessageTest_MessageSocket(void* arg_)
   delete (byeMsg);
 
   // Wait for message to be sent
-  TEST_TRUE(MyObserver->TxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
   // No more messages should have been sent
   TEST_FALSE(MyObserver->TxSem.TryWait());
@@ -121,7 +121,7 @@ zMessageTest_MessageSocket(void* arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Wait for message to be received
-  TEST_TRUE(MyObserver->RxSem.TimedWait(10000));
+  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
 
   // No more messages should be waiting
   TEST_FALSE(MyObserver->RxSem.TryWait());

@@ -94,7 +94,7 @@ Timer::~Timer()
   } // end if
 
   // Wait for lock to be available or timeout
-  this->_lock.TimedLock(100000);
+  this->_lock.TimedLock(100);
 }
 
 void

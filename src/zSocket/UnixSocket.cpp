@@ -165,7 +165,7 @@ UnixSocketSend::Run(zThread::ThreadArg *arg_)
     fds[0].events = (POLLOUT | POLLERR);
 
     // Wait for data to send
-    if (sock->txbuf(p, 100000))
+    if (sock->txbuf(p, 100))
     {
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))

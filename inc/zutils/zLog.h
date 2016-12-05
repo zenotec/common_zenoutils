@@ -33,6 +33,8 @@ namespace zLog
 #define ZLOG_BOOL(b_)   ((b_) ? std::string("true") : std::string("false"))
 #define ZLOG_INT(n_)    zUtils::zLog::IntStr((n_))
 #define ZLOG_UINT(n_)   zUtils::zLog::UintStr((n_))
+#define ZLOG_LONG(n_)   zUtils::zLog::LongStr((n_))
+#define ZLOG_ULONG(n_)  zUtils::zLog::UlongStr((n_))
 #define ZLOG_HEX(x_)    zUtils::zLog::HexStr<typeof(x_)>((x_))
 #define ZLOG_P(p_)      zUtils::zLog::PointerStr((void*)p_)
 

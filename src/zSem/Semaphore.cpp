@@ -25,6 +25,7 @@ namespace zSem
 Semaphore::Semaphore(const uint32_t value_) :
     _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
 {
+
   ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
       ZLOG_UINT(this->_cnt));
   if (this->_cnt != 0)
@@ -77,8 +78,9 @@ Semaphore::Wait()
 
   if (!status)
   {
-    if (this->_empty.Lock() && this->_empty.Unlock())
+    if (this->_empty.Lock())
     {
+      this->_empty.Unlock();
       status = this->TryWait();
     }
   }
@@ -120,15 +122,17 @@ bool
 Semaphore::TimedWait(uint32_t msec_)
 {
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): Count" +
+      ZLOG_UINT(this->_cnt) + "; Time: " + ZLOG_UINT(msec_));
 
   bool status = this->TryWait();
 
   if (!status)
   {
-    if (this->_empty.TimedLock(msec_) && this->_empty.Unlock())
+    std::cout << "Waiting for: " << msec_ << std::endl;
+    if (this->_empty.TimedLock(msec_))
     {
+      this->_empty.Unlock();
       status = this->TryWait();
     }
   }

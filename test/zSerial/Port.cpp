@@ -139,7 +139,7 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   TEST_EQ(sizeof(exp_buf), bytes);
 
   // Verify data was sent
-  for (cnt = 0; MyObserver->TxSem.TimedWait(100000); cnt++)
+  for (cnt = 0; MyObserver->TxSem.TimedWait(100); cnt++)
   {
     TEST_EQ(exp_buf[cnt], MyObserver->TxSem.Front());
     MyObserver->TxSem.Pop();
@@ -147,7 +147,7 @@ zSerialTest_PortSendRecvBuf(void *arg_)
   TEST_EQ(cnt, sizeof(exp_buf));
 
   // Verify data was received
-  for (cnt = 0; MyObserver->RxSem.TimedWait(100000); cnt++)
+  for (cnt = 0; MyObserver->RxSem.TimedWait(100); cnt++)
   {
     TEST_EQ(exp_buf[cnt], MyObserver->RxSem.Front());
     MyObserver->RxSem.Pop();

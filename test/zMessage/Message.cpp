@@ -99,7 +99,6 @@ zMessageTest_MessageCopy(void* arg_)
   TEST_TRUE_MSG(myMessage1->SetType(zMessage::Message::TYPE_DATA), myMessage1->GetJson());
   TEST_TRUE_MSG(myMessage1->SetDst(to), myMessage1->GetJson());
   TEST_TRUE_MSG(myMessage1->SetSrc(from), myMessage1->GetJson());
-  myData.DisplayJson();
   TEST_TRUE_MSG(myMessage1->SetData(myData), myMessage1->GetJson());
 
   // Verify messages are NOT the same

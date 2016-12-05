@@ -20,28 +20,25 @@ namespace zSem
 
 Mutex::Mutex(Mutex::STATE state_)
 {
-  ZLOG_DEBUG("Create mutex: " + ZLOG_P(this));
-  if (state_ == Mutex::UNLOCKED)
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+  if (state_ == Mutex::LOCKED)
   {
-    this->_lock.unlock();
+    this->_lock.lock();
   }
 }
 
 Mutex::~Mutex()
 {
-//  ZLOG_DEBUG("Delete mutex: " + ZLOG_P(this));
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")"); // TODO: Causes segfault
 }
 
 bool
 Mutex::Lock()
 {
   bool status = false;
-  ZLOG_DEBUG("Lock mutex: " + ZLOG_P(this));
-//  if (!this->_lock.owns_lock())
-//  {
-    this->_lock.lock();
-    status = true;
-//  }
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+  this->_lock.lock();
+  status = true;
   return (status);
 }
 
@@ -49,11 +46,9 @@ bool
 Mutex::TryLock()
 {
   bool status = false;
-  ZLOG_DEBUG("Try to lock mutex: " + ZLOG_P(this));
-//  if (!this->_lock.owns_lock())
-//  {
-    status = this->_lock.try_lock();
-//  }
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+  status = this->_lock.try_lock();
+  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
@@ -61,24 +56,19 @@ bool
 Mutex::TimedLock(uint32_t msec_)
 {
   bool status = false;
-  ZLOG_DEBUG("Waiting for mutex(" + ZLOG_P(this) + "): " + ZLOG_UINT(msec_) + " ms(s)");
-//  if (!this->_lock.owns_lock())
-//  {
-    status = TIMED_LOCK(this->_lock, msec_);
-//  }
+  ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_UINT(msec_) + " ms(s)");
+  status = TIMED_LOCK(this->_lock, msec_);
+  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
 bool
 Mutex::Unlock()
 {
-  ZLOG_DEBUG("Unlock mutex: " + ZLOG_P(this));
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
   bool status = false;
-//  if (this->_lock.owns_lock())
-//  {
-    this->_lock.unlock();
-    status = true;
-//  }
+  this->_lock.unlock();
+  status = true;
   return (status);
 }
 

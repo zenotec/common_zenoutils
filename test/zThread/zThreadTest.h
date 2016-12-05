@@ -20,15 +20,44 @@ int
 zThreadTest_RunOnce(void* arg_);
 int
 zThreadTest_RunMultiple(void* arg_);
+int
+zThreadTest_Synchronize(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
 
+class TestThreadArg : public zThread::ThreadArg, public zSem::Semaphore
+{
+public:
+
+  TestThreadArg(void* id_, const std::string& name_, long cnt_) :
+      Id(id_), Name(name_), LoopCnt(cnt_), ErrorCnt(0)
+  {
+    ZLOG_DEBUG(Name + "(" + ZLOG_P(this) + "): " + ZLOG_P(Id));
+  }
+
+  virtual
+  ~TestThreadArg()
+  {
+    ZLOG_DEBUG(Name + "(" + ZLOG_P(this) + "): " + ZLOG_P(Id));
+  }
+
+  void* Id;
+  std::string Name;
+  long LoopCnt;
+  long ErrorCnt;
+
+protected:
+
+private:
+
+};
+
 class TestFunction : public zThread::ThreadFunction
 {
 public:
-  TestFunction(int cnt_ = 1) :
-      _cnt(cnt_)
+  TestFunction() :
+      _other(NULL)
   {
   }
 
@@ -37,43 +66,71 @@ public:
   {
   }
 
-  int
-  GetCount()
+  TestThreadArg*
+  GetSyncArg()
   {
-    return (this->_cnt);
+    return (this->_other);
   }
 
   bool
-  SetCount(int cnt_)
+  SetSyncArg(TestThreadArg* arg_)
   {
-    this->_cnt = cnt_;
+    this->_other = arg_;
     return (true);
   }
 
   virtual void
   Run(zThread::ThreadArg *arg_)
   {
-    while (!this->Exit() && this->_cnt)
+    TestThreadArg* arg = (TestThreadArg*) arg_;
+
+    if (arg == NULL)
     {
-      this->_cnt--;
-      usleep(100000);
+      ZLOG_ERR("(" + ZLOG_P(arg->Id) + "): NULL argument");
+      return;
     }
+
+    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Running");
+
+    for (; (!this->Exit() && arg->LoopCnt); arg->LoopCnt--)
+    {
+      ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Count: " +
+          ZLOG_LONG(arg->LoopCnt) + "; Error: " + ZLOG_LONG(arg->ErrorCnt));
+      // Wake up other thread
+      ZLOG_DEBUG("Posting...");
+      if (!arg->Post())
+      {
+        arg->ErrorCnt++;
+        continue;
+      }
+      if (this->_other && !this->_other->TimedWait(100))
+      {
+        arg->ErrorCnt++;
+      }
+    }
+
+    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Finishing");
+    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Count: " +
+        ZLOG_LONG(arg->LoopCnt) + "; Error: " + ZLOG_LONG(arg->ErrorCnt));
   }
 
 private:
 
-  int _cnt;
+  TestThreadArg *_other;
 
 };
 
-class TestThread : public zThread::Thread, public zThread::ThreadArg
+class TestThread : public zThread::Thread
 {
+
+  friend TestFunction;
 
 public:
 
-  TestThread(int loops_) :
-    zThread::Thread(&this->TestFunc, this), TestFunc(loops_)
+  TestThread(const std::string& name_, int loops_) :
+      zThread::Thread(&this->TestFunc, &this->TestArg), TestArg(this, name_, loops_)
   {
+    this->Name(name_);
   }
 
   virtual
@@ -82,11 +139,11 @@ public:
   }
 
   TestFunction TestFunc;
+  TestThreadArg TestArg;
 
 protected:
 
 private:
-
 
 };
 

@@ -1,4 +1,3 @@
-
 #include <list>
 #include <mutex>
 
@@ -26,6 +25,7 @@ main(int argc, const char **argv)
   UTEST_TEST(zThreadTest_Defaults, 0);
   UTEST_TEST(zThreadTest_RunOnce, 0);
   UTEST_TEST(zThreadTest_RunMultiple, 0);
+  UTEST_TEST(zThreadTest_Synchronize, 0);
   UTEST_FINI();
 
 }

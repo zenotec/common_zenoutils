@@ -64,7 +64,7 @@ EchoSerialPort::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-    if (this->txchar(&c, 100000))
+    if (this->txchar(&c, 100))
     {
       this->rxchar(c);
     }

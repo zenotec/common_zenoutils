@@ -259,7 +259,7 @@ InetSocketSend::Run(zThread::ThreadArg *arg_)
   {
 
     // Wait for data to send
-    if (sock->txbuf(p, 100000))
+    if (sock->txbuf(p, 100))
     {
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
@@ -341,7 +341,7 @@ InetSocket::Close()
   // Close socket
   if (this->_sock)
   {
-    if (this->_rx_thread.Join() && this->_tx_thread.Join())
+    if (this->_rx_thread.Stop() && this->_tx_thread.Stop())
     {
       ZLOG_DEBUG("Socket Closed: " + ZLOG_INT(this->_sock));
       close(this->_sock);

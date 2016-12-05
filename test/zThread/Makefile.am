@@ -13,7 +13,8 @@ zThreadUnitTest_SOURCES = \
     valgrind.sh \
     zThreadTest.h \
     UnitTest.cpp \
-    Defaults.cpp
+    Defaults.cpp \
+    Thread.cpp
 
 zThreadUnitTest_LDADD = \
     ${top_builddir}/src/libzutils.la

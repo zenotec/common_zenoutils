@@ -109,7 +109,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_EQ((int)MySock->Send(*DstAddr, ExpStr), (int)ExpStr.size());
 
   // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100000);
+  status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
   zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
   MyObserver->TxSem.Pop();
@@ -119,7 +119,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Wait for packet to be received
-  status = MyObserver->RxSem.TimedWait(100000);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
   zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
   MyObserver->RxSem.Pop();
@@ -223,7 +223,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_EQ((int )MySock1->Send(*DstAddr, expStr), (int )expStr.size());
 
   // Wait for packet to be sent
-  status = MyObserver1->TxSem.TimedWait(100000);
+  status = MyObserver1->TxSem.TimedWait(100);
   TEST_TRUE(status);
   status = MyObserver2->TxSem.TryWait();
   TEST_FALSE(status);
@@ -235,7 +235,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_FALSE(status);
 
   // Wait for packet to be received
-  status = MyObserver2->RxSem.TimedWait(100000);
+  status = MyObserver2->RxSem.TimedWait(100);
   TEST_TRUE(status);
   status = MyObserver1->RxSem.TryWait();
   TEST_FALSE(status);

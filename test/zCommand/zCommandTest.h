@@ -41,7 +41,7 @@ public:
   TestCommand(const std::string &name_ = std::string("")) :
       zCommand::Command(name_)
   {
-    std::cout << "TestCommand::TestCommand() " << std::endl;
+//    std::cout << "TestCommand::TestCommand() " << std::endl;
   }
 
   virtual
@@ -53,7 +53,7 @@ public:
   virtual bool
   Execute(zCommand::Command &cmd_)
   {
-    std::cout << "TestCommand::Execute() " << std::endl;
+//    std::cout << "TestCommand::Execute() " << std::endl;
     std::string output = cmd_.GetName() + ":";
     std::vector<zCommand::CommandOption>opts = cmd_.GetOptions();
     for (int i = 0; i < opts.size(); i++)

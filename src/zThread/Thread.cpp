@@ -77,14 +77,14 @@ Thread::Thread(ThreadFunction *func_, ThreadArg *arg_) :
 Thread::~Thread()
 {
   // Terminate listener thread
-  this->Join();
+  this->Stop();
 }
 
 bool
 Thread::Start()
 {
   bool status = false;
-  if (this->_func)
+  if (this->_func && this->_func->Exit(false))
   {
     ZLOG_DEBUG("Starting thread: " + ZLOG_P(this));
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);

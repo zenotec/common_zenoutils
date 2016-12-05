@@ -158,7 +158,7 @@ LoopSocket::Run(zThread::ThreadArg *arg_)
   while (!this->Exit())
   {
 
-    if (this->txbuf(p, 100000))
+    if (this->txbuf(p, 100))
     {
       ZLOG_DEBUG("Sending packet: " + p.first->Address() +
           "(" + zLog::IntStr(p.second->Size()) + ")");

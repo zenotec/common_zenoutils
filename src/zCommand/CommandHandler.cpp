@@ -80,11 +80,9 @@ CommandHandler::ProcessCommand(zCommand::Command &cmd_)
   std::map<std::string, zCommand::Command *>::iterator it;
   if (this->_lock.Lock())
   {
-    std::cout << "CommandHandler::ProcessCommand(): " << cmd_.GetName() << std::endl;
     it = this->_cmd_table.find(cmd_.GetName());
     if (it != this->_cmd_table.end() && it->second)
     {
-      std::cout << "Executing command: '" << it->first << "'" << std::endl;
       status = it->second->Execute(cmd_);
     }
     else

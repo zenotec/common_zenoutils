@@ -224,35 +224,35 @@ Log::UnregisterConnector(zLog::LogLevel level_)
 void
 Log::LogMsg(const Message &msg_)
 {
-  std::cout << "+" << std::endl;
-  std::cout.flush();
+//  std::cout << "+" << std::endl;
+//  std::cout.flush();
   try
   {
     this->_log_lock.lock();
-    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log lock(" << &this->_log_lock << ")"
-        << std::endl;
-    std::cout.flush();
+//    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log lock(" << &this->_log_lock << ")"
+//        << std::endl;
+//    std::cout.flush();
     if (msg_.GetLevel() <= this->_maxLevel)
     {
       if (this->_connTable[msg_.GetLevel()] != NULL)
       {
-        std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
+//        std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
         this->_connTable[msg_.GetLevel()]->Logger(msg_.GetStr());
       }
     }
-    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log unlock(" << &this->_log_lock << ")"
-        << std::endl;
-    std::cout.flush();
+//    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log unlock(" << &this->_log_lock << ")"
+//        << std::endl;
+//    std::cout.flush();
     this->_log_lock.unlock();
   }
   catch (const std::system_error& e)
   {
-    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << "Caught system error: " << e.what() << std::endl;
-    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
-    std::cout.flush();
+//    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << "Caught system error: " << e.what() << std::endl;
+//    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
+//    std::cout.flush();
   }
-  std::cout << "-" << std::endl;
-  std::cout.flush();
+//  std::cout << "-" << std::endl;
+//  std::cout.flush();
 }
 
 }

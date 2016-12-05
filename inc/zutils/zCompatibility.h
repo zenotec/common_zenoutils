@@ -17,7 +17,10 @@
 #ifndef __ZCOMPATIBILITY_H__
 #define __ZCOMPATIBILITY_H__
 
+
 #if __cplusplus < 201103L
+
+#define CPPVER  std::string("< 201103L")
 
 #include <boost/thread/mutex.hpp>
 #include <boost/interprocess/smart_ptr/unique_ptr.hpp>
@@ -41,6 +44,8 @@
 #include <chrono>
 #include <memory>
 #include <utility>
+
+#define CPPVER  std::string(">= 201103L")
 
 #define MUTEX           std::mutex
 #define TIMED_MUTEX     std::timed_mutex
