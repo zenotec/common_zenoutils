@@ -6,16 +6,17 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-check_PROGRAMS = zLcdUnitTest
+check_PROGRAMS = zDisplayUnitTest
 
-zLcdUnitTest_SOURCES = \
+zDisplayUnitTest_SOURCES = \
     valgrind.sh \
-    zLcdTest.h \
+    zDisplayTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    LcdVar.cpp \
-    Lcd.cpp
+    DisplayBuffer.cpp \
+    DisplayVar.cpp \
+    Display.cpp
 
-zLcdUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+zDisplayUnitTest_LDADD = \
+    ${top_builddir}/lib/libzutils.la
 

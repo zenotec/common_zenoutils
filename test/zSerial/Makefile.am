@@ -17,5 +17,5 @@ zSerialUnitTest_SOURCES = \
     TtyPort.cpp
 
 zSerialUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

@@ -17,7 +17,7 @@ SUBDIRS = \
 	zCommand \
 	zSwitch \
 	zThermo \
-	zLcd
+	zDisplay
 
 
 if COND_VALGRIND
@@ -40,7 +40,7 @@ VALGRIND_TESTS = \
     zCom/valgrind.sh \
     zGpio/valgrind.sh \
     zLed/valgrind.sh \
-    zLcd/valgrind.sh \
+    zDisplay/valgrind.sh \
     zSocket/valgrind.sh
 endif
 
@@ -62,7 +62,7 @@ GCOV_TESTS = \
     zCommand/zCommandUnitTest \
     zSwitch/zSwitchUnitTest \
     zThermo/zThermoUnitTest \
-    zLcd/zLcdUnitTest
+    zDisplay/zDisplayUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)

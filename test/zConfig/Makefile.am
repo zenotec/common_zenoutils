@@ -18,5 +18,5 @@ zConfigUnitTest_SOURCES = \
     Handler.cpp
 
 zConfigUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

@@ -16,5 +16,5 @@ zTimerUnitTest_SOURCES = \
     StartStop.cpp
 
 zTimerUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

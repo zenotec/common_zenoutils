@@ -17,5 +17,5 @@ zNodeUnitTest_SOURCES = \
     Table.cpp
 
 zNodeUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

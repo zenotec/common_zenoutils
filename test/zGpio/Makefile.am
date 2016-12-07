@@ -21,5 +21,5 @@ zGpioUnitTest_SOURCES = \
     Handler.cpp
 
 zGpioUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

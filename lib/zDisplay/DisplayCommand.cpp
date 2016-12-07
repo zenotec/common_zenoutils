@@ -1,5 +1,5 @@
 /*
- * LcdCommand.cpp
+ * DisplayCommand.cpp
  *
  *  Created on: Jan 16, 2016
  *      Author: kmahoney
@@ -23,65 +23,66 @@
 #include <zutils/zMessage.h>
 #include <zutils/zCommand.h>
 
-#include <zutils/zLcd.h>
+#include <zutils/zDisplay.h>
 
 namespace zUtils
 {
-namespace zLcd
+namespace zDisplay
 {
 
-static const std::string LcdUpdateCmdName("update");
-static const std::string LcdClearCmdName("clear");
+static const std::string DisplayUpdateCmdName("update");
+static const std::string DisplayClearCmdName("clear");
 
 //*****************************************************************************
-// zLcd::LcdCommand Class
+// Class: zDisplay::DisplayCommand
 //*****************************************************************************
 
-LcdCommand::LcdCommand(const std::string &name_, zLcd::Lcd &lcd_) :
-    zCommand::Command(name_), _lcd(lcd_)
-{
-}
-
-LcdCommand::~LcdCommand()
+DisplayCommand::DisplayCommand(const std::string &name_, zDisplay::Display &display_) :
+    zCommand::Command(name_), _display(display_)
 {
 }
 
-//*****************************************************************************
-// zLcd::LcdUpdateCmd Class
-//*****************************************************************************
-
-LcdUpdateCmd::LcdUpdateCmd(zLcd::Lcd &lcd_) :
-    zLcd::LcdCommand(LcdUpdateCmdName, lcd_)
+DisplayCommand::~DisplayCommand()
 {
 }
 
-LcdUpdateCmd::~LcdUpdateCmd()
+//*****************************************************************************
+// Class: zDisplay::DisplayUpdateCmd
+//*****************************************************************************
+
+DisplayUpdateCmd::DisplayUpdateCmd(zDisplay::Display &display_) :
+    zDisplay::DisplayCommand(DisplayUpdateCmdName, display_)
+{
+}
+
+DisplayUpdateCmd::~DisplayUpdateCmd()
 {
 }
 
 bool
-LcdUpdateCmd::Execute(const std::string &arg_)
+DisplayUpdateCmd::Execute(const std::string &arg_)
 {
-  return (this->_lcd.Update(arg_));
+  return (false);
 }
 
 //*****************************************************************************
-// zLcd::LcdClearCmd Class
+// Class: zDisplay::DisplayClearCmd
 //*****************************************************************************
 
-LcdClearCmd::LcdClearCmd(zLcd::Lcd &lcd_) :
-    zLcd::LcdCommand(LcdClearCmdName, lcd_)
+DisplayClearCmd::DisplayClearCmd(zDisplay::Display &display_) :
+    zDisplay::DisplayCommand(DisplayClearCmdName, display_)
 {
 }
 
-LcdClearCmd::~LcdClearCmd()
+DisplayClearCmd::~DisplayClearCmd()
 {
 }
 
 bool
-LcdClearCmd::Execute(const std::string &arg_)
+DisplayClearCmd::Execute(const std::string &arg_)
 {
-  return (this->_lcd.Clear());
+  this->_display.Clear();
+  return (true);
 }
 
 }

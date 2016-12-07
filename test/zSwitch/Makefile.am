@@ -15,5 +15,5 @@ zSwitchUnitTest_SOURCES = \
     Defaults.cpp
 
 zSwitchUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

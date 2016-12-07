@@ -71,25 +71,25 @@ AC_SUBST([num_cpus])
 
 AC_CONFIG_FILES([
     Makefile
-      src/Makefile
-        src/zThread/Makefile
-        src/zProgOpt/Makefile
-        src/zLog/Makefile
-        src/zSem/Makefile
-        src/zData/Makefile
-        src/zEvent/Makefile
-        src/zSignal/Makefile
-        src/zTimer/Makefile
-        src/zConfig/Makefile
-        src/zGpio/Makefile
-        src/zLed/Makefile
-        src/zSerial/Makefile
-        src/zSocket/Makefile
-        src/zMessage/Makefile
-        src/zCommand/Makefile
-        src/zSwitch/Makefile
-        src/zThermo/Makefile
-        src/zLcd/Makefile
+      lib/Makefile
+        lib/zThread/Makefile
+        lib/zProgOpt/Makefile
+        lib/zLog/Makefile
+        lib/zSem/Makefile
+        lib/zData/Makefile
+        lib/zEvent/Makefile
+        lib/zSignal/Makefile
+        lib/zTimer/Makefile
+        lib/zConfig/Makefile
+        lib/zGpio/Makefile
+        lib/zLed/Makefile
+        lib/zSerial/Makefile
+        lib/zSocket/Makefile
+        lib/zMessage/Makefile
+        lib/zCommand/Makefile
+        lib/zSwitch/Makefile
+        lib/zThermo/Makefile
+        lib/zDisplay/Makefile
       test/Makefile
         test/zThread/Makefile
         test/zProgOpt/Makefile
@@ -108,7 +108,7 @@ AC_CONFIG_FILES([
         test/zCommand/Makefile
         test/zSwitch/Makefile
         test/zThermo/Makefile
-        test/zLcd/Makefile
+        test/zDisplay/Makefile
 ])
 
 # Boost checks

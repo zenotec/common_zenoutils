@@ -6,9 +6,10 @@ endif
 AM_CPPFLAGS := $(com_incdir) $(BOOST_CPPFLAGS) $(CPPFLAGS_GCOV)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-noinst_LTLIBRARIES = libzLcd.la
+noinst_LTLIBRARIES = libzDisplay.la
 
-libzLcd_la_SOURCES = \
-    Lcd.cpp \
-    LcdVar.cpp \
-    LcdCommand.cpp
+libzDisplay_la_SOURCES = \
+    DisplayBuffer.cpp \
+    DisplayVar.cpp \
+    Display.cpp \
+    DisplayCommand.cpp

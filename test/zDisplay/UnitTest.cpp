@@ -16,17 +16,17 @@
 #include <zutils/zMessage.h>
 #include <zutils/zCommand.h>
 
-#include <zutils/zLcd.h>
+#include <zutils/zDisplay.h>
 
 #include "UnitTest.h"
-#include "zLcdTest.h"
+#include "zDisplayTest.h"
 
 int
 main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zLcdTest.zlog");
+  zUtils::zLog::FileConnector conn("zDisplayTest.zlog");
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
   zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
@@ -36,11 +36,14 @@ main(int argc, const char **argv)
 
   // Test all classes
   UTEST_INIT();
-  UTEST_TEST(zLcdTest_LcdVarDefaults, 0);
-  UTEST_TEST(zLcdTest_LcdDefaults, 0);
-  UTEST_TEST(zLcdTest_LcdVarGetSet, 0);
-  UTEST_TEST(zLcdTest_LcdCreateVar, 0);
-  UTEST_TEST(zLcdTest_LcdUpdate, 0);
+  UTEST_TEST(zDisplayTest_DisplayBufferDefaults, 0);
+  UTEST_TEST(zDisplayTest_DisplayVarDefaults, 0);
+  UTEST_TEST(zDisplayTest_DisplayDefaults, 0);
+  UTEST_TEST(zDisplayTest_DisplayBufferUpdate, 0);
+  UTEST_TEST(zDisplayTest_DisplayBufferCopy, 0);
+  UTEST_TEST(zDisplayTest_DisplayVarGetSet, 0);
+  UTEST_TEST(zDisplayTest_DisplayCreateVar, 0);
+  UTEST_TEST(zDisplayTest_DisplayUpdate, 0);
   UTEST_FINI();
 
   // Exit

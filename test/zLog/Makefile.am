@@ -17,5 +17,5 @@ zLogUnitTest_SOURCES = \
     File.cpp
 
 zLogUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

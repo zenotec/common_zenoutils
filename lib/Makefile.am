@@ -19,7 +19,7 @@ SUBDIRS = \
 	zMessage \
 	zCommand \
 	zSwitch \
-	zLcd \
+	zDisplay \
 	zThermo
 
 if COND_GCOV
@@ -40,12 +40,12 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zData.h \
     $(top_srcdir)/inc/zutils/zCommand.h \
     $(top_srcdir)/inc/zutils/zConfig.h \
+    $(top_srcdir)/inc/zutils/zDisplay.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
     $(top_srcdir)/inc/zutils/zProgOpt.h \
     $(top_srcdir)/inc/zutils/zGpio.h \
     $(top_srcdir)/inc/zutils/zLed.h \
-    $(top_srcdir)/inc/zutils/zLcd.h \
     $(top_srcdir)/inc/zutils/zLog.h \
     $(top_srcdir)/inc/zutils/zMessage.h \
     $(top_srcdir)/inc/zutils/zNode.h \
@@ -71,27 +71,26 @@ libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 #libzutils_la_LIBADD = \
-#    ${top_builddir}/src/zException/libzException.la \
+#    ${top_builddir}/lib/zException/libzException.la \
 #
 
 libzutils_la_LIBADD = \
-    ${top_builddir}/src/zLog/libzLog.la \
-    ${top_builddir}/src/zProgOpt/libzProgOpt.la \
-    ${top_builddir}/src/zSem/libzSem.la \
-    ${top_builddir}/src/zThread/libzThread.la \
-    ${top_builddir}/src/zData/libzData.la \
-    ${top_builddir}/src/zEvent/libzEvent.la \
-    ${top_builddir}/src/zSignal/libzSignal.la \
-    ${top_builddir}/src/zTimer/libzTimer.la \
-    ${top_builddir}/src/zConfig/libzConfig.la \
-    ${top_builddir}/src/zGpio/libzGpio.la \
-    ${top_builddir}/src/zLed/libzLed.la \
-    ${top_builddir}/src/zSerial/libzSerial.la \
-    ${top_builddir}/src/zSocket/libzSocket.la \
-    ${top_builddir}/src/zMessage/libzMessage.la \
-    ${top_builddir}/src/zCommand/libzCommand.la \
-    ${top_builddir}/src/zSwitch/libzSwitch.la \
-    ${top_builddir}/src/zThermo/libzThermo.la \
-    ${top_builddir}/src/zLcd/libzLcd.la
-    
-    
+    ${top_builddir}/lib/zLog/libzLog.la \
+    ${top_builddir}/lib/zProgOpt/libzProgOpt.la \
+    ${top_builddir}/lib/zSem/libzSem.la \
+    ${top_builddir}/lib/zThread/libzThread.la \
+    ${top_builddir}/lib/zData/libzData.la \
+    ${top_builddir}/lib/zEvent/libzEvent.la \
+    ${top_builddir}/lib/zSignal/libzSignal.la \
+    ${top_builddir}/lib/zTimer/libzTimer.la \
+    ${top_builddir}/lib/zConfig/libzConfig.la \
+    ${top_builddir}/lib/zGpio/libzGpio.la \
+    ${top_builddir}/lib/zLed/libzLed.la \
+    ${top_builddir}/lib/zSerial/libzSerial.la \
+    ${top_builddir}/lib/zSocket/libzSocket.la \
+    ${top_builddir}/lib/zMessage/libzMessage.la \
+    ${top_builddir}/lib/zCommand/libzCommand.la \
+    ${top_builddir}/lib/zSwitch/libzSwitch.la \
+    ${top_builddir}/lib/zThermo/libzThermo.la \
+    ${top_builddir}/lib/zDisplay/libzDisplay.la
+

@@ -1,5 +1,5 @@
 /*
- * zLcdTest.h
+ * zDisplayTest.h
  *
  *  Created on: Jan 16, 2016
  *      Author: kmahoney
@@ -10,33 +10,40 @@
 
 #include "UnitTest.h"
 
-#include <zutils/zLcd.h>
+#include <zutils/zDisplay.h>
 
 int
-zLcdTest_LcdVarDefaults(void *arg_);
+zDisplayTest_DisplayBufferDefaults(void *arg_);
 int
-zLcdTest_LcdDefaults(void *arg_);
+zDisplayTest_DisplayVarDefaults(void *arg_);
 int
-zLcdTest_LcdVarGetSet(void *arg_);
+zDisplayTest_DisplayDefaults(void *arg_);
 int
-zLcdTest_LcdCreateVar(void *arg_);
+zDisplayTest_DisplayBufferUpdate(void *arg_);
 int
-zLcdTest_LcdUpdate(void *arg_);
+zDisplayTest_DisplayBufferCopy(void *arg_);
+int
+zDisplayTest_DisplayVarGetSet(void *arg_);
+int
+zDisplayTest_DisplayCreateVar(void *arg_);
+int
+zDisplayTest_DisplayUpdate(void *arg_);
 
 using namespace Test;
 using namespace zUtils;
 
-class TestLcd : public zLcd::Lcd
+class TestDisplay : public zDisplay::Display
 {
 
 public:
 
-  TestLcd()
+  TestDisplay(const size_t cols_, const size_t rows_ = 1) :
+    zDisplay::Display(cols_, rows_)
   {
   }
 
   virtual
-  ~TestLcd()
+  ~TestDisplay()
   {
   }
 
@@ -49,6 +56,12 @@ public:
 protected:
 
 private:
+
+  virtual bool
+  update(const zDisplay::DisplayBuffer& buf_)
+  {
+    return(false);
+  }
 
   std::string _buf;
   virtual bool

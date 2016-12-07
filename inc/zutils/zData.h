@@ -6,8 +6,8 @@
 //
 //*****************************************************************************
 
-#ifndef _DATA_H_
-#define _DATA_H_
+#ifndef __ZDATA_H__
+#define __ZDATA_H__
 
 #include <string>
 #include <mutex>
@@ -349,4 +349,4 @@ private:
 }
 }
 
-#endif /* _DATA_H_ */
+#endif /* __ZDATA_H__ */

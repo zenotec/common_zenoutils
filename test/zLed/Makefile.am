@@ -15,5 +15,5 @@ zLedUnitTest_SOURCES = \
     Defaults.cpp
 
 zLedUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

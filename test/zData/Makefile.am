@@ -22,5 +22,5 @@ zDataUnitTest_SOURCES = \
  	Copy.cpp
 
 zDataUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 

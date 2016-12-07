@@ -17,5 +17,5 @@ zThreadUnitTest_SOURCES = \
     Thread.cpp
 
 zThreadUnitTest_LDADD = \
-    ${top_builddir}/src/libzutils.la
+    ${top_builddir}/lib/libzutils.la
 
