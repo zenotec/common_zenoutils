@@ -124,7 +124,9 @@ class TtyTestPort;
 class TtyTestThread : public zThread::ThreadFunction
 {
 public:
+
   TtyTestThread(TtyTestPort *port_);
+
   virtual
   ~TtyTestThread();
 
@@ -179,6 +181,9 @@ public:
     }
 
     this->_slave_dev = std::string(ptsname(this->_master_fd));
+    this->SetDevice(this->_slave_dev);
+
+    this->_thread.Start();
 
   }
 
@@ -186,13 +191,8 @@ public:
   ~TtyTestPort()
   {
     ZLOG_INFO("Destroying TTY test port");
+    this->_thread.Stop();
     close(this->_master_fd);
-  }
-
-  std::string
-  Dev()
-  {
-    return (this->_slave_dev);
   }
 
 protected:

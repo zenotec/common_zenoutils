@@ -98,20 +98,16 @@ Semaphore::TryWait()
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Got lock");
     if (this->_cnt != 0)
     {
-      ZLOG_DEBUG("Not zero");
       this->_cnt--;
       if (this->_cnt == 0)
       {
-        ZLOG_DEBUG("Now zero");
         this->_empty.Lock();
       }
       status = true;
     }
     this->_lock.Unlock();
-    ZLOG_DEBUG("Returned lock");
   }
 
   ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));

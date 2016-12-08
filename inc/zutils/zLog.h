@@ -31,6 +31,8 @@ namespace zLog
 {
 
 #define ZLOG_BOOL(b_)   ((b_) ? std::string("true") : std::string("false"))
+#define ZLOG_CHAR(n_)   zUtils::zLog::CharStr((n_))
+#define ZLOG_UCHAR(n_)  zUtils::zLog::UcharStr((n_))
 #define ZLOG_INT(n_)    zUtils::zLog::IntStr((n_))
 #define ZLOG_UINT(n_)   zUtils::zLog::UintStr((n_))
 #define ZLOG_LONG(n_)   zUtils::zLog::LongStr((n_))
@@ -55,7 +57,12 @@ namespace zLog
 
 enum LogLevel
 {
-  CRIT = 0, ERROR, WARN, INFO, DBG, LAST
+  CRIT = 0,
+  ERROR,
+  WARN,
+  INFO,
+  DBG,
+  LAST
 };
 
 inline std::string

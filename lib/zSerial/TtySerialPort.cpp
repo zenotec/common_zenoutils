@@ -7,6 +7,7 @@
 //*****************************************************************************
 
 #include <string.h>
+#include <errno.h>
 #include <sys/poll.h>
 
 #include <zutils/zLog.h>
@@ -303,7 +304,7 @@ TtyPortSend::Run(zThread::ThreadArg *arg_)
   {
 
     // Wait for data to send
-    if (port->txchar(&c, 100000))
+    if (port->txchar(&c, 100))
     {
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
@@ -402,6 +403,10 @@ TtySerialPort::Open()
           status = true;
         }
       }
+    }
+    else
+    {
+      ZLOG_ERR("Cannot open TTY port " + this->_config.GetDevice() + ": " + std::string(strerror(errno)));
     }
   }
   return (status);
