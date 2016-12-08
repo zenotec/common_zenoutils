@@ -81,7 +81,7 @@ DisplayClearCmd::~DisplayClearCmd()
 bool
 DisplayClearCmd::Execute(const std::string &arg_)
 {
-  this->_display.Clear();
+  this->_display.Buffer.Clear();
   return (true);
 }
 

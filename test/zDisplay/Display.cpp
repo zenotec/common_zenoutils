@@ -65,20 +65,20 @@ zDisplayTest_DisplayUpdate(void *arg_)
   // Create new Display device and verify
   TestDisplay *MyDisplay = new TestDisplay(16, 2);
   TEST_ISNOT_NULL(MyDisplay);
-  TEST_EQ(std::string(""), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("................................"), MyDisplay->GetBuffer());
 
   // Configure Display
   MyDisplay->SetRefresh(60);
 
   // Update Display with string and verify
-  TEST_TRUE(MyDisplay->Update("RPM: ", 0, 0));
+  TEST_EQ(5, MyDisplay->Buffer.Update("RPM: ", 0, 0));
   usleep(100000);
-  TEST_EQ(std::string("RPM: "), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM: ..........................."), MyDisplay->GetBuffer());
 
   // Update Display with string and verify
-  TEST_TRUE(MyDisplay->Update("MPH: ", 0, 1));
+  TEST_EQ(5, MyDisplay->Buffer.Update("MPH: ", 0, 1));
   usleep(100000);
-  TEST_EQ(std::string("RPM: \nMPH: \n"), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM: ...........MPH: ..........."), MyDisplay->GetBuffer());
 
   // Create new Display variable and verify
   zDisplay::DisplayVar *MyVar1 = MyDisplay->CreateVar("rpm", 5);
@@ -92,26 +92,26 @@ zDisplayTest_DisplayUpdate(void *arg_)
   TEST_EQ(5, MyVar1->GetSize());
 
   // Update variable
-  TEST_TRUE(MyVar1->Update(" 9999"));
+  TEST_EQ(5, MyVar1->Update(" 9999"));
   usleep(100000);
-  TEST_EQ(std::string("RPM:  9999\nMPH: \n"), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM:  9999......MPH: ..........."), MyDisplay->GetBuffer());
 
   // Create new Display variable and verify
   zDisplay::DisplayVar *MyVar2 = MyDisplay->CreateVar("mph", 3);
   TEST_ISNOT_NULL(MyVar2);
   TEST_EQ(std::string("mph"), MyVar2->GetName());
   TEST_EQ(std::string(""), MyVar2->GetString());
-  TEST_TRUE(MyVar2->SetRow(0));
+  TEST_TRUE(MyVar2->SetRow(1));
   TEST_EQ(1, MyVar2->GetRow());
   TEST_TRUE(MyVar2->SetColumn(5));
   TEST_EQ(5, MyVar2->GetColumn());
   TEST_EQ(3, MyVar2->GetSize());
 
   // Update variable
-  TEST_TRUE(MyVar1->Update(" 8888"));
-  TEST_TRUE(MyVar2->Update("123"));
+  TEST_EQ(5, MyVar1->Update(" 8888"));
+  TEST_EQ(3, MyVar2->Update("123"));
   usleep(100000);
-  TEST_EQ(std::string("RPM:  8888\nMPH: 123\n"), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM:  8888......MPH: 123........"), MyDisplay->GetBuffer());
 
   // Cleanup
   MyDisplay->DeleteVar(MyVar1);

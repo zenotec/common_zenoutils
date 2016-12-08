@@ -34,12 +34,10 @@ namespace zDisplay
 //*****************************************************************************
 
 Display::Display(const size_t cols_, const size_t rows_) :
-    _disp_lock(zSem::Mutex::LOCKED), DisplayBuffer(cols_, rows_),
-    _update_cmd(*this), _clear_cmd(*this)
+    Buffer(cols_, rows_), _update_cmd(*this), _clear_cmd(*this)
 {
   this->_timer_handler.RegisterObserver(this);
   this->_timer_handler.RegisterEvent(&this->_timer);
-  this->_disp_lock.Unlock();
 }
 
 Display::~Display()
@@ -49,32 +47,41 @@ Display::~Display()
   this->_timer.Stop();
 }
 
-Display&
-Display::operator=(DisplayBuffer &other_)
-{
-  this->operator =(other_);
-  return (*this);
-}
-
-Display&
-Display::operator=(const DisplayBuffer &other_)
-{
-  this->operator =(other_);
-  return (*this);
-}
-
 bool
 Display::RegisterCommands(zCommand::CommandHandler *handler_)
 {
-  handler_->RegisterCommand(&this->_update_cmd);
-  handler_->RegisterCommand(&this->_clear_cmd);
+  bool status = true;
+  status &= handler_->RegisterCommand(&this->_update_cmd);
+  status &= handler_->RegisterCommand(&this->_clear_cmd);
+  return (status);
 }
 
 bool
 Display::UnregisterCommands(zCommand::CommandHandler *handler_)
 {
-  handler_->UnregisterCommand(&this->_update_cmd);
-  handler_->UnregisterCommand(&this->_clear_cmd);
+  bool status = true;
+  status &= handler_->UnregisterCommand(&this->_update_cmd);
+  status &= handler_->UnregisterCommand(&this->_clear_cmd);
+  return (status);
+}
+
+DisplayVar*
+Display::CreateVar(const std::string &name_, const size_t len_)
+{
+  DisplayVar* var = new DisplayVar(name_, len_);
+  if (var)
+  {
+    this->_vars.push_back(var);
+  }
+  return (var);
+}
+
+bool
+Display::DeleteVar(zDisplay::DisplayVar* var_)
+{
+  this->_vars.remove(var_);
+  delete (var_);
+  return (true);
 }
 
 bool
@@ -85,32 +92,7 @@ Display::SetRefresh(const size_t rate_)
   usec = 1000000 / rate_;
   ZLOG_DEBUG("Setting refresh rate to: " + ZLOG_INT(rate_) + "(" + ZLOG_INT(usec) + ")");
   this->_timer.Start(usec);
-}
-
-DisplayVar*
-Display::CreateVar(const std::string &name_, const size_t len_)
-{
-  DisplayVar* var = new DisplayVar(name_, len_);
-  if (var && this->_disp_lock.Lock())
-  {
-    this->_vars.push_back(var);
-    this->_disp_lock.Unlock();
-  }
-  return (var);
-}
-
-bool
-Display::DeleteVar(zDisplay::DisplayVar* var_)
-{
-  bool status = false;
-  if (this->_disp_lock.Lock())
-  {
-    this->_vars.remove(var_);
-    delete (var_);
-    this->_disp_lock.Unlock();
-    status = true;
-  }
-  return (status);
+  return (true);
 }
 
 bool
@@ -127,34 +109,26 @@ Display::EventHandler(const zEvent::EventNotification *notification_)
 
     n = static_cast<const zTimer::TimerNotification *>(notification_);
 
-    if (this->_disp_lock.Lock())
+    ZLOG_DEBUG("Updating display");
+
+    // Copy the display buffer
+    DisplayBuffer buf(this->Buffer);
+
+    // Iterate over all variables and update buffer
+    std::list<zDisplay::DisplayVar*>::iterator it = this->_vars.begin();
+    std::list<zDisplay::DisplayVar*>::iterator end = this->_vars.end();
+    for (; it != end; ++it)
     {
-
-      ZLOG_DEBUG("Updating display");
-
-      // Copy the display buffer
-      DisplayBuffer buf = *this;
-
-      // Iterate over all variables and update buffer
-      std::list<zDisplay::DisplayVar*>::iterator it = this->_vars.begin();
-      std::list<zDisplay::DisplayVar*>::iterator end = this->_vars.end();
-      for (; it != end; ++it)
+      ZLOG_DEBUG((*it)->GetName() + "[" + ZLOG_UINT((*it)->GetRow()) + "][" + ZLOG_UINT((*it)->GetColumn()) + "]: " + (*it)->GetString());
+      if (!buf.Update((*it)->GetString(), (*it)->GetColumn(), (*it)->GetRow()))
       {
-        if (!buf.Update((*it)->GetString(), (*it)->GetColumn(), (*it)->GetRow()))
-        {
-          ZLOG_WARN("Display variable failed to update: " + (*it)->GetName());
-        }
+        ZLOG_WARN("Display variable failed to update: " + (*it)->GetName());
       }
-
-      if (this->update(buf))
-      {
-        status = true;
-        *this = buf;
-      }
-
-      this->_disp_lock.Unlock();
-
     }
+
+    // Update display
+    status = this->update(buf);
+
   }
 
   return (status);

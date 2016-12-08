@@ -8,6 +8,8 @@
 #ifndef _ZLCDTEST_H_
 #define _ZLCDTEST_H_
 
+#include <stdlib.h>
+
 #include "UnitTest.h"
 
 #include <zutils/zDisplay.h>
@@ -38,63 +40,68 @@ class TestDisplay : public zDisplay::Display
 public:
 
   TestDisplay(const size_t cols_, const size_t rows_ = 1) :
-    zDisplay::Display(cols_, rows_)
+    zDisplay::Display(cols_, rows_), _buf(NULL), _buflen(0)
   {
+    this->_buf = (char*)calloc(cols_, rows_);
+    this->_buflen = (cols_ * rows_);
   }
 
   virtual
   ~TestDisplay()
   {
+    if (this->_buf)
+    {
+      free(this->_buf);
+      this->_buf = NULL;
+    }
   }
 
   std::string
   GetBuffer()
   {
-    return (this->_buf);
+    std::string str;
+    for (int i = 0; i < this->_buflen; i++)
+    {
+      if (this->_buf[i])
+      {
+        str += this->_buf[i];
+      }
+      else
+      {
+        str += '.';
+      }
+    }
+    return (str);
   }
 
 protected:
 
 private:
 
-  std::string _buf;
+  char* _buf;
+  int _buflen;
 
   virtual bool
   update(const zDisplay::DisplayBuffer& buf_)
   {
-    this->_buf.clear();
-    for (int row = 0; row < buf_.GetRows(); row++)
+    this->clear();
+    for (int i = 0; i < this->_buflen; i++)
     {
-      ZLOG_DEBUG("Updating display: " + ZLOG_UINT(row) + "," +
-          ZLOG_UINT(this->GetColumns()) + " = " + this->GetString(0, row));
-      this->_buf += this->GetString(0, row);
-      this->_buf += '\n';
+      this->_buf[i] = buf_[i];
     }
     return(true);
   }
 
-  virtual bool
-  _update(std::vector<std::vector<char> > &buf_)
+  void
+  clear()
   {
-    this->_buf.clear();
-    for (int row = 0; row < buf_.size(); row++)
-    {
-      for (int col = 0; col < buf_[row].size(); col++)
-      {
-        ZLOG_DEBUG("Updating display: " + ZLOG_INT(row) + "," + ZLOG_INT(col) + " = " + buf_[row][col]);
-        if (buf_[row][col])
-        {
-          this->_buf += buf_[row][col];
-        }
-      }
-      this->_buf += '\n';
-    }
+    memset(this->_buf, 0, this->_buflen);
   }
 
-  virtual bool
-  _clear()
+  void
+  print()
   {
-    this->_buf.clear();
+    std::cout << this->GetBuffer() << std::endl;
   }
 
 };

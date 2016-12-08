@@ -91,27 +91,27 @@ public:
 
   DisplayBuffer(const size_t cols_, const size_t rows_ = 1);
 
-  DisplayBuffer(DisplayBuffer &other_);
+  DisplayBuffer(DisplayBuffer& other_);
 
-  DisplayBuffer(const DisplayBuffer &other_);
+  DisplayBuffer(const DisplayBuffer& other_);
 
   virtual
   ~DisplayBuffer();
 
   bool
-  operator==(const DisplayBuffer &other_) const;
+  operator==(const DisplayBuffer& other_) const;
 
   bool
-  operator!=(const DisplayBuffer &other_) const;
-
-  DisplayBuffer &
-  operator=(DisplayBuffer &other_);
+  operator!=(const DisplayBuffer& other_) const;
 
   DisplayBuffer&
-  operator=(const DisplayBuffer &other_);
+  operator=(DisplayBuffer& other_);
+
+  DisplayBuffer&
+  operator=(const DisplayBuffer& other_);
 
   char
-  operator [](const size_t i_);
+  operator [](const size_t i_) const;
 
   ssize_t
   GetRows() const;
@@ -131,6 +131,9 @@ public:
   void
   Clear();
 
+  void
+  Print() const;
+
 protected:
 
 private:
@@ -140,6 +143,12 @@ private:
   size_t _rows;
   size_t _cols;
   char* _buffer;
+
+  inline bool
+  _index2rowcol(size_t index_, size_t* row_ = NULL, size_t* col_ = NULL) const;
+
+  inline bool
+  _rowcol2index(size_t row_, size_t col_, size_t* index_ = NULL) const;
 
 };
 
@@ -192,7 +201,7 @@ private:
 // Class: zDisplay::Display
 //*****************************************************************************
 
-class Display : public DisplayBuffer, public zEvent::EventObserver
+class Display : public zEvent::EventObserver
 {
 
 public:
@@ -202,26 +211,22 @@ public:
   virtual
   ~Display();
 
-  Display&
-  operator=(DisplayBuffer &other_);
-
-  Display&
-  operator=(const DisplayBuffer &other_);
-
   bool
   RegisterCommands(zCommand::CommandHandler *handler_);
 
   bool
   UnregisterCommands(zCommand::CommandHandler *handler_);
 
-  bool
-  SetRefresh(const size_t rate_);
-
   DisplayVar*
   CreateVar(const std::string &name_, const size_t len_);
 
   bool
   DeleteVar(zDisplay::DisplayVar* var_);
+
+  bool
+  SetRefresh(const size_t rate_);
+
+  DisplayBuffer Buffer;
 
 protected:
 
@@ -232,8 +237,6 @@ protected:
   update(const DisplayBuffer& buf_) = 0;
 
 private:
-
-  zSem::Mutex _disp_lock;
 
   std::list<DisplayVar*> _vars;
 
