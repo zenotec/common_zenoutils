@@ -37,6 +37,7 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
+    $(top_srcdir)/inc/zutils/zCompatibility.h \
     $(top_srcdir)/inc/zutils/zData.h \
     $(top_srcdir)/inc/zutils/zCommand.h \
     $(top_srcdir)/inc/zutils/zConfig.h \
