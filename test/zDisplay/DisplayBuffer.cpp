@@ -97,11 +97,11 @@ zDisplayTest_DisplayBufferCopy(void *arg_)
   TEST_EQ(std::string(""), MyBuffer1->GetString());
 
   // Create new display buffer and verify
-  zDisplay::DisplayBuffer *MyBuffer2 = new zDisplay::DisplayBuffer(20);
+  zDisplay::DisplayBuffer *MyBuffer2 = new zDisplay::DisplayBuffer(10);
   TEST_ISNOT_NULL(MyBuffer2);
   TEST_EQ(1, MyBuffer2->GetRows());
-  TEST_EQ(20, MyBuffer2->GetColumns());
-  TEST_EQ(20, MyBuffer2->GetSize());
+  TEST_EQ(10, MyBuffer2->GetColumns());
+  TEST_EQ(10, MyBuffer2->GetSize());
   TEST_TRUE(MyBuffer2->GetString().empty());
   TEST_EQ(std::string(""), MyBuffer2->GetString());
 

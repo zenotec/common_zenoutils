@@ -73,10 +73,10 @@ zDisplayTest_DisplayUpdate(void *arg_)
   // Update Display with string and verify
   TEST_TRUE(MyDisplay->Update("RPM: ", 0, 0));
   usleep(100000);
-  TEST_EQ(std::string("RPM: \n\n"), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM: "), MyDisplay->GetBuffer());
 
   // Update Display with string and verify
-  TEST_TRUE(MyDisplay->Update("MPH: ", 1, 0));
+  TEST_TRUE(MyDisplay->Update("MPH: ", 0, 1));
   usleep(100000);
   TEST_EQ(std::string("RPM: \nMPH: \n"), MyDisplay->GetBuffer());
 

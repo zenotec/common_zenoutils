@@ -67,28 +67,52 @@ DisplayBuffer::DisplayBuffer(const DisplayBuffer &other_) :
 bool
 DisplayBuffer::operator==(const DisplayBuffer &other_) const
 {
-  // TODO
-  return(true);
+  bool status = true;
+  status &= (this->GetRows() == other_.GetRows());
+  status &= (this->GetColumns() == other_.GetColumns());
+  status &= (this->GetSize() == other_.GetSize());
+  status &= (memcmp(this->_buffer, other_._buffer, this->GetSize()) == 0);
+  return(status);
 }
 
 bool
 DisplayBuffer::operator!=(const DisplayBuffer &other_) const
 {
-  // TODO
-  return(false);
+  bool status = true;
+  status &= (this->GetRows() == other_.GetRows());
+  status &= (this->GetColumns() == other_.GetColumns());
+  status &= (this->GetSize() == other_.GetSize());
+  status &= (memcmp(this->_buffer, other_._buffer, this->GetSize()) == 0);
+  return(!status);
 }
 
 DisplayBuffer&
 DisplayBuffer::operator=(DisplayBuffer &other_)
 {
-  // TODO
+  if (this->GetSize() < other_.GetSize())
+  {
+    if (this->_buffer)
+    {
+      free(this->_buffer);
+    }
+    this->_buffer = (char*) calloc(other_._rows, other_._cols);
+  }
+  memcpy(this->_buffer, other_._buffer, other_.GetSize());
   return(*this);
 }
 
 DisplayBuffer&
 DisplayBuffer::operator=(const DisplayBuffer &other_)
 {
-  // TODO
+  if (this->GetSize() < other_.GetSize())
+  {
+    if (this->_buffer)
+    {
+      free(this->_buffer);
+    }
+    this->_buffer = (char*) calloc(other_._rows, other_._cols);
+  }
+  memcpy(this->_buffer, other_._buffer, other_.GetSize());
   return(*this);
 }
 
@@ -169,6 +193,7 @@ DisplayBuffer::Update(const std::string& str_, const size_t col_, const size_t r
     char* p = &this->_buffer[row_ * this->_cols];
     for (size = 0, col = col_; ((size < str_.size()) && (col < this->_cols)); size++, col++)
     {
+      std::cout << "Update[" << row_ << "][" << col << "]: " << str_[size] << std::endl;
       p[col] = str_[size];
     }
     this->_buffer_lock.Unlock();

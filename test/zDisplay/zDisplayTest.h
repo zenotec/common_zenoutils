@@ -57,13 +57,22 @@ protected:
 
 private:
 
+  std::string _buf;
+
   virtual bool
   update(const zDisplay::DisplayBuffer& buf_)
   {
-    return(false);
+    this->_buf.clear();
+    for (int row = 0; row < buf_.GetRows(); row++)
+    {
+      ZLOG_DEBUG("Updating display: " + ZLOG_UINT(row) + "," +
+          ZLOG_UINT(this->GetColumns()) + " = " + this->GetString(0, row));
+      this->_buf += this->GetString(0, row);
+      this->_buf += '\n';
+    }
+    return(true);
   }
 
-  std::string _buf;
   virtual bool
   _update(std::vector<std::vector<char> > &buf_)
   {
