@@ -56,6 +56,20 @@ MessageNotification::id(MessageNotification::ID id_)
   return (true);
 }
 
+const zSocket::SocketAddress&
+MessageNotification::SrcAddr() const
+{
+  return(this->_addr);
+}
+
+bool
+MessageNotification::srcaddr(zSocket::SocketAddress& addr_)
+{
+  this->_addr = addr_;
+  return(true);
+}
+
+
 zMessage::MessageSocket*
 MessageNotification::Sock() const
 {

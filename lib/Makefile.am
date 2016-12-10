@@ -37,10 +37,11 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
-    $(top_srcdir)/inc/zutils/zCompatibility.h \
-    $(top_srcdir)/inc/zutils/zData.h \
     $(top_srcdir)/inc/zutils/zCommand.h \
+    $(top_srcdir)/inc/zutils/zCommandMessage.h \
+    $(top_srcdir)/inc/zutils/zCompatibility.h \
     $(top_srcdir)/inc/zutils/zConfig.h \
+    $(top_srcdir)/inc/zutils/zData.h \
     $(top_srcdir)/inc/zutils/zDisplay.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
@@ -49,6 +50,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zLed.h \
     $(top_srcdir)/inc/zutils/zLog.h \
     $(top_srcdir)/inc/zutils/zMessage.h \
+    $(top_srcdir)/inc/zutils/zMessageSocket.h \
     $(top_srcdir)/inc/zutils/zNode.h \
     $(top_srcdir)/inc/zutils/zQueue.h \
     $(top_srcdir)/inc/zutils/zSem.h \

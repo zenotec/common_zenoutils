@@ -82,6 +82,9 @@ public:
   MessageNotification::ID
   Id() const;
 
+  const zSocket::SocketAddress&
+  SrcAddr() const;
+
   zMessage::MessageSocket*
   Sock() const;
 
@@ -94,11 +97,15 @@ protected:
   id(MessageNotification::ID id_);
 
   bool
+  srcaddr(zSocket::SocketAddress& addr_);
+
+  bool
   message(zMessage::Message* msg_);
 
 private:
 
   MessageNotification::ID _id;
+  zSocket::SocketAddress _addr;
   zMessage::Message* _msg;
 
 };
