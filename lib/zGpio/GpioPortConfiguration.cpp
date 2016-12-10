@@ -1,10 +1,18 @@
-//*****************************************************************************
-//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
-//
-//    File:
-//    Description:
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <string>
 #include <list>
@@ -41,12 +49,14 @@ const std::string GpioConfiguration::ConfigUnexportFilenamePath("UnexportFilenam
 const std::string GpioConfiguration::ConfigUnexportFilenameDefault("/sys/class/gpio/unexport");
 
 const std::string GpioConfiguration::ConfigDirectionFilenamePath("DirectionFilename");
-const std::string GpioConfiguration::ConfigDirectionFilenameDefault("/sys/class/gpio/gpio%d/direction");
+const std::string GpioConfiguration::ConfigDirectionFilenameDefault(
+    "/sys/class/gpio/gpio%d/direction");
 
 const std::string GpioConfiguration::ConfigDirectionValuePath("Direction");
 const std::string GpioConfiguration::ConfigDirectionValueIn("in");
 const std::string GpioConfiguration::ConfigDirectionValueOut("out");
-const std::string GpioConfiguration::ConfigDirectionValueDefault(GpioConfiguration::ConfigDirectionValueIn);
+const std::string GpioConfiguration::ConfigDirectionValueDefault(
+    GpioConfiguration::ConfigDirectionValueIn);
 
 const std::string GpioConfiguration::ConfigStateFilenamePath("StateFilename");
 const std::string GpioConfiguration::ConfigStateFilenameDefault("/sys/class/gpio/gpio%d/value");
@@ -54,7 +64,8 @@ const std::string GpioConfiguration::ConfigStateFilenameDefault("/sys/class/gpio
 const std::string GpioConfiguration::ConfigStateValuePath("State");
 const std::string GpioConfiguration::ConfigStateValueActive("1");
 const std::string GpioConfiguration::ConfigStateValueInactive("0");
-const std::string GpioConfiguration::ConfigStateValueDefault(GpioConfiguration::ConfigStateValueInactive);
+const std::string GpioConfiguration::ConfigStateValueDefault(
+    GpioConfiguration::ConfigStateValueInactive);
 
 const std::string GpioConfiguration::ConfigEdgeFilenamePath("EdgeFilename");
 const std::string GpioConfiguration::ConfigEdgeFilenameDefault("/sys/class/gpio/gpio%d/edge");

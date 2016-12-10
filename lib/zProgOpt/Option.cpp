@@ -1,15 +1,19 @@
-//*****************************************************************************
-//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
-//
-//    File:
-//    Description:
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-#include <stdio.h>
-
-#include <iostream>
-#include <sstream>
 
 #include <zutils/zProgOpt.h>
 
@@ -20,8 +24,8 @@ namespace zProgOpt
 
 //*****************************************************************************
 //*****************************************************************************
-Option::Option(uint32_t flags_, const std::string &name_) :
-    _cnt(0), _flags(Option::FLAGS_NONE), _name(name_)
+Option::Option(uint32_t flags_) :
+    _cnt(0), _flags(Option::FLAGS_NONE), _short_name(0)
 {
   this->_setFlags(flags_);
 }
@@ -36,10 +40,30 @@ Option::Flags() const
   return (this->_flags);
 }
 
-std::string
-Option::Name() const
+const char
+Option::ShortName() const
 {
-  return (this->_name);
+  return (this->_short_name);
+}
+
+bool
+Option::ShortName (const char name_)
+{
+  this->_short_name = name_;
+  return(true);
+}
+
+std::string
+Option::LongName() const
+{
+  return (this->_long_name);
+}
+
+bool
+Option::LongName (const std::string& name_)
+{
+  this->_long_name = name_;
+  return(true);
 }
 
 std::string
@@ -53,37 +77,6 @@ Option::HelpMsg(const std::string &msg_)
 {
   this->_help = msg_;
 }
-
-template<typename T>
-  bool
-  Option::Default(T default_)
-  {
-    std::stringstream ss;
-    ss << default_;
-    this->_arg = ss.str();
-    return (true);
-  }
-
-template bool
-Option::Default(std::string default_);
-template bool
-Option::Default(int default_);
-template bool
-Option::Default(unsigned int default_);
-template bool
-Option::Default(double default_);
-
-template<typename T>
-  T
-  Option::Arg()
-  {
-    T arg;
-    this->_getArg(arg);
-    return (arg);
-  }
-
-template std::string
-Option::Arg();
 
 void
 Option::_getArg(std::string &arg_)

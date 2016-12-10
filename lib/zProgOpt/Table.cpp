@@ -1,10 +1,18 @@
-//*****************************************************************************
-//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
-//
-//    File:
-//    Description:
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <libgen.h>
 
@@ -38,7 +46,7 @@ bool
 Table::AddOption(const Option &opt_)
 {
   bool ret = true;
-  this->_opts[opt_.Name()] = opt_;
+  this->_opts[opt_.LongName()] = opt_;
   return (ret);
 }
 
@@ -49,8 +57,7 @@ Table::Parse(int argc_, const char **argv_)
 
   std::string program(argv_[0]);
 
-  this->_usage = std::string("USAGE: ");
-  this->_usage += program.substr(program.find_last_of("/\\") + 1) + std::string("\n");
+  this->_name = program.substr(program.find_last_of("/\\") + 1);
 
   for (int arg = 0; arg < argc_; arg++)
   {
@@ -81,6 +88,63 @@ Table::Parse(int argc_, const char **argv_)
   return (true);
 }
 
+std::string
+Table::Name()
+{
+  return (this->_name);
+}
+
+std::string
+Table::Usage()
+{
+
+  std::string usage;
+  std::map<std::string, Option>::iterator it = this->_opts.begin();
+  std::map<std::string, Option>::iterator end = this->_opts.end();
+
+  usage = std::string("USAGE: ") + this->_name + std::string("\n");
+
+  for (; it != end; ++it)
+  {
+
+    usage += std::string("\t");
+
+    if (isprint(it->second.ShortName()))
+    {
+      usage += std::string("-") + it->second.ShortName();
+      if (!it->second.LongName().empty())
+      {
+        usage += std::string(",");
+      }
+      else
+      {
+        usage += std::string("\t");
+      }
+    }
+
+    if (!it->second.LongName().empty())
+    {
+      usage += std::string("--") + it->second.LongName() + std::string("\t");
+    }
+
+    if (it->second.Flags() & Option::FLAGS_HAVEARG)
+    {
+      if (!(it->second.Flags() & Option::FLAGS_ARG_ISOPTIONAL))
+      {
+        usage += std::string("arg");
+      }
+      else
+      {
+        usage += std::string("[ arg ]");
+      }
+    }
+    usage += std::string("\t");
+
+    usage += it->second.HelpMsg() + "\n";
+  }
+  return (usage);
+}
+
 ssize_t
 Table::Count(const std::string& opt_)
 {
@@ -91,31 +155,6 @@ Table::Count(const std::string& opt_)
     cnt = opt->_cnt;
   }
   return (cnt);
-}
-
-std::string
-Table::Usage()
-{
-  std::map<std::string, Option>::iterator it;
-  for (it = this->_opts.begin(); it != this->_opts.end(); ++it)
-  {
-    this->_usage += std::string("\t") + it->second.Name() + std::string("\t");
-    if (it->second.Flags() & Option::FLAGS_HAVEARG)
-    {
-      if (!(it->second.Flags() & Option::FLAGS_ARG_ISOPTIONAL))
-      {
-        this->_usage += std::string("arg");
-      }
-      else
-      {
-        this->_usage += std::string("[ arg ]");
-      }
-    }
-    this->_usage += std::string("\t");
-
-    this->_usage += it->second.HelpMsg() + "\n";
-  }
-  return (this->_usage);
 }
 
 std::string
@@ -131,10 +170,20 @@ Table::_find_opt(const std::string &opt_)
   std::map<std::string, Option>::iterator it;
   for (it = this->_opts.begin(); it != this->_opts.end(); ++it)
   {
-    if (it->second.Name() == opt_)
+    if (opt_.size() == 1)
     {
-      ret = &it->second;
-    } // end if
+      if (it->second.ShortName() == opt_[0])
+      {
+        ret = &it->second;
+      }
+    }
+    else
+    {
+      if (it->second.LongName() == opt_)
+      {
+        ret = &it->second;
+      } // end if
+    }
   } // end if
   return (ret);
 }

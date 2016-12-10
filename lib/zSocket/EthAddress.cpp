@@ -1,8 +1,18 @@
-//*****************************************************************************
-//
-//
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -26,7 +36,7 @@ std::string
 EthAddress::GetHwAddrStr() const
 {
   char addr[18] =
-  { 0};
+      { 0 };
   sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
       this->_hwaddr[2], this->_hwaddr[3], this->_hwaddr[4], this->_hwaddr[5]);
   return (std::string(addr));
@@ -57,7 +67,7 @@ EthAddress::~EthAddress()
 
 bool
 EthAddress::operator ==(const EthAddress &other_) const
-{
+    {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
       && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
       && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
@@ -66,7 +76,7 @@ EthAddress::operator ==(const EthAddress &other_) const
 
 bool
 EthAddress::operator !=(const EthAddress &other_) const
-{
+    {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
       && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
       && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
@@ -75,7 +85,7 @@ EthAddress::operator !=(const EthAddress &other_) const
 
 bool
 EthAddress::operator <(const EthAddress &other_) const
-{
+    {
   if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
   {
     if (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
@@ -95,7 +105,7 @@ EthAddress::operator <(const EthAddress &other_) const
 
 bool
 EthAddress::operator >(const EthAddress &other_) const
-{
+    {
   if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
   {
     if (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)

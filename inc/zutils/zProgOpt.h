@@ -1,17 +1,28 @@
-//*****************************************************************************
-//    Copyright (C) 2016 ZenoTec LLC (http://www.zenotec.net)
-//
-//    File:
-//    Description:
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #ifndef __ZPROGOPT_H__
 #define __ZPROGOPT_H__
 
 #include <stdint.h>
 #include <unistd.h>
+#include <stdio.h>
 
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -40,7 +51,7 @@ public:
     FLAGS_LAST = (1 << 2),
   };
 
-  Option(uint32_t flags_ = Option::FLAGS_NONE, const std::string &name_ = std::string(""));
+  Option(uint32_t flags_ = Option::FLAGS_NONE);
 
   virtual
   ~Option();
@@ -48,12 +59,26 @@ public:
   uint32_t
   Flags() const;
 
+  const char
+  ShortName() const;
+
+  bool
+  ShortName(const char name_);
+
   std::string
-  Name() const;
+  LongName() const;
+
+  bool
+  LongName(const std::string& name_);
 
   template<typename T>
     T
-    Arg();
+    Arg()
+    {
+      T arg;
+      this->_getArg(arg);
+      return (arg);
+    }
 
   std::string
   HelpMsg() const;
@@ -63,7 +88,13 @@ public:
 
   template<typename T>
     bool
-    Default(T default_);
+    Default(T default_)
+    {
+      std::stringstream ss;
+      ss << default_;
+      this->_arg = ss.str();
+      return (true);
+    }
 
 protected:
 
@@ -90,7 +121,8 @@ private:
   _getArg(double &arg_);
 
   uint32_t _flags;
-  std::string _name;
+  char _short_name;
+  std::string _long_name;
   std::string _help;
   std::string _arg;
 
@@ -111,14 +143,17 @@ public:
   bool
   AddOption(const Option &opt_);
 
+  std::string
+  Name();
+
+  std::string
+  Usage();
+
   bool
   Parse(int argc_, const char **argv_);
 
   ssize_t
   Count(const std::string &opt_);
-
-  std::string
-  Usage();
 
   std::string
   ErrorString();
@@ -130,7 +165,7 @@ private:
   Option *
   _find_opt(const std::string &opt_);
 
-  std::string _usage;
+  std::string _name;
   std::string _errStr;
   std::map<std::string, Option> _opts;
 
@@ -139,4 +174,4 @@ private:
 }
 }
 
-#endif
+#endif /* __ZPROGOPT_H__ */

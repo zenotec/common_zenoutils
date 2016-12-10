@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -24,74 +40,76 @@
 using namespace Test;
 using namespace zUtils;
 
-int zSocketTest_UnixAddressGetSet(void* arg_)
+int
+zSocketTest_UnixAddressGetSet(void* arg_)
 {
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_UnixAddressGetSet()");
-    ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSocketTest_UnixAddressGetSet()");
+  ZLOG_DEBUG("#############################################################");
 
-    // Create new socket address and validate
-    UnixAddress myAddr;
-    TEST_EQ(SocketType::TYPE_UNIX, myAddr.Type());
-    TEST_EQ(std::string(""), myAddr.Address());
+  // Create new socket address and validate
+  UnixAddress myAddr;
+  TEST_EQ(SocketType::TYPE_UNIX, myAddr.Type());
+  TEST_EQ(std::string(""), myAddr.Address());
 
-    // Set socket address
-    TEST_TRUE(myAddr.Address(std::string("unix")));
-    TEST_EQ(std::string("unix"), myAddr.Address());
+  // Set socket address
+  TEST_TRUE(myAddr.Address(std::string("unix")));
+  TEST_EQ(std::string("unix"), myAddr.Address());
 
-    // Return success
-    return (0);
+  // Return success
+  return (0);
 
 }
 
-int zSocketTest_UnixAddressCompare(void* arg_)
+int
+zSocketTest_UnixAddressCompare(void* arg_)
 {
 
-    ZLOG_DEBUG("#############################################################");
-    ZLOG_DEBUG("# zSocketTest_UnixAddressCompare()");
-    ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSocketTest_UnixAddressCompare()");
+  ZLOG_DEBUG("#############################################################");
 
-    // Create new socket address and validate
-    UnixAddress myAddr1;
-    TEST_EQ(SocketType::TYPE_UNIX, myAddr1.Type());
-    TEST_EQ(std::string(""), myAddr1.Address());
+  // Create new socket address and validate
+  UnixAddress myAddr1;
+  TEST_EQ(SocketType::TYPE_UNIX, myAddr1.Type());
+  TEST_EQ(std::string(""), myAddr1.Address());
 
-    // Create second socket address and validate
-    UnixAddress myAddr2;
-    TEST_EQ(SocketType::TYPE_UNIX, myAddr2.Type());
-    TEST_EQ(std::string(""), myAddr2.Address());
+  // Create second socket address and validate
+  UnixAddress myAddr2;
+  TEST_EQ(SocketType::TYPE_UNIX, myAddr2.Type());
+  TEST_EQ(std::string(""), myAddr2.Address());
 
-    // Compare address (match)
-    TEST_TRUE(myAddr1 == myAddr2);
-    TEST_FALSE(myAddr1 != myAddr2);
+  // Compare address (match)
+  TEST_TRUE(myAddr1 == myAddr2);
+  TEST_FALSE(myAddr1 != myAddr2);
 
-    // Set socket address
-    myAddr1.Address("unix");
-    TEST_EQ(std::string("unix"), myAddr1.Address());
+  // Set socket address
+  myAddr1.Address("unix");
+  TEST_EQ(std::string("unix"), myAddr1.Address());
 
-    // Compare address (no match)
-    TEST_FALSE(myAddr1 == myAddr2);
-    TEST_TRUE(myAddr1 != myAddr2);
+  // Compare address (no match)
+  TEST_FALSE(myAddr1 == myAddr2);
+  TEST_TRUE(myAddr1 != myAddr2);
 
-    // Set socket address
-    myAddr2.Address("unix");
-    TEST_EQ(std::string("unix"), myAddr2.Address());
+  // Set socket address
+  myAddr2.Address("unix");
+  TEST_EQ(std::string("unix"), myAddr2.Address());
 
-    // Compare address (match)
-    TEST_TRUE(myAddr1 == myAddr2);
-    TEST_FALSE(myAddr1 != myAddr2);
+  // Compare address (match)
+  TEST_TRUE(myAddr1 == myAddr2);
+  TEST_FALSE(myAddr1 != myAddr2);
 
-    // Set socket address
-    myAddr1.Address("");
-    TEST_EQ(std::string(""), myAddr1.Address());
+  // Set socket address
+  myAddr1.Address("");
+  TEST_EQ(std::string(""), myAddr1.Address());
 
-    // Compare address (no match)
-    TEST_FALSE(myAddr1 == myAddr2);
-    TEST_TRUE(myAddr1 != myAddr2);
+  // Compare address (no match)
+  TEST_FALSE(myAddr1 == myAddr2);
+  TEST_TRUE(myAddr1 != myAddr2);
 
-    // Return success
-    return (0);
+  // Return success
+  return (0);
 
 }
 

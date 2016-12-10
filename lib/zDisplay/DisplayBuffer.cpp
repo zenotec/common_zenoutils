@@ -1,8 +1,17 @@
 /*
- * Lcd.cpp
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
- *  Created on: Jan 16, 2016
- *      Author: kmahoney
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <signal.h>
@@ -78,7 +87,7 @@ DisplayBuffer::DisplayBuffer(const DisplayBuffer &other_) :
 
 bool
 DisplayBuffer::operator==(const DisplayBuffer &other_) const
-{
+    {
   bool status = false;
   if ((status = this->_buffer_lock.Lock()))
   {
@@ -93,7 +102,7 @@ DisplayBuffer::operator==(const DisplayBuffer &other_) const
 
 bool
 DisplayBuffer::operator!=(const DisplayBuffer &other_) const
-{
+    {
   bool status = false;
   if ((status = this->_buffer_lock.Lock()))
   {
@@ -166,7 +175,7 @@ DisplayBuffer::operator=(const DisplayBuffer &other_)
 
 char
 DisplayBuffer::operator [](const size_t i_) const
-{
+    {
   char c = 0;
   if (this->_buffer_lock.Lock())
   {
@@ -217,7 +226,7 @@ DisplayBuffer::GetSize() const
 
 std::string
 DisplayBuffer::GetString(const size_t col_, const size_t row_) const
-{
+    {
   size_t index = 0;
   std::string str;
 
@@ -225,7 +234,8 @@ DisplayBuffer::GetString(const size_t col_, const size_t row_) const
   {
     while (this->_index2rowcol(index) && this->_buffer[index])
     {
-      ZLOG_DEBUG("[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) + "][" + ZLOG_UINT(index) + "]: " + this->_buffer[index]);
+      ZLOG_DEBUG(
+          "[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) + "][" + ZLOG_UINT(index) + "]: " + this->_buffer[index]);
       str += this->_buffer[index++];
     }
     this->_buffer_lock.Unlock();
@@ -244,7 +254,8 @@ DisplayBuffer::Update(const std::string& str_, const size_t col_, const size_t r
     size = 0;
     while (this->_index2rowcol(index) && (size < str_.size()))
     {
-      ZLOG_DEBUG("[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) + "][" + ZLOG_UINT(index) + "]: " + str_[size]);
+      ZLOG_DEBUG(
+          "[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) + "][" + ZLOG_UINT(index) + "]: " + str_[size]);
       this->_buffer[index++] = str_[size++];
     }
     this->_buffer_lock.Unlock();
@@ -294,7 +305,7 @@ DisplayBuffer::Clear()
 
 bool
 DisplayBuffer::_index2rowcol(size_t index_, size_t* row_, size_t* col_) const
-{
+    {
   // Assume callers have obtained lock
   bool status = false;
   if (index_ < (this->_rows * this->_cols))
@@ -314,7 +325,7 @@ DisplayBuffer::_index2rowcol(size_t index_, size_t* row_, size_t* col_) const
 
 bool
 DisplayBuffer::_rowcol2index(size_t row_, size_t col_, size_t* index_) const
-{
+    {
   // Assume callers have obtained lock
   bool status = false;
   if ((row_ < this->_rows) && (col_ < this->_cols))

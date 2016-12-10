@@ -1,8 +1,18 @@
-//*****************************************************************************
-//
-//
-//
-//*****************************************************************************
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -60,8 +70,8 @@ bool
 InetAddress::operator ==(const InetAddress &other_) const
 {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
-      && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
-      && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
+  && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
+  && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
   return (same);
 }
 
@@ -69,8 +79,8 @@ bool
 InetAddress::operator !=(const InetAddress &other_) const
 {
   bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
-      && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
-      && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
+  && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
+  && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
   return (!same);
 }
 
@@ -117,7 +127,8 @@ InetAddress::operator >(const InetAddress &other_) const
 bool
 InetAddress::SetAddr(const std::string& addr_)
 {
-  char ip[INET_ADDRSTRLEN] = { 0 };
+  char ip[INET_ADDRSTRLEN] =
+  { 0};
   int port = 0;
   int ret = 0;
 
@@ -173,7 +184,8 @@ InetAddress::GetHwAddr() const
 std::string
 InetAddress::GetHwAddrStr() const
 {
-  char addr[18] = { 0 };
+  char addr[18] =
+  { 0};
   sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
       this->_hwaddr[2], this->_hwaddr[3], this->_hwaddr[4], this->_hwaddr[5]);
   return (std::string(addr));
@@ -188,7 +200,8 @@ InetAddress::GetIpAddr() const
 std::string
 InetAddress::GetIpAddrStr() const
 {
-  char ip[INET_ADDRSTRLEN] = { 0 };
+  char ip[INET_ADDRSTRLEN] =
+  { 0};
   inet_ntop(AF_INET, &this->_ipaddr.sin_addr, ip, INET_ADDRSTRLEN);
   return (std::string(ip));
 }
@@ -202,7 +215,8 @@ InetAddress::GetPort()
 std::string
 InetAddress::GetPortStr()
 {
-  char port[6] = { 0 };
+  char port[6] =
+  { 0};
   sprintf(port, "%d", ntohs(this->_ipaddr.sin_port));
   return (std::string(port));
 }

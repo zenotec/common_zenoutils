@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "zProgOptTest.h"
 
 using namespace Test;
@@ -8,8 +24,9 @@ zOptTest_OptionString(void* arg_)
 {
   // Create new option and validate
   zProgOpt::Option opt_f(
-      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL), "f");
-  TEST_EQ(std::string("f"), opt_f.Name());
+      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL));
+  TEST_EQ('\0', opt_f.ShortName());
+  TEST_EQ(std::string(""), opt_f.LongName());
   TEST_EQ(std::string(""), opt_f.HelpMsg());
   TEST_EQ(std::string(""), opt_f.Arg<std::string>());
 
@@ -27,8 +44,9 @@ zOptTest_OptionInt(void* arg_)
 {
   // Create new option and validate
   zProgOpt::Option opt_f(
-      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL), "f");
-  TEST_EQ(std::string("f"), opt_f.Name());
+      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL));
+  TEST_EQ('\0', opt_f.ShortName());
+  TEST_EQ(std::string(""), opt_f.LongName());
   TEST_EQ(std::string(""), opt_f.HelpMsg());
   TEST_EQ(0, opt_f.Arg<int>());
 
@@ -46,8 +64,9 @@ zOptTest_OptionUint(void* arg_)
 {
   // Create new option and validate
   zProgOpt::Option opt_f(
-      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL), "f");
-  TEST_EQ(std::string("f"), opt_f.Name());
+      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL));
+  TEST_EQ('\0', opt_f.ShortName());
+  TEST_EQ(std::string(""), opt_f.LongName());
   TEST_EQ(std::string(""), opt_f.HelpMsg());
   TEST_EQ(0, opt_f.Arg<unsigned int>());
 
@@ -65,8 +84,9 @@ zOptTest_OptionDouble(void* arg_)
 {
   // Create new option and validate
   zProgOpt::Option opt_f(
-      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL), "f");
-  TEST_EQ(std::string("f"), opt_f.Name());
+      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL));
+  TEST_EQ('\0', opt_f.ShortName());
+  TEST_EQ(std::string(""), opt_f.LongName());
   TEST_EQ(std::string(""), opt_f.HelpMsg());
   TEST_EQ(0.0, opt_f.Arg<double>());
 
