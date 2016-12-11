@@ -78,7 +78,7 @@ SerialPort::SendChar(const char c_)
 bool
 SerialPort::SendString(const std::string &str_)
 {
-  ZLOG_DEBUG("Sending string '" + str_ + "'");
+  ZLOG_DEBUG("Sending string: '" + str_ + "'");
   return (this->SendBuf(str_.data(), str_.size()) == str_.size());
 }
 

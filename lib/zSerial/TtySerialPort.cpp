@@ -65,6 +65,7 @@ const std::string TtySerialConfiguration::ConfigFlowDefault(ConfigFlowNone);
 
 TtySerialConfiguration::TtySerialConfiguration()
 {
+  this->Type(SerialConfiguration::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
   this->SetDataBits(this->GetDataBits());
@@ -76,6 +77,7 @@ TtySerialConfiguration::TtySerialConfiguration()
 TtySerialConfiguration::TtySerialConfiguration(zData::Data &data_) :
     SerialConfiguration(data_)
 {
+  this->Type(SerialConfiguration::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
   this->SetDataBits(this->GetDataBits());
@@ -87,6 +89,7 @@ TtySerialConfiguration::TtySerialConfiguration(zData::Data &data_) :
 TtySerialConfiguration::TtySerialConfiguration(zConfig::Configuration &config_) :
     SerialConfiguration(config_)
 {
+  this->Type(SerialConfiguration::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
   this->SetDataBits(this->GetDataBits());
@@ -317,12 +320,12 @@ TtyPortSend::Run(zThread::ThreadArg *arg_)
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
       {
-        ZLOG_DEBUG(std::string("Sending char: '") + zLog::CharStr(c) +
-            ": " + ((isprint(c)) ? c : ' '));
+        ZLOG_DEBUG(std::string("Sending char: '") + ZLOG_UCHAR(c) +
+            ": " + ((isprint(c)) ? c : ' ') + std::string("'"));
         if ((write(port->_fd, &c, 1) == 1))
         {
-          ZLOG_DEBUG(std::string("Sent char: '") + zLog::CharStr(c) +
-              ": " + ((isprint(c)) ? c : ' '));
+          ZLOG_DEBUG(std::string("Sent char: '") + ZLOG_UCHAR(c) +
+              ": " + ((isprint(c)) ? c : ' ') + std::string("'"));
         }
       }
     }

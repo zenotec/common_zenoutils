@@ -85,6 +85,9 @@ public:
   virtual
   ~TtySerialConfiguration();
 
+  zConfig::Configuration&
+  GetConfig();
+
   std::string
   GetDevice() const;
 
