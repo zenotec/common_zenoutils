@@ -78,7 +78,10 @@ SerialConfiguration::Type() const
   std::string type;
   std::string path = zData::Data::PathConcat(SerialConfiguration::ConfigRoot,
       SerialConfiguration::ConfigTypePath);
-  this->Get(type, path);
+  if (!this->Get(type, path))
+  {
+    type = ConfigTypeNone;
+  }
   return (type);
 }
 

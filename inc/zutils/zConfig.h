@@ -116,14 +116,6 @@ public:
   bool
   Restore();
 
-  template<typename T>
-    bool
-    Get(T &value_, const std::string &path_ = std::string("")) const
-        {
-//      std::cout << "Getting configuration value: " << path_ << std::endl;
-      return (this->_working.Get<T>(value_, path_));
-    }
-
   bool
   Get(zData::Data &data_, const std::string &path_ = std::string("")) const;
 
@@ -132,10 +124,10 @@ public:
 
   template<typename T>
     bool
-    Put(T &value_, const std::string &path_ = std::string(""))
-    {
-//      std::cout << "Putting configuration value: " << path_ << std::endl;
-      return (this->_staging.Put<T>(value_, path_));
+    Get(T &value_, const std::string &path_ = std::string("")) const
+        {
+//      std::cout << "Getting configuration value: " << path_ << std::endl;
+      return (this->_working.Get<T>(value_, path_));
     }
 
   bool
@@ -146,10 +138,10 @@ public:
 
   template<typename T>
     bool
-    Add(T &value_, const std::string &path_ = std::string(""))
+    Put(T &value_, const std::string &path_ = std::string(""))
     {
-//      std::cout << "Adding configuration value: " << path_ << std::endl;
-      return (this->_staging.Add<T>(value_, path_));
+//      std::cout << "Putting configuration value: " << path_ << std::endl;
+      return (this->_staging.Put<T>(value_, path_));
     }
 
   bool
@@ -157,6 +149,14 @@ public:
 
   bool
   Add(Configuration &conf_, const std::string &path_ = std::string(""));
+
+  template<typename T>
+    bool
+    Add(T &value_, const std::string &path_ = std::string(""))
+    {
+//      std::cout << "Adding configuration value: " << path_ << std::endl;
+      return (this->_staging.Add<T>(value_, path_));
+    }
 
 protected:
 
