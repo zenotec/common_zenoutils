@@ -34,7 +34,12 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
 
+  UTEST_TEST(zDataTest_PathDefaults, 0);
   UTEST_TEST(zDataTest_Defaults, 0);
+
+  UTEST_TEST(zDataTest_PathAppend, 0);
+  UTEST_TEST(zDataTest_PathPrepend, 0);
+  UTEST_TEST(zDataTest_PathCompare, 0);
 
   UTEST_TEST(zDataTest_PutValueSingle, 0);
   UTEST_TEST(zDataTest_PutValueMultiple, 0);

@@ -84,6 +84,7 @@ AC_CONFIG_FILES([
         lib/zGpio/Makefile
         lib/zLed/Makefile
         lib/zSerial/Makefile
+        lib/zInterface/Makefile
         lib/zSocket/Makefile
         lib/zMessage/Makefile
         lib/zCommand/Makefile
@@ -103,6 +104,7 @@ AC_CONFIG_FILES([
         test/zGpio/Makefile
         test/zLed/Makefile
         test/zSerial/Makefile
+        test/zInterface/Makefile
         test/zSocket/Makefile
         test/zMessage/Makefile
         test/zCommand/Makefile

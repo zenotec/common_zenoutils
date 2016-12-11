@@ -31,9 +31,9 @@ class CommandOption : public zData::Data
 
 public:
 
-  static const std::string ROOT;
-  static const std::string OPT;
-  static const std::string ARG;
+  static const std::string DataRoot;
+  static const std::string DataOptionPath;
+  static const std::string DataArgPath;
 
   CommandOption(const std::string &opt_ = std::string(""), const std::string &arg_ = std::string(""));
 
@@ -68,9 +68,9 @@ class Command : public zData::Data, public zEvent::Event
 {
 public:
 
-  static const std::string ROOT;
-  static const std::string NAME;
-  static const std::string OUTPUT;
+  static const std::string DataRoot;
+  static const std::string DataNamePath;
+  static const std::string DataOutputPath;
 
   Command(const std::string &name_ = std::string(""));
 

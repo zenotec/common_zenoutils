@@ -17,23 +17,96 @@
 #include <zutils/zLog.h>
 #include <zutils/zData.h>
 
+namespace pt = boost::property_tree;
+
 namespace zUtils
 {
-
 namespace zData
 {
+
+static std::string
+ptKey(pt::ptree pt_, int index_ = 0)
+{
+  int i = 0;
+  std::string key;
+  try
+  {
+    FOREACH (auto& child, pt_)
+    {
+      if (i++ == index_)
+      {
+        key = child.first;
+        break;
+      }
+    }
+  }
+  catch (pt::ptree_bad_path &e)
+  {
+    key = "";
+  }
+  return (key);
+}
+
+static void
+ptDisplay(pt::ptree pt_)
+{
+  std::stringstream json;
+  std::cout << std::endl << "pt: " << std::endl;
+  try
+  {
+    pt::write_json(json, pt_);
+    std::cout << json.str() << std::endl;
+  }
+  catch (pt::json_parser_error const &e)
+  {
+    std::cout << "Parser error: " << e.what();
+  }
+  catch (pt::ptree_bad_path const &e)
+  {
+    std::cout << "Path error: " << e.what();
+  }
+}
 
 //**********************************************************************
 // Class: zData::Data
 //**********************************************************************
 
-const std::string Data::ROOT = "Data";
-const std::string Data::KEY = "Key";
-
-Data::Data(const std::string &key_)
+Data::Data(const std::string& path_) :
+    DataPath(path_)
 {
-  this->key(key_);
-  this->put("", key_);
+  this->put(this->Path(), std::string(""));
+  this->_lock.Unlock();
+}
+
+Data::Data(const zData::DataPath& path_) :
+    DataPath(path_)
+{
+  this->put(this->Path(), std::string(""));
+  this->_lock.Unlock();
+}
+
+Data::Data(const pt::ptree& pt_) :
+    _pt(pt_)
+{
+  this->_lock.Unlock();
+}
+
+Data::Data(Data &other_)
+{
+  other_._lock.Lock();
+  this->Path() = other_.Path();
+  this->_pt = other_._pt;
+  other_._lock.Unlock();
+  this->_lock.Unlock();
+}
+
+Data::Data(const Data &other_)
+{
+  other_._lock.Lock();
+  this->Path() = other_.Path();
+  this->_pt = other_._pt;
+  other_._lock.Unlock();
+  this->_lock.Unlock();
 }
 
 Data::~Data()
@@ -41,66 +114,88 @@ Data::~Data()
   this->_pt.clear();
 }
 
-std::unique_ptr<Data>
+Data &
+Data::operator=(Data &other_)
+{
+  other_._lock.Lock();
+  this->_lock.Lock();
+  DataPath::operator=(other_);
+  this->_pt = other_._pt;
+  this->_lock.Unlock();
+  other_._lock.Unlock();
+  return (*this);
+}
+
+Data &
+Data::operator=(const Data &other_)
+{
+  other_._lock.Lock();
+  this->_lock.Lock();
+  DataPath::operator=(other_);
+  this->_pt = other_._pt;
+  this->_lock.Unlock();
+  other_._lock.Unlock();
+  return (*this);
+}
+
+bool
+Data::operator ==(const Data &other_) const
+    {
+  bool status = true;
+  other_._lock.Lock();
+  this->_lock.Lock();
+  status &= (this->Path() == other_.Path());
+  status &= (this->_pt == other_._pt);
+  this->_lock.Unlock();
+  other_._lock.Unlock();
+  return (status);
+}
+
+bool
+Data::operator !=(const Data &other_) const
+    {
+  bool status = true;
+  other_._lock.Lock();
+  this->_lock.Lock();
+  status &= (this->Path() == other_.Path());
+  status &= (this->_pt == other_._pt);
+  this->_lock.Unlock();
+  other_._lock.Unlock();
+  return (!status);
+}
+
+UNIQUE_PTR(Data)
 Data::operator [](int pos_)
 {
   int i = 0;
 
+  UNIQUE_PTR(Data) d(new Data);
+
   // Begin critical section
-  this->_lock.lock();
-
-  std::unique_ptr<Data> d(new Data(this->key()));
-
-  try
+  if (d && this->_lock.Lock())
   {
-
-    for (auto& item : this->_pt.get_child(this->key()))
+    std::cout << "Getting child[]: " << this->Base() << std::endl;
+    try
     {
-      if (i++ == pos_)
+      FOREACH (auto& child, this->_pt.get_child(this->Base()))
       {
-        d->put(item.second, this->key());
-        break;
+        if (i++ == pos_)
+        {
+          d->Append(ptKey(child.second));
+          d->put(d->Root(), child.second);
+          break;
+        }
       }
     }
-
+    catch (pt::ptree_bad_path &e)
+    {
+      d = NULL;
+    }
+    this->_lock.Unlock();
   }
-  catch (boost::property_tree::ptree_bad_path &e)
-  {
-    d = NULL;
-  }
 
-  // End critical section
-  this->_lock.unlock();
+  return (MOVE(d));
 
-  return (std::move(d));
-
-}
-
-std::unique_ptr<Data>
-Data::operator [](const std::string &path_)
-{
-  std::unique_ptr<Data> d(new Data(this->Key()));
-  if (!this->Get(*d, path_))
-  {
-    d = NULL;
-  }
-  return (std::move(d));
-}
-
-std::string
-Data::Key()
-{
-  std::string key;
-
-  // Begin critical section
-  this->_lock.lock();
-
-  key = this->key();
-
-  // End critical section
-  this->_lock.unlock();
-
-  return (key);
 }
 
 ssize_t
@@ -110,12 +205,13 @@ Data::Size()
 
   try
   {
-    for (auto& item : this->_pt.get_child(this->key()))
+    FOREACH (auto& item, this->_pt.get_child(this->Base()))
     {
       size++;
     }
+//    size = this->_pt.count(this->Base());
   }
-  catch (boost::property_tree::ptree_bad_path &e)
+  catch (pt::ptree_bad_path &e)
   {
     size = -1;
   }
@@ -125,39 +221,63 @@ Data::Size()
 void
 Data::Clear()
 {
-  this->Del();
+  DataPath::Clear();
+  this->del(this->Root());
 }
 
 bool
-Data::Get(Data &data_, const std::string &path_) const
+Data::Get(Data& child_) const
+    {
+  bool status = false;
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    ZLOG_DEBUG("Getting data: " + this->Base());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (this->get(this->Base(), pt))
+      {
+        status = child_.put(child_.Base(), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+//    child_.DisplayJson();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::Get(const DataPath& path_, Data& child_) const
     {
 
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
-
-  // Setup path
-  std::string path = this->key();
-  if (!path_.empty())
+  if (this->_lock.Lock())
   {
-    path = Data::PathConcat(path, path_);
+    ZLOG_DEBUG("Getting data: " + path_.Base() + "; Key: " + path_.Key());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (this->get(path_.Base(), pt))
+      {
+        child_.Clear();
+        if ((status = child_.put(child_.Base(), pt)))
+        {
+          child_.Append(path_.Key());
+        }
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+//    child_.DisplayJson();
   }
-
-  boost::property_tree::ptree pt;
-  if (this->get(pt, path))
-  {
-    data_._lock.lock();
-    std::string key = Data::PathLast(path);
-    data_.key(key);
-    status = data_.put(pt, key);
-    data_._lock.unlock();
-  }
-
-  ZLOG_DEBUG("Getting data: " + path + "; Data: " + data_.key());
-
-  // End critical section
-  this->_lock.unlock();
 
   // Return status
   return (status);
@@ -165,31 +285,24 @@ Data::Get(Data &data_, const std::string &path_) const
 }
 
 bool
-Data::Put(const Data &data_, const std::string &path_)
+Data::Put(const Data& child_)
 {
-
   bool status = false;
 
-  // Begin critical section
-  this->_lock.lock();
-
-  // Setup path
-  std::string path = this->key();
-  if (!path_.empty())
+  if (this->_lock.Lock())
   {
-    path = Data::PathConcat(path, path_);
+    ZLOG_DEBUG("Putting data: " + this->Path());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (child_.get(child_.Path(), pt))
+      {
+        status = this->put(this->Path(child_.Key()), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
   }
-
-  ZLOG_DEBUG("Putting data: " + path + "; Data: " + data_.key());
-
-  boost::property_tree::ptree pt;
-  if (data_.Get(pt))
-  {
-    status = this->put(pt, path);
-  }
-
-  // End critical section
-  this->_lock.unlock();
 
   // Return status
   return (status);
@@ -197,31 +310,25 @@ Data::Put(const Data &data_, const std::string &path_)
 }
 
 bool
-Data::Add(const Data &data_, const std::string &path_)
+Data::Put(const DataPath& path_, const Data& child_)
 {
 
   bool status = false;
 
-  // Begin critical section
-  this->_lock.lock();
-
-  // Setup path
-  std::string path = this->key();
-  if (!path_.empty())
+  if (this->_lock.Lock())
   {
-    path = Data::PathConcat(path, path_);
+    ZLOG_DEBUG("Putting data: " + path_.Path() + "; Data: " + child_.Base());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (child_.get(child_.Path(), pt))
+      {
+        status = this->put(path_.Path(), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
   }
-
-  ZLOG_DEBUG("Adding data: " + path + "; Data: " + data_.key());
-
-  boost::property_tree::ptree pt;
-  if (data_.Get(pt))
-  {
-    status = this->add(pt, path);
-  }
-
-  // End critical section
-  this->_lock.unlock();
 
   // Return status
   return (status);
@@ -229,27 +336,72 @@ Data::Add(const Data &data_, const std::string &path_)
 }
 
 bool
-Data::Del(const std::string &path_)
+Data::Add(const Data& child_)
 {
 
   bool status = false;
 
   // Begin critical section
-  this->_lock.lock();
-
-  // Setup path
-  std::string path = this->key();
-  if (!path_.empty())
+  if (this->_lock.Lock())
   {
-    path = Data::PathConcat(path, path_);
+    ZLOG_DEBUG("Adding data: " + child_.Base());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (child_.get(child_.Path(), pt))
+      {
+        status = this->add(this->Path(child_.Key()), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
   }
 
-  ZLOG_DEBUG("Deleting data: " + path);
+  // Return status
+  return (status);
 
-  status = this->del(path);
+}
 
-  // End critical section
-  this->_lock.unlock();
+bool
+Data::Add(const DataPath& path_, const Data& child_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    ZLOG_DEBUG("Adding data: " + path_.Path() + "; Data: " + child_.Base());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (child_.get(child_.Path(), pt))
+      {
+        status = this->add(path_.Path(child_.Key()), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::Del(const DataPath& path_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    ZLOG_DEBUG("Deleting data: " + path_.Path());
+    status = this->del(path_.Path());
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
@@ -260,7 +412,7 @@ std::string
 Data::GetJson() const
 {
   std::stringstream json;
-  boost::property_tree::write_json(json, this->_pt);
+  pt::write_json(json, this->_pt);
   return (json.str());
 }
 
@@ -268,14 +420,28 @@ bool
 Data::SetJson(const std::string &json_)
 {
   bool status = false;
-  std::stringstream json(json_);
   try
   {
-    boost::property_tree::read_json(json, this->_pt);
-    status = true;
+    std::stringstream json(json_);
+    pt::ptree pt;
+    // Convert json into property tree
+    pt::read_json(json, pt);
+    // Begin critical section
+    if (this->_lock.Lock())
+    {
+      // Copy only the root node
+      status = this->put(DataPath::DataRoot, pt.get_child(DataPath::DataRoot));
+      this->_lock.Unlock();
+    }
   }
-  catch (boost::property_tree::json_parser_error const &e)
+  catch (pt::json_parser_error const &e)
   {
+    ZLOG_WARN(std::string("Parser error: ") + e.what());
+    status = false;
+  }
+  catch (pt::ptree_bad_path const &e)
+  {
+    ZLOG_WARN(std::string("Path error: ") + e.what());
     status = false;
   }
   return (status);
@@ -284,14 +450,14 @@ Data::SetJson(const std::string &json_)
 void
 Data::DisplayJson() const
 {
-  std::cout << this->GetJson() << std::endl;
+  std::cout << std::endl << this->GetJson() << std::endl;
 }
 
 std::string
 Data::GetXml() const
 {
   std::stringstream xml;
-  boost::property_tree::write_xml(xml, this->_pt);
+  pt::write_xml(xml, this->_pt);
   return (xml.str());
 }
 
@@ -299,13 +465,26 @@ bool
 Data::SetXml(const std::string &xml_)
 {
   bool status = false;
-  std::stringstream xml(xml_);
   try
   {
-    boost::property_tree::read_xml(xml, this->_pt);
-    status = true;
+    std::stringstream xml(xml_);
+    pt::ptree pt;
+    // Convert json into property tree
+    pt::read_xml(xml, pt);
+    // Begin critical section
+    if (this->_lock.Lock())
+    {
+      // Copy only the root node
+      this->put(DataPath::DataRoot, pt.get_child(DataPath::DataRoot));
+      status = true;
+      this->_lock.Unlock();
+    }
   }
-  catch (boost::property_tree::xml_parser_error const &e)
+  catch (pt::xml_parser_error const &e)
+  {
+    status = false;
+  }
+  catch (pt::ptree_bad_path const &e)
   {
     status = false;
   }
@@ -315,24 +494,25 @@ Data::SetXml(const std::string &xml_)
 void
 Data::DisplayXml() const
 {
-  std::cout << this->GetXml() << std::endl;
+  std::cout << std::endl << this->GetXml() << std::endl;
 }
 
 bool
-Data::get(boost::property_tree::ptree &pt_, const std::string &path_) const
+Data::get(const std::string &path_, pt::ptree &pt_) const
     {
   bool status = false;
 
   if (!path_.empty())
   {
-//    std::cout << "Getting child: " << path_ << std::endl;
+    ZLOG_DEBUG("getting child: " + path_);
     try
     {
       pt_ = this->_pt.get_child(path_);
       status = true;
     }
-    catch (boost::property_tree::ptree_bad_path const &e)
+    catch (pt::ptree_bad_path const &e)
     {
+      ZLOG_WARN(std::string("Path error: ") + e.what());
       status = false;
     }
   }
@@ -341,20 +521,21 @@ Data::get(boost::property_tree::ptree &pt_, const std::string &path_) const
 }
 
 bool
-Data::put(const boost::property_tree::ptree &pt_, const std::string &path_)
+Data::put(const std::string &path_, const pt::ptree &pt_)
 {
   bool status = false;
 
   if (!path_.empty())
   {
-//    std::cout << "Putting child: " << path_ << std::endl;
+    ZLOG_DEBUG("putting pt: " + path_);
     try
     {
       this->_pt.put_child(path_, pt_);
       status = true;
     }
-    catch (boost::property_tree::ptree_bad_path const &e)
+    catch (pt::ptree_bad_path const &e)
     {
+      ZLOG_WARN(std::string("Path error: ") + e.what());
       status = false;
     }
   }
@@ -363,17 +544,27 @@ Data::put(const boost::property_tree::ptree &pt_, const std::string &path_)
 }
 
 bool
-Data::add(const boost::property_tree::ptree &pt_, const std::string &path_)
+Data::add(const std::string &path_, const pt::ptree &pt_)
 {
   bool status = false;
 
   if (!path_.empty())
   {
 //    std::cout << "Adding child: " << path_ << std::endl;
-    boost::property_tree::ptree parent;
-    this->get(parent, path_); // Ignore return value
-    parent.push_back(std::make_pair("", pt_));
-    status = this->put(parent, path_);
+    try
+    {
+      pt::ptree parent;
+      if (this->get(path_, parent))
+      {
+        parent.push_back(std::make_pair("", pt_));
+        status = this->put(path_, parent);
+      }
+    }
+    catch (pt::ptree_bad_path const &e)
+    {
+      ZLOG_WARN(std::string("Path error: ") + e.what());
+      status = false;
+    }
   }
 
   return (status);
@@ -387,30 +578,17 @@ Data::del(const std::string &path_)
   if (!path_.empty())
   {
 //    std::cout << "Deleting child: " << path_ << std::endl;
-    boost::property_tree::ptree parent;
-    boost::property_tree::ptree empty;
-    if (this->get(parent, path_))
+    pt::ptree parent;
+    pt::ptree empty;
+    if (this->get(path_, parent))
     {
-      status = this->put(empty, path_);
+      status = this->put(path_, empty);
     }
   }
 
   return (status);
 }
 
-std::string
-Data::key() const
-{
-  std::string key;
-  this->get(key, Data::KEY);
-  return (key);
+}
 }
 
-bool
-Data::key(const std::string &key_)
-{
-  return (this->put(key_, Data::KEY));
-}
-
-}
-}

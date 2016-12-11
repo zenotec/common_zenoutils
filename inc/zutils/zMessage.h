@@ -29,20 +29,28 @@ namespace zMessage
 class Message : public zData::Data
 {
 
-  static const std::string STR_ROOT;
-  static const std::string STR_TYPE;
-  static const std::string STR_TYPE_AUTH;
-  static const std::string STR_TYPE_HELLO;
-  static const std::string STR_TYPE_ACK;
-  static const std::string STR_TYPE_BYE;
-  static const std::string STR_TYPE_NODE;
-  static const std::string STR_TYPE_CFG;
-  static const std::string STR_TYPE_CMD;
-  static const std::string STR_TYPE_DATA;
-  static const std::string STR_ID;
-  static const std::string STR_DST;
-  static const std::string STR_SRC;
-  static const std::string STR_DATA;
+  static const std::string DataRoot;
+
+  static const std::string DataTypePath;
+  static const std::string DataTypeNone;
+  static const std::string DataTypeAuth;
+  static const std::string DataTypeHello;
+  static const std::string DataTypeAck;
+  static const std::string DataTypeBye;
+  static const std::string DataTypeNode;
+  static const std::string DataTypeConfig;
+  static const std::string DataTypeCommand;
+  static const std::string DataTypeData;
+  static const std::string DataTypeDefault;
+
+  static const std::string DataIdPath;
+  static const std::string DataIdDefault;
+
+  static const std::string DataDstPath;
+  static const std::string DataDstDefault;
+
+  static const std::string DataSrcPath;
+  static const std::string DataSrcDefault;
 
 public:
 
@@ -50,6 +58,7 @@ public:
   {
     TYPE_ERR = -1,
     TYPE_NONE = 0,
+    TYPE_DEFAULT = 0,
     TYPE_AUTH = 1,
     TYPE_HELLO = 2,
     TYPE_ACK = 3,
@@ -65,17 +74,9 @@ public:
 
   Message(const zData::Data &msg_);
 
-  Message(const std::string &json_);
+  Message(Message &other_);
 
-  Message(Message &other_) :
-      zData::Data(other_)
-  {
-  }
-
-  Message(const Message &other_) :
-      zData::Data(other_)
-  {
-  }
+  Message(const Message &other_);
 
   virtual
   ~Message();

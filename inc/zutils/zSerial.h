@@ -25,44 +25,71 @@
 #include <zutils/zData.h>
 #include <zutils/zConfig.h>
 
-
 namespace zUtils
 {
 namespace zSerial
 {
 
 //**********************************************************************
-// Class: SerialConfiguration
+// Class: SerialConfigPath
 //**********************************************************************
 
-class SerialConfiguration : public zConfig::Configuration
+class SerialConfigPath : public zConfig::ConfigPath
 {
 
 public:
 
   static const std::string ConfigRoot;
   static const std::string ConfigTypePath;
+
+  SerialConfigPath(const std::string& path_ = std::string(""));
+
+  virtual
+  ~SerialConfigPath();
+
+  zConfig::ConfigPath
+  Type();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: SerialConfigData
+//**********************************************************************
+
+class SerialConfigData : public zConfig::ConfigData
+{
+
+public:
+
   static const std::string ConfigTypeNone;
   static const std::string ConfigTypeEcho;
   static const std::string ConfigTypeTty;
 
-  SerialConfiguration();
+  SerialConfigData(const std::string& path_ = std::string(""));
 
-  SerialConfiguration(zData::Data &data_);
+  SerialConfigData(zData::Data &data_);
 
-  SerialConfiguration(zConfig::Configuration &config_);
+  SerialConfigData(zConfig::ConfigData &data_);
 
   virtual
-  ~SerialConfiguration();
+  ~SerialConfigData();
 
-  zConfig::Configuration&
-  GetConfig();
+  zConfig::ConfigData&
+  GetConfigData();
 
   std::string
-  Type() const;
+  GetType() const;
 
   bool
-  Type(const std::string& type_);
+  SetType(const std::string& type_);
+
+protected:
+
+private:
 
 };
 
@@ -84,8 +111,6 @@ public:
   };
 
   SerialPort();
-
-  SerialPort(zConfig::Configuration& config_);
 
   virtual
   ~SerialPort();
@@ -117,7 +142,6 @@ protected:
 
 private:
 
-  SerialConfiguration _config;
   zQueue<char> _txq;
 
 };

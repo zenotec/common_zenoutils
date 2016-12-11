@@ -51,9 +51,11 @@ public:
     TYPE_CONFIG = 4,
     TYPE_GPIO = 5,
     TYPE_SERIAL = 6,
-    TYPE_SOCKET = 7,
-    TYPE_MSG = 8,
-    TYPE_TEMP = 9,
+    TYPE_INTERFACE = 7,
+    TYPE_SOCKET = 8,
+    TYPE_MSG = 9,
+    TYPE_TEMP = 10,
+    TYPE_COMMAND = 11,
     TYPE_LAST
   };
 

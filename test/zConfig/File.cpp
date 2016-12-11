@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <zutils/zLog.h>
+
 #include "UnitTest.h"
 #include "zConfTest.h"
 
@@ -24,50 +26,68 @@ int
 zConfigTest_FileLoadStore(void* arg_)
 {
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_FileLoadStore()");
+  ZLOG_DEBUG("#############################################################");
+
+  zConfig::ConfigPath MyPath1;
+  TEST_TRUE(MyPath1.Append("Key1"));
+
+  zConfig::ConfigPath MyPath2;
+  TEST_TRUE(MyPath2.Append("Key2"));
+
   // Create new configuration data item and verify
-  zData::Data *expData = new zData::Data;
-  TEST_ISNOT_NULL(expData);
-  zData::Data *obsData = new zData::Data;
-  TEST_ISNOT_NULL(obsData);
+  zConfig::ConfigData *ExpData = new zConfig::ConfigData;
+  TEST_ISNOT_NULL(ExpData);
+  zConfig::ConfigData *ObsData = new zConfig::ConfigData;
+  TEST_ISNOT_NULL(ObsData);
 
   // Create new configuration data connector and verify
-  TestConnector *myConnector = new TestConnector;
-  TEST_ISNOT_NULL(myConnector);
+  TestConnector *MyConnector = new TestConnector;
+  TEST_ISNOT_NULL(MyConnector);
 
   // Attempt to load configuration and verify
-  TEST_FALSE(myConnector->Load(*expData));
+  TEST_FALSE(MyConnector->Load(*ExpData));
 
   // Attempt to store configuration and verify
-  TEST_TRUE(myConnector->Store(*expData));
+  TEST_TRUE(MyConnector->Store(*ExpData));
 
   // Attempt to load configuration and verify
-  TEST_TRUE(myConnector->Load(*obsData));
+  TEST_TRUE(MyConnector->Load(*ObsData));
 
   // Update configuration data
-  std::string key1 = "Key1";
+  std::string obs1;
   std::string val1 = "Value1";
-  TEST_TRUE(expData->Put(val1, key1));
-  std::string key2 = "Key2";
+  TEST_TRUE(ExpData->Put(MyPath1.GetDataPath(), val1));
+  TEST_TRUE(ExpData->Get(MyPath1.GetDataPath(), obs1));
+  TEST_EQ(val1, obs1);
+
+  std::string obs2;
   std::string val2 = "Value2";
-  TEST_TRUE(expData->Put(val2, key2));
+  TEST_TRUE(ExpData->Put(MyPath2.GetDataPath(), val2));
+  TEST_TRUE(ExpData->Get(MyPath2.GetDataPath(), obs2));
+  TEST_EQ(val2, obs2);
 
   // Verify data is not equal
-  TEST_TRUE(*obsData != *expData);
+  TEST_TRUE(*ObsData != *ExpData);
 
   // Attempt to store configuration and verify
-  TEST_TRUE(myConnector->Store(*expData));
+  TEST_TRUE(MyConnector->Store(*ExpData));
+//  expData->DisplayJson();
 
   // Attempt to load configuration and verify
-  TEST_TRUE(myConnector->Load(*obsData));
+  TEST_TRUE(MyConnector->Load(*ObsData));
+//  obsData->DisplayJson();
 
   // Verify data is equal
-  TEST_TRUE(*obsData == *expData);
+  TEST_TRUE(*ObsData == *ExpData);
 
   // Cleanup
-  delete (myConnector);
-  delete (obsData);
-  delete (expData);
+  delete (MyConnector);
+  delete (ObsData);
+  delete (ExpData);
 
   // Return success
   return (0);
+
 }

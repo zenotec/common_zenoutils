@@ -19,6 +19,10 @@
 
 #include <signal.h>
 
+#include <map>
+
+#include <zutils/zEvent.h>
+
 namespace zUtils
 {
 namespace zSignal

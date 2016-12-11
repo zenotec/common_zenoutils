@@ -21,7 +21,16 @@
 #include "zutils/zData.h"
 
 int
+zDataTest_PathDefaults(void* arg);
+int
 zDataTest_Defaults(void* arg);
+
+int
+zDataTest_PathAppend(void* arg);
+int
+zDataTest_PathPrepend(void* arg);
+int
+zDataTest_PathCompare(void* arg);
 
 int
 zDataTest_PutValueMultiple(void* arg_);

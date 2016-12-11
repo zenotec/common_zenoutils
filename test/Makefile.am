@@ -1,3 +1,4 @@
+export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
 	zThread \
@@ -12,6 +13,7 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zSerial \
+	zInterface \
 	zSocket \
 	zMessage \
 	zCommand \
@@ -25,6 +27,7 @@ VALGRIND_TESTS = \
     zProgOpt/valgrind.sh \
     zLog/valgrind.sh \
     zData/valgrind.sh \
+    zDisplay/valgrind.sh \
     zCommand/valgrind.sh \
     zConf/valgrind.sh \
     zSem/valgrind.sh \
@@ -32,6 +35,7 @@ VALGRIND_TESTS = \
     zThread/valgrind.sh \
     zTimer/valgrind.sh \
     zQueue/valgrind.sh \
+    zInterface/valgrind.sh \
     zSocket/valgrind.sh \
     zMessage/valgrind.sh \
     zNode/valgrind.sh \
@@ -39,9 +43,7 @@ VALGRIND_TESTS = \
     zThermo/valgrind.sh \
     zCom/valgrind.sh \
     zGpio/valgrind.sh \
-    zLed/valgrind.sh \
-    zDisplay/valgrind.sh \
-    zSocket/valgrind.sh
+    zLed/valgrind.sh
 endif
 
 GCOV_TESTS = \
@@ -57,6 +59,7 @@ GCOV_TESTS = \
     zGpio/zGpioUnitTest \
     zLed/zLedUnitTest \
     zSerial/zSerialUnitTest \
+    zInterface/zInterfaceUnitTest \
     zSocket/zSocketUnitTest \
     zMessage/zMessageUnitTest \
     zCommand/zCommandUnitTest \

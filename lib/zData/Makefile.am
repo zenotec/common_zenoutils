@@ -9,4 +9,5 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzData.la
 
 libzData_la_SOURCES = \
+    DataPath.cpp \
     Data.cpp

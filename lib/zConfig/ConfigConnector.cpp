@@ -45,7 +45,7 @@ ConfigurationFileConnector::~ConfigurationFileConnector()
 }
 
 bool
-ConfigurationFileConnector::Load(zData::Data &data_)
+ConfigurationFileConnector::Load(ConfigData &data_)
 {
   bool status = false;
   std::fstream fs;
@@ -59,7 +59,7 @@ ConfigurationFileConnector::Load(zData::Data &data_)
     json << fs.rdbuf();
     fs.close();
 
-    // Store to callers data object
+    // Store to callers configuration data object
     status = data_.SetJson(json.str());
   }
 
@@ -69,7 +69,7 @@ ConfigurationFileConnector::Load(zData::Data &data_)
 }
 
 bool
-ConfigurationFileConnector::Store(zData::Data &data_)
+ConfigurationFileConnector::Store(ConfigData &data_)
 {
   bool status = false;
   std::fstream fs;

@@ -34,19 +34,19 @@ namespace zUtils
 namespace zCommand
 {
 
-const std::string Command::ROOT = "zCommand";
-const std::string Command::NAME = "Name";
-const std::string Command::OUTPUT = "Output";
+const std::string Command::DataRoot = "zCommand";
+const std::string Command::DataNamePath = "Name";
+const std::string Command::DataOutputPath = "Output";
 
 Command::Command(const std::string &name_) :
-    zData::Data(Command::ROOT), zEvent::Event(zEvent::Event::TYPE_NONE)
+    zData::Data(Command::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
 {
-  this->SetName(name_);
+  this->SetName(this->GetName());
   this->SetOutput(this->GetOutput());
 }
 
 Command::Command(const zData::Data &data_) :
-    zData::Data(data_), zEvent::Event(zEvent::Event::TYPE_NONE)
+    zData::Data(data_), zEvent::Event(zEvent::Event::TYPE_COMMAND)
 {
   this->SetName(this->GetName());
   this->SetOutput(this->GetOutput());
@@ -72,32 +72,34 @@ std::string
 Command::GetName() const
 {
   std::string str;
-  this->Get(str, Command::NAME);
+  this->Get(zData::DataPath(Command::DataNamePath), str);
   return (str);
 }
 
 bool
 Command::SetName(const std::string name_)
 {
-  return (this->Put(name_, Command::NAME));
+  return (this->Put(name_, Command::DataNamePath));
 }
 
 std::vector<CommandOption>
 Command::GetOptions() const
 {
 
-  zData: Data data;
+  zData::DataPath path(DataRoot);
+  path.Append(CommandOption::DataRoot);
+  zData::Data data;
   std::unique_ptr<zData::Data> child;
   std::vector<CommandOption> options;
 
-  if (this->Get(data, CommandOption::ROOT))
-  {
-    for (int i = 0; i < data.Size(); i++)
-    {
-      CommandOption opt(*data[i]);
-      options.push_back(opt);
-    }
-  }
+//  if (this->Get(path, data))
+//  {
+//    for (int i = 0; i < data.Size(); i++)
+//    {
+//      CommandOption opt(*data[i]);
+//      options.push_back(opt);
+//    }
+//  }
 
   return (options);
 }
@@ -105,21 +107,22 @@ Command::GetOptions() const
 bool
 Command::AddOption(CommandOption &opt_)
 {
-  return (this->Add(static_cast<zData::Data &>(opt_), CommandOption::ROOT));
+//  return (this->Add(static_cast<zData::Data &>(opt_), CommandOption::DataRoot));
+  return(false);
 }
 
 std::string
 Command::GetOutput() const
 {
   std::string str;
-  this->Get(str, Command::OUTPUT);
+  this->Get(zData::DataPath(Command::DataOutputPath), str);
   return (str);
 }
 
 bool
 Command::SetOutput(const std::string arg_)
 {
-  return (this->Put(arg_, Command::OUTPUT));
+  return (this->Put(arg_, Command::DataOutputPath));
 }
 
 bool

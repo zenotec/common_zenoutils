@@ -29,59 +29,106 @@ namespace zGpio
 {
 
 //**********************************************************************
-// Class: GpioConfiguration
+// Class: GpioConfigPath
 //**********************************************************************
 
-class GpioConfiguration : public zConfig::Configuration
+class GpioConfigPath : public zConfig::ConfigPath
 {
 
 public:
 
   static const std::string ConfigRoot;
-
   static const std::string ConfigIdentifierPath;
+  static const std::string ConfigExportFilenamePath;
+  static const std::string ConfigUnexportFilenamePath;
+  static const std::string ConfigDirectionFilenamePath;
+  static const std::string ConfigDirectionValuePath;
+  static const std::string ConfigStateFilenamePath;
+  static const std::string ConfigStateValuePath;
+  static const std::string ConfigEdgeFilenamePath;
+  static const std::string ConfigEdgeValuePath;
+
+  GpioConfigPath();
+
+  virtual
+  ~GpioConfigPath();
+
+  zConfig::ConfigPath
+  Identifier() const;
+
+  zConfig::ConfigPath
+  ExportFilename() const;
+
+  zConfig::ConfigPath
+  UnexportFilename() const;
+
+  zConfig::ConfigPath
+  DirectionFilename() const;
+
+  zConfig::ConfigPath
+  Direction() const;
+
+  zConfig::ConfigPath
+  StateFilename() const;
+
+  zConfig::ConfigPath
+  State() const;
+
+  zConfig::ConfigPath
+  EdgeFilename() const;
+
+  zConfig::ConfigPath
+  Edge() const;
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: GpioConfiguration
+//**********************************************************************
+
+class GpioConfigData : public zConfig::ConfigData
+{
+
+public:
+
   static const int ConfigIdentifierDefault;
 
-  static const std::string ConfigExportFilenamePath;
   static const std::string ConfigExportFilenameDefault;
 
-  static const std::string ConfigUnexportFilenamePath;
   static const std::string ConfigUnexportFilenameDefault;
 
-  static const std::string ConfigDirectionFilenamePath;
   static const std::string ConfigDirectionFilenameDefault;
-  static const std::string ConfigDirectionValuePath;
+
   static const std::string ConfigDirectionValueIn;
   static const std::string ConfigDirectionValueOut;
   static const std::string ConfigDirectionValueDefault;
 
-  static const std::string ConfigStateFilenamePath;
   static const std::string ConfigStateFilenameDefault;
-  static const std::string ConfigStateValuePath;
+
   static const std::string ConfigStateValueActive;
   static const std::string ConfigStateValueInactive;
   static const std::string ConfigStateValueDefault;
 
-  static const std::string ConfigEdgeFilenamePath;
   static const std::string ConfigEdgeFilenameDefault;
-  static const std::string ConfigEdgeValuePath;
+
   static const std::string ConfigEdgeValueNone;
   static const std::string ConfigEdgeValueLoHi;
   static const std::string ConfigEdgeValueHiLo;
   static const std::string ConfigEdgeValueBoth;
   static const std::string ConfigEdgeValueDefault;
 
-  GpioConfiguration();
+  GpioConfigData();
 
-  GpioConfiguration(zData::Data &data_);
+  GpioConfigData(zData::Data &data_);
 
-  GpioConfiguration(zConfig::Configuration &config_);
+  GpioConfigData(zConfig::ConfigData &config_);
 
   virtual
-  ~GpioConfiguration();
-
-  zConfig::Configuration&
-  GetConfig();
+  ~GpioConfigData();
 
   int
   Identifier() const;
@@ -137,13 +184,17 @@ public:
   bool
   Edge(const std::string &edge_);
 
+protected:
+
+private:
+
 };
 
 //**********************************************************************
 // Class: GpioPort
 //**********************************************************************
 
-class GpioPort : public zEvent::Event, public zThread::ThreadFunction
+class GpioPort : public GpioConfigData, public zEvent::Event, public zThread::ThreadFunction
 {
 
 public:
@@ -163,9 +214,9 @@ public:
   {
     STATE_ERR = -1,
     STATE_NONE = 0,
-    STATE_DEF = 0,
     STATE_ACTIVE = 1,
     STATE_INACTIVE = 2,
+    STATE_DEF = 2,
     STATE_LAST
   };
 
@@ -182,7 +233,7 @@ public:
 
   GpioPort();
 
-  GpioPort(zConfig::Configuration& config_);
+  GpioPort(GpioConfigData& config_);
 
   virtual
   ~GpioPort();
@@ -200,22 +251,22 @@ public:
   Set(GpioPort::STATE state_);
 
   GpioPort::DIR
-  Direction() const;
+  GetDirection() const;
 
   bool
-  Direction(const GpioPort::DIR dir_);
+  SetDirection(const GpioPort::DIR dir_);
 
   GpioPort::STATE
-  State() const;
+  GetState() const;
 
   bool
-  State(const GpioPort::STATE state_);
+  SetState(const GpioPort::STATE state_);
 
   GpioPort::EDGE
-  Edge() const;
+  GetEdge() const;
 
   bool
-  Edge(const GpioPort::EDGE edge_);
+  SetEdge(const GpioPort::EDGE edge_);
 
 protected:
 
@@ -225,7 +276,6 @@ protected:
 private:
 
   int _fd;
-  zGpio::GpioConfiguration _config;
   zThread::Thread _thread;
   zSem::Mutex _lock;
 

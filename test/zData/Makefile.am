@@ -14,7 +14,8 @@ zDataUnitTest_SOURCES = \
     zDataTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    SetValue.cpp \
+    Path.cpp \
+    PutValue.cpp \
  	Child.cpp \
  	Array.cpp \
  	Json.cpp \

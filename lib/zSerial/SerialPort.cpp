@@ -44,11 +44,6 @@ SerialPort::SerialPort() :
 {
 }
 
-SerialPort::SerialPort(zConfig::Configuration &config_) :
-    _config(config_), zEvent::Event(zEvent::Event::TYPE_SERIAL)
-{
-}
-
 SerialPort::~SerialPort()
 {
 }

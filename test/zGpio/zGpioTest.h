@@ -58,7 +58,7 @@ using namespace Test;
 
 static const std::string TESTDIR = "/tmp/zGpioHandlerTest";
 
-class TestPortConfig : public zGpio::GpioConfiguration
+class TestPortConfig : public zGpio::GpioConfigData
 {
 public:
   TestPortConfig(uint32_t id_)
@@ -103,19 +103,19 @@ public:
 
     fileName = rootDir.str() + "/direction";
     fs.open(fileName.c_str(), std::fstream::out);
-    fs << zGpio::GpioConfiguration::ConfigDirectionValueDefault << std::endl;
+    fs << zGpio::GpioConfigData::ConfigDirectionValueDefault << std::endl;
     fs.flush();
     fs.close();
 
     fileName = rootDir.str() + "/value";
     fs.open(fileName.c_str(), std::fstream::out);
-    fs << zGpio::GpioConfiguration::ConfigStateValueDefault << std::endl;
+    fs << zGpio::GpioConfigData::ConfigStateValueDefault << std::endl;
     fs.flush();
     fs.close();
 
     fileName = rootDir.str() + "/edge";
     fs.open(fileName.c_str(), std::fstream::out);
-    fs << zGpio::GpioConfiguration::ConfigEdgeValueDefault << std::endl;
+    fs << zGpio::GpioConfigData::ConfigEdgeValueDefault << std::endl;
     fs.flush();
     fs.close();
 

@@ -20,13 +20,13 @@
 
 #if __cplusplus < 201103L
 
-#define CPPVER  std::string("< 201103L")
-
 #include <boost/thread/mutex.hpp>
 #include <boost/interprocess/smart_ptr/unique_ptr.hpp>
 #include <boost/interprocess/smart_ptr/shared_ptr.hpp>
 #include <boost/move/move.hpp>
 #include <boost/foreach.hpp>
+
+#define CPPVER  std::string("< 201103L")
 
 #define MUTEX           boost::mutex
 #define TIMED_MUTEX     boost::timed_mutex

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <zutils/zLog.h>
+
 #include "UnitTest.h"
 #include "zConfTest.h"
 
@@ -23,17 +25,22 @@ using namespace zUtils;
 int
 zConfigTest_ConfigurationCtor(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationCtor()");
+  ZLOG_DEBUG("#############################################################");
 
   // Create new data item and verify
-  zData::Data *MyData = new zData::Data("employee");
+  zConfig::ConfigData *MyData = new zConfig::ConfigData;
   TEST_ISNOT_NULL(MyData);
 
   // Setup data item and verify
-  std::string key = "name";
+  zData::DataPath NamePath;
+  TEST_TRUE(NamePath.Append("Employee"));
+  TEST_TRUE(NamePath.Append("Name"));
   std::string val = "Elvis";
   std::string obs = "";
-  TEST_TRUE(MyData->Put(val, key));
-  TEST_TRUE(MyData->Get(obs, key));
+  TEST_TRUE(MyData->Put(NamePath, val));
+  TEST_TRUE(MyData->Get(NamePath, obs));
   TEST_EQ(obs, val);
 
   // Create const configuration data item from data item and verify
@@ -45,13 +52,6 @@ zConfigTest_ConfigurationCtor(void* arg_)
   TEST_ISNOT_NULL(MyConfig);
   TEST_FALSE(MyConfig->IsModified());
 
-  zData::Data ObsData;
-
-  TEST_TRUE(MyConfig->Get(ObsData, "employee"));
-  TEST_TRUE(ObsData == *MyData);
-  TEST_TRUE(ObsData.Get(obs, key));
-  TEST_EQ(obs, val);
-
   return (0);
 
 }
@@ -59,43 +59,40 @@ zConfigTest_ConfigurationCtor(void* arg_)
 int
 zConfigTest_ConfigurationGetSetData(void* arg_)
 {
-  // Create new configuration data item and verify
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationGetSetData()");
+  ZLOG_DEBUG("#############################################################");
+
+  std::string exp, obs;
+
+  zConfig::ConfigPath MyPath("Employee");
+
+  // Create new configuration item and verify
   zConfig::Configuration *MyConfig = new zConfig::Configuration;
   TEST_ISNOT_NULL(MyConfig);
   TEST_FALSE(MyConfig->IsModified());
 
   // Create new data item and verify
-  zData::Data *MyData = new zData::Data("employee");
+  zConfig::ConfigData *MyData = new zConfig::ConfigData(MyPath);
   TEST_ISNOT_NULL(MyData);
+//  MyData->DisplayJson();
 
-  // Setup data item and verify
-  std::string key = "name";
-  std::string val = "Elvis";
-  std::string obs = "";
-  TEST_TRUE(MyData->Put(val, key));
-  TEST_TRUE(MyData->Get(obs, key));
-  TEST_EQ(obs, val);
+// Setup data item and verify
+  exp = "Elvis";
+  TEST_TRUE(MyData->Put(MyData->GetDataPath(), exp));
+  TEST_TRUE(MyData->Get(MyData->GetDataPath(), obs));
+  TEST_EQ(exp, obs);
+//  MyData->DisplayJson();
 
-  zData::Data ConfData;
-  zData::Data ObsData;
-
-  // Verify the key doesn't exist and isn't set
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_FALSE(ConfData.Get(ObsData, "employee"));
-
-  // Set the data and verify (only updates staging data)
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_TRUE(ConfData.Put(*MyData, "employee"));
-  TEST_TRUE(MyConfig->Put(ConfData));
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_FALSE(ConfData.Get(ObsData, "employee"));
+// Put the data and verify (only updates staging data)
+  TEST_TRUE(MyConfig->Put(*MyData));
+  TEST_TRUE(MyConfig->Get(MyConfig->GetConfigPath(), obs));
+  TEST_EQ(std::string(""), obs);
 
   // Commit data and verify
   TEST_TRUE(MyConfig->Commit());
-  TEST_TRUE(MyConfig->Get(ConfData));
-  TEST_TRUE(ConfData.Get(ObsData, "employee"));
-  TEST_TRUE(ObsData.Get(obs, key));
-  TEST_EQ(obs, val);
+  TEST_TRUE(MyConfig->Get(MyConfig->GetConfigPath(), obs));
+  TEST_EQ(exp, obs);
 
   // Cleanup
   delete (MyData);
@@ -109,6 +106,10 @@ zConfigTest_ConfigurationGetSetData(void* arg_)
 int
 zConfigTest_ConfigurationCompare(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationCompare()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new configuration data item and verify
   zConfig::Configuration *MyConfig1 = new zConfig::Configuration;
   TEST_ISNOT_NULL(MyConfig1);
@@ -123,10 +124,9 @@ zConfigTest_ConfigurationCompare(void* arg_)
   TEST_TRUE(*MyConfig1 == *MyConfig2);
   TEST_FALSE(*MyConfig1 != *MyConfig2);
 
-  zData::Data MyData("employee");
-  std::string key = "name";
+  zConfig::ConfigData MyData("Employee");
   std::string val = "Elvis";
-  TEST_TRUE(MyData.Put(val, key));
+  TEST_TRUE(MyData.Put(MyData.GetDataPath(), val));
 
   // Modify first configuration data item
   TEST_TRUE(MyConfig1->Put(MyData));
@@ -168,9 +168,15 @@ zConfigTest_ConfigurationCompare(void* arg_)
   return (0);
 
 }
+
 int
 zConfigTest_ConfigurationDataArray(void* arg_)
 {
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationDataArray()");
+  ZLOG_DEBUG("#############################################################");
+
+  zConfig::ConfigPath MyPath("Employee");
 
   // Create new configuration data item and verify
   zConfig::Configuration *MyConfig = new zConfig::Configuration;
@@ -178,71 +184,72 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   TEST_FALSE(MyConfig->IsModified());
 
   // Create new data item and verify
-  zData::Data *MyData1 = new zData::Data("employee");
+  zConfig::ConfigData *MyData1 = new zConfig::ConfigData(MyPath);
   TEST_ISNOT_NULL(MyData1);
 
   // Setup data item and verify
-  std::string key = "name";
   std::string val1 = "Moe";
   std::string obs1 = "";
-  TEST_TRUE(MyData1->Put(val1, key));
-  TEST_TRUE(MyData1->Get(obs1, key));
+  TEST_TRUE(MyData1->Put(MyData1->GetDataPath(), val1));
+  TEST_TRUE(MyData1->Get(MyData1->GetDataPath(), obs1));
   TEST_EQ(obs1, val1);
 
   // Create new data item and verify
-  zData::Data *MyData2 = new zData::Data("employee");
+  zConfig::ConfigData *MyData2 = new zConfig::ConfigData(MyPath);
   TEST_ISNOT_NULL(MyData2);
 
   // Setup data item and verify
   std::string val2 = "Larry";
   std::string obs2 = "";
-  TEST_TRUE(MyData2->Put(val2, key));
-  TEST_TRUE(MyData2->Get(obs2, key));
+  TEST_TRUE(MyData2->Put(MyData2->GetDataPath(), val2));
+  TEST_TRUE(MyData2->Get(MyData2->GetDataPath(), obs2));
   TEST_EQ(obs2, val2);
 
   // Create new data item and verify
-  zData::Data *MyData3 = new zData::Data("employee");
+  zConfig::ConfigData *MyData3 = new zConfig::ConfigData(MyPath);
   TEST_ISNOT_NULL(MyData3);
 
   // Setup data item and verify
   std::string val3 = "Curly";
   std::string obs3 = "";
-  TEST_TRUE(MyData3->Put(val3, key));
-  TEST_TRUE(MyData3->Get(obs3, key));
+  TEST_TRUE(MyData3->Put(MyData3->GetDataPath(), val3));
+  TEST_TRUE(MyData3->Get(MyData3->GetDataPath(), obs3));
   TEST_EQ(obs3, val3);
 
-  zData::Data ObsData;
-
   // Add the data items and verify (only updates staging data)
-  TEST_TRUE(MyConfig->Add(*MyData1, MyData1->Key()));
+  TEST_TRUE(MyConfig->Add(*MyData1));
   TEST_TRUE(MyConfig->IsModified());
-  TEST_TRUE(MyConfig->Add(*MyData2, MyData2->Key()));
+  TEST_TRUE(MyConfig->Add(*MyData2));
   TEST_TRUE(MyConfig->IsModified());
-  TEST_TRUE(MyConfig->Add(*MyData3, MyData3->Key()));
+  TEST_TRUE(MyConfig->Add(*MyData3));
   TEST_TRUE(MyConfig->IsModified());
-  //MyConfig->Display();
+//  MyConfig->Display();
 
-  // Commit data and verify
+// Commit data and verify
   TEST_TRUE(MyConfig->Commit());
   TEST_FALSE(MyConfig->IsModified());
-  //MyConfig->Display();
-  TEST_TRUE(MyConfig->Get(ObsData, "employee"));
+//  MyConfig->Display();
+  zConfig::ConfigData ObsData;
+  TEST_TRUE(MyConfig->Get(ObsData));
 
   std::unique_ptr<zData::Data> d;
 
   d = ObsData[0];
   TEST_FALSE(d == NULL);
-  TEST_TRUE(d->Get(obs1, key));
+//  d->DisplayJson();
+  TEST_TRUE(d->Get(d->GetDataPath(), obs1));
   TEST_EQ(obs1, val1);
 
   d = ObsData[1];
   TEST_FALSE(d == NULL);
-  TEST_TRUE(d->Get(obs2, key));
+//  d->DisplayJson();
+  TEST_TRUE(d->Get(d->GetDataPath(), obs2));
   TEST_EQ(obs2, val2);
 
   d = ObsData[2];
   TEST_FALSE(d == NULL);
-  TEST_TRUE(d->Get(obs3, key));
+//  d->DisplayJson();
+  TEST_TRUE(d->Get(d->GetDataPath(), obs3));
   TEST_EQ(obs3, val3);
 
   // Cleanup
@@ -253,4 +260,110 @@ zConfigTest_ConfigurationDataArray(void* arg_)
 
   // Return success
   return (0);
+
 }
+
+int
+zConfigTest_ConfigurationLoadStore(void* arg_)
+{
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationLoadStore()");
+  ZLOG_DEBUG("#############################################################");
+
+  zConfig::ConfigPath MyPath1;
+  TEST_TRUE(MyPath1.Append("Key1"));
+
+  zConfig::ConfigPath MyPath2;
+  TEST_TRUE(MyPath2.Append("Key2"));
+
+  // Create new configuration data item and verify
+  zConfig::ConfigData *ExpData = new zConfig::ConfigData;
+  TEST_ISNOT_NULL(ExpData);
+  zConfig::ConfigData *ObsData = new zConfig::ConfigData;
+  TEST_ISNOT_NULL(ObsData);
+
+  // Create new configuration data item and verify
+  zConfig::Configuration *MyConfig = new zConfig::Configuration;
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_FALSE(MyConfig->IsModified());
+
+  // Create new configuration data connector and verify
+  TestConnector *MyConnector = new TestConnector;
+  TEST_ISNOT_NULL(MyConnector);
+
+  // Register connector and verify
+  TEST_TRUE(MyConfig->Connect(MyConnector));
+
+  // Attempt to load configuration and verify
+  TEST_FALSE(MyConfig->Load());
+
+  // Attempt to store configuration and verify
+  TEST_TRUE(MyConfig->Store());
+
+  // Attempt to load configuration and verify
+  TEST_TRUE(MyConfig->Load());
+
+  // Update configuration data
+  std::string obs1;
+  std::string val1 = "Value1";
+  TEST_TRUE(ExpData->Put(MyPath1.GetDataPath(), val1));
+  TEST_TRUE(ExpData->Get(MyPath1.GetDataPath(), obs1));
+  TEST_EQ(val1, obs1);
+
+  std::string obs2;
+  std::string val2 = "Value2";
+  TEST_TRUE(ExpData->Put(MyPath2.GetDataPath(), val2));
+  TEST_TRUE(ExpData->Get(MyPath2.GetDataPath(), obs2));
+  TEST_EQ(val2, obs2);
+
+  // Verify data is not equal
+  TEST_FALSE(*ObsData == *ExpData);
+  TEST_TRUE(*ObsData != *ExpData);
+
+  // Put the data
+  TEST_TRUE(MyConfig->Put(*ExpData));
+//  MyConfig->Display();
+
+  // Attempt to store configuration and verify
+  TEST_TRUE(MyConfig->Store());
+
+  // Attempt to load configuration and verify
+  TEST_TRUE(MyConfig->Load());
+
+  // Get data and verify
+  TEST_TRUE(MyConfig->Get(*ObsData));
+
+  // Verify data is not equal
+  TEST_FALSE(*ObsData == *ExpData);
+  TEST_TRUE(*ObsData != *ExpData);
+
+  // Commit the data and verify
+  TEST_TRUE(MyConfig->Put(*ExpData));
+  TEST_TRUE(MyConfig->Commit());
+//  MyConfig->Display();
+
+  // Attempt to store configuration and verify
+  TEST_TRUE(MyConfig->Store());
+
+  // Attempt to load configuration and verify
+  TEST_TRUE(MyConfig->Load());
+
+  // Get data and verify
+  TEST_TRUE(MyConfig->Get(*ObsData));
+
+  // Verify data is equal
+  TEST_TRUE(*ObsData == *ExpData);
+  TEST_FALSE(*ObsData != *ExpData);
+
+  // Cleanup
+  MyConfig->Disconnect();
+  delete (MyConnector);
+  delete (MyConfig);
+  delete (ObsData);
+  delete (ExpData);
+
+  // Return success
+  return (0);
+
+}
+

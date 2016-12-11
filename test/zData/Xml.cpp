@@ -30,36 +30,44 @@ zDataTest_XmlSimple(void* arg_)
   ZLOG_DEBUG("# zDataTest_XmlSimple()");
   ZLOG_DEBUG("#############################################################");
 
-  std::string key("TestKey");
-  std::string name("TestName");
   std::string val("TestValue");
   std::string obs;
 
+  zData::DataPath MyPath1;
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Root());
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Base());
+  TEST_EQ(std::string(""), MyPath1.Key());
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Path());
+
+  zData::DataPath MyPath2("TestKey");
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".TestKey")), MyPath2.Root());
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".TestKey")), MyPath2.Base());
+  TEST_EQ(std::string(""), MyPath2.Key());
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".TestKey")), MyPath2.Path());
+
   // Create new data object and validate
-  zData::Data MyData1(key);
-  TEST_EQ(MyData1.Key(), key);
-  TEST_EQ(MyData1.GetJson(),
-      std::string("{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n"));
-  TEST_EQ(MyData1.GetXml(),
-      std::string(
-          "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>"));
+  zData::Data MyData1(MyPath1);
+  TEST_EQ(MyData1.Key(), MyPath1.Key());
+  TEST_EQ(MyData1.GetJson(), std::string("{\n    \"zData\": \"\"\n}\n"));
+  TEST_EQ(MyData1.GetXml(), std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData/>"));
 
   // Set value and validate
-  TEST_TRUE(MyData1.Put(val, name));
-  TEST_TRUE(MyData1.Get(obs, name));
+  TEST_TRUE(MyData1.Put(MyPath1, val));
+  TEST_TRUE(MyData1.Get(MyPath1, obs));
   TEST_EQ(obs, val);
 
   // Create second empty data object and validate
-  zData::Data MyData2;
-  TEST_EQ(MyData2.Key(), "");
-  TEST_EQ(MyData2.GetJson(), std::string("{\n    \"Key\": \"\"\n}\n"));
+  zData::Data MyData2(MyPath2);
+  TEST_EQ(MyData2.Key(), MyPath2.Key());
+  TEST_EQ(MyData2.GetJson(),
+      std::string("{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n"));
   TEST_EQ(MyData2.GetXml(),
-      std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key/>"));
+      std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>"));
 
-  // Set the second data object from the first using only XML
-  MyData2.SetXml(MyData1.GetXml());
-  TEST_EQ(MyData2.Key(), key);
-  TEST_TRUE(MyData2.Get(obs, name));
+  // Set the second data object from the first using only JSON
+  TEST_TRUE(MyData2.SetXml(MyData1.GetXml()));
+//  TEST_EQ(MyData2.Key(), MyPath1.Key());
+  TEST_TRUE(MyData1.Get(MyPath1, obs));
   TEST_EQ(obs, val);
   TEST_EQ(MyData2.GetJson(), MyData1.GetJson());
   TEST_EQ(MyData2.GetXml(), MyData1.GetXml());

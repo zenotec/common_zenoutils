@@ -2,6 +2,8 @@
 #	zException \
 #
 
+export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+
 SUBDIRS = \
 	zLog \
 	zProgOpt \
@@ -15,6 +17,7 @@ SUBDIRS = \
 	zGpio \
 	zLed \
 	zSerial \
+	zInterface \
 	zSocket \
 	zMessage \
 	zCommand \
@@ -27,7 +30,7 @@ CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV)
+AM_CPPFLAGS := $(CPPFLAGS_GCOV) -Werror -Wfatal-errors
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 lib_LTLIBRARIES = libzutils.la
@@ -54,6 +57,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zNode.h \
     $(top_srcdir)/inc/zutils/zQueue.h \
     $(top_srcdir)/inc/zutils/zSem.h \
+    $(top_srcdir)/inc/zutils/zInterface.h \
     $(top_srcdir)/inc/zutils/zSocket.h \
     $(top_srcdir)/inc/zutils/zLoopSocket.h \
     $(top_srcdir)/inc/zutils/zInetSocket.h \
@@ -90,6 +94,7 @@ libzutils_la_LIBADD = \
     ${top_builddir}/lib/zGpio/libzGpio.la \
     ${top_builddir}/lib/zLed/libzLed.la \
     ${top_builddir}/lib/zSerial/libzSerial.la \
+    ${top_builddir}/lib/zInterface/libzInterface.la \
     ${top_builddir}/lib/zSocket/libzSocket.la \
     ${top_builddir}/lib/zMessage/libzMessage.la \
     ${top_builddir}/lib/zCommand/libzCommand.la \

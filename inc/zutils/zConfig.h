@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
 #include <zutils/zSem.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
@@ -28,13 +30,13 @@ namespace zUtils
 namespace zConfig
 {
 
-class ConfigurationConnector;
+class ConfigConnector;
 
 //**********************************************************************
-// Class: ConfigurationNotification
+// Class: ConfigNotification
 //**********************************************************************
 
-class ConfigurationNotification : public zEvent::EventNotification
+class ConfigNotification : public zEvent::EventNotification
 {
 public:
 
@@ -54,128 +56,101 @@ public:
     ID_LAST
   };
 
-  ConfigurationNotification(ConfigurationNotification::ID id_);
+  ConfigNotification(ConfigNotification::ID id_);
 
   virtual
-  ~ConfigurationNotification();
+  ~ConfigNotification();
 
-  ConfigurationNotification::ID
+  ConfigNotification::ID
   Id();
 
 protected:
 
 private:
 
-  ConfigurationNotification::ID _id;
+  ConfigNotification::ID _id;
 
 };
 
 //**********************************************************************
-// Class: Configuration
+// Class: ConfigPath
 //**********************************************************************
 
-class Configuration : public zEvent::Event
+class ConfigPath : public zData::DataPath
 {
 
 public:
 
-  static const std::string ROOT;
+  static const std::string ConfigRoot;
 
-  Configuration();
+  ConfigPath(const std::string& root_ = std::string(""));
 
-  Configuration(Configuration &other_);
+  ConfigPath(zData::DataPath& path_);
 
-  Configuration(const Configuration &other_);
-
-  Configuration(zData::Data &data_);
+  ConfigPath(const zData::DataPath& path_);
 
   virtual
-  ~Configuration();
+  ~ConfigPath();
 
-  bool
-  operator ==(const Configuration &other_) const;
+  zData::DataPath&
+  GetDataPath();
 
-  bool
-  operator !=(const Configuration &other_) const;
+  const zData::DataPath&
+  GetDataPath() const;
 
-  std::unique_ptr<Configuration>
-  operator [](const std::string &key_);
+  ConfigPath&
+  GetConfigPath();
 
-  void
-  Display()
-  {
-    this->_working.DisplayJson();
-  }
-
-  bool
-  IsModified() const;
-
-  bool
-  Commit();
-
-  bool
-  Restore();
-
-  bool
-  Get(zData::Data &data_, const std::string &path_ = std::string("")) const;
-
-  bool
-  Get(Configuration &conf_, const std::string &path_ = std::string("")) const;
-
-  template<typename T>
-    bool
-    Get(T &value_, const std::string &path_ = std::string("")) const
-        {
-//      std::cout << "Getting configuration value: " << path_ << std::endl;
-      return (this->_working.Get<T>(value_, path_));
-    }
-
-  bool
-  Put(zData::Data &data_, const std::string &path_ = std::string(""));
-
-  bool
-  Put(Configuration &conf_, const std::string &path_ = std::string(""));
-
-  template<typename T>
-    bool
-    Put(T &value_, const std::string &path_ = std::string(""))
-    {
-//      std::cout << "Putting configuration value: " << path_ << std::endl;
-      return (this->_staging.Put<T>(value_, path_));
-    }
-
-  bool
-  Add(zData::Data &data_, const std::string &path_ = std::string(""));
-
-  bool
-  Add(Configuration &conf_, const std::string &path_ = std::string(""));
-
-  template<typename T>
-    bool
-    Add(T &value_, const std::string &path_ = std::string(""))
-    {
-//      std::cout << "Adding configuration value: " << path_ << std::endl;
-      return (this->_staging.Add<T>(value_, path_));
-    }
+  const ConfigPath&
+  GetConfigPath() const;
 
 protected:
 
-  virtual zEvent::EventNotification*
-  CreateNotification();
-
-  virtual zEvent::EventNotification*
-  CreateNotification2();
-
 private:
 
-  Configuration(const zData::Data &data_); // Not supported; Cannot ensure thread safeness
+};
 
-  mutable zSem::Mutex _lock;
+//**********************************************************************
+// Class: ConfigData
+//**********************************************************************
 
-  bool _modified;
+class ConfigData : public zData::Data
+{
 
-  zData::Data _staging;
-  zData::Data _working;
+public:
+
+  ConfigData(const std::string& path_ = std::string(""));
+
+  ConfigData(ConfigPath& path_);
+
+  ConfigData(zData::Data& data_);
+
+  ConfigData(const zData::Data& data_);
+
+  virtual
+  ~ConfigData();
+
+  ConfigData&
+  operator=(zData::Data& data_);
+
+  ConfigData&
+  operator=(const zData::Data& data_);
+
+  zData::Data&
+  GetData();
+
+  const zData::Data&
+  GetData() const;
+
+  ConfigData&
+  GetConfigData();
+
+  const ConfigData&
+  GetConfigData() const;
+
+protected:
+
+private:
 
 };
 
@@ -183,16 +158,16 @@ private:
 // Class: ConfigurationConnector
 //**********************************************************************
 
-class ConfigurationConnector
+class ConfigConnector
 {
 
 public:
 
   virtual bool
-  Load(zData::Data &data_) = 0;
+  Load(ConfigData &data_) = 0;
 
   virtual bool
-  Store(zData::Data &data_) = 0;
+  Store(ConfigData &data_) = 0;
 
 protected:
 
@@ -204,7 +179,7 @@ private:
 // Class: ConfigurationFileConnector
 //**********************************************************************
 
-class ConfigurationFileConnector : public ConfigurationConnector
+class ConfigurationFileConnector : public ConfigConnector
 {
 public:
 
@@ -214,10 +189,10 @@ public:
   ~ConfigurationFileConnector();
 
   virtual bool
-  Load(zData::Data &data_);
+  Load(ConfigData &data_);
 
   virtual bool
-  Store(zData::Data &data_);
+  Store(ConfigData &data_);
 
 protected:
 
@@ -228,11 +203,12 @@ private:
 };
 
 //**********************************************************************
-// Class: ConfigurationHandler
+// Class: Configuration
 //**********************************************************************
 
-class ConfigurationHandler : public zEvent::EventHandler
+class Configuration : public zEvent::Event
 {
+
 public:
 
   enum STATE
@@ -248,13 +224,39 @@ public:
     STATE_LAST
   };
 
-  ConfigurationHandler();
+  Configuration();
+
+  Configuration(Configuration &other_);
+
+  Configuration(const Configuration &other_);
+
+  Configuration(ConfigData &data_);
+
+  Configuration(const ConfigData &data_);
 
   virtual
-  ~ConfigurationHandler();
+  ~Configuration();
 
   bool
-  Connect(ConfigurationConnector *connector_);
+  operator ==(const Configuration &other_) const;
+
+  bool
+  operator !=(const Configuration &other_) const;
+
+  std::unique_ptr<Configuration>
+  operator [](const std::string &key_);
+
+  ConfigPath&
+  GetConfigPath()
+  {
+    return (this->_path);
+  }
+
+  bool
+  Connect(ConfigConnector *connector_);
+
+  bool
+  Disconnect();
 
   bool
   Load();
@@ -262,21 +264,121 @@ public:
   bool
   Store();
 
+  void
+  Display()
+  {
+    this->_staging.DisplayJson();
+    this->_working.DisplayJson();
+  }
+
+  bool
+  IsModified() const;
+
   bool
   Commit();
 
   bool
-  Get(Configuration &config_, const std::string &path_ = std::string(""));
+  Restore();
 
   bool
-  Put(Configuration &config_, const std::string &path_ = std::string(""));
+  Get(ConfigData& child_) const;
+
+  bool
+  Get(ConfigPath& path_, ConfigData& child_) const;
+
+  template<typename T>
+    bool
+    Get(ConfigPath path_, T& val_) const
+        {
+      bool status = false;
+
+      ZLOG_DEBUG(std::string("Getting configuration: ") + path_.Path());
+
+      // Begin critical section
+      if (this->_lock.Lock())
+      {
+        status = this->_working.Get<T>(path_.GetDataPath(), val_);
+        // End critical section
+        this->_lock.Unlock();
+      }
+
+      // Return status
+      return (status);
+    }
+
+  bool
+  Put(const ConfigData& child_);
+
+  bool
+  Put(const ConfigPath& path_, const ConfigData& child_);
+
+  template<typename T>
+    bool
+    Put(const ConfigPath& path_, T &value_)
+    {
+      bool status = false;
+
+      ZLOG_DEBUG(std::string("Putting configuration: ") + path_.Path());
+
+      // Begin critical section
+      if (this->_lock.Lock())
+      {
+        if (this->_staging.Put<T>(path_.GetDataPath(), value_))
+        {
+          this->_modified = true;
+          status = true;
+        }
+        // End critical section
+        this->_lock.Unlock();
+      }
+
+      // Return status
+      return (status);
+    }
+
+  bool
+  Add(const ConfigData& child_);
+
+  bool
+  Add(const ConfigPath& path_, const ConfigData& child_);
+
+  template<typename T>
+    bool
+    Add(const ConfigPath& path_, T &value_)
+    {
+      bool status = false;
+
+      ZLOG_DEBUG(std::string("Adding configuration: ") + path_.Path());
+
+      // Begin critical section
+      if (this->_lock.Lock())
+      {
+        if (this->_staging.Add<T>(path_.GetDataPath(), value_))
+        {
+          this->_modified = true;
+          status = true;
+        }
+        // End critical section
+        this->_lock.Unlock();
+      }
+
+      // Return status
+      return (status);
+    }
 
 protected:
 
 private:
 
-  ConfigurationConnector *_connector;
-  Configuration _working;
+  mutable zSem::Mutex _lock;
+
+  bool _modified;
+
+  ConfigConnector *_connector;
+
+  ConfigPath _path;
+  ConfigData _staging;
+  ConfigData _working;
 
 };
 
@@ -284,7 +386,7 @@ private:
 // Class: ConfigurationManager
 //**********************************************************************
 
-class ConfigurationManager : public ConfigurationHandler
+class ConfigurationManager : public zEvent::EventHandler, public Configuration
 {
 public:
 

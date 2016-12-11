@@ -84,6 +84,8 @@ Thread::Thread(ThreadFunction *func_, ThreadArg *arg_) :
 
 Thread::~Thread()
 {
+  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
+  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
   // Terminate listener thread
   this->Stop();
 }
@@ -155,9 +157,16 @@ Thread::EventHandler(const zEvent::EventNotification* notification_)
     n = static_cast<const zSignal::SignalNotification*>(notification_);
     switch (n->Id())
     {
-    // TODO!
-    }
-  }
+    case zSignal::Signal::ID_SIGTERM:
+      // No break
+    case zSignal::Signal::ID_SIGINT:
+      // No break
+    case zSignal::Signal::ID_SIGABRT:
+      this->_func->Exit(true);
+      break;
+    default:
+      break;
+    }  }
   return status;
 }
 

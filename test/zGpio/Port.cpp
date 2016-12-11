@@ -44,6 +44,7 @@ zGpioTest_PortGetSet(void* arg)
   // Create new GPIO Port test configuration
   TestPortConfig *MyConfig = new TestPortConfig(1);
   TEST_ISNOT_NULL(MyConfig);
+//  MyConfig->DisplayJson();
 
   // Create new GPIO port and verify
   zGpio::GpioPort *MyPort = new zGpio::GpioPort(*MyConfig);
@@ -53,18 +54,21 @@ zGpioTest_PortGetSet(void* arg)
   TEST_TRUE(MyPort->Open() >= 0);
 
   // Verify configured state and current state match
-  TEST_TRUE(MyPort->State() == MyPort->Get());
-  TEST_TRUE(zGpio::GpioPort::STATE_INACTIVE == MyPort->Get());
+  TEST_EQ(zGpio::GpioPort::STATE_DEF, MyPort->GetState());
+  TEST_EQ(zGpio::GpioPort::STATE_DEF, MyPort->Get());
+  TEST_EQ(MyPort->GetState(), MyPort->Get());
 
   // Modify current state and verify
   TEST_TRUE(MyPort->Set(zGpio::GpioPort::STATE_ACTIVE));
-  TEST_FALSE(MyPort->State() == MyPort->Get());
-  TEST_TRUE(zGpio::GpioPort::STATE_ACTIVE == MyPort->Get());
+  TEST_EQ(zGpio::GpioPort::STATE_DEF, MyPort->GetState());
+  TEST_EQ(zGpio::GpioPort::STATE_ACTIVE, MyPort->Get());
+  TEST_NEQ(MyPort->GetState(), MyPort->Get());
 
   // Modify current state back and verify
   TEST_TRUE(MyPort->Set(zGpio::GpioPort::STATE_INACTIVE));
-  TEST_TRUE(MyPort->State() == MyPort->Get());
-  TEST_TRUE(zGpio::GpioPort::STATE_INACTIVE == MyPort->Get());
+  TEST_EQ(zGpio::GpioPort::STATE_DEF, MyPort->GetState());
+  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort->Get());
+  TEST_EQ(MyPort->GetState(), MyPort->Get());
 
   // Close port
   TEST_TRUE(MyPort->Close());

@@ -27,25 +27,28 @@ zDataTest_PutValueSingle(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zDataTest_SetValueSingle()");
+  ZLOG_DEBUG("# zDataTest_PutValueSingle()");
   ZLOG_DEBUG("#############################################################");
 
   std::string expKey = "TestKey";
   std::string expVal = "TestValue";
   std::string obsVal;
-  std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
-  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
+  std::string expJson = "{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n";
+  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>";
+
+  // Create new data path object and validate
+  zData::DataPath MyPath(expKey);
 
   // Create new data object and validate
-  zData::Data *MyData = new zData::Data(expKey);
+  zData::Data *MyData = new zData::Data(MyPath);
   TEST_ISNOT_NULL(MyData);
-  TEST_EQ(MyData->Key(), expKey);
+  TEST_EQ(MyData->Key(), MyPath.Key());
   TEST_EQ(MyData->GetJson(), expJson);
   TEST_EQ(MyData->GetXml(), expXml);
 
   // Set value and validate
-  TEST_TRUE(MyData->Put(expVal, expKey));
-  TEST_TRUE(MyData->Get(obsVal, expKey));
+  TEST_TRUE(MyData->Put(MyPath, expVal));
+  TEST_TRUE(MyData->Get(MyPath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Cleanup
@@ -60,33 +63,40 @@ zDataTest_PutValueMultiple(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zDataTest_SetValueMultiple()");
+  ZLOG_DEBUG("# zDataTest_PutValueMultiple()");
   ZLOG_DEBUG("#############################################################");
 
   std::string expKey = "TestKey";
   std::string expVal = "TestValue";
   std::string obsVal;
-  std::string expJson = "{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n";
-  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>";
+  std::string expJson = "{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n";
+  std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>";
+
+  // Create new data path object and validate
+  zData::DataPath EmployeePath(expKey);
 
   // Create new data object and validate
-  zData::Data *MyData = new zData::Data(expKey);
-  TEST_EQ(MyData->Key(), expKey);
+  zData::Data *MyData = new zData::Data(EmployeePath);
+  TEST_EQ(MyData->Key(), EmployeePath.Key());
   TEST_EQ(MyData->GetJson(), expJson);
   TEST_EQ(MyData->GetXml(), expXml);
 
   // Set first value and validate
-  expKey = "Employee.Name.First";
+  zData::DataPath FirstNamePath(EmployeePath);
+  TEST_TRUE(FirstNamePath.Append(std::string("Name")));
+  TEST_TRUE(FirstNamePath.Append(std::string("First")));
   expVal = "Elvis";
-  TEST_TRUE(MyData->Put(expVal, expKey));
-  TEST_TRUE(MyData->Get(obsVal, expKey));
+  TEST_TRUE(MyData->Put(FirstNamePath, expVal));
+  TEST_TRUE(MyData->Get(FirstNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Set second value and validate
-  expKey = "Employee.Name.Last";
+  zData::DataPath LastNamePath(EmployeePath);
+  TEST_TRUE(LastNamePath.Append(std::string("Name")));
+  TEST_TRUE(LastNamePath.Append(std::string("Last")));
   expVal = "Presley";
-  TEST_TRUE(MyData->Put(expVal, expKey));
-  TEST_TRUE(MyData->Get(obsVal, expKey));
+  TEST_TRUE(MyData->Put(LastNamePath, expVal));
+  TEST_TRUE(MyData->Get(LastNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Cleanup

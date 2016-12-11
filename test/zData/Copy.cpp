@@ -33,26 +33,40 @@ zDataTest_DataCopy(void* arg)
 
   // Create new data object and validate
   std::string key1 = "key1";
-  zData::Data *myData1 = new zData::Data(key1);
-  TEST_EQ(myData1->Key(), key1);
+  zData::Data *MyData1 = new zData::Data;
+  TEST_ISNOT_NULL(MyData1);
+  TEST_TRUE(MyData1->Append(key1));
+  TEST_EQ(key1, MyData1->Key());
+//  MyData1->DisplayPath();
+//  MyData1->DisplayJson();
 
   // Create new data object and validate
   std::string key2 = "key2";
-  zData::Data *myData2 = new zData::Data(key2);
-  TEST_EQ(myData2->Key(), key2);
+  zData::Data *MyData2 = new zData::Data;
+  TEST_ISNOT_NULL(MyData2);
+  TEST_TRUE(MyData2->Append(key2));
+  TEST_EQ(key2, MyData2->Key());
+//  MyData2->DisplayPath();
+//  MyData2->DisplayJson();
 
   // Verify data is NOT equal
-  TEST_TRUE(*myData1 != *myData2);
+  TEST_FALSE_MSG(*MyData1 == *MyData2, std::string(MyData1->GetJson() + MyData2->GetJson()));
+  TEST_TRUE_MSG(*MyData1 != *MyData2, std::string(MyData1->GetJson() + MyData2->GetJson()));
 
   // Copy
-  *myData2 = *myData1;
+  *MyData2 = *MyData1;
+//  MyData1->DisplayPath();
+//  MyData1->DisplayJson();
+//  MyData2->DisplayPath();
+//  MyData2->DisplayJson();
 
   // Verify data is equal
-  TEST_TRUE(*myData1 == *myData2);
+  TEST_TRUE_MSG(*MyData1 == *MyData2, std::string(MyData1->GetJson() + MyData2->GetJson()));
+  TEST_FALSE_MSG(*MyData1 != *MyData2, std::string(MyData1->GetJson() + MyData2->GetJson()));
 
   // Clean up
-  delete (myData1);
-  delete (myData2);
+  delete (MyData1);
+  delete (MyData2);
 
   // Return success
   return (0);

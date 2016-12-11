@@ -21,6 +21,30 @@
 using namespace zUtils;
 
 int
+zDataTest_PathDefaults(void* arg)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zDataTest_PathDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  zData::DataPath MyPath1;
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Root());
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Base());
+  TEST_EQ(std::string(""), MyPath1.Key());
+  TEST_EQ(zData::DataPath::DataRoot, MyPath1.Path());
+
+  zData::DataPath MyPath2("key");
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".key")), MyPath2.Root());
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".key")), MyPath2.Base());
+  TEST_EQ(std::string(""), MyPath2.Key());
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".key")), MyPath2.Path());
+
+  // Return success
+  return (0);
+}
+
+int
 zDataTest_Defaults(void* arg)
 {
 
@@ -28,27 +52,21 @@ zDataTest_Defaults(void* arg)
   ZLOG_DEBUG("# zDataTest_Defaults()");
   ZLOG_DEBUG("#############################################################");
 
-  std::string key;
   zData::Data *MyData;
 
   // Create new data object and validate
-  key = "";
   MyData = new zData::Data;
-  TEST_EQ(MyData->Key(), key);
-  TEST_EQ(MyData->GetJson(), std::string("{\n    \"Key\": \"\"\n}\n"));
+  TEST_EQ(MyData->GetJson(), std::string("{\n    \"zData\": \"\"\n}\n"));
   TEST_EQ(MyData->GetXml(),
-      std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key/>"));
+      std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData/>"));
   delete (MyData);
 
   // Create new data object and validate
-  key = "TestKey";
-  MyData = new zData::Data(key);
-  TEST_EQ(MyData->Key(), key);
+  MyData = new zData::Data("TestKey");
   TEST_EQ(MyData->GetJson(),
-      std::string("{\n    \"Key\": \"TestKey\",\n    \"TestKey\": \"\"\n}\n"));
+      std::string("{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n"));
   TEST_EQ(MyData->GetXml(),
-      std::string(
-          "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Key>TestKey</Key><TestKey/>"));
+      std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>"));
   delete (MyData);
 
   // Return success

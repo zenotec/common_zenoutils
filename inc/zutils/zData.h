@@ -18,94 +18,133 @@
 #define __ZDATA_H__
 
 #include <string>
+#include <list>
 #include <mutex>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
+#include <zutils/zCompatibility.h>
+#include <zutils/zSem.h>
+
 namespace zUtils
 {
 namespace zData
 {
 
+namespace pt = boost::property_tree;
+
+//**********************************************************************
+// Class: DataPath
+//**********************************************************************
+
+class DataPath
+{
+
+public:
+
+  static const std::string DataRoot;
+
+  DataPath(const std::string& name_ = std::string(""));
+
+  virtual
+  ~DataPath();
+
+  bool
+  operator ==(const DataPath &other_) const;
+
+  bool
+  operator !=(const DataPath &other_) const;
+
+  DataPath
+  operator ()(const std::string& path_);
+
+  std::string
+  operator [](const unsigned int index);
+
+  bool
+  Prepend(const std::string& name_);
+
+  bool
+  Append(const std::string& name_);
+
+  std::string
+  PopFront();
+
+  std::string
+  PopBack();
+
+  std::string
+  Root() const;
+
+  std::string
+  Base() const;
+
+  std::string
+  Key() const;
+
+  std::string
+  Path(const std::string path_ = std::string("")) const;
+
+  void
+  Clear();
+
+  void
+  DisplayPath() const;
+
+protected:
+
+  std::list<std::string> _root;
+
+private:
+
+  std::list<std::string> _path;
+
+};
+
 //**********************************************************************
 // Class: Data
 //**********************************************************************
 
-class Data
+class Data : public DataPath
 {
-
-  static const std::string ROOT;
-  static const std::string KEY;
 
 public:
 
-  Data(const std::string &key_ = std::string(""));
+  Data(const std::string& path_ = std::string(""));
 
-  Data(const boost::property_tree::ptree &pt_) :
-      _pt(pt_)
-  {
-  }
+  Data(const DataPath& path_);
 
-  Data(Data &other_)
-  {
-    other_._lock.lock();
-    this->_pt = other_._pt;
-    other_._lock.unlock();
-  }
+  Data(const pt::ptree& pt_);
 
-  // Provided for completeness, however, this is not thread-safe
-  Data(const Data &other_)
-  {
-    this->_pt = other_._pt;
-  }
+  Data(Data& other_);
+
+  Data(const Data& other_);
 
   virtual
   ~Data();
 
   Data &
-  operator=(Data &other_)
-  {
-    other_._lock.lock();
-    this->_lock.lock();
-    this->_pt = other_._pt;
-    this->_lock.unlock();
-    other_._lock.unlock();
-    return (*this);
-  }
+  operator=(Data& other_);
 
-  // Provided for completeness, however, this is not thread-safe
   Data &
-  operator=(const Data &other_)
-  {
-    this->_pt = other_._pt;
-    return (*this);
-  }
+  operator=(const Data& other_);
 
-  // Provided for completeness, however, this is not thread-safe
   bool
-  operator ==(const Data &other_) const
-  {
-    bool status = false;
-    return (this->_pt == other_._pt);
-  }
+  operator ==(const Data& other_) const;
 
-  // Provided for completeness, however, this is not thread-safe
   bool
-  operator !=(const Data &other_) const
+  operator !=(const Data& other_) const;
+
+  UNIQUE_PTR(Data)
+  operator[](int pos_);
+
+  const DataPath&
+  GetDataPath() const
   {
-    return (this->_pt != other_._pt);
+    return(*this);
   }
-
-  std::unique_ptr<Data>
-  operator [](int pos_);
-
-  std::unique_ptr<Data>
-  operator [](const std::string &key_);
-
-  std::string
-  Key();
 
   ssize_t
   Size();
@@ -114,243 +153,192 @@ public:
   Clear();
 
   bool
-  Get(Data &value_, const std::string &path_ = std::string("")) const;
-
-  template<typename T>
-    bool
-    Get(T &value_, const std::string &path_ = std::string("")) const
-    {
-
-      bool status = false;
-
-      // Begin critical section
-      this->_lock.lock();
-
-      // Setup path
-      std::string path = this->key();
-      if (!path_.empty())
-      {
-        path += std::string(".") + path_;
-      }
-
-      // Get value
-      status = this->get(value_, path);
-
-      // End critical section
-      this->_lock.unlock();
-
-      // Return status
-      return (status);
-
-    }
+  Get(Data& child_) const;
 
   bool
-  Put(const Data &child_, const std::string &path_ = std::string(""));
+  Get(const DataPath& path_, Data& child_) const;
 
   template<typename T>
-    bool
-    Put(const T &value_, const std::string &path_ = std::string(""))
+  bool
+  Get(const DataPath& path_, T &value_) const
+  {
+
+    bool status = false;
+
+    // Begin critical section
+    if (this->_lock.Lock())
     {
-
-      bool status = false;
-
-      // Begin critical section
-      this->_lock.lock();
-
-      // Setup path
-      std::string path = this->key();
-      if (!path_.empty())
-      {
-        path += std::string(".") + path_;
-      }
-
-      status = this->put(value_, path);
-
-      // End critical section
-      this->_lock.unlock();
-
-      // Return status
-      return (status);
-
+      status = this->get<T>(path_.Path(), value_);
+      this->_lock.Unlock();
     }
 
+    // Return status
+    return (status);
+
+  }
+
   bool
-  Add(const Data &child_, const std::string &path_ = std::string(""));
+  Put(const Data& child_);
+
+  bool
+  Put(const DataPath& path_, const Data& child_);
 
   template<typename T>
-    bool
-    Add(const T &value_, const std::string &path_ = std::string(""))
+  bool
+  Put(const DataPath& path_, const T &value_)
+  {
+
+    bool status = false;
+
+    // Begin critical section
+    if (this->_lock.Lock())
     {
-
-      bool status = false;
-
-      // Begin critical section
-      this->_lock.lock();
-
-      // Setup path
-      std::string path = this->key();
-      if (!path_.empty())
-      {
-        path += std::string(".") + path_;
-      }
-
-      status = this->add(value_, path);
-
-      // End critical section
-      this->_lock.unlock();
-
-      // Return status
-      return (status);
-
+      status = this->put<T>(path_.Path(), value_);
+      this->_lock.Unlock();
     }
 
-  bool
-  Del(const std::string &path_ = std::string(""));
+    // Return status
+    return (status);
 
+  }
+
+  bool
+  Add(const Data& child_);
+
+  bool
+  Add(const DataPath& path_, const Data& child_);
+
+  template<typename T>
+  bool
+  Add(const DataPath& path_, const T &value_)
+  {
+
+    bool status = false;
+
+    // Begin critical section
+    if (this->_lock.Lock())
+    {
+      status = this->add<T>(path_.Path(), value_);
+      this->_lock.Unlock();
+    }
+
+    // Return status
+    return (status);
+
+  }
+
+  bool
+  Del(const DataPath& path_);
+
+  // Json utility functions
   std::string
   GetJson() const;
+
   bool
   SetJson(const std::string &json_);
+
   void
   DisplayJson() const;
 
+  // XML utility functions
+
   std::string
   GetXml() const;
+
   bool
   SetXml(const std::string &xml_);
+
   void
   DisplayXml() const;
 
-  // Path utility functions
-
-  template<typename lT, typename rT>
-    static std::string
-    PathConcat(const lT &l_, const rT &r_)
-    {
-      std::stringstream ss;
-      ss << l_ << "." << r_;
-      return (ss.str());
-    }
-
-  static std::string
-  PathFirst(const std::string &path_)
-  {
-    std::string str;
-    if (!path_.empty())
-    {
-      size_t pos = path_.find_first_of(".");
-      str = path_.substr(0, pos);
-    }
-    return (str);
-  }
-
-  static std::string
-  PathLast(const std::string &path_)
-  {
-    std::string str;
-    if (!path_.empty())
-    {
-      size_t pos = path_.find_last_of(".");
-      if (pos != std::string::npos)
-        str = path_.substr(pos + 1);
-      else
-        str = path_;
-    }
-    return (str);
-  }
-
 protected:
 
-  bool
-  get(boost::property_tree::ptree &pt_, const std::string &path_) const;
+  mutable zSem::Mutex _lock;
+  pt::ptree _pt;
 
-  template<typename T>
-    bool
-    get(T &value_, const std::string &path_) const
-        {
-      bool status = false;
-      if (!path_.empty())
-      {
-//        std::cout << "Getting value: " << path_ << std::endl;
-        try
-        {
-          value_ = this->_pt.get<T>(path_);
-          status = true;
-        }
-        catch (boost::property_tree::ptree_bad_path &e)
-        {
-          status = false;
-        }
-      }
-      return (status);
-    }
+private:
 
   bool
-  put(const boost::property_tree::ptree &pt_, const std::string &path_);
+  get(const std::string &path_, pt::ptree &pt_) const;
 
   template<typename T>
-    bool
-    put(const T &value_, const std::string &path_)
+  bool
+  get(const std::string &path_, T &value_) const
+  {
+    bool status = false;
+    if (!path_.empty())
     {
-      bool status = false;
-      if (!path_.empty())
+//      std::cout << "Getting value: " << path_ << std::endl;
+      try
       {
-//        std::cout << "Putting value: " << path_ << std::endl;
-        try
-        {
-          this->_pt.put<T>(path_, value_);
-          status = true;
-        }
-        catch (boost::property_tree::ptree_bad_path &e)
-        {
-          status = false;
-        }
+        value_ = this->_pt.get<T>(path_);
+        status = true;
       }
-      return (status);
+      catch (pt::ptree_bad_path &e)
+      {
+        status = false;
+      }
+//      this->DisplayJson();
     }
+    return (status);
+  }
 
   bool
-  add(const boost::property_tree::ptree &pt_, const std::string &path_);
+  put(const std::string& path_, const pt::ptree &pt_);
 
   template<typename T>
-    bool
-    add(const T &value_, const std::string &path_)
+  bool
+  put(const std::string& path_, const T &value_)
+  {
+    bool status = false;
+    if (!path_.empty())
     {
-      bool status = false;
-      if (!path_.empty())
+//      std::cout << "Putting value: " << path_ << std::endl;
+      try
       {
-//        std::cout << "Adding value: " << path_ << std::endl;
-//        this->DisplayJson();
-        try
-        {
-          boost::property_tree::ptree parent;
-          boost::property_tree::ptree child;
-          this->get(parent, path_); // Ignore return value
-          child.put_value<T>(value_);
-          parent.push_back(std::make_pair("", child));
-          status = this->put(parent, path_);
-        }
-        catch (boost::property_tree::ptree_bad_path &e)
-        {
-          status = false;
-        }
+        this->_pt.put<T>(path_, value_);
+        status = true;
       }
-      return (status);
+      catch (pt::ptree_bad_path &e)
+      {
+        status = false;
+      }
+//      this->DisplayJson();
     }
+    return (status);
+  }
+
+  bool
+  add(const std::string& path_, const pt::ptree &pt_);
+
+  template<typename T>
+  bool
+  add(const std::string& path_, const T &value_)
+  {
+    bool status = false;
+    if (!path_.empty())
+    {
+//      std::cout << "Adding value: " << path_ << std::endl;
+      try
+      {
+        pt::ptree parent;
+        pt::ptree child;
+        this->get(path_, parent);
+        child.put_value<T>(value_);
+        parent.push_back(std::make_pair("", child));
+        status = this->put(path_, parent);
+      }
+      catch (pt::ptree_bad_path &e)
+      {
+        status = false;
+      }
+//      this->DisplayJson();
+    }
+    return (status);
+  }
 
   bool
   del(const std::string &path_);
-
-  std::string
-  key() const;
-
-  bool
-  key(const std::string &key_);
-
-  boost::property_tree::ptree _pt;
-  mutable std::mutex _lock;
-
-private:
 
 };
 

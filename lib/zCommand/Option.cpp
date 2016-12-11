@@ -34,12 +34,12 @@ namespace zUtils
 namespace zCommand
 {
 
-const std::string CommandOption::ROOT = "zOption";
-const std::string CommandOption::OPT = "Option";
-const std::string CommandOption::ARG = "Argument";
+const std::string CommandOption::DataRoot = "zOption";
+const std::string CommandOption::DataOptionPath = "Option";
+const std::string CommandOption::DataArgPath = "Argument";
 
 CommandOption::CommandOption(const std::string &opt_, const std::string &arg_) :
-    zData::Data(CommandOption::ROOT)
+    zData::Data(CommandOption::DataRoot)
 {
   this->SetOption(opt_);
   this->SetArgument(arg_);
@@ -60,28 +60,28 @@ std::string
 CommandOption::GetOption() const
 {
   std::string str;
-  this->Get(str, CommandOption::OPT);
+  this->Get(zData::DataPath(CommandOption::DataOptionPath), str);
   return (str);
 }
 
 bool
 CommandOption::SetOption(const std::string opt_)
 {
-  return (this->Put(opt_, CommandOption::OPT));
+  return (this->Put(opt_, CommandOption::DataOptionPath));
 }
 
 std::string
 CommandOption::GetArgument() const
 {
   std::string str;
-  this->Get(str, CommandOption::ARG);
+  this->Get(zData::DataPath(CommandOption::DataArgPath), str);
   return (str);
 }
 
 bool
 CommandOption::SetArgument(const std::string arg_)
 {
-  return (this->Put(arg_, CommandOption::ARG));
+  return (this->Put(arg_, CommandOption::DataArgPath));
 }
 
 }

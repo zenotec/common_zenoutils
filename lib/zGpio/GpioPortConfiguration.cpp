@@ -34,50 +34,135 @@ namespace zGpio
 {
 
 //**********************************************************************
+// Class: GpioConfigPath
+//**********************************************************************
+
+const std::string GpioConfigPath::ConfigRoot("zGpio");
+
+const std::string GpioConfigPath::ConfigIdentifierPath("Identifier");
+const std::string GpioConfigPath::ConfigExportFilenamePath("ExportFilename");
+const std::string GpioConfigPath::ConfigUnexportFilenamePath("UnexportFilename");
+const std::string GpioConfigPath::ConfigDirectionFilenamePath("DirectionFilename");
+const std::string GpioConfigPath::ConfigDirectionValuePath("Direction");
+const std::string GpioConfigPath::ConfigStateFilenamePath("StateFilename");
+const std::string GpioConfigPath::ConfigStateValuePath("State");
+const std::string GpioConfigPath::ConfigEdgeFilenamePath("EdgeFilename");
+const std::string GpioConfigPath::ConfigEdgeValuePath("Edge");
+
+GpioConfigPath::GpioConfigPath() :
+    zConfig::ConfigPath(ConfigRoot)
+{
+}
+
+GpioConfigPath::~GpioConfigPath()
+{
+}
+
+zConfig::ConfigPath
+GpioConfigPath::Identifier() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigIdentifierPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::ExportFilename() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigExportFilenamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::UnexportFilename() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigUnexportFilenamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::DirectionFilename() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigDirectionFilenamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::Direction() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigDirectionValuePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::StateFilename() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigStateFilenamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::State() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigStateValuePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::EdgeFilename() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigEdgeFilenamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+GpioConfigPath::Edge() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigEdgeValuePath);
+  return (path);
+}
+
+//**********************************************************************
 // Class: Configuration
 //**********************************************************************
 
-const std::string GpioConfiguration::ConfigRoot("zGpio");
+const int GpioConfigData::ConfigIdentifierDefault(0);
 
-const std::string GpioConfiguration::ConfigIdentifierPath("Identifier");
-const int GpioConfiguration::ConfigIdentifierDefault(0);
+const std::string GpioConfigData::ConfigExportFilenameDefault("/sys/class/gpio/export");
 
-const std::string GpioConfiguration::ConfigExportFilenamePath("ExportFilename");
-const std::string GpioConfiguration::ConfigExportFilenameDefault("/sys/class/gpio/export");
+const std::string GpioConfigData::ConfigUnexportFilenameDefault("/sys/class/gpio/unexport");
 
-const std::string GpioConfiguration::ConfigUnexportFilenamePath("UnexportFilename");
-const std::string GpioConfiguration::ConfigUnexportFilenameDefault("/sys/class/gpio/unexport");
-
-const std::string GpioConfiguration::ConfigDirectionFilenamePath("DirectionFilename");
-const std::string GpioConfiguration::ConfigDirectionFilenameDefault(
+const std::string GpioConfigData::ConfigDirectionFilenameDefault(
     "/sys/class/gpio/gpio%d/direction");
 
-const std::string GpioConfiguration::ConfigDirectionValuePath("Direction");
-const std::string GpioConfiguration::ConfigDirectionValueIn("in");
-const std::string GpioConfiguration::ConfigDirectionValueOut("out");
-const std::string GpioConfiguration::ConfigDirectionValueDefault(
-    GpioConfiguration::ConfigDirectionValueIn);
+const std::string GpioConfigData::ConfigDirectionValueIn("in");
+const std::string GpioConfigData::ConfigDirectionValueOut("out");
+const std::string GpioConfigData::ConfigDirectionValueDefault(ConfigDirectionValueIn);
 
-const std::string GpioConfiguration::ConfigStateFilenamePath("StateFilename");
-const std::string GpioConfiguration::ConfigStateFilenameDefault("/sys/class/gpio/gpio%d/value");
+const std::string GpioConfigData::ConfigStateFilenameDefault("/sys/class/gpio/gpio%d/value");
 
-const std::string GpioConfiguration::ConfigStateValuePath("State");
-const std::string GpioConfiguration::ConfigStateValueActive("1");
-const std::string GpioConfiguration::ConfigStateValueInactive("0");
-const std::string GpioConfiguration::ConfigStateValueDefault(
-    GpioConfiguration::ConfigStateValueInactive);
+const std::string GpioConfigData::ConfigStateValueActive("1");
+const std::string GpioConfigData::ConfigStateValueInactive("0");
+const std::string GpioConfigData::ConfigStateValueDefault(ConfigStateValueInactive);
 
-const std::string GpioConfiguration::ConfigEdgeFilenamePath("EdgeFilename");
-const std::string GpioConfiguration::ConfigEdgeFilenameDefault("/sys/class/gpio/gpio%d/edge");
+const std::string GpioConfigData::ConfigEdgeFilenameDefault("/sys/class/gpio/gpio%d/edge");
 
-const std::string GpioConfiguration::ConfigEdgeValuePath("Edge");
-const std::string GpioConfiguration::ConfigEdgeValueNone("none");
-const std::string GpioConfiguration::ConfigEdgeValueLoHi("rising");
-const std::string GpioConfiguration::ConfigEdgeValueHiLo("falling");
-const std::string GpioConfiguration::ConfigEdgeValueBoth("both");
-const std::string GpioConfiguration::ConfigEdgeValueDefault(GpioConfiguration::ConfigEdgeValueNone);
+const std::string GpioConfigData::ConfigEdgeValueNone("none");
+const std::string GpioConfigData::ConfigEdgeValueLoHi("rising");
+const std::string GpioConfigData::ConfigEdgeValueHiLo("falling");
+const std::string GpioConfigData::ConfigEdgeValueBoth("both");
+const std::string GpioConfigData::ConfigEdgeValueDefault(ConfigEdgeValueNone);
 
-GpioConfiguration::GpioConfiguration()
+GpioConfigData::GpioConfigData() :
+    zConfig::ConfigData(GpioConfigPath::ConfigRoot)
 {
   this->Identifier(ConfigIdentifierDefault);
   this->ExportFilename(ConfigExportFilenameDefault);
@@ -90,8 +175,8 @@ GpioConfiguration::GpioConfiguration()
   this->Edge(ConfigEdgeValueDefault);
 }
 
-GpioConfiguration::GpioConfiguration(zData::Data &data_) :
-    zConfig::Configuration(data_)
+GpioConfigData::GpioConfigData(zData::Data& data_) :
+    zConfig::ConfigData(data_)
 {
   this->Identifier(this->Identifier());
   this->ExportFilename(this->ExportFilename());
@@ -104,8 +189,8 @@ GpioConfiguration::GpioConfiguration(zData::Data &data_) :
   this->Edge(this->Edge());
 }
 
-GpioConfiguration::GpioConfiguration(zConfig::Configuration& config_) :
-    zConfig::Configuration(config_)
+GpioConfigData::GpioConfigData(zConfig::ConfigData& config_) :
+    zConfig::ConfigData(config_)
 {
   this->Identifier(this->Identifier());
   this->ExportFilename(this->ExportFilename());
@@ -118,221 +203,179 @@ GpioConfiguration::GpioConfiguration(zConfig::Configuration& config_) :
   this->Edge(this->Edge());
 }
 
-GpioConfiguration::~GpioConfiguration()
+GpioConfigData::~GpioConfigData()
 {
-}
-
-zConfig::Configuration&
-GpioConfiguration::GetConfig()
-{
-  return (*this);
 }
 
 int
-GpioConfiguration::Identifier() const
+GpioConfigData::Identifier() const
 {
   int id;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigIdentifierPath);
-  this->Get(id, path);
+  GpioConfigPath path;
+  if (!this->Get(path.Identifier(), id))
+  {
+    id = ConfigIdentifierDefault;
+  }
   return (id);
 }
 
 bool
-GpioConfiguration::Identifier(const int id_)
+GpioConfigData::Identifier(const int id_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigIdentifierPath);
-  if (this->Put(id_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.Identifier(), id_));
 }
 
 std::string
-GpioConfiguration::ExportFilename() const
+GpioConfigData::ExportFilename() const
 {
   std::string filename;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigExportFilenamePath);
-  this->Get(filename, path);
+  GpioConfigPath path;
+  if (!this->Get(path.ExportFilename(), filename))
+  {
+    filename = ConfigExportFilenameDefault;
+  }
   return (filename);
 }
 
 bool
-GpioConfiguration::ExportFilename(const std::string& filename_)
+GpioConfigData::ExportFilename(const std::string& filename_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigExportFilenamePath);
-  if (this->Put(filename_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.ExportFilename(), filename_));
 }
 
 std::string
-GpioConfiguration::UnexportFilename() const
+GpioConfigData::UnexportFilename() const
 {
   std::string filename;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigUnexportFilenamePath);
-  this->Get(filename, path);
+  GpioConfigPath path;
+  if (!this->Get(path.UnexportFilename(), filename))
+  {
+    filename = ConfigUnexportFilenameDefault;
+  }
   return (filename);
 }
 
 bool
-GpioConfiguration::UnexportFilename(const std::string& filename_)
+GpioConfigData::UnexportFilename(const std::string& filename_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigUnexportFilenamePath);
-  if (this->Put(filename_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.UnexportFilename(), filename_));
 }
 
 std::string
-GpioConfiguration::DirectionFilename() const
+GpioConfigData::DirectionFilename() const
 {
   std::string filename;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigDirectionFilenamePath);
-  this->Get(filename, path);
+  GpioConfigPath path;
+  if (!this->Get(path.DirectionFilename(), filename))
+  {
+    filename = ConfigDirectionFilenameDefault;
+  }
   return (filename);
 }
 
 bool
-GpioConfiguration::DirectionFilename(const std::string& filename_)
+GpioConfigData::DirectionFilename(const std::string& filename_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigDirectionFilenamePath);
-  if (this->Put(filename_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.DirectionFilename(), filename_));
 }
 
 std::string
-GpioConfiguration::Direction() const
+GpioConfigData::Direction() const
 {
   std::string dir;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigDirectionValuePath);
-  this->Get(dir, path);
+  GpioConfigPath path;
+  if (!this->Get(path.Direction(), dir))
+  {
+    dir = ConfigDirectionValueDefault;
+  }
   return (dir);
 }
 
 bool
-GpioConfiguration::Direction(const std::string& dir_)
+GpioConfigData::Direction(const std::string& dir_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigDirectionValuePath);
-  if (this->Put(dir_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.Direction(), dir_));
 }
 
 std::string
-GpioConfiguration::StateFilename() const
+GpioConfigData::StateFilename() const
 {
   std::string filename;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigStateFilenamePath);
-  this->Get(filename, path);
+  GpioConfigPath path;
+  if (!this->Get(path.StateFilename(), filename))
+  {
+    filename = ConfigStateFilenameDefault;
+  }
   return (filename);
 }
 
 bool
-GpioConfiguration::StateFilename(const std::string& filename_)
+GpioConfigData::StateFilename(const std::string& filename_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigStateFilenamePath);
-  if (this->Put(filename_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.StateFilename(), filename_));
 }
 
 std::string
-GpioConfiguration::State() const
+GpioConfigData::State() const
 {
   std::string state;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigStateValuePath);
-  this->Get(state, path);
+  GpioConfigPath path;
+  if (!this->Get(path.State(), state))
+  {
+    state = ConfigStateValueDefault;
+  }
   return (state);
 }
 
 bool
-GpioConfiguration::State(const std::string& state_)
+GpioConfigData::State(const std::string& state_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigStateValuePath);
-  if (this->Put(state_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.State(), state_));
 }
 
 std::string
-GpioConfiguration::EdgeFilename() const
+GpioConfigData::EdgeFilename() const
 {
   std::string filename;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigEdgeFilenamePath);
-  this->Get(filename, path);
+  GpioConfigPath path;
+  if (!this->Get(path.EdgeFilename(), filename))
+  {
+    filename = ConfigEdgeFilenameDefault;
+  }
   return (filename);
 }
 
 bool
-GpioConfiguration::EdgeFilename(const std::string& filename_)
+GpioConfigData::EdgeFilename(const std::string& filename_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigEdgeFilenamePath);
-  if (this->Put(filename_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.EdgeFilename(), filename_));
 }
 
 std::string
-GpioConfiguration::Edge() const
+GpioConfigData::Edge() const
 {
-  std::string dir;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigEdgeValuePath);
-  this->Get(dir, path);
-  return (dir);
+  std::string edge;
+  GpioConfigPath path;
+  if (!this->Get(path.Edge(), edge))
+  {
+    edge = ConfigEdgeValueDefault;
+  }
+  return (edge);
 }
 
 bool
-GpioConfiguration::Edge(const std::string& edge_)
+GpioConfigData::Edge(const std::string& edge_)
 {
-  bool status = false;
-  std::string path = zData::Data::PathConcat(GpioConfiguration::ConfigRoot,
-      GpioConfiguration::ConfigEdgeValuePath);
-  if (this->Put(edge_, path))
-  {
-    status = this->Commit();
-  }
-  return (status);
+  GpioConfigPath path;
+  return (this->Put(path.Edge(), edge_));
 }
 
 }

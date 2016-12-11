@@ -41,6 +41,14 @@ SignalHandler::SignalHandler()
 
 SignalHandler::~SignalHandler()
 {
+  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.begin();
+  std::map<Signal::ID, Signal*>::iterator end = this->_sigs.end();
+  for (; it != end; ++it)
+  {
+    delete(it->second);
+  }
+  this->_sig_handlers.clear();
+  this->_sigs.clear();
 }
 
 bool

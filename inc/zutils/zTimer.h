@@ -22,6 +22,7 @@
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
 #include <zutils/zEvent.h>
+#include <zutils/zSignal.h>
 
 namespace zUtils
 {
@@ -31,7 +32,8 @@ namespace zTimer
 //**********************************************************************
 // zTimer::Timer Class
 //**********************************************************************
-class Timer : public zEvent::Event, public zEvent::EventObserver
+class Timer :
+    public zEvent::Event, public zEvent::EventHandler, public zEvent::EventObserver
 {
 
 public:

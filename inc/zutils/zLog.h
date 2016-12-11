@@ -162,8 +162,11 @@ private:
 //*****************************************************************************
 class FileConnector : public Connector
 {
+
 public:
-  FileConnector(const char *logfile_);
+
+  FileConnector(const std::string& logfile_);
+
   virtual
   ~FileConnector();
 
@@ -173,6 +176,7 @@ public:
 protected:
 
 private:
+
   std::ofstream _file;
 
 };

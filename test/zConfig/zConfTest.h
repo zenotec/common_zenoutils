@@ -30,9 +30,17 @@
 int
 zConfigTest_DataDefaults(void* arg_);
 int
-zConfigTest_ConnectorDefaults(void* arg_);
+zConfigTest_ConfigurationDefaults(void* arg_);
 int
-zConfigTest_HandlerDefaults(void* arg_);
+zConfigTest_ConnectorDefaults(void* arg_);
+
+int
+zConfigTest_DataGetPutValue(void* arg_);
+int
+zConfigTest_DataGetPutChild(void* arg_);
+
+int
+zConfigTest_FileLoadStore(void* arg_);
 
 int
 zConfigTest_ConfigurationCtor(void* arg_);
@@ -42,12 +50,8 @@ int
 zConfigTest_ConfigurationCompare(void* arg_);
 int
 zConfigTest_ConfigurationDataArray(void* arg_);
-
 int
-zConfigTest_FileLoadStore(void* arg_);
-
-int
-zConfigTest_HandlerLoadStore(void* arg_);
+zConfigTest_ConfigurationLoadStore(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
@@ -64,7 +68,9 @@ public:
   {
     struct stat st = { 0 };
     std::fstream fs;
-    std::string fileName;
+    std::string fileName = TESTDIR + "/" + TESTFILE;
+
+    unlink(fileName.c_str());
 
     if (stat(TESTDIR.c_str(), &st) == -1)
     {

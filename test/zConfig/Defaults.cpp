@@ -29,11 +29,30 @@ zConfigTest_DataDefaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new configuration data item and verify
-  zConfig::Configuration *myData = new zConfig::Configuration;
-  TEST_ISNOT_NULL(myData);
+  zConfig::ConfigData *MyData = new zConfig::ConfigData;
+  TEST_ISNOT_NULL(MyData);
 
   // Cleanup
-  delete (myData);
+  delete (MyData);
+
+  // Return success
+  return (0);
+}
+
+int
+zConfigTest_ConfigurationDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_ConfigurationDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  // Create new configuration data item and verify
+  zConfig::Configuration *MyConfig = new zConfig::Configuration;
+  TEST_ISNOT_NULL(MyConfig);
+
+  // Cleanup
+  delete (MyConfig);
 
   // Return success
   return (0);
@@ -58,21 +77,3 @@ zConfigTest_ConnectorDefaults(void* arg_)
   return (0);
 }
 
-int
-zConfigTest_HandlerDefaults(void* arg_)
-{
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zConfigTest_HandlerDefaults()");
-  ZLOG_DEBUG("#############################################################");
-
-  // Create new configuration data connector and verify
-  zConfig::ConfigurationHandler *MyHandler = new zConfig::ConfigurationHandler;
-  TEST_ISNOT_NULL(MyHandler);
-
-  // Cleanup
-  delete (MyHandler);
-
-  // Return success
-  return (0);
-}

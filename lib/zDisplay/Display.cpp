@@ -46,14 +46,12 @@ namespace zDisplay
 Display::Display(const size_t cols_, const size_t rows_) :
     Buffer(cols_, rows_), _update_cmd(*this), _clear_cmd(*this)
 {
-  this->_timer_handler.RegisterObserver(this);
-  this->_timer_handler.RegisterEvent(&this->_timer);
+  this->_timer.RegisterObserver(this);
 }
 
 Display::~Display()
 {
-  this->_timer_handler.UnregisterEvent(&this->_timer);
-  this->_timer_handler.UnregisterObserver(this);
+  this->_timer.UnregisterObserver(this);
   this->_timer.Stop();
 }
 

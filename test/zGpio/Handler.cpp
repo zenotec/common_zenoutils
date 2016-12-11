@@ -82,21 +82,21 @@ zGpioTest_HandlerOnOff(void* arg)
   TEST_EQ(2, MyConfig2->Identifier());
 
   // Configure both ports to be outputs
-  TEST_TRUE(MyConfig1->Direction(zGpio::GpioConfiguration::ConfigDirectionValueOut));
-  TEST_TRUE(MyConfig2->Direction(zGpio::GpioConfiguration::ConfigDirectionValueOut));
+  TEST_TRUE(MyConfig1->Direction(zGpio::GpioConfigData::ConfigDirectionValueOut));
+  TEST_TRUE(MyConfig2->Direction(zGpio::GpioConfigData::ConfigDirectionValueOut));
 
   // Create new GPIO port and verify
   zGpio::GpioPort* MyPort1 = new zGpio::GpioPort(*MyConfig1);
   TEST_ISNOT_NULL(MyPort1);
-  TEST_EQ(zGpio::GpioPort::DIR_OUT, MyPort1->Direction());
-  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort1->State());
+  TEST_EQ(zGpio::GpioPort::DIR_OUT, MyPort1->GetDirection());
+  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort1->GetState());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort1->Get());
 
   // Create new GPIO port and verify
   zGpio::GpioPort* MyPort2 = new zGpio::GpioPort(*MyConfig2);
   TEST_ISNOT_NULL(MyPort2);
-  TEST_EQ(zGpio::GpioPort::DIR_OUT, MyPort2->Direction());
-  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort2->State());
+  TEST_EQ(zGpio::GpioPort::DIR_OUT, MyPort2->GetDirection());
+  TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort2->GetState());
   TEST_EQ(zGpio::GpioPort::STATE_INACTIVE, MyPort2->Get());
 
   // Create new GPIO handler and verify

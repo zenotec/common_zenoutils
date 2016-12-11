@@ -55,7 +55,8 @@ _add_time(struct timespec *ts_, uint32_t us_)
 Timer::Timer() :
     _interval(0), _sigev( { 0 }), _timerid(0), _tick(0), zEvent::Event(zEvent::Event::TYPE_TIMER)
 {
-  int stat = 0;
+
+  this->RegisterEvent(this);
   zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGUSR1, this);
 
   // Setup signal event
@@ -68,7 +69,7 @@ Timer::Timer() :
   this->_sigev.sigev_value.sival_ptr = this;
 
   // Create timer
-  stat = timer_create(CLOCK_REALTIME, &this->_sigev, &this->_timerid);
+  int stat = timer_create(CLOCK_REALTIME, &this->_sigev, &this->_timerid);
   if (stat != 0)
   {
     ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
@@ -86,9 +87,6 @@ Timer::~Timer()
   // Stop timer
   this->Stop();
 
-  // Unregister for signal
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGUSR1, this);
-
   // Delete timer
   if (this->_timerid)
   {
@@ -100,6 +98,12 @@ Timer::~Timer()
       ZLOG_ERR("Cannot delete timer: " + std::string(strerror(errno)));
     } // end if
   } // end if
+
+  // Unregister for signal
+  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGUSR1, this);
+
+  // Unregister event
+  this->UnregisterEvent(this);
 
   // Wait for lock to be available or timeout
   this->_lock.TimedLock(100);
@@ -134,10 +138,6 @@ Timer::Notify()
   ZLOG_DEBUG("Notifying timer observer");
   if (this->_lock.TryLock())
   {
-    this->_tick++;
-    TimerNotification notification(this);
-    notification.tick(this->_tick);
-    zEvent::Event::Notify(&notification);
     this->_lock.Unlock();
   }
 }
@@ -154,7 +154,11 @@ Timer::EventHandler(const zEvent::EventNotification* notification_)
     if ((n->Id() == zSignal::Signal::ID_SIGUSR1) && n->SigInfo()
         && (n->SigInfo()->si_code == SI_TIMER) && (n->SigInfo()->si_ptr == this))
     {
-      status = this->Notify();
+      this->_tick++;
+      TimerNotification notification(this);
+      notification.tick(this->_tick);
+      zEvent::Event::Notify(&notification);
+      status = true;
     }
   }
   return status;

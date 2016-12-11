@@ -250,7 +250,6 @@ private:
   std::list<DisplayVar*> _vars;
 
   zTimer::Timer _timer;
-  zEvent::EventHandler _timer_handler;
 
   DisplayUpdateCmd _update_cmd;
   DisplayClearCmd _clear_cmd;

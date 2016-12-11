@@ -18,6 +18,7 @@
 #include <mutex>
 #include <memory>
 
+#include <zutils/zLog.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
 #include <zutils/zConfig.h>
@@ -31,32 +32,41 @@ namespace zConfig
 // Class: Configuration
 //**********************************************************************
 
-const std::string Configuration::ROOT = "zConfig";
-
 Configuration::Configuration() :
-    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(Configuration::ROOT),
-        _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
+    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+        _modified(false), _connector(NULL)
+
 {
+  this->_lock.Unlock();
+}
+
+Configuration::Configuration(ConfigData &data_) :
+    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+        _modified(false), _connector(NULL), _staging(data_), _working(data_)
+{
+  this->_lock.Unlock();
+}
+
+Configuration::Configuration(const ConfigData &data_) :
+    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+        _modified(false), _connector(NULL), _staging(data_), _working(data_)
+{
+  this->_lock.Unlock();
 }
 
 Configuration::Configuration(Configuration &other_) :
-    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(other_._staging),
-        _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
+    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+        _modified(other_._modified), _connector(NULL), _staging(other_._staging),
+        _working(other_._working)
 {
+  this->_lock.Unlock();
 }
 
 Configuration::Configuration(const Configuration &other_) :
-    _lock(zSem::Mutex::UNLOCKED), _modified(false), _staging(other_._staging),
-        _working(other_._working), zEvent::Event(zEvent::Event::TYPE_CONFIG)
+    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+        _modified(other_._modified), _connector(NULL), _staging(other_._staging),
+        _working(other_._working)
 {
-}
-
-Configuration::Configuration(zData::Data &data_) :
-    _lock(zSem::Mutex::LOCKED), _modified(false), _staging(Configuration::ROOT),
-        _working(Configuration::ROOT), zEvent::Event(zEvent::Event::TYPE_CONFIG)
-{
-  this->_staging.Put(data_, data_.Key());
-  this->_working = this->_staging;
   this->_lock.Unlock();
 }
 
@@ -81,15 +91,69 @@ Configuration::operator !=(const Configuration &other_) const
 }
 
 bool
+Configuration::Connect(ConfigConnector *connector_)
+{
+  bool status = false;
+  if (connector_)
+  {
+    this->_connector = connector_;
+    status = true;
+  }
+  return (status);
+}
+
+bool
+Configuration::Disconnect()
+{
+  bool status = false;
+  if (this->_connector)
+  {
+    this->_connector = NULL;
+    status = true;
+  }
+  return (status);
+}
+
+bool
+Configuration::Load()
+{
+  bool status = false;
+
+  ZLOG_INFO("Loading configuration");
+
+  if (this->_connector)
+  {
+    status = this->_connector->Load(this->_staging);
+  }
+  return (status);
+}
+
+bool
+Configuration::Store()
+{
+  bool status = false;
+
+  ZLOG_INFO("Storing configuration");
+
+  if (this->_connector)
+  {
+    status = this->_connector->Store(this->_working);
+    status = true;
+  }
+  return (status);
+}
+
+bool
 Configuration::IsModified() const
 {
   bool mod = false;
 
   // Begin critical section
-  this->_lock.Lock();
-  mod = this->_modified;
-  // End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    mod = this->_modified;
+    this->_lock.Unlock();
+  }
   return (mod);
 }
 
@@ -98,15 +162,19 @@ Configuration::Commit()
 {
   bool status = false;
 
+  ZLOG_INFO("Committing configuration");
+
   // Begin critical section
-  this->_lock.Lock();
-
-  this->_working = this->_staging;
-  status = (this->_working == this->_staging);
-  this->_modified = false;
-
-  // End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    this->_working = this->_staging;
+    if (this->_working == this->_staging)
+    {
+      this->_modified = false;
+      status = true;
+    }
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
@@ -117,157 +185,156 @@ Configuration::Restore()
 {
   bool status = false;
 
+  ZLOG_INFO("Restoring configuration");
+
   // Begin critical section
-  this->_lock.Lock();
-
-  this->_staging = this->_working;
-  status = (this->_working == this->_staging);
-  this->_modified = false;
-
-  // End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    this->_staging = this->_working;
+    if (this->_working == this->_staging)
+    {
+      this->_modified = false;
+      status = true;
+    }
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
 }
 
 bool
-Configuration::Get(zData::Data &data_, const std::string &path_) const
+Configuration::Get(ConfigData& child_) const
     {
   bool status = false;
 
+  ZLOG_DEBUG(std::string("Getting configuration: ") + this->_working.Path());
+
   // Begin critical section
-  this->_lock.Lock();
-
-//  std::cout << "Getting configuration data: " << path_ << std::endl;
-
-  status = this->_working.Get(data_, path_);
-
-//  data_.DisplayJson ();
-
-// End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    status = this->_working.Get(child_.GetData());
+    // End critical section
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
 }
 
 bool
-Configuration::Get(Configuration &conf_, const std::string &path_) const
+Configuration::Get(ConfigPath& path_, ConfigData& child_) const
     {
   bool status = false;
-  zData::Data data;
 
-//  std::cout << "Getting configuration: " << path_ << std::endl;
-
-  if (this->Get(data, path_) && conf_.Put(data, zData::Data::PathLast(path_)))
-  {
-    status = conf_.Commit();
-  }
-  return (status);
-}
-
-bool
-Configuration::Put(zData::Data &data_, const std::string &path_)
-{
-  bool status = false;
+  ZLOG_DEBUG(std::string("Getting configuration: ") + path_.Path());
 
   // Begin critical section
-  this->_lock.Lock();
-
-//  std::cout << "Putting configuration data: " << path_ << std::endl;
-
-  status = this->_staging.Put(data_, path_);
-  this->_modified = true;
-
-//  this->_staging.DisplayJson ();
-
-// End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    status = this->_working.Get(path_.GetDataPath(), child_.GetData());
+    // End critical section
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
 }
 
 bool
-Configuration::Put(Configuration &conf_, const std::string &path_)
+Configuration::Put(const ConfigData& child_)
 {
   bool status = false;
-  zData::Data data;
 
-//  std::cout << "Putting configuration: " << path_ << std::endl;
-
-  if (conf_.Get(data, path_) && this->Put(data, path_))
-  {
-    status = this->Commit();
-  }
-  return (status);
-}
-
-bool
-Configuration::Add(zData::Data &data_, const std::string &path_)
-{
-  bool status = false;
+  ZLOG_DEBUG(std::string("Putting configuration: ") + child_.Path());
 
   // Begin critical section
-  this->_lock.Lock();
-
-//  std::cout << "Adding configuration data: " << path_ << std::endl;
-
-  status = this->_staging.Add(data_, path_);
-  this->_modified = true;
-
-//  this->_staging.DisplayJson ();
-
-// End critical section
-  this->_lock.Unlock();
+  if (this->_lock.Lock())
+  {
+    if (this->_staging.Put(child_.GetData()))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
+  }
 
   // Return status
   return (status);
+
 }
 
 bool
-Configuration::Add(Configuration &conf_, const std::string &path_)
+Configuration::Put(const ConfigPath& path_, const ConfigData& child_)
 {
   bool status = false;
-  zData::Data data;
 
-//  std::cout << "Adding configuration: " << path_ << std::endl;
+  ZLOG_DEBUG(std::string("Putting configuration: ") + path_.Path());
 
-  if (conf_.Get(data, path_) && this->Add(data, path_))
+  // Begin critical section
+  if (this->_lock.Lock())
   {
-    status = this->Commit();
+    if (this->_staging.Put(path_.GetDataPath(), child_.GetData()))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
   }
+
+  // Return status
   return (status);
+
 }
 
-zEvent::EventNotification*
-Configuration::CreateNotification()
+bool
+Configuration::Add(const ConfigData& child_)
 {
+  bool status = false;
+
+  ZLOG_DEBUG(std::string("Adding configuration: ") + child_.Path());
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    if (this->_staging.Add(child_.GetData()))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
 }
 
-zEvent::EventNotification*
-Configuration::CreateNotification2()
+bool
+Configuration::Add(const ConfigPath& path_, const ConfigData& child_)
 {
-}
+  bool status = false;
 
-//**********************************************************************
-// Class: ConfigurationNotification
-//**********************************************************************
+  ZLOG_DEBUG(std::string("Adding configuration: ") + path_.Path());
 
-ConfigurationNotification::ConfigurationNotification(ConfigurationNotification::ID id_) :
-    _id(id_)
-{
-}
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    if (this->_staging.Add(path_.GetDataPath(), child_.GetData()))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
+  }
 
-ConfigurationNotification::~ConfigurationNotification()
-{
-}
+  // Return status
+  return (status);
 
-ConfigurationNotification::ID
-ConfigurationNotification::Id()
-{
-  return (this->_id);
 }
 
 }

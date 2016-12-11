@@ -68,10 +68,10 @@ dir2str(const GpioPort::DIR dir_)
   switch (dir_)
   {
   case GpioPort::DIR_IN:
-    str = GpioConfiguration::ConfigDirectionValueIn;
+    str = GpioConfigData::ConfigDirectionValueIn;
     break;
   case GpioPort::DIR_OUT:
-    str = GpioConfiguration::ConfigDirectionValueOut;
+    str = GpioConfigData::ConfigDirectionValueOut;
     break;
   default:
     break;
@@ -84,11 +84,11 @@ str2dir(const std::string &str_)
 {
   GpioPort::DIR dir = GpioPort::DIR_ERR;
   // Convert from string to enum
-  if (GpioConfiguration::ConfigDirectionValueIn == str_)
+  if (GpioConfigData::ConfigDirectionValueIn == str_)
   {
     dir = GpioPort::DIR_IN;
   }
-  else if (GpioConfiguration::ConfigDirectionValueOut == str_)
+  else if (GpioConfigData::ConfigDirectionValueOut == str_)
   {
     dir = GpioPort::DIR_OUT;
   }
@@ -106,10 +106,10 @@ state2str(const GpioPort::STATE state_)
   switch (state_)
   {
   case GpioPort::STATE_ACTIVE:
-    str = GpioConfiguration::ConfigStateValueActive;
+    str = GpioConfigData::ConfigStateValueActive;
     break;
   case GpioPort::STATE_INACTIVE:
-    str = GpioConfiguration::ConfigStateValueInactive;
+    str = GpioConfigData::ConfigStateValueInactive;
     break;
   default:
     break;
@@ -122,11 +122,11 @@ str2state(const std::string &str_)
 {
   GpioPort::STATE state = GpioPort::STATE_ERR;
   // Convert from string to enum
-  if (GpioConfiguration::ConfigStateValueActive == str_)
+  if (GpioConfigData::ConfigStateValueActive == str_)
   {
     state = GpioPort::STATE_ACTIVE;
   }
-  else if (GpioConfiguration::ConfigStateValueInactive == str_)
+  else if (GpioConfigData::ConfigStateValueInactive == str_)
   {
     state = GpioPort::STATE_INACTIVE;
   }
@@ -144,16 +144,16 @@ edge2str(const GpioPort::EDGE edge_)
   switch (edge_)
   {
   case GpioPort::EDGE_NONE:
-    str = GpioConfiguration::ConfigEdgeValueNone;
+    str = GpioConfigData::ConfigEdgeValueNone;
     break;
   case GpioPort::EDGE_LO_HI:
-    str = GpioConfiguration::ConfigEdgeValueLoHi;
+    str = GpioConfigData::ConfigEdgeValueLoHi;
     break;
   case GpioPort::EDGE_HI_LO:
-    str = GpioConfiguration::ConfigEdgeValueHiLo;
+    str = GpioConfigData::ConfigEdgeValueHiLo;
     break;
   case GpioPort::EDGE_BOTH:
-    str = GpioConfiguration::ConfigEdgeValueBoth;
+    str = GpioConfigData::ConfigEdgeValueBoth;
     break;
   default:
     break;
@@ -166,19 +166,19 @@ str2edge(const std::string &str_)
 {
   GpioPort::EDGE edge = GpioPort::EDGE_ERR;
   // Convert from string to enum
-  if (GpioConfiguration::ConfigEdgeValueNone == str_)
+  if (GpioConfigData::ConfigEdgeValueNone == str_)
   {
     edge = GpioPort::EDGE_NONE;
   }
-  else if (GpioConfiguration::ConfigEdgeValueLoHi == str_)
+  else if (GpioConfigData::ConfigEdgeValueLoHi == str_)
   {
     edge = GpioPort::EDGE_LO_HI;
   }
-  else if (GpioConfiguration::ConfigEdgeValueHiLo == str_)
+  else if (GpioConfigData::ConfigEdgeValueHiLo == str_)
   {
     edge = GpioPort::EDGE_HI_LO;
   }
-  else if (GpioConfiguration::ConfigEdgeValueBoth == str_)
+  else if (GpioConfigData::ConfigEdgeValueBoth == str_)
   {
     edge = GpioPort::EDGE_BOTH;
   }
@@ -194,12 +194,13 @@ str2edge(const std::string &str_)
 //**********************************************************************
 
 GpioPort::GpioPort() :
-    _fd(0), _thread(this, NULL), zEvent::Event(zEvent::Event::TYPE_GPIO)
+    zEvent::Event(zEvent::Event::TYPE_GPIO), _fd(0), _thread(this, NULL)
 {
 }
 
-GpioPort::GpioPort(zConfig::Configuration &config_) :
-    _config(config_), _fd(0), _thread(this, NULL), zEvent::Event(zEvent::Event::TYPE_GPIO)
+GpioPort::GpioPort(GpioConfigData &config_) :
+    GpioConfigData(config_), zEvent::Event(zEvent::Event::TYPE_GPIO), _fd(0),
+        _thread(this, NULL)
 {
 }
 
@@ -214,38 +215,38 @@ GpioPort::Open()
 
   std::unique_ptr<std::fstream> fs;
 
-  ZLOG_INFO("Opening GPIO Port: " + ZLOG_INT(this->_config.Identifier()));
+  ZLOG_INFO("Opening GPIO Port: " + ZLOG_INT(GpioConfigData::Identifier()));
 
   // Open export file and verify
-  fs = fs_open(this->_config.Identifier(), this->_config.ExportFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::ExportFilename());
   if (!fs->is_open())
   {
-    ZLOG_ERR("Failed to open export file: " + this->_config.ExportFilename());
+    ZLOG_ERR("Failed to open export file: " + GpioConfigData::ExportFilename());
     return (false);
   }
 
   // Write the GPIO identifier to initialize GPIO
-  *fs << this->_config.Identifier() << std::endl;
+  *fs << GpioConfigData::Identifier() << std::endl;
   fs->close();
 
   // Set the initial direction of the port
-  if (!this->_direction(this->Direction()))
+  if (!this->_direction(this->GetDirection()))
   {
     ZLOG_ERR("Failed to set direction");
     return (false);
   }
 
   // Set the type of edge to generate an interrupt on
-  if (!this->_edge(this->Edge()))
+  if (!this->_edge(this->GetEdge()))
   {
     ZLOG_ERR("Failed to set interrupt edge");
     return (false);
   }
 
   // Conditionally set initial state
-  if ((this->Direction() == GpioPort::DIR_OUT) || (this->Direction() == GpioPort::DIR_INOUT))
+  if ((this->GetDirection() == GpioPort::DIR_OUT) || (this->GetDirection() == GpioPort::DIR_INOUT))
   {
-    if (!this->_state(this->State()))
+    if (!this->_state(this->GetState()))
     {
       ZLOG_ERR("Failed to set initial state");
       return (false);
@@ -253,13 +254,14 @@ GpioPort::Open()
   }
 
   // Open the value file for watching for state changes
-  if ((this->Edge() == GpioPort::EDGE_LO_HI) || (this->Edge() == GpioPort::EDGE_HI_LO)
-      || (this->Edge() == GpioPort::EDGE_BOTH))
+  if ((this->GetEdge() == GpioPort::EDGE_LO_HI) || (this->GetEdge() == GpioPort::EDGE_HI_LO)
+      || (this->GetEdge() == GpioPort::EDGE_BOTH))
   {
     ZLOG_INFO(
         std::string("Opening 'state' GPIO file: ")
-            + filename(this->_config.Identifier(), this->_config.StateFilename()));
-    this->_fd = open(filename(this->_config.Identifier(), this->_config.StateFilename()).c_str(),
+            + filename(GpioConfigData::Identifier(), GpioConfigData::StateFilename()));
+    this->_fd = open(
+        filename(GpioConfigData::Identifier(), GpioConfigData::StateFilename()).c_str(),
         (O_RDONLY | O_NONBLOCK));
     if (this->_fd > 0)
     {
@@ -283,7 +285,7 @@ GpioPort::Close()
 
   std::unique_ptr<std::fstream> fs;
 
-  ZLOG_INFO("Closing GPIO Port: " + ZLOG_INT(this->_config.Identifier()));
+  ZLOG_INFO("Closing GPIO Port: " + ZLOG_INT(GpioConfigData::Identifier()));
 
   if (this->_fd)
   {
@@ -294,15 +296,15 @@ GpioPort::Close()
   }
 
   // Open export file and verify
-  fs = fs_open(this->_config.Identifier(), this->_config.UnexportFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::UnexportFilename());
   if (!fs->is_open())
   {
-    ZLOG_ERR("Failed to open unexport file: " + this->_config.UnexportFilename());
+    ZLOG_ERR("Failed to open unexport file: " + GpioConfigData::UnexportFilename());
     return (false);
   }
 
   // Write the GPIO identifier to uninitialize GPIO
-  *fs << this->_config.Identifier() << std::endl;
+  *fs << GpioConfigData::Identifier() << std::endl;
   fs->close();
 
   return (true);
@@ -321,39 +323,39 @@ GpioPort::Set(GpioPort::STATE state_)
 }
 
 GpioPort::DIR
-GpioPort::Direction() const
+GpioPort::GetDirection() const
 {
-  return (str2dir(this->_config.Direction()));
+  return (str2dir(GpioConfigData::Direction()));
 }
 
 bool
-GpioPort::Direction(const GpioPort::DIR dir_)
+GpioPort::SetDirection(const GpioPort::DIR dir_)
 {
-  return (this->_config.Direction(dir2str(dir_)));
+  return (GpioConfigData::Direction(dir2str(dir_)));
 }
 
 GpioPort::STATE
-GpioPort::State() const
+GpioPort::GetState() const
 {
-  return (str2state(this->_config.State()));
+  return (str2state(GpioConfigData::State()));
 }
 
 bool
-GpioPort::State(GpioPort::STATE state_)
+GpioPort::SetState(GpioPort::STATE state_)
 {
-  return (this->_config.State(state2str(state_)));
+  return (GpioConfigData::State(state2str(state_)));
 }
 
 GpioPort::EDGE
-GpioPort::Edge() const
+GpioPort::GetEdge() const
 {
-  return (str2edge(this->_config.Edge()));
+  return (str2edge(GpioConfigData::Edge()));
 }
 
 bool
-GpioPort::Edge(const GpioPort::EDGE edge_)
+GpioPort::SetEdge(const GpioPort::EDGE edge_)
 {
-  return (this->_config.Edge(edge2str(edge_)));
+  return (GpioConfigData::Edge(edge2str(edge_)));
 }
 
 void
@@ -391,7 +393,7 @@ GpioPort::_direction() const
   std::string val;
 
   // Open direction file and read direction
-  fs = fs_open(this->_config.Identifier(), this->_config.DirectionFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::DirectionFilename());
   if (fs->is_open())
   {
     *fs >> val;
@@ -410,7 +412,7 @@ GpioPort::_direction(const GpioPort::DIR dir_)
   std::unique_ptr<std::fstream> fs;
 
   // Open direction file and write direction
-  fs = fs_open(this->_config.Identifier(), this->_config.DirectionFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::DirectionFilename());
   if (fs->is_open())
   {
     *fs << dir2str(dir_);
@@ -428,7 +430,7 @@ GpioPort::_state() const
   std::string val;
 
   // Open direction file and read direction
-  fs = fs_open(this->_config.Identifier(), this->_config.StateFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::StateFilename());
   if (fs->is_open())
   {
     *fs >> val;
@@ -447,7 +449,7 @@ GpioPort::_state(const GpioPort::STATE dir_)
   std::unique_ptr<std::fstream> fs;
 
   // Open direction file and write direction
-  fs = fs_open(this->_config.Identifier(), this->_config.StateFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::StateFilename());
   if (fs->is_open())
   {
     *fs << state2str(dir_);
@@ -465,7 +467,7 @@ GpioPort::_edge() const
   std::string val;
 
   // Open direction file and read direction
-  fs = fs_open(this->_config.Identifier(), this->_config.EdgeFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::EdgeFilename());
   if (fs->is_open())
   {
     *fs >> val;
@@ -484,7 +486,7 @@ GpioPort::_edge(const GpioPort::EDGE dir_)
   std::unique_ptr<std::fstream> fs;
 
   // Open direction file and write direction
-  fs = fs_open(this->_config.Identifier(), this->_config.EdgeFilename());
+  fs = fs_open(GpioConfigData::Identifier(), GpioConfigData::EdgeFilename());
   if (fs->is_open())
   {
     *fs << edge2str(dir_);

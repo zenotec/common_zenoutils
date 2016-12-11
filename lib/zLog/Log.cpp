@@ -45,8 +45,8 @@ Connector::~Connector()
 //*****************************************************************************
 // FileConnector Class
 //*****************************************************************************
-FileConnector::FileConnector(const char *logfile_) :
-    _file(logfile_, std::ios_base::app)
+FileConnector::FileConnector(const std::string& logfile_) :
+    _file(logfile_.c_str(), std::ios_base::app)
 {
   if (this->_file.is_open())
   {

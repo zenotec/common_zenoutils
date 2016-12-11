@@ -13,9 +13,9 @@ zConfigUnitTest_SOURCES = \
     zConfTest.h \
     UnitTest.cpp \
     Defaults.cpp \
+    Data.cpp \
     Configuration.cpp \
-    File.cpp \
-    Handler.cpp
+    File.cpp
 
 zConfigUnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la

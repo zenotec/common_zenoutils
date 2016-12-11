@@ -42,17 +42,17 @@ zGpioTest_ConfigurationDefaults(void* arg)
   ZLOG_DEBUG("#############################################################");
 
   // Create new GPIO port configuration and verify
-  zGpio::GpioConfiguration *MyConfig = new zGpio::GpioConfiguration;
+  zGpio::GpioConfigData *MyConfig = new zGpio::GpioConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(MyConfig->Identifier(), zGpio::GpioConfiguration::ConfigIdentifierDefault);
-  TEST_EQ(MyConfig->ExportFilename(), zGpio::GpioConfiguration::ConfigExportFilenameDefault);
-  TEST_EQ(MyConfig->UnexportFilename(), zGpio::GpioConfiguration::ConfigUnexportFilenameDefault);
-  TEST_EQ(MyConfig->DirectionFilename(), zGpio::GpioConfiguration::ConfigDirectionFilenameDefault);
-  TEST_EQ(MyConfig->Direction(), zGpio::GpioConfiguration::ConfigDirectionValueDefault);
-  TEST_EQ(MyConfig->StateFilename(), zGpio::GpioConfiguration::ConfigStateFilenameDefault);
-  TEST_EQ(MyConfig->State(), zGpio::GpioConfiguration::ConfigStateValueDefault);
-  TEST_EQ(MyConfig->EdgeFilename(), zGpio::GpioConfiguration::ConfigEdgeFilenameDefault);
-  TEST_EQ(MyConfig->Edge(), zGpio::GpioConfiguration::ConfigEdgeValueDefault);
+  TEST_EQ(MyConfig->Identifier(), zGpio::GpioConfigData::ConfigIdentifierDefault);
+  TEST_EQ(MyConfig->ExportFilename(), zGpio::GpioConfigData::ConfigExportFilenameDefault);
+  TEST_EQ(MyConfig->UnexportFilename(), zGpio::GpioConfigData::ConfigUnexportFilenameDefault);
+  TEST_EQ(MyConfig->DirectionFilename(), zGpio::GpioConfigData::ConfigDirectionFilenameDefault);
+  TEST_EQ(MyConfig->Direction(), zGpio::GpioConfigData::ConfigDirectionValueDefault);
+  TEST_EQ(MyConfig->StateFilename(), zGpio::GpioConfigData::ConfigStateFilenameDefault);
+  TEST_EQ(MyConfig->State(), zGpio::GpioConfigData::ConfigStateValueDefault);
+  TEST_EQ(MyConfig->EdgeFilename(), zGpio::GpioConfigData::ConfigEdgeFilenameDefault);
+  TEST_EQ(MyConfig->Edge(), zGpio::GpioConfigData::ConfigEdgeValueDefault);
 
   // Clean up
   delete (MyConfig);
@@ -105,15 +105,18 @@ zGpioTest_SwitchDefaults(void* arg)
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zGpioTest_SwitchDefaults()");
   ZLOG_DEBUG("#############################################################");
-
-//    // Create new Switch and verify
-//    zGpio::Switch* mySwitch = new zGpio::Switch( zSwitch::Switch::STATE_OFF );
-//    TEST_ISNOT_NULL( mySwitch );
-//    TEST_FALSE( mySwitch->IsOn() );
-//    TEST_TRUE( mySwitch->IsOff() );
-//    TEST_IS_NULL( mySwitch->GetPort( 1 ) );
+#if 0
+    // Create new Switch and verify
+    zGpio::Switch* mySwitch = new zGpio::Switch( zSwitch::Switch::STATE_OFF );
+    TEST_ISNOT_NULL( mySwitch );
+    TEST_FALSE( mySwitch->IsOn() );
+    TEST_TRUE( mySwitch->IsOff() );
+    TEST_IS_NULL( mySwitch->GetPort( 1 ) );
 
 // Clean up
-//    delete (mySwitch);
+    delete (mySwitch);
   return (0);
+#else
+  return (1);
+#endif
 }

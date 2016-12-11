@@ -35,17 +35,61 @@ namespace zSerial
 {
 
 //**********************************************************************
-// Class: SerialConfiguration
+// Class: TtySerialConfigPath
 //**********************************************************************
 
-class TtySerialConfiguration : public SerialConfiguration
+class TtySerialConfigPath : public SerialConfigPath
 {
 
 public:
 
   static const std::string ConfigDevicePath;
-
   static const std::string ConfigBaudPath;
+  static const std::string ConfigDatabitsPath;
+  static const std::string ConfigStopbitsPath;
+  static const std::string ConfigParityPath;
+  static const std::string ConfigFlowCtrlPath;
+
+  TtySerialConfigPath();
+
+  virtual
+  ~TtySerialConfigPath();
+
+  zConfig::ConfigPath
+  Device();
+
+  zConfig::ConfigPath
+  Baud();
+
+  zConfig::ConfigPath
+  Databits();
+
+  zConfig::ConfigPath
+  Stopbits();
+
+  zConfig::ConfigPath
+  Parity();
+
+  zConfig::ConfigPath
+  FlowCtrl();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: TtySerialConfigData
+//**********************************************************************
+
+class TtySerialConfigData : public SerialConfigData
+{
+
+public:
+
+  static const std::string ConfigDeviceDefault;
+
   static const std::string ConfigBaud9600;
   static const std::string ConfigBaud19200;
   static const std::string ConfigBaud38400;
@@ -53,40 +97,33 @@ public:
   static const std::string ConfigBaud115200;
   static const std::string ConfigBaudDefault;
 
-  static const std::string ConfigDatabitsPath;
   static const std::string ConfigDatabits5;
   static const std::string ConfigDatabits6;
   static const std::string ConfigDatabits7;
   static const std::string ConfigDatabits8;
   static const std::string ConfigDatabitsDefault;
 
-  static const std::string ConfigStopbitsPath;
   static const std::string ConfigStopbits1;
   static const std::string ConfigStopbits2;
   static const std::string ConfigStopbitsDefault;
 
-  static const std::string ConfigParityPath;
   static const std::string ConfigParityNone;
   static const std::string ConfigParityOdd;
   static const std::string ConfigParityEven;
   static const std::string ConfigParityDefault;
 
-  static const std::string ConfigFlowPath;
-  static const std::string ConfigFlowNone;
-  static const std::string ConfigFlowHard;
-  static const std::string ConfigFlowDefault;
+  static const std::string ConfigFlowCtrlNone;
+  static const std::string ConfigFlowCtrlHard;
+  static const std::string ConfigFlowCtrlDefault;
 
-  TtySerialConfiguration();
+  TtySerialConfigData();
 
-  TtySerialConfiguration(zData::Data &data_);
+  TtySerialConfigData(zData::Data &data_);
 
-  TtySerialConfiguration(zConfig::Configuration &config_);
+  TtySerialConfigData(zConfig::ConfigData &config_);
 
   virtual
-  ~TtySerialConfiguration();
-
-  zConfig::Configuration&
-  GetConfig();
+  ~TtySerialConfigData();
 
   std::string
   GetDevice() const;
@@ -176,8 +213,8 @@ private:
 // Class: TtyPort
 //**********************************************************************
 
-class TtySerialPort :
-    public zSerial::SerialPort, public zThread::ThreadArg
+class TtySerialPort : public zSerial::SerialPort, public TtySerialConfigData,
+    public zThread::ThreadArg
 {
 
   friend TtyPortRecv;
@@ -248,7 +285,7 @@ public:
 
   TtySerialPort();
 
-  TtySerialPort(const TtySerialConfiguration& config_);
+  TtySerialPort(const TtySerialConfigData& config_);
 
   virtual
   ~TtySerialPort();
@@ -258,12 +295,6 @@ public:
 
   virtual bool
   Close();
-
-  std::string
-  GetDevice() const;
-
-  bool
-  SetDevice(const std::string &dev_);
 
   TtySerialPort::BAUD
   GetBaud() const;
@@ -307,7 +338,7 @@ protected:
 
 private:
 
-  TtySerialConfiguration _config;
+  TtySerialConfigData _config;
 
   struct termios _termios;
   struct termios _savedTermios;
