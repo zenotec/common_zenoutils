@@ -27,6 +27,10 @@ int
 zInterfaceTest_InterfaceCtor(void* arg)
 {
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceCtor()");
+  ZLOG_DEBUG("#############################################################");
+
   Interface *MyInterface1 = new zInterface::Interface;
   TEST_ISNOT_NULL(MyInterface1);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface1->GetName());
@@ -76,6 +80,10 @@ zInterfaceTest_InterfaceCtor(void* arg)
 int
 zInterfaceTest_InterfaceRefresh(void* arg)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceRefresh()");
+  ZLOG_DEBUG("#############################################################");
 
   Interface *MyInterface = new zInterface::Interface;
   TEST_ISNOT_NULL(MyInterface);

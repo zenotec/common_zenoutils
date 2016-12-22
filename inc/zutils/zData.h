@@ -27,6 +27,7 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zSem.h>
+#include <zutils/zLog.h>
 
 namespace zUtils
 {
@@ -76,10 +77,10 @@ public:
   PopBack();
 
   std::string
-  Root() const;
+  Root(const std::string path_ = std::string("")) const;
 
   std::string
-  Base() const;
+  Base(const std::string path_ = std::string("")) const;
 
   std::string
   Key() const;
@@ -268,7 +269,7 @@ private:
     bool status = false;
     if (!path_.empty())
     {
-//      std::cout << "Getting value: " << path_ << std::endl;
+      ZLOG_DEBUG("getting value: " + path_);
       try
       {
         value_ = this->_pt.get<T>(path_);
@@ -293,7 +294,7 @@ private:
     bool status = false;
     if (!path_.empty())
     {
-//      std::cout << "Putting value: " << path_ << std::endl;
+      ZLOG_DEBUG("putting value: " + path_);
       try
       {
         this->_pt.put<T>(path_, value_);
@@ -318,7 +319,7 @@ private:
     bool status = false;
     if (!path_.empty())
     {
-//      std::cout << "Adding value: " << path_ << std::endl;
+      ZLOG_DEBUG("adding value: " + path_);
       try
       {
         pt::ptree parent;

@@ -174,15 +174,17 @@ Data::operator [](int pos_)
   // Begin critical section
   if (d && this->_lock.Lock())
   {
-    std::cout << "Getting child[]: " << this->Base() << std::endl;
+    ZLOG_DEBUG("Getting child[]: " + this->Root());
+    ZLOG_DEBUG("Getting child[]: " + this->Base());
+    ZLOG_DEBUG("Getting child[]: " + this->Path());
     try
     {
-      FOREACH (auto& child, this->_pt.get_child(this->Base()))
+      FOREACH (auto& child, this->_pt.get_child(this->Path()))
       {
         if (i++ == pos_)
         {
-          d->Append(ptKey(child.second));
-          d->put(d->Root(), child.second);
+          d->Append(this->Key());
+          d->put(d->Root(this->Key()), child.second);
           break;
         }
       }
@@ -205,11 +207,11 @@ Data::Size()
 
   try
   {
-    FOREACH (auto& item, this->_pt.get_child(this->Base()))
+    FOREACH (auto& item, this->_pt.get_child(this->Path()))
     {
       size++;
     }
-//    size = this->_pt.count(this->Base());
+//    size = this->_pt.count(this->Path());
   }
   catch (pt::ptree_bad_path &e)
   {
@@ -233,13 +235,13 @@ Data::Get(Data& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Getting data: " + this->Base());
+    ZLOG_DEBUG("Getting data: " + this->Path());
     if (child_._lock.Lock())
     {
       pt::ptree pt;
-      if (this->get(this->Base(), pt))
+      if (this->get(this->Path(), pt))
       {
-        status = child_.put(child_.Base(), pt);
+        status = child_.put(child_.Base(this->Key()), pt);
       }
       child_._lock.Unlock();
     }
@@ -261,14 +263,14 @@ Data::Get(const DataPath& path_, Data& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Getting data: " + path_.Base() + "; Key: " + path_.Key());
+    ZLOG_DEBUG("Getting data: " + path_.Path() + "; Key: " + path_.Key());
     if (child_._lock.Lock())
     {
       pt::ptree pt;
-      if (this->get(path_.Base(), pt))
+      if (this->get(path_.Path(), pt))
       {
         child_.Clear();
-        if ((status = child_.put(child_.Base(), pt)))
+        if ((status = child_.put(child_.Base(path_.Key()), pt)))
         {
           child_.Append(path_.Key());
         }
@@ -291,13 +293,13 @@ Data::Put(const Data& child_)
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Putting data: " + this->Path());
+    ZLOG_DEBUG("1-Putting data: " + child_.Path() + " -> " + this->Base(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (child_.get(child_.Path(), pt))
       {
-        status = this->put(this->Path(child_.Key()), pt);
+        status = this->put(this->Base(child_.Key()), pt);
       }
       child_._lock.Unlock();
     }
@@ -317,13 +319,13 @@ Data::Put(const DataPath& path_, const Data& child_)
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Putting data: " + path_.Path() + "; Data: " + child_.Base());
+    ZLOG_DEBUG("2-Putting data: " + child_.Path() + " -> " + path_.Path(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (child_.get(child_.Path(), pt))
       {
-        status = this->put(path_.Path(), pt);
+        status = this->put(path_.Path(child_.Key()), pt);
       }
       child_._lock.Unlock();
     }
@@ -344,13 +346,13 @@ Data::Add(const Data& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Adding data: " + child_.Base());
+    ZLOG_DEBUG("1-Adding data: " + child_.Path() + " -> " + this->Base(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (child_.get(child_.Path(), pt))
       {
-        status = this->add(this->Path(child_.Key()), pt);
+        status = this->add(this->Base(child_.Key()), pt);
       }
       child_._lock.Unlock();
     }
@@ -371,7 +373,7 @@ Data::Add(const DataPath& path_, const Data& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Adding data: " + path_.Path() + "; Data: " + child_.Base());
+    ZLOG_DEBUG("2-Adding data: " + child_.Path() + " -> " + path_.Path(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
@@ -504,7 +506,7 @@ Data::get(const std::string &path_, pt::ptree &pt_) const
 
   if (!path_.empty())
   {
-    ZLOG_DEBUG("getting child: " + path_);
+    ZLOG_DEBUG("getting pt: " + path_);
     try
     {
       pt_ = this->_pt.get_child(path_);
@@ -550,21 +552,11 @@ Data::add(const std::string &path_, const pt::ptree &pt_)
 
   if (!path_.empty())
   {
-//    std::cout << "Adding child: " << path_ << std::endl;
-    try
-    {
-      pt::ptree parent;
-      if (this->get(path_, parent))
-      {
-        parent.push_back(std::make_pair("", pt_));
-        status = this->put(path_, parent);
-      }
-    }
-    catch (pt::ptree_bad_path const &e)
-    {
-      ZLOG_WARN(std::string("Path error: ") + e.what());
-      status = false;
-    }
+    ZLOG_DEBUG("adding pt: " + path_);
+    pt::ptree parent;
+    this->get(path_, parent); // Ignore return
+    parent.push_back(std::make_pair("", pt_));
+    status = this->put(path_, parent);
   }
 
   return (status);
@@ -577,7 +569,7 @@ Data::del(const std::string &path_)
 
   if (!path_.empty())
   {
-//    std::cout << "Deleting child: " << path_ << std::endl;
+    ZLOG_DEBUG("deleting pt: " + path_);
     pt::ptree parent;
     pt::ptree empty;
     if (this->get(path_, parent))

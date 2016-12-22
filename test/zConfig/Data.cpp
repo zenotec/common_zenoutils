@@ -67,11 +67,10 @@ zConfigTest_DataGetPutChild(void* arg_)
   std::string exp, obs;
 
   // Create path
-  zConfig::ConfigPath ParentPath;
-  ParentPath.Append("Parent");
+  zConfig::ConfigPath ParentPath("Parent");
 
   zConfig::ConfigPath ChildPath;
-  ChildPath.Append("Child");
+  TEST_TRUE(ChildPath.Append("Child"));
 
   // Create new configuration data item and verify
   zConfig::ConfigData *ParentData = new zConfig::ConfigData(ParentPath);
@@ -96,10 +95,10 @@ zConfigTest_DataGetPutChild(void* arg_)
 
   // Put the child and verify
   TEST_TRUE(ChildPath.Prepend("Parent"));
-  TEST_TRUE(ParentData->Put(ChildData->GetData()));
+  TEST_TRUE_MSG(ParentData->Put(ChildData->GetData()), ParentData->GetJson());
 //  ParentData->DisplayJson();
 //  ChildPath.DisplayPath();
-  TEST_TRUE(ParentData->Get(ChildPath, obs));
+  TEST_TRUE_MSG(ParentData->Get(ChildPath, obs), ParentData->GetJson());
   TEST_EQ(obs, exp);
 
   // Cleanup

@@ -59,11 +59,6 @@ zDataTest_Array(void* arg)
 //  ChildData->DisplayJson();
 //  ChildData->DisplayPath();
 
-  ChildData = ChildData->operator [](0);
-  TEST_TRUE(ChildData != NULL);
-//  ChildData->DisplayJson();
-//  ChildData->DisplayPath();
-
   // Parse value array and validate
   for (int i = 0; i < num; i++)
   {

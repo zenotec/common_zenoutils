@@ -75,76 +75,32 @@ InterfaceHandler::GetConfig(zConfig::ConfigData &config_)
 bool
 InterfaceHandler::SetConfig(zConfig::ConfigData &config_)
 {
-  std::cout << std::endl << "SetConfig(): " << config_.Size() << std::endl;
-  config_.DisplayJson();
-
-  InterfaceConfigPath path;
-  zConfig::ConfigData IfaceConfig(path);
-
-  // Clear out old configuration
-  this->_ifaces.clear();
-
-  for (int i = 0; i < config_.Size(); i++)
-  {
-    IfaceConfig.Put(*config_[i]);
-    std::cout << std::endl << "IfaceConfig" << std::endl;
-    IfaceConfig.DisplayJson();
-  }
 
   // Begin critical section
   if (this->_lock.Lock())
   {
+    // Clear out old configuration
+    this->_ifaces.clear();
 
-    // Parse new configuration
-    UNIQUE_PTR(zData::Data)IfaceData = config_[0];
-    if (IfaceData)
+//    config_.DisplayPath();
+//    config_.DisplayJson();
+
+    for (int i = 0; i < config_.Size(); i++)
     {
-      IfaceData->DisplayJson();
+      InterfaceConfigData IfaceConfig;
+      config_[i]->Get(IfaceConfig.GetData());
 
-      for (int i = 0; i < IfaceData->Size(); i++)
+      SHARED_PTR(Interface)Iface = SHARED_PTR(Interface)(new Interface (IfaceConfig));
+      if (Iface && Iface->Refresh())
       {
-        UNIQUE_PTR(zData::Data)d = IfaceData->operator [](i);
-        InterfaceConfigData config (*d);
-        //config.Display();
-        SHARED_PTR(Interface) iface = SHARED_PTR(Interface) (new Interface (config));
-        switch (iface->Type ())
-        {
-#if 0
-          case Interface::TYPE_WIRED:
-          {
-            SHARED_PTR(WiredInterface) wired_iface = SHARED_PTR(WiredInterface)(new WiredInterface(*iface));
-            this->_ifaces[iface->Name ()] = STATIC_CAST (Interface) (wired_iface);
-            break;
-          }
-          case Interface::TYPE_WIRELESS:
-          {
-            SHARED_PTR(WirelessInterface) wireless_iface = SHARED_PTR(WirelessInterface)(new WirelessInterface(*iface));
-            this->_ifaces[iface->Name ()] = STATIC_CAST (Interface) (wireless_iface);
-            break;
-          }
-          case Interface::TYPE_BOND:
-          {
-            SHARED_PTR(BondInterface) bond_iface = SHARED_PTR(BondInterface)(new BondInterface(*iface));
-            this->_ifaces[iface->Name ()] = STATIC_CAST (Interface) (bond_iface);
-            break;
-          }
-          case Interface::TYPE_LOOP:
-          // No break
-          case Interface::TYPE_BRIDGE:
-          // No break
-          case Interface::TYPE_OTHER:
-          this->_ifaces[iface->Name ()] = iface;
-          break;
-#endif
-          default:
-          break;
-        }
+//        std::cout << "Adding interface[" << i << "]: " << IfaceConfig.GetName() << std::endl;
+        this->_ifaces[IfaceConfig.GetName()] = Iface;
+//        Iface->Display();
       }
     }
-
-    // End critical section
     this->_lock.Unlock();
   }
+
   return (true);
 }
 

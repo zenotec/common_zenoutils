@@ -31,6 +31,10 @@ int
 zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
 {
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceConfigurationDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
   InterfaceConfigData *MyConfig = new InterfaceConfigData;
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
@@ -50,6 +54,10 @@ int
 zInterfaceTest_InterfaceDefaults(void* arg)
 {
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
   Interface *MyInterface = new zInterface::Interface;
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface->GetName());
@@ -68,6 +76,10 @@ zInterfaceTest_InterfaceDefaults(void* arg)
 int
 zInterfaceTest_InterfaceHandlerDefaults(void* arg)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceHandlerDefaults()");
+  ZLOG_DEBUG("#############################################################");
 
   InterfaceHandler *MyHandler = new InterfaceHandler;
   TEST_ISNOT_NULL(MyHandler);

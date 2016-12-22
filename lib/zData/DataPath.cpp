@@ -175,7 +175,7 @@ DataPath::PopBack()
 }
 
 std::string
-DataPath::Root() const
+DataPath::Root(const std::string path_) const
 {
   std::string root;
   if (!this->_root.empty())
@@ -190,11 +190,16 @@ DataPath::Root() const
       path.pop_front();
     }
   }
+  if (!path_.empty())
+  {
+    root += '.';
+    root += path_;
+  }
   return (root);
 }
 
 std::string
-DataPath::Base() const
+DataPath::Base(const std::string path_) const
 {
   std::string base = this->Root();
   std::string key;
@@ -211,6 +216,11 @@ DataPath::Base() const
       base += path.front();
       path.pop_front();
     }
+  }
+  if (!path_.empty())
+  {
+    base += '.';
+    base += path_;
   }
   return (base);
 }
@@ -252,6 +262,8 @@ DataPath::Clear()
 void
 DataPath::DisplayPath() const
 {
+  std::cout << this->Root() << std::endl;
+  std::cout << this->Base() << std::endl;
   std::cout << this->Path() << std::endl;
 }
 

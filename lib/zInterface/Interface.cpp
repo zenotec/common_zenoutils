@@ -370,14 +370,14 @@ Interface::Interface() :
   this->_lock.Unlock();
 }
 
-Interface::Interface(Interface &other_) :
+Interface::Interface(Interface& other_) :
     InterfaceConfigData(other_.GetData()), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
         _lock(zSem::Mutex::LOCKED), _index(-1), _state(Interface::STATE_UNKNOWN)
 {
   this->_lock.Unlock();
 }
 
-Interface::Interface(zConfig::ConfigData &config_) :
+Interface::Interface(InterfaceConfigData& config_) :
     InterfaceConfigData(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
         _lock(zSem::Mutex::LOCKED), _index(-1), _state(Interface::STATE_UNKNOWN)
 {
@@ -428,7 +428,7 @@ Interface::Refresh()
     this->_lock.Unlock();
   }
 
-  return (true);
+  return (status);
 }
 
 void

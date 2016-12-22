@@ -178,7 +178,7 @@ public:
 
   Interface(const Interface &other_);
 
-  Interface(zConfig::ConfigData &config_);
+  Interface(InterfaceConfigData &config_);
 
   virtual
   ~Interface();

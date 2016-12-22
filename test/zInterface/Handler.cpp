@@ -26,24 +26,33 @@ using namespace zUtils::zInterface;
 int
 zInterfaceTest_InterfaceHandlerCtor(void* arg)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceHandlerCtor()");
+  ZLOG_DEBUG("#############################################################");
+
   // Setup configuration object to mimic a InterfaceConfiguration configuration object
-  InterfaceConfigPath path;
-  ConfigData config(path);
-  ConfigData iface(path);
+  zConfig::ConfigData config;
+  TEST_TRUE(config.Append(InterfaceConfigPath::ConfigRoot));
+  InterfaceConfigData iface;
 
-  TEST_TRUE(iface.Put(path.Name(), std::string("lo")));
-  TEST_TRUE(iface.Put(path.Type(), InterfaceConfigData::ConfigTypeLoop));
-  TEST_TRUE(iface.Put(path.State(), InterfaceConfigData::ConfigStateUp));
-  TEST_TRUE(iface.Put(path.Rate(), 10000000));
+  TEST_TRUE(iface.SetName(std::string("lo")));
+  TEST_TRUE(iface.SetType(InterfaceConfigData::ConfigTypeLoop));
+  TEST_TRUE(iface.SetState(InterfaceConfigData::ConfigStateUp));
+  TEST_TRUE(iface.SetRate(10000000));
 
-  TEST_TRUE(config.Add(iface.GetData()));
-  TEST_TRUE(config.Add(iface.GetData()));
+  TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
 
-  config.DisplayJson();
+  TEST_TRUE(iface.SetName(std::string("eth0")));
+  TEST_TRUE(iface.SetType(InterfaceConfigData::ConfigTypeWired));
+  TEST_TRUE(iface.SetState(InterfaceConfigData::ConfigStateUp));
+  TEST_TRUE(iface.SetRate(1000000000));
+
+  TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
 
   InterfaceHandler *MyHandler = new InterfaceHandler(config);
   TEST_ISNOT_NULL(MyHandler);
-  MyHandler->Display();
+//  MyHandler->Display();
 
   // Cleanup
   delete (MyHandler);
