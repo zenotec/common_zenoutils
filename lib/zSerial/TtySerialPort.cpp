@@ -136,7 +136,7 @@ TtySerialConfigData::TtySerialConfigData()
   this->SetFlowControl(this->GetFlowControl());
 }
 
-TtySerialConfigData::TtySerialConfigData(zData::Data &data_) :
+TtySerialConfigData::TtySerialConfigData(const zData::Data& data_) :
     SerialConfigData(data_)
 {
   this->SetType(SerialConfigData::ConfigTypeTty);
@@ -148,8 +148,20 @@ TtySerialConfigData::TtySerialConfigData(zData::Data &data_) :
   this->SetFlowControl(this->GetFlowControl());
 }
 
-TtySerialConfigData::TtySerialConfigData(zConfig::ConfigData& config_) :
+TtySerialConfigData::TtySerialConfigData(const zConfig::ConfigData& config_) :
     SerialConfigData(config_)
+{
+  this->SetType(SerialConfigData::ConfigTypeTty);
+  this->SetDevice(this->GetDevice());
+  this->SetBaud(this->GetBaud());
+  this->SetDataBits(this->GetDataBits());
+  this->SetStopBits(this->GetStopBits());
+  this->SetParity(this->GetParity());
+  this->SetFlowControl(this->GetFlowControl());
+}
+
+TtySerialConfigData::TtySerialConfigData(const TtySerialConfigData& other_) :
+    SerialConfigData(other_.GetConfigData())
 {
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
@@ -397,12 +409,17 @@ TtySerialPort::TtySerialPort() :
 }
 
 TtySerialPort::TtySerialPort(const TtySerialConfigData& config_) :
-    _options(0), _fd(0), _config(config_), _rx_thread(&this->_rx_func, this),
+    _options(0), _fd(0), _config(config_.GetConfigData()), _rx_thread(&this->_rx_func, this),
         _tx_thread(&this->_tx_func, this)
 {
 
   memset(&_termios, 0, sizeof(_termios));
   memset(&_savedTermios, 0, sizeof(_savedTermios));
+
+  ZLOG_DEBUG("TtySerialPort::TtySerialPort(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
 
   // Configure the port
   this->SetDevice(this->GetDevice());

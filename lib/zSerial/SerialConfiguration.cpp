@@ -42,13 +42,9 @@ namespace zSerial
 const std::string SerialConfigPath::ConfigRoot("zSerial");
 const std::string SerialConfigPath::ConfigTypePath("Type");
 
-SerialConfigPath::SerialConfigPath(const std::string& path_) :
+SerialConfigPath::SerialConfigPath() :
     zConfig::ConfigPath(ConfigRoot)
 {
-  if (!path_.empty())
-  {
-    this->Append(path_);
-  }
 }
 
 SerialConfigPath::~SerialConfigPath()
@@ -58,7 +54,7 @@ SerialConfigPath::~SerialConfigPath()
 zConfig::ConfigPath
 SerialConfigPath::Type()
 {
-  zConfig::ConfigPath path;
+  zConfig::ConfigPath path(*this);
   path.Append(ConfigTypePath);
   return(path);
 }
@@ -71,32 +67,32 @@ const std::string SerialConfigData::ConfigTypeNone("NONE");
 const std::string SerialConfigData::ConfigTypeEcho("Echo");
 const std::string SerialConfigData::ConfigTypeTty("TTY");
 
-SerialConfigData::SerialConfigData(const std::string& path_) :
+SerialConfigData::SerialConfigData() :
     zConfig::ConfigData(SerialConfigPath::ConfigRoot)
 {
-  this->SetType(ConfigTypeNone);
+  this->SetType(this->GetType());
 }
 
-SerialConfigData::SerialConfigData(zData::Data &data_) :
+SerialConfigData::SerialConfigData(const zData::Data& data_) :
     zConfig::ConfigData(data_)
 {
   this->SetType(this->GetType());
 }
 
-SerialConfigData::SerialConfigData(zConfig::ConfigData &config_) :
+SerialConfigData::SerialConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(config_)
+{
+  this->SetType(this->GetType());
+}
+
+SerialConfigData::SerialConfigData(const SerialConfigData& other_) :
+    zConfig::ConfigData(other_.GetConfigData())
 {
   this->SetType(this->GetType());
 }
 
 SerialConfigData::~SerialConfigData()
 {
-}
-
-zConfig::ConfigData&
-SerialConfigData::GetConfigData()
-{
-  return (*this);
 }
 
 std::string

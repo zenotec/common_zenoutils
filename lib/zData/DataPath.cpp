@@ -38,7 +38,7 @@ path2list(const std::string& path_)
       p = strtok(str, ".");
       while (p != NULL)
       {
-        path.push_back(path_);
+        path.push_back(p);
         p = strtok(NULL, ".");
       }
       free(str);

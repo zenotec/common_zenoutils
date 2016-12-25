@@ -42,7 +42,7 @@ public:
   static const std::string ConfigRoot;
   static const std::string ConfigTypePath;
 
-  SerialConfigPath(const std::string& path_ = std::string(""));
+  SerialConfigPath();
 
   virtual
   ~SerialConfigPath();
@@ -69,17 +69,16 @@ public:
   static const std::string ConfigTypeEcho;
   static const std::string ConfigTypeTty;
 
-  SerialConfigData(const std::string& path_ = std::string(""));
+  SerialConfigData();
 
-  SerialConfigData(zData::Data &data_);
+  SerialConfigData(const zData::Data& data_);
 
-  SerialConfigData(zConfig::ConfigData &data_);
+  SerialConfigData(const zConfig::ConfigData& config_);
+
+  SerialConfigData(const SerialConfigData& other_);
 
   virtual
   ~SerialConfigData();
-
-  zConfig::ConfigData&
-  GetConfigData();
 
   std::string
   GetType() const;

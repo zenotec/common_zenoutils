@@ -118,9 +118,11 @@ public:
 
   TtySerialConfigData();
 
-  TtySerialConfigData(zData::Data &data_);
+  TtySerialConfigData(const zData::Data& data_);
 
-  TtySerialConfigData(zConfig::ConfigData &config_);
+  TtySerialConfigData(const zConfig::ConfigData& config_);
+
+  TtySerialConfigData(const TtySerialConfigData& other_);
 
   virtual
   ~TtySerialConfigData();
