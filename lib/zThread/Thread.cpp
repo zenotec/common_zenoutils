@@ -37,7 +37,7 @@ namespace zThread
 //**********************************************************************
 
 ThreadFunction::ThreadFunction() :
-    _thread_lock(zSem::Mutex::LOCKED), _exit(false)
+    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _exit(false)
 {
   this->_thread_lock.Unlock();
 }
@@ -72,6 +72,18 @@ ThreadFunction::Exit(bool flag_)
   return (status);
 }
 
+bool
+ThreadFunction::setThread(Thread* thread_)
+{
+  bool status = false;
+  if (thread_)
+  {
+    this->_thread = thread_;
+    status = true;
+  }
+  return(status);
+}
+
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
@@ -90,11 +102,30 @@ Thread::~Thread()
   this->Stop();
 }
 
+void*
+Thread::Id()
+{
+  return (this);
+}
+
+std::string
+Thread::Name()
+{
+  return (this->_name);
+}
+
+void
+Thread::Name(const std::string &name_)
+{
+  this->_name = name_;
+  return;
+}
+
 bool
 Thread::Start()
 {
   bool status = false;
-  if (this->_func && this->_func->Exit(false))
+  if (this->_func && this->_func->setThread(this) && this->_func->Exit(false))
   {
     ZLOG_DEBUG("Starting thread: " + ZLOG_P(this));
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
@@ -133,19 +164,6 @@ Thread::Stop()
   return (status);
 }
 
-std::string
-Thread::Name()
-{
-  return (this->_name);
-}
-
-void
-Thread::Name(const std::string &name_)
-{
-  this->_name = name_;
-  return;
-}
-
 bool
 Thread::EventHandler(const zEvent::EventNotification* notification_)
 {
@@ -166,7 +184,8 @@ Thread::EventHandler(const zEvent::EventNotification* notification_)
       break;
     default:
       break;
-    }  }
+    }
+  }
   return status;
 }
 

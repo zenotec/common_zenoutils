@@ -340,8 +340,6 @@ protected:
 
 private:
 
-  TtySerialConfigData _config;
-
   struct termios _termios;
   struct termios _savedTermios;
   int _options;

@@ -19,6 +19,9 @@
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
+#include <fcntl.h>
+#include <sys/timerfd.h>
+#include <sys/poll.h>
 
 #include <mutex>
 #include <list>
@@ -49,30 +52,75 @@ _add_time(struct timespec *ts_, uint32_t us_)
 }
 
 //**********************************************************************
-// zTimer::Timer Class
+// Class: TimerThreadFunction
+//**********************************************************************
+
+TimerThreadFunction::TimerThreadFunction() :
+    _ticks(0)
+{
+
+}
+
+TimerThreadFunction::~TimerThreadFunction()
+{
+
+}
+
+void
+TimerThreadFunction::Run(zThread::ThreadArg *arg_)
+{
+
+  uint64_t ticks = 0;
+  Timer *timer = (Timer *) arg_;
+
+  if (!arg_)
+  {
+    return;
+  }
+
+//  ZLOG_DEBUG("Running...");
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = timer->_fd;
+  fds[0].events = (POLLIN | POLLERR);
+
+  while (!this->Exit())
+  {
+//    ZLOG_DEBUG("Polling...");
+    int ret = poll(fds, 1, 100);
+    if (ret > 0 && (fds[0].revents == POLLIN))
+    {
+//      ZLOG_DEBUG("Reading...");
+      ret = read(fds[0].fd, &ticks, sizeof(ticks));
+      if (ret > 0)
+      {
+//        ZLOG_DEBUG("Notifying...");
+        this->_ticks += ticks;
+        timer->Notify(this->_ticks);
+      }
+    }
+  }
+
+}
+
+//**********************************************************************
+// Class: Timer
 //**********************************************************************
 
 Timer::Timer() :
-    _interval(0), _sigev( { 0 }), _timerid(0), _tick(0), zEvent::Event(zEvent::Event::TYPE_TIMER)
+    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _thread(&this->_timer_func, this),
+        _interval(0)
 {
 
   this->RegisterEvent(this);
-  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGUSR1, this);
-
-  // Setup signal event
-  memset(&this->_sigev, 0, sizeof(this->_sigev));
-  this->_sigev.sigev_notify = SIGEV_SIGNAL;
-  this->_sigev.sigev_signo = SIGUSR1;
-  this->_sigev.sigev_notify_function = NULL;
-  this->_sigev.sigev_notify_attributes = NULL;
-  this->_sigev.sigev_value.sival_int = 0;
-  this->_sigev.sigev_value.sival_ptr = this;
 
   // Create timer
-  int stat = timer_create(CLOCK_REALTIME, &this->_sigev, &this->_timerid);
-  if (stat != 0)
+  this->_fd = timerfd_create(CLOCK_REALTIME, O_NONBLOCK);
+  if (this->_fd <= 0)
   {
     ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
+    this->_fd = 0;
     return;
   } // end if
 
@@ -88,19 +136,10 @@ Timer::~Timer()
   this->Stop();
 
   // Delete timer
-  if (this->_timerid)
+  if (this->_fd)
   {
-
-    // Delete timer
-    stat = timer_delete(this->_timerid);
-    if (stat != 0)
-    {
-      ZLOG_ERR("Cannot delete timer: " + std::string(strerror(errno)));
-    } // end if
+    close(this->_fd);
   } // end if
-
-  // Unregister for signal
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGUSR1, this);
 
   // Unregister event
   this->UnregisterEvent(this);
@@ -113,9 +152,10 @@ void
 Timer::Start(uint32_t usec_)
 {
   ZLOG_DEBUG("Starting interval timer");
-  if (this->_lock.Lock())
+  if (this->_fd && this->_lock.Lock())
   {
     this->_interval = usec_;
+    this->_thread.Start();
     this->_start();
     this->_lock.Unlock();
   } // end if
@@ -125,43 +165,22 @@ void
 Timer::Stop(void)
 {
   ZLOG_DEBUG("Stopping interval timer");
-  if (this->_lock.Lock())
+  if (this->_fd && this->_lock.Lock())
   {
     this->_stop();
+    this->_thread.Stop();
     this->_lock.Unlock();
   } // end if
 }
 
-bool
-Timer::Notify()
+void
+Timer::Notify(uint64_t ticks_)
 {
-  ZLOG_DEBUG("Notifying timer observer");
-  if (this->_lock.TryLock())
-  {
-    this->_lock.Unlock();
-  }
-}
-
-bool
-Timer::EventHandler(const zEvent::EventNotification* notification_)
-{
-  bool status = false;
-  const zSignal::SignalNotification *n = NULL;
-
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SIGNAL))
-  {
-    n = static_cast<const zSignal::SignalNotification*>(notification_);
-    if ((n->Id() == zSignal::Signal::ID_SIGUSR1) && n->SigInfo()
-        && (n->SigInfo()->si_code == SI_TIMER) && (n->SigInfo()->si_ptr == this))
-    {
-      this->_tick++;
-      TimerNotification notification(this);
-      notification.tick(this->_tick);
-      zEvent::Event::Notify(&notification);
-      status = true;
-    }
-  }
-  return status;
+  ZLOG_DEBUG("Notifying: " + ZLOG_ULONG(ticks_));
+  TimerNotification notification(this);
+  notification.tick(ticks_);
+  zEvent::Event::Notify(&notification);
+  return;
 }
 
 void
@@ -175,7 +194,7 @@ Timer::_start()
   _add_time(&its.it_interval, this->_interval);
 
   // Start timer
-  stat = timer_settime(this->_timerid, 0, &its, NULL);
+  stat = timerfd_settime(this->_fd, 0, &its, NULL);
   if (stat != 0)
   {
     ZLOG_ERR("Cannot start timer: " + std::string(strerror(errno)));
@@ -191,11 +210,11 @@ Timer::_stop()
   int stat = 0;
   struct itimerspec its = { 0 };
 
-  if (this->_timerid)
+  if (this->_fd)
   {
 
     // Stop timer
-    stat = timer_settime(this->_timerid, 0, &its, NULL);
+    stat = timerfd_settime(this->_fd, 0, &its, NULL);
     if (stat != 0)
     {
       ZLOG_ERR("Cannot stop timer: " + std::string(strerror(errno)));

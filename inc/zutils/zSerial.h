@@ -68,6 +68,7 @@ public:
   static const std::string ConfigTypeNone;
   static const std::string ConfigTypeEcho;
   static const std::string ConfigTypeTty;
+  static const std::string ConfigTypeDefault;
 
   SerialConfigData();
 

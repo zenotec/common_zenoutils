@@ -32,6 +32,42 @@ using namespace Test;
 using namespace zUtils;
 
 int
+zSerialTest_ConfigPathDefaults(void *arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSerialTest_ConfigPathDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  zSerial::SerialConfigPath path;
+
+  // Return success
+  return (0);
+
+}
+
+int
+zSerialTest_ConfigDataDefaults(void *arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zSerialTest_ConfigDataDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  // Create new config data and verify
+  zSerial::SerialConfigData *MyConfig = new zSerial::SerialConfigData;
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(zSerial::SerialConfigData::ConfigTypeDefault, MyConfig->GetType());
+
+  // Cleanup
+  delete (MyConfig);
+
+  // Return success
+  return (0);
+
+}
+
+int
 zSerialTest_PortDefaults(void *arg_)
 {
 
@@ -39,7 +75,6 @@ zSerialTest_PortDefaults(void *arg_)
   ZLOG_DEBUG("# zComTest_PortDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  bool status = false;
   TestPort *MyPort = new TestPort;
   TEST_ISNOT_NULL(MyPort);
 
@@ -59,9 +94,15 @@ zSerialTest_TtyPortDefaults(void *arg_)
   ZLOG_DEBUG("# zComTest_TtyPortDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  bool status = false;
-  TtyTestPort *MyPort = new TtyTestPort;
+  zSerial::TtySerialPort *MyPort = new zSerial::TtySerialPort;
   TEST_ISNOT_NULL(MyPort);
+  TEST_EQ(zSerial::SerialConfigData::ConfigTypeTty, MyPort->GetType());
+  TEST_EQ(zSerial::TtySerialConfigData::ConfigDeviceDefault, MyPort->GetDevice());
+  TEST_EQ(zSerial::TtySerialPort::BAUD_DEF, MyPort->GetBaud());
+  TEST_EQ(zSerial::TtySerialPort::DATABITS_DEF, MyPort->GetDataBits());
+  TEST_EQ(zSerial::TtySerialPort::STOPBITS_DEF, MyPort->GetStopBits());
+  TEST_EQ(zSerial::TtySerialPort::PARITY_DEF, MyPort->GetParity());
+  TEST_EQ(zSerial::TtySerialPort::FLOWCNTL_DEF, MyPort->GetFlowControl());
 
   // Cleanup
   delete (MyPort);

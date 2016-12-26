@@ -27,6 +27,8 @@ namespace zUtils
 namespace zThread
 {
 
+class Thread;
+
 //**********************************************************************
 // Class: ThreadArg
 //**********************************************************************
@@ -47,6 +49,9 @@ private:
 
 class ThreadFunction
 {
+
+  friend Thread;
+
 public:
 
   ThreadFunction();
@@ -65,9 +70,13 @@ public:
 
 protected:
 
+  bool
+  setThread(Thread* thread_);
+
 private:
 
   zSem::Mutex _thread_lock;
+  Thread *_thread;
   bool _exit;
 
 };
@@ -85,7 +94,7 @@ public:
   virtual
   ~Thread();
 
-  unsigned long
+  void*
   Id();
 
   std::string

@@ -43,12 +43,24 @@ main(int argc, const char **argv)
 
   // Test all classes
   UTEST_INIT();
+
+  UTEST_TEST(zSerialTest_ConfigPathDefaults, 0);
+  UTEST_TEST(zSerialTest_ConfigDataDefaults, 0);
+  UTEST_TEST(zSerialTest_SerialConfigDataCtor, 0);
+  UTEST_TEST(zSerialTest_SerialConfigDataGetSet, 0);
+
   UTEST_TEST(zSerialTest_PortDefaults, 0);
-  UTEST_TEST(zSerialTest_TtyPortDefaults, 0);
+
   UTEST_TEST(zSerialTest_PortSendRecvChar, 0);
   UTEST_TEST(zSerialTest_PortSendRecvBuf, 0);
+
+  UTEST_TEST(zSerialTest_TtyPortDefaults, 0);
+  UTEST_TEST(zSerialTest_TtyConfigDataCtor, 0);
+  UTEST_TEST(zSerialTest_TtyConfigDataGetSet, 0);
+  UTEST_TEST(zSerialTest_TtyConfigPortGetSet, 0);
   UTEST_TEST(zSerialTest_TtyPortSendRecvChar, 0);
   UTEST_TEST(zSerialTest_TtyPortSendRecvBuf, 0);
+
   UTEST_FINI();
 
   // Exit

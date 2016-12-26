@@ -13,6 +13,7 @@ zSerialUnitTest_SOURCES = \
     zSerialTest.h \
     UnitTest.cpp \
     Defaults.cpp \
+    Config.cpp \
     Port.cpp \
     TtyPort.cpp
 

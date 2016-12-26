@@ -50,7 +50,7 @@ TtySerialConfigPath::Device()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigDevicePath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -58,7 +58,7 @@ TtySerialConfigPath::Baud()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigBaudPath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -66,7 +66,7 @@ TtySerialConfigPath::Databits()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigDatabitsPath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -74,7 +74,7 @@ TtySerialConfigPath::Stopbits()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigStopbitsPath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -82,7 +82,7 @@ TtySerialConfigPath::Parity()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigParityPath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -90,7 +90,7 @@ TtySerialConfigPath::FlowCtrl()
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigFlowCtrlPath);
-  return(path);
+  return (path);
 }
 
 //*****************************************************************************
@@ -127,6 +127,9 @@ const std::string TtySerialConfigData::ConfigFlowCtrlDefault(ConfigFlowCtrlNone)
 
 TtySerialConfigData::TtySerialConfigData()
 {
+  ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -139,6 +142,9 @@ TtySerialConfigData::TtySerialConfigData()
 TtySerialConfigData::TtySerialConfigData(const zData::Data& data_) :
     SerialConfigData(data_)
 {
+  ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -151,6 +157,9 @@ TtySerialConfigData::TtySerialConfigData(const zData::Data& data_) :
 TtySerialConfigData::TtySerialConfigData(const zConfig::ConfigData& config_) :
     SerialConfigData(config_)
 {
+  ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -163,6 +172,9 @@ TtySerialConfigData::TtySerialConfigData(const zConfig::ConfigData& config_) :
 TtySerialConfigData::TtySerialConfigData(const TtySerialConfigData& other_) :
     SerialConfigData(other_.GetConfigData())
 {
+  ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -198,6 +210,11 @@ TtySerialConfigData::SetDevice(const std::string& dev_)
 std::string
 TtySerialConfigData::GetBaud() const
 {
+
+  ZLOG_DEBUG("TtySerialConfigData::GetBaud()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   std::string str;
   TtySerialConfigPath path;
   if (!this->Get(path.Baud(), str))
@@ -317,7 +334,7 @@ TtyPortRecv::Run(zThread::ThreadArg *arg_)
   while (!this->Exit())
   {
 
-    int ret = poll(fds, 1, 100);
+    int ret = poll(fds, 1, 500);
     if (ret > 0 && (fds[0].revents == POLLIN))
     {
       ZLOG_DEBUG(std::string("Receiving char"));
@@ -360,9 +377,8 @@ TtyPortSend::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-
     // Wait for data to send
-    if (port->txchar(&c, 100))
+    if (port->txchar(&c, 500))
     {
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
@@ -391,6 +407,10 @@ TtySerialPort::TtySerialPort() :
 
 {
 
+  ZLOG_DEBUG("TtySerialPort::TtySerialPort()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   memset(&_termios, 0, sizeof(_termios));
   memset(&_savedTermios, 0, sizeof(_savedTermios));
 
@@ -409,17 +429,16 @@ TtySerialPort::TtySerialPort() :
 }
 
 TtySerialPort::TtySerialPort(const TtySerialConfigData& config_) :
-    _options(0), _fd(0), _config(config_.GetConfigData()), _rx_thread(&this->_rx_func, this),
+    _options(0), _fd(0), TtySerialConfigData(config_), _rx_thread(&this->_rx_func, this),
         _tx_thread(&this->_tx_func, this)
 {
-
-  memset(&_termios, 0, sizeof(_termios));
-  memset(&_savedTermios, 0, sizeof(_savedTermios));
 
   ZLOG_DEBUG("TtySerialPort::TtySerialPort(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 
+  memset(&_termios, 0, sizeof(_termios));
+  memset(&_savedTermios, 0, sizeof(_savedTermios));
 
   // Configure the port
   this->SetDevice(this->GetDevice());
@@ -444,15 +463,30 @@ bool
 TtySerialPort::Open()
 {
 
+  ZLOG_INFO("Opening TTY port: " + TtySerialConfigData::GetDevice());
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   bool status = false;
+
+  // Setup terminal I/O structure
+  memset(&this->_termios, 0, sizeof(this->_termios));
+  cfmakeraw(&this->_termios);
+  this->_termios.c_cflag |= (CLOCAL | CREAD);
+
+  memset(&_savedTermios, 0, sizeof(_savedTermios));
+
+  // Configure the port
+  this->SetDevice(this->GetDevice());
+  this->SetBaud(this->GetBaud());
+  this->SetDataBits(this->GetDataBits());
+  this->SetStopBits(this->GetStopBits());
+  this->SetParity(this->GetParity());
+  this->SetFlowControl(this->GetFlowControl());
+  this->SetBlocking(this->GetBlocking());
 
   if (!this->_fd)
   {
-
-    // Setup terminal I/O structure
-    memset(&this->_termios, 0, sizeof(this->_termios));
-    cfmakeraw(&this->_termios);
-    this->_termios.c_cflag |= (CLOCAL | CREAD);
 
     this->_fd = open(TtySerialConfigData::GetDevice().c_str(), O_RDWR | O_NOCTTY | this->_options);
     if (this->_fd > 0)
@@ -469,8 +503,8 @@ TtySerialPort::Open()
     }
     else
     {
-      ZLOG_ERR(
-          "Cannot open TTY port " + TtySerialConfigData::GetDevice() + ": " + std::string(strerror(errno)));
+      ZLOG_ERR("Cannot open TTY port " + TtySerialConfigData::GetDevice() + ": " +
+          std::string(strerror(errno)));
     }
   }
   return (status);
@@ -479,6 +513,11 @@ TtySerialPort::Open()
 bool
 TtySerialPort::Close()
 {
+
+  ZLOG_INFO("Closing TTY port: " + TtySerialConfigData::GetDevice());
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   if (this->_fd)
   {
     this->_rx_thread.Stop();
@@ -493,6 +532,7 @@ TtySerialPort::Close()
 TtySerialPort::BAUD
 TtySerialPort::GetBaud() const
 {
+
   TtySerialPort::BAUD baud = TtySerialPort::BAUD_DEF;
   std::string str = TtySerialConfigData::GetBaud();
 
@@ -571,6 +611,7 @@ TtySerialPort::SetBaud(TtySerialPort::BAUD baud_)
 TtySerialPort::DATABITS
 TtySerialPort::GetDataBits() const
 {
+
   TtySerialPort::DATABITS bits = TtySerialPort::DATABITS_DEF;
   std::string str = TtySerialConfigData::GetDataBits();
 

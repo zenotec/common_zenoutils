@@ -34,13 +34,29 @@
 using namespace zUtils;
 
 int
+zSerialTest_ConfigPathDefaults(void* arg);
+int
+zSerialTest_ConfigDataDefaults(void* arg);
+int
+zSerialTest_SerialConfigDataCtor(void* arg);
+int
+zSerialTest_SerialConfigDataGetSet(void* arg);
+
+int
 zSerialTest_PortDefaults(void* arg_);
 int
 zSerialTest_PortSendRecvChar(void *arg_);
 int
 zSerialTest_PortSendRecvBuf(void *arg_);
+
 int
 zSerialTest_TtyPortDefaults(void* arg_);
+int
+zSerialTest_TtyConfigDataCtor(void* arg);
+int
+zSerialTest_TtyConfigDataGetSet(void* arg);
+int
+zSerialTest_TtyConfigPortGetSet(void* arg);
 int
 zSerialTest_TtyPortSendRecvChar(void *arg_);
 int

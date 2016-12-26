@@ -66,28 +66,41 @@ SerialConfigPath::Type()
 const std::string SerialConfigData::ConfigTypeNone("NONE");
 const std::string SerialConfigData::ConfigTypeEcho("Echo");
 const std::string SerialConfigData::ConfigTypeTty("TTY");
+const std::string SerialConfigData::ConfigTypeDefault(ConfigTypeNone);
 
 SerialConfigData::SerialConfigData() :
     zConfig::ConfigData(SerialConfigPath::ConfigRoot)
 {
+  ZLOG_DEBUG("SerialConfigData::SerialConfigData()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(this->GetType());
 }
 
 SerialConfigData::SerialConfigData(const zData::Data& data_) :
     zConfig::ConfigData(data_)
 {
+  ZLOG_DEBUG("SerialConfigData::SerialConfigData(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(this->GetType());
 }
 
 SerialConfigData::SerialConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(config_)
 {
+  ZLOG_DEBUG("SerialConfigData::SerialConfigData(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(this->GetType());
 }
 
 SerialConfigData::SerialConfigData(const SerialConfigData& other_) :
     zConfig::ConfigData(other_.GetConfigData())
 {
+  ZLOG_DEBUG("SerialConfigData::SerialConfigData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->SetType(this->GetType());
 }
 

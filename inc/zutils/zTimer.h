@@ -22,6 +22,7 @@
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
 #include <zutils/zEvent.h>
+#include <zutils/zThread.h>
 #include <zutils/zSignal.h>
 
 namespace zUtils
@@ -30,11 +31,38 @@ namespace zTimer
 {
 
 //**********************************************************************
-// zTimer::Timer Class
+// Class: TimerThreadFunction
 //**********************************************************************
-class Timer :
-    public zEvent::Event, public zEvent::EventHandler, public zEvent::EventObserver
+
+class TimerThreadFunction : public zThread::ThreadFunction
 {
+
+public:
+
+  TimerThreadFunction();
+
+  virtual
+  ~TimerThreadFunction();
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+  uint64_t _ticks;
+
+};
+
+//**********************************************************************
+// Class: Timer
+//**********************************************************************
+
+class Timer : public zThread::ThreadArg, public zEvent::Event, public zEvent::EventHandler
+{
+
+  friend TimerThreadFunction;
 
 public:
 
@@ -49,24 +77,21 @@ public:
   void
   Stop(void);
 
-  bool
-  Notify();
+  void
+  Notify(uint64_t ticks_);
 
 protected:
+
+  int _fd;
 
 private:
 
   zSem::Mutex _lock;
+
+  zThread::Thread _thread;
+  TimerThreadFunction _timer_func;
+
   uint32_t _interval;
-  sigevent_t _sigev;
-  timer_t _timerid;
-  uint64_t _tick;
-
-  virtual bool
-  EventHandler(const zEvent::EventNotification* notification_);
-
-  static void
-  timer_handler(union sigval sv_);
 
   virtual void
   _start(void);
