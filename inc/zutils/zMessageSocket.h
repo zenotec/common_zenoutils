@@ -17,6 +17,10 @@
 #ifndef __ZMESSAGESOCKET_H__
 #define __ZMESSAGESOCKET_H__
 
+#include <zutils/zEvent.h>
+#include <zutils/zSocket.h>
+#include <zutils/zMessage.h>
+
 namespace zUtils
 {
 namespace zMessage

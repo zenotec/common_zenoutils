@@ -57,7 +57,7 @@ InterfaceConfigPath::Name() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigNamePath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -65,7 +65,7 @@ InterfaceConfigPath::Type() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigTypePath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -73,7 +73,7 @@ InterfaceConfigPath::State() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigStatePath);
-  return(path);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -81,7 +81,7 @@ InterfaceConfigPath::Rate() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigRatePath);
-  return(path);
+  return (path);
 }
 
 // ****************************************************************************
@@ -108,24 +108,49 @@ const uint32_t InterfaceConfigData::ConfigRateDefault(1000000);
 InterfaceConfigData::InterfaceConfigData() :
     zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
 {
+  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   this->SetName(this->GetName());
   this->SetType(this->GetType());
   this->SetState(this->GetState());
   this->SetRate(this->GetRate());
 }
 
-InterfaceConfigData::InterfaceConfigData(zData::Data& data_) :
+InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :
     zConfig::ConfigData(data_)
 {
+  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   this->SetName(this->GetName());
   this->SetType(this->GetType());
   this->SetState(this->GetState());
   this->SetRate(this->GetRate());
 }
 
-InterfaceConfigData::InterfaceConfigData(zConfig::ConfigData& config_) :
+InterfaceConfigData::InterfaceConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(config_)
 {
+  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
+  this->SetName(this->GetName());
+  this->SetType(this->GetType());
+  this->SetState(this->GetState());
+  this->SetRate(this->GetRate());
+}
+
+InterfaceConfigData::InterfaceConfigData(const InterfaceConfigData& other_) :
+    zConfig::ConfigData(other_.GetConfigData())
+{
+  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+
   this->SetName(this->GetName());
   this->SetType(this->GetType());
   this->SetState(this->GetState());
@@ -137,7 +162,7 @@ InterfaceConfigData::~InterfaceConfigData()
 }
 
 std::string
-InterfaceConfigData::GetName()
+InterfaceConfigData::GetName() const
 {
   std::string str;
   InterfaceConfigPath path;
@@ -156,7 +181,7 @@ InterfaceConfigData::SetName(const std::string& name_)
 }
 
 std::string
-InterfaceConfigData::GetType()
+InterfaceConfigData::GetType() const
 {
   std::string str;
   InterfaceConfigPath path;
@@ -175,7 +200,7 @@ InterfaceConfigData::SetType(const std::string& type_)
 }
 
 std::string
-InterfaceConfigData::GetState()
+InterfaceConfigData::GetState() const
 {
   std::string str;
   InterfaceConfigPath path;
@@ -194,7 +219,7 @@ InterfaceConfigData::SetState(const std::string& state_)
 }
 
 uint32_t
-InterfaceConfigData::GetRate()
+InterfaceConfigData::GetRate() const
 {
   uint32_t rate;
   InterfaceConfigPath path;

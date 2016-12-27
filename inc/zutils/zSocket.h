@@ -17,6 +17,8 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
+#include <zutils/zQueue.h>
+
 namespace zUtils
 {
 namespace zSocket

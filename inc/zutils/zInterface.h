@@ -98,33 +98,35 @@ public:
 
   InterfaceConfigData();
 
-  InterfaceConfigData(zData::Data &data_);
+  InterfaceConfigData(const zData::Data& data_);
 
-  InterfaceConfigData(zConfig::ConfigData &config_);
+  InterfaceConfigData(const zConfig::ConfigData& config_);
+
+  InterfaceConfigData(const InterfaceConfigData& other_);
 
   virtual
   ~InterfaceConfigData();
 
   std::string
-  GetName();
+  GetName() const;
 
   bool
   SetName(const std::string &name_);
 
   std::string
-  GetType();
+  GetType() const;
 
   bool
   SetType(const std::string &type_);
 
   std::string
-  GetState();
+  GetState() const;
 
   bool
   SetState(const std::string &state_);
 
   uint32_t
-  GetRate();
+  GetRate() const;
 
   bool
   SetRate(const uint32_t &rate_);
@@ -139,10 +141,8 @@ private:
 // Class: Interface
 // ****************************************************************************
 
-#define INTERFACE_REFRESH_PERIOD_HZ     (4)
+#define INTERFACE_REFRESH_PERIOD_HZ     (1)
 #define INTERFACE_REFRESH_PERIOD_USEC	(1000000 / INTERFACE_REFRESH_PERIOD_HZ)
-#define INTERFACE_COST_MAX              (100)
-#define INTERFACE_COST_WINDOW           (3 * INTERFACE_REFRESH_PERIOD_HZ)
 
 class Interface : public InterfaceConfigData, public zEvent::Event
 {
@@ -174,11 +174,7 @@ public:
 
   Interface();
 
-  Interface(Interface &other_);
-
-  Interface(const Interface &other_);
-
-  Interface(InterfaceConfigData &config_);
+  Interface(const InterfaceConfigData &config_);
 
   virtual
   ~Interface();
@@ -222,6 +218,28 @@ private:
   Interface::STATE _state;
 
 };
+
+// ****************************************************************************
+// Class: InterfaceFactory
+// ****************************************************************************
+
+class InterfaceFactory
+{
+
+public:
+
+  static SHARED_PTR(Interface)
+  Create(const InterfaceConfigData& config_);
+
+protected:
+
+private:
+
+};
+
+// ****************************************************************************
+// Class: InterfaceTable
+// ****************************************************************************
 
 typedef std::map<std::string, SHARED_PTR(Interface)> InterfaceTable;
 

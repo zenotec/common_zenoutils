@@ -61,17 +61,9 @@ zInterfaceTest_InterfaceCtor(void* arg)
   TEST_EQ(InterfaceConfigData::ConfigStateUp, MyInterface2->GetState());
   TEST_EQ(10000000, MyInterface2->GetRate());
 
-  Interface *MyInterface3 = new zInterface::Interface(*MyInterface2);
-  TEST_ISNOT_NULL(MyInterface3);
-  TEST_EQ(std::string("eth0"), MyInterface3->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeWired, MyInterface3->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateUp, MyInterface3->GetState());
-  TEST_EQ(10000000, MyInterface3->GetRate());
-
   // Cleanup
   delete (MyInterface1);
   delete (MyInterface2);
-  delete (MyInterface3);
 
   // Return success
   return (0);

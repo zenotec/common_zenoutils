@@ -367,20 +367,19 @@ Interface::Interface() :
     zEvent::Event(zEvent::Event::TYPE_INTERFACE), _lock(zSem::Mutex::LOCKED),
         _index(-1), _state(Interface::STATE_UNKNOWN)
 {
+  ZLOG_DEBUG("Interface::Interface()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->_lock.Unlock();
 }
 
-Interface::Interface(Interface& other_) :
-    InterfaceConfigData(other_.GetData()), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
-        _lock(zSem::Mutex::LOCKED), _index(-1), _state(Interface::STATE_UNKNOWN)
-{
-  this->_lock.Unlock();
-}
-
-Interface::Interface(InterfaceConfigData& config_) :
+Interface::Interface(const InterfaceConfigData& config_) :
     InterfaceConfigData(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
         _lock(zSem::Mutex::LOCKED), _index(-1), _state(Interface::STATE_UNKNOWN)
 {
+  ZLOG_DEBUG("Interface::Interface(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
   this->_lock.Unlock();
 }
 
@@ -421,7 +420,7 @@ Interface::Refresh()
     }
     else
     {
-      std::cout << "Interface error: Empty name!" << std::endl;
+      ZLOG_ERR("Interface error: Empty name!");
     }
 
     // End critical section

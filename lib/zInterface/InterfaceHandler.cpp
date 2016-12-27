@@ -82,20 +82,16 @@ InterfaceHandler::SetConfig(zConfig::ConfigData &config_)
     // Clear out old configuration
     this->_ifaces.clear();
 
-//    config_.DisplayPath();
-//    config_.DisplayJson();
-
     for (int i = 0; i < config_.Size(); i++)
     {
       InterfaceConfigData IfaceConfig;
       config_[i]->Get(IfaceConfig.GetData());
 
-      SHARED_PTR(Interface)Iface = SHARED_PTR(Interface)(new Interface (IfaceConfig));
+      SHARED_PTR(Interface)Iface = InterfaceFactory::Create(IfaceConfig);
+
       if (Iface && Iface->Refresh())
       {
-//        std::cout << "Adding interface[" << i << "]: " << IfaceConfig.GetName() << std::endl;
         this->_ifaces[IfaceConfig.GetName()] = Iface;
-//        Iface->Display();
       }
     }
     this->_lock.Unlock();
