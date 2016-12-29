@@ -55,13 +55,18 @@ MessageFactory::Create(const Message::TYPE &type_)
   switch (type_)
   {
   case Message::TYPE_AUTH:
-    case Message::TYPE_HELLO:
-    case Message::TYPE_ACK:
-    case Message::TYPE_BYE:
-    case Message::TYPE_CFG:
-    case Message::TYPE_CMD:
-    case Message::TYPE_DATA:
-    {
+    // No break
+  case Message::TYPE_HELLO:
+    // No break
+  case Message::TYPE_ACK:
+    // No break
+  case Message::TYPE_BYE:
+    // No break
+  case Message::TYPE_CFG:
+    // No break
+  case Message::TYPE_CMD:
+    // No break
+  case Message::TYPE_DATA:
     msg = new Message;
     if (msg)
     {
@@ -70,7 +75,6 @@ MessageFactory::Create(const Message::TYPE &type_)
       msg->SetType(type_);
     }
     break;
-  }
   default:
     break;
   }

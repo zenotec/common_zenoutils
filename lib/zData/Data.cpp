@@ -94,7 +94,7 @@ Data::Data(const pt::ptree& pt_) :
 Data::Data(Data &other_)
 {
   other_._lock.Lock();
-  this->Path() = other_.Path();
+  DataPath::operator =(other_);
   this->_pt = other_._pt;
   other_._lock.Unlock();
   this->_lock.Unlock();
@@ -103,7 +103,7 @@ Data::Data(Data &other_)
 Data::Data(const Data &other_)
 {
   other_._lock.Lock();
-  this->Path() = other_.Path();
+  DataPath::operator =(other_);
   this->_pt = other_._pt;
   other_._lock.Unlock();
   this->_lock.Unlock();

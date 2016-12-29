@@ -117,21 +117,19 @@ Display::EventHandler(const zEvent::EventNotification *notification_)
 
     n = static_cast<const zTimer::TimerNotification *>(notification_);
 
-    ZLOG_DEBUG("Updating display");
+    ZLOG_DEBUG("Updating display: " + ZLOG_UINT(this->_vars.size()));
 
     // Copy the display buffer
     DisplayBuffer buf(this->Buffer);
 
     // Iterate over all variables and update buffer
-    std::list<zDisplay::DisplayVar*>::iterator it = this->_vars.begin();
-    std::list<zDisplay::DisplayVar*>::iterator end = this->_vars.end();
-    for (; it != end; ++it)
+    FOREACH (auto& var, this->_vars)
     {
-      ZLOG_DEBUG(
-          (*it)->GetName() + "[" + ZLOG_UINT((*it)->GetRow()) + "][" + ZLOG_UINT((*it)->GetColumn()) + "]: " + (*it)->GetString());
-      if (!buf.Update((*it)->GetString(), (*it)->GetColumn(), (*it)->GetRow()))
+      ZLOG_DEBUG(var->GetName() + "[" + ZLOG_UINT(var->GetRow()) + "][" +
+          ZLOG_UINT(var->GetColumn()) + "]: " + var->GetString());
+      if (!buf.Update(var->GetString(), var->GetColumn(), var->GetRow()))
       {
-        ZLOG_WARN("Display variable failed to update: " + (*it)->GetName());
+        ZLOG_WARN("Display variable failed to update: " + var->GetName());
       }
     }
 

@@ -56,6 +56,7 @@ DisplayBuffer::~DisplayBuffer()
   if (this->_buffer)
   {
     free(this->_buffer);
+    this->_buffer = NULL;
   }
 }
 
@@ -254,8 +255,8 @@ DisplayBuffer::Update(const std::string& str_, const size_t col_, const size_t r
     size = 0;
     while (this->_index2rowcol(index) && (size < str_.size()))
     {
-      ZLOG_DEBUG(
-          "[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) + "][" + ZLOG_UINT(index) + "]: " + str_[size]);
+      ZLOG_DEBUG("[" + ZLOG_UINT(row_) + "][" + ZLOG_UINT(col_) +
+          "][" + ZLOG_UINT(index) + "]: " + str_[size]);
       this->_buffer[index++] = str_[size++];
     }
     this->_buffer_lock.Unlock();

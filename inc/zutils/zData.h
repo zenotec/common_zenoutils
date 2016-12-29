@@ -49,8 +49,32 @@ public:
 
   DataPath(const std::string& name_ = std::string(""));
 
+  DataPath(DataPath& path_) :
+      _root(path_._root), _path(path_._path)
+  {
+  }
+
+  DataPath(const DataPath& path_) :
+      _root(path_._root), _path(path_._path)
+  {
+  }
+
   virtual
   ~DataPath();
+
+  DataPath &
+  operator=(DataPath& other_)
+  {
+    this->_root = other_._root;
+    this->_path = other_._path;
+  }
+
+  DataPath &
+  operator=(const DataPath& other_)
+  {
+    this->_root = other_._root;
+    this->_path = other_._path;
+  }
 
   bool
   operator ==(const DataPath &other_) const;

@@ -10,6 +10,7 @@ noinst_LTLIBRARIES = libzMessage.la
 
 libzMessage_la_SOURCES = \
 	MessageNotification.cpp \
+    MessagePath.cpp \
     Message.cpp \
     CommandMessage.cpp \
     MessageFactory.cpp \

@@ -53,11 +53,13 @@ public:
   {
     this->_buf = (char*) calloc(cols_, rows_);
     this->_buflen = (cols_ * rows_);
+    this->_lock.unlock();
   }
 
   virtual
   ~TestDisplay()
   {
+    this->_lock.lock();
     if (this->_buf)
     {
       free(this->_buf);
@@ -69,6 +71,7 @@ public:
   GetBuffer()
   {
     std::string str;
+    this->_lock.lock();
     for (int i = 0; i < this->_buflen; i++)
     {
       if (this->_buf[i])
@@ -80,6 +83,7 @@ public:
         str += '.';
       }
     }
+    this->_lock.unlock();
     return (str);
   }
 
@@ -87,24 +91,29 @@ protected:
 
 private:
 
+  MUTEX _lock;
   char* _buf;
   int _buflen;
 
   virtual bool
   update(const zDisplay::DisplayBuffer& buf_)
   {
-    this->clear();
+    this->_lock.lock();
+    memset(this->_buf, 0, this->_buflen);
     for (int i = 0; i < this->_buflen; i++)
     {
       this->_buf[i] = buf_[i];
     }
+    this->_lock.unlock();
     return (true);
   }
 
   void
   clear()
   {
+    this->_lock.lock();
     memset(this->_buf, 0, this->_buflen);
+    this->_lock.unlock();
   }
 
   void

@@ -23,15 +23,68 @@ namespace zMessage
 {
 
 //**********************************************************************
+// Class: MessagePath
+//**********************************************************************
+
+class MessagePath : public zData::DataPath
+{
+
+public:
+
+  static const std::string DataRoot;
+  static const std::string DataIdPath;
+  static const std::string DataTypePath;
+  static const std::string DataDstPath;
+  static const std::string DataSrcPath;
+  static const std::string DataDataPath;
+
+  MessagePath(const std::string& root_ = std::string(""));
+
+  MessagePath(zData::DataPath& path_);
+
+  MessagePath(const zData::DataPath& path_);
+
+  virtual
+  ~MessagePath();
+
+  zData::DataPath&
+  GetDataPath();
+
+  const zData::DataPath&
+  GetDataPath() const;
+
+  MessagePath&
+  GetMessagePath();
+
+  const MessagePath&
+  GetMessagePath() const;
+
+  zData::DataPath
+  Id() const;
+
+  zData::DataPath
+  Type() const;
+
+  zData::DataPath
+  Dst() const;
+
+  zData::DataPath
+  Src() const;
+
+  zData::DataPath
+  Data() const;
+
+private:
+
+};
+
+//**********************************************************************
 // Class: Message
 //**********************************************************************
 
 class Message : public zData::Data
 {
 
-  static const std::string DataRoot;
-
-  static const std::string DataTypePath;
   static const std::string DataTypeNone;
   static const std::string DataTypeAuth;
   static const std::string DataTypeHello;
@@ -43,13 +96,10 @@ class Message : public zData::Data
   static const std::string DataTypeData;
   static const std::string DataTypeDefault;
 
-  static const std::string DataIdPath;
   static const std::string DataIdDefault;
 
-  static const std::string DataDstPath;
   static const std::string DataDstDefault;
 
-  static const std::string DataSrcPath;
   static const std::string DataSrcDefault;
 
 public:
@@ -93,6 +143,18 @@ public:
   {
     zData::Data::operator =(other_);
     return (*this);
+  }
+
+  bool
+  operator ==(const Message& other_) const
+  {
+    return(zData::Data::operator ==(other_));
+  }
+
+  bool
+  operator !=(const Message& other_) const
+  {
+    return(zData::Data::operator !=(other_));
   }
 
   Message::TYPE
