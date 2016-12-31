@@ -103,6 +103,12 @@ Display::SetRefresh(const size_t rate_)
   return (true);
 }
 
+void
+Display::Flush()
+{
+  this->update(this->Buffer);
+}
+
 bool
 Display::EventHandler(const zEvent::EventNotification *notification_)
 {

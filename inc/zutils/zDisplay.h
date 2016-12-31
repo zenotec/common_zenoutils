@@ -235,6 +235,9 @@ public:
   bool
   SetRefresh(const size_t rate_);
 
+  void
+  Flush();
+
   DisplayBuffer Buffer;
 
 protected:
