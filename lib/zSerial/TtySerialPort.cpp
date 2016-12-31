@@ -130,6 +130,7 @@ TtySerialConfigData::TtySerialConfigData()
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -145,6 +146,7 @@ TtySerialConfigData::TtySerialConfigData(const zData::Data& data_) :
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -160,6 +162,7 @@ TtySerialConfigData::TtySerialConfigData(const zConfig::ConfigData& config_) :
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -175,6 +178,7 @@ TtySerialConfigData::TtySerialConfigData(const TtySerialConfigData& other_) :
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+
   this->SetType(SerialConfigData::ConfigTypeTty);
   this->SetDevice(this->GetDevice());
   this->SetBaud(this->GetBaud());
@@ -210,10 +214,6 @@ TtySerialConfigData::SetDevice(const std::string& dev_)
 std::string
 TtySerialConfigData::GetBaud() const
 {
-
-  ZLOG_DEBUG("TtySerialConfigData::GetBaud()");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
 
   std::string str;
   TtySerialConfigPath path;
