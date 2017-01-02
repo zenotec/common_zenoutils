@@ -248,15 +248,22 @@ zDataTest_PutChildSingle(void* arg_)
 
   // Get child and validate
   zData::Data ObsData;
+  TEST_TRUE(NamePath.Prepend("Employee"));
   TEST_TRUE_MSG(ParentData.Get(NamePath, ObsData), ParentData.GetJson());
 
   // Get first value and validate
   expVal = "Elvis";
+  TEST_TRUE_MSG(ObsData.Get(FirstNamePath, obsVal), ObsData.GetJson());
+  TEST_EQ(obsVal, expVal);
+  TEST_TRUE(FirstNamePath.Prepend("Employee"));
   TEST_TRUE_MSG(ParentData.Get(FirstNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Get second value and validate
   expVal = "Presley";
+  TEST_TRUE_MSG(ObsData.Get(LastNamePath, obsVal), ObsData.GetJson());
+  TEST_EQ(obsVal, expVal);
+  TEST_TRUE(LastNamePath.Prepend("Employee"));
   TEST_TRUE_MSG(ParentData.Get(LastNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 

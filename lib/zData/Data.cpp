@@ -229,24 +229,23 @@ Data::Clear()
 
 bool
 Data::Get(Data& child_) const
-    {
+{
   bool status = false;
 
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Getting data: " + this->Path());
+    ZLOG_DEBUG("1-Getting data: " + this->Path() + " -> " + child_.Path(this->Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (this->get(this->Path(), pt))
       {
-        status = child_.put(child_.Base(this->Key()), pt);
+        status = child_.put(child_.Path(this->Key()), pt);
       }
       child_._lock.Unlock();
     }
     this->_lock.Unlock();
-//    child_.DisplayJson();
   }
 
   // Return status
@@ -256,21 +255,21 @@ Data::Get(Data& child_) const
 
 bool
 Data::Get(const DataPath& path_, Data& child_) const
-    {
+{
 
   bool status = false;
 
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Getting data: " + path_.Path() + "; Key: " + path_.Key());
+    ZLOG_DEBUG("2-Getting data: " + path_.Path() + " -> " + child_.Path(path_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (this->get(path_.Path(), pt))
       {
         child_.Clear();
-        if ((status = child_.put(child_.Base(path_.Key()), pt)))
+        if ((status = child_.put(child_.Path(path_.Key()), pt)))
         {
           child_.Append(path_.Key());
         }
@@ -293,13 +292,13 @@ Data::Put(const Data& child_)
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("1-Putting data: " + child_.Path() + " -> " + this->Base(child_.Key()));
+    ZLOG_DEBUG("1-Putting data: " + child_.Path() + " -> " + this->Path(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (child_.get(child_.Path(), pt))
       {
-        status = this->put(this->Base(child_.Key()), pt);
+        status = this->put(this->Path(child_.Key()), pt);
       }
       child_._lock.Unlock();
     }
@@ -346,13 +345,13 @@ Data::Add(const Data& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("1-Adding data: " + child_.Path() + " -> " + this->Base(child_.Key()));
+    ZLOG_DEBUG("1-Adding data: " + child_.Path() + " -> " + this->Path(child_.Key()));
     if (child_._lock.Lock())
     {
       pt::ptree pt;
       if (child_.get(child_.Path(), pt))
       {
-        status = this->add(this->Base(child_.Key()), pt);
+        status = this->add(this->Path(child_.Key()), pt);
       }
       child_._lock.Unlock();
     }

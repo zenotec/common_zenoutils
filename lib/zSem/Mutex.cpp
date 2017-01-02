@@ -28,7 +28,7 @@ namespace zSem
 
 Mutex::Mutex(Mutex::STATE state_)
 {
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
   if (state_ == Mutex::LOCKED)
   {
     this->_lock.lock();
@@ -44,7 +44,7 @@ bool
 Mutex::Lock()
 {
   bool status = false;
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
   this->_lock.lock();
   status = true;
   return (status);
@@ -54,9 +54,9 @@ bool
 Mutex::TryLock()
 {
   bool status = false;
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
   status = this->_lock.try_lock();
-  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
+//  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
@@ -64,16 +64,16 @@ bool
 Mutex::TimedLock(uint32_t msec_)
 {
   bool status = false;
-  ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_UINT(msec_) + " ms(s)");
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_UINT(msec_) + " ms(s)");
   status = TIMED_LOCK(this->_lock, msec_);
-  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
+//  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
 bool
 Mutex::Unlock()
 {
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
+//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
   bool status = false;
   this->_lock.unlock();
   status = true;
