@@ -12,6 +12,4 @@ libzInterface_la_SOURCES = \
     InterfaceConfiguration.cpp \
     Interface.cpp \
     WirelessInterface.cpp \
-    InterfaceFactory.cpp \
-    InterfaceHandler.cpp
-
+    InterfaceFactory.cpp

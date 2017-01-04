@@ -394,17 +394,6 @@ _is_associated(const std::string &name_)
 // Class: WirelessInterface
 // ****************************************************************************
 
-WirelessInterface::WirelessInterface(const std::string &name_) :
-    _associated(false), _link_quality(-1), _signal_level(0), _noise_level(-1), _bit_rate(0)
-{
-  ZLOG_DEBUG("WirelessInterface::WirelessInterface(config_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-  this->SetName(name_);
-  this->Type(Interface::TYPE_WIRELESS);
-  this->_lock.Unlock();
-}
-
 WirelessInterface::WirelessInterface(const InterfaceConfigData& config_) :
     Interface(config_), _associated(false), _link_quality(-1),
         _signal_level(0), _noise_level(-1), _bit_rate(0)
@@ -412,7 +401,7 @@ WirelessInterface::WirelessInterface(const InterfaceConfigData& config_) :
   ZLOG_DEBUG("WirelessInterface::WirelessInterface(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-  this->Type(Interface::TYPE_WIRELESS);
+  this->SetType(InterfaceConfigData::TYPE_WIRELESS);
   this->_lock.Unlock();
 }
 
@@ -446,7 +435,7 @@ WirelessInterface::Refresh()
     this->_iw_name = _get_iwname(name);
     this->_phy_name = _get_phyname(name);
 
-    if (this->State() == Interface::STATE_UP)
+    if (this->GetState() == InterfaceConfigData::STATE_UP)
     {
       this->_associated = _is_associated(name);
       this->_ap_addr = _get_ap_hwaddr(name);

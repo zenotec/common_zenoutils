@@ -38,9 +38,9 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   InterfaceConfigData *MyConfig = new InterfaceConfigData;
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeDefault, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateDefault, MyConfig->GetState());
-  TEST_EQ(InterfaceConfigData::ConfigRateDefault, MyConfig->GetRate());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Cleanup
   delete (MyConfig);
@@ -58,34 +58,23 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  Interface *MyInterface = new zInterface::Interface;
+  InterfaceConfigData *MyConfig = new InterfaceConfigData;
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
+
+  Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeDefault, MyInterface->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateDefault, MyInterface->GetState());
-  TEST_EQ(InterfaceConfigData::ConfigRateDefault, MyInterface->GetRate());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyInterface->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyInterface->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyInterface->GetState());
 
   // Cleanup
   delete (MyInterface);
-
-  // Return success
-  return (0);
-
-}
-
-int
-zInterfaceTest_InterfaceHandlerDefaults(void* arg)
-{
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zInterfaceTest_InterfaceHandlerDefaults()");
-  ZLOG_DEBUG("#############################################################");
-
-  InterfaceHandler *MyHandler = new InterfaceHandler;
-  TEST_ISNOT_NULL(MyHandler);
-
-  // Cleanup
-  delete (MyHandler);
+  delete (MyConfig);
 
   // Return success
   return (0);

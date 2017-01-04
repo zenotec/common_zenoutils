@@ -163,7 +163,7 @@ public:
   operator !=(const Data& other_) const;
 
   UNIQUE_PTR(Data)
-  operator[](int pos_);
+  operator[](int pos_) const;
 
   const DataPath&
   GetDataPath() const
@@ -172,7 +172,7 @@ public:
   }
 
   ssize_t
-  Size();
+  Size() const;
 
   void
   Clear();

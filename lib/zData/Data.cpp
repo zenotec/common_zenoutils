@@ -165,7 +165,7 @@ Data::operator !=(const Data &other_) const
 }
 
 UNIQUE_PTR(Data)
-Data::operator [](int pos_)
+Data::operator [](int pos_) const
 {
   int i = 0;
 
@@ -183,8 +183,8 @@ Data::operator [](int pos_)
       {
         if (i++ == pos_)
         {
+          d->put(d->Path(this->Key()), child.second);
           d->Append(this->Key());
-          d->put(d->Root(this->Key()), child.second);
           break;
         }
       }
@@ -201,7 +201,7 @@ Data::operator [](int pos_)
 }
 
 ssize_t
-Data::Size()
+Data::Size() const
 {
   ssize_t size = 0;
 
@@ -277,7 +277,6 @@ Data::Get(const DataPath& path_, Data& child_) const
       child_._lock.Unlock();
     }
     this->_lock.Unlock();
-//    child_.DisplayJson();
   }
 
   // Return status

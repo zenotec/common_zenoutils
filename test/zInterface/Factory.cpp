@@ -24,38 +24,30 @@ using namespace zUtils::zConfig;
 using namespace zUtils::zInterface;
 
 int
-zInterfaceTest_InterfaceHandlerCtor(void* arg)
+zInterfaceTest_InterfaceFactory(void* arg)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zInterfaceTest_InterfaceHandlerCtor()");
+  ZLOG_DEBUG("# zInterfaceTest_InterfaceFactory()");
   ZLOG_DEBUG("#############################################################");
 
   // Setup configuration object to mimic a InterfaceConfiguration configuration object
   zConfig::ConfigData config;
-  TEST_TRUE(config.Append(InterfaceConfigPath::ConfigRoot));
   InterfaceConfigData iface;
 
   TEST_TRUE(iface.SetName(std::string("lo")));
-  TEST_TRUE(iface.SetType(InterfaceConfigData::ConfigTypeLoop));
-  TEST_TRUE(iface.SetState(InterfaceConfigData::ConfigStateUp));
-  TEST_TRUE(iface.SetRate(10000000));
+  TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_LOOP));
 
   TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
 
   TEST_TRUE(iface.SetName(std::string("eth0")));
-  TEST_TRUE(iface.SetType(InterfaceConfigData::ConfigTypeWired));
-  TEST_TRUE(iface.SetState(InterfaceConfigData::ConfigStateUp));
-  TEST_TRUE(iface.SetRate(1000000000));
+  TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_WIRED));
 
   TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
 
-  InterfaceHandler *MyHandler = new InterfaceHandler(config);
-  TEST_ISNOT_NULL(MyHandler);
-//  MyHandler->Display();
-
-  // Cleanup
-  delete (MyHandler);
+  InterfaceTable MyTable = InterfaceFactory::Create(config);
+  TEST_ISNOT_NULL(MyTable["lo"].get());
+  TEST_ISNOT_NULL(MyTable["eth0"].get());
 
   // Return success
   return (0);

@@ -24,8 +24,6 @@ int
 zInterfaceTest_InterfaceConfigurationDefaults (void* arg);
 int
 zInterfaceTest_InterfaceDefaults (void* arg);
-int
-zInterfaceTest_InterfaceHandlerDefaults (void* arg);
 
 int
 zInterfaceTest_InterfaceConfigurationCtor (void* arg);
@@ -38,6 +36,6 @@ int
 zInterfaceTest_InterfaceRefresh(void* arg);
 
 int
-zInterfaceTest_InterfaceHandlerCtor (void* arg);
+zInterfaceTest_InterfaceFactory (void* arg);
 
 #endif /* __ZINTERFACETEST_H__ */

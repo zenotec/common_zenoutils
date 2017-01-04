@@ -44,8 +44,8 @@ public:
   static const std::string ConfigRoot;
   static const std::string ConfigNamePath;
   static const std::string ConfigTypePath;
+  static const std::string ConfigAddressPath;
   static const std::string ConfigStatePath;
-  static const std::string ConfigRatePath;
 
   InterfaceConfigPath();
 
@@ -59,10 +59,10 @@ public:
   Type() const;
 
   zConfig::ConfigPath
-  State() const;
+  Address() const;
 
   zConfig::ConfigPath
-  Rate() const;
+  State() const;
 
 protected:
 
@@ -79,6 +79,31 @@ class InterfaceConfigData : public zConfig::ConfigData
 
 public:
 
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_DEF = 0,
+    TYPE_LOOP = 1,
+    TYPE_WIRED = 2,
+    TYPE_WIRELESS = 3,
+    TYPE_OTHER = 4,
+    TYPE_BRIDGE = 5,
+    TYPE_BOND = 6,
+    TYPE_LAST
+  };
+
+  enum STATE
+  {
+    STATE_ERR = -1,
+    STATE_NONE = 0,
+    STATE_DEF = 0,
+    STATE_UNKNOWN = 1,
+    STATE_UP = 2,
+    STATE_DOWN = 3,
+    STATE_LAST
+  };
+
   static const std::string ConfigNameDefault;
 
   static const std::string ConfigTypeNone;
@@ -90,11 +115,12 @@ public:
   static const std::string ConfigTypeBridge;
   static const std::string ConfigTypeDefault;
 
+  static const std::string ConfigAddressDefault;
+
+  static const std::string ConfigStateNone;
   static const std::string ConfigStateUp;
   static const std::string ConfigStateDown;
   static const std::string ConfigStateDefault;
-
-  static const uint32_t ConfigRateDefault;
 
   InterfaceConfigData();
 
@@ -111,25 +137,25 @@ public:
   GetName() const;
 
   bool
-  SetName(const std::string &name_);
+  SetName(const std::string& name_);
 
-  std::string
+  InterfaceConfigData::TYPE
   GetType() const;
 
   bool
-  SetType(const std::string &type_);
+  SetType(const InterfaceConfigData::TYPE type_);
 
   std::string
+  GetAddress() const;
+
+  bool
+  SetAddress(const std::string& name_);
+
+  InterfaceConfigData::STATE
   GetState() const;
 
   bool
-  SetState(const std::string &state_);
-
-  uint32_t
-  GetRate() const;
-
-  bool
-  SetRate(const uint32_t &rate_);
+  SetState(const InterfaceConfigData::STATE state_);
 
 protected:
 
@@ -144,58 +170,15 @@ private:
 #define INTERFACE_REFRESH_PERIOD_HZ     (1)
 #define INTERFACE_REFRESH_PERIOD_USEC	(1000000 / INTERFACE_REFRESH_PERIOD_HZ)
 
-class Interface : public InterfaceConfigData, public zEvent::Event
+class Interface : public InterfaceConfigData, public zEvent::Event, public zEvent::EventObserver
 {
 
 public:
-
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_LOOP = 1,
-    TYPE_WIRED = 2,
-    TYPE_WIRELESS = 3,
-    TYPE_OTHER = 4,
-    TYPE_BRIDGE = 5,
-    TYPE_BOND = 6,
-    TYPE_LAST
-  };
-
-  enum STATE
-  {
-    STATE_ERR = -1,
-    STATE_NONE = 0,
-    STATE_UNKNOWN = 1,
-    STATE_UP = 2,
-    STATE_DOWN = 3,
-    STATE_LAST
-  };
-
-  Interface();
 
   Interface(const InterfaceConfigData &config_);
 
   virtual
   ~Interface();
-
-  virtual bool
-  Refresh();
-
-  virtual void
-  Display(const std::string& prefix_ = std::string(""));
-
-  Interface::TYPE
-  Type();
-
-  bool
-  Type(const Interface::TYPE& type_);
-
-  Interface::STATE
-  State();
-
-  bool
-  State(const Interface::STATE& state_);
 
   int
   Index();
@@ -203,37 +186,24 @@ public:
   std::string
   HwAddress();
 
-  std::string
-  IpAddress();
+  virtual bool
+  Refresh();
+
+  virtual void
+  Display(const std::string& prefix_ = std::string(""));
 
 protected:
+
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 
   zSem::Mutex _lock;
+  zTimer::Timer _timer;
 
   int _index;
   std::string _hw_addr;
-  std::string _ip_addr;
-  Interface::STATE _state;
-
-};
-
-// ****************************************************************************
-// Class: InterfaceFactory
-// ****************************************************************************
-
-class InterfaceFactory
-{
-
-public:
-
-  static SHARED_PTR(Interface)
-  Create(const InterfaceConfigData& config_);
-
-protected:
-
-private:
 
 };
 
@@ -244,56 +214,20 @@ private:
 typedef std::map<std::string, SHARED_PTR(Interface)> InterfaceTable;
 
 // ****************************************************************************
-// Class: InterfaceHandler
+// Class: InterfaceFactory
 // ****************************************************************************
 
-class InterfaceHandler : private zEvent::EventObserver
+class InterfaceFactory
 {
 
 public:
 
-  InterfaceHandler();
-
-  InterfaceHandler(zConfig::ConfigData &config_);
-
-  virtual
-  ~InterfaceHandler();
-
-  bool
-  GetConfig(zConfig::ConfigData &config_);
-
-  bool
-  SetConfig(zConfig::ConfigData &config_);
-
-  bool
-  Start();
-
-  void
-  Stop();
-
-  bool
-  Refresh();
-
-  void
-  Display();
-
-  SHARED_PTR(Interface)
-  Iface (const std::string &name_);
-
-  InterfaceTable
-  IfaceList (Interface::TYPE type_);
+  static InterfaceTable
+  Create(const zConfig::ConfigData& config_);
 
 protected:
 
-  virtual bool
-  EventHandler(const zEvent::EventNotification* notification_);
-
 private:
-
-  zSem::Mutex _lock;
-
-  zTimer::Timer _timer;
-  InterfaceTable _ifaces;
 
 };
 
@@ -301,8 +235,9 @@ private:
 // Class: InterfaceManager
 //**********************************************************************
 
-class InterfaceManager : public InterfaceHandler
+class InterfaceManager : public zEvent::EventHandler
 {
+
 public:
 
   static InterfaceManager&

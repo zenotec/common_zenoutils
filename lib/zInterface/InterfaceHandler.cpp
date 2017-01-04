@@ -33,71 +33,28 @@ namespace zUtils
 namespace zInterface
 {
 
-InterfaceHandler::InterfaceHandler() :
-    _lock(zSem::Mutex::LOCKED)
-{
-  this->_timer.RegisterObserver(this);
-  this->_lock.Unlock();
-}
-
 InterfaceHandler::InterfaceHandler(zConfig::ConfigData &config_) :
     _lock(zSem::Mutex::LOCKED)
 {
-  this->_timer.RegisterObserver(this);
+  for (int i = 0; i < config_.Size(); i++)
+  {
+    InterfaceConfigData IfaceConfig;
+    config_[i]->Get(IfaceConfig.GetData());
+
+    SHARED_PTR(Interface)Iface = InterfaceFactory::Create(IfaceConfig);
+
+    if (Iface && Iface->Refresh())
+    {
+      this->_ifaces[IfaceConfig.GetName()] = Iface;
+    }
+  }
   this->_lock.Unlock();
-  this->SetConfig(config_);
 }
 
 InterfaceHandler::~InterfaceHandler()
 {
+  this->Stop();
   this->_lock.Lock();
-  this->_timer.UnregisterObserver(this);
-}
-
-bool
-InterfaceHandler::GetConfig(zConfig::ConfigData &config_)
-{
-
-  InterfaceConfigPath path;
-  zConfig::ConfigData config(path);
-  InterfaceTable::iterator it = this->_ifaces.begin();
-  InterfaceTable::iterator end = this->_ifaces.end();
-  for (; it != end; ++it)
-  {
-    config.Add(it->second->GetData());
-  }
-  config_ = config;
-  config.DisplayJson();
-  config_.DisplayJson();
-  return (true);
-}
-
-bool
-InterfaceHandler::SetConfig(zConfig::ConfigData &config_)
-{
-
-  // Begin critical section
-  if (this->_lock.Lock())
-  {
-    // Clear out old configuration
-    this->_ifaces.clear();
-
-    for (int i = 0; i < config_.Size(); i++)
-    {
-      InterfaceConfigData IfaceConfig;
-      config_[i]->Get(IfaceConfig.GetData());
-
-      SHARED_PTR(Interface)Iface = InterfaceFactory::Create(IfaceConfig);
-
-      if (Iface && Iface->Refresh())
-      {
-        this->_ifaces[IfaceConfig.GetName()] = Iface;
-      }
-    }
-    this->_lock.Unlock();
-  }
-
-  return (true);
 }
 
 bool
@@ -108,11 +65,7 @@ InterfaceHandler::Start()
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_timer.RegisterObserver(this))
-    {
-      this->_timer.Start(INTERFACE_REFRESH_PERIOD_USEC);
-      status = true;
-    }
+    status = true;
     this->_lock.Unlock();
   }
 
@@ -126,9 +79,9 @@ InterfaceHandler::Stop()
   // Begin critical section
   if (this->_lock.Lock())
   {
-    this->_timer.Stop();
     this->_lock.Unlock();
   }
+  return;
 }
 
 bool
@@ -140,18 +93,14 @@ InterfaceHandler::Refresh()
   // Begin critical section
   if (this->_lock.Lock())
   {
-
-    InterfaceTable::iterator it = this->_ifaces.begin();
-    InterfaceTable::iterator end = this->_ifaces.end();
-    for (; it != end; ++it)
+    FOREACH (auto& iface, this->_ifaces)
     {
-      if (!it->second->Refresh())
+      if (!iface.second->Refresh())
       {
-        std::cout << "Failed to refresh interface: " << it->second->GetName() << std::endl;
+        std::cout << "Failed to refresh interface: " << iface.second->GetName() << std::endl;
         status = false;
       }
     }
-
     // End critical section
     this->_lock.Unlock();
   }
@@ -173,14 +122,12 @@ InterfaceHandler::Display()
   // Begin critical section
   if (this->_lock.Lock())
   {
-    InterfaceTable::iterator it = this->_ifaces.begin();
-    InterfaceTable::iterator end = this->_ifaces.end();
-    for (int i = 0; it != end; i++, ++it)
+    int i = 0;
+    FOREACH (auto& iface, this->_ifaces)
     {
-      std::cout << "[" << i << "] " << std::endl;
-      it->second->Display("\t");
+      std::cout << "[" << i++ << "] " << std::endl;
+      iface.second->Display("\t");
     }
-    std::cout.flush();
 
     // End critical section
     this->_lock.Unlock();
@@ -192,15 +139,12 @@ InterfaceHandler::Iface (const std::string &name_)
 {
   SHARED_PTR(Interface) iface;
 
-// Begin critical section
+  // Begin critical section
   if (this->_lock.Lock())
   {
-
     iface = this->_ifaces[name_];
-
     // End critical section
     this->_lock.Unlock ();
-
   }
 
   return (iface);
@@ -215,37 +159,18 @@ InterfaceHandler::IfaceList(const Interface::TYPE type_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-
-    InterfaceTable::iterator it = this->_ifaces.begin();
-    InterfaceTable::iterator end = this->_ifaces.end();
-    for (int i = 0; it != end; i++, ++it)
+    FOREACH (auto& iface, this->_ifaces)
     {
-      if (it->second->Type() == type_)
+      if (iface.second->Type() == type_)
       {
-        iface_list[it->first] = it->second;
+        iface_list[iface.first] = iface.second;
       }
     }
-
     // End critical section
     this->_lock.Unlock();
   }
 
   return (iface_list);
-}
-
-bool
-InterfaceHandler::EventHandler(const zEvent::EventNotification* notification_)
-{
-  bool status = false;
-  const zTimer::TimerNotification *n = NULL;
-
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
-  {
-    status = this->Refresh();
-  }
-
-  return (status);
-
 }
 
 }

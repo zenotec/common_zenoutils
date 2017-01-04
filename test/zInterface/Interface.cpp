@@ -31,39 +31,28 @@ zInterfaceTest_InterfaceCtor(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceCtor()");
   ZLOG_DEBUG("#############################################################");
 
-  Interface *MyInterface1 = new zInterface::Interface;
-  TEST_ISNOT_NULL(MyInterface1);
-  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface1->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeDefault, MyInterface1->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateDefault, MyInterface1->GetState());
-  TEST_EQ(InterfaceConfigData::ConfigRateDefault, MyInterface1->GetRate());
-
-  // Setup configuration object to mimic a InterfaceConfiguration configuration object
-  InterfaceConfigPath path;
-  ConfigData config;
-  config.Put(path.Name(), std::string("eth0"));
-  config.Put(path.Type(), InterfaceConfigData::ConfigTypeWired);
-  config.Put(path.State(), InterfaceConfigData::ConfigStateUp);
-  config.Put(path.Rate(), 10000000);
-
-  // Construct and verify
-  InterfaceConfigData *MyConfig = new InterfaceConfigData(config);
+  InterfaceConfigData *MyConfig = new InterfaceConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(std::string("eth0"), MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeWired, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateUp, MyConfig->GetState());
-  TEST_EQ(10000000, MyConfig->GetRate());
+  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
-  Interface *MyInterface2 = new zInterface::Interface(*MyConfig);
-  TEST_ISNOT_NULL(MyInterface2);
-  TEST_EQ(std::string("eth0"), MyInterface2->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeWired, MyInterface2->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateUp, MyInterface2->GetState());
-  TEST_EQ(10000000, MyInterface2->GetRate());
+  // Set
+  TEST_TRUE(MyConfig->SetName("eth0"));
+  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_WIRED));
+  TEST_TRUE(MyConfig->SetAddress("1.2.3.4"));
+  TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_UP));
+
+  Interface *MyInterface = new zInterface::Interface(*MyConfig);
+  TEST_ISNOT_NULL(MyInterface);
+  TEST_EQ(std::string("eth0"), MyInterface->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyInterface->GetType());
+  TEST_EQ(std::string("1.2.3.4"), MyInterface->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_UP, MyInterface->GetState());
 
   // Cleanup
-  delete (MyInterface1);
-  delete (MyInterface2);
+  delete (MyInterface);
 
   // Return success
   return (0);
@@ -77,28 +66,32 @@ zInterfaceTest_InterfaceRefresh(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceRefresh()");
   ZLOG_DEBUG("#############################################################");
 
-  Interface *MyInterface = new zInterface::Interface;
+  InterfaceConfigData *MyConfig = new InterfaceConfigData;
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
+
+  // Set
+  TEST_TRUE(MyConfig->SetName("lo"));
+  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_LOOP));
+
+  Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeDefault, MyInterface->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateDefault, MyInterface->GetState());
-  TEST_EQ(InterfaceConfigData::ConfigRateDefault, MyInterface->GetRate());
-
-  // Set up interface
-  TEST_TRUE(MyInterface->SetName(std::string("lo")));
-  TEST_TRUE(MyInterface->SetType(InterfaceConfigData::ConfigTypeLoop));
-
-  // Get
+  TEST_EQ(std::string("lo"), MyInterface->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_LOOP, MyInterface->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyInterface->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyInterface->GetState());
   TEST_EQ(-1, MyInterface->Index());
-  TEST_EQ(std::string(""), MyInterface->IpAddress());
   TEST_EQ(std::string(""), MyInterface->HwAddress());
 
   // Refresh and verify
   TEST_TRUE(MyInterface->Refresh());
   TEST_EQ(std::string("lo"), MyInterface->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeLoop, MyInterface->GetType());
+  TEST_EQ(InterfaceConfigData::TYPE_LOOP, MyInterface->GetType());
   TEST_NEQ(-1, MyInterface->Index());
-  TEST_EQ(std::string("127.0.0.1"), MyInterface->IpAddress());
+  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetAddress());
   TEST_EQ(std::string("00:00:00:00:00:00"), MyInterface->HwAddress());
 
   // Cleanup

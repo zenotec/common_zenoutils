@@ -33,19 +33,36 @@ namespace zInterface
 // Class: InterfaceFactory
 // ****************************************************************************
 
-SHARED_PTR(Interface)
-InterfaceFactory::Create(const InterfaceConfigData& config_)
+InterfaceTable
+InterfaceFactory::Create(const zConfig::ConfigData& config_)
 {
-  SHARED_PTR(Interface) iface;
-  if (config_.GetType() == InterfaceConfigData::ConfigTypeWireless)
+  ZLOG_DEBUG("InterfaceFactory::Create(config_)");
+  ZLOG_DEBUG(config_.Path());
+  ZLOG_DEBUG(config_.GetJson());
+
+  InterfaceTable ifaces;
+  InterfaceConfigPath path;
+  zConfig::ConfigData data;
+
+  if (config_.Get(path, data.GetData()))
   {
-    iface = SHARED_PTR(Interface)(new WirelessInterface(config_));
+    for (int i = 0; i < data.Size(); i++)
+    {
+      InterfaceConfigData config(*data[i]);
+      SHARED_PTR(Interface)iface;
+      if (config.GetType() == InterfaceConfigData::TYPE_WIRELESS)
+      {
+        iface = SHARED_PTR(Interface)(new WirelessInterface(config));
+      }
+      else
+      {
+        iface = SHARED_PTR(Interface)(new Interface(config));
+      }
+      ifaces[iface->GetName()] = iface;
+    }
   }
-  else
-  {
-    iface = SHARED_PTR(Interface)(new Interface(config_));
-  }
-  return (iface);
+
+  return (ifaces);
 }
 
 }

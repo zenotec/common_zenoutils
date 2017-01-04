@@ -29,19 +29,19 @@ zInterfaceTest_InterfaceConfigurationCtor (void* arg)
 
   // Setup configuration object to mimic a InterfaceConfiguration configuration object
   InterfaceConfigPath path;
-  ConfigData config;
-  config.Put(path.Name(), std::string("eth0"));
-  config.Put(path.Type(), InterfaceConfigData::ConfigTypeWired);
-  config.Put(path.State(), InterfaceConfigData::ConfigStateUp);
-  config.Put(path.Rate(), 10000000);
+  ConfigData config(path);
+  TEST_TRUE(config.Put(path.Name(), std::string("eth0")));
+  TEST_TRUE(config.Put(path.Type(), InterfaceConfigData::ConfigTypeWired));
+  TEST_TRUE(config.Put(path.Address(), std::string("1.2.3.4")));
+  TEST_TRUE(config.Put(path.State(), InterfaceConfigData::ConfigStateUp));
 
   // Construct and verify
   InterfaceConfigData *MyConfig = new InterfaceConfigData (config);
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(std::string("eth0"), MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeWired, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateUp, MyConfig->GetState());
-  TEST_EQ(10000000, MyConfig->GetRate());
+  TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::STATE_UP, MyConfig->GetState());
+  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetAddress());
 
   // Cleanup
   delete (MyConfig);
@@ -58,21 +58,21 @@ zInterfaceTest_InterfaceConfigurationGetSet (void* arg)
   InterfaceConfigData *MyConfig = new InterfaceConfigData;
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeDefault, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateDefault, MyConfig->GetState());
-  TEST_EQ(InterfaceConfigData::ConfigRateDefault, MyConfig->GetRate());
+  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
+  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Set
   TEST_TRUE(MyConfig->SetName("eth0"));
-  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::ConfigTypeWired));
-  TEST_TRUE(MyConfig->SetState(InterfaceConfigData::ConfigStateUp));
-  TEST_TRUE(MyConfig->SetRate(1000000));
+  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_WIRED));
+  TEST_TRUE(MyConfig->SetAddress("1.2.3.4"));
+  TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_UP));
 
   // Get
   TEST_EQ(std::string("eth0"), MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::ConfigTypeWired, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigStateUp, MyConfig->GetState());
-  TEST_EQ(1000000, MyConfig->GetRate());
+  TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyConfig->GetType());
+  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::STATE_UP, MyConfig->GetState());
 
   // Cleanup
   delete (MyConfig);

@@ -15,7 +15,7 @@ zInterfaceUnitTest_SOURCES = \
     Defaults.cpp \
     Config.cpp \
     Interface.cpp \
-    Handler.cpp
+    Factory.cpp
 
 zInterfaceUnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la

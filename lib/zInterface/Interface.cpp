@@ -204,34 +204,34 @@ _get_ip_addr(const std::string &name_)
   return (val);
 }
 
-static Interface::STATE
+static InterfaceConfigData::STATE
 _get_state(const std::string &name_)
 {
-  Interface::STATE state = Interface::STATE_ERR;
+  InterfaceConfigData::STATE state = InterfaceConfigData::STATE_ERR;
   uint32_t flags = _get_flags(name_);
 
   if (flags & IFF_UP)
   {
-    state = Interface::STATE_UP;
+    state = InterfaceConfigData::STATE_UP;
   }
   else
   {
-    state = Interface::STATE_DOWN;
+    state = InterfaceConfigData::STATE_DOWN;
   }
 
   return (state);
 }
 
 static bool
-_set_state(const std::string &name_, Interface::STATE state_)
+_set_state(const std::string &name_, InterfaceConfigData::STATE state_)
 {
   bool status = false;
 
-  if (state_ == Interface::STATE_UP)
+  if (state_ == InterfaceConfigData::STATE_UP)
   {
     status = _set_flags(name_, IFF_UP);
   }
-  else
+  else if (state_ == InterfaceConfigData::STATE_DOWN)
   {
     status = _clr_flags(name_, IFF_UP);
   }
@@ -326,35 +326,35 @@ _is_wireless(const std::string &name_)
   return (status);
 }
 
-static Interface::TYPE
+static InterfaceConfigData::TYPE
 _get_type(const std::string &name_)
 {
-  Interface::TYPE type = Interface::TYPE_ERR;
+  InterfaceConfigData::TYPE type = InterfaceConfigData::TYPE_ERR;
   std::string val;
 
   if (_is_loopback(name_))
   {
-    type = Interface::TYPE_LOOP;
+    type = InterfaceConfigData::TYPE_LOOP;
   }
   else if (_is_bridge(name_))
   {
-    type = Interface::TYPE_BRIDGE;
+    type = InterfaceConfigData::TYPE_BRIDGE;
   }
   else if (_is_bond(name_))
   {
-    type = Interface::TYPE_BOND;
+    type = InterfaceConfigData::TYPE_BOND;
   }
   else if (_is_wireless(name_))
   {
-    type = Interface::TYPE_WIRELESS;
+    type = InterfaceConfigData::TYPE_WIRELESS;
   }
   else if (_is_wired(name_))
   {
-    type = Interface::TYPE_WIRED;
+    type = InterfaceConfigData::TYPE_WIRED;
   }
   else
   {
-    type = Interface::TYPE_NONE;
+    type = InterfaceConfigData::TYPE_NONE;
   }
 
   return (type);
@@ -364,29 +364,23 @@ _get_type(const std::string &name_)
 // Class: Interface
 // ****************************************************************************
 
-Interface::Interface() :
-    zEvent::Event(zEvent::Event::TYPE_INTERFACE), _lock(zSem::Mutex::LOCKED),
-        _index(-1), _state(Interface::STATE_UNKNOWN)
-{
-  ZLOG_DEBUG("Interface::Interface()");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-  this->_lock.Unlock();
-}
-
 Interface::Interface(const InterfaceConfigData& config_) :
     InterfaceConfigData(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
-        _lock(zSem::Mutex::LOCKED), _index(-1), _state(Interface::STATE_UNKNOWN)
+        _lock(zSem::Mutex::LOCKED), _index(-1)
 {
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->_timer.RegisterObserver(this);
+  this->_timer.Start(INTERFACE_REFRESH_PERIOD_USEC);
   this->_lock.Unlock();
 }
 
 Interface::~Interface()
 {
   this->_lock.Lock();
+  this->_timer.Stop();
+  this->_timer.UnregisterObserver(this);
 }
 
 bool
@@ -395,7 +389,6 @@ Interface::Refresh()
 
   bool status = false;
   std::string name(this->GetName());
-  Interface::TYPE type(this->Type());
 
   // Start critical section
   if (this->_lock.Lock())
@@ -410,11 +403,16 @@ Interface::Refresh()
       // Query interface MAC address
       this->_hw_addr = _get_hw_addr(name);
 
-      // Query interface IP address
-      this->_ip_addr = _get_ip_addr(name);
+      if (this->GetState() != _get_state(name))
+      {
+        this->SetState(_get_state(name));
+        // TODO Notification
+      }
 
-      // Query interface state
-      this->_state = _get_state(name);
+      if (this->GetAddress() != _get_ip_addr(name))
+      {
+        this->SetAddress(_get_ip_addr(name));
+      }
 
       status = true;
 
@@ -442,122 +440,15 @@ Interface::Display(const std::string &prefix_)
   // Start critical section
   if (this->_lock.Lock())
   {
-
-    std::cout << prefix_ << "Index:\t" << this->_index << std::endl;
-    std::cout << prefix_ << "MAC:  \t" << this->_hw_addr << std::endl;
-    std::cout << prefix_ << "IP:   \t" << this->_ip_addr << std::endl;
-
+    std::cout << prefix_ << "Index:  \t" << this->_index << std::endl;
+    std::cout << prefix_ << "MAC:    \t" << this->_hw_addr << std::endl;
+    std::cout << prefix_ << "Address:\t" << this->GetAddress() << std::endl;
+    std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
     // End critical section
     this->_lock.Unlock();
   }
 
-}
-
-Interface::TYPE
-Interface::Type()
-{
-
-  Interface::TYPE type = Interface::TYPE_ERR;
-
-  // Start critical section
-  if (this->_lock.Lock())
-  {
-
-    std::string tmp = InterfaceConfigData::GetType();
-
-    if (tmp == InterfaceConfigData::ConfigTypeNone)
-    {
-      type = Interface::TYPE_NONE;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeLoop)
-    {
-      type = Interface::TYPE_LOOP;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeWired)
-    {
-      type = Interface::TYPE_WIRED;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeWireless)
-    {
-      type = Interface::TYPE_WIRELESS;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeOther)
-    {
-      type = Interface::TYPE_OTHER;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeBond)
-    {
-      type = Interface::TYPE_BOND;
-    }
-    else if (tmp == InterfaceConfigData::ConfigTypeBridge)
-    {
-      type = Interface::TYPE_BRIDGE;
-    }
-    else
-    {
-      type = Interface::TYPE_ERR;
-    }
-
-    // End critical section
-    this->_lock.Unlock();
-  }
-
-  return (type);
-
-}
-
-bool
-Interface::Type(const Interface::TYPE &type_)
-{
-  bool status = false;
-
-  // Start critical section
-  if (this->_lock.Lock())
-  {
-    switch (type_)
-    {
-    case Interface::TYPE_NONE:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeNone);
-      break;
-    case Interface::TYPE_LOOP:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeLoop);
-      break;
-    case Interface::TYPE_WIRED:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeWired);
-      break;
-    case Interface::TYPE_WIRELESS:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeWireless);
-      break;
-    case Interface::TYPE_OTHER:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeOther);
-      break;
-    case Interface::TYPE_BOND:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeBond);
-      break;
-    case Interface::TYPE_BRIDGE:
-      status = InterfaceConfigData::SetType(InterfaceConfigData::ConfigTypeBridge);
-      break;
-    default:
-      status = false;
-    }
-
-    // End critical section
-    this->_lock.Unlock();
-  }
-
-  return (status);
-}
-
-Interface::STATE
-Interface::State()
-{
-  Interface::STATE state;
-  if (this->_lock.Lock())
-  {
-    state = this->_state;
-    this->_lock.Unlock();
-  }
-  return (state);
+  return;
 }
 
 int
@@ -584,16 +475,19 @@ Interface::HwAddress()
   return (hw_addr);
 }
 
-std::string
-Interface::IpAddress()
+bool
+Interface::EventHandler(const zEvent::EventNotification* notification_)
 {
-  std::string ip_addr;
-  if (this->_lock.Lock())
+  bool status = false;
+  const zTimer::TimerNotification *n = NULL;
+
+  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
   {
-    ip_addr = this->_ip_addr;
-    this->_lock.Unlock();
+    status = this->Refresh();
   }
-  return (ip_addr);
+
+  return (status);
+
 }
 
 }
