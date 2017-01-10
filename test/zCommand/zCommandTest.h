@@ -26,19 +26,17 @@ zCommandTest_CommandDefaults(void* arg_);
 int
 zCommandTest_TestCommandDefaults(void* arg_);
 int
-zCommandTest_HandlerDefaults(void* arg_);
-int
 zCommandTest_CommandGetSet(void* arg_);
 int
 zCommandTest_CommandExecute(void* arg_);
-int
-zCommandTest_CommandHandlerNoArg(void* arg_);
-int
-zCommandTest_CommandHandlerSingleArg(void* arg_);
-int
-zCommandTest_CommandHandlerMultiArg(void* arg_);
-int
-zCommandTest_CommandHandlerBadCommand(void* arg_);
+//int
+//zCommandTest_CommandHandlerNoArg(void* arg_);
+//int
+//zCommandTest_CommandHandlerSingleArg(void* arg_);
+//int
+//zCommandTest_CommandHandlerMultiArg(void* arg_);
+//int
+//zCommandTest_CommandHandlerBadCommand(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
@@ -64,10 +62,10 @@ public:
   {
 //    std::cout << "TestCommand::Execute() " << std::endl;
     std::string output = cmd_.GetName() + ":";
-    std::vector<zCommand::CommandOption> opts = cmd_.GetOptions();
-    for (int i = 0; i < opts.size(); i++)
+    std::map<std::string, zCommand::CommandOption> opts = cmd_.GetOptions();
+    FOREACH(auto& opt, opts)
     {
-      output += std::string(" ") + opts[i].GetOption() + std::string("=") + opts[i].GetArgument();
+      output += std::string(" ") + opt.first + std::string("=") + opt.second.GetArgument();
     }
     return (this->SetOutput(output));
   }

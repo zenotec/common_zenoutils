@@ -9,8 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzCommand.la
 
 libzCommand_la_SOURCES = \
-    Option.cpp \
+    CommandOption.cpp \
     Command.cpp \
-    CommandNotification.cpp \
-    CommandHandler.cpp
+    CommandNotification.cpp
     

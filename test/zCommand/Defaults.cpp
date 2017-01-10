@@ -45,9 +45,9 @@ zCommandTest_CommandDefaults(void* arg_)
   delete (myCommand);
 
   // Create new command from command string and verify
-  myCommand = new zCommand::Command("CommandDefaults");
+  myCommand = new zCommand::Command;
   TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string("CommandDefaults"), myCommand->GetName());
+  TEST_EQ(std::string(""), myCommand->GetName());
   TEST_TRUE(myCommand->GetOptions().empty());
 
   // Cleanup
@@ -68,20 +68,6 @@ zCommandTest_TestCommandDefaults(void* arg_)
 
   // Cleanup
   delete (myCommand);
-
-  // Return success
-  return (0);
-}
-
-int
-zCommandTest_HandlerDefaults(void* arg_)
-{
-  // Create new handler and verify
-  zCommand::CommandHandler *myHandler = new zCommand::CommandHandler;
-  TEST_ISNOT_NULL(myHandler);
-
-  // Cleanup
-  delete (myHandler);
 
   // Return success
   return (0);

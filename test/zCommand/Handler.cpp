@@ -49,7 +49,7 @@ zCommandTest_CommandHandlerNoArg(void* arg_)
   // Create new command option and verify
   zCommand::CommandOption *myOption = new zCommand::CommandOption;
   TEST_ISNOT_NULL(myOption);
-  TEST_EQ(std::string(""), myOption->GetOption());
+  TEST_EQ(std::string(""), myOption->GetName());
   TEST_EQ(std::string(""), myOption->GetArgument());
 
   // Create new handler and verify
@@ -92,12 +92,12 @@ zCommandTest_CommandHandlerSingleArg(void* arg_)
   // Create new command option and verify
   zCommand::CommandOption *myOption = new zCommand::CommandOption;
   TEST_ISNOT_NULL(myOption);
-  TEST_EQ(std::string(""), myOption->GetOption());
+  TEST_EQ(std::string(""), myOption->GetName());
   TEST_EQ(std::string(""), myOption->GetArgument());
 
   // Set command option and argument and verify
-  TEST_TRUE(myOption->SetOption(std::string("Option1")));
-  TEST_EQ(std::string("Option1"), myOption->GetOption());
+  TEST_TRUE(myOption->SetName(std::string("Option1")));
+  TEST_EQ(std::string("Option1"), myOption->GetName());
   TEST_TRUE(myOption->SetArgument(std::string("Arg1")));
   TEST_EQ(std::string("Arg1"), myOption->GetArgument());
 
@@ -147,12 +147,12 @@ zCommandTest_CommandHandlerMultiArg(void* arg_)
   // Create new command option and verify
   zCommand::CommandOption *myOption1 = new zCommand::CommandOption;
   TEST_ISNOT_NULL(myOption1);
-  TEST_EQ(std::string(""), myOption1->GetOption());
+  TEST_EQ(std::string(""), myOption1->GetName());
   TEST_EQ(std::string(""), myOption1->GetArgument());
 
   // Set command option and argument and verify
-  TEST_TRUE(myOption1->SetOption(std::string("Option1")));
-  TEST_EQ(std::string("Option1"), myOption1->GetOption());
+  TEST_TRUE(myOption1->SetName(std::string("Option1")));
+  TEST_EQ(std::string("Option1"), myOption1->GetName());
   TEST_TRUE(myOption1->SetArgument(std::string("Arg1")));
   TEST_EQ(std::string("Arg1"), myOption1->GetArgument());
 
@@ -164,12 +164,12 @@ zCommandTest_CommandHandlerMultiArg(void* arg_)
   // Create new command option and verify
   zCommand::CommandOption *myOption2 = new zCommand::CommandOption;
   TEST_ISNOT_NULL(myOption2);
-  TEST_EQ(std::string(""), myOption2->GetOption());
+  TEST_EQ(std::string(""), myOption2->GetName());
   TEST_EQ(std::string(""), myOption2->GetArgument());
 
   // Set command option and argument and verify
-  TEST_TRUE(myOption2->SetOption(std::string("Option2")));
-  TEST_EQ(std::string("Option2"), myOption2->GetOption());
+  TEST_TRUE(myOption2->SetName(std::string("Option2")));
+  TEST_EQ(std::string("Option2"), myOption2->GetName());
   TEST_TRUE(myOption2->SetArgument(std::string("Arg2")));
   TEST_EQ(std::string("Arg2"), myOption2->GetArgument());
 

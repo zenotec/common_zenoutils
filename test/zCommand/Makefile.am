@@ -13,8 +13,7 @@ zCommandUnitTest_SOURCES = \
     zCommandTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Command.cpp \
-    Handler.cpp
+    Command.cpp
 
 zCommandUnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la

@@ -46,13 +46,12 @@ main(int argc, const char **argv)
   UTEST_INIT();
   UTEST_TEST(zCommandTest_CommandDefaults, 0);
   UTEST_TEST(zCommandTest_TestCommandDefaults, 0);
-  UTEST_TEST(zCommandTest_HandlerDefaults, 0);
   UTEST_TEST(zCommandTest_CommandGetSet, 0);
   UTEST_TEST(zCommandTest_CommandExecute, 0);
-  UTEST_TEST(zCommandTest_CommandHandlerNoArg, 0);
-  UTEST_TEST(zCommandTest_CommandHandlerSingleArg, 0);
-  UTEST_TEST(zCommandTest_CommandHandlerMultiArg, 0);
-  UTEST_TEST(zCommandTest_CommandHandlerBadCommand, 0);
+//  UTEST_TEST(zCommandTest_CommandHandlerNoArg, 0);
+//  UTEST_TEST(zCommandTest_CommandHandlerSingleArg, 0);
+//  UTEST_TEST(zCommandTest_CommandHandlerMultiArg, 0);
+//  UTEST_TEST(zCommandTest_CommandHandlerBadCommand, 0);
   UTEST_FINI();
 
   // Exit

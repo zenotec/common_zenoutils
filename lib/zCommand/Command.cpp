@@ -34,22 +34,66 @@ namespace zUtils
 namespace zCommand
 {
 
-const std::string Command::DataRoot = "zCommand";
-const std::string Command::DataNamePath = "Name";
-const std::string Command::DataOutputPath = "Output";
+//**********************************************************************
+// Class: CommandPath
+//**********************************************************************
 
-Command::Command(const std::string &name_) :
-    zData::Data(Command::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
+const std::string CommandPath::DataRoot("zCommand");
+const std::string CommandPath::DataNamePath("Name");
+const std::string CommandPath::DataOutputPath("Output");
+
+CommandPath::CommandPath() :
+    zData::DataPath(DataRoot)
 {
-  this->SetName(this->GetName());
-  this->SetOutput(this->GetOutput());
+}
+
+CommandPath::~CommandPath()
+{
+}
+
+zData::DataPath
+CommandPath::Name()
+{
+  zData::DataPath path(*this);
+  path.Append(DataNamePath);
+  return (path);
+}
+
+zData::DataPath
+CommandPath::Option()
+{
+  zData::DataPath path(*this);
+  path.Append(CommandOptionPath::DataRoot);
+  return (path);
+}
+
+zData::DataPath
+CommandPath::Output()
+{
+  zData::DataPath path(*this);
+  path.Append(DataOutputPath);
+  return (path);
+}
+
+//**********************************************************************
+// Class: Command
+//**********************************************************************
+
+Command::Command() :
+    zData::Data(CommandPath::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
+{
+  ZLOG_DEBUG("Command::Command()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 Command::Command(const zData::Data &data_) :
-    zData::Data(data_), zEvent::Event(zEvent::Event::TYPE_COMMAND)
+    zData::Data(CommandPath::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
 {
-  this->SetName(this->GetName());
-  this->SetOutput(this->GetOutput());
+  this->Put(data_);
+  ZLOG_DEBUG("Command::Command(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 Command::~Command()
@@ -72,34 +116,38 @@ std::string
 Command::GetName() const
 {
   std::string str;
-  this->Get(zData::DataPath(Command::DataNamePath), str);
+  CommandPath path;
+  this->Get(path.Name(), str);
   return (str);
 }
 
 bool
 Command::SetName(const std::string name_)
 {
-  return (this->Put(name_, Command::DataNamePath));
+  CommandPath path;
+  return (this->Put(path.Name(), name_));
 }
 
-std::vector<CommandOption>
+std::map<std::string, CommandOption>
 Command::GetOptions() const
 {
 
-  zData::DataPath path(DataRoot);
-  path.Append(CommandOption::DataRoot);
-  zData::Data data;
-  std::unique_ptr<zData::Data> child;
-  std::vector<CommandOption> options;
+  ZLOG_DEBUG("Command::GetOptions()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 
-//  if (this->Get(path, data))
-//  {
-//    for (int i = 0; i < data.Size(); i++)
-//    {
-//      CommandOption opt(*data[i]);
-//      options.push_back(opt);
-//    }
-//  }
+  std::map<std::string, CommandOption> options;
+  CommandPath path;
+  zData::Data data;
+
+  if (this->Get(path.Option(), data))
+  {
+    for (int i = 0; i < data.Size(); i++)
+    {
+      CommandOption opt(*data[i]);
+      options[opt.GetName()] = opt;
+    }
+  }
 
   return (options);
 }
@@ -107,35 +155,30 @@ Command::GetOptions() const
 bool
 Command::AddOption(CommandOption &opt_)
 {
-//  return (this->Add(static_cast<zData::Data &>(opt_), CommandOption::DataRoot));
-  return(false);
+  CommandPath path;
+  return (this->Add(path.Option(), opt_.GetData()));
 }
 
 std::string
 Command::GetOutput() const
 {
   std::string str;
-  this->Get(zData::DataPath(Command::DataOutputPath), str);
+  CommandPath path;
+  this->Get(path.Output(), str);
   return (str);
 }
 
 bool
 Command::SetOutput(const std::string arg_)
 {
-  return (this->Put(arg_, Command::DataOutputPath));
+  CommandPath path;
+  return (this->Put(path.Output(), arg_));
 }
 
 bool
 Command::Execute(zCommand::Command &cmd_)
 {
   return (false);
-}
-
-bool
-Command::EventHandler(const zEvent::EventNotification* notification_)
-{
-  bool status = false;
-  return (status);
 }
 
 }

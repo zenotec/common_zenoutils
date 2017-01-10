@@ -220,11 +220,11 @@ public:
   virtual
   ~Display();
 
-  bool
-  RegisterCommands(zCommand::CommandHandler *handler_);
-
-  bool
-  UnregisterCommands(zCommand::CommandHandler *handler_);
+//  bool
+//  RegisterCommands(zCommand::CommandHandler *handler_);
+//
+//  bool
+//  UnregisterCommands(zCommand::CommandHandler *handler_);
 
   DisplayVar*
   CreateVar(const std::string &name_, const size_t len_);

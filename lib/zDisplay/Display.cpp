@@ -55,23 +55,23 @@ Display::~Display()
   this->_timer.Stop();
 }
 
-bool
-Display::RegisterCommands(zCommand::CommandHandler *handler_)
-{
-  bool status = true;
-  status &= handler_->RegisterCommand(&this->_update_cmd);
-  status &= handler_->RegisterCommand(&this->_clear_cmd);
-  return (status);
-}
-
-bool
-Display::UnregisterCommands(zCommand::CommandHandler *handler_)
-{
-  bool status = true;
-  status &= handler_->UnregisterCommand(&this->_update_cmd);
-  status &= handler_->UnregisterCommand(&this->_clear_cmd);
-  return (status);
-}
+//bool
+//Display::RegisterCommands(zCommand::CommandHandler *handler_)
+//{
+//  bool status = true;
+//  status &= handler_->RegisterCommand(&this->_update_cmd);
+//  status &= handler_->RegisterCommand(&this->_clear_cmd);
+//  return (status);
+//}
+//
+//bool
+//Display::UnregisterCommands(zCommand::CommandHandler *handler_)
+//{
+//  bool status = true;
+//  status &= handler_->UnregisterCommand(&this->_update_cmd);
+//  status &= handler_->UnregisterCommand(&this->_clear_cmd);
+//  return (status);
+//}
 
 DisplayVar*
 Display::CreateVar(const std::string &name_, const size_t len_)

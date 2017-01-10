@@ -23,6 +23,36 @@ namespace zCommand
 {
 
 //**********************************************************************
+// Class: CommandOptionPath
+//**********************************************************************
+
+class CommandOptionPath : public zData::DataPath
+{
+
+public:
+
+  static const std::string DataRoot;
+  static const std::string DataNamePath;
+  static const std::string DataArgPath;
+
+  CommandOptionPath();
+
+  virtual
+  ~CommandOptionPath();
+
+  zData::DataPath
+  Name();
+
+  zData::DataPath
+  Argument();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
 // Class: CommandOption
 //**********************************************************************
 
@@ -31,22 +61,21 @@ class CommandOption : public zData::Data
 
 public:
 
-  static const std::string DataRoot;
-  static const std::string DataOptionPath;
-  static const std::string DataArgPath;
-
-  CommandOption(const std::string &opt_ = std::string(""), const std::string &arg_ = std::string(""));
+  CommandOption();
 
   CommandOption(const zData::Data &data_);
 
   virtual
   ~CommandOption();
 
+  zData::Data&
+  GetData();
+
   std::string
-  GetOption() const;
+  GetName() const;
 
   bool
-  SetOption(const std::string opt_);
+  SetName(const std::string opt_);
 
   std::string
   GetArgument() const;
@@ -61,18 +90,48 @@ private:
 };
 
 //**********************************************************************
-// Class: Command
+// Class: CommandPath
 //**********************************************************************
 
-class Command : public zData::Data, public zEvent::Event
+class CommandPath : public zData::DataPath
 {
+
 public:
 
   static const std::string DataRoot;
   static const std::string DataNamePath;
   static const std::string DataOutputPath;
 
-  Command(const std::string &name_ = std::string(""));
+  CommandPath();
+
+  virtual
+  ~CommandPath();
+
+  zData::DataPath
+  Name();
+
+  zData::DataPath
+  Option();
+
+  zData::DataPath
+  Output();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: Command
+//**********************************************************************
+
+class Command : public zData::Data, public zEvent::Event
+{
+
+public:
+
+  Command();
 
   Command(const zData::Data &data_);
 
@@ -91,7 +150,7 @@ public:
   bool
   SetName(const std::string name_);
 
-  std::vector<CommandOption>
+  std::map<std::string, CommandOption>
   GetOptions() const;
 
   bool
@@ -107,9 +166,6 @@ public:
   Execute(zCommand::Command &cmd_);
 
 protected:
-
-  virtual bool
-  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 
@@ -140,37 +196,6 @@ protected:
 private:
 
   CommandNotification::ID _id;
-
-};
-
-//**********************************************************************
-// Class: CommandHandler
-//**********************************************************************
-
-class CommandHandler : public zEvent::EventHandler
-{
-public:
-
-  CommandHandler();
-
-  virtual
-  ~CommandHandler();
-
-  bool
-  RegisterCommand(zCommand::Command *cmd_);
-
-  bool
-  UnregisterCommand(zCommand::Command *cmd_);
-
-  bool
-  ProcessCommand(zCommand::Command &cmd_);
-
-protected:
-
-private:
-
-  zSem::Mutex _lock;
-  std::map<std::string, zCommand::Command *> _cmd_table;
 
 };
 
