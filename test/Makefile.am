@@ -2,7 +2,7 @@ export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
 	zThread \
-	zProgOpt \
+	zProgram \
 	zLog \
 	zSem \
 	zQueue \
@@ -24,7 +24,7 @@ SUBDIRS = \
 
 if COND_VALGRIND
 VALGRIND_TESTS = \
-    zProgOpt/valgrind.sh \
+    zProgram/valgrind.sh \
     zLog/valgrind.sh \
     zData/valgrind.sh \
     zDisplay/valgrind.sh \
@@ -48,7 +48,7 @@ endif
 
 GCOV_TESTS = \
     zThread/zThreadUnitTest \
-    zProgOpt/zProgOptUnitTest \
+    zProgram/zProgramUnitTest \
     zLog/zLogUnitTest \
     zSem/zSemUnitTest \
     zQueue/zQueueUnitTest \

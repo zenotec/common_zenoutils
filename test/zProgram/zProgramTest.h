@@ -18,30 +18,53 @@
 #ifndef _ZOPTTEST_H_
 #define _ZOPTTEST_H_
 
+#include <zutils/zProgram.h>
+
 #include "UnitTest.h"
 
-#include <zutils/zProgOpt.h>
+int
+zProgramTest_ProgramOptionDefaults(void* arg_);
+int
+zProgramTest_ProgramArgumentDefaults(void* arg_);
+int
+zProgramTest_ProgramDefaults(void* arg_);
 
 int
-zOptTest_OptionDefaults(void* arg_);
-int
-zOptTest_TableDefaults(void* arg_);
+zProgramTest_ProgramOptionString(void* arg_);
 
 int
-zOptTest_OptionString(void* arg_);
-int
-zOptTest_OptionInt(void* arg_);
-int
-zOptTest_OptionUint(void* arg_);
-int
-zOptTest_OptionDouble(void* arg_);
+zProgramTest_ProgramArgumentString(void* arg_);
 
 int
-zOptTest_ParseSimpleShort(void* arg_);
-int
-zOptTest_ParseSimpleLong(void* arg_);
+zProgramTest_ParseCommandLine(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
+using namespace zUtils::zProgram;
+
+class TestProgram : public Program
+{
+public:
+
+  TestProgram()
+  {
+  }
+
+  virtual
+  ~TestProgram()
+  {
+  }
+
+  virtual void
+  Run(zThread::ThreadArg *arg_)
+  {
+
+  }
+
+protected:
+
+private:
+
+};
 
 #endif /* _ZOPTTEST_H_ */

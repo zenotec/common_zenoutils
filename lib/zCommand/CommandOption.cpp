@@ -39,7 +39,7 @@ namespace zCommand
 //**********************************************************************
 
 const std::string CommandOptionPath::DataRoot("zOption");
-const std::string CommandOptionPath::DataNamePath("Option");
+const std::string CommandOptionPath::DataNamePath("Name");
 const std::string CommandOptionPath::DataArgPath("Argument");
 
 CommandOptionPath::CommandOptionPath() :

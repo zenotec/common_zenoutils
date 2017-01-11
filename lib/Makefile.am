@@ -6,7 +6,7 @@ export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
 	zLog \
-	zProgOpt \
+	zProgram \
 	zSem \
 	zThread	\
 	zData \
@@ -48,7 +48,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zDisplay.h \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
-    $(top_srcdir)/inc/zutils/zProgOpt.h \
+    $(top_srcdir)/inc/zutils/zProgram.h \
     $(top_srcdir)/inc/zutils/zGpio.h \
     $(top_srcdir)/inc/zutils/zLed.h \
     $(top_srcdir)/inc/zutils/zLog.h \
@@ -83,7 +83,7 @@ libzutils_la_SOURCES = \
 
 libzutils_la_LIBADD = \
     ${top_builddir}/lib/zLog/libzLog.la \
-    ${top_builddir}/lib/zProgOpt/libzProgOpt.la \
+    ${top_builddir}/lib/zProgram/libzProgram.la \
     ${top_builddir}/lib/zSem/libzSem.la \
     ${top_builddir}/lib/zThread/libzThread.la \
     ${top_builddir}/lib/zData/libzData.la \

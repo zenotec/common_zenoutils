@@ -14,42 +14,32 @@
  * limitations under the License.
  */
 
-#include "zProgOptTest.h"
+#include "zProgramTest.h"
 
 using namespace Test;
 using namespace zUtils;
+using namespace zUtils::zProgram;
 
 int
-zOptTest_OptionDefaults(void* arg_)
+zProgramTest_ProgramOptionString(void* arg_)
 {
-
   // Create new option and validate
-  zProgOpt::Option myOpt(
-      (zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL));
-  TEST_EQ((zProgOpt::Option::FLAGS_ISOPTIONAL | zProgOpt::Option::FLAGS_ARG_ISOPTIONAL),
-      myOpt.Flags());
-  TEST_EQ('\0', myOpt.ShortName());
-  TEST_EQ(std::string(""), myOpt.LongName());
-  TEST_EQ(std::string(""), myOpt.HelpMsg());
-  TEST_EQ(std::string(""), myOpt.Arg<std::string>());
+  ProgramOption myOpt;
+  TEST_IS_ZERO(myOpt.Count());
+  TEST_TRUE(ProgramOption::FLAGS_NONE == myOpt.GetFlags());
+  TEST_EQ('\0', myOpt.GetShortName());
+  TEST_EQ(std::string(""), myOpt.GetLongName());
+  TEST_EQ(std::string(""), myOpt.GetDescription());
+  TEST_EQ(std::string(""), myOpt.GetDefault());
+  TEST_EQ(std::string(""), myOpt.GetArguments()[0]);
+
+  // Set default argument value
+  TEST_TRUE(myOpt.SetDefault(std::string("test")));
+  TEST_EQ(std::string("test"), myOpt.GetArguments()[0]);
 
   // Return success
   return (0);
 
 }
 
-int
-zOptTest_TableDefaults(void* arg_)
-{
-
-  // Create new table and validate
-  zProgOpt::Table myTable;
-  TEST_EQ(-1, myTable.Count("f"));
-  TEST_EQ(std::string("USAGE: \n"), myTable.Usage());
-  TEST_EQ(std::string(""), myTable.ErrorString());
-
-  // Return success
-  return (0);
-
-}
 

@@ -1,0 +1,73 @@
+/*
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at:
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "zProgramTest.h"
+
+using namespace Test;
+using namespace zUtils;
+using namespace zUtils::zProgram;
+
+int
+zProgramTest_ProgramOptionDefaults(void* arg_)
+{
+
+  // Create new option and validate
+  ProgramOption myOpt;
+  TEST_IS_ZERO(myOpt.Count());
+  TEST_TRUE(ProgramOption::FLAGS_NONE == myOpt.GetFlags());
+  TEST_EQ('\0', myOpt.GetShortName());
+  TEST_EQ(std::string(""), myOpt.GetLongName());
+  TEST_EQ(std::string(""), myOpt.GetDescription());
+  TEST_EQ(std::string(""), myOpt.GetDefault());
+  TEST_EQ(std::string(""), myOpt.GetArguments()[0]);
+
+  // Return success
+  return (0);
+
+}
+
+int
+zProgramTest_ProgramArgumentDefaults(void* arg_)
+{
+
+  // Create new argument and validate
+  ProgramArgument myArg;
+  TEST_IS_ZERO(myArg.Count());
+  TEST_TRUE(ProgramArgument::FLAGS_NONE == myArg.GetFlags());
+  TEST_IS_ZERO(myArg.GetPosition());
+  TEST_EQ(std::string(""), myArg.GetName());
+  TEST_EQ(std::string(""), myArg.GetDescription());
+  TEST_EQ(std::string(""), myArg.GetDefault());
+  TEST_EQ(std::string(""), myArg.GetValue());
+
+  // Return success
+  return (0);
+
+}
+
+int
+zProgramTest_ProgramDefaults(void* arg_)
+{
+
+  // Create new test program and verify
+  TestProgram *MyProg = new TestProgram;
+  TEST_ISNOT_NULL(MyProg);
+
+  // Return success
+  return (0);
+
+}
+

@@ -6,17 +6,18 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-check_PROGRAMS = zProgOptUnitTest
+check_PROGRAMS = zProgramUnitTest
 
-zProgOptUnitTest_SOURCES = \
+zProgramUnitTest_SOURCES = \
     $(top_srcdir)/inc/UnitTest.h \
     valgrind.sh \
-    zProgOptTest.h \
+    zProgramTest.h \
     UnitTest.cpp \
     Defaults.cpp \
     Option.cpp \
-    Table.cpp
+    Argument.cpp \
+    Program.cpp
 
-zProgOptUnitTest_LDADD = \
+zProgramUnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la
 

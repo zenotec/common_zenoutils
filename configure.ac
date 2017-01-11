@@ -73,7 +73,7 @@ AC_CONFIG_FILES([
     Makefile
       lib/Makefile
         lib/zThread/Makefile
-        lib/zProgOpt/Makefile
+        lib/zProgram/Makefile
         lib/zLog/Makefile
         lib/zSem/Makefile
         lib/zData/Makefile
@@ -93,7 +93,7 @@ AC_CONFIG_FILES([
         lib/zDisplay/Makefile
       test/Makefile
         test/zThread/Makefile
-        test/zProgOpt/Makefile
+        test/zProgram/Makefile
         test/zLog/Makefile
         test/zSem/Makefile
         test/zData/Makefile
