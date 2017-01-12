@@ -111,6 +111,94 @@ private:
 };
 
 //**********************************************************************
+// Class: ProgramHelpOption
+//**********************************************************************
+
+class ProgramHelpOption : public ProgramOption
+{
+
+public:
+
+  static const std::string OptStr;
+
+  ProgramHelpOption();
+
+  virtual
+  ~ProgramHelpOption();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: ProgramVersionOption
+//**********************************************************************
+
+class ProgramVersionOption : public ProgramOption
+{
+
+public:
+
+  static const std::string OptStr;
+
+  ProgramVersionOption();
+
+  virtual
+  ~ProgramVersionOption();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: ProgramLogFileOption
+//**********************************************************************
+
+class ProgramLogFileOption : public ProgramOption
+{
+
+public:
+
+  static const std::string OptStr;
+
+  ProgramLogFileOption();
+
+  virtual
+  ~ProgramLogFileOption();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: ProgramLogLevelOption
+//**********************************************************************
+
+class ProgramLogLevelOption : public ProgramOption
+{
+
+public:
+
+  static const std::string OptStr;
+
+  ProgramLogLevelOption();
+
+  virtual
+  ~ProgramLogLevelOption();
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
 // Class: ProgramArgument
 //**********************************************************************
 
@@ -221,6 +309,9 @@ public:
 
   bool
   EnableLogging();
+
+  bool
+  Run();
 
   virtual void
   Run(zThread::ThreadArg *arg_) = 0;

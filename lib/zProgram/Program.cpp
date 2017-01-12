@@ -195,6 +195,13 @@ Program::EnableLogging()
 
 }
 
+bool
+Program::Run()
+{
+  this->_main_thread.Start();
+  this->_main_thread.Join();
+}
+
 ProgramOption *
 Program::_find_opt(const std::string &opt_)
 {
