@@ -27,6 +27,8 @@
 #include <vector>
 #include <map>
 
+#include <zutils/zUtils.h>
+#include <zutils/zLog.h>
 #include <zutils/zThread.h>
 
 namespace zUtils
@@ -60,6 +62,9 @@ public:
 
   ssize_t
   Count() const;
+
+  bool
+  Empty() const;
 
   uint32_t
   GetFlags() const;
@@ -223,6 +228,9 @@ public:
   ssize_t
   Count() const;
 
+  bool
+  Empty() const;
+
   uint32_t
   GetFlags() const;
 
@@ -302,13 +310,25 @@ public:
   ParseCommandLine(int argc_, const char **argv_);
 
   std::string
-  Name();
+  Name() const;
 
   std::string
-  Usage();
+  Usage() const;
+
+  bool
+  HelpOption();
+
+  bool
+  VersionOption();
 
   bool
   EnableLogging();
+
+  std::string
+  LogFile();
+
+  zLog::LogLevel
+  LogLevel();
 
   bool
   Run();

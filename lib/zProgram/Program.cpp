@@ -33,6 +33,15 @@ namespace zProgram
 Program::Program() :
     _main_thread(this, this)
 {
+
+  // Setup command line options
+  zProgram::ProgramHelpOption HelpOpt;
+  this->AddOption(HelpOpt);
+
+  // Setup command line options
+  zProgram::ProgramVersionOption VersionOpt;
+  this->AddOption(VersionOpt);
+
 }
 
 Program::~Program()
@@ -135,13 +144,13 @@ Program::ParseCommandLine(int argc_, const char **argv_)
 }
 
 std::string
-Program::Name()
+Program::Name() const
 {
   return (this->_name);
 }
 
 std::string
-Program::Usage()
+Program::Usage() const
 {
 
   std::string usage = std::string("USAGE: ") + this->_name + std::string(" [");
@@ -204,6 +213,30 @@ Program::Usage()
   }
 
   return (usage);
+}
+
+bool
+Program::HelpOption()
+{
+  return (!this->GetOption(ProgramHelpOption::OptStr).Empty());
+}
+
+bool
+Program::VersionOption()
+{
+  return (!this->GetOption(ProgramVersionOption::OptStr).Empty());
+}
+
+std::string
+Program::LogFile()
+{
+  return(this->GetOption(ProgramLogFileOption::OptStr).GetArguments()[0]);
+}
+
+zLog::LogLevel
+Program::LogLevel()
+{
+  return((zLog::LogLevel)zToInt(this->GetOption(ProgramLogLevelOption::OptStr).GetArguments()[0]));
 }
 
 bool

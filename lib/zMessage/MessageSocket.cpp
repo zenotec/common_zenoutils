@@ -84,7 +84,7 @@ MessageSocket::Connect(const zSocket::SocketAddress* addr_)
 }
 
 bool
-MessageSocket::Send(const zSocket::SocketAddress& addr_, zMessage::Message &msg_)
+MessageSocket::Send(const zSocket::SocketAddress& addr_, const zMessage::Message &msg_)
 {
   bool status = false;
 
@@ -114,7 +114,8 @@ MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
     case zSocket::SocketNotification::ID_PKT_RCVD:
       {
       zSocket::SocketAddressBufferPair p = n->Pkt();
-      zMessage::Message msg(p.second->Str());
+      zMessage::Message msg;
+      msg.SetJson(p.second->Str());
       zMessage::MessageNotification notification(this);
       notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
       notification.message(&msg);

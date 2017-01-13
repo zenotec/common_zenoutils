@@ -347,7 +347,8 @@ UnixSocket::Connect(const SocketAddress* addr_)
   struct sockaddr_un addr = { 0 };
   if (!_addr2sock(addr_->Address(), addr))
   {
-    ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot convert socket address: " + addr_->Address());
+    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
     return (false);
   }
 
@@ -355,7 +356,8 @@ UnixSocket::Connect(const SocketAddress* addr_)
   int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot connect socket: " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot connect socket: " + addr_->Address());
+    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
     return (false);
   } // end if
 

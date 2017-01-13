@@ -31,43 +31,42 @@
 
 using namespace Test;
 using namespace zUtils;
+using namespace zUtils::zCommand;
 
 int
-zCommandTest_CommandDefaults(void* arg_)
+zCommandTest_CommandPathDefaults(void* arg_)
 {
-  // Create new empty command and verify
-  zCommand::Command *myCommand = new zCommand::Command;
-  TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_TRUE(myCommand->GetOptions().empty());
-
-  // Cleanup
-  delete (myCommand);
-
-  // Create new command from command string and verify
-  myCommand = new zCommand::Command;
-  TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_TRUE(myCommand->GetOptions().empty());
-
-  // Cleanup
-  delete (myCommand);
+  // Create new command path and validate
+  CommandPath MyPath;
+  TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyPath.Root());
 
   // Return success
   return (0);
 }
 
 int
-zCommandTest_TestCommandDefaults(void* arg_)
+zCommandTest_CommandDataDefaults(void* arg_)
 {
-  // Create new configuration data item and verify
-  TestCommand *myCommand = new TestCommand;
-  TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_TRUE(myCommand->GetOptions().empty());
+  // Create new command data and validate
+  CommandData MyData;
+  TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyData.Root());
+  TEST_EQ(std::string(""), MyData.GetName());
+  TEST_TRUE(MyData.GetOptions().empty());
+  TEST_EQ(std::string(""), MyData.GetOutput());
 
-  // Cleanup
-  delete (myCommand);
+  // Return success
+  return (0);
+}
+
+int
+zCommandTest_CommandDefaults(void* arg_)
+{
+  // Create new test command and validate
+  TestCommand MyCommand;
+  TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyCommand.Root());
+  TEST_EQ(std::string(""), MyCommand.GetName());
+  TEST_TRUE(MyCommand.GetOptions().empty());
+  TEST_EQ(std::string(""), MyCommand.GetOutput());
 
   // Return success
   return (0);

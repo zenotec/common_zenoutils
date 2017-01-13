@@ -38,9 +38,15 @@ ProgramOption::~ProgramOption()
 }
 
 ssize_t
-zProgram::ProgramOption::Count() const
+ProgramOption::Count() const
 {
   return (this->_args.size());
+}
+
+bool
+ProgramOption::Empty() const
+{
+  return(this->_args.empty());
 }
 
 uint32_t

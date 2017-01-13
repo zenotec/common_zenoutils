@@ -22,32 +22,30 @@
 #include <zutils/zCommand.h>
 
 int
+zCommandTest_CommandPathDefaults(void* arg_);
+int
+zCommandTest_CommandDataDefaults(void* arg_);
+int
 zCommandTest_CommandDefaults(void* arg_);
+
 int
-zCommandTest_TestCommandDefaults(void* arg_);
-int
-zCommandTest_CommandGetSet(void* arg_);
+zCommandTest_CommandDataGetSet(void* arg_);
+
 int
 zCommandTest_CommandExecute(void* arg_);
-//int
-//zCommandTest_CommandHandlerNoArg(void* arg_);
-//int
-//zCommandTest_CommandHandlerSingleArg(void* arg_);
-//int
-//zCommandTest_CommandHandlerMultiArg(void* arg_);
-//int
-//zCommandTest_CommandHandlerBadCommand(void* arg_);
+
 
 using namespace Test;
 using namespace zUtils;
+using namespace zUtils::zCommand;
 
 class TestCommand : public zCommand::Command
 {
 public:
 
-  TestCommand(const std::string &name_ = std::string("")) :
-      zCommand::Command(name_)
+  TestCommand(const std::string &name_ = std::string(""))
   {
+    this->SetName(name_);
 //    std::cout << "TestCommand::TestCommand() " << std::endl;
   }
 
@@ -58,11 +56,11 @@ public:
   }
 
   virtual bool
-  Execute(zCommand::Command &cmd_)
+  Execute()
   {
 //    std::cout << "TestCommand::Execute() " << std::endl;
-    std::string output = cmd_.GetName() + ":";
-    std::map<std::string, zCommand::CommandOption> opts = cmd_.GetOptions();
+    std::string output = this->GetName() + ":";
+    std::map<std::string, zCommand::CommandOption> opts = this->GetOptions();
     FOREACH(auto& opt, opts)
     {
       output += std::string(" ") + opt.first + std::string("=") + opt.second.GetArgument();

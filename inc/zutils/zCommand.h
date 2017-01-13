@@ -123,26 +123,46 @@ private:
 };
 
 //**********************************************************************
-// Class: Command
+// Class: CommandData
 //**********************************************************************
 
-class Command : public zData::Data, public zEvent::Event
+class CommandData : public zData::Data
 {
 
 public:
 
-  Command();
+  CommandData();
 
-  Command(const zData::Data &data_);
+  CommandData(zData::Data &data_);
+
+  CommandData(const zData::Data &data_);
+
+  CommandData(CommandData &data_);
+
+  CommandData(const CommandData &data_);
 
   virtual
-  ~Command();
+  ~CommandData();
+
+  CommandData &
+  operator=(CommandData &other_)
+  {
+    zData::Data::operator =(other_);
+    return (*this);
+  }
+
+  CommandData &
+  operator=(const CommandData &other_)
+  {
+    zData::Data::operator =(other_);
+    return (*this);
+  }
 
   bool
-  operator ==(const Command &other_);
+  operator ==(const CommandData &other_);
 
   bool
-  operator !=(const Command &other_);
+  operator !=(const CommandData &other_);
 
   std::string
   GetName() const;
@@ -162,8 +182,33 @@ public:
   bool
   SetOutput(const std::string arg_);
 
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: Command
+//**********************************************************************
+
+class Command : public CommandData, public zEvent::Event
+{
+
+public:
+
+  Command() :
+    zEvent::Event(zEvent::Event::TYPE_COMMAND)
+  {
+  }
+
+  virtual
+  ~Command()
+  {
+  }
+
   virtual bool
-  Execute(zCommand::Command &cmd_);
+  Execute() = 0;
 
 protected:
 
@@ -203,7 +248,7 @@ private:
 // Class: CommandManager
 //**********************************************************************
 
-class CommandManager : public zEvent::EventHandler
+class CommandManager : public zEvent::EventHandler, zEvent::EventObserver
 {
 public:
 
@@ -215,6 +260,9 @@ public:
   }
 
 protected:
+
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 

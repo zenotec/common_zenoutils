@@ -122,7 +122,7 @@ public:
 
   Message();
 
-  Message(const zData::Data &msg_);
+  Message(const zData::Data &data_);
 
   Message(Message &other_);
 
@@ -147,14 +147,14 @@ public:
 
   bool
   operator ==(const Message& other_) const
-  {
-    return(zData::Data::operator ==(other_));
+      {
+    return (zData::Data::operator ==(other_));
   }
 
   bool
   operator !=(const Message& other_) const
-  {
-    return(zData::Data::operator !=(other_));
+      {
+    return (zData::Data::operator !=(other_));
   }
 
   Message::TYPE

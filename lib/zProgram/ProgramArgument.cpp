@@ -38,6 +38,12 @@ ProgramArgument::Count() const
   return((this->_value.empty()) ? 0 : 1);
 }
 
+bool
+ProgramArgument::Empty() const
+{
+  return(this->_value.empty());
+}
+
 uint32_t
 ProgramArgument::GetFlags() const
 {

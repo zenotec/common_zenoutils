@@ -19,6 +19,8 @@
 #include <list>
 #include <map>
 
+#include <zutils/zLog.h>
+#include <zutils/zSem.h>
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
 #include <zutils/zQueue.h>
@@ -26,46 +28,52 @@
 #include <zutils/zMessage.h>
 
 #include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
 
 namespace zUtils
 {
 namespace zCommand
 {
 
-CommandMessage::CommandMessage()
-{
-  this->SetType(zMessage::Message::TYPE_CMD);
-}
+//**********************************************************************
+// Class: CommandPath
+//**********************************************************************
 
-CommandMessage::CommandMessage(const zCommand::CommandData &data_)
-{
-  this->SetType(zMessage::Message::TYPE_CMD);
-  this->SetData(data_);
-}
+const std::string CommandPath::DataRoot("zCommand");
+const std::string CommandPath::DataNamePath("Name");
+const std::string CommandPath::DataOutputPath("Output");
 
-CommandMessage::~CommandMessage()
+CommandPath::CommandPath() :
+    zData::DataPath(DataRoot)
 {
 }
 
-const zMessage::Message&
-CommandMessage::GetMessage() const
+CommandPath::~CommandPath()
 {
-  return(*this);
 }
 
-CommandData
-CommandMessage::GetCommandData() const
+zData::DataPath
+CommandPath::Name()
 {
-  return(CommandData(this->GetData()));
+  zData::DataPath path(*this);
+  path.Append(DataNamePath);
+  return (path);
 }
 
-bool
-CommandMessage::SetCommandData(const CommandData &data_)
+zData::DataPath
+CommandPath::Option()
 {
-  return (this->SetData(data_));
+  zData::DataPath path(*this);
+  path.Append(CommandOptionPath::DataRoot);
+  return (path);
+}
+
+zData::DataPath
+CommandPath::Output()
+{
+  zData::DataPath path(*this);
+  path.Append(DataOutputPath);
+  return (path);
 }
 
 }
 }
-

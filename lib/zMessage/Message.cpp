@@ -60,34 +60,33 @@ const std::string Message::DataSrcDefault("");
 Message::Message() :
     zData::Data(MessagePath::DataRoot)
 {
-  // Initialize message
-  this->SetId(this->GetId());
-  this->SetType(this->GetType());
-  this->SetDst(this->GetDst());
-  this->SetSrc(this->GetSrc());
-  this->SetData(this->GetData());
+  ZLOG_DEBUG("Message::Message()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
-Message::Message(const zData::Data &msg_) :
-    zData::Data(msg_)
+Message::Message(const zData::Data &data_) :
+    zData::Data(data_)
 {
-  // Initialize message
-  this->SetId(this->GetId());
-  this->SetType(this->GetType());
-  this->SetDst(this->GetDst());
-  this->SetSrc(this->GetSrc());
-  this->SetData(this->GetData());
+  ZLOG_DEBUG("Message::Message(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 Message::Message(Message &other_) :
     zData::Data(other_)
 {
-
+  ZLOG_DEBUG("Message::Message(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 Message::Message(const Message &other_) :
     zData::Data(other_)
 {
+  ZLOG_DEBUG("Message::Message(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 Message::~Message()

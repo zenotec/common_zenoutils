@@ -17,6 +17,8 @@
 #ifndef __ZCOMMANDMESSAGE_H__
 #define __ZCOMMANDMESSAGE_H__
 
+#include <zutils/zMessage.h>
+
 namespace zUtils
 {
 namespace zCommand
@@ -32,13 +34,19 @@ public:
 
   CommandMessage();
 
-  CommandMessage(const zCommand::Command &command_);
+  CommandMessage(const zCommand::CommandData &data_);
 
   virtual
   ~CommandMessage();
 
+  const zMessage::Message&
+  GetMessage() const;
+
+  CommandData
+  GetCommandData() const;
+
   bool
-  SetCommand(const zCommand::Command &command_);
+  SetCommandData(const CommandData &data_);
 
 protected:
 

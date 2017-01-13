@@ -93,15 +93,12 @@ zProgramTest_ParseCommandLine(void* arg_)
   // Add option and argument and verify
   TEST_TRUE(MyProg->AddOption(MyOpt));
   TEST_TRUE(MyProg->AddArgument(MyArg));
-  TEST_EQ(std::string("USAGE:  [f:] Address\n\t-f,--file\targ\tFilename\n"), MyProg->Usage());
   TEST_EQ(0, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("test.txt"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("1.2.3.4"), MyProg->GetArgument(0).GetValue());
 
   // Parse command line and validate
   TEST_TRUE(MyProg->ParseCommandLine(4, argv[0]));
-  TEST_EQ(std::string("USAGE: program [f:] Address\n\t-f,--file\targ\tFilename\n"),
-      MyProg->Usage());
   TEST_EQ(1, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("filename.ext"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("addr"), MyProg->GetArgument(0).GetValue());
@@ -115,15 +112,12 @@ zProgramTest_ParseCommandLine(void* arg_)
   // Add option and argument and verify
   TEST_TRUE(MyProg->AddOption(MyOpt));
   TEST_TRUE(MyProg->AddArgument(MyArg));
-  TEST_EQ(std::string("USAGE:  [f:] Address\n\t-f,--file\targ\tFilename\n"), MyProg->Usage());
   TEST_EQ(0, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("test.txt"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("1.2.3.4"), MyProg->GetArgument(0).GetValue());
 
   // Parse command line and validate
   TEST_TRUE(MyProg->ParseCommandLine(4, argv[1]));
-  TEST_EQ(std::string("USAGE: program [f:] Address\n\t-f,--file\targ\tFilename\n"),
-      MyProg->Usage());
   TEST_EQ(1, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("filename.ext"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("addr"), MyProg->GetArgument(0).GetValue());
@@ -137,15 +131,12 @@ zProgramTest_ParseCommandLine(void* arg_)
   // Add option and argument and verify
   TEST_TRUE(MyProg->AddOption(MyOpt));
   TEST_TRUE(MyProg->AddArgument(MyArg));
-  TEST_EQ(std::string("USAGE:  [f:] Address\n\t-f,--file\targ\tFilename\n"), MyProg->Usage());
   TEST_EQ(0, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("test.txt"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("1.2.3.4"), MyProg->GetArgument(0).GetValue());
 
   // Parse command line and validate
   TEST_TRUE(MyProg->ParseCommandLine(6, argv[2]));
-  TEST_EQ(std::string("USAGE: program [f:] Address\n\t-f,--file\targ\tFilename\n"),
-      MyProg->Usage());
   TEST_EQ(2, MyProg->GetOption("file").Count());
   TEST_EQ(std::string("filename_1.txt"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("filename_2.txt"), MyProg->GetOption("file").GetArguments()[1]);

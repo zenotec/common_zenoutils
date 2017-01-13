@@ -35,85 +35,71 @@ namespace zCommand
 {
 
 //**********************************************************************
-// Class: CommandPath
+// Class: CommandData
 //**********************************************************************
 
-const std::string CommandPath::DataRoot("zCommand");
-const std::string CommandPath::DataNamePath("Name");
-const std::string CommandPath::DataOutputPath("Output");
-
-CommandPath::CommandPath() :
-    zData::DataPath(DataRoot)
+CommandData::CommandData() :
+    zData::Data(CommandPath::DataRoot)
 {
-}
-
-CommandPath::~CommandPath()
-{
-}
-
-zData::DataPath
-CommandPath::Name()
-{
-  zData::DataPath path(*this);
-  path.Append(DataNamePath);
-  return (path);
-}
-
-zData::DataPath
-CommandPath::Option()
-{
-  zData::DataPath path(*this);
-  path.Append(CommandOptionPath::DataRoot);
-  return (path);
-}
-
-zData::DataPath
-CommandPath::Output()
-{
-  zData::DataPath path(*this);
-  path.Append(DataOutputPath);
-  return (path);
-}
-
-//**********************************************************************
-// Class: Command
-//**********************************************************************
-
-Command::Command() :
-    zData::Data(CommandPath::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
-{
-  ZLOG_DEBUG("Command::Command()");
+  ZLOG_DEBUG("CommandData::CommandData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
 
-Command::Command(const zData::Data &data_) :
-    zData::Data(CommandPath::DataRoot), zEvent::Event(zEvent::Event::TYPE_COMMAND)
+CommandData::CommandData(zData::Data &data_) :
+    zData::Data(CommandPath::DataRoot)
 {
   this->Put(data_);
-  ZLOG_DEBUG("Command::Command(data_)");
+  ZLOG_DEBUG("CommandData::CommandData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
 
-Command::~Command()
+CommandData::CommandData(const zData::Data &data_) :
+    zData::Data(CommandPath::DataRoot)
+{
+  this->Put(data_);
+  ZLOG_DEBUG("CommandData::CommandData(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+CommandData::CommandData(CommandData &other_) :
+    zData::Data(CommandPath::DataRoot)
+{
+  this->Put(other_);
+  ZLOG_DEBUG("CommandData::CommandData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+CommandData::CommandData(const CommandData &other_) :
+    zData::Data(CommandPath::DataRoot)
+{
+  this->Put(other_);
+  ZLOG_DEBUG("CommandData::CommandData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+CommandData::~CommandData()
 {
 }
 
 bool
-Command::operator ==(const Command &other_)
+CommandData::operator ==(const CommandData &other_)
 {
   return (this->GetName() == other_.GetName());
 }
 
 bool
-Command::operator !=(const Command &other_)
+CommandData::operator !=(const CommandData &other_)
 {
   return (this->GetName() != other_.GetName());
 }
 
 std::string
-Command::GetName() const
+CommandData::GetName() const
 {
   std::string str;
   CommandPath path;
@@ -122,17 +108,17 @@ Command::GetName() const
 }
 
 bool
-Command::SetName(const std::string name_)
+CommandData::SetName(const std::string name_)
 {
   CommandPath path;
   return (this->Put(path.Name(), name_));
 }
 
 std::map<std::string, CommandOption>
-Command::GetOptions() const
+CommandData::GetOptions() const
 {
 
-  ZLOG_DEBUG("Command::GetOptions()");
+  ZLOG_DEBUG("CommandData::GetOptions()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 
@@ -153,14 +139,14 @@ Command::GetOptions() const
 }
 
 bool
-Command::AddOption(CommandOption &opt_)
+CommandData::AddOption(CommandOption &opt_)
 {
   CommandPath path;
   return (this->Add(path.Option(), opt_.GetData()));
 }
 
 std::string
-Command::GetOutput() const
+CommandData::GetOutput() const
 {
   std::string str;
   CommandPath path;
@@ -169,16 +155,10 @@ Command::GetOutput() const
 }
 
 bool
-Command::SetOutput(const std::string arg_)
+CommandData::SetOutput(const std::string arg_)
 {
   CommandPath path;
   return (this->Put(path.Output(), arg_));
-}
-
-bool
-Command::Execute(zCommand::Command &cmd_)
-{
-  return (false);
 }
 
 }

@@ -33,18 +33,19 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zCommandTest_CommandGetSet(void* arg_)
+zCommandTest_CommandDataGetSet(void* arg_)
 {
 
   // Create new command and verify
-  zCommand::Command *myCommand = new zCommand::Command;
-  TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_TRUE(myCommand->GetOptions().empty());
+  zCommand::CommandData *MyCommandData = new zCommand::CommandData;
+  TEST_ISNOT_NULL(MyCommandData);
+  TEST_EQ(std::string(""), MyCommandData->GetName());
+  TEST_TRUE(MyCommandData->GetOptions().empty());
+  TEST_EQ(std::string(""), MyCommandData->GetOutput());
 
   // Set name and validate
-  TEST_TRUE(myCommand->SetName(std::string("CommandGetSet")));
-  TEST_EQ(std::string("CommandGetSet"), myCommand->GetName());
+  TEST_TRUE(MyCommandData->SetName(std::string("CommandGetSet")));
+  TEST_EQ(std::string("CommandGetSet"), MyCommandData->GetName());
 
   // Create new command option and verify
   zCommand::CommandOption *myOption = new zCommand::CommandOption;
@@ -59,13 +60,13 @@ zCommandTest_CommandGetSet(void* arg_)
   TEST_EQ(std::string("Arg1"), myOption->GetArgument());
 
   // Add command option
-  TEST_TRUE(myCommand->AddOption(*myOption));
-  TEST_FALSE(myCommand->GetOptions().empty());
-  TEST_EQ(1, myCommand->GetOptions().size());
+  TEST_TRUE(MyCommandData->AddOption(*myOption));
+  TEST_FALSE(MyCommandData->GetOptions().empty());
+  TEST_EQ(1, MyCommandData->GetOptions().size());
 
   // Cleanup
   delete (myOption);
-  delete (myCommand);
+  delete (MyCommandData);
 
   // Return success
   return (0);
@@ -103,7 +104,7 @@ zCommandTest_CommandExecute(void* arg_)
   TEST_EQ(1, myCommand->GetOptions().size());
 
   // Execute command and validate
-  TEST_TRUE(myCommand->Execute(*myCommand));
+  TEST_TRUE(myCommand->Execute());
   TEST_EQ(std::string("CommandExecute: Option1=Arg1"), myCommand->GetOutput());
 
   // Cleanup

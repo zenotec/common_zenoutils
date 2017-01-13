@@ -52,7 +52,7 @@ public:
   Connect(const zSocket::SocketAddress* addr_);
 
   bool
-  Send(const zSocket::SocketAddress& addr_, zMessage::Message &msg_);
+  Send(const zSocket::SocketAddress& addr_, const zMessage::Message &msg_);
 
 protected:
 

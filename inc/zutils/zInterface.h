@@ -164,6 +164,26 @@ private:
 };
 
 // ****************************************************************************
+// Class: InterfaceNotification
+// ****************************************************************************
+
+class InterfaceNotification : public zEvent::EventNotification
+{
+
+public:
+
+  InterfaceNotification();
+
+  virtual
+  ~InterfaceNotification();
+
+protected:
+
+private:
+
+};
+
+// ****************************************************************************
 // Class: Interface
 // ****************************************************************************
 

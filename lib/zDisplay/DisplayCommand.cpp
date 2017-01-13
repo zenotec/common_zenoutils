@@ -47,8 +47,9 @@ static const std::string DisplayClearCmdName("clear");
 //*****************************************************************************
 
 DisplayCommand::DisplayCommand(const std::string &name_, zDisplay::Display &display_) :
-    zCommand::Command(name_), _display(display_)
+    _display(display_)
 {
+  this->SetName(name_);
 }
 
 DisplayCommand::~DisplayCommand()
@@ -69,7 +70,7 @@ DisplayUpdateCmd::~DisplayUpdateCmd()
 }
 
 bool
-DisplayUpdateCmd::Execute(const std::string &arg_)
+DisplayUpdateCmd::Execute()
 {
   return (false);
 }
@@ -88,7 +89,7 @@ DisplayClearCmd::~DisplayClearCmd()
 }
 
 bool
-DisplayClearCmd::Execute(const std::string &arg_)
+DisplayClearCmd::Execute()
 {
   this->_display.Buffer.Clear();
   return (true);

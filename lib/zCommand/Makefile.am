@@ -10,6 +10,7 @@ noinst_LTLIBRARIES = libzCommand.la
 
 libzCommand_la_SOURCES = \
     CommandOption.cpp \
-    Command.cpp \
+    CommandPath.cpp \
+    CommandData.cpp \
     CommandNotification.cpp
     

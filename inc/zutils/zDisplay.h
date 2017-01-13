@@ -59,7 +59,7 @@ public:
   ~DisplayUpdateCmd();
 
   virtual bool
-  Execute(const std::string &arg_ = "");
+  Execute();
 
 protected:
 
@@ -81,7 +81,7 @@ public:
   ~DisplayClearCmd();
 
   virtual bool
-  Execute(const std::string &arg_ = "");
+  Execute();
 
 protected:
 
