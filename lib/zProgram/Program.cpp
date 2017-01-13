@@ -70,6 +70,10 @@ Program::AddArgument(const ProgramArgument &arg_)
 bool
 Program::ParseCommandLine(int argc_, const char **argv_)
 {
+
+  bool status = true;
+
+  std::string opt_name;
   ProgramOption *opt = NULL;
   ProgramArgument *arg = NULL;
 
@@ -84,12 +88,26 @@ Program::ParseCommandLine(int argc_, const char **argv_)
     {
       if (argv_[i][1] == '-')
       {
-        opt = this->_find_opt(std::string(&argv_[i][2]));
+        opt_name = std::string(&argv_[i][2]);
       } // end if
       else
       {
-        opt = this->_find_opt(std::string(&argv_[i][1]));
+        opt_name = std::string(&argv_[i][1]);
       } // end else
+      if ((opt = this->_find_opt(opt_name)) != NULL)
+      {
+        if (!(opt->GetFlags() & ProgramOption::FLAGS_HAVEARG))
+        {
+          opt->AddArgument(std::string(""));
+          opt = NULL; // reset option pointer
+        }
+      }
+      else
+      {
+        std::cerr << "Unexpected option: " << opt_name << std::endl;
+        status = false;
+        break;
+      }
     } // end if
     else
     {
@@ -113,7 +131,7 @@ Program::ParseCommandLine(int argc_, const char **argv_)
 
   } // end for
 
-  return (true);
+  return (status);
 }
 
 std::string
@@ -127,7 +145,6 @@ Program::Usage()
 {
 
   std::string usage = std::string("USAGE: ") + this->_name + std::string(" [");
-
 
   FOREACH (auto& opt, this->_opts)
   {
