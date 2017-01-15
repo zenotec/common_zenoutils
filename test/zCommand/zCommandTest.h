@@ -34,7 +34,6 @@ zCommandTest_CommandDataGetSet(void* arg_);
 int
 zCommandTest_CommandExecute(void* arg_);
 
-
 using namespace Test;
 using namespace zUtils;
 using namespace zUtils::zCommand;
@@ -56,11 +55,10 @@ public:
   }
 
   virtual bool
-  Execute()
+  Execute(CommandData& data_)
   {
-//    std::cout << "TestCommand::Execute() " << std::endl;
     std::string output = this->GetName() + ":";
-    std::map<std::string, zCommand::CommandOption> opts = this->GetOptions();
+    std::map<std::string, zCommand::CommandOption> opts = data_.GetOptions();
     FOREACH(auto& opt, opts)
     {
       output += std::string(" ") + opt.first + std::string("=") + opt.second.GetArgument();

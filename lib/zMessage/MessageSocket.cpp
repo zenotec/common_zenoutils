@@ -101,11 +101,11 @@ MessageSocket::Send(const zSocket::SocketAddress& addr_, const zMessage::Message
 bool
 MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
 {
-  const zSocket::SocketNotification *n = NULL;
 
   ZLOG_DEBUG("Handling socket event");
 
   bool status = false;
+  const zSocket::SocketNotification *n = NULL;
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
   {
     n = static_cast<const zSocket::SocketNotification *>(notification_);

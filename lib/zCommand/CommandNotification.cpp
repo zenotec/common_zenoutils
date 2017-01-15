@@ -38,14 +38,25 @@ namespace zCommand
 // Class: CommandNotification
 //**********************************************************************
 
-CommandNotification::CommandNotification(Command* cmd_) :
-    _id(CommandNotification::ID_NONE), zEvent::EventNotification(cmd_)
+CommandNotification::CommandNotification() :
+    _id(CommandNotification::ID_NONE)
 {
 }
 
 CommandNotification::~CommandNotification()
 {
+}
 
+const CommandData&
+CommandNotification::GetCommandData() const
+{
+  return(this->_data);
+}
+
+bool
+CommandNotification::SetCommandData(const CommandData& data_)
+{
+  return(this->_data.Put(data_));
 }
 
 }

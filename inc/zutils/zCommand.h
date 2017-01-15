@@ -17,6 +17,9 @@
 #ifndef __ZCOMMAND_H__
 #define __ZCOMMAND_H__
 
+#include <string>
+#include <map>
+
 namespace zUtils
 {
 namespace zCommand
@@ -159,10 +162,10 @@ public:
   }
 
   bool
-  operator ==(const CommandData &other_);
+  operator ==(const CommandData &other_) const;
 
   bool
-  operator !=(const CommandData &other_);
+  operator !=(const CommandData &other_) const;
 
   std::string
   GetName() const;
@@ -189,34 +192,6 @@ private:
 };
 
 //**********************************************************************
-// Class: Command
-//**********************************************************************
-
-class Command : public CommandData, public zEvent::Event
-{
-
-public:
-
-  Command() :
-    zEvent::Event(zEvent::Event::TYPE_COMMAND)
-  {
-  }
-
-  virtual
-  ~Command()
-  {
-  }
-
-  virtual bool
-  Execute() = 0;
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
 // Class: CommandNotification
 //**********************************************************************
 
@@ -231,16 +206,51 @@ public:
     ID_LAST
   };
 
-  CommandNotification(Command* cmd_);
+  CommandNotification();
 
   virtual
   ~CommandNotification();
+
+  const CommandData&
+  GetCommandData() const;
+
+  bool
+  SetCommandData(const CommandData& data_);
 
 protected:
 
 private:
 
   CommandNotification::ID _id;
+  CommandData _data;
+
+};
+
+//**********************************************************************
+// Class: Command
+//**********************************************************************
+
+class Command : public CommandData, public zEvent::EventObserver
+{
+
+public:
+
+  Command();
+
+  Command(const CommandData& data_);
+
+  virtual
+  ~Command();
+
+  virtual bool
+  Execute(CommandData& data_) = 0;
+
+protected:
+
+  virtual bool
+  EventHandler(const zEvent::EventNotification* notification_);
+
+private:
 
 };
 
@@ -248,8 +258,9 @@ private:
 // Class: CommandManager
 //**********************************************************************
 
-class CommandManager : public zEvent::EventHandler, zEvent::EventObserver
+class CommandManager : public zEvent::EventHandler
 {
+
 public:
 
   static CommandManager&
@@ -260,9 +271,6 @@ public:
   }
 
 protected:
-
-  virtual bool
-  EventHandler(const zEvent::EventNotification* notification_);
 
 private:
 

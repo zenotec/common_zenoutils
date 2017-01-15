@@ -87,13 +87,13 @@ CommandData::~CommandData()
 }
 
 bool
-CommandData::operator ==(const CommandData &other_)
+CommandData::operator ==(const CommandData &other_) const
 {
   return (this->GetName() == other_.GetName());
 }
 
 bool
-CommandData::operator !=(const CommandData &other_)
+CommandData::operator !=(const CommandData &other_) const
 {
   return (this->GetName() != other_.GetName());
 }

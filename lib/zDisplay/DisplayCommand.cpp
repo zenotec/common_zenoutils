@@ -70,7 +70,7 @@ DisplayUpdateCmd::~DisplayUpdateCmd()
 }
 
 bool
-DisplayUpdateCmd::Execute()
+DisplayUpdateCmd::Execute(CommandData& data_)
 {
   return (false);
 }
@@ -89,7 +89,7 @@ DisplayClearCmd::~DisplayClearCmd()
 }
 
 bool
-DisplayClearCmd::Execute()
+DisplayClearCmd::Execute(CommandData& data_)
 {
   this->_display.Buffer.Clear();
   return (true);

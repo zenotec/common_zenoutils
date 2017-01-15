@@ -59,7 +59,7 @@ public:
   ~DisplayUpdateCmd();
 
   virtual bool
-  Execute();
+  Execute(CommandData& data_);
 
 protected:
 
@@ -81,7 +81,7 @@ public:
   ~DisplayClearCmd();
 
   virtual bool
-  Execute();
+  Execute(CommandData& data_);
 
 protected:
 

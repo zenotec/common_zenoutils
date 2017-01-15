@@ -12,5 +12,6 @@ libzCommand_la_SOURCES = \
     CommandOption.cpp \
     CommandPath.cpp \
     CommandData.cpp \
-    CommandNotification.cpp
+    CommandNotification.cpp \
+    Command.cpp
     

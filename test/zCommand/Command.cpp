@@ -76,40 +76,50 @@ int
 zCommandTest_CommandExecute(void* arg_)
 {
 
-  // Create new command and verify
-  zCommand::Command *myCommand = new TestCommand;
-  TEST_ISNOT_NULL(myCommand);
-  TEST_EQ(std::string(""), myCommand->GetName());
-  TEST_TRUE(myCommand->GetOptions().empty());
+  // Create new command data and verify
+  zCommand::CommandData MyData;
+  TEST_EQ(std::string(""), MyData.GetName());
+  TEST_TRUE(MyData.GetOptions().empty());
+  TEST_EQ(std::string(""), MyData.GetOutput());
 
   // Set name and validate
-  TEST_TRUE(myCommand->SetName(std::string("CommandExecute")));
-  TEST_EQ(std::string("CommandExecute"), myCommand->GetName());
+  TEST_TRUE(MyData.SetName(std::string("CommandExecute")));
+  TEST_EQ(std::string("CommandExecute"), MyData.GetName());
 
   // Create new command option and verify
-  zCommand::CommandOption *myOption = new zCommand::CommandOption;
-  TEST_ISNOT_NULL(myOption);
-  TEST_EQ(std::string(""), myOption->GetName());
-  TEST_EQ(std::string(""), myOption->GetArgument());
+  zCommand::CommandOption *MyOption = new zCommand::CommandOption;
+  TEST_ISNOT_NULL(MyOption);
+  TEST_EQ(std::string(""), MyOption->GetName());
+  TEST_EQ(std::string(""), MyOption->GetArgument());
 
   // Set command option and argument and verify
-  TEST_TRUE(myOption->SetName(std::string("Option1")));
-  TEST_EQ(std::string("Option1"), myOption->GetName());
-  TEST_TRUE(myOption->SetArgument(std::string("Arg1")));
-  TEST_EQ(std::string("Arg1"), myOption->GetArgument());
+  TEST_TRUE(MyOption->SetName(std::string("Option1")));
+  TEST_EQ(std::string("Option1"), MyOption->GetName());
+  TEST_TRUE(MyOption->SetArgument(std::string("Arg1")));
+  TEST_EQ(std::string("Arg1"), MyOption->GetArgument());
 
   // Add command option
-  TEST_TRUE(myCommand->AddOption(*myOption));
-  TEST_FALSE(myCommand->GetOptions().empty());
-  TEST_EQ(1, myCommand->GetOptions().size());
+  TEST_TRUE(MyData.AddOption(*MyOption));
+  TEST_FALSE(MyData.GetOptions().empty());
+  TEST_EQ(1, MyData.GetOptions().size());
+
+  // Create new command and verify
+  zCommand::Command *MyCommand = new TestCommand;
+  TEST_ISNOT_NULL(MyCommand);
+  TEST_EQ(std::string(""), MyCommand->GetName());
+  TEST_TRUE(MyCommand->GetOptions().empty());
+
+  // Set name and validate
+  TEST_TRUE(MyCommand->SetName(std::string("CommandExecute")));
+  TEST_EQ(std::string("CommandExecute"), MyCommand->GetName());
 
   // Execute command and validate
-  TEST_TRUE(myCommand->Execute());
-  TEST_EQ(std::string("CommandExecute: Option1=Arg1"), myCommand->GetOutput());
+  TEST_TRUE(MyCommand->Execute(MyData));
+  TEST_EQ(std::string("CommandExecute: Option1=Arg1"), MyCommand->GetOutput());
 
   // Cleanup
-  delete (myOption);
-  delete (myCommand);
+  delete (MyOption);
+  delete (MyCommand);
 
   // Return success
   return (0);
