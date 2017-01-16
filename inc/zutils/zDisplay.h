@@ -207,6 +207,50 @@ private:
 };
 
 //*****************************************************************************
+// Class: zDisplay::DisplayPage
+//*****************************************************************************
+
+class DisplayPage : public DisplayBuffer
+{
+
+public:
+
+  DisplayPage(const std::string &name_, const size_t cols_, const size_t rows_);
+
+  virtual
+  ~DisplayPage();
+
+  bool
+  operator==(const DisplayPage &other_) const;
+
+  bool
+  operator!=(const DisplayPage &other_) const;
+
+  std::string
+  GetName() const;
+
+  DisplayVar*
+  CreateVar(const std::string &name_, const size_t len_);
+
+  bool
+  DeleteVar(zDisplay::DisplayVar* var_);
+
+  bool
+  Refresh();
+
+  const DisplayBuffer&
+  GetBuffer() const;
+
+protected:
+
+private:
+
+  std::string _name;
+  std::list<DisplayVar*> _vars;
+
+};
+
+//*****************************************************************************
 // Class: zDisplay::Display
 //*****************************************************************************
 
@@ -226,19 +270,32 @@ public:
 //  bool
 //  UnregisterCommands(zCommand::CommandHandler *handler_);
 
-  DisplayVar*
-  CreateVar(const std::string &name_, const size_t len_);
+  DisplayPage*
+  CreatePage(const std::string& name_);
 
   bool
-  DeleteVar(zDisplay::DisplayVar* var_);
+  DeletePage(DisplayPage* page_);
 
   bool
-  SetRefresh(const size_t rate_);
+  SetRefreshRate(const size_t rate_);
+
+  bool
+  SetPageTimeout(const size_t sec_);
+
+  ssize_t
+  GetRows() const;
+
+  ssize_t
+  GetColumns() const;
+
+  ssize_t
+  GetSize() const;
 
   void
   Flush();
 
-  DisplayBuffer Buffer;
+  void
+  Clear();
 
 protected:
 
@@ -250,9 +307,13 @@ protected:
 
 private:
 
-  std::list<DisplayVar*> _vars;
+  size_t _cols;
+  size_t _rows;
 
-  zTimer::Timer _timer;
+  std::list<DisplayPage*> _pages;
+
+  zTimer::Timer _refresh_timer;
+  zTimer::Timer _page_timer;
 
   DisplayUpdateCmd _update_cmd;
   DisplayClearCmd _clear_cmd;

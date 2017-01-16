@@ -40,70 +40,72 @@ namespace zDisplay
 {
 
 //*****************************************************************************
-// Class: zDisplay::DisplayVar
+// Class: zDisplay::DisplayPage
 //*****************************************************************************
 
-DisplayVar::DisplayVar(const std::string &name_, const size_t size_) :
-    _name(name_), DisplayBuffer(size_), _row(0), _col(0)
+DisplayPage::DisplayPage(const std::string &name_, const size_t cols_, const size_t rows_) :
+    _name(name_), DisplayBuffer(cols_, rows_)
 {
 }
 
-DisplayVar::~DisplayVar()
+DisplayPage::~DisplayPage()
 {
-}
-
-bool
-DisplayVar::operator==(const DisplayVar &other_) const
-{
-  bool status = true;
-  status |= (this->GetName() == other_.GetName());
-  status |= (this->GetRow() == other_.GetRow());
-  status |= (this->GetColumn() == other_.GetColumn());
-  status |= (this->GetSize() == other_.GetSize());
-  return (status);
 }
 
 bool
-DisplayVar::operator!=(const DisplayVar &other_) const
+DisplayPage::operator==(const DisplayPage &other_) const
 {
-  bool status = true;
-  status |= (this->GetName() == other_.GetName());
-  status |= (this->GetRow() == other_.GetRow());
-  status |= (this->GetColumn() == other_.GetColumn());
-  status |= (this->GetSize() == other_.GetSize());
-  return (!status);
+  return (DisplayBuffer::operator ==(other_));
+}
+
+bool
+DisplayPage::operator!=(const DisplayPage &other_) const
+{
+  return (DisplayBuffer::operator !=(other_));
 }
 
 std::string
-DisplayVar::GetName() const
+DisplayPage::GetName() const
 {
   return (this->_name);
 }
 
-ssize_t
-DisplayVar::GetColumn() const
+DisplayVar*
+DisplayPage::CreateVar(const std::string &name_, const size_t len_)
 {
-  return (this->_col);
+  DisplayVar* var = new DisplayVar(name_, len_);
+  if (var)
+  {
+    this->_vars.push_back(var);
+  }
+  return (var);
 }
 
 bool
-DisplayVar::SetColumn(size_t col_)
+DisplayPage::DeleteVar(zDisplay::DisplayVar* var_)
 {
-  this->_col = col_;
+  this->_vars.remove(var_);
+  delete (var_);
   return (true);
-}
-
-ssize_t
-DisplayVar::GetRow() const
-{
-  return (this->_row);
 }
 
 bool
-DisplayVar::SetRow(size_t row_)
+DisplayPage::Refresh()
 {
-  this->_row = row_;
-  return (true);
+  FOREACH (auto& var, this->_vars)
+  {
+    if (!this->Update(var->GetString(), var->GetColumn(), var->GetRow()))
+    {
+      ZLOG_WARN("Display variable failed to update: " + var->GetName());
+    }
+  }
+  return(true);
+}
+
+const DisplayBuffer&
+DisplayPage::GetBuffer() const
+{
+  return(*this);
 }
 
 }

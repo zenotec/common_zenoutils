@@ -52,8 +52,12 @@ zDisplayTest_DisplayCreateVar(void *arg_)
   TestDisplay *MyDisplay = new TestDisplay(16, 2);
   TEST_ISNOT_NULL(MyDisplay);
 
+  // Create new display page and verify
+  zDisplay::DisplayPage *MyPage = MyDisplay->CreatePage("page1");
+  TEST_ISNOT_NULL(MyPage);
+
   // Create new Display variable and verify
-  zDisplay::DisplayVar *MyVar = MyDisplay->CreateVar("var", 3);
+  zDisplay::DisplayVar *MyVar = MyPage->CreateVar("var", 3);
   TEST_ISNOT_NULL(MyVar);
   TEST_EQ(std::string("var"), MyVar->GetName());
   TEST_EQ(std::string(""), MyVar->GetString());
@@ -62,7 +66,8 @@ zDisplayTest_DisplayCreateVar(void *arg_)
   TEST_EQ(3, MyVar->GetSize());
 
   // Cleanup
-  MyDisplay->DeleteVar(MyVar);
+  MyPage->DeleteVar(MyVar);
+  MyDisplay->DeletePage(MyPage);
   delete (MyDisplay);
 
   // Return success
@@ -83,21 +88,30 @@ zDisplayTest_DisplayUpdate(void *arg_)
   TEST_ISNOT_NULL(MyDisplay);
   TEST_EQ(std::string("................................"), MyDisplay->GetBuffer());
 
+  // Create new display page and verify
+  zDisplay::DisplayPage *MyPage1 = MyDisplay->CreatePage("page1");
+  TEST_ISNOT_NULL(MyPage1);
+
+  // Create new display page and verify
+  zDisplay::DisplayPage *MyPage2 = MyDisplay->CreatePage("page2");
+  TEST_ISNOT_NULL(MyPage2);
+
   // Configure Display
-  MyDisplay->SetRefresh(60);
+  TEST_TRUE(MyDisplay->SetRefreshRate(60));
+  TEST_TRUE(MyDisplay->SetPageTimeout(1));
 
   // Update Display with string and verify
-  TEST_EQ(5, MyDisplay->Buffer.Update("RPM: ", 0, 0));
-  usleep(100000);
+  TEST_EQ(5, MyPage1->Update("RPM: ", 0, 0));
+  MyDisplay->Flush();
   TEST_EQ(std::string("RPM: ..........................."), MyDisplay->GetBuffer());
 
   // Update Display with string and verify
-  TEST_EQ(5, MyDisplay->Buffer.Update("MPH: ", 0, 1));
-  usleep(100000);
-  TEST_EQ(std::string("RPM: ...........MPH: ..........."), MyDisplay->GetBuffer());
+  TEST_EQ(5, MyPage2->Update("MPH: ", 0, 0));
+  MyDisplay->Flush();
+  TEST_EQ(std::string("RPM: ..........................."), MyDisplay->GetBuffer());
 
   // Create new Display variable and verify
-  zDisplay::DisplayVar *MyVar1 = MyDisplay->CreateVar("rpm", 5);
+  zDisplay::DisplayVar *MyVar1 = MyPage1->CreateVar("rpm", 5);
   TEST_ISNOT_NULL(MyVar1);
   TEST_EQ(std::string("rpm"), MyVar1->GetName());
   TEST_EQ(std::string(""), MyVar1->GetString());
@@ -110,28 +124,32 @@ zDisplayTest_DisplayUpdate(void *arg_)
   // Update variable
   TEST_EQ(5, MyVar1->Update(" 9999"));
   usleep(100000);
-  TEST_EQ(std::string("RPM:  9999......MPH: ..........."), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM:  9999......................"), MyDisplay->GetBuffer());
 
   // Create new Display variable and verify
-  zDisplay::DisplayVar *MyVar2 = MyDisplay->CreateVar("mph", 3);
+  zDisplay::DisplayVar *MyVar2 = MyPage2->CreateVar("mph", 4);
   TEST_ISNOT_NULL(MyVar2);
   TEST_EQ(std::string("mph"), MyVar2->GetName());
   TEST_EQ(std::string(""), MyVar2->GetString());
-  TEST_TRUE(MyVar2->SetRow(1));
-  TEST_EQ(1, MyVar2->GetRow());
+  TEST_TRUE(MyVar2->SetRow(0));
+  TEST_EQ(0, MyVar2->GetRow());
   TEST_TRUE(MyVar2->SetColumn(5));
   TEST_EQ(5, MyVar2->GetColumn());
-  TEST_EQ(3, MyVar2->GetSize());
+  TEST_EQ(4, MyVar2->GetSize());
 
   // Update variable
   TEST_EQ(5, MyVar1->Update(" 8888"));
-  TEST_EQ(3, MyVar2->Update("123"));
+  TEST_EQ(4, MyVar2->Update(" 123"));
   usleep(100000);
-  TEST_EQ(std::string("RPM:  8888......MPH: 123........"), MyDisplay->GetBuffer());
+  TEST_EQ(std::string("RPM:  8888......................"), MyDisplay->GetBuffer());
+  usleep(1000000);
+  TEST_EQ(std::string("MPH:  123......................."), MyDisplay->GetBuffer());
+//TEST_EQ(std::string("MPH: 123........................"), MyDisplay->GetBuffer());
 
   // Cleanup
-  MyDisplay->DeleteVar(MyVar1);
-  MyDisplay->DeleteVar(MyVar2);
+  MyPage1->DeleteVar(MyVar1);
+  MyPage1->DeleteVar(MyVar2);
+  MyDisplay->DeletePage(MyPage1);
   delete (MyDisplay);
 
   // Return success

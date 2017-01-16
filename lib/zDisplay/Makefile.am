@@ -11,5 +11,6 @@ noinst_LTLIBRARIES = libzDisplay.la
 libzDisplay_la_SOURCES = \
     DisplayBuffer.cpp \
     DisplayVar.cpp \
+    DisplayPage.cpp \
     Display.cpp \
     DisplayCommand.cpp

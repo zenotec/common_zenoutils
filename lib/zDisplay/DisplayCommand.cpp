@@ -91,8 +91,8 @@ DisplayClearCmd::~DisplayClearCmd()
 bool
 DisplayClearCmd::Execute(CommandData& data_)
 {
-  this->_display.Buffer.Clear();
-  return (true);
+//  this->_display.Buffer.Clear();
+  return (false);
 }
 
 }

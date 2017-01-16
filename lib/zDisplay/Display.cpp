@@ -44,15 +44,18 @@ namespace zDisplay
 //*****************************************************************************
 
 Display::Display(const size_t cols_, const size_t rows_) :
-    Buffer(cols_, rows_), _update_cmd(*this), _clear_cmd(*this)
+    _cols(cols_), _rows(rows_), _update_cmd(*this), _clear_cmd(*this)
 {
-  this->_timer.RegisterObserver(this);
+  this->_refresh_timer.RegisterObserver(this);
+  this->_page_timer.RegisterObserver(this);
 }
 
 Display::~Display()
 {
-  this->_timer.UnregisterObserver(this);
-  this->_timer.Stop();
+  this->_refresh_timer.UnregisterObserver(this);
+  this->_page_timer.UnregisterObserver(this);
+  this->_refresh_timer.Stop();
+  this->_page_timer.Stop();
 }
 
 //bool
@@ -73,40 +76,70 @@ Display::~Display()
 //  return (status);
 //}
 
-DisplayVar*
-Display::CreateVar(const std::string &name_, const size_t len_)
+DisplayPage*
+Display::CreatePage(const std::string& name_)
 {
-  DisplayVar* var = new DisplayVar(name_, len_);
-  if (var)
+  DisplayPage* page = new DisplayPage(name_, this->_cols, this->_rows);
+  if (page)
   {
-    this->_vars.push_back(var);
+    this->_pages.push_back(page);
   }
-  return (var);
+  return (page);
 }
 
 bool
-Display::DeleteVar(zDisplay::DisplayVar* var_)
+Display::DeletePage(DisplayPage* page_)
 {
-  this->_vars.remove(var_);
-  delete (var_);
+  this->_pages.remove(page_);
+  delete (page_);
   return (true);
 }
 
 bool
-Display::SetRefresh(const size_t rate_)
+Display::SetRefreshRate(const size_t rate_)
 {
   // Convert from rate in Hz to microseconds
   uint32_t usec;
   usec = 1000000 / rate_;
   ZLOG_DEBUG("Setting refresh rate to: " + ZLOG_INT(rate_) + "(" + ZLOG_INT(usec) + ")");
-  this->_timer.Start(usec);
+  this->_refresh_timer.Start(usec);
   return (true);
+}
+
+bool
+Display::SetPageTimeout(const size_t sec_)
+{
+  uint32_t usec;
+  usec = 1000000 * sec_;
+  this->_page_timer.Start(usec);
+  return (true);
+}
+
+ssize_t
+Display::GetRows() const
+{
+  return (this->_rows);
+}
+
+ssize_t
+Display::GetColumns() const
+{
+  return (this->_cols);
+}
+
+ssize_t
+Display::GetSize() const
+{
+  return (this->_rows * this->_cols);
 }
 
 void
 Display::Flush()
 {
-  this->update(this->Buffer);
+  if (!this->_pages.empty())
+  {
+    this->update(this->_pages.front()->GetBuffer());
+  }
 }
 
 bool
@@ -114,33 +147,36 @@ Display::EventHandler(zEvent::EventNotification *notification_)
 {
 
   bool status = false;
-  const zTimer::TimerNotification *n = NULL;
 
   ZLOG_DEBUG("Handling Display timer event");
+
+  if (this->_pages.empty())
+  {
+    return(true);
+  }
 
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
   {
 
+    const zTimer::TimerNotification *n = NULL;
     n = static_cast<const zTimer::TimerNotification *>(notification_);
 
-    ZLOG_DEBUG("Updating display: " + ZLOG_UINT(this->_vars.size()));
+    // Get first page
+    DisplayPage* page = this->_pages.front();
 
-    // Copy the display buffer
-    DisplayBuffer buf(this->Buffer);
-
-    // Iterate over all variables and update buffer
-    FOREACH (auto& var, this->_vars)
+    if (n->GetEvent() == &this->_refresh_timer)
     {
-      ZLOG_DEBUG(var->GetName() + "[" + ZLOG_UINT(var->GetRow()) + "][" +
-          ZLOG_UINT(var->GetColumn()) + "]: " + var->GetString());
-      if (!buf.Update(var->GetString(), var->GetColumn(), var->GetRow()))
-      {
-        ZLOG_WARN("Display variable failed to update: " + var->GetName());
-      }
+      page->Refresh();
+    }
+    else if (n->GetEvent() == &this->_page_timer)
+    {
+      // Swap out first page to back
+      this->_pages.push_back(this->_pages.front());
+      this->_pages.pop_front();
     }
 
     // Update display
-    status = this->update(buf);
+    status = this->update(page->GetBuffer());
 
   }
 
