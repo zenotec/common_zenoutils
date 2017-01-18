@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-#include <string>
-#include <mutex>
-#include <list>
-#include <map>
+#ifndef __ZACKMESSAGE_H__
+#define __ZACKMESSAGE_H__
 
-#include <zutils/zEvent.h>
 #include <zutils/zData.h>
-#include <zutils/zQueue.h>
-#include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
-
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
 
 namespace zUtils
 {
@@ -34,46 +26,41 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: AckMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+class AckMessage : public zMessage::Message
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
-}
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
-    zMessage::Message(data_)
-{
-}
+public:
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
-    zMessage::Message(msg_)
-{
-}
+  static const std::string RespDataPath;
 
-CommandMessage::~CommandMessage()
-{
-}
+  AckMessage();
 
-const zMessage::Message&
-CommandMessage::GetMessage() const
-{
-  return(*this);
-}
+  AckMessage(const zData::Data &data_);
 
-zCommand::CommandData
-CommandMessage::GetCommandData() const
-{
-  return(zCommand::CommandData(this->GetData()));
-}
+  AckMessage(const zMessage::Message& msg_);
 
-bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
-{
-  return (this->SetData(data_));
-}
+  virtual
+  ~AckMessage();
+
+  const zMessage::Message&
+  GetMessage() const;
+
+  std::string
+  GetResponse() const;
+
+  bool
+  SetResponse(const std::string& resp_);
+
+protected:
+
+private:
+
+};
 
 }
 }
 
+#endif /* __ZACKMESSAGE_H__ */

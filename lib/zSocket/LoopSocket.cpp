@@ -74,7 +74,7 @@ LoopSocket::Open()
 {
   bool status = false;
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  if (this->Address().Type() != SocketType::TYPE_LOOP)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -106,7 +106,7 @@ LoopSocket::Bind()
 {
   bool status = false;
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  if (this->Address().Type() != SocketType::TYPE_LOOP)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -130,19 +130,19 @@ LoopSocket::Bind()
 }
 
 bool
-LoopSocket::Connect(const SocketAddress* addr_)
+LoopSocket::Connect(const SocketAddress& addr_)
 {
   bool status = false;
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_LOOP)
+  if (this->Address().Type() != SocketType::TYPE_LOOP)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
-  if (addr_->Type() != SocketType::TYPE_LOOP)
+  if (addr_.Type() != SocketType::TYPE_LOOP)
   {
-    ZLOG_CRIT(std::string("Invalid socket address type"));
+    ZLOG_ERR(std::string("Invalid socket address type"));
     return (false);
   }
 

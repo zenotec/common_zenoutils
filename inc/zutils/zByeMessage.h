@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-#include <string>
-#include <mutex>
-#include <list>
-#include <map>
+#ifndef __ZBYEMESSAGE_H__
+#define __ZBYEMESSAGE_H__
 
-#include <zutils/zEvent.h>
 #include <zutils/zData.h>
-#include <zutils/zQueue.h>
-#include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
-
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
+#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {
@@ -34,46 +27,58 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: ByeMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+class ByeMessage : public zMessage::Message
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
-}
+public:
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
-    zMessage::Message(data_)
+  ByeMessage();
+
+  ByeMessage(const zData::Data &data_);
+
+  ByeMessage(const zMessage::Message& msg_);
+
+  virtual
+  ~ByeMessage();
+
+  const zMessage::Message&
+  GetMessage() const;
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: ByeObserver
+//**********************************************************************
+
+class ByeObserver : public zEvent::EventObserver
 {
-}
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
-    zMessage::Message(msg_)
-{
-}
+public:
 
-CommandMessage::~CommandMessage()
-{
-}
+  ByeObserver();
 
-const zMessage::Message&
-CommandMessage::GetMessage() const
-{
-  return(*this);
-}
+  virtual
+  ~ByeObserver();
 
-zCommand::CommandData
-CommandMessage::GetCommandData() const
-{
-  return(zCommand::CommandData(this->GetData()));
-}
+protected:
 
-bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
-{
-  return (this->SetData(data_));
-}
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+};
 
 }
 }
 
+#endif /* __ZBYEMESSAGE_H__ */

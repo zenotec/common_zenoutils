@@ -49,7 +49,7 @@ public:
   Bind();
 
   virtual bool
-  Connect(const zSocket::SocketAddress* addr_);
+  Connect(const zSocket::SocketAddress& addr_);
 
   bool
   Send(const zSocket::SocketAddress& addr_, const zMessage::Message &msg_);
@@ -95,6 +95,9 @@ public:
   MessageNotification::ID
   Id() const;
 
+  Message::TYPE
+  MessageType() const;
+
   const zSocket::SocketAddress&
   SrcAddr() const;
 
@@ -102,7 +105,7 @@ public:
   Sock() const;
 
   zMessage::Message*
-  Message() const;
+  GetMessage() const;
 
 protected:
 
@@ -110,7 +113,10 @@ protected:
   id(MessageNotification::ID id_);
 
   bool
-  srcaddr(zSocket::SocketAddress& addr_);
+  type(Message::TYPE type_);
+
+  bool
+  srcaddr(const zSocket::SocketAddress& addr_);
 
   bool
   message(zMessage::Message* msg_);
@@ -118,6 +124,7 @@ protected:
 private:
 
   MessageNotification::ID _id;
+  Message::TYPE _type;
   zSocket::SocketAddress _addr;
   zMessage::Message* _msg;
 

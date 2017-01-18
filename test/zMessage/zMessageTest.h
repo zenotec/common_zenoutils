@@ -108,15 +108,15 @@ protected:
       switch (n->Id())
       {
       case zMessage::MessageNotification::ID_MSG_RCVD:
-        this->RxSem.Push(n->Message());
+        this->RxSem.Push(n->GetMessage());
         status = true;
         break;
       case zMessage::MessageNotification::ID_MSG_SENT:
-        this->TxSem.Push(n->Message());
+        this->TxSem.Push(n->GetMessage());
         status = true;
         break;
       default:
-        this->ErrSem.Push(n->Message());
+        this->ErrSem.Push(n->GetMessage());
         status = false;
         break;
       }

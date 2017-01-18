@@ -25,8 +25,7 @@
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
 
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
+#include <zutils/zHelloMessage.h>
 
 namespace zUtils
 {
@@ -34,44 +33,32 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: HelloMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+HelloMessage::HelloMessage()
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
+  this->SetType(zMessage::Message::TYPE_HELLO);
 }
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
+HelloMessage::HelloMessage(const zData::Data &data_) :
     zMessage::Message(data_)
 {
 }
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
+HelloMessage::HelloMessage(const zMessage::Message& msg_) :
     zMessage::Message(msg_)
 {
 }
 
-CommandMessage::~CommandMessage()
+HelloMessage::~HelloMessage()
 {
 }
 
 const zMessage::Message&
-CommandMessage::GetMessage() const
+HelloMessage::GetMessage() const
 {
   return(*this);
-}
-
-zCommand::CommandData
-CommandMessage::GetCommandData() const
-{
-  return(zCommand::CommandData(this->GetData()));
-}
-
-bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
-{
-  return (this->SetData(data_));
 }
 
 }

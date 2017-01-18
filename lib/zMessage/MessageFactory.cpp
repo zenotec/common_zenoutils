@@ -33,6 +33,10 @@
 
 #include <zutils/zUuid.h>
 #include <zutils/zMessage.h>
+#include <zutils/zHelloMessage.h>
+#include <zutils/zByeMessage.h>
+#include <zutils/zAckMessage.h>
+#include <zutils/zCommandMessage.h>
 
 namespace zUtils
 {
@@ -54,29 +58,59 @@ MessageFactory::Create(const Message::TYPE &type_)
 
   switch (type_)
   {
-  case Message::TYPE_AUTH:
-    // No break
   case Message::TYPE_HELLO:
-    // No break
-  case Message::TYPE_ACK:
-    // No break
+    msg = new HelloMessage;
+    break;
   case Message::TYPE_BYE:
+    msg = new ByeMessage;
+    break;
+  case Message::TYPE_ACK:
+    msg = new AckMessage;
+    break;
+  case Message::TYPE_CMD:
+    msg = new CommandMessage;
+    break;
+  case Message::TYPE_AUTH:
     // No break
   case Message::TYPE_CFG:
     // No break
-  case Message::TYPE_CMD:
-    // No break
   case Message::TYPE_DATA:
     msg = new Message;
-    if (msg)
-    {
-      zUuid::Uuid uuid;
-      msg->SetId(uuid());
-      msg->SetType(type_);
-    }
+    msg->SetType(type_);
     break;
   default:
     break;
+  }
+
+  if (msg && msg->GetId().empty())
+  {
+    msg->SetId(zUuid::Uuid::Create());
+  }
+  return (msg);
+}
+
+zMessage::Message *
+MessageFactory::Create(const std::string& json_)
+{
+  zData::Data data(MessagePath::DataRoot);
+  data.SetJson(json_);
+  return (MessageFactory::Create(data));
+}
+
+zMessage::Message *
+MessageFactory::Create(const zData::Data& data_)
+{
+  zMessage::Message msg(data_);
+  return (MessageFactory::Create(msg));
+}
+
+zMessage::Message *
+MessageFactory::Create(const zMessage::Message& msg_)
+{
+  zMessage::Message *msg = MessageFactory::Create(msg_.GetType());
+  if (msg)
+  {
+    *msg = msg_;
   }
   return (msg);
 }

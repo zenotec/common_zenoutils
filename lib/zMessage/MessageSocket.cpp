@@ -78,7 +78,7 @@ MessageSocket::Bind()
 }
 
 bool
-MessageSocket::Connect(const zSocket::SocketAddress* addr_)
+MessageSocket::Connect(const zSocket::SocketAddress& addr_)
 {
   return (this->_sock->Connect(addr_));
 }
@@ -105,32 +105,44 @@ MessageSocket::EventHandler(zEvent::EventNotification* notification_)
   ZLOG_DEBUG("Handling socket event");
 
   bool status = false;
-  const zSocket::SocketNotification *n = NULL;
+  zSocket::SocketNotification *n = NULL;
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
   {
-    n = static_cast<const zSocket::SocketNotification *>(notification_);
+    n = static_cast<zSocket::SocketNotification *>(notification_);
     switch (n->Id())
     {
     case zSocket::SocketNotification::ID_PKT_RCVD:
-      {
+    {
       zSocket::SocketAddressBufferPair p = n->Pkt();
-      zMessage::Message msg;
-      msg.SetJson(p.second->Str());
-      zMessage::MessageNotification notification(this);
-      notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
-      notification.message(&msg);
-      this->Notify(&notification);
-      status = true;
+      zMessage::Message *msg = MessageFactory::Create(p.second->Str());
+      if (msg)
+      {
+        zMessage::MessageNotification notification(this);
+        notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
+        notification.type(msg->GetType());
+        notification.srcaddr(*p.first);
+        notification.message(msg);
+        this->Notify(&notification);
+        delete (msg);
+        status = true;
+      }
       break;
     }
     case zSocket::SocketNotification::ID_PKT_SENT:
-      {
+    {
       zSocket::SocketAddressBufferPair p = n->Pkt();
-      zMessage::MessageNotification notification(this);
-      notification.id(zMessage::MessageNotification::ID_MSG_SENT);
-      notification.message(NULL);
-      this->Notify(&notification);
-      status = true;
+      zMessage::Message *msg = MessageFactory::Create(p.second->Str());
+      if (msg)
+      {
+        zMessage::MessageNotification notification(this);
+        notification.id(zMessage::MessageNotification::ID_MSG_SENT);
+        notification.type(msg->GetType());
+        notification.srcaddr(*p.first);
+        notification.message(msg);
+        this->Notify(&notification);
+        delete (msg);
+        status = true;
+      }
       break;
     }
     default:

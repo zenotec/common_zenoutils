@@ -12,6 +12,11 @@ libzMessage_la_SOURCES = \
 	MessageNotification.cpp \
     MessagePath.cpp \
     Message.cpp \
+    HelloMessage.cpp \
+    HelloObserver.cpp \
+    ByeMessage.cpp \
+	ByeObserver.cpp \
+    AckMessage.cpp \
     CommandMessage.cpp \
     MessageFactory.cpp \
     MessageSocket.cpp

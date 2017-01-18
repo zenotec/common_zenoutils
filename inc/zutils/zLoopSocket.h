@@ -74,7 +74,7 @@ public:
   Bind();
 
   virtual bool
-  Connect(const SocketAddress* addr_);
+  Connect(const SocketAddress& addr_);
 
 protected:
 

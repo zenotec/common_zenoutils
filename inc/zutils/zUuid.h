@@ -32,8 +32,8 @@ namespace zUuid
 class Uuid
 {
 public:
-  std::string
-  operator()(const unsigned int len = 64)
+  static std::string
+  Create(const unsigned int len = 64)
   {
     uuid_t uuid;
     uuid_generate(uuid);

@@ -102,7 +102,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Create new socket and validate
   zSocket::InetSocket *MySock = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Address(SrcAddr));
+  TEST_TRUE(MySock->Address(*SrcAddr));
   TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind());
 
@@ -195,7 +195,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Create new socket and validate
   zSocket::InetSocket *MySock1 = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock1);
-  TEST_TRUE(MySock1->Address(SrcAddr));
+  TEST_TRUE(MySock1->Address(*SrcAddr));
   TEST_TRUE(MySock1->Open());
   TEST_TRUE(MySock1->Bind());
 
@@ -220,7 +220,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Create new socket and validate
   zSocket::InetSocket *MySock2 = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock2);
-  TEST_TRUE(MySock2->Address(DstAddr));
+  TEST_TRUE(MySock2->Address(*DstAddr));
   TEST_TRUE(MySock2->Open());
   TEST_TRUE(MySock2->Bind());
 

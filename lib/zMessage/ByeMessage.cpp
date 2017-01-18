@@ -25,8 +25,7 @@
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
 
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
+#include <zutils/zByeMessage.h>
 
 namespace zUtils
 {
@@ -34,44 +33,32 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: ByeMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+ByeMessage::ByeMessage()
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
+  this->SetType(zMessage::Message::TYPE_BYE);
 }
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
+ByeMessage::ByeMessage(const zData::Data &data_) :
     zMessage::Message(data_)
 {
 }
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
+ByeMessage::ByeMessage(const zMessage::Message& msg_) :
     zMessage::Message(msg_)
 {
 }
 
-CommandMessage::~CommandMessage()
+ByeMessage::~ByeMessage()
 {
 }
 
 const zMessage::Message&
-CommandMessage::GetMessage() const
+ByeMessage::GetMessage() const
 {
   return(*this);
-}
-
-zCommand::CommandData
-CommandMessage::GetCommandData() const
-{
-  return(zCommand::CommandData(this->GetData()));
-}
-
-bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
-{
-  return (this->SetData(data_));
 }
 
 }

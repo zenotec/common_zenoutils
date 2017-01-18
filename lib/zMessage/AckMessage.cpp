@@ -25,8 +25,7 @@
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
 
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
+#include <zutils/zAckMessage.h>
 
 namespace zUtils
 {
@@ -34,44 +33,46 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: AckMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+const std::string AckMessage::RespDataPath("Id");
+
+AckMessage::AckMessage()
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
+  this->SetType(zMessage::Message::TYPE_ACK);
 }
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
+AckMessage::AckMessage(const zData::Data &data_) :
     zMessage::Message(data_)
 {
 }
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
+AckMessage::AckMessage(const zMessage::Message& msg_) :
     zMessage::Message(msg_)
 {
 }
 
-CommandMessage::~CommandMessage()
+AckMessage::~AckMessage()
 {
 }
 
 const zMessage::Message&
-CommandMessage::GetMessage() const
+AckMessage::GetMessage() const
 {
-  return(*this);
+  return (*this);
 }
 
-zCommand::CommandData
-CommandMessage::GetCommandData() const
+std::string
+AckMessage::GetResponse() const
 {
-  return(zCommand::CommandData(this->GetData()));
+  return (this->GetValue<std::string>(AckMessage::RespDataPath));
 }
 
 bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
+AckMessage::SetResponse(const std::string& resp_)
 {
-  return (this->SetData(data_));
+  return (this->PutValue(MessagePath(AckMessage::RespDataPath), resp_));
 }
 
 }

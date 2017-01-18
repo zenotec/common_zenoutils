@@ -75,6 +75,13 @@ CommandData::~CommandData()
 {
 }
 
+CommandData &
+CommandData::operator=(const CommandData &other_)
+{
+  zData::Data::operator =(other_);
+  return (*this);
+}
+
 bool
 CommandData::operator ==(const CommandData &other_) const
 {
@@ -85,6 +92,12 @@ bool
 CommandData::operator !=(const CommandData &other_) const
 {
   return (this->GetName() != other_.GetName());
+}
+
+zData::Data&
+CommandData::GetData()
+{
+  return(*this);
 }
 
 std::string

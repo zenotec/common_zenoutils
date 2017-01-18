@@ -306,7 +306,7 @@ bool
 InetSocket::Open()
 {
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_INET)
+  if (this->Address().Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -374,7 +374,7 @@ InetSocket::Bind()
     return (false);
   }
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_INET)
+  if (this->Address().Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -383,7 +383,7 @@ InetSocket::Bind()
   // Convert string notation address to sockaddr_un
   struct sockaddr_in addr =
       { 0 };
-  if (!_addr2sock(this->Address()->Address(), addr))
+  if (!_addr2sock(this->Address().Address(), addr))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (false);
@@ -393,7 +393,7 @@ InetSocket::Bind()
   int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->Address()->Address() +
+    ZLOG_CRIT("Cannot bind socket: " + this->Address().Address() +
         ": " + std::string(strerror(errno)));
     return (false);
   } // end if
@@ -410,7 +410,7 @@ InetSocket::Bind()
 }
 
 bool
-InetSocket::Connect(const SocketAddress* addr_)
+InetSocket::Connect(const SocketAddress& addr_)
 {
 
   ZLOG_DEBUG("Connect on socket: " + ZLOG_INT(this->_sock));
@@ -421,13 +421,13 @@ InetSocket::Connect(const SocketAddress* addr_)
     return (false);
   }
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_INET)
+  if (this->Address().Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
-  if (addr_->Type() != SocketType::TYPE_INET)
+  if (addr_.Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address type"));
     return (false);
@@ -436,7 +436,7 @@ InetSocket::Connect(const SocketAddress* addr_)
   // Convert string notation address to sockaddr_un
   struct sockaddr_in addr =
       { 0 };
-  if (!_addr2sock(addr_->Address(), addr))
+  if (!_addr2sock(addr_.Address(), addr))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (false);
@@ -473,7 +473,7 @@ InetSocket::_recv(zSocket::InetAddress & addr_, zSocket::SocketBuffer & sb_)
     return (-1);
   }
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_INET)
+  if (this->Address().Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (-1);
@@ -497,7 +497,7 @@ InetSocket::_recv(zSocket::InetAddress & addr_, zSocket::SocketBuffer & sb_)
 
     std::string logstr;
     logstr += "Receiving on socket:\t";
-    logstr += "To: " + this->Address()->Address() + ";\t";
+    logstr += "To: " + this->Address().Address() + ";\t";
     logstr += "From: " + addr_.Address() + ";\t";
     logstr += "Size: " + ZLOG_INT(n) + ";";
     ZLOG_INFO(logstr);
@@ -519,7 +519,7 @@ InetSocket::_send(const zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
     return (-1);
   }
 
-  if (!this->Address() || this->Address()->Type() != SocketType::TYPE_INET)
+  if (this->Address().Type() != SocketType::TYPE_INET)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (-1);
@@ -535,7 +535,7 @@ InetSocket::_send(const zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
   std::string logstr;
   logstr += "Sending on socket:\t";
   logstr += "To: " + addr_.Address() + ";\t";
-  logstr += "From: " + this->Address()->Address() + ";\t";
+  logstr += "From: " + this->Address().Address() + ";\t";
   logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 

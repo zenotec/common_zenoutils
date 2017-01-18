@@ -69,12 +69,6 @@ class Message : public zData::Data
   static const std::string DataTypeData;
   static const std::string DataTypeDefault;
 
-  static const std::string DataIdDefault;
-
-  static const std::string DataDstDefault;
-
-  static const std::string DataSrcDefault;
-
 public:
 
   enum TYPE
@@ -97,38 +91,19 @@ public:
 
   Message(const zData::Data &data_);
 
-  Message(Message &other_);
-
   Message(const Message &other_);
 
   virtual
   ~Message();
 
   Message &
-  operator=(Message &other_)
-  {
-    zData::Data::operator =(other_);
-    return (*this);
-  }
-
-  Message &
-  operator=(const Message &other_)
-  {
-    zData::Data::operator =(other_);
-    return (*this);
-  }
+  operator=(const Message &other_);
 
   bool
-  operator ==(const Message& other_) const
-      {
-    return (zData::Data::operator ==(other_));
-  }
+  operator ==(const Message& other_) const;
 
   bool
-  operator !=(const Message& other_) const
-      {
-    return (zData::Data::operator !=(other_));
-  }
+  operator !=(const Message& other_) const;
 
   Message::TYPE
   GetType() const;
@@ -173,8 +148,19 @@ private:
 class MessageFactory
 {
 public:
+
   static zMessage::Message *
-  Create(const zMessage::Message::TYPE &type_);
+  Create(const zMessage::Message::TYPE& type_);
+
+  static zMessage::Message *
+  Create(const std::string& json_);
+
+  static zMessage::Message *
+  Create(const zData::Data& data_);
+
+  static zMessage::Message *
+  Create(const zMessage::Message& msg_);
+
 };
 
 }

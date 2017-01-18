@@ -42,8 +42,6 @@ namespace zMessage
 // Message
 //**********************************************************************
 
-const std::string Message::DataIdDefault("");
-
 const std::string Message::DataTypeNone("None");
 const std::string Message::DataTypeAuth("Auth");
 const std::string Message::DataTypeHello("Hello");
@@ -54,9 +52,6 @@ const std::string Message::DataTypeConfig("Config");
 const std::string Message::DataTypeCommand("Cmd");
 const std::string Message::DataTypeData("Data");
 const std::string Message::DataTypeDefault(DataTypeNone);
-
-const std::string Message::DataDstDefault("");
-const std::string Message::DataSrcDefault("");
 
 Message::Message() :
     zData::Data(MessagePath::DataRoot)
@@ -75,14 +70,6 @@ Message::Message(const zData::Data &data_) :
   ZLOG_DEBUG(this->GetJson());
 }
 
-Message::Message(Message &other_) :
-    zData::Data(other_)
-{
-  ZLOG_DEBUG("Message::Message(other_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
 Message::Message(const Message &other_) :
     zData::Data(other_)
 {
@@ -95,15 +82,29 @@ Message::~Message()
 {
 }
 
+Message &
+Message::operator=(const Message &other_)
+{
+  zData::Data::operator =(other_);
+  return (*this);
+}
+
+bool
+Message::operator ==(const Message& other_) const
+    {
+  return (zData::Data::operator ==(other_));
+}
+
+bool
+Message::operator !=(const Message& other_) const
+    {
+  return (zData::Data::operator !=(other_));
+}
+
 std::string
 Message::GetId() const
 {
-  std::string id;
-  if (!this->GetValue(MessagePath(MessagePath::IdDataPath), id))
-  {
-    id = DataIdDefault;
-  }
-  return (id);
+  return (this->GetValue<std::string>(MessagePath::IdDataPath));
 }
 
 bool
@@ -115,51 +116,50 @@ Message::SetId(const std::string &id_)
 Message::TYPE
 Message::GetType() const
 {
-  std::string type;
-  if (this->GetValue(MessagePath(MessagePath::TypeDataPath), type))
+  Message::TYPE type = Message::TYPE_DEFAULT;
+  std::string value = this->GetValue<std::string>(MessagePath::TypeDataPath);
+
+  if (value == Message::DataTypeAuth)
   {
-    if (type == Message::DataTypeAuth)
-    {
-      return (Message::TYPE_AUTH);
-    }
-    else if (type == Message::DataTypeHello)
-    {
-      return (Message::TYPE_HELLO);
-    }
-    else if (type == Message::DataTypeAck)
-    {
-      return (Message::TYPE_ACK);
-    }
-    else if (type == Message::DataTypeBye)
-    {
-      return (Message::TYPE_BYE);
-    }
-    else if (type == Message::DataTypeNode)
-    {
-      return (Message::TYPE_NODE);
-    }
-    else if (type == Message::DataTypeConfig)
-    {
-      return (Message::TYPE_CFG);
-    }
-    else if (type == Message::DataTypeCommand)
-    {
-      return (Message::TYPE_CMD);
-    }
-    else if (type == Message::DataTypeData)
-    {
-      return (Message::TYPE_DATA);
-    }
-    else if (type == Message::DataTypeNone)
-    {
-      return (Message::TYPE_NONE);
-    }
-    else
-    {
-      return (Message::TYPE_ERR);
-    }
+    type = Message::TYPE_AUTH;
   }
-  return (Message::TYPE_DEFAULT);
+  else if (value == Message::DataTypeHello)
+  {
+    type = Message::TYPE_HELLO;
+  }
+  else if (value == Message::DataTypeAck)
+  {
+    type = Message::TYPE_ACK;
+  }
+  else if (value == Message::DataTypeBye)
+  {
+    type = Message::TYPE_BYE;
+  }
+  else if (value == Message::DataTypeNode)
+  {
+    type = Message::TYPE_NODE;
+  }
+  else if (value == Message::DataTypeConfig)
+  {
+    type = Message::TYPE_CFG;
+  }
+  else if (value == Message::DataTypeCommand)
+  {
+    type = Message::TYPE_CMD;
+  }
+  else if (value == Message::DataTypeData)
+  {
+    type = Message::TYPE_DATA;
+  }
+  else if (value == Message::DataTypeNone)
+  {
+    type = Message::TYPE_NONE;
+  }
+  else
+  {
+    type = Message::TYPE_DEFAULT;
+  }
+  return(type);
 }
 
 bool
@@ -205,12 +205,7 @@ Message::SetType(const Message::TYPE &type_)
 std::string
 Message::GetDst() const
 {
-  std::string dst;
-  if (!this->GetValue(MessagePath(MessagePath::DstDataPath), dst))
-  {
-    dst = DataDstDefault;
-  }
-  return (dst);
+  return (this->GetValue<std::string>(MessagePath::DstDataPath));
 }
 
 bool
@@ -222,12 +217,7 @@ Message::SetDst(const std::string &to_)
 std::string
 Message::GetSrc() const
 {
-  std::string src;
-  if (!this->GetValue(MessagePath(MessagePath::SrcDataPath), src))
-  {
-    src = DataSrcDefault;
-  }
-  return (src);
+  return (this->GetValue<std::string>(MessagePath::SrcDataPath));
 }
 
 bool

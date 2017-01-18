@@ -104,7 +104,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   // Create new socket and validate
   zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Address(SrcAddr));
+  TEST_TRUE(MySock->Address(*SrcAddr));
   TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind());
 

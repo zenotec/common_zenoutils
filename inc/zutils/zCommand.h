@@ -144,24 +144,16 @@ public:
   ~CommandData();
 
   CommandData &
-  operator=(CommandData &other_)
-  {
-    zData::Data::operator =(other_);
-    return (*this);
-  }
-
-  CommandData &
-  operator=(const CommandData &other_)
-  {
-    zData::Data::operator =(other_);
-    return (*this);
-  }
+  operator=(const CommandData &other_);
 
   bool
   operator ==(const CommandData &other_) const;
 
   bool
   operator !=(const CommandData &other_) const;
+
+  zData::Data&
+  GetData();
 
   std::string
   GetName() const;

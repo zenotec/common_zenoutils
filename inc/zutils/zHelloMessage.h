@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-#include <string>
-#include <mutex>
-#include <list>
-#include <map>
+#ifndef __ZHELLOMESSAGE_H__
+#define __ZHELLOMESSAGE_H__
 
-#include <zutils/zEvent.h>
 #include <zutils/zData.h>
-#include <zutils/zQueue.h>
-#include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
-
-#include <zutils/zCommand.h>
-#include <zutils/zCommandMessage.h>
+#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {
@@ -34,46 +27,58 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: CommandMessage
+// Class: HelloMessage
 //**********************************************************************
 
-CommandMessage::CommandMessage()
+class HelloMessage : public zMessage::Message
 {
-  this->SetType(zMessage::Message::TYPE_CMD);
-}
+public:
 
-CommandMessage::CommandMessage(const zData::Data &data_) :
-    zMessage::Message(data_)
+  HelloMessage();
+
+  HelloMessage(const zData::Data &data_);
+
+  HelloMessage(const zMessage::Message& msg_);
+
+  virtual
+  ~HelloMessage();
+
+  const zMessage::Message&
+  GetMessage() const;
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// Class: HelloObserver
+//**********************************************************************
+
+class HelloObserver : public zEvent::EventObserver
 {
-}
 
-CommandMessage::CommandMessage(const zMessage::Message& msg_) :
-    zMessage::Message(msg_)
-{
-}
+public:
 
-CommandMessage::~CommandMessage()
-{
-}
+  HelloObserver();
 
-const zMessage::Message&
-CommandMessage::GetMessage() const
-{
-  return(*this);
-}
+  virtual
+  ~HelloObserver();
 
-zCommand::CommandData
-CommandMessage::GetCommandData() const
-{
-  return(zCommand::CommandData(this->GetData()));
-}
+protected:
 
-bool
-CommandMessage::SetCommandData(const zCommand::CommandData &data_)
-{
-  return (this->SetData(data_));
-}
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+};
 
 }
 }
 
+#endif /* __ZHELLOMESSAGE_H__ */

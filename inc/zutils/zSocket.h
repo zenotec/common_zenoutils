@@ -17,6 +17,7 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
+#include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
 
 namespace zUtils
@@ -174,8 +175,8 @@ private:
 
 };
 
-typedef std::pair<std::shared_ptr<const SocketAddress>, std::shared_ptr<SocketBuffer> > SocketAddressBufferPair;
-typedef zQueue<SocketAddressBufferPair> SocketBufferQueue;
+typedef std::pair<SHARED_PTR(const SocketAddress), SHARED_PTR(SocketBuffer)> SocketAddressBufferPair;
+typedef zQueue<SocketAddressBufferPair> SocketAddressBufferQueue;
 
 //**********************************************************************
 // zSocket::Socket Class
@@ -194,11 +195,11 @@ public:
   const SocketType
   Type() const;
 
-  const SocketAddress*
+  const SocketAddress&
   Address() const;
 
   bool
-  Address(const SocketAddress *addr_);
+  Address(const SocketAddress& addr_);
 
   virtual bool
   Open() = 0;
@@ -210,33 +211,34 @@ public:
   Bind() = 0;
 
   virtual bool
-  Connect(const SocketAddress* addr_) = 0;
+  Connect(const SocketAddress& addr_) = 0;
 
   ssize_t
-  Send(SocketAddressBufferPair &pair_);
+  Send(SocketAddressBufferPair& pair_);
 
   ssize_t
-  Send(const SocketAddress &to_, SocketBuffer &sb_);
+  Send(const SocketAddress& to_, SocketBuffer& sb_);
 
   ssize_t
-  Send(const SocketAddress &to_, const std::string &str_);
+  Send(const SocketAddress& to_, const std::string& str_);
 
 protected:
 
+  SocketAddress _src;
+  SocketAddress _dst;
+
   // Called by derived class to process a received packet
   bool
-  rxbuf(SocketAddressBufferPair &pair_);
+  rxbuf(SocketAddressBufferPair& pair_);
 
   // Called by derived class to get packet to send
   bool
-  txbuf(SocketAddressBufferPair &pair_, size_t timeout_ = 1000000 /* usec */);
+  txbuf(SocketAddressBufferPair& pair_, size_t timeout_ = 1000000 /* usec */);
 
 private:
 
   const SocketType _type;
-  const SocketAddress* _src;
-  const SocketAddress* _dst;
-  SocketBufferQueue _txq;
+  SocketAddressBufferQueue _txq;
 
   Socket(Socket &other_);
 

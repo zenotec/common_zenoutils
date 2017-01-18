@@ -74,13 +74,13 @@ Command::EventHandler(zEvent::EventNotification* notification_)
     {
     case zMessage::MessageNotification::ID_MSG_RCVD:
       {
-      if (n->Message() && (n->Message()->GetType() == zMessage::Message::TYPE_CMD))
+      if (n->GetMessage() && (n->GetMessage()->GetType() == zMessage::Message::TYPE_CMD))
       {
-        CommandData data(n->Message()->GetData());
+        CommandData data(n->GetMessage()->GetData());
         if (data == *this)
         {
           status = this->Execute(data);
-          n->Message()->SetData(data);
+          n->GetMessage()->SetData(data);
         }
       }
       break;

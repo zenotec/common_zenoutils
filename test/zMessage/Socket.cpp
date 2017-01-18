@@ -34,7 +34,7 @@ zMessageTest_MessageSocket(void* arg_)
   LoopAddress MyAddr("lo");
   LoopSocket *MySock = new LoopSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Address(&MyAddr));
+  TEST_TRUE(MySock->Address(MyAddr));
 
   // Create new message socket and validate
   zMessage::MessageSocket *MsgSock = new zMessage::MessageSocket(MySock);

@@ -39,7 +39,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(SocketType type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _src(NULL)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -55,21 +55,26 @@ Socket::Type() const
   return (this->_type);
 }
 
-const zSocket::SocketAddress*
+const zSocket::SocketAddress&
 Socket::Address() const
 {
   return (this->_src);
 }
 
 bool
-Socket::Address(const zSocket::SocketAddress* addr_)
+Socket::Address(const zSocket::SocketAddress& addr_)
 {
-  this->_src = addr_;
-  return (true);
+  bool status = false;
+  if (addr_.Type() == this->Type())
+  {
+    this->_src = addr_;
+    status = true;
+  }
+  return (status);
 }
 
 ssize_t
-Socket::Send(SocketAddressBufferPair &pair_)
+Socket::Send(SocketAddressBufferPair& pair_)
 {
   ZLOG_DEBUG("Sending packet: " + pair_.first->Address() +
       "(" + zLog::IntStr(pair_.second->Size()) + ")");
@@ -78,10 +83,10 @@ Socket::Send(SocketAddressBufferPair &pair_)
 }
 
 ssize_t
-Socket::Send(const SocketAddress &addr_, SocketBuffer &sb_)
+Socket::Send(const SocketAddress& addr_, SocketBuffer& sb_)
 {
-  std::shared_ptr<SocketAddress> addr(new SocketAddress(addr_));
-  std::shared_ptr<SocketBuffer> sb(new SocketBuffer(sb_));
+  SHARED_PTR(SocketAddress) addr(new SocketAddress(addr_));
+  SHARED_PTR(SocketBuffer) sb(new SocketBuffer(sb_));
   SocketAddressBufferPair p(addr, sb);
   return (this->Send(p));
 }
