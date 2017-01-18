@@ -39,32 +39,30 @@ namespace zCommand
 //**********************************************************************
 
 const std::string CommandOptionPath::DataRoot("zOption");
-const std::string CommandOptionPath::DataNamePath("Name");
-const std::string CommandOptionPath::DataArgPath("Argument");
+const std::string CommandOptionPath::NameDataPath("Name");
+const std::string CommandOptionPath::ArgDataPath("Argument");
 
-CommandOptionPath::CommandOptionPath() :
+CommandOptionPath::CommandOptionPath(const std::string& root_) :
     zData::DataPath(DataRoot)
+{
+  if (!root_.empty())
+  {
+    this->_root.push_back(root_);
+  }
+}
+
+CommandOptionPath::CommandOptionPath(const CommandOptionPath& other_) :
+    zData::DataPath(other_)
+{
+}
+
+CommandOptionPath::CommandOptionPath(const zData::DataPath& path_) :
+    zData::DataPath(path_)
 {
 }
 
 CommandOptionPath::~CommandOptionPath()
 {
-}
-
-zData::DataPath
-CommandOptionPath::Name()
-{
-  zData::DataPath path(*this);
-  path.Append(DataNamePath);
-  return (path);
-}
-
-zData::DataPath
-CommandOptionPath::Argument()
-{
-  zData::DataPath path(*this);
-  path.Append(DataArgPath);
-  return (path);
 }
 
 //**********************************************************************
@@ -79,10 +77,27 @@ CommandOption::CommandOption() :
   ZLOG_DEBUG(this->GetJson());
 }
 
-CommandOption::CommandOption(const zData::Data &data_) :
-    zData::Data(data_)
+CommandOption::CommandOption(const zData::Data& data_) :
+    zData::Data(CommandOptionPath::DataRoot)
 {
+  this->PutChild(data_);
   ZLOG_DEBUG("CommandOption::CommandOption(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+CommandOption::CommandOption(CommandOption &other_) :
+    zData::Data(other_)
+{
+  ZLOG_DEBUG("CommandOption::CommandOption(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+CommandOption::CommandOption(const CommandOption &other_) :
+    zData::Data(other_)
+{
+  ZLOG_DEBUG("CommandOption::CommandOption(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
@@ -94,39 +109,31 @@ CommandOption::~CommandOption()
 zData::Data&
 CommandOption::GetData()
 {
-  return(*this);
+  return (*this);
 }
 
 std::string
 CommandOption::GetName() const
 {
-  std::string str;
-  CommandOptionPath path;
-  this->Get(path.Name(), str);
-  return (str);
+  return (this->GetValue<std::string>(CommandOptionPath::NameDataPath));
 }
 
 bool
 CommandOption::SetName(const std::string name_)
 {
-  CommandOptionPath path;
-  return (this->Put(path.Name(), name_));
+  return (this->PutValue(CommandOptionPath(CommandOptionPath::NameDataPath), name_));
 }
 
 std::string
 CommandOption::GetArgument() const
 {
-  std::string str;
-  CommandOptionPath path;
-  this->Get(path.Argument(), str);
-  return (str);
+  return (this->GetValue<std::string>(CommandOptionPath::ArgDataPath));
 }
 
 bool
 CommandOption::SetArgument(const std::string arg_)
 {
-  CommandOptionPath path;
-  return (this->Put(path.Argument(), arg_));
+  return (this->PutValue(CommandOptionPath(CommandOptionPath::ArgDataPath), arg_));
 }
 
 }

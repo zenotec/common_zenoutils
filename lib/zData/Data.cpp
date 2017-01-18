@@ -115,18 +115,6 @@ Data::~Data()
 }
 
 Data &
-Data::operator=(Data &other_)
-{
-  other_._lock.Lock();
-  this->_lock.Lock();
-  DataPath::operator=(other_);
-  this->_pt = other_._pt;
-  this->_lock.Unlock();
-  other_._lock.Unlock();
-  return (*this);
-}
-
-Data &
 Data::operator=(const Data &other_)
 {
   other_._lock.Lock();
@@ -138,9 +126,18 @@ Data::operator=(const Data &other_)
   return (*this);
 }
 
+Data &
+Data::operator+=(const Data& other_)
+{
+  other_._lock.Lock();
+  this->PutChild(other_);
+  other_._lock.Unlock();
+  return(*this);
+}
+
 bool
 Data::operator ==(const Data &other_) const
-    {
+{
   bool status = true;
   other_._lock.Lock();
   this->_lock.Lock();
@@ -153,7 +150,7 @@ Data::operator ==(const Data &other_) const
 
 bool
 Data::operator !=(const Data &other_) const
-    {
+{
   bool status = true;
   other_._lock.Lock();
   this->_lock.Lock();
@@ -164,42 +161,61 @@ Data::operator !=(const Data &other_) const
   return (!status);
 }
 
-UNIQUE_PTR(Data)
+Data
+Data::operator ()(const std::string& path_) const
+{
+  Data d(path_);
+  try
+  {
+    d.put(d.Path(), this->_pt.get_child(this->Path(path_)));
+  }
+  catch (pt::ptree_bad_path &e)
+  {
+    ZLOG_WARN("Child does not exist: " + this->Path());
+    ZLOG_INFO(this->GetJson());
+  }
+  return (d);
+}
+
+Data
 Data::operator [](int pos_) const
 {
   int i = 0;
 
-  UNIQUE_PTR(Data) d(new Data);
+  Data d(this->Key());
 
   // Begin critical section
-  if (d && this->_lock.Lock())
+  if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("Getting child[]: " + this->Root());
-    ZLOG_DEBUG("Getting child[]: " + this->Base());
-    ZLOG_DEBUG("Getting child[]: " + this->Path());
     try
     {
       FOREACH (auto& child, this->_pt.get_child(this->Path()))
       {
         if (i++ == pos_)
         {
-          d->put(d->Path(this->Key()), child.second);
-          d->Append(this->Key());
+          d.put(d.Path(), child.second);
           break;
         }
       }
     }
     catch (pt::ptree_bad_path &e)
     {
-      d = NULL;
+      ZLOG_WARN("Child does not exist: " + this->Path());
     }
     this->_lock.Unlock();
   }
 
-  return (MOVE(d));
+  return (d);
 
 }
 
+bool
+Data::Empty() const
+{
+  bool status = false;
+  status = this->_pt.empty();
+  return(status);
+}
 ssize_t
 Data::Size() const
 {
@@ -228,7 +244,7 @@ Data::Clear()
 }
 
 bool
-Data::Get(Data& child_) const
+Data::GetChild(Data& child_) const
 {
   bool status = false;
 
@@ -254,7 +270,7 @@ Data::Get(Data& child_) const
 }
 
 bool
-Data::Get(const DataPath& path_, Data& child_) const
+Data::GetChild(const DataPath& path_, Data& child_) const
 {
 
   bool status = false;
@@ -285,7 +301,7 @@ Data::Get(const DataPath& path_, Data& child_) const
 }
 
 bool
-Data::Put(const Data& child_)
+Data::PutChild(const Data& child_)
 {
   bool status = false;
 
@@ -310,7 +326,7 @@ Data::Put(const Data& child_)
 }
 
 bool
-Data::Put(const DataPath& path_, const Data& child_)
+Data::PutChild(const DataPath& path_, const Data& child_)
 {
 
   bool status = false;
@@ -336,7 +352,7 @@ Data::Put(const DataPath& path_, const Data& child_)
 }
 
 bool
-Data::Add(const Data& child_)
+Data::AddChild(const Data& child_)
 {
 
   bool status = false;
@@ -363,7 +379,7 @@ Data::Add(const Data& child_)
 }
 
 bool
-Data::Add(const DataPath& path_, const Data& child_)
+Data::AddChild(const DataPath& path_, const Data& child_)
 {
 
   bool status = false;

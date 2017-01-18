@@ -46,37 +46,26 @@ CommandData::CommandData() :
   ZLOG_DEBUG(this->GetJson());
 }
 
-CommandData::CommandData(zData::Data &data_) :
-    zData::Data(CommandPath::DataRoot)
-{
-  this->Put(data_);
-  ZLOG_DEBUG("CommandData::CommandData(data_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
 CommandData::CommandData(const zData::Data &data_) :
     zData::Data(CommandPath::DataRoot)
 {
-  this->Put(data_);
+  this->PutChild(data_);
   ZLOG_DEBUG("CommandData::CommandData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
 
 CommandData::CommandData(CommandData &other_) :
-    zData::Data(CommandPath::DataRoot)
+    zData::Data(other_)
 {
-  this->Put(other_);
   ZLOG_DEBUG("CommandData::CommandData(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
 
 CommandData::CommandData(const CommandData &other_) :
-    zData::Data(CommandPath::DataRoot)
+    zData::Data(other_)
 {
-  this->Put(other_);
   ZLOG_DEBUG("CommandData::CommandData(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -101,17 +90,13 @@ CommandData::operator !=(const CommandData &other_) const
 std::string
 CommandData::GetName() const
 {
-  std::string str;
-  CommandPath path;
-  this->Get(path.Name(), str);
-  return (str);
+  return (this->GetValue<std::string>(CommandPath::NameDataPath));
 }
 
 bool
 CommandData::SetName(const std::string name_)
 {
-  CommandPath path;
-  return (this->Put(path.Name(), name_));
+  return (this->PutValue(CommandPath(CommandPath::NameDataPath), name_));
 }
 
 std::map<std::string, CommandOption>
@@ -123,16 +108,11 @@ CommandData::GetOptions() const
   ZLOG_DEBUG(this->GetJson());
 
   std::map<std::string, CommandOption> options;
-  CommandPath path;
-  zData::Data data;
 
-  if (this->Get(path.Option(), data))
+  for (int i = 0; i < this->operator ()(CommandPath::OptionDataPath).Size(); i++)
   {
-    for (int i = 0; i < data.Size(); i++)
-    {
-      CommandOption opt(*data[i]);
-      options[opt.GetName()] = opt;
-    }
+    CommandOption opt(this->operator ()(CommandPath::OptionDataPath)[i]);
+    options[opt.GetName()] = opt;
   }
 
   return (options);
@@ -141,24 +121,19 @@ CommandData::GetOptions() const
 bool
 CommandData::AddOption(CommandOption &opt_)
 {
-  CommandPath path;
-  return (this->Add(path.Option(), opt_.GetData()));
+  return (this->AddChild(CommandPath(CommandPath::OptionDataPath), opt_.GetData()));
 }
 
 std::string
 CommandData::GetOutput() const
 {
-  std::string str;
-  CommandPath path;
-  this->Get(path.Output(), str);
-  return (str);
+  return (this->GetValue<std::string>(CommandPath::OutputDataPath));
 }
 
 bool
 CommandData::SetOutput(const std::string arg_)
 {
-  CommandPath path;
-  return (this->Put(path.Output(), arg_));
+  return (this->PutValue(CommandPath(CommandPath::OutputDataPath), arg_));
 }
 
 }

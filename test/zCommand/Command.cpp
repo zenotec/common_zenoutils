@@ -36,6 +36,10 @@ int
 zCommandTest_CommandDataGetSet(void* arg_)
 {
 
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zCommandTest_CommandDataGetSet()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new command and verify
   zCommand::CommandData *MyCommandData = new zCommand::CommandData;
   TEST_ISNOT_NULL(MyCommandData);
@@ -75,6 +79,10 @@ zCommandTest_CommandDataGetSet(void* arg_)
 int
 zCommandTest_CommandExecute(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zCommandTest_CommandExecute()");
+  ZLOG_DEBUG("#############################################################");
 
   // Create new command data and verify
   zCommand::CommandData MyData;

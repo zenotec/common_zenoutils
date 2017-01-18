@@ -213,7 +213,7 @@ Configuration::Get(ConfigData& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    status = this->_working.Get(child_.GetData());
+    status = this->_working.GetChild(child_.GetData());
     // End critical section
     this->_lock.Unlock();
   }
@@ -232,7 +232,7 @@ Configuration::Get(ConfigPath& path_, ConfigData& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    status = this->_working.Get(path_.GetDataPath(), child_.GetData());
+    status = this->_working.GetChild(path_.GetDataPath(), child_.GetData());
     // End critical section
     this->_lock.Unlock();
   }
@@ -251,7 +251,7 @@ Configuration::Put(const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.Put(child_.GetData()))
+    if (this->_staging.PutChild(child_.GetData()))
     {
       this->_modified = true;
       status = true;
@@ -275,7 +275,7 @@ Configuration::Put(const ConfigPath& path_, const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.Put(path_.GetDataPath(), child_.GetData()))
+    if (this->_staging.PutChild(path_.GetDataPath(), child_.GetData()))
     {
       this->_modified = true;
       status = true;
@@ -299,7 +299,7 @@ Configuration::Add(const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.Add(child_.GetData()))
+    if (this->_staging.AddChild(child_.GetData()))
     {
       this->_modified = true;
       status = true;
@@ -323,7 +323,7 @@ Configuration::Add(const ConfigPath& path_, const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.Add(path_.GetDataPath(), child_.GetData()))
+    if (this->_staging.AddChild(path_.GetDataPath(), child_.GetData()))
     {
       this->_modified = true;
       status = true;

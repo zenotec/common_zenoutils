@@ -37,7 +37,7 @@ ConfigData::ConfigData(const std::string& path_) :
   if (!path_.empty())
   {
     this->Append(path_);
-    this->Put(*this, std::string(""));
+    this->PutValue(*this, std::string(""));
   }
 }
 

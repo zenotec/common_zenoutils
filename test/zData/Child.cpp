@@ -28,8 +28,8 @@ zDataTest_GetChildSingle(void* arg_)
   ZLOG_DEBUG("# zDataTest_GetChildSingle()");
   ZLOG_DEBUG("#############################################################");
 
-  std::string expVal;
-  std::string obsVal;
+  std::string ExpVal;
+  std::string ObsVal;
 
   // Create data paths and validate
   zData::DataPath ParentPath;
@@ -49,36 +49,38 @@ zDataTest_GetChildSingle(void* arg_)
   TEST_EQ(ParentData.Key(), ParentPath.Key());
 
   // Set first value and validate
-  expVal = "Elvis";
-  TEST_TRUE(ParentData.Put(FirstNamePath, expVal));
-  TEST_TRUE(ParentData.Get(FirstNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Elvis";
+  TEST_TRUE(ParentData.PutValue(FirstNamePath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(FirstNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 
   // Set second value and validate
-  expVal = "Presley";
-  TEST_TRUE(ParentData.Put(LastNamePath, expVal));
-  TEST_TRUE(ParentData.Get(LastNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Presley";
+  TEST_TRUE(ParentData.PutValue(LastNamePath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(LastNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 //  ParentData.DisplayJson();
 
   // Get the data object for the child "employee"
   zData::Data ChildData;
-  TEST_TRUE(ParentData.Get(NamePath, ChildData));
+  TEST_TRUE(ParentData.GetChild(NamePath, ChildData));
   TEST_EQ(ChildData.Key(), NamePath.Key());
 //  ChildData.DisplayPath();
 //  ChildData.DisplayJson();
 
   // validate first value
   TEST_EQ(ParentPath.Key(), FirstNamePath.PopFront());
-  expVal = "Elvis";
-  TEST_TRUE(ChildData.Get(FirstNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Elvis";
+  TEST_TRUE(ChildData.GetValue(FirstNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Name").GetValue<std::string>(std::string("First")), ExpVal);
 
   // validate second value
   TEST_EQ(ParentPath.Key(), LastNamePath.PopFront());
-  expVal = "Presley";
-  TEST_TRUE(ChildData.Get(LastNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Presley";
+  TEST_TRUE(ChildData.GetValue(LastNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Name").GetValue<std::string>(std::string("Last")), ExpVal);
 
   // Return success
   return (0);
@@ -93,8 +95,8 @@ zDataTest_GetChildMultiple(void* arg_)
   ZLOG_DEBUG("# zDataTest_GetChildMultiple()");
   ZLOG_DEBUG("#############################################################");
 
-  std::string expVal;
-  std::string obsVal;
+  std::string ExpVal;
+  std::string ObsVal;
 
   // Create data paths and validate
   zData::DataPath ParentPath;
@@ -133,35 +135,35 @@ zDataTest_GetChildMultiple(void* arg_)
   TEST_EQ(ParentData.Key(), ParentPath.Key());
 
   // Set first value and validate
-  expVal = "Elvis";
-  TEST_TRUE(ParentData.Put(FirstNamePath, expVal));
-  TEST_TRUE(ParentData.Get(FirstNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Elvis";
+  TEST_TRUE(ParentData.PutValue(FirstNamePath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(FirstNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 
   // Set second value and validate
-  expVal = "Presley";
-  TEST_TRUE(ParentData.Put(LastNamePath, expVal));
-  TEST_TRUE(ParentData.Get(LastNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Presley";
+  TEST_TRUE(ParentData.PutValue(LastNamePath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(LastNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 
   // Set first value and validate
-  expVal = "123 Some St.";
-  TEST_TRUE(ParentData.Put(StreetAddressPath, expVal));
-  TEST_TRUE(ParentData.Get(StreetAddressPath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "123 Some St.";
+  TEST_TRUE(ParentData.PutValue(StreetAddressPath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(StreetAddressPath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 
   // Set second value and validate
-  expVal = "Colorado";
-  TEST_TRUE(ParentData.Put(StateAddressPath, expVal));
-  TEST_TRUE(ParentData.Get(StateAddressPath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Colorado";
+  TEST_TRUE(ParentData.PutValue(StateAddressPath, ExpVal));
+  TEST_TRUE(ParentData.GetValue(StateAddressPath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
 
   // Get the data object for the child "employee"
   zData::Data NameData;
-  TEST_TRUE(ParentData.Get(NamePath, NameData));
+  TEST_TRUE(ParentData.GetChild(NamePath, NameData));
   TEST_EQ(NameData.Key(), NamePath.Key());
   zData::Data AddressData;
-  TEST_TRUE(ParentData.Get(AddressPath, AddressData));
+  TEST_TRUE(ParentData.GetChild(AddressPath, AddressData));
   TEST_EQ(AddressData.Key(), AddressPath.Key());
 
   // Adjust the child paths to account for parent removal
@@ -173,24 +175,28 @@ zDataTest_GetChildMultiple(void* arg_)
   TEST_EQ(ParentPath.Key(), StateAddressPath.PopFront());
 
   // validate first value
-  expVal = "Elvis";
-  TEST_TRUE(NameData.Get(FirstNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Elvis";
+  TEST_TRUE(NameData.GetValue(FirstNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Name").GetValue<std::string>(std::string("First")), ExpVal);
 
   // validate second value
-  expVal = "Presley";
-  TEST_TRUE(NameData.Get(LastNamePath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Presley";
+  TEST_TRUE(NameData.GetValue(LastNamePath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Name").GetValue<std::string>(std::string("Last")), ExpVal);
 
   // validate first value
-  expVal = "123 Some St.";
-  TEST_TRUE(AddressData.Get(StreetAddressPath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "123 Some St.";
+  TEST_TRUE(AddressData.GetValue(StreetAddressPath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Address").GetValue<std::string>(std::string("Street")), ExpVal);
 
   // validate second value
-  expVal = "Colorado";
-  TEST_TRUE(AddressData.Get(StateAddressPath, obsVal));
-  TEST_EQ(obsVal, expVal);
+  ExpVal = "Colorado";
+  TEST_TRUE(AddressData.GetValue(StateAddressPath, ObsVal));
+  TEST_EQ(ObsVal, ExpVal);
+  TEST_EQ(ParentData("Address").GetValue<std::string>(std::string("State")), ExpVal);
 
   // Return success
   return (0);
@@ -231,40 +237,40 @@ zDataTest_PutChildSingle(void* arg_)
 
   // Set first value and validate
   expVal = "Elvis";
-  TEST_TRUE(NameData.Put(FirstNamePath, expVal));
-  TEST_TRUE(NameData.Get(FirstNamePath, obsVal));
+  TEST_TRUE(NameData.PutValue(FirstNamePath, expVal));
+  TEST_TRUE(NameData.GetValue(FirstNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Set second value and validate
   expVal = "Presley";
-  TEST_TRUE(NameData.Put(LastNamePath, expVal));
-  TEST_TRUE(NameData.Get(LastNamePath, obsVal));
+  TEST_TRUE(NameData.PutValue(LastNamePath, expVal));
+  TEST_TRUE(NameData.GetValue(LastNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 //  NameData.DisplayJson();
 
   // Set the child and validate
-  TEST_TRUE_MSG(ParentData.Put(NameData), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.PutChild(NameData), ParentData.GetJson());
 //  ParentData.DisplayJson();
 
   // Get child and validate
   zData::Data ObsData;
   TEST_TRUE(NamePath.Prepend("Employee"));
-  TEST_TRUE_MSG(ParentData.Get(NamePath, ObsData), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetChild(NamePath, ObsData), ParentData.GetJson());
 
   // Get first value and validate
   expVal = "Elvis";
-  TEST_TRUE_MSG(ObsData.Get(FirstNamePath, obsVal), ObsData.GetJson());
+  TEST_TRUE_MSG(ObsData.GetValue(FirstNamePath, obsVal), ObsData.GetJson());
   TEST_EQ(obsVal, expVal);
   TEST_TRUE(FirstNamePath.Prepend("Employee"));
-  TEST_TRUE_MSG(ParentData.Get(FirstNamePath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(FirstNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Get second value and validate
   expVal = "Presley";
-  TEST_TRUE_MSG(ObsData.Get(LastNamePath, obsVal), ObsData.GetJson());
+  TEST_TRUE_MSG(ObsData.GetValue(LastNamePath, obsVal), ObsData.GetJson());
   TEST_EQ(obsVal, expVal);
   TEST_TRUE(LastNamePath.Prepend("Employee"));
-  TEST_TRUE_MSG(ParentData.Get(LastNamePath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(LastNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Return success
@@ -314,14 +320,14 @@ zDataTest_PutChildMultiple(void* arg_)
 
   // Set first value and validate
   expVal = "Elvis";
-  TEST_TRUE(NameData.Put(FirstNamePath, expVal));
-  TEST_TRUE(NameData.Get(FirstNamePath, obsVal));
+  TEST_TRUE(NameData.PutValue(FirstNamePath, expVal));
+  TEST_TRUE(NameData.GetValue(FirstNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Set second value and validate
   expVal = "Presley";
-  TEST_TRUE(NameData.Put(LastNamePath, expVal));
-  TEST_TRUE(NameData.Get(LastNamePath, obsVal));
+  TEST_TRUE(NameData.PutValue(LastNamePath, expVal));
+  TEST_TRUE(NameData.GetValue(LastNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 //  NameData.DisplayJson();
 
@@ -331,44 +337,44 @@ zDataTest_PutChildMultiple(void* arg_)
 
   // Set first value and validate
   expVal = "123 Some St.";
-  TEST_TRUE(AddressData.Put(StreetAddressPath, expVal));
-  TEST_TRUE(AddressData.Get(StreetAddressPath, obsVal));
+  TEST_TRUE(AddressData.PutValue(StreetAddressPath, expVal));
+  TEST_TRUE(AddressData.GetValue(StreetAddressPath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Set second value and validate
   expVal = "Colorado";
-  TEST_TRUE(AddressData.Put(StateAddressPath, expVal));
-  TEST_TRUE(AddressData.Get(StateAddressPath, obsVal));
+  TEST_TRUE(AddressData.PutValue(StateAddressPath, expVal));
+  TEST_TRUE(AddressData.GetValue(StateAddressPath, obsVal));
   TEST_EQ(obsVal, expVal);
 //  AddressData.DisplayJson();
 
   // Set the child and validate
-  TEST_TRUE_MSG(ParentData.Put(NameData), ParentData.GetJson());
-  TEST_TRUE_MSG(ParentData.Put(AddressData), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.PutChild(NameData), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.PutChild(AddressData), ParentData.GetJson());
 //  ParentData.DisplayJson();
 
   // Get first value and validate
   TEST_TRUE(FirstNamePath.Prepend("Employee"));
   expVal = "Elvis";
-  TEST_TRUE_MSG(ParentData.Get(FirstNamePath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(FirstNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Get second value and validate
   TEST_TRUE(LastNamePath.Prepend("Employee"));
   expVal = "Presley";
-  TEST_TRUE_MSG(ParentData.Get(LastNamePath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(LastNamePath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Get first value and validate
   TEST_TRUE(StreetAddressPath.Prepend("Employee"));
   expVal = "123 Some St.";
-  TEST_TRUE_MSG(ParentData.Get(StreetAddressPath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(StreetAddressPath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Get second value and validate
   TEST_TRUE(StateAddressPath.Prepend("Employee"));
   expVal = "Colorado";
-  TEST_TRUE_MSG(ParentData.Get(StateAddressPath, obsVal), ParentData.GetJson());
+  TEST_TRUE_MSG(ParentData.GetValue(StateAddressPath, obsVal), ParentData.GetJson());
   TEST_EQ(obsVal, expVal);
 
   // Return success

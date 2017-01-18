@@ -128,65 +128,37 @@ const std::string TtySerialConfigData::ConfigFlowCtrlDefault(ConfigFlowCtrlNone)
 
 TtySerialConfigData::TtySerialConfigData()
 {
+  this->SetType(SerialConfigData::ConfigTypeTty);
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-
-  this->SetType(SerialConfigData::ConfigTypeTty);
-  this->SetDevice(this->GetDevice());
-  this->SetBaud(this->GetBaud());
-  this->SetDataBits(this->GetDataBits());
-  this->SetStopBits(this->GetStopBits());
-  this->SetParity(this->GetParity());
-  this->SetFlowControl(this->GetFlowControl());
 }
 
 TtySerialConfigData::TtySerialConfigData(const zData::Data& data_) :
     SerialConfigData(data_)
 {
+  this->SetType(SerialConfigData::ConfigTypeTty);
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-
-  this->SetType(SerialConfigData::ConfigTypeTty);
-  this->SetDevice(this->GetDevice());
-  this->SetBaud(this->GetBaud());
-  this->SetDataBits(this->GetDataBits());
-  this->SetStopBits(this->GetStopBits());
-  this->SetParity(this->GetParity());
-  this->SetFlowControl(this->GetFlowControl());
 }
 
 TtySerialConfigData::TtySerialConfigData(const zConfig::ConfigData& config_) :
     SerialConfigData(config_)
 {
+  this->SetType(SerialConfigData::ConfigTypeTty);
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-
-  this->SetType(SerialConfigData::ConfigTypeTty);
-  this->SetDevice(this->GetDevice());
-  this->SetBaud(this->GetBaud());
-  this->SetDataBits(this->GetDataBits());
-  this->SetStopBits(this->GetStopBits());
-  this->SetParity(this->GetParity());
-  this->SetFlowControl(this->GetFlowControl());
 }
 
 TtySerialConfigData::TtySerialConfigData(const TtySerialConfigData& other_) :
     SerialConfigData(other_.GetConfigData())
 {
+  this->SetType(SerialConfigData::ConfigTypeTty);
   ZLOG_DEBUG("TtySerialConfigData::TtySerialConfigData(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-
-  this->SetType(SerialConfigData::ConfigTypeTty);
-  this->SetDevice(this->GetDevice());
-  this->SetBaud(this->GetBaud());
-  this->SetDataBits(this->GetDataBits());
-  this->SetStopBits(this->GetStopBits());
-  this->SetParity(this->GetParity());
-  this->SetFlowControl(this->GetFlowControl());
 }
 
 TtySerialConfigData::~TtySerialConfigData()
@@ -198,7 +170,7 @@ TtySerialConfigData::GetDevice() const
 {
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.Device(), str))
+  if (!this->GetValue(path.Device(), str))
   {
     str = ConfigDeviceDefault;
   }
@@ -209,7 +181,7 @@ bool
 TtySerialConfigData::SetDevice(const std::string& dev_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.Device(), dev_));
+  return (this->PutValue(path.Device(), dev_));
 }
 
 std::string
@@ -218,7 +190,7 @@ TtySerialConfigData::GetBaud() const
 
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.Baud(), str))
+  if (!this->GetValue(path.Baud(), str))
   {
     str = ConfigBaudDefault;
   }
@@ -229,7 +201,7 @@ bool
 TtySerialConfigData::SetBaud(const std::string& baud_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.Baud(), baud_));
+  return (this->PutValue(path.Baud(), baud_));
 }
 
 std::string
@@ -237,7 +209,7 @@ TtySerialConfigData::GetDataBits() const
 {
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.Databits(), str))
+  if (!this->GetValue(path.Databits(), str))
   {
     str = ConfigDatabitsDefault;
   }
@@ -248,7 +220,7 @@ bool
 TtySerialConfigData::SetDataBits(const std::string& dbits_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.Databits(), dbits_));
+  return (this->PutValue(path.Databits(), dbits_));
 }
 
 std::string
@@ -256,7 +228,7 @@ TtySerialConfigData::GetStopBits() const
 {
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.Stopbits(), str))
+  if (!this->GetValue(path.Stopbits(), str))
   {
     str = ConfigStopbitsDefault;
   }
@@ -267,7 +239,7 @@ bool
 TtySerialConfigData::SetStopBits(const std::string& sbits_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.Stopbits(), sbits_));
+  return (this->PutValue(path.Stopbits(), sbits_));
 }
 
 std::string
@@ -275,7 +247,7 @@ TtySerialConfigData::GetParity() const
 {
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.Parity(), str))
+  if (!this->GetValue(path.Parity(), str))
   {
     str = ConfigParityDefault;
   }
@@ -286,7 +258,7 @@ bool
 TtySerialConfigData::SetParity(const std::string parity_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.Parity(), parity_));
+  return (this->PutValue(path.Parity(), parity_));
 }
 
 std::string
@@ -294,7 +266,7 @@ TtySerialConfigData::GetFlowControl() const
 {
   std::string str;
   TtySerialConfigPath path;
-  if (!this->Get(path.FlowCtrl(), str))
+  if (!this->GetValue(path.FlowCtrl(), str))
   {
     str = ConfigFlowCtrlDefault;
   }
@@ -305,7 +277,7 @@ bool
 TtySerialConfigData::SetFlowControl(const std::string& flowcntl_)
 {
   TtySerialConfigPath path;
-  return (this->Put(path.FlowCtrl(), flowcntl_));
+  return (this->PutValue(path.FlowCtrl(), flowcntl_));
 }
 
 //*****************************************************************************

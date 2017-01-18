@@ -36,15 +36,15 @@ zConfigTest_DataGetPutValue(void* arg_)
   // Create new configuration data item and verify
   zConfig::ConfigData *MyData = new zConfig::ConfigData(MyPath);
   TEST_ISNOT_NULL(MyData);
-  TEST_TRUE(MyData->Get(MyPath, obs));
+  TEST_TRUE(MyData->GetValue(MyPath, obs));
   TEST_EQ(obs, exp);
 //  MyData->DisplayJson();
 //  MyData->DisplayPath();
 
   // Put some data
   exp = std::string("data");
-  TEST_TRUE(MyData->Put(MyPath, exp));
-  TEST_TRUE(MyData->Get(MyPath, obs));
+  TEST_TRUE(MyData->PutValue(MyPath, exp));
+  TEST_TRUE(MyData->GetValue(MyPath, obs));
   TEST_EQ(obs, exp);
 //  MyData->DisplayJson();
 //  MyData->DisplayPath();
@@ -75,30 +75,30 @@ zConfigTest_DataGetPutChild(void* arg_)
   // Create new configuration data item and verify
   zConfig::ConfigData *ParentData = new zConfig::ConfigData(ParentPath);
   TEST_ISNOT_NULL(ParentData);
-  TEST_TRUE(ParentData->Get(ParentPath, obs));
+  TEST_TRUE(ParentData->GetValue(ParentPath, obs));
   TEST_EQ(obs, exp);
 //  ParentData->DisplayJson();
 
   // Create new configuration data item and verify
   zConfig::ConfigData *ChildData = new zConfig::ConfigData(ChildPath);
   TEST_ISNOT_NULL(ChildData);
-  TEST_TRUE(ChildData->Get(ChildPath, obs));
+  TEST_TRUE(ChildData->GetValue(ChildPath, obs));
   TEST_EQ(obs, exp);
 //  ChildData->DisplayJson();
 
   // Put some data
   exp = std::string("data");
-  TEST_TRUE(ChildData->Put(ChildPath, exp));
-  TEST_TRUE(ChildData->Get(ChildPath, obs));
+  TEST_TRUE(ChildData->PutValue(ChildPath, exp));
+  TEST_TRUE(ChildData->GetValue(ChildPath, obs));
   TEST_EQ(obs, exp);
 //  ChildData->DisplayJson();
 
   // Put the child and verify
   TEST_TRUE(ChildPath.Prepend("Parent"));
-  TEST_TRUE_MSG(ParentData->Put(ChildData->GetData()), ParentData->GetJson());
+  TEST_TRUE_MSG(ParentData->PutChild(ChildData->GetData()), ParentData->GetJson());
 //  ParentData->DisplayJson();
 //  ChildPath.DisplayPath();
-  TEST_TRUE_MSG(ParentData->Get(ChildPath, obs), ParentData->GetJson());
+  TEST_TRUE_MSG(ParentData->GetValue(ChildPath, obs), ParentData->GetJson());
   TEST_EQ(obs, exp);
 
   // Cleanup

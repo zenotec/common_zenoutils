@@ -32,47 +32,20 @@ class MessagePath : public zData::DataPath
 public:
 
   static const std::string DataRoot;
-  static const std::string DataIdPath;
-  static const std::string DataTypePath;
-  static const std::string DataDstPath;
-  static const std::string DataSrcPath;
+  static const std::string IdDataPath;
+  static const std::string TypeDataPath;
+  static const std::string DstDataPath;
+  static const std::string SrcDataPath;
   static const std::string DataDataPath;
 
   MessagePath(const std::string& root_ = std::string(""));
 
-  MessagePath(zData::DataPath& path_);
+  MessagePath(const MessagePath& other_);
 
   MessagePath(const zData::DataPath& path_);
 
   virtual
   ~MessagePath();
-
-  zData::DataPath&
-  GetDataPath();
-
-  const zData::DataPath&
-  GetDataPath() const;
-
-  MessagePath&
-  GetMessagePath();
-
-  const MessagePath&
-  GetMessagePath() const;
-
-  zData::DataPath
-  Id() const;
-
-  zData::DataPath
-  Type() const;
-
-  zData::DataPath
-  Dst() const;
-
-  zData::DataPath
-  Src() const;
-
-  zData::DataPath
-  Data() const;
 
 private:
 

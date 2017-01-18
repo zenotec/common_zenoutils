@@ -47,8 +47,8 @@ zDataTest_PutValueSingle(void* arg_)
   TEST_EQ(MyData->GetXml(), expXml);
 
   // Set value and validate
-  TEST_TRUE(MyData->Put(MyPath, expVal));
-  TEST_TRUE(MyData->Get(MyPath, obsVal));
+  TEST_TRUE(MyData->PutValue(MyPath, expVal));
+  TEST_TRUE(MyData->GetValue(MyPath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Cleanup
@@ -86,8 +86,8 @@ zDataTest_PutValueMultiple(void* arg_)
   TEST_TRUE(FirstNamePath.Append(std::string("Name")));
   TEST_TRUE(FirstNamePath.Append(std::string("First")));
   expVal = "Elvis";
-  TEST_TRUE(MyData->Put(FirstNamePath, expVal));
-  TEST_TRUE(MyData->Get(FirstNamePath, obsVal));
+  TEST_TRUE(MyData->PutValue(FirstNamePath, expVal));
+  TEST_TRUE(MyData->GetValue(FirstNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Set second value and validate
@@ -95,8 +95,8 @@ zDataTest_PutValueMultiple(void* arg_)
   TEST_TRUE(LastNamePath.Append(std::string("Name")));
   TEST_TRUE(LastNamePath.Append(std::string("Last")));
   expVal = "Presley";
-  TEST_TRUE(MyData->Put(LastNamePath, expVal));
-  TEST_TRUE(MyData->Get(LastNamePath, obsVal));
+  TEST_TRUE(MyData->PutValue(LastNamePath, expVal));
+  TEST_TRUE(MyData->GetValue(LastNamePath, obsVal));
   TEST_EQ(obsVal, expVal);
 
   // Cleanup

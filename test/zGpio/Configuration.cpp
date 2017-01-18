@@ -61,15 +61,15 @@ zGpioTest_ConfigurationCtor(void* arg)
   delete (MyConfig);
 
   zConfig::ConfigData config;
-  config.Put(path.Identifier(), "8");
-  config.Put(path.ExportFilename(), "export");
-  config.Put(path.UnexportFilename(), "unexport");
-  config.Put(path.DirectionFilename(), "direction");
-  config.Put(path.Direction(), "out");
-  config.Put(path.StateFilename(), "state");
-  config.Put(path.State(), "active");
-  config.Put(path.EdgeFilename(), "edge");
-  config.Put(path.Edge(), "both");
+  config.PutValue(path.Identifier(), "8");
+  config.PutValue(path.ExportFilename(), "export");
+  config.PutValue(path.UnexportFilename(), "unexport");
+  config.PutValue(path.DirectionFilename(), "direction");
+  config.PutValue(path.Direction(), "out");
+  config.PutValue(path.StateFilename(), "state");
+  config.PutValue(path.State(), "active");
+  config.PutValue(path.EdgeFilename(), "edge");
+  config.PutValue(path.Edge(), "both");
 
   // Create new GPIO port configuration and verify
   MyConfig = new zGpio::GpioConfigData(config);

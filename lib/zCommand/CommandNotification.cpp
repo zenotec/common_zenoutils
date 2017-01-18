@@ -47,16 +47,16 @@ CommandNotification::~CommandNotification()
 {
 }
 
-const CommandData&
-CommandNotification::GetCommandData() const
+CommandData&
+CommandNotification::GetCommandData()
 {
-  return(this->_data);
+  return (this->_data);
 }
 
 bool
 CommandNotification::SetCommandData(const CommandData& data_)
 {
-  return(this->_data.Put(data_));
+  return (this->_data.PutChild(data_));
 }
 
 }

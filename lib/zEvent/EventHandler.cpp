@@ -126,7 +126,7 @@ EventHandler::UnregisterObserver(EventObserver *obs_)
 }
 
 void
-EventHandler::notify(const EventNotification* notification_)
+EventHandler::notify(EventNotification* notification_)
 {
 
   // Note: never call this routine directly; Only should be called by the event class

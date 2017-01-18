@@ -35,19 +35,17 @@ class CommandOptionPath : public zData::DataPath
 public:
 
   static const std::string DataRoot;
-  static const std::string DataNamePath;
-  static const std::string DataArgPath;
+  static const std::string NameDataPath;
+  static const std::string ArgDataPath;
 
-  CommandOptionPath();
+  CommandOptionPath(const std::string& root_ = std::string(""));
+
+  CommandOptionPath(const CommandOptionPath& other_);
+
+  CommandOptionPath(const zData::DataPath& path_);
 
   virtual
   ~CommandOptionPath();
-
-  zData::DataPath
-  Name();
-
-  zData::DataPath
-  Argument();
 
 protected:
 
@@ -67,6 +65,10 @@ public:
   CommandOption();
 
   CommandOption(const zData::Data &data_);
+
+  CommandOption(CommandOption &other_);
+
+  CommandOption(const CommandOption &other_);
 
   virtual
   ~CommandOption();
@@ -102,22 +104,18 @@ class CommandPath : public zData::DataPath
 public:
 
   static const std::string DataRoot;
-  static const std::string DataNamePath;
-  static const std::string DataOutputPath;
+  static const std::string NameDataPath;
+  static const std::string OptionDataPath;
+  static const std::string OutputDataPath;
 
-  CommandPath();
+  CommandPath(const std::string& root_ = std::string(""));
+
+  CommandPath(const CommandPath& other_);
+
+  CommandPath(const zData::DataPath& path_);
 
   virtual
   ~CommandPath();
-
-  zData::DataPath
-  Name();
-
-  zData::DataPath
-  Option();
-
-  zData::DataPath
-  Output();
 
 protected:
 
@@ -135,8 +133,6 @@ class CommandData : public zData::Data
 public:
 
   CommandData();
-
-  CommandData(zData::Data &data_);
 
   CommandData(const zData::Data &data_);
 
@@ -211,8 +207,8 @@ public:
   virtual
   ~CommandNotification();
 
-  const CommandData&
-  GetCommandData() const;
+  CommandData&
+  GetCommandData();
 
   bool
   SetCommandData(const CommandData& data_);
@@ -248,7 +244,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(const zEvent::EventNotification* notification_);
+  EventHandler(zEvent::EventNotification* notification_);
 
 private:
 

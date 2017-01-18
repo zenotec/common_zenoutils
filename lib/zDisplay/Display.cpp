@@ -110,7 +110,7 @@ Display::Flush()
 }
 
 bool
-Display::EventHandler(const zEvent::EventNotification *notification_)
+Display::EventHandler(zEvent::EventNotification *notification_)
 {
 
   bool status = false;

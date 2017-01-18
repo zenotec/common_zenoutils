@@ -133,7 +133,7 @@ class EventObserver
 {
 public:
   virtual bool
-  EventHandler(const zEvent::EventNotification* notification_) = 0;
+  EventHandler(zEvent::EventNotification* notification_) = 0;
 };
 
 //**********************************************************************
@@ -165,7 +165,7 @@ public:
 protected:
 
   void
-  notify(const EventNotification* notification_);
+  notify(EventNotification* notification_);
 
 private:
 

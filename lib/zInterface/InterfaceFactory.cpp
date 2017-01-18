@@ -44,11 +44,11 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
   InterfaceConfigPath path;
   zConfig::ConfigData data;
 
-  if (config_.Get(path, data.GetData()))
+  if (config_.GetChild(path, data.GetData()))
   {
     for (int i = 0; i < data.Size(); i++)
     {
-      InterfaceConfigData config(*data[i]);
+      InterfaceConfigData config(data[i]);
       SHARED_PTR(Interface)iface;
       if (config.GetType() == InterfaceConfigData::TYPE_WIRELESS)
       {

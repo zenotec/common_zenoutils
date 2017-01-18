@@ -54,23 +54,22 @@ Command::~Command()
 }
 
 bool
-Command::EventHandler(const zEvent::EventNotification* notification_)
+Command::EventHandler(zEvent::EventNotification* notification_)
 {
   bool status = false;
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_COMMAND))
   {
-    const zCommand::CommandNotification *n = NULL;
-    n = static_cast<const zCommand::CommandNotification *>(notification_);
-    CommandData data(n->GetCommandData());
-    if (data == *this)
+    zCommand::CommandNotification *n = NULL;
+    n = static_cast<zCommand::CommandNotification *>(notification_);
+    if (n->GetCommandData() == *this)
     {
-      status = this->Execute(data);
+      status = this->Execute(n->GetCommandData());
     }
   }
   else if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
   {
-    const zMessage::MessageNotification *n = NULL;
-    n = static_cast<const zMessage::MessageNotification *>(notification_);
+    zMessage::MessageNotification *n = NULL;
+    n = static_cast<zMessage::MessageNotification *>(notification_);
     switch (n->Id())
     {
     case zMessage::MessageNotification::ID_MSG_RCVD:
@@ -81,6 +80,7 @@ Command::EventHandler(const zEvent::EventNotification* notification_)
         if (data == *this)
         {
           status = this->Execute(data);
+          n->Message()->SetData(data);
         }
       }
       break;

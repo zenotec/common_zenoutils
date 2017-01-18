@@ -96,7 +96,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(const zEvent::EventNotification* notification_)
+  EventHandler(zEvent::EventNotification* notification_)
   {
     zMessage::MessageNotification *n = NULL;
     ZLOG_DEBUG("Handling socket event");

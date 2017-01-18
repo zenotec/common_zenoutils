@@ -165,14 +165,14 @@ Thread::Stop()
 }
 
 bool
-Thread::EventHandler(const zEvent::EventNotification* notification_)
+Thread::EventHandler(zEvent::EventNotification* notification_)
 {
   bool status = false;
-  const zSignal::SignalNotification *n = NULL;
+  zSignal::SignalNotification *n = NULL;
 
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SIGNAL))
   {
-    n = static_cast<const zSignal::SignalNotification*>(notification_);
+    n = static_cast<zSignal::SignalNotification*>(notification_);
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:

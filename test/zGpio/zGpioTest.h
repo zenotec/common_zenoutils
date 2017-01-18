@@ -186,7 +186,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(const zEvent::EventNotification* notification_)
+  EventHandler(zEvent::EventNotification* notification_)
   {
     bool status = false;
     if (notification_ && (notification_->Type() == zEvent::Event::TYPE_GPIO))

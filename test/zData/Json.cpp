@@ -52,8 +52,8 @@ zDataTest_JsonSimple(void* arg_)
   TEST_EQ(MyData1.GetXml(), std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData/>"));
 
   // Set value and validate
-  TEST_TRUE(MyData1.Put(MyPath1, val));
-  TEST_TRUE(MyData1.Get(MyPath1, obs));
+  TEST_TRUE(MyData1.PutValue(MyPath1, val));
+  TEST_TRUE(MyData1.GetValue(MyPath1, obs));
   TEST_EQ(obs, val);
 
   // Create second empty data object and validate
@@ -67,7 +67,7 @@ zDataTest_JsonSimple(void* arg_)
   // Set the second data object from the first using only JSON
   TEST_TRUE(MyData2.SetJson(MyData1.GetJson()));
 //  TEST_EQ(MyData2.Key(), MyPath1.Key());
-  TEST_TRUE(MyData1.Get(MyPath1, obs));
+  TEST_TRUE(MyData1.GetValue(MyPath1, obs));
   TEST_EQ(obs, val);
   TEST_EQ(MyData2.GetJson(), MyData1.GetJson());
   TEST_EQ(MyData2.GetXml(), MyData1.GetXml());

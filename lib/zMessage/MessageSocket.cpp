@@ -99,7 +99,7 @@ MessageSocket::Send(const zSocket::SocketAddress& addr_, const zMessage::Message
 }
 
 bool
-MessageSocket::EventHandler(const zEvent::EventNotification* notification_)
+MessageSocket::EventHandler(zEvent::EventNotification* notification_)
 {
 
   ZLOG_DEBUG("Handling socket event");

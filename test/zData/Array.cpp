@@ -48,14 +48,13 @@ zDataTest_Array(void* arg)
   {
     std::stringstream val;
     val << "value" << i;
-    TEST_TRUE(ParentData->Add(ChildPath, val.str()));
+    TEST_TRUE(ParentData->AddValue(ChildPath, val.str()));
   }
 //  ParentData->DisplayJson();
 
   TEST_EQ(1, ParentData->Size());
 
-  std::unique_ptr<zData::Data> ChildData = ParentData->operator [](0);
-  TEST_TRUE(ChildData != NULL);
+  zData::Data ChildData = ParentData->operator ()("Child");
 //  ChildData->DisplayJson();
 //  ChildData->DisplayPath();
 
@@ -64,11 +63,10 @@ zDataTest_Array(void* arg)
   {
     std::stringstream val;
     val << "value" << i;
-    std::unique_ptr<zData::Data> MyData = ChildData->operator [](i);
-    TEST_TRUE(MyData != NULL);
+    zData::Data MyData = ChildData[i];
 //    MyData->DisplayJson();
 //    MyData->DisplayPath();
-    TEST_TRUE(MyData->Get(MyData->GetDataPath(), obs));
+    TEST_TRUE(MyData.GetValue(MyData.GetDataPath(), obs));
     TEST_EQ(obs, val.str());
   }
 

@@ -38,12 +38,12 @@ zInterfaceTest_InterfaceFactory(void* arg)
   TEST_TRUE(iface.SetName(std::string("lo")));
   TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_LOOP));
 
-  TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
+  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
 
   TEST_TRUE(iface.SetName(std::string("eth0")));
   TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_WIRED));
 
-  TEST_TRUE_MSG(config.Add(iface.GetData()), iface.GetJson());
+  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
 
   InterfaceTable MyTable = InterfaceFactory::Create(config);
   TEST_ISNOT_NULL(MyTable["lo"].get());

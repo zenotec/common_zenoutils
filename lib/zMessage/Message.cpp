@@ -42,6 +42,8 @@ namespace zMessage
 // Message
 //**********************************************************************
 
+const std::string Message::DataIdDefault("");
+
 const std::string Message::DataTypeNone("None");
 const std::string Message::DataTypeAuth("Auth");
 const std::string Message::DataTypeHello("Hello");
@@ -53,7 +55,6 @@ const std::string Message::DataTypeCommand("Cmd");
 const std::string Message::DataTypeData("Data");
 const std::string Message::DataTypeDefault(DataTypeNone);
 
-const std::string Message::DataIdDefault("");
 const std::string Message::DataDstDefault("");
 const std::string Message::DataSrcDefault("");
 
@@ -66,8 +67,9 @@ Message::Message() :
 }
 
 Message::Message(const zData::Data &data_) :
-    zData::Data(data_)
+    zData::Data(MessagePath::DataRoot)
 {
+  this->PutChild(data_);
   ZLOG_DEBUG("Message::Message(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -97,8 +99,7 @@ std::string
 Message::GetId() const
 {
   std::string id;
-  MessagePath path;
-  if (!this->Get(path.Id(), id))
+  if (!this->GetValue(MessagePath(MessagePath::IdDataPath), id))
   {
     id = DataIdDefault;
   }
@@ -108,17 +109,14 @@ Message::GetId() const
 bool
 Message::SetId(const std::string &id_)
 {
-  MessagePath path;
-  return (this->Put(path.Id(), id_));
+  return (this->PutValue(MessagePath(MessagePath::IdDataPath), id_));
 }
 
 Message::TYPE
 Message::GetType() const
 {
   std::string type;
-  MessagePath path;
-
-  if (this->Get(path.Type(), type))
+  if (this->GetValue(MessagePath(MessagePath::TypeDataPath), type))
   {
     if (type == Message::DataTypeAuth)
     {
@@ -167,51 +165,48 @@ Message::GetType() const
 bool
 Message::SetType(const Message::TYPE &type_)
 {
-  bool status = false;
-  MessagePath path;
+  std::string value;
   switch (type_)
   {
   case Message::TYPE_AUTH:
-    status = this->Put(path.Type(), Message::DataTypeAuth);
+    value = Message::DataTypeAuth;
     break;
   case Message::TYPE_HELLO:
-    status = this->Put(path.Type(), Message::DataTypeHello);
+    value = Message::DataTypeHello;
     break;
   case Message::TYPE_ACK:
-    status = this->Put(path.Type(), Message::DataTypeAck);
+    value = Message::DataTypeAck;
     break;
   case Message::TYPE_BYE:
-    status = this->Put(path.Type(), Message::DataTypeBye);
+    value = Message::DataTypeBye;
     break;
   case Message::TYPE_NODE:
-    status = this->Put(path.Type(), Message::DataTypeNode);
+    value = Message::DataTypeNode;
     break;
   case Message::TYPE_CFG:
-    status = this->Put(path.Type(), Message::DataTypeConfig);
+    value = Message::DataTypeConfig;
     break;
   case Message::TYPE_CMD:
-    status = this->Put(path.Type(), Message::DataTypeCommand);
+    value = Message::DataTypeCommand;
     break;
   case Message::TYPE_DATA:
-    status = this->Put(path.Type(), Message::DataTypeData);
+    value = Message::DataTypeData;
     break;
   case Message::TYPE_NONE:
-    status = this->Put(path.Type(), Message::DataTypeNone);
+    value = Message::DataTypeNone;
     break;
   default:
-    this->Put(path.Type(), std::string(""));
-    status = false;
+    return (false);
     break;
   }
-  return (status);
+  return (this->PutValue(MessagePath(MessagePath::TypeDataPath), value));
 }
 
 std::string
 Message::GetDst() const
 {
   std::string dst;
-  MessagePath path;
-  if (!this->Get(path.Dst(), dst))
+  if (!this->GetValue(MessagePath(MessagePath::DstDataPath), dst))
   {
     dst = DataDstDefault;
   }
@@ -221,16 +216,14 @@ Message::GetDst() const
 bool
 Message::SetDst(const std::string &to_)
 {
-  MessagePath path;
-  return (this->Put(path.Dst(), to_));
+  return (this->PutValue(MessagePath(MessagePath::DstDataPath), to_));
 }
 
 std::string
 Message::GetSrc() const
 {
   std::string src;
-  MessagePath path;
-  if (!this->Get(path.Src(), src))
+  if (!this->GetValue(MessagePath(MessagePath::SrcDataPath), src))
   {
     src = DataSrcDefault;
   }
@@ -240,24 +233,19 @@ Message::GetSrc() const
 bool
 Message::SetSrc(const std::string &from_)
 {
-  MessagePath path;
-  return (this->Put(path.Src(), from_));
+  return (this->PutValue(MessagePath(MessagePath::SrcDataPath), from_));
 }
 
 zData::Data
 Message::GetData() const
 {
-  zData::Data data;
-  MessagePath path;
-  this->Get(path.Data(), data);
-  return (data);
+  return (this->operator ()(MessagePath::DataDataPath));
 }
 
 bool
 Message::SetData(const zData::Data &data_)
 {
-  MessagePath path;
-  return (this->Put(path.Data(), data_));
+  return (this->PutChild(MessagePath(MessagePath::DataDataPath), data_));
 }
 
 }

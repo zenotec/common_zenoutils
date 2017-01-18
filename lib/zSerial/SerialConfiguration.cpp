@@ -113,7 +113,7 @@ SerialConfigData::GetType() const
 {
   std::string str;
   SerialConfigPath path;
-  if (!this->Get(path.Type(), str))
+  if (!this->GetValue(path.Type(), str))
   {
     str = ConfigTypeNone;
   }
@@ -124,7 +124,7 @@ bool
 SerialConfigData::SetType(const std::string& type_)
 {
   SerialConfigPath path;
-  return (this->Put(path.Type(), type_));
+  return (this->PutValue(path.Type(), type_));
 }
 
 }

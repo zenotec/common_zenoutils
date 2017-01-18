@@ -58,14 +58,14 @@ zConfigTest_FileLoadStore(void* arg_)
   // Update configuration data
   std::string obs1;
   std::string val1 = "Value1";
-  TEST_TRUE(ExpData->Put(MyPath1.GetDataPath(), val1));
-  TEST_TRUE(ExpData->Get(MyPath1.GetDataPath(), obs1));
+  TEST_TRUE(ExpData->PutValue(MyPath1.GetDataPath(), val1));
+  TEST_TRUE(ExpData->GetValue(MyPath1.GetDataPath(), obs1));
   TEST_EQ(val1, obs1);
 
   std::string obs2;
   std::string val2 = "Value2";
-  TEST_TRUE(ExpData->Put(MyPath2.GetDataPath(), val2));
-  TEST_TRUE(ExpData->Get(MyPath2.GetDataPath(), obs2));
+  TEST_TRUE(ExpData->PutValue(MyPath2.GetDataPath(), val2));
+  TEST_TRUE(ExpData->GetValue(MyPath2.GetDataPath(), obs2));
   TEST_EQ(val2, obs2);
 
   // Verify data is not equal

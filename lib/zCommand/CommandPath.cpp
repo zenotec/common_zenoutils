@@ -39,40 +39,31 @@ namespace zCommand
 //**********************************************************************
 
 const std::string CommandPath::DataRoot("zCommand");
-const std::string CommandPath::DataNamePath("Name");
-const std::string CommandPath::DataOutputPath("Output");
+const std::string CommandPath::NameDataPath("Name");
+const std::string CommandPath::OptionDataPath(CommandOptionPath::DataRoot);
+const std::string CommandPath::OutputDataPath("Output");
 
-CommandPath::CommandPath() :
+CommandPath::CommandPath(const std::string& root_) :
     zData::DataPath(DataRoot)
+{
+  if (!root_.empty())
+  {
+    this->_root.push_back(root_);
+  }
+}
+
+CommandPath::CommandPath(const CommandPath& other_) :
+    zData::DataPath(other_)
+{
+}
+
+CommandPath::CommandPath(const zData::DataPath& path_) :
+    zData::DataPath(path_)
 {
 }
 
 CommandPath::~CommandPath()
 {
-}
-
-zData::DataPath
-CommandPath::Name()
-{
-  zData::DataPath path(*this);
-  path.Append(DataNamePath);
-  return (path);
-}
-
-zData::DataPath
-CommandPath::Option()
-{
-  zData::DataPath path(*this);
-  path.Append(CommandOptionPath::DataRoot);
-  return (path);
-}
-
-zData::DataPath
-CommandPath::Output()
-{
-  zData::DataPath path(*this);
-  path.Append(DataOutputPath);
-  return (path);
 }
 
 }

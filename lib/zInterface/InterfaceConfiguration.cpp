@@ -122,7 +122,7 @@ InterfaceConfigData::InterfaceConfigData() :
 InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :
     zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
 {
-  this->Put(data_);
+  this->PutChild(data_);
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -131,7 +131,7 @@ InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :
 InterfaceConfigData::InterfaceConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
 {
-  this->Put(config_.GetData());
+  this->PutChild(config_.GetData());
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -154,7 +154,7 @@ InterfaceConfigData::GetName() const
 {
   std::string str;
   InterfaceConfigPath path;
-  if (!this->Get(path.Name(), str))
+  if (!this->GetValue(path.Name(), str))
   {
     str = ConfigNameDefault;
   }
@@ -165,7 +165,7 @@ bool
 InterfaceConfigData::SetName(const std::string& name_)
 {
   InterfaceConfigPath path;
-  return (this->Put(path.Name(), name_));
+  return (this->PutValue(path.Name(), name_));
 }
 
 InterfaceConfigData::TYPE
@@ -174,7 +174,7 @@ InterfaceConfigData::GetType() const
   InterfaceConfigData::TYPE type = InterfaceConfigData::TYPE_DEF;
   std::string str;
   InterfaceConfigPath path;
-  if (this->Get(path.Type(), str))
+  if (this->GetValue(path.Type(), str))
   {
     if (str == InterfaceConfigData::ConfigTypeNone)
     {
@@ -244,7 +244,7 @@ InterfaceConfigData::SetType(const InterfaceConfigData::TYPE type_)
   default:
     status = false;
   }
-  return (this->Put(path.Type(), str));
+  return (this->PutValue(path.Type(), str));
 }
 
 std::string
@@ -252,7 +252,7 @@ InterfaceConfigData::GetAddress() const
 {
   std::string str;
   InterfaceConfigPath path;
-  if (!this->Get(path.Address(), str))
+  if (!this->GetValue(path.Address(), str))
   {
     str = ConfigAddressDefault;
   }
@@ -263,7 +263,7 @@ bool
 InterfaceConfigData::SetAddress(const std::string& addr_)
 {
   InterfaceConfigPath path;
-  return (this->Put(path.Address(), addr_));
+  return (this->PutValue(path.Address(), addr_));
 }
 
 InterfaceConfigData::STATE
@@ -272,7 +272,7 @@ InterfaceConfigData::GetState() const
   InterfaceConfigData::STATE state = InterfaceConfigData::STATE_DEF;
   std::string str;
   InterfaceConfigPath path;
-  if (this->Get(path.State(), str))
+  if (this->GetValue(path.State(), str))
   {
     if (str == InterfaceConfigData::ConfigStateUp)
     {
@@ -316,7 +316,7 @@ InterfaceConfigData::SetState(const InterfaceConfigData::STATE state_)
   default:
     status = false;
   }
-  return (this->Put(path.State(), str));
+  return (this->PutValue(path.State(), str));
 }
 
 

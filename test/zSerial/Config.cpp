@@ -52,8 +52,8 @@ zSerialTest_SerialConfigDataCtor(void *arg_)
   // Create new serial config data and verify
   zConfig::ConfigData MyData(path);
   exp = zSerial::SerialConfigData::ConfigTypeEcho;
-  TEST_TRUE(MyData.Put(path.Type(), exp));
-  TEST_TRUE(MyData.Get(path.Type(), obs));
+  TEST_TRUE(MyData.PutValue(path.Type(), exp));
+  TEST_TRUE(MyData.GetValue(path.Type(), obs));
   TEST_EQ(obs, exp);
 
   zSerial::SerialConfigData *MyConfig2 = new zSerial::SerialConfigData(MyData.GetData());
@@ -98,8 +98,8 @@ zSerialTest_SerialConfigDataGetSet(void *arg_)
   // Create new serial config data and verify
   zConfig::ConfigData MyData(path);
   exp = zSerial::SerialConfigData::ConfigTypeDefault;
-  TEST_TRUE(MyData.Put(path.Type(), exp));
-  TEST_TRUE(MyData.Get(path.Type(), obs));
+  TEST_TRUE(MyData.PutValue(path.Type(), exp));
+  TEST_TRUE(MyData.GetValue(path.Type(), obs));
   TEST_EQ(obs, exp);
 
   // Create new config data and verify
@@ -143,38 +143,38 @@ zSerialTest_TtyConfigDataCtor(void *arg_)
   // Create new serial config data and verify
   zConfig::ConfigData MyData(path);
   exp = zSerial::SerialConfigData::ConfigTypeTty;
-  TEST_TRUE(MyData.Put(path.Type(), exp));
-  TEST_TRUE(MyData.Get(path.Type(), obs));
+  TEST_TRUE(MyData.PutValue(path.Type(), exp));
+  TEST_TRUE(MyData.GetValue(path.Type(), obs));
   TEST_EQ(obs, exp);
 
   exp = std::string("/dev/tty");
-  TEST_TRUE(MyData.Put(path.Device(), exp));
-  TEST_TRUE(MyData.Get(path.Device(), obs));
+  TEST_TRUE(MyData.PutValue(path.Device(), exp));
+  TEST_TRUE(MyData.GetValue(path.Device(), obs));
   TEST_EQ(obs, exp);
 
   exp = zSerial::TtySerialConfigData::ConfigBaud38400;
-  TEST_TRUE(MyData.Put(path.Baud(), exp));
-  TEST_TRUE(MyData.Get(path.Baud(), obs));
+  TEST_TRUE(MyData.PutValue(path.Baud(), exp));
+  TEST_TRUE(MyData.GetValue(path.Baud(), obs));
   TEST_EQ(obs, exp);
 
   exp = zSerial::TtySerialConfigData::ConfigDatabits6;
-  TEST_TRUE(MyData.Put(path.Databits(), exp));
-  TEST_TRUE(MyData.Get(path.Databits(), obs));
+  TEST_TRUE(MyData.PutValue(path.Databits(), exp));
+  TEST_TRUE(MyData.GetValue(path.Databits(), obs));
   TEST_EQ(obs, exp);
 
   exp = zSerial::TtySerialConfigData::ConfigStopbits2;
-  TEST_TRUE(MyData.Put(path.Stopbits(), exp));
-  TEST_TRUE(MyData.Get(path.Stopbits(), obs));
+  TEST_TRUE(MyData.PutValue(path.Stopbits(), exp));
+  TEST_TRUE(MyData.GetValue(path.Stopbits(), obs));
   TEST_EQ(obs, exp);
 
   exp = zSerial::TtySerialConfigData::ConfigParityOdd;
-  TEST_TRUE(MyData.Put(path.Parity(), exp));
-  TEST_TRUE(MyData.Get(path.Parity(), obs));
+  TEST_TRUE(MyData.PutValue(path.Parity(), exp));
+  TEST_TRUE(MyData.GetValue(path.Parity(), obs));
   TEST_EQ(obs, exp);
 
   exp = zSerial::TtySerialConfigData::ConfigFlowCtrlHard;
-  TEST_TRUE(MyData.Put(path.FlowCtrl(), exp));
-  TEST_TRUE(MyData.Get(path.FlowCtrl(), obs));
+  TEST_TRUE(MyData.PutValue(path.FlowCtrl(), exp));
+  TEST_TRUE(MyData.GetValue(path.FlowCtrl(), obs));
   TEST_EQ(obs, exp);
 
   zSerial::TtySerialConfigData *MyConfig2 = new zSerial::TtySerialConfigData(MyData.GetData());

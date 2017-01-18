@@ -30,10 +30,10 @@ zInterfaceTest_InterfaceConfigurationCtor (void* arg)
   // Setup configuration object to mimic a InterfaceConfiguration configuration object
   InterfaceConfigPath path;
   ConfigData config(path);
-  TEST_TRUE(config.Put(path.Name(), std::string("eth0")));
-  TEST_TRUE(config.Put(path.Type(), InterfaceConfigData::ConfigTypeWired));
-  TEST_TRUE(config.Put(path.Address(), std::string("1.2.3.4")));
-  TEST_TRUE(config.Put(path.State(), InterfaceConfigData::ConfigStateUp));
+  TEST_TRUE(config.PutValue(path.Name(), std::string("eth0")));
+  TEST_TRUE(config.PutValue(path.Type(), InterfaceConfigData::ConfigTypeWired));
+  TEST_TRUE(config.PutValue(path.Address(), std::string("1.2.3.4")));
+  TEST_TRUE(config.PutValue(path.State(), InterfaceConfigData::ConfigStateUp));
 
   // Construct and verify
   InterfaceConfigData *MyConfig = new InterfaceConfigData (config);

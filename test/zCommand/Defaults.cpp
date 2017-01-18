@@ -36,6 +36,11 @@ using namespace zUtils::zCommand;
 int
 zCommandTest_CommandPathDefaults(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zCommandTest_CommandPathDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new command path and validate
   CommandPath MyPath;
   TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyPath.Root());
@@ -47,6 +52,11 @@ zCommandTest_CommandPathDefaults(void* arg_)
 int
 zCommandTest_CommandDataDefaults(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zCommandTest_CommandDataDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new command data and validate
   CommandData MyData;
   TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyData.Root());
@@ -61,6 +71,11 @@ zCommandTest_CommandDataDefaults(void* arg_)
 int
 zCommandTest_CommandDefaults(void* arg_)
 {
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zCommandTest_CommandDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
   // Create new test command and validate
   TestCommand MyCommand;
   TEST_EQ((zData::DataPath::DataRoot + "." + CommandPath::DataRoot), MyCommand.Root());

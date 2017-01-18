@@ -73,6 +73,34 @@ DataPath::~DataPath()
   this->_path.clear();
 }
 
+DataPath &
+DataPath::operator=(DataPath& other_)
+{
+  this->_root = other_._root;
+  this->_path = other_._path;
+  return(*this);
+}
+
+DataPath &
+DataPath::operator=(const DataPath& other_)
+{
+  this->_root = other_._root;
+  this->_path = other_._path;
+  return(*this);
+}
+
+DataPath &
+DataPath::operator+=(const DataPath& other_)
+{
+  std::list<std::string>path = other_._path;
+  while(!path.empty())
+  {
+    this->_path.push_back(path.front());
+    path.pop_front();
+  }
+  return(*this);
+}
+
 bool
 DataPath::operator ==(const DataPath& other_) const
     {
@@ -88,7 +116,7 @@ DataPath::operator !=(const DataPath& other_) const
 DataPath
 DataPath::operator ()(const std::string& path_)
 {
-  DataPath path;
+  DataPath path(*this);
   path.Append(path_);
   return (path);
 }

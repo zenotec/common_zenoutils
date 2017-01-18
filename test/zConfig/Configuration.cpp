@@ -39,8 +39,8 @@ zConfigTest_ConfigurationCtor(void* arg_)
   TEST_TRUE(NamePath.Append("Name"));
   std::string val = "Elvis";
   std::string obs = "";
-  TEST_TRUE(MyData->Put(NamePath, val));
-  TEST_TRUE(MyData->Get(NamePath, obs));
+  TEST_TRUE(MyData->PutValue(NamePath, val));
+  TEST_TRUE(MyData->GetValue(NamePath, obs));
   TEST_EQ(obs, val);
 
   // Create const configuration data item from data item and verify
@@ -79,8 +79,8 @@ zConfigTest_ConfigurationGetSetData(void* arg_)
 
 // Setup data item and verify
   exp = "Elvis";
-  TEST_TRUE(MyData->Put(MyData->GetDataPath(), exp));
-  TEST_TRUE(MyData->Get(MyData->GetDataPath(), obs));
+  TEST_TRUE(MyData->PutValue(MyData->GetDataPath(), exp));
+  TEST_TRUE(MyData->GetValue(MyData->GetDataPath(), obs));
   TEST_EQ(exp, obs);
 //  MyData->DisplayJson();
 
@@ -126,7 +126,7 @@ zConfigTest_ConfigurationCompare(void* arg_)
 
   zConfig::ConfigData MyData("Employee");
   std::string val = "Elvis";
-  TEST_TRUE(MyData.Put(MyData.GetDataPath(), val));
+  TEST_TRUE(MyData.PutValue(MyData.GetDataPath(), val));
 
   // Modify first configuration data item
   TEST_TRUE(MyConfig1->Put(MyData));
@@ -190,8 +190,8 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   // Setup data item and verify
   std::string val1 = "Moe";
   std::string obs1 = "";
-  TEST_TRUE(MyData1->Put(MyData1->GetDataPath(), val1));
-  TEST_TRUE(MyData1->Get(MyData1->GetDataPath(), obs1));
+  TEST_TRUE(MyData1->PutValue(MyData1->GetDataPath(), val1));
+  TEST_TRUE(MyData1->GetValue(MyData1->GetDataPath(), obs1));
   TEST_EQ(obs1, val1);
 
   // Create new data item and verify
@@ -201,8 +201,8 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   // Setup data item and verify
   std::string val2 = "Larry";
   std::string obs2 = "";
-  TEST_TRUE(MyData2->Put(MyData2->GetDataPath(), val2));
-  TEST_TRUE(MyData2->Get(MyData2->GetDataPath(), obs2));
+  TEST_TRUE(MyData2->PutValue(MyData2->GetDataPath(), val2));
+  TEST_TRUE(MyData2->GetValue(MyData2->GetDataPath(), obs2));
   TEST_EQ(obs2, val2);
 
   // Create new data item and verify
@@ -212,8 +212,8 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   // Setup data item and verify
   std::string val3 = "Curly";
   std::string obs3 = "";
-  TEST_TRUE(MyData3->Put(MyData3->GetDataPath(), val3));
-  TEST_TRUE(MyData3->Get(MyData3->GetDataPath(), obs3));
+  TEST_TRUE(MyData3->PutValue(MyData3->GetDataPath(), val3));
+  TEST_TRUE(MyData3->GetValue(MyData3->GetDataPath(), obs3));
   TEST_EQ(obs3, val3);
 
   // Add the data items and verify (only updates staging data)
@@ -232,24 +232,21 @@ zConfigTest_ConfigurationDataArray(void* arg_)
   zConfig::ConfigData ObsData;
   TEST_TRUE(MyConfig->Get(ObsData));
 
-  std::unique_ptr<zData::Data> d;
+  zData::Data d;
 
   d = ObsData[0];
-  TEST_FALSE(d == NULL);
 //  d->DisplayJson();
-  TEST_TRUE(d->Get(d->GetDataPath(), obs1));
+  TEST_TRUE(d.GetValue(d.GetDataPath(), obs1));
   TEST_EQ(obs1, val1);
 
   d = ObsData[1];
-  TEST_FALSE(d == NULL);
 //  d->DisplayJson();
-  TEST_TRUE(d->Get(d->GetDataPath(), obs2));
+  TEST_TRUE(d.GetValue(d.GetDataPath(), obs2));
   TEST_EQ(obs2, val2);
 
   d = ObsData[2];
-  TEST_FALSE(d == NULL);
-//  d->DisplayJson();
-  TEST_TRUE(d->Get(d->GetDataPath(), obs3));
+//  d.DisplayJson();
+  TEST_TRUE(d.GetValue(d.GetDataPath(), obs3));
   TEST_EQ(obs3, val3);
 
   // Cleanup
@@ -306,14 +303,14 @@ zConfigTest_ConfigurationLoadStore(void* arg_)
   // Update configuration data
   std::string obs1;
   std::string val1 = "Value1";
-  TEST_TRUE(ExpData->Put(MyPath1.GetDataPath(), val1));
-  TEST_TRUE(ExpData->Get(MyPath1.GetDataPath(), obs1));
+  TEST_TRUE(ExpData->PutValue(MyPath1.GetDataPath(), val1));
+  TEST_TRUE(ExpData->GetValue(MyPath1.GetDataPath(), obs1));
   TEST_EQ(val1, obs1);
 
   std::string obs2;
   std::string val2 = "Value2";
-  TEST_TRUE(ExpData->Put(MyPath2.GetDataPath(), val2));
-  TEST_TRUE(ExpData->Get(MyPath2.GetDataPath(), obs2));
+  TEST_TRUE(ExpData->PutValue(MyPath2.GetDataPath(), val2));
+  TEST_TRUE(ExpData->GetValue(MyPath2.GetDataPath(), obs2));
   TEST_EQ(val2, obs2);
 
   // Verify data is not equal

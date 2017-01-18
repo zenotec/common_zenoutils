@@ -476,10 +476,10 @@ Interface::HwAddress()
 }
 
 bool
-Interface::EventHandler(const zEvent::EventNotification* notification_)
+Interface::EventHandler(zEvent::EventNotification* notification_)
 {
   bool status = false;
-  const zTimer::TimerNotification *n = NULL;
+  zTimer::TimerNotification *n = NULL;
 
   if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
   {

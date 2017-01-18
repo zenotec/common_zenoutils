@@ -43,7 +43,7 @@ public:
   }
 
   virtual bool
-  EventHandler(const zEvent::EventNotification* notification_)
+  EventHandler(zEvent::EventNotification* notification_)
   {
     this->_cnt++;
   }

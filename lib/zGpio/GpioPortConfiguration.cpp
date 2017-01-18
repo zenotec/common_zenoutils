@@ -164,43 +164,17 @@ const std::string GpioConfigData::ConfigEdgeValueDefault(ConfigEdgeValueNone);
 GpioConfigData::GpioConfigData() :
     zConfig::ConfigData(GpioConfigPath::ConfigRoot)
 {
-  this->Identifier(ConfigIdentifierDefault);
-  this->ExportFilename(ConfigExportFilenameDefault);
-  this->UnexportFilename(ConfigUnexportFilenameDefault);
-  this->DirectionFilename(ConfigDirectionFilenameDefault);
-  this->Direction(ConfigDirectionValueDefault);
-  this->StateFilename(ConfigStateFilenameDefault);
-  this->State(ConfigStateValueDefault);
-  this->EdgeFilename(ConfigEdgeFilenameDefault);
-  this->Edge(ConfigEdgeValueDefault);
 }
 
 GpioConfigData::GpioConfigData(zData::Data& data_) :
-    zConfig::ConfigData(data_)
+    zConfig::ConfigData(GpioConfigPath::ConfigRoot)
 {
-  this->Identifier(this->Identifier());
-  this->ExportFilename(this->ExportFilename());
-  this->UnexportFilename(this->UnexportFilename());
-  this->DirectionFilename(this->DirectionFilename());
-  this->Direction(this->Direction());
-  this->StateFilename(this->StateFilename());
-  this->State(this->State());
-  this->EdgeFilename(this->EdgeFilename());
-  this->Edge(this->Edge());
+  this->PutChild(data_);
 }
 
 GpioConfigData::GpioConfigData(zConfig::ConfigData& config_) :
     zConfig::ConfigData(config_)
 {
-  this->Identifier(this->Identifier());
-  this->ExportFilename(this->ExportFilename());
-  this->UnexportFilename(this->UnexportFilename());
-  this->DirectionFilename(this->DirectionFilename());
-  this->Direction(this->Direction());
-  this->StateFilename(this->StateFilename());
-  this->State(this->State());
-  this->EdgeFilename(this->EdgeFilename());
-  this->Edge(this->Edge());
 }
 
 GpioConfigData::~GpioConfigData()
@@ -212,7 +186,7 @@ GpioConfigData::Identifier() const
 {
   int id;
   GpioConfigPath path;
-  if (!this->Get(path.Identifier(), id))
+  if (!this->GetValue(path.Identifier(), id))
   {
     id = ConfigIdentifierDefault;
   }
@@ -223,7 +197,7 @@ bool
 GpioConfigData::Identifier(const int id_)
 {
   GpioConfigPath path;
-  return (this->Put(path.Identifier(), id_));
+  return (this->PutValue(path.Identifier(), id_));
 }
 
 std::string
@@ -231,7 +205,7 @@ GpioConfigData::ExportFilename() const
 {
   std::string filename;
   GpioConfigPath path;
-  if (!this->Get(path.ExportFilename(), filename))
+  if (!this->GetValue(path.ExportFilename(), filename))
   {
     filename = ConfigExportFilenameDefault;
   }
@@ -242,7 +216,7 @@ bool
 GpioConfigData::ExportFilename(const std::string& filename_)
 {
   GpioConfigPath path;
-  return (this->Put(path.ExportFilename(), filename_));
+  return (this->PutValue(path.ExportFilename(), filename_));
 }
 
 std::string
@@ -250,7 +224,7 @@ GpioConfigData::UnexportFilename() const
 {
   std::string filename;
   GpioConfigPath path;
-  if (!this->Get(path.UnexportFilename(), filename))
+  if (!this->GetValue(path.UnexportFilename(), filename))
   {
     filename = ConfigUnexportFilenameDefault;
   }
@@ -261,7 +235,7 @@ bool
 GpioConfigData::UnexportFilename(const std::string& filename_)
 {
   GpioConfigPath path;
-  return (this->Put(path.UnexportFilename(), filename_));
+  return (this->PutValue(path.UnexportFilename(), filename_));
 }
 
 std::string
@@ -269,7 +243,7 @@ GpioConfigData::DirectionFilename() const
 {
   std::string filename;
   GpioConfigPath path;
-  if (!this->Get(path.DirectionFilename(), filename))
+  if (!this->GetValue(path.DirectionFilename(), filename))
   {
     filename = ConfigDirectionFilenameDefault;
   }
@@ -280,7 +254,7 @@ bool
 GpioConfigData::DirectionFilename(const std::string& filename_)
 {
   GpioConfigPath path;
-  return (this->Put(path.DirectionFilename(), filename_));
+  return (this->PutValue(path.DirectionFilename(), filename_));
 }
 
 std::string
@@ -288,7 +262,7 @@ GpioConfigData::Direction() const
 {
   std::string dir;
   GpioConfigPath path;
-  if (!this->Get(path.Direction(), dir))
+  if (!this->GetValue(path.Direction(), dir))
   {
     dir = ConfigDirectionValueDefault;
   }
@@ -299,7 +273,7 @@ bool
 GpioConfigData::Direction(const std::string& dir_)
 {
   GpioConfigPath path;
-  return (this->Put(path.Direction(), dir_));
+  return (this->PutValue(path.Direction(), dir_));
 }
 
 std::string
@@ -307,7 +281,7 @@ GpioConfigData::StateFilename() const
 {
   std::string filename;
   GpioConfigPath path;
-  if (!this->Get(path.StateFilename(), filename))
+  if (!this->GetValue(path.StateFilename(), filename))
   {
     filename = ConfigStateFilenameDefault;
   }
@@ -318,7 +292,7 @@ bool
 GpioConfigData::StateFilename(const std::string& filename_)
 {
   GpioConfigPath path;
-  return (this->Put(path.StateFilename(), filename_));
+  return (this->PutValue(path.StateFilename(), filename_));
 }
 
 std::string
@@ -326,7 +300,7 @@ GpioConfigData::State() const
 {
   std::string state;
   GpioConfigPath path;
-  if (!this->Get(path.State(), state))
+  if (!this->GetValue(path.State(), state))
   {
     state = ConfigStateValueDefault;
   }
@@ -337,7 +311,7 @@ bool
 GpioConfigData::State(const std::string& state_)
 {
   GpioConfigPath path;
-  return (this->Put(path.State(), state_));
+  return (this->PutValue(path.State(), state_));
 }
 
 std::string
@@ -345,7 +319,7 @@ GpioConfigData::EdgeFilename() const
 {
   std::string filename;
   GpioConfigPath path;
-  if (!this->Get(path.EdgeFilename(), filename))
+  if (!this->GetValue(path.EdgeFilename(), filename))
   {
     filename = ConfigEdgeFilenameDefault;
   }
@@ -356,7 +330,7 @@ bool
 GpioConfigData::EdgeFilename(const std::string& filename_)
 {
   GpioConfigPath path;
-  return (this->Put(path.EdgeFilename(), filename_));
+  return (this->PutValue(path.EdgeFilename(), filename_));
 }
 
 std::string
@@ -364,7 +338,7 @@ GpioConfigData::Edge() const
 {
   std::string edge;
   GpioConfigPath path;
-  if (!this->Get(path.Edge(), edge))
+  if (!this->GetValue(path.Edge(), edge))
   {
     edge = ConfigEdgeValueDefault;
   }
@@ -375,7 +349,7 @@ bool
 GpioConfigData::Edge(const std::string& edge_)
 {
   GpioConfigPath path;
-  return (this->Put(path.Edge(), edge_));
+  return (this->PutValue(path.Edge(), edge_));
 }
 
 }

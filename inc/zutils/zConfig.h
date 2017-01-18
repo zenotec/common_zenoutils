@@ -297,7 +297,7 @@ public:
       // Begin critical section
       if (this->_lock.Lock())
       {
-        status = this->_working.Get<T>(path_.GetDataPath(), val_);
+        status = this->_working.GetValue<T>(path_.GetDataPath(), val_);
         // End critical section
         this->_lock.Unlock();
       }
@@ -323,7 +323,7 @@ public:
       // Begin critical section
       if (this->_lock.Lock())
       {
-        if (this->_staging.Put<T>(path_.GetDataPath(), value_))
+        if (this->_staging.PutValue<T>(path_.GetDataPath(), value_))
         {
           this->_modified = true;
           status = true;
@@ -353,7 +353,7 @@ public:
       // Begin critical section
       if (this->_lock.Lock())
       {
-        if (this->_staging.Add<T>(path_.GetDataPath(), value_))
+        if (this->_staging.AddValue<T>(path_.GetDataPath(), value_))
         {
           this->_modified = true;
           status = true;

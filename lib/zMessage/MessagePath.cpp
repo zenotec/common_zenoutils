@@ -32,11 +32,11 @@ namespace zMessage
 //**********************************************************************
 
 const std::string MessagePath::DataRoot("zMessage");
-const std::string MessagePath::DataTypePath("Type");
-const std::string MessagePath::DataIdPath("Id");
-const std::string MessagePath::DataDstPath("Dst");
-const std::string MessagePath::DataSrcPath("Src");
-const std::string MessagePath::DataDataPath("Data");
+const std::string MessagePath::TypeDataPath("Type");
+const std::string MessagePath::IdDataPath("Id");
+const std::string MessagePath::DstDataPath("Dst");
+const std::string MessagePath::SrcDataPath("Src");
+const std::string MessagePath::DataDataPath(zData::DataPath::DataRoot);
 
 MessagePath::MessagePath(const std::string& root_) :
     zData::DataPath(MessagePath::DataRoot)
@@ -47,8 +47,8 @@ MessagePath::MessagePath(const std::string& root_) :
   }
 }
 
-MessagePath::MessagePath(zData::DataPath& path_) :
-    zData::DataPath(path_)
+MessagePath::MessagePath(const MessagePath& other_) :
+    zData::DataPath(other_)
 {
 }
 
@@ -59,70 +59,6 @@ MessagePath::MessagePath(const zData::DataPath& path_) :
 
 MessagePath::~MessagePath()
 {
-}
-
-zData::DataPath&
-MessagePath::GetDataPath()
-{
-  return (*this);
-}
-
-const zData::DataPath&
-MessagePath::GetDataPath() const
-{
-  return (*this);
-}
-
-MessagePath&
-MessagePath::GetMessagePath()
-{
-  return (*this);
-}
-
-const MessagePath&
-MessagePath::GetMessagePath() const
-{
-  return (*this);
-}
-
-zData::DataPath
-MessagePath::Id() const
-{
-  zData::DataPath path(*this);
-  path.Append(MessagePath::DataIdPath);
-  return(path);
-}
-
-zData::DataPath
-MessagePath::Type() const
-{
-  zData::DataPath path(*this);
-  path.Append(MessagePath::DataTypePath);
-  return(path);
-}
-
-zData::DataPath
-MessagePath::Dst() const
-{
-  zData::DataPath path(*this);
-  path.Append(MessagePath::DataDstPath);
-  return(path);
-}
-
-zData::DataPath
-MessagePath::Src() const
-{
-  zData::DataPath path(*this);
-  path.Append(MessagePath::DataSrcPath);
-  return(path);
-}
-
-zData::DataPath
-MessagePath::Data() const
-{
-  zData::DataPath path(*this);
-  path.Append(MessagePath::DataDataPath);
-  return(path);
 }
 
 }
