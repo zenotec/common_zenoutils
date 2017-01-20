@@ -112,11 +112,6 @@ InterfaceConfigData::InterfaceConfigData() :
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
-
-  this->SetName(this->GetName());
-  this->SetType(this->GetType());
-  this->SetState(this->GetState());
-  this->SetAddress(this->GetAddress());
 }
 
 InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :

@@ -18,7 +18,9 @@
  */
 
 // libc includes
+
 // libc++ includes
+
 // libzutils includes
 #include <zutils/zCompatibility.h>
 #include <zutils/zInterface.h>
@@ -44,11 +46,9 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
   InterfaceConfigPath path;
   zConfig::ConfigData data;
 
-  if (config_.GetChild(path, data.GetData()))
-  {
-    for (int i = 0; i < data.Size(); i++)
+    for (int i = 0; i < config_(zInterface::InterfaceConfigPath::ConfigRoot).Size(); i++)
     {
-      InterfaceConfigData config(data[i]);
+      InterfaceConfigData config(config_(zInterface::InterfaceConfigPath::ConfigRoot)[i]);
       SHARED_PTR(Interface)iface;
       if (config.GetType() == InterfaceConfigData::TYPE_WIRELESS)
       {
@@ -60,7 +60,6 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
       }
       ifaces[iface->GetName()] = iface;
     }
-  }
 
   return (ifaces);
 }
