@@ -21,7 +21,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <sys/timerfd.h>
-#include <sys/poll.h>
+#include <poll.h>
 
 #include <mutex>
 #include <list>

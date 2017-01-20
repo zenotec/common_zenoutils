@@ -41,6 +41,8 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
+    $(top_srcdir)/inc/zutils/zAckMessage.h \
+    $(top_srcdir)/inc/zutils/zByeMessage.h \
     $(top_srcdir)/inc/zutils/zCommand.h \
     $(top_srcdir)/inc/zutils/zCommandMessage.h \
     $(top_srcdir)/inc/zutils/zCompatibility.h \
@@ -52,6 +54,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zEvent.h \
     $(top_srcdir)/inc/zutils/zException.h \
     $(top_srcdir)/inc/zutils/zGpio.h \
+    $(top_srcdir)/inc/zutils/zHelloMessage.h \
     $(top_srcdir)/inc/zutils/zInetSocket.h \
     $(top_srcdir)/inc/zutils/zInterface.h \
     $(top_srcdir)/inc/zutils/zLed.h \

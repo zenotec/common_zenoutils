@@ -17,7 +17,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/poll.h>
+#include <poll.h>
 
 #include <zutils/zLog.h>
 #include <zutils/zTtySerialPort.h>
