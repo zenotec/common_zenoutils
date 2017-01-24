@@ -130,15 +130,12 @@ public:
   virtual void
   Close();
 
-  virtual bool
-  Bind();
-
-  virtual bool
-  Connect(const SocketAddress& addr_);
-
 protected:
 
   int _sock;
+
+  virtual bool
+  _bind();
 
   virtual ssize_t
   _recv(zSocket::UnixAddress &src_, zSocket::SocketBuffer &sb_);

@@ -52,32 +52,6 @@ private:
 
 };
 
-//**********************************************************************
-// Class: HelloObserver
-//**********************************************************************
-
-class HelloObserver : public zEvent::EventObserver
-{
-
-public:
-
-  HelloObserver();
-
-  virtual
-  ~HelloObserver();
-
-protected:
-
-  bool
-  EventHandler(zEvent::EventNotification* notification_);
-
-private:
-
-  bool
-  EventHandler(zMessage::MessageNotification* notification_);
-
-};
-
 }
 }
 

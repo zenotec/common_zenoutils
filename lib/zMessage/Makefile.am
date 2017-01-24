@@ -17,6 +17,7 @@ libzMessage_la_SOURCES = \
     ByeMessage.cpp \
 	ByeObserver.cpp \
     AckMessage.cpp \
+	AckObserver.cpp \
     CommandMessage.cpp \
     MessageFactory.cpp \
     MessageSocket.cpp

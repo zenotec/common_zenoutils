@@ -47,7 +47,7 @@ zSocketTest_AddressGetSet(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new socket address and validate
-  SocketAddress myAddr(SocketType::TYPE_TEST);
+  TestAddress myAddr;
   TEST_EQ(SocketType::TYPE_TEST, myAddr.Type());
   TEST_EQ(std::string(""), myAddr.Address());
   TEST_TRUE(myAddr.Address(std::string("some_address")));
@@ -66,12 +66,12 @@ zSocketTest_AddressCompare(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new socket address and validate
-  SocketAddress myAddr1(SocketType::TYPE_TEST);
+  TestAddress myAddr1;
   TEST_EQ(SocketType::TYPE_TEST, myAddr1.Type());
   TEST_EQ(std::string(""), myAddr1.Address());
 
   // Create another new socket address and validate
-  SocketAddress myAddr2(SocketType::TYPE_TEST);
+  TestAddress myAddr2;
   TEST_EQ(SocketType::TYPE_TEST, myAddr2.Type());
   TEST_EQ(std::string(""), myAddr2.Address());
 

@@ -98,9 +98,8 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Create new socket and validate
   zSocket::UnixSocket *MySrcSock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MySrcSock);
-  TEST_TRUE(MySrcSock->Address(*SrcAddr));
   TEST_TRUE(MySrcSock->Open());
-  TEST_TRUE(MySrcSock->Bind());
+  TEST_TRUE(MySrcSock->Bind(*SrcAddr));
 
   // Create new socket address and validate
   zSocket::UnixAddress *DstAddr = new zSocket::UnixAddress;
@@ -112,9 +111,8 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Create new socket and validate
   zSocket::UnixSocket *MyDstSock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MyDstSock);
-  TEST_TRUE(MyDstSock->Address(*DstAddr));
   TEST_TRUE(MyDstSock->Open());
-  TEST_TRUE(MyDstSock->Bind());
+  TEST_TRUE(MyDstSock->Bind(*DstAddr));
 
   // Create new socket handler and validate
   zEvent::EventHandler* MyHandler = new zEvent::EventHandler;

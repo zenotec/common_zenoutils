@@ -34,6 +34,7 @@
 #include <zutils/zData.h>
 #include <zutils/zSocket.h>
 #include <zutils/zLoopSocket.h>
+#include <zutils/zUnixSocket.h>
 
 #include <zutils/zMessage.h>
 #include <zutils/zMessageSocket.h>
@@ -68,7 +69,9 @@ int
 zMessageTest_MessageCopy(void* arg_);
 
 int
-zMessageTest_MessageSocket(void* arg_);
+zMessageTest_MessageLoopSocket(void* arg_);
+int
+zMessageTest_MessageUnixSocket(void* arg_);
 
 int
 zMessageTest_MessageHandler(void* arg_);

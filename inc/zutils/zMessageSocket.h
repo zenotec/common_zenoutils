@@ -17,6 +17,8 @@
 #ifndef __ZMESSAGESOCKET_H__
 #define __ZMESSAGESOCKET_H__
 
+#include <map>
+
 #include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
@@ -26,6 +28,97 @@ namespace zUtils
 namespace zMessage
 {
 
+class MessageNotification;
+
+//**********************************************************************
+// Class: HelloObserver
+//**********************************************************************
+
+class HelloObserver : public zEvent::EventObserver
+{
+
+public:
+
+  HelloObserver();
+
+  virtual
+  ~HelloObserver();
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+};
+
+//**********************************************************************
+// Class: ByeObserver
+//**********************************************************************
+
+class ByeObserver : public zEvent::EventObserver
+{
+
+public:
+
+  ByeObserver();
+
+  virtual
+  ~ByeObserver();
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+};
+
+//**********************************************************************
+// Class: AckObserver
+//**********************************************************************
+
+class AckObserver : public zEvent::EventObserver
+{
+
+public:
+
+  AckObserver();
+
+  virtual
+  ~AckObserver();
+
+  bool
+  RegisterForAck(const std::string& msg_id_);
+
+  bool
+  UnregisterForAck(const std::string& msg_id_);
+
+  bool
+  WaitForAck(const std::string& msg_id_, size_t ms_);
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  std::map<std::string, zSem::Semaphore> _id_table;
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+};
+
 //**********************************************************************
 // Class: MessageSocket
 //**********************************************************************
@@ -34,25 +127,32 @@ class MessageSocket : public zEvent::Event, public zEvent::EventObserver
 {
 
 public:
-  MessageSocket(zSocket::Socket *sock_);
+
+  MessageSocket();
 
   virtual
   ~MessageSocket();
 
-  virtual bool
-  Open();
-
-  virtual void
-  Close();
-
-  virtual bool
-  Bind();
-
-  virtual bool
-  Connect(const zSocket::SocketAddress& addr_);
+  bool
+  Listen(zSocket::Socket *sock_);
 
   bool
-  Send(const zSocket::SocketAddress& addr_, const zMessage::Message &msg_);
+  Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *sock_);
+
+  bool
+  Disconnect(const zSocket::SocketAddress& addr_);
+
+  bool
+  RegisterForAck(const std::string& msg_id_);
+
+  bool
+  UnregisterForAck(const std::string& msg_id_);
+
+  bool
+  WaitForAck(const std::string& msg_id_, size_t ms_);
+
+  bool
+  Send(zMessage::Message &msg_);
 
 protected:
 
@@ -61,8 +161,15 @@ protected:
 
 private:
 
-  zSocket::Socket* _sock;
+  bool
+  EventHandler(zSocket::SocketNotification* notification_);
+
+  std::map<std::string, zSocket::Socket*> _sock;
   zEvent::EventHandler _sock_handler;
+  zEvent::EventHandler _msg_handler;
+  HelloObserver _hello_obs;
+  ByeObserver _bye_obs;
+  AckObserver _ack_obs;
 
 };
 
@@ -98,9 +205,6 @@ public:
   Message::TYPE
   MessageType() const;
 
-  const zSocket::SocketAddress&
-  SrcAddr() const;
-
   zMessage::MessageSocket*
   Sock() const;
 
@@ -116,16 +220,12 @@ protected:
   type(Message::TYPE type_);
 
   bool
-  srcaddr(const zSocket::SocketAddress& addr_);
-
-  bool
   message(zMessage::Message* msg_);
 
 private:
 
   MessageNotification::ID _id;
   Message::TYPE _type;
-  zSocket::SocketAddress _addr;
   zMessage::Message* _msg;
 
 };

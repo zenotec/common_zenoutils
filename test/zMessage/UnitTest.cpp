@@ -46,7 +46,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zMessageTest_MessageGetSet, 0);
   UTEST_TEST(zMessageTest_MessageCopy, 0);
 
-  UTEST_TEST(zMessageTest_MessageSocket, 0);
+  UTEST_TEST(zMessageTest_MessageLoopSocket, 0);
+  UTEST_TEST(zMessageTest_MessageUnixSocket, 0);
 
 //  UTEST_TEST(zMessageTest_MessageHandler, 0);
 

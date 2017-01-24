@@ -36,7 +36,7 @@ class LoopAddress : public SocketAddress
 
 public:
 
-  LoopAddress(const std::string &name_ = std::string(""));
+  LoopAddress();
 
   virtual
   ~LoopAddress();
@@ -70,16 +70,16 @@ public:
   virtual void
   Close();
 
-  virtual bool
-  Bind();
-
-  virtual bool
-  Connect(const SocketAddress& addr_);
+//  virtual bool
+//  Connect(const SocketAddress& addr_);
 
 protected:
 
   virtual void
   Run(zThread::ThreadArg *arg_);
+
+  virtual bool
+  _bind();
 
 private:
 

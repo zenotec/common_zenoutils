@@ -74,47 +74,28 @@ ByeObserver::EventHandler(zMessage::MessageNotification* notification_)
   switch (notification_->Id())
   {
   case zMessage::MessageNotification::ID_MSG_RCVD:
-    {
+  {
     if (notification_->MessageType() == zMessage::Message::TYPE_BYE)
     {
-      ByeMessage *msg = static_cast<ByeMessage*>(notification_->GetMessage());
-      if (msg)
+      ByeMessage *bye = static_cast<ByeMessage*>(notification_->GetMessage());
+      if (bye)
       {
+        ZLOG_INFO("Received bye from: " + bye->GetSrc());
         AckMessage *ack = (AckMessage *) MessageFactory::Create(Message::TYPE_ACK);
         if (ack)
         {
-          ack->SetId(msg->GetId());
-          ack->SetSrc(msg->GetDst());
-          ack->SetDst(msg->GetSrc());
-          status = notification_->Sock()->Send(notification_->SrcAddr(), *ack);
+          ack->SetId(bye->GetId());
+          ack->SetSrc(bye->GetDst());
+          ack->SetDst(bye->GetSrc());
+          status = notification_->Sock()->Send(*ack);
+          delete(ack);
         }
-      }
-    }
-    else if (notification_->MessageType() == zMessage::Message::TYPE_ACK)
-    {
-      AckMessage *msg = static_cast<AckMessage*>(notification_->GetMessage());
-      if (msg)
-      {
       }
     }
     break;
   }
   case zMessage::MessageNotification::ID_MSG_SENT:
-    {
-    if (notification_->MessageType() == zMessage::Message::TYPE_BYE)
-    {
-      ByeMessage *msg = static_cast<ByeMessage*>(notification_->GetMessage());
-      if (msg)
-      {
-      }
-    }
-    else if (notification_->MessageType() == zMessage::Message::TYPE_ACK)
-    {
-      AckMessage *msg = static_cast<AckMessage*>(notification_->GetMessage());
-      if (msg)
-      {
-      }
-    }
+  {
     break;
   }
   default:

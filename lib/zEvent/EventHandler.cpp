@@ -55,9 +55,15 @@ EventHandler::RegisterEvent(Event *event_)
     if (EventHandler::_event_lock.Lock())
     {
       ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(event_));
+
+      // Remove any possible duplicates
+      EventHandler::_event_list.remove(event_);
+      status = event_->unregisterHandler(this);
+
       // Register event
       EventHandler::_event_list.push_back(event_);
       status = event_->registerHandler(this);
+
       // End critical section
       EventHandler::_event_lock.Unlock();
     }
@@ -95,9 +101,14 @@ EventHandler::RegisterObserver(EventObserver *obs_)
     if (EventHandler::_event_lock.Lock())
     {
       ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(obs_));
+
+      // Remove any possible duplicates
+      EventHandler::_obs_list.remove(obs_);
+
       // Register observer
       EventHandler::_obs_list.push_back(obs_);
       status = true;
+
       // End critical section
       EventHandler::_event_lock.Unlock();
     }

@@ -212,12 +212,6 @@ bool
 UnixSocket::Open()
 {
 
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
-  {
-    ZLOG_CRIT(std::string("Invalid socket address"));
-    return (false);
-  }
-
   if (!this->_sock)
   {
 
@@ -244,37 +238,30 @@ UnixSocket::Close()
 {
   ZLOG_DEBUG("Closing socket: " + ZLOG_INT(this->_sock));
 
-  if (!this->_sock)
+  if (this->_sock)
   {
-    return;
-  }
+    // Convert string notation address to sockaddr_un
+    struct sockaddr_un addr = { 0 };
+    if (!_addr2sock(this->Address().Address(), addr))
+    {
+      ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
+      return;
+    }
 
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
-  {
-    return;
+    // Close socket
+    if (this->_rx_thread.Stop() && this->_tx_thread.Stop())
+    {
+      close(this->_sock);
+      this->_sock = 0;
+      unlink(addr.sun_path);
+      ZLOG_DEBUG("Socket Closed: " + ZLOG_INT(this->_sock));
+    } // end if
   }
-
-  // Convert string notation address to sockaddr_un
-  struct sockaddr_un addr = { 0 };
-  if (!_addr2sock(this->Address().Address(), addr))
-  {
-    ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
-    return;
-  }
-
-  // Close socket
-  if (this->_rx_thread.Stop() && this->_tx_thread.Stop())
-  {
-    close(this->_sock);
-    this->_sock = 0;
-    unlink(addr.sun_path);
-    ZLOG_DEBUG("Socket Closed: " + ZLOG_INT(this->_sock));
-  } // end if
 
 }
 
 bool
-UnixSocket::Bind()
+UnixSocket::_bind()
 {
 
   ZLOG_DEBUG("Bind on socket: " + ZLOG_INT(this->_sock));
@@ -318,59 +305,59 @@ UnixSocket::Bind()
   return (true);
 
 }
-
-bool
-UnixSocket::Connect(const SocketAddress& addr_)
-{
-
-  ZLOG_DEBUG("Connect on socket: " + ZLOG_INT(this->_sock));
-
-  if (!this->_sock)
-  {
-    ZLOG_CRIT(std::string("Socket not opened"));
-    return (false);
-  }
-
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
-  {
-    ZLOG_CRIT(std::string("Invalid socket address"));
-    return (false);
-  }
-
-  if (addr_.Type() != SocketType::TYPE_UNIX)
-  {
-    ZLOG_CRIT(std::string("Invalid socket address type"));
-    return (false);
-  }
-
-  // Convert string notation address to sockaddr_un
-  struct sockaddr_un addr = { 0 };
-  if (!_addr2sock(addr_.Address(), addr))
-  {
-    ZLOG_CRIT("Cannot convert socket address: " + addr_.Address());
-    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
-    return (false);
-  }
-
-  // Connect to target address
-  int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
-  if (ret < 0)
-  {
-    ZLOG_CRIT("Cannot connect socket: " + addr_.Address());
-    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
-    return (false);
-  } // end if
-
-  // Start listener threads
-  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
-  {
-    ZLOG_ERR("Error starting listening threads");
-    return (false);
-  }
-
-  return (true);
-
-}
+//
+//bool
+//UnixSocket::Connect(const SocketAddress& addr_)
+//{
+//
+//  ZLOG_DEBUG("Connect on socket: " + ZLOG_INT(this->_sock));
+//
+//  if (!this->_sock)
+//  {
+//    ZLOG_CRIT(std::string("Socket not opened"));
+//    return (false);
+//  }
+//
+//  if (this->Address().Type() != SocketType::TYPE_UNIX)
+//  {
+//    ZLOG_CRIT(std::string("Invalid socket address"));
+//    return (false);
+//  }
+//
+//  if (addr_.Type() != SocketType::TYPE_UNIX)
+//  {
+//    ZLOG_CRIT(std::string("Invalid socket address type"));
+//    return (false);
+//  }
+//
+//  // Convert string notation address to sockaddr_un
+//  struct sockaddr_un addr = { 0 };
+//  if (!_addr2sock(addr_.Address(), addr))
+//  {
+//    ZLOG_CRIT("Cannot convert socket address: " + addr_.Address());
+//    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
+//    return (false);
+//  }
+//
+//  // Connect to target address
+//  int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
+//  if (ret < 0)
+//  {
+//    ZLOG_CRIT("Cannot connect socket: " + addr_.Address());
+//    ZLOG_CRIT("Error: " + std::string(strerror(errno)));
+//    return (false);
+//  } // end if
+//
+//  // Start listener threads
+//  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
+//  {
+//    ZLOG_ERR("Error starting listening threads");
+//    return (false);
+//  }
+//
+//  return (true);
+//
+//}
 
 ssize_t
 UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)

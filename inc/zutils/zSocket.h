@@ -39,7 +39,7 @@ typedef enum SocketType
 } SocketType;
 
 //**********************************************************************
-// zSocket::SocketBuffer Class
+// Class: zSocket::SocketBuffer
 //**********************************************************************
 
 class SocketBuffer
@@ -118,7 +118,7 @@ private:
 };
 
 //**********************************************************************
-// zSocket::SocketAddress Class
+// Class: zSocket::SocketAddress
 //**********************************************************************
 
 class SocketAddress
@@ -166,7 +166,7 @@ public:
 protected:
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_);
+  verify(const SocketType type_, const std::string &addr_) = 0;
 
 private:
 
@@ -175,11 +175,41 @@ private:
 
 };
 
+//**********************************************************************
+// Class: zSocket::SocketAddressFactory
+//**********************************************************************
+
+class SocketAddressFactory
+{
+public:
+
+  static SocketAddress*
+  Create(const SocketType type_, const std::string& addr_ = "");
+
+  static SocketAddress*
+  Create(const SocketAddress& addr_);
+
+  static SocketAddress*
+  Create(const std::string& addr_);
+
+private:
+
+};
+
+//**********************************************************************
+// Typedef: zSocket::SocketAddressBufferPair
+//**********************************************************************
+
 typedef std::pair<SHARED_PTR(const SocketAddress), SHARED_PTR(SocketBuffer)> SocketAddressBufferPair;
+
+//**********************************************************************
+// Typedef: zSocket::SocketAddressBufferQueue
+//**********************************************************************
+
 typedef zQueue<SocketAddressBufferPair> SocketAddressBufferQueue;
 
 //**********************************************************************
-// zSocket::Socket Class
+// Class: zSocket::Socket
 //**********************************************************************
 
 class Socket : public zEvent::Event
@@ -198,20 +228,14 @@ public:
   const SocketAddress&
   Address() const;
 
-  bool
-  Address(const SocketAddress& addr_);
-
   virtual bool
   Open() = 0;
 
   virtual void
   Close() = 0;
 
-  virtual bool
-  Bind() = 0;
-
-  virtual bool
-  Connect(const SocketAddress& addr_) = 0;
+  bool
+  Bind(const SocketAddress& addr_);
 
   ssize_t
   Send(SocketAddressBufferPair& pair_);
@@ -224,8 +248,10 @@ public:
 
 protected:
 
-  SocketAddress _src;
-  SocketAddress _dst;
+  SocketAddress* _addr;
+
+  virtual bool
+  _bind() = 0;
 
   // Called by derived class to process a received packet
   bool
@@ -253,7 +279,7 @@ private:
 };
 
 //**********************************************************************
-// zSocket::SocketNotification Class
+// Class: zSocket::SocketNotification
 //**********************************************************************
 
 class SocketNotification : public zEvent::EventNotification
@@ -303,7 +329,7 @@ private:
 };
 
 //**********************************************************************
-// Class: SocketManager
+// Class: zSocket::SocketManager
 //**********************************************************************
 
 class SocketManager : public zEvent::EventHandler

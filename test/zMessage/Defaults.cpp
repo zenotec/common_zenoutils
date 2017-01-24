@@ -51,18 +51,12 @@ zMessageTest_MessageSocketDefaults(void* arg_)
   ZLOG_DEBUG("# zMessageTest_MessageSocketDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  // Setup network socket
-  zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
-  TEST_ISNOT_NULL(MySock);
-
   // Create new message socket and validate
-  zMessage::MessageSocket *MyMsgSock = new zMessage::MessageSocket(MySock);
+  zMessage::MessageSocket *MyMsgSock = new zMessage::MessageSocket;
   TEST_ISNOT_NULL(MyMsgSock);
 
   // Clean up
   delete (MyMsgSock);
-  MySock->Close();
-  delete (MySock);
 
   // Return success
   return (0);

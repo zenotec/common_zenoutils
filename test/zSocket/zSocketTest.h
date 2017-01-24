@@ -77,6 +77,30 @@ using namespace Test;
 using namespace zUtils;
 using namespace zSocket;
 
+class TestAddress : public zSocket::SocketAddress
+{
+public:
+
+  TestAddress() :
+    zSocket::SocketAddress(SocketType::TYPE_TEST)
+  {
+  }
+
+  virtual
+  ~TestAddress()
+  {
+  }
+
+protected:
+
+  virtual bool
+  verify(const SocketType type_, const std::string &addr_)
+  {
+    return (type_ == SocketType::TYPE_TEST);
+  }
+
+};
+
 class TestObserver : public zEvent::EventObserver
 {
 public:

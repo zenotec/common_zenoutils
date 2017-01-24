@@ -52,32 +52,6 @@ private:
 
 };
 
-//**********************************************************************
-// Class: ByeObserver
-//**********************************************************************
-
-class ByeObserver : public zEvent::EventObserver
-{
-
-public:
-
-  ByeObserver();
-
-  virtual
-  ~ByeObserver();
-
-protected:
-
-  bool
-  EventHandler(zEvent::EventNotification* notification_);
-
-private:
-
-  bool
-  EventHandler(zMessage::MessageNotification* notification_);
-
-};
-
 }
 }
 

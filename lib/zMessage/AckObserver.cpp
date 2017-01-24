@@ -33,7 +33,6 @@
 
 #include <zutils/zMessage.h>
 #include <zutils/zMessageSocket.h>
-#include <zutils/zHelloMessage.h>
 #include <zutils/zAckMessage.h>
 
 namespace zUtils
@@ -42,19 +41,44 @@ namespace zMessage
 {
 
 //**********************************************************************
-// Class: HelloObserver
+// Class: AckObserver
 //**********************************************************************
 
-HelloObserver::HelloObserver()
+AckObserver::AckObserver()
 {
 }
 
-HelloObserver::~HelloObserver()
+AckObserver::~AckObserver()
 {
 }
 
 bool
-HelloObserver::EventHandler(zEvent::EventNotification* notification_)
+AckObserver::RegisterForAck(const std::string& msg_id_)
+{
+  return(!this->_id_table[msg_id_].TryWait());
+}
+
+bool
+AckObserver::UnregisterForAck(const std::string& msg_id_)
+{
+  size_t count = this->_id_table.erase(msg_id_);
+  return ((count == 1) ? true : false);
+}
+
+bool
+AckObserver::WaitForAck(const std::string& msg_id_, size_t ms_)
+{
+  bool status = false;
+  std::map<std::string, zSem::Semaphore>::iterator it = this->_id_table.find(msg_id_);
+  if (it != this->_id_table.end())
+  {
+    status = it->second.TimedWait(ms_);
+  }
+  return(status);
+}
+
+bool
+AckObserver::EventHandler(zEvent::EventNotification* notification_)
 {
 
   bool status = false;
@@ -67,35 +91,34 @@ HelloObserver::EventHandler(zEvent::EventNotification* notification_)
 }
 
 bool
-HelloObserver::EventHandler(zMessage::MessageNotification* notification_)
+AckObserver::EventHandler(zMessage::MessageNotification* notification_)
 {
 
   bool status = false;
   switch (notification_->Id())
   {
   case zMessage::MessageNotification::ID_MSG_RCVD:
-  {
-    if (notification_->MessageType() == zMessage::Message::TYPE_HELLO)
     {
-      HelloMessage *hello = static_cast<HelloMessage*>(notification_->GetMessage());
-      if (hello)
+    if (notification_->MessageType() == zMessage::Message::TYPE_ACK)
+    {
+      AckMessage *ack = static_cast<AckMessage*>(notification_->GetMessage());
+      if (ack)
       {
-        ZLOG_INFO("Received hello from: " + hello->GetSrc());
-        AckMessage *ack = (AckMessage *) MessageFactory::Create(Message::TYPE_ACK);
-        if (ack)
+        ZLOG_INFO("Received ack from: " + ack->GetSrc());
+        std::map<std::string, zSem::Semaphore>::iterator it = this->_id_table.find(ack->GetId());
+        if (it != this->_id_table.end())
         {
-          ack->SetId(hello->GetId());
-          ack->SetSrc(hello->GetDst());
-          ack->SetDst(hello->GetSrc());
-          status = notification_->Sock()->Send(*ack);
-          delete(ack);
+          it->second.Post();
         }
       }
     }
     break;
   }
   case zMessage::MessageNotification::ID_MSG_SENT:
-  {
+    {
+    if (notification_->MessageType() == zMessage::Message::TYPE_ACK)
+    {
+    }
     break;
   }
   default:

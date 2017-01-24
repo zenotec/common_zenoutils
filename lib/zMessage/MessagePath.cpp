@@ -36,7 +36,7 @@ const std::string MessagePath::TypeDataPath("Type");
 const std::string MessagePath::IdDataPath("Id");
 const std::string MessagePath::DstDataPath("Dst");
 const std::string MessagePath::SrcDataPath("Src");
-const std::string MessagePath::DataDataPath(zData::DataPath::DataRoot);
+const std::string MessagePath::DataDataPath("MsgData");
 
 MessagePath::MessagePath(const std::string& root_) :
     zData::DataPath(MessagePath::DataRoot)

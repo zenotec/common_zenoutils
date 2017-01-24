@@ -30,11 +30,18 @@
 #include <zutils/zEvent.h>
 
 #include <zutils/zSocket.h>
+#include <zutils/zLoopSocket.h>
+#include <zutils/zUnixSocket.h>
+#include <zutils/zInetSocket.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
+
+//**********************************************************************
+// Class: zSocket::SocketAddress
+//**********************************************************************
 
 SocketAddress::SocketAddress(const SocketType type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
@@ -73,25 +80,25 @@ SocketAddress::operator=(const SocketAddress &other_)
 
 bool
 SocketAddress::operator ==(const SocketAddress &other_) const
-    {
+{
   return ((this->_type == other_._type) && (this->_addr == other_._addr));
 }
 
 bool
 SocketAddress::operator !=(const SocketAddress &other_) const
-    {
+{
   return ((this->_type != other_._type) || (this->_addr != other_._addr));
 }
 
 bool
 SocketAddress::operator <(const SocketAddress &other_) const
-    {
+{
   return ((this->_type != other_._type) || (this->_addr < other_._addr));
 }
 
 bool
 SocketAddress::operator >(const SocketAddress &other_) const
-    {
+{
   return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
@@ -108,11 +115,11 @@ SocketAddress::Type(const SocketType type_)
   switch (type_)
   {
   case SocketType::TYPE_LOOP:
-
+    // no break
   case SocketType::TYPE_UNIX:
-
+    // no break
   case SocketType::TYPE_ETH:
-
+    // no break
   case SocketType::TYPE_INET:
     if (this->verify(type_, this->_addr))
     {
@@ -146,10 +153,87 @@ SocketAddress::Address(const std::string &addr_)
   return (status);
 }
 
-bool
-SocketAddress::verify(const SocketType type_, const std::string &addr_)
+
+//**********************************************************************
+// Class: zSocket::SocketAddressFactory
+//**********************************************************************
+
+SocketAddress*
+SocketAddressFactory::Create(const SocketType type_, const std::string& addr_)
 {
-  return ((type_ == SocketType::TYPE_NONE) || (type_ == SocketType::TYPE_TEST));
+  SocketAddress* addr = NULL;
+  switch (type_)
+  {
+  case SocketType::TYPE_LOOP:
+    addr = new LoopAddress;
+    break;
+  case SocketType::TYPE_UNIX:
+    addr = new UnixAddress(addr_);
+    break;
+  case SocketType::TYPE_ETH:
+    break;
+  case SocketType::TYPE_INET:
+    addr = new InetAddress(addr_);
+    break;
+  default:
+    break;
+  }
+  return(addr);
+}
+
+SocketAddress*
+SocketAddressFactory::Create(const SocketAddress& addr_)
+{
+  return(SocketAddressFactory::Create(addr_.Type(), addr_.Address()));
+}
+
+SocketAddress*
+SocketAddressFactory::Create(const std::string& addr_)
+{
+  SocketAddress* addr = NULL;
+
+  // First try to create an INET address
+  addr = new InetAddress;
+  if (addr)
+  {
+    if (!addr->Address(addr_))
+    {
+      delete(addr);
+      addr = NULL;
+    }
+  }
+
+  // Next try to create a new Unix address
+  if (!addr)
+  {
+    addr = new UnixAddress;
+    if (addr)
+    {
+      if (!addr->Address(addr_))
+      {
+        delete(addr);
+        addr = NULL;
+      }
+    }
+  }
+
+  // TODO: Next try to create an Ethernet address
+
+  // Next try to create a new Loop address
+  if (!addr)
+  {
+    addr = new LoopAddress;
+    if (addr)
+    {
+      if (!addr->Address(addr_))
+      {
+        delete(addr);
+        addr = NULL;
+      }
+    }
+  }
+
+  return(addr);
 }
 
 }

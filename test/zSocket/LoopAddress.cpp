@@ -53,8 +53,8 @@ zSocketTest_LoopAddressGetSet(void* arg_)
   TEST_EQ(std::string(""), myAddr.Address());
 
   // Set socket address
-  TEST_TRUE(myAddr.Address(std::string("loop")));
-  TEST_EQ(std::string("loop"), myAddr.Address());
+  TEST_FALSE(myAddr.Address(std::string("loop")));
+  TEST_EQ(std::string(""), myAddr.Address());
 
   // Return success
   return (0);
@@ -84,28 +84,20 @@ zSocketTest_LoopAddressCompare(void* arg_)
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address
-  myAddr1.Address("loop");
-  TEST_EQ(std::string("loop"), myAddr1.Address());
-
-  // Compare address (no match)
-  TEST_FALSE(myAddr1 == myAddr2);
-  TEST_TRUE(myAddr1 != myAddr2);
-
-  // Set socket address
-  myAddr2.Address("loop");
-  TEST_EQ(std::string("loop"), myAddr2.Address());
+  TEST_FALSE(myAddr1.Address("loop"));
+  TEST_EQ(std::string(""), myAddr1.Address());
 
   // Compare address (match)
   TEST_TRUE(myAddr1 == myAddr2);
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address
-  myAddr1.Address("");
-  TEST_EQ(std::string(""), myAddr1.Address());
+  TEST_FALSE(myAddr2.Address("loop"));
+  TEST_EQ(std::string(""), myAddr2.Address());
 
-  // Compare address (no match)
-  TEST_FALSE(myAddr1 == myAddr2);
-  TEST_TRUE(myAddr1 != myAddr2);
+  // Compare address (match)
+  TEST_TRUE(myAddr1 == myAddr2);
+  TEST_FALSE(myAddr1 != myAddr2);
 
   // Return success
   return (0);

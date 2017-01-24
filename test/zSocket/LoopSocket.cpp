@@ -55,15 +55,6 @@ zSocketTest_LoopSocketDefault(void* arg_)
   ZLOG_DEBUG("# zSocketTest_LoopSocketDefault()");
   ZLOG_DEBUG("#############################################################");
 
-  // Create new socket address and validate
-  zSocket::LoopAddress MyAddr;
-  TEST_EQ(SocketType::TYPE_LOOP, MyAddr.Type());
-  TEST_EQ(std::string(""), MyAddr.Address());
-
-  // Set socket address
-  TEST_TRUE(MyAddr.Address(std::string("lo")));
-  TEST_EQ(std::string("lo"), MyAddr.Address());
-
   // Create new socket and validate
   zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
   TEST_ISNOT_NULL(MySock);
@@ -88,25 +79,15 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   bool status = false;
 
   // Create new socket address and validate
-  zSocket::LoopAddress *SrcAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, SrcAddr->Type());
-  TEST_EQ(std::string(""), SrcAddr->Address());
-  TEST_TRUE(SrcAddr->Address("lo"));
-  TEST_EQ(std::string("lo"), SrcAddr->Address());
-
-  // Create new socket address and validate
-  zSocket::LoopAddress *DstAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, DstAddr->Type());
-  TEST_EQ(std::string(""), DstAddr->Address());
-  TEST_TRUE(DstAddr->Address("lo"));
-  TEST_EQ(std::string("lo"), DstAddr->Address());
+  zSocket::LoopAddress *MyAddr = new zSocket::LoopAddress;
+  TEST_EQ(SocketType::TYPE_LOOP, MyAddr->Type());
+  TEST_EQ(std::string(""), MyAddr->Address());
 
   // Create new socket and validate
   zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Address(*SrcAddr));
   TEST_TRUE(MySock->Open());
-  TEST_TRUE(MySock->Bind());
+  TEST_TRUE(MySock->Bind(*MyAddr));
 
   // Create new socket handler and validate
   zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
@@ -124,7 +105,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  TEST_EQ((int )MySock->Send(*DstAddr, ExpStr), (int )ExpStr.size());
+  TEST_EQ((int )MySock->Send(*MyAddr, ExpStr), (int )ExpStr.size());
 
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100);
@@ -158,8 +139,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   delete (MyHandler);
   delete (MyObserver);
   delete (MySock);
-  delete (DstAddr);
-  delete (SrcAddr);
+  delete (MyAddr);
 
   // Return success
   return (0);

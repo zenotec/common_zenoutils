@@ -79,9 +79,9 @@ zSocketTest_AddressDefaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new socket address and validate
-  SocketAddress *myAddr = new SocketAddress;
+  TestAddress *myAddr = new TestAddress;
   TEST_ISNOT_NULL(myAddr);
-  TEST_EQ(SocketType::TYPE_NONE, myAddr->Type());
+  TEST_EQ(SocketType::TYPE_TEST, myAddr->Type());
   TEST_EQ(std::string(""), myAddr->Address());
   delete (myAddr);
 
