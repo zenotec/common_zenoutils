@@ -17,13 +17,22 @@
 #ifndef __ZACKMESSAGE_H__
 #define __ZACKMESSAGE_H__
 
+#include <stddef.h>
+
+#include <string>
+#include <map>
+
+#include <zutils/zQueue.h>
 #include <zutils/zData.h>
+#include <zutils/zEvent.h>
 #include <zutils/zMessage.h>
 
 namespace zUtils
 {
 namespace zMessage
 {
+
+class MessageNotification;
 
 //**********************************************************************
 // Class: AckMessage
@@ -34,7 +43,17 @@ class AckMessage : public zMessage::Message
 
 public:
 
-  static const std::string RespDataPath;
+  static const std::string StatusDataPath;
+  static const std::string InfoDataPath;
+
+  enum STATUS
+  {
+    STATUS_ERR = -1,
+    STATUS_NONE = 0,
+    STATUS_PASS = 1,
+    STATUS_FAIL = 2,
+    STATUS_LAST
+  };
 
   AckMessage();
 
@@ -48,15 +67,64 @@ public:
   const zMessage::Message&
   GetMessage() const;
 
-  std::string
-  GetResponse() const;
+  AckMessage::STATUS
+  GetStatus() const;
 
   bool
-  SetResponse(const std::string& resp_);
+  SetStatus(const AckMessage::STATUS status_);
+
+  std::string
+  GetInfo() const;
+
+  bool
+  SetInfo(const std::string& resp_);
 
 protected:
 
 private:
+
+};
+
+//**********************************************************************
+// Typedef: AckMessageTable
+//**********************************************************************
+
+typedef std::map<std::string, zQueue<AckMessage> > AckMessageTable;
+
+//**********************************************************************
+// Class: AckObserver
+//**********************************************************************
+
+class AckObserver : public zEvent::EventObserver
+{
+
+public:
+
+  AckObserver();
+
+  virtual
+  ~AckObserver();
+
+  bool
+  RegisterForAck(const std::string& msg_id_);
+
+  bool
+  UnregisterForAck(const std::string& msg_id_);
+
+  bool
+  WaitForAck(const std::string& msg_id_, AckMessage& ack_, uint32_t ms_);
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  AckMessageTable _ack_table;
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
 
 };
 

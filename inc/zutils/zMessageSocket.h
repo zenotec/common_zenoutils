@@ -17,107 +17,20 @@
 #ifndef __ZMESSAGESOCKET_H__
 #define __ZMESSAGESOCKET_H__
 
+#include <string>
 #include <map>
 
 #include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
+#include <zutils/zHelloMessage.h>
+#include <zutils/zByeMessage.h>
+#include <zutils/zAckMessage.h>
 
 namespace zUtils
 {
 namespace zMessage
 {
-
-class MessageNotification;
-
-//**********************************************************************
-// Class: HelloObserver
-//**********************************************************************
-
-class HelloObserver : public zEvent::EventObserver
-{
-
-public:
-
-  HelloObserver();
-
-  virtual
-  ~HelloObserver();
-
-protected:
-
-  bool
-  EventHandler(zEvent::EventNotification* notification_);
-
-private:
-
-  bool
-  EventHandler(zMessage::MessageNotification* notification_);
-
-};
-
-//**********************************************************************
-// Class: ByeObserver
-//**********************************************************************
-
-class ByeObserver : public zEvent::EventObserver
-{
-
-public:
-
-  ByeObserver();
-
-  virtual
-  ~ByeObserver();
-
-protected:
-
-  bool
-  EventHandler(zEvent::EventNotification* notification_);
-
-private:
-
-  bool
-  EventHandler(zMessage::MessageNotification* notification_);
-
-};
-
-//**********************************************************************
-// Class: AckObserver
-//**********************************************************************
-
-class AckObserver : public zEvent::EventObserver
-{
-
-public:
-
-  AckObserver();
-
-  virtual
-  ~AckObserver();
-
-  bool
-  RegisterForAck(const std::string& msg_id_);
-
-  bool
-  UnregisterForAck(const std::string& msg_id_);
-
-  bool
-  WaitForAck(const std::string& msg_id_, size_t ms_);
-
-protected:
-
-  bool
-  EventHandler(zEvent::EventNotification* notification_);
-
-private:
-
-  std::map<std::string, zSem::Semaphore> _id_table;
-
-  bool
-  EventHandler(zMessage::MessageNotification* notification_);
-
-};
 
 //**********************************************************************
 // Class: MessageSocket
@@ -149,7 +62,7 @@ public:
   UnregisterForAck(const std::string& msg_id_);
 
   bool
-  WaitForAck(const std::string& msg_id_, size_t ms_);
+  WaitForAck(const std::string& msg_id_, AckMessage& ack_, uint32_t ms_);
 
   bool
   Send(zMessage::Message &msg_);

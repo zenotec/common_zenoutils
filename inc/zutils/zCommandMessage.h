@@ -17,13 +17,17 @@
 #ifndef __ZCOMMANDMESSAGE_H__
 #define __ZCOMMANDMESSAGE_H__
 
-#include <zutils/zCommand.h>
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
 #include <zutils/zMessage.h>
+#include <zutils/zCommand.h>
 
 namespace zUtils
 {
 namespace zMessage
 {
+
+class MessageNotification;
 
 //**********************************************************************
 // Class: CommandMessage

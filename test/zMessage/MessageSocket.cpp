@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <zutils/zAckMessage.h>
+
 #include "zMessageTest.h"
 
 using namespace Test;
@@ -249,7 +251,8 @@ zMessageTest_MessageUnixSocket(void* arg_)
   TEST_FALSE(MyObserver1->ErrSem.TryWait());
 
   // Wait for ACK
-  TEST_TRUE(MsgSock2->WaitForAck(DataMsg->GetId(), 1000));
+  zMessage::AckMessage ack;
+  TEST_TRUE(MsgSock2->WaitForAck(DataMsg->GetId(), ack, 100));
   TEST_TRUE(MsgSock2->UnregisterForAck(DataMsg->GetId()));
   delete (DataMsg);
 

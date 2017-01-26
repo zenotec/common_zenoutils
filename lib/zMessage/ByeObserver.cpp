@@ -96,6 +96,10 @@ ByeObserver::EventHandler(zMessage::MessageNotification* notification_)
   }
   case zMessage::MessageNotification::ID_MSG_SENT:
   {
+    if (notification_->MessageType() == zMessage::Message::TYPE_BYE)
+    {
+      status = true;
+    }
     break;
   }
   default:

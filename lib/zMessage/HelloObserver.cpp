@@ -96,6 +96,10 @@ HelloObserver::EventHandler(zMessage::MessageNotification* notification_)
   }
   case zMessage::MessageNotification::ID_MSG_SENT:
   {
+    if (notification_->MessageType() == zMessage::Message::TYPE_HELLO)
+    {
+      status = true;
+    }
     break;
   }
   default:

@@ -20,6 +20,11 @@
 #include <string>
 #include <map>
 
+#include <zutils/zData.h>
+#include <zutils/zEvent.h>
+#include <zutils/zMessage.h>
+#include <zutils/zMessageSocket.h>
+
 namespace zUtils
 {
 namespace zCommand
@@ -235,10 +240,16 @@ public:
 
 protected:
 
-  virtual bool
+  bool
   EventHandler(zEvent::EventNotification* notification_);
 
 private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
+
+  bool
+  EventHandler(CommandNotification* notification_);
 
 };
 

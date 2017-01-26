@@ -103,7 +103,8 @@ MessageSocket::Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *soc
       hello->SetDst(addr_.Address());
       if (this->Send(*hello))
       {
-        status = this->_ack_obs.WaitForAck(hello->GetId(), 500);
+        AckMessage ack;
+        status = this->_ack_obs.WaitForAck(hello->GetId(), ack, 500);
       }
       this->_ack_obs.UnregisterForAck(hello->GetId());
       delete (hello);
@@ -127,11 +128,12 @@ MessageSocket::Disconnect(const zSocket::SocketAddress& addr_)
     // Register for ACK
     this->_ack_obs.RegisterForAck(bye->GetId());
 
-    // Initialize the message and send
+    // Initialize the message and sendl
     bye->SetDst(addr_.Address());
     if (this->Send(*bye))
     {
-      status = this->_ack_obs.WaitForAck(bye->GetId(), 100);
+      AckMessage ack;
+      status = this->_ack_obs.WaitForAck(bye->GetId(), ack, 100);
     }
     this->_ack_obs.UnregisterForAck(bye->GetId());
     delete (bye);
@@ -153,9 +155,9 @@ MessageSocket::UnregisterForAck(const std::string& msg_id_)
 }
 
 bool
-MessageSocket::WaitForAck(const std::string& msg_id_, size_t ms_)
+MessageSocket::WaitForAck(const std::string& msg_id_, AckMessage& ack_, uint32_t ms_)
 {
-  return(this->_ack_obs.WaitForAck(msg_id_, ms_));
+  return(this->_ack_obs.WaitForAck(msg_id_, ack_, ms_));
 }
 
 bool

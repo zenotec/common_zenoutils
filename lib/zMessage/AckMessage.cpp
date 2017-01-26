@@ -36,7 +36,8 @@ namespace zMessage
 // Class: AckMessage
 //**********************************************************************
 
-const std::string AckMessage::RespDataPath("Id");
+const std::string AckMessage::StatusDataPath("Status");
+const std::string AckMessage::InfoDataPath("Info");
 
 AckMessage::AckMessage()
 {
@@ -63,16 +64,28 @@ AckMessage::GetMessage() const
   return (*this);
 }
 
-std::string
-AckMessage::GetResponse() const
+AckMessage::STATUS
+AckMessage::GetStatus() const
 {
-  return (this->GetValue<std::string>(AckMessage::RespDataPath));
+  return ((AckMessage::STATUS)this->GetValue<int>(AckMessage::StatusDataPath));
 }
 
 bool
-AckMessage::SetResponse(const std::string& resp_)
+AckMessage::SetStatus(const AckMessage::STATUS status_)
 {
-  return (this->PutValue(MessagePath(AckMessage::RespDataPath), resp_));
+  return (this->PutValue(MessagePath(AckMessage::StatusDataPath), (int)status_));
+}
+
+std::string
+AckMessage::GetInfo() const
+{
+  return (this->GetValue<std::string>(AckMessage::InfoDataPath));
+}
+
+bool
+AckMessage::SetInfo(const std::string& info_)
+{
+  return (this->PutValue(MessagePath(AckMessage::InfoDataPath), info_));
 }
 
 }

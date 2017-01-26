@@ -55,24 +55,29 @@ AckObserver::~AckObserver()
 bool
 AckObserver::RegisterForAck(const std::string& msg_id_)
 {
-  return(!this->_id_table[msg_id_].TryWait());
+  return(!this->_ack_table[msg_id_].TryWait());
 }
 
 bool
 AckObserver::UnregisterForAck(const std::string& msg_id_)
 {
-  size_t count = this->_id_table.erase(msg_id_);
+  size_t count = this->_ack_table.erase(msg_id_);
   return ((count == 1) ? true : false);
 }
 
 bool
-AckObserver::WaitForAck(const std::string& msg_id_, size_t ms_)
+AckObserver::WaitForAck(const std::string& msg_id_, AckMessage& ack_, uint32_t ms_)
 {
   bool status = false;
-  std::map<std::string, zSem::Semaphore>::iterator it = this->_id_table.find(msg_id_);
-  if (it != this->_id_table.end())
+  AckMessageTable::iterator it = this->_ack_table.find(msg_id_);
+  if (it != this->_ack_table.end())
   {
-    status = it->second.TimedWait(ms_);
+    if (it->second.TimedWait(ms_))
+    {
+      ack_ = it->second.Front();
+      it->second.Pop();
+      status = true;
+    }
   }
   return(status);
 }
@@ -105,10 +110,10 @@ AckObserver::EventHandler(zMessage::MessageNotification* notification_)
       if (ack)
       {
         ZLOG_INFO("Received ack from: " + ack->GetSrc());
-        std::map<std::string, zSem::Semaphore>::iterator it = this->_id_table.find(ack->GetId());
-        if (it != this->_id_table.end())
+        AckMessageTable::iterator it = this->_ack_table.find(ack->GetId());
+        if (it != this->_ack_table.end())
         {
-          it->second.Post();
+          it->second.Push(*ack);
         }
       }
     }
@@ -118,6 +123,7 @@ AckObserver::EventHandler(zMessage::MessageNotification* notification_)
     {
     if (notification_->MessageType() == zMessage::Message::TYPE_ACK)
     {
+      status = true;
     }
     break;
   }

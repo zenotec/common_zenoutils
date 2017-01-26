@@ -26,6 +26,7 @@
 #include <zutils/zQueue.h>
 #include <zutils/zSocket.h>
 #include <zutils/zMessage.h>
+#include <zutils/zCommandMessage.h>
 #include <zutils/zMessageSocket.h>
 
 #include <zutils/zCommand.h>
@@ -34,6 +35,8 @@ namespace zUtils
 {
 namespace zCommand
 {
+
+using namespace zMessage;
 
 //**********************************************************************
 // Class: Command
@@ -46,7 +49,6 @@ Command::Command()
 Command::Command(const CommandData& data_) :
     CommandData(data_)
 {
-
 }
 
 Command::~Command()
@@ -56,42 +58,78 @@ Command::~Command()
 bool
 Command::EventHandler(zEvent::EventNotification* notification_)
 {
+
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_COMMAND))
+  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
   {
-    zCommand::CommandNotification *n = NULL;
-    n = static_cast<zCommand::CommandNotification *>(notification_);
-    if (n->GetCommandData() == *this)
-    {
-      status = this->Execute(n->GetCommandData());
-    }
+    status = this->EventHandler((MessageNotification*) notification_);
   }
-  else if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
+  else if (notification_ && (notification_->Type() == zEvent::Event::TYPE_COMMAND))
   {
-    zMessage::MessageNotification *n = NULL;
-    n = static_cast<zMessage::MessageNotification *>(notification_);
-    switch (n->Id())
-    {
-    case zMessage::MessageNotification::ID_MSG_RCVD:
-      {
-      if (n->GetMessage() && (n->GetMessage()->GetType() == zMessage::Message::TYPE_CMD))
-      {
-        CommandData data(n->GetMessage()->GetData());
-        if (data == *this)
-        {
-          status = this->Execute(data);
-          n->GetMessage()->SetData(data);
-        }
-      }
-      break;
-    }
-    default:
-      break;
-    }
+    status = this->EventHandler((zCommand::CommandNotification*) notification_);
   }
   else
   {
     ZLOG_WARN("Unknown event: " + ZLOG_INT(notification_->Type()));
+  }
+
+  return (status);
+}
+
+bool
+Command::EventHandler(MessageNotification* notification_)
+{
+  bool status = false;
+
+  if (notification_->MessageType() == Message::TYPE_CMD)
+  {
+    CommandMessage* cmdmsg = (CommandMessage*) notification_->GetMessage();
+    if (cmdmsg)
+    {
+      switch (notification_->Id())
+      {
+      case MessageNotification::ID_MSG_RCVD:
+      {
+        ZLOG_INFO("Received command from: " + cmdmsg->GetSrc());
+        zCommand::CommandData data(cmdmsg->GetCommandData());
+        if (data == *this)
+        {
+          status = this->Execute(data);
+          AckMessage* ack = (AckMessage *) MessageFactory::Create(Message::TYPE_ACK);
+          if (ack)
+          {
+            ack->SetId(cmdmsg->GetId());
+            ack->SetSrc(cmdmsg->GetDst());
+            ack->SetDst(cmdmsg->GetSrc());
+            ack->SetStatus((status) ? AckMessage::STATUS_PASS : AckMessage::STATUS_FAIL);
+            ack->SetInfo(data.GetOutput());
+            status = notification_->Sock()->Send(*ack);
+            delete (ack);
+          }
+        }
+        break;
+      }
+      case MessageNotification::ID_MSG_SENT:
+        {
+        status = true;
+        break;
+      }
+      default:
+        break;
+      }
+    }
+  }
+
+  return (status);
+}
+
+bool
+Command::EventHandler(zCommand::CommandNotification* notification_)
+{
+  bool status = false;
+  if (notification_->GetCommandData() == *this)
+  {
+    status = this->Execute(notification_->GetCommandData());
   }
   return (status);
 }

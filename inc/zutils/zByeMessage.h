@@ -18,13 +18,15 @@
 #define __ZBYEMESSAGE_H__
 
 #include <zutils/zData.h>
+#include <zutils/zEvent.h>
 #include <zutils/zMessage.h>
-#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {
 namespace zMessage
 {
+
+class MessageNotification;
 
 //**********************************************************************
 // Class: ByeMessage
@@ -49,6 +51,32 @@ public:
 protected:
 
 private:
+
+};
+
+//**********************************************************************
+// Class: ByeObserver
+//**********************************************************************
+
+class ByeObserver : public zEvent::EventObserver
+{
+
+public:
+
+  ByeObserver();
+
+  virtual
+  ~ByeObserver();
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(zMessage::MessageNotification* notification_);
 
 };
 

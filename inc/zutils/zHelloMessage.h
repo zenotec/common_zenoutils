@@ -17,14 +17,17 @@
 #ifndef __ZHELLOMESSAGE_H__
 #define __ZHELLOMESSAGE_H__
 
+
 #include <zutils/zData.h>
+#include <zutils/zEvent.h>
 #include <zutils/zMessage.h>
-#include <zutils/zMessageSocket.h>
 
 namespace zUtils
 {
 namespace zMessage
 {
+
+class MessageNotification;
 
 //**********************************************************************
 // Class: HelloMessage
@@ -49,6 +52,32 @@ public:
 protected:
 
 private:
+
+};
+
+//**********************************************************************
+// Class: HelloObserver
+//**********************************************************************
+
+class HelloObserver : public zEvent::EventObserver
+{
+
+public:
+
+  HelloObserver();
+
+  virtual
+  ~HelloObserver();
+
+protected:
+
+  bool
+  EventHandler(zEvent::EventNotification* notification_);
+
+private:
+
+  bool
+  EventHandler(MessageNotification* notification_);
 
 };
 
