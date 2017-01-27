@@ -330,6 +330,12 @@ public:
   zLog::LogLevel
   LogLevel();
 
+  int
+  GetExitStatus() const;
+
+  bool
+  SetExitStatus(const int status_);
+
   bool
   Run();
 
@@ -344,6 +350,7 @@ private:
   std::map<std::string, ProgramOption> _opts;
   std::map<int, ProgramArgument> _args;
   zThread::Thread _main_thread;
+  int _exit_status;
 
   ProgramOption *
   _find_opt(const std::string &opt_);

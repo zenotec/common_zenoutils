@@ -245,11 +245,28 @@ Program::EnableLogging()
 
 }
 
+int
+Program::GetExitStatus() const
+{
+  return(this->_exit_status);
+}
+
+bool
+Program::SetExitStatus(int status_)
+{
+  this->_exit_status = status_;
+  return (true);
+}
+
 bool
 Program::Run()
 {
-  this->_main_thread.Start();
-  this->_main_thread.Join();
+  bool status = false;
+  if (this->_main_thread.Start())
+  {
+    status = this->_main_thread.Join();
+  }
+  return(status);
 }
 
 ProgramOption *
