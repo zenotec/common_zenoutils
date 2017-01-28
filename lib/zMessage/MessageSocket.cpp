@@ -206,7 +206,7 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
   switch (notification_->Id())
   {
   case zSocket::SocketNotification::ID_PKT_RCVD:
-    {
+  {
     zSocket::SocketAddressBufferPair p = notification_->Pkt();
     // Update address / socket mapping
     this->_sock[p.first->Address()] = (zSocket::Socket*) notification_->GetEvent();
@@ -225,7 +225,7 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
     break;
   }
   case zSocket::SocketNotification::ID_PKT_SENT:
-    {
+  {
     zSocket::SocketAddressBufferPair p = notification_->Pkt();
     zMessage::Message *msg = MessageFactory::Create(p.second->Str());
     if (msg)

@@ -76,42 +76,17 @@ zMessageTest_MessageLoopSocket(void* arg_)
   // Wait for message to be sent
   TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
-  // No more messages should have been sent
-  TEST_FALSE(MyObserver->TxSem.TryWait());
-
-  // Verify no errors
-  TEST_FALSE(MyObserver->ErrSem.TryWait());
-
   // Wait for message to be received
   TEST_TRUE(MyObserver->RxSem.TimedWait(100));
 
-  // No more messages should be waiting
-  TEST_FALSE(MyObserver->RxSem.TryWait());
-
-  // Verify no errors
-  TEST_FALSE(MyObserver->ErrSem.TryWait());
-
-  // Acknowledge hello message
-  zMessage::Message *ackMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ACK);
-  TEST_ISNOT_NULL(ackMsg);
-  TEST_TRUE(ackMsg->SetId("ackMsg"));
-  TEST_TRUE(ackMsg->SetDst(MyAddr.Address()));
-  TEST_TRUE(ackMsg->SetSrc(MyAddr.Address()));
-  ZLOG_DEBUG(ackMsg->GetJson());
-  TEST_TRUE(MsgSock->Send(*ackMsg));
-  delete (ackMsg);
-
-  // Wait for message to be sent
+  // Wait for ACK to be sent
   TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
+  // Wait for ACK to be received
+  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
+
   // No more messages should have been sent
   TEST_FALSE(MyObserver->TxSem.TryWait());
-
-  // Verify no errors
-  TEST_FALSE(MyObserver->ErrSem.TryWait());
-
-  // Wait for message to be received
-  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
 
   // No more messages should be waiting
   TEST_FALSE(MyObserver->RxSem.TryWait());
@@ -132,14 +107,17 @@ zMessageTest_MessageLoopSocket(void* arg_)
   // Wait for message to be sent
   TEST_TRUE(MyObserver->TxSem.TimedWait(100));
 
-  // No more messages should have been sent
-  TEST_FALSE(MyObserver->TxSem.TryWait());
-
-  // Verify no errors
-  TEST_FALSE(MyObserver->ErrSem.TryWait());
-
   // Wait for message to be received
   TEST_TRUE(MyObserver->RxSem.TimedWait(100));
+
+  // Wait for ACK to be sent
+  TEST_TRUE(MyObserver->TxSem.TimedWait(100));
+
+  // Wait for ACK to be received
+  TEST_TRUE(MyObserver->RxSem.TimedWait(100));
+
+  // No more messages should have been sent
+  TEST_FALSE(MyObserver->TxSem.TryWait());
 
   // No more messages should be waiting
   TEST_FALSE(MyObserver->RxSem.TryWait());
@@ -172,105 +150,117 @@ zMessageTest_MessageUnixSocket(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Setup network socket
-  UnixAddress MyAddr1("/tmp/sock1");
-  UnixSocket *MySock1 = new UnixSocket;
-  TEST_ISNOT_NULL(MySock1);
-  TEST_TRUE(MySock1->Open());
-  TEST_TRUE(MySock1->Bind(MyAddr1));
+  UnixAddress ServerAddr("/tmp/server");
+  UnixSocket *ServerSock = new UnixSocket;
+  TEST_ISNOT_NULL(ServerSock);
+  TEST_TRUE(ServerSock->Open());
+  TEST_TRUE(ServerSock->Bind(ServerAddr));
 
   // Create new message socket and validate
-  zMessage::MessageSocket *MsgSock1 = new zMessage::MessageSocket;
-  TEST_ISNOT_NULL(MsgSock1);
+  zMessage::MessageSocket *MsgServer = new zMessage::MessageSocket;
+  TEST_ISNOT_NULL(MsgServer);
 
   // Create new socket hander and validate
-  zEvent::EventHandler* MyHandler1 = new zEvent::EventHandler;
-  TEST_ISNOT_NULL(MyHandler1);
+  zEvent::EventHandler* ServerMsgHandler = new zEvent::EventHandler;
+  TEST_ISNOT_NULL(ServerMsgHandler);
 
   // Register socket with handler and validate
-  MyHandler1->RegisterEvent(MsgSock1);
+  ServerMsgHandler->RegisterEvent(MsgServer);
 
   // Create new message socket observer and validate
-  TestSocketObserver *MyObserver1 = new TestSocketObserver;
-  TEST_ISNOT_NULL(MyObserver1);
+  TestSocketObserver *ServerMsgObs = new TestSocketObserver;
+  TEST_ISNOT_NULL(ServerMsgObs);
 
   // Register observer with handler and validate
-  MyHandler1->RegisterObserver(MyObserver1);
-  TEST_FALSE(MyObserver1->RxSem.TryWait());
-  TEST_FALSE(MyObserver1->TxSem.TryWait());
-  TEST_FALSE(MyObserver1->ErrSem.TryWait());
+  ServerMsgHandler->RegisterObserver(ServerMsgObs);
+  TEST_FALSE(ServerMsgObs->RxSem.TryWait());
+  TEST_FALSE(ServerMsgObs->TxSem.TryWait());
+  TEST_FALSE(ServerMsgObs->ErrSem.TryWait());
 
   // Listen on socket
-  TEST_TRUE(MsgSock1->Listen(MySock1));
+  TEST_TRUE(MsgServer->Listen(ServerSock));
 
   // Setup network socket
-  UnixAddress MyAddr2("/tmp/sock2");
-  UnixSocket *MySock2 = new UnixSocket;
-  TEST_ISNOT_NULL(MySock2);
-  TEST_TRUE(MySock2->Open());
-  TEST_TRUE(MySock2->Bind(MyAddr2));
+  UnixAddress ClientAddr("/tmp/client");
+  UnixSocket *ClientSock = new UnixSocket;
+  TEST_ISNOT_NULL(ClientSock);
+  TEST_TRUE(ClientSock->Open());
+  TEST_TRUE(ClientSock->Bind(ClientAddr));
 
   // Create new message socket and validate
-  zMessage::MessageSocket *MsgSock2 = new zMessage::MessageSocket;
-  TEST_ISNOT_NULL(MsgSock2);
+  zMessage::MessageSocket *MsgClient = new zMessage::MessageSocket;
+  TEST_ISNOT_NULL(MsgClient);
 
   // Connect socket2 to socket1
-  TEST_TRUE(MsgSock2->Connect(MyAddr1, MySock2));
+  TEST_TRUE(MsgClient->Connect(ServerAddr, ClientSock));
+
+  // Wait for hello message to be received
+  TEST_TRUE(ServerMsgObs->RxSem.TimedWait(100));
+
+  // Wait for ACK to be sent
+  TEST_TRUE(ServerMsgObs->TxSem.TimedWait(100));
 
   // Send hello message to self
   zMessage::Message *DataMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_DATA);
   TEST_ISNOT_NULL(DataMsg);
-  TEST_TRUE(DataMsg->SetDst(MyAddr1.Address()));
-  TEST_TRUE(MsgSock2->RegisterForAck(DataMsg->GetId()));
-  TEST_TRUE(MsgSock2->Send(*DataMsg));
+  TEST_TRUE(DataMsg->SetDst(ServerAddr.Address()));
+  TEST_TRUE(MsgClient->RegisterForAck(DataMsg->GetId()));
+  TEST_TRUE(MsgClient->Send(*DataMsg));
 
   // Wait for message to be received
-  TEST_TRUE(MyObserver1->RxSem.TimedWait(100));
+  TEST_TRUE(ServerMsgObs->RxSem.TimedWait(100));
 
   // No more messages should be waiting
-  TEST_FALSE(MyObserver1->RxSem.TryWait());
+  TEST_FALSE(ServerMsgObs->RxSem.TryWait());
 
   // Verify no errors
-  TEST_FALSE(MyObserver1->ErrSem.TryWait());
+  TEST_FALSE(ServerMsgObs->ErrSem.TryWait());
 
   // Acknowledge hello message
   zMessage::Message *ackMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ACK);
   TEST_ISNOT_NULL(ackMsg);
   TEST_TRUE(ackMsg->SetId(DataMsg->GetId()));
-  TEST_TRUE(ackMsg->SetDst(MyAddr2.Address()));
-  TEST_TRUE(ackMsg->SetSrc(MyAddr1.Address()));
-  TEST_TRUE(MsgSock1->Send(*ackMsg));
+  TEST_TRUE(ackMsg->SetDst(ClientAddr.Address()));
+  TEST_TRUE(ackMsg->SetSrc(ServerAddr.Address()));
+  TEST_TRUE(MsgServer->Send(*ackMsg));
   delete (ackMsg);
 
   // Wait for message to be sent
-  TEST_TRUE(MyObserver1->TxSem.TimedWait(100));
+  TEST_TRUE(ServerMsgObs->TxSem.TimedWait(100));
 
   // No more messages should have been sent
-  TEST_FALSE(MyObserver1->TxSem.TryWait());
+  TEST_FALSE(ServerMsgObs->TxSem.TryWait());
 
   // Verify no errors
-  TEST_FALSE(MyObserver1->ErrSem.TryWait());
+  TEST_FALSE(ServerMsgObs->ErrSem.TryWait());
 
   // Wait for ACK
   zMessage::AckMessage ack;
-  TEST_TRUE(MsgSock2->WaitForAck(DataMsg->GetId(), ack, 100));
-  TEST_TRUE(MsgSock2->UnregisterForAck(DataMsg->GetId()));
+  TEST_TRUE(MsgClient->WaitForAck(DataMsg->GetId(), ack, 100));
+  TEST_TRUE(MsgClient->UnregisterForAck(DataMsg->GetId()));
   delete (DataMsg);
 
   // Disconnect socket2 from socket1
-  TEST_TRUE(MsgSock2->Disconnect(MyAddr1));
+  TEST_TRUE(MsgClient->Disconnect(ServerAddr));
+
+  // Wait for bye message to be received
+  TEST_TRUE(ServerMsgObs->RxSem.TimedWait(100));
+
+  // Wait for ACK to be sent
+  TEST_TRUE(ServerMsgObs->TxSem.TimedWait(100));
 
   // Clean up
-  delete (MsgSock2);
-  MySock2->Close();
-  delete (MySock2);
+  delete (MsgClient);
+  ClientSock->Close();
+  delete (ClientSock);
 
-  MyHandler1->UnregisterEvent(MsgSock1);
-  delete (MsgSock1);
-  MySock1->Close();
-  delete (MySock1);
-  MyHandler1->UnregisterObserver(MyObserver1);
-  delete (MyObserver1);
-  delete (MyHandler1);
+  ServerMsgHandler->UnregisterEvent(MsgServer);
+  delete (MsgServer);
+  ServerSock->Close();
+  delete (ServerSock);
+  ServerMsgHandler->UnregisterObserver(ServerMsgObs);
+  delete (ServerMsgObs);
+  delete (ServerMsgHandler);
 
   // Return success
   return (0);

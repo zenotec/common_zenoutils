@@ -111,14 +111,17 @@ protected:
       switch (n->Id())
       {
       case zMessage::MessageNotification::ID_MSG_RCVD:
+//        std::cout << "TestObserver: Received: " << std::endl;
         this->RxSem.Push(n->GetMessage());
         status = true;
         break;
       case zMessage::MessageNotification::ID_MSG_SENT:
+//        std::cout << "TestObserver: Sent: " << std::endl;
         this->TxSem.Push(n->GetMessage());
         status = true;
         break;
       default:
+//        std::cout << "TestObserver: Error: " << std::endl;
         this->ErrSem.Push(n->GetMessage());
         status = false;
         break;
