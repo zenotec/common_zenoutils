@@ -484,6 +484,12 @@ TtySerialPort::Open()
 }
 
 bool
+TtySerialPort::IsOpen() const
+{
+  return(this->_fd != 0);
+}
+
+bool
 TtySerialPort::Close()
 {
 

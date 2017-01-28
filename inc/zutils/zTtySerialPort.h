@@ -295,6 +295,9 @@ public:
   virtual bool
   Open();
 
+  bool
+  IsOpen() const;
+
   virtual bool
   Close();
 
