@@ -20,7 +20,6 @@
 #include <stdint.h>
 
 #include <string>
-#include <sstream>
 
 namespace zUtils
 {
@@ -104,6 +103,23 @@ template<typename T>
   {
     return(_toint(value_));
   }
+
+inline std::pair<std::string, std::string>
+zSplitStr(const std::string& str_, char delim_)
+{
+  std::string first;
+  std::string second;
+  size_t pos = 0;
+
+  pos = str_.find_first_of(delim_);
+  first = str_.substr(0, pos);
+  if (pos != std::string::npos)
+  {
+    second = str_.substr(pos + 1, std::string::npos);
+  }
+
+  return(std::make_pair(first, second));
+}
 
 }
 
