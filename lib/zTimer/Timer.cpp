@@ -38,17 +38,22 @@ namespace zTimer
 {
 
 static void
-_add_time(struct timespec *ts_, uint32_t us_)
+_add_time(struct timespec *ts_, uint32_t usec_)
 {
   // Compute seconds
-  ts_->tv_sec += (us_ / 1000000);
+  ts_->tv_sec += (usec_ / 1000000);
+
   // Compute nanoseconds
-  uint32_t nsec = ((us_ % 1000000) * 1000);
-  if ((ts_->tv_nsec + nsec) < ts_->tv_nsec)
+  ts_->tv_nsec += ((usec_ % 1000000) * 1000);
+
+  // Check for nsec greater than 1 sec
+  if (ts_->tv_nsec >= 1000000000)
   {
     ts_->tv_sec++;
-  } // end if
-  ts_->tv_nsec += nsec;
+    ts_->tv_nsec %= 1000000000;
+  }
+
+  return;
 }
 
 //**********************************************************************
