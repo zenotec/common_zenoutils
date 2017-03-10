@@ -150,7 +150,7 @@ _get_phyname(const std::string &name_)
 }
 
 static std::string
-_get_ap_hwaddr(const std::string &name_)
+_get_bssid(const std::string &name_)
 {
   int sock = -1;
   struct iwreq iwr = { 0 };
@@ -363,6 +363,111 @@ __get_bit_rate(const std::string &name_)
 
 }
 
+static float
+__get_channel(const std::string &name_)
+{
+  float chnl = -1;
+  int sock = -1;
+  struct iwreq iwr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    if (ioctl(sock, SIOCGIWFREQ, &iwr) == 0)
+    {
+      chnl = iwr.u.freq.m;
+    }
+
+    // Close socket
+    close(sock);
+  }
+
+  return (chnl);
+
+}
+
+static bool
+__set_channel(const std::string &name_, float chnl_)
+{
+  int sock = -1;
+  struct iwreq iwr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+//    if (ioctl(sock, SIOCSIWTXPOW, &iwr) == 0)
+//    {
+//      if (!iwr.u.txpower.disabled)
+//      {
+//        tx_power = iwr.u.txpower.value;
+//      }
+//    }
+
+// Close socket
+    close(sock);
+  }
+
+  return (true);
+}
+
+static int
+__get_tx_power(const std::string &name_)
+{
+  int tx_power = -1;
+  int sock = -1;
+  struct iwreq iwr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    if (ioctl(sock, SIOCGIWTXPOW, &iwr) == 0)
+    {
+      if (!iwr.u.txpower.disabled)
+      {
+        tx_power = iwr.u.txpower.value;
+      }
+    }
+
+    // Close socket
+    close(sock);
+  }
+
+  return (tx_power);
+
+}
+
+static bool
+__set_tx_power(const std::string &name_, int tx_power_)
+{
+  int sock = -1;
+  struct iwreq iwr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+//    if (ioctl(sock, SIOCSIWTXPOW, &iwr) == 0)
+//    {
+//      if (!iwr.u.txpower.disabled)
+//      {
+//        tx_power = iwr.u.txpower.value;
+//      }
+//    }
+
+// Close socket
+    close(sock);
+  }
+
+  return (true);
+}
+
 static int
 __get_error_rate(const std::string &name_)
 {
@@ -379,7 +484,7 @@ _is_associated(const std::string &name_)
   const std::string bcast("FF:FF:FF:FF:FF:FF");
   const std::string hack("44:44:44:44:44:44");
 
-  std::string addr(_get_ap_hwaddr(name_));
+  std::string addr(_get_bssid(name_));
 
   if ((addr != zero) && (addr != bcast) && (addr != hack))
   {
@@ -391,8 +496,82 @@ _is_associated(const std::string &name_)
 }
 
 // ****************************************************************************
+// Class: WirelessConfigPath
+// ****************************************************************************
+
+const std::string WirelessConfigPath::ConfigPhyNamePath("PhyName");
+const std::string WirelessConfigPath::ConfigBssidPath("Bssid");
+const std::string WirelessConfigPath::ConfigEssidPath("Essid");
+const std::string WirelessConfigPath::ConfigSsidPath("Ssid");
+const std::string WirelessConfigPath::ConfigChannelPath("Channel");
+const std::string WirelessConfigPath::ConfigTxPowerPath("TxPower");
+
+WirelessConfigPath::WirelessConfigPath()
+{
+}
+
+WirelessConfigPath::~WirelessConfigPath()
+{
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::PhyName() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigPhyNamePath);
+  return (path);
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::Bssid() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigBssidPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::Essid() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigEssidPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::Ssid() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigSsidPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::Channel() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigChannelPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::TxPower() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigTxPowerPath);
+  return (path);
+}
+
+// ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
+
+const std::string WirelessInterface::ConfigPhyNameDefault("");
+const std::string WirelessInterface::ConfigBssidDefault("");
+const std::string WirelessInterface::ConfigEssidDefault("");
+const std::string WirelessInterface::ConfigSsidDefault("");
+const float WirelessInterface::ConfigChannelDefault(0.0);
+const int WirelessInterface::ConfigTxPowerDefault(0);
 
 WirelessInterface::WirelessInterface(const InterfaceConfigData& config_) :
     Interface(config_), _associated(false), _link_quality(-1),
@@ -422,7 +601,6 @@ WirelessInterface::Refresh()
 
   // Initialize
   this->_associated = false;
-  this->_essid.clear();
   this->_link_quality = -1;
   this->_signal_level = 0;
   this->_noise_level = -1;
@@ -433,17 +611,40 @@ WirelessInterface::Refresh()
 
     // Get wireless parameters
     this->_iw_name = _get_iwname(name);
-    this->_phy_name = _get_phyname(name);
+
+    if (this->GetPhyName() != _get_phyname(name))
+    {
+      this->SetPhyName(_get_phyname(name));
+    }
 
     if (this->GetState() == InterfaceConfigData::STATE_UP)
     {
       this->_associated = _is_associated(name);
-      this->_ap_addr = _get_ap_hwaddr(name);
-      this->_essid = _get_essid(name);
+
+      if (this->GetBssid() != _get_bssid(name))
+      {
+        this->SetBssid(_get_bssid(name));
+      }
+
+      if (this->GetEssid() != _get_essid(name))
+      {
+        this->SetEssid(_get_essid(name));
+      }
+
       this->_link_quality = this->_get_link_quality();
       this->_signal_level = this->_get_signal_level();
       this->_noise_level = this->_get_noise_level();
       this->_bit_rate = this->_get_bit_rate();
+
+      if (this->GetChannel() != this->_get_channel())
+      {
+        this->SetChannel(this->_get_channel());
+      }
+
+      if (this->GetTxPower() != this->_get_tx_power())
+      {
+        this->SetTxPower(this->_get_tx_power());
+      }
     }
     status = true;
   }
@@ -458,12 +659,16 @@ WirelessInterface::Display(const std::string &prefix_)
 {
   this->_lock.Lock();
   Interface::Display(prefix_);
-  std::cout << prefix_ << "IWNAME:      \t" << this->_iw_name << std::endl;
-  std::cout << prefix_ << "PHY:         \t" << this->_phy_name << std::endl;
+  std::cout << prefix_ << " IWNAME:      \t" << this->_iw_name << std::endl;
+  std::cout << prefix_ << "    PHY:      \t" << this->GetPhyName() << std::endl;
+  std::cout << prefix_ << "  ESSID:      \t" << this->GetEssid() << std::endl;
+  std::cout << prefix_ << "  BSSID:      \t" << this->GetBssid() << std::endl;
+  std::cout << prefix_ << "   SSID:      \t" << this->GetBssid() << std::endl;
+  std::cout << prefix_ << "CHANNEL:      \t" << this->GetChannel() << std::endl;
+  std::cout << prefix_ << "TXPOWER:      \t" << this->GetTxPower() << std::endl;
+
   if (this->_associated)
   {
-    std::cout << prefix_ << "ESSID:       \t" << this->_essid << std::endl;
-    std::cout << prefix_ << "BSS:         \t" << this->_ap_addr << std::endl;
     if (this->_bit_rate / 1000000000)
     {
       std::cout << prefix_ << "Bit Rate:    \t" << (this->_bit_rate / 1000000000) << " Gbps"
@@ -505,13 +710,117 @@ WirelessInterface::IwName()
 }
 
 std::string
-WirelessInterface::PhyName()
+WirelessInterface::GetPhyName() const
 {
-  std::string phyname;
-  this->_lock.Lock();
-  phyname = this->_phy_name;
-  this->_lock.Unlock();
-  return (phyname);
+  std::string str;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.PhyName(), str))
+  {
+    str = ConfigPhyNameDefault;
+  }
+  return (str);
+}
+
+bool
+WirelessInterface::SetPhyName(const std::string& phy_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.PhyName(), phy_));
+}
+
+std::string
+WirelessInterface::GetBssid() const
+{
+  std::string str;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.Bssid(), str))
+  {
+    str = ConfigBssidDefault;
+  }
+  return (str);
+}
+
+bool
+WirelessInterface::SetBssid(const std::string& bssid_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.Bssid(), bssid_));
+}
+
+std::string
+WirelessInterface::GetEssid() const
+{
+  std::string str;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.Essid(), str))
+  {
+    str = ConfigEssidDefault;
+  }
+  return (str);
+}
+
+bool
+WirelessInterface::SetEssid(const std::string& essid_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.Essid(), essid_));
+}
+
+std::string
+WirelessInterface::GetSsid() const
+{
+  std::string str;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.Ssid(), str))
+  {
+    str = ConfigSsidDefault;
+  }
+  return (str);
+}
+
+bool
+WirelessInterface::SetSsid(const std::string& ssid_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.Ssid(), ssid_));
+}
+
+float
+WirelessInterface::GetChannel() const
+{
+  float chnl;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.Channel(), chnl))
+  {
+    chnl = ConfigChannelDefault;
+  }
+  return (chnl);
+}
+
+bool
+WirelessInterface::SetChannel(const float chnl_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.Channel(), chnl_));
+}
+
+int
+WirelessInterface::GetTxPower() const
+{
+  int txpow;
+  WirelessConfigPath path;
+  if (!this->GetValue(path.TxPower(), txpow))
+  {
+    txpow = ConfigTxPowerDefault;
+  }
+  return (txpow);
+}
+
+bool
+WirelessInterface::SetTxPower(int txpow_)
+{
+  WirelessConfigPath path;
+  return (this->PutValue(path.TxPower(), txpow_));
 }
 
 bool
@@ -534,38 +843,6 @@ WirelessInterface::IsAssociated()
   ass_flag = this->_associated;
   this->_lock.Unlock();
   return (ass_flag);
-}
-
-std::string
-WirelessInterface::ApAddress()
-{
-  std::string ap_addr;
-  this->_lock.Lock();
-  ap_addr = this->_ap_addr;
-  this->_lock.Unlock();
-  return (ap_addr);
-}
-
-std::string
-WirelessInterface::Essid()
-{
-  std::string essid;
-  this->_lock.Lock();
-  essid = this->_essid;
-  this->_lock.Unlock();
-  return (essid);
-}
-
-int
-WirelessInterface::Channel()
-{
-  return (0);
-}
-
-bool
-WirelessInterface::Channel(const int channel_)
-{
-  return (false);
 }
 
 int
@@ -630,6 +907,30 @@ int
 WirelessInterface::_get_bit_rate()
 {
   return (__get_bit_rate(this->GetName()));
+}
+
+float
+WirelessInterface::_get_channel()
+{
+  return (__get_channel(this->GetName()));
+}
+
+bool
+WirelessInterface::_set_channel(float chnl_)
+{
+  return (__set_channel(this->GetName(), chnl_));
+}
+
+int
+WirelessInterface::_get_tx_power()
+{
+  return (__get_tx_power(this->GetName()));
+}
+
+bool
+WirelessInterface::_set_tx_power(int txpow_)
+{
+  return (__set_tx_power(this->GetName(), txpow_));
 }
 
 }

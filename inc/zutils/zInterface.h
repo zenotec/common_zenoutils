@@ -44,7 +44,8 @@ public:
   static const std::string ConfigRoot;
   static const std::string ConfigNamePath;
   static const std::string ConfigTypePath;
-  static const std::string ConfigAddressPath;
+  static const std::string ConfigHwAddressPath;
+  static const std::string ConfigIpAddressPath;
   static const std::string ConfigStatePath;
 
   InterfaceConfigPath();
@@ -59,7 +60,10 @@ public:
   Type() const;
 
   zConfig::ConfigPath
-  Address() const;
+  HwAddress() const;
+
+  zConfig::ConfigPath
+  IpAddress() const;
 
   zConfig::ConfigPath
   State() const;
@@ -71,7 +75,7 @@ private:
 };
 
 // ****************************************************************************
-// Class: InterfaceConfiguration
+// Class: InterfaceConfigData
 // ****************************************************************************
 
 class InterfaceConfigData : public zConfig::ConfigData
@@ -115,7 +119,9 @@ public:
   static const std::string ConfigTypeBridge;
   static const std::string ConfigTypeDefault;
 
-  static const std::string ConfigAddressDefault;
+  static const std::string ConfigHwAddressDefault;
+
+  static const std::string ConfigIpAddressDefault;
 
   static const std::string ConfigStateNone;
   static const std::string ConfigStateUp;
@@ -146,10 +152,16 @@ public:
   SetType(const InterfaceConfigData::TYPE type_);
 
   std::string
-  GetAddress() const;
+  GetHwAddress() const;
 
   bool
-  SetAddress(const std::string& name_);
+  SetHwAddress(const std::string& name_);
+
+  std::string
+  GetIpAddress() const;
+
+  bool
+  SetIpAddress(const std::string& name_);
 
   InterfaceConfigData::STATE
   GetState() const;
@@ -203,9 +215,6 @@ public:
   int
   Index();
 
-  std::string
-  HwAddress();
-
   virtual bool
   Refresh();
 
@@ -223,7 +232,6 @@ private:
   zTimer::Timer _timer;
 
   int _index;
-  std::string _hw_addr;
 
 };
 

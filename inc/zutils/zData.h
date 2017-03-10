@@ -282,6 +282,9 @@ public:
   std::string
   GetJson() const;
 
+  std::string
+  GetJsonPretty() const;
+
   bool
   SetJson(const std::string &json_);
 

@@ -51,16 +51,25 @@ AC_CHECK_LIB([rt], [clock_gettime], [], [AC_MSG_ERROR([Unable to find librt])])
 AC_CHECK_LIB([uuid], [uuid_generate], [], [AC_MSG_ERROR([Unable to find libuuid])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([stdio.h stdlib.h stddef.h stdint.h string.h unistd.h fcntl.h arpa/inet.h netinet/in.h sys/ioctl.h sys/socket.h sys/time.h termios.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_TYPE_SIZE_T
+AC_CHECK_HEADER_STDBOOL
+AC_TYPE_INT8_T
+AC_TYPE_UINT8_T
+AC_TYPE_INT16_T
+AC_TYPE_UINT16_T
+AC_TYPE_INT32_T
 AC_TYPE_UINT32_T
+AC_TYPE_INT64_T
 AC_TYPE_UINT64_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+
 
 # Checks for library functions.
-AC_CHECK_FUNCS([memset getpid sem_init strerror])
+AC_FUNC_MALLOC
+AC_CHECK_FUNCS([memset mkdir pow floor rmdir socket strtol strerror getpid])
 
 # Common variables
 com_incdir='-I${top_srcdir}/inc'

@@ -32,7 +32,7 @@ zInterfaceTest_InterfaceConfigurationCtor (void* arg)
   ConfigData config(path);
   TEST_TRUE(config.PutValue(path.Name(), std::string("eth0")));
   TEST_TRUE(config.PutValue(path.Type(), InterfaceConfigData::ConfigTypeWired));
-  TEST_TRUE(config.PutValue(path.Address(), std::string("1.2.3.4")));
+  TEST_TRUE(config.PutValue(path.IpAddress(), std::string("1.2.3.4")));
   TEST_TRUE(config.PutValue(path.State(), InterfaceConfigData::ConfigStateUp));
 
   // Construct and verify
@@ -41,7 +41,7 @@ zInterfaceTest_InterfaceConfigurationCtor (void* arg)
   TEST_EQ(std::string("eth0"), MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyConfig->GetType());
   TEST_EQ(InterfaceConfigData::STATE_UP, MyConfig->GetState());
-  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetAddress());
+  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetIpAddress());
 
   // Cleanup
   delete (MyConfig);
@@ -59,19 +59,19 @@ zInterfaceTest_InterfaceConfigurationGetSet (void* arg)
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Set
   TEST_TRUE(MyConfig->SetName("eth0"));
   TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_WIRED));
-  TEST_TRUE(MyConfig->SetAddress("1.2.3.4"));
+  TEST_TRUE(MyConfig->SetIpAddress("1.2.3.4"));
   TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_UP));
 
   // Get
   TEST_EQ(std::string("eth0"), MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyConfig->GetType());
-  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetAddress());
+  TEST_EQ(std::string("1.2.3.4"), MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_UP, MyConfig->GetState());
 
   // Cleanup

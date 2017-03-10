@@ -35,20 +35,20 @@ zInterfaceTest_InterfaceCtor(void* arg)
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Set
   TEST_TRUE(MyConfig->SetName("eth0"));
   TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_WIRED));
-  TEST_TRUE(MyConfig->SetAddress("1.2.3.4"));
+  TEST_TRUE(MyConfig->SetIpAddress("1.2.3.4"));
   TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_UP));
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(std::string("eth0"), MyInterface->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyInterface->GetType());
-  TEST_EQ(std::string("1.2.3.4"), MyInterface->GetAddress());
+  TEST_EQ(std::string("1.2.3.4"), MyInterface->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_UP, MyInterface->GetState());
 
   // Cleanup
@@ -70,7 +70,7 @@ zInterfaceTest_InterfaceRefresh(void* arg)
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Set
@@ -81,18 +81,18 @@ zInterfaceTest_InterfaceRefresh(void* arg)
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(std::string("lo"), MyInterface->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_LOOP, MyInterface->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyInterface->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyInterface->GetState());
   TEST_EQ(-1, MyInterface->Index());
-  TEST_EQ(std::string(""), MyInterface->HwAddress());
+  TEST_EQ(std::string(""), MyInterface->GetHwAddress());
 
   // Refresh and verify
   TEST_TRUE(MyInterface->Refresh());
   TEST_EQ(std::string("lo"), MyInterface->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_LOOP, MyInterface->GetType());
   TEST_NEQ(-1, MyInterface->Index());
-  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetAddress());
-  TEST_EQ(std::string("00:00:00:00:00:00"), MyInterface->HwAddress());
+  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetIpAddress());
+  TEST_EQ(std::string("00:00:00:00:00:00"), MyInterface->GetHwAddress());
 
   // Cleanup
   delete (MyInterface);

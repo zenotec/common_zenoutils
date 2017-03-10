@@ -428,7 +428,15 @@ std::string
 Data::GetJson() const
 {
   std::stringstream json;
-  pt::write_json(json, this->_pt);
+  pt::write_json(json, this->_pt, false);
+  return (json.str());
+}
+
+std::string
+Data::GetJsonPretty() const
+{
+  std::stringstream json;
+  pt::write_json(json, this->_pt, true);
   return (json.str());
 }
 
@@ -466,7 +474,7 @@ Data::SetJson(const std::string &json_)
 void
 Data::DisplayJson() const
 {
-  std::cout << std::endl << this->GetJson() << std::endl;
+  std::cout << std::endl << this->GetJsonPretty() << std::endl;
 }
 
 std::string

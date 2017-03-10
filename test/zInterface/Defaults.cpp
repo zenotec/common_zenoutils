@@ -39,7 +39,7 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Cleanup
@@ -62,14 +62,14 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyConfig->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface->GetName());
   TEST_EQ(InterfaceConfigData::TYPE_DEF, MyInterface->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigAddressDefault, MyInterface->GetAddress());
+  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyInterface->GetState());
 
   // Cleanup

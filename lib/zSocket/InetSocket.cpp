@@ -23,6 +23,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <poll.h>
+#include <sys/ioctl.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <ifaddrs.h>
@@ -218,9 +219,11 @@ InetSocketRecv::Run(zThread::ThreadArg *arg_)
     int ret = poll(fds, 1, 100);
     if (ret > 0 && (fds[0].revents == POLLIN))
     {
+      int size = 0;
+      ioctl(sock->_sock, FIONREAD, &size);
       ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
-      std::shared_ptr<InetAddress> addr(new InetAddress);
-      std::shared_ptr<SocketBuffer> sb(new SocketBuffer);
+      SHARED_PTR(InetAddress) addr(new InetAddress);
+      SHARED_PTR(SocketBuffer) sb(new SocketBuffer(size));
       bytes = sock->_recv(*addr, *sb);
       if (bytes > 0)
       {

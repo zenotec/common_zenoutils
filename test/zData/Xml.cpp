@@ -48,7 +48,7 @@ zDataTest_XmlSimple(void* arg_)
   // Create new data object and validate
   zData::Data MyData1(MyPath1);
   TEST_EQ(MyData1.Key(), MyPath1.Key());
-  TEST_EQ(MyData1.GetJson(), std::string("{\n    \"zData\": \"\"\n}\n"));
+  TEST_EQ(MyData1.GetJson(), std::string("{\"zData\":\"\"}\n"));
   TEST_EQ(MyData1.GetXml(), std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData/>"));
 
   // Set value and validate
@@ -59,8 +59,7 @@ zDataTest_XmlSimple(void* arg_)
   // Create second empty data object and validate
   zData::Data MyData2(MyPath2);
   TEST_EQ(MyData2.Key(), MyPath2.Key());
-  TEST_EQ(MyData2.GetJson(),
-      std::string("{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n"));
+  TEST_EQ(MyData2.GetJson(), std::string("{\"zData\":{\"TestKey\":\"\"}}\n"));
   TEST_EQ(MyData2.GetXml(),
       std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>"));
 

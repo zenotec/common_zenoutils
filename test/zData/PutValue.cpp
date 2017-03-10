@@ -33,7 +33,7 @@ zDataTest_PutValueSingle(void* arg_)
   std::string expKey = "TestKey";
   std::string expVal = "TestValue";
   std::string obsVal;
-  std::string expJson = "{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n";
+  std::string expJson = "{\"zData\":{\"TestKey\":\"\"}}\n";
   std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>";
 
   // Create new data path object and validate
@@ -69,7 +69,7 @@ zDataTest_PutValueMultiple(void* arg_)
   std::string expKey = "TestKey";
   std::string expVal = "TestValue";
   std::string obsVal;
-  std::string expJson = "{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n";
+  std::string expJson = "{\"zData\":{\"TestKey\":\"\"}}\n";
   std::string expXml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>";
 
   // Create new data path object and validate

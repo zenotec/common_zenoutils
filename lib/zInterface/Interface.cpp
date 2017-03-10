@@ -400,18 +400,22 @@ Interface::Refresh()
       // Query interface index
       this->_index = _get_ifindex(name);
 
-      // Query interface MAC address
-      this->_hw_addr = _get_hw_addr(name);
-
       if (this->GetState() != _get_state(name))
       {
         this->SetState(_get_state(name));
         // TODO Notification
       }
 
-      if (this->GetAddress() != _get_ip_addr(name))
+      // Query interface MAC address
+      if (this->GetHwAddress() != _get_hw_addr(name))
       {
-        this->SetAddress(_get_ip_addr(name));
+        this->SetHwAddress(_get_hw_addr(name));
+      }
+
+      // Query interface IP address
+      if (this->GetIpAddress() != _get_ip_addr(name))
+      {
+        this->SetIpAddress(_get_ip_addr(name));
       }
 
       status = true;
@@ -429,28 +433,6 @@ Interface::Refresh()
   return (status);
 }
 
-void
-Interface::Display(const std::string &prefix_)
-{
-
-  std::cout << prefix_ << "Name: \t" << this->GetName() << std::endl;
-  std::cout << prefix_ << "Type: \t" << InterfaceConfigData::GetType() << std::endl;
-  std::cout << prefix_ << "State:\t" << InterfaceConfigData::GetState() << std::endl;
-
-  // Start critical section
-  if (this->_lock.Lock())
-  {
-    std::cout << prefix_ << "Index:  \t" << this->_index << std::endl;
-    std::cout << prefix_ << "MAC:    \t" << this->_hw_addr << std::endl;
-    std::cout << prefix_ << "Address:\t" << this->GetAddress() << std::endl;
-    std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
-    // End critical section
-    this->_lock.Unlock();
-  }
-
-  return;
-}
-
 int
 Interface::Index()
 {
@@ -463,16 +445,20 @@ Interface::Index()
   return (index);
 }
 
-std::string
-Interface::HwAddress()
+void
+Interface::Display(const std::string &prefix_)
 {
-  std::string hw_addr;
-  if (this->_lock.Lock())
-  {
-    hw_addr = this->_hw_addr;
-    this->_lock.Unlock();
-  }
-  return (hw_addr);
+
+  std::cout << prefix_ << "Name: \t" << this->GetName() << std::endl;
+  std::cout << prefix_ << "Type: \t" << InterfaceConfigData::GetType() << std::endl;
+
+  // Start critical section
+  std::cout << prefix_ << "Index:  \t" << this->Index() << std::endl;
+  std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
+  std::cout << prefix_ << "Address:\t" << this->GetIpAddress() << std::endl;
+  std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
+
+  return;
 }
 
 bool

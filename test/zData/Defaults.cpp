@@ -56,15 +56,14 @@ zDataTest_Defaults(void* arg)
 
   // Create new data object and validate
   MyData = new zData::Data;
-  TEST_EQ(MyData->GetJson(), std::string("{\n    \"zData\": \"\"\n}\n"));
+  TEST_EQ(MyData->GetJson(), std::string("{\"zData\":\"\"}\n"));
   TEST_EQ(MyData->GetXml(),
       std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData/>"));
   delete (MyData);
 
   // Create new data object and validate
   MyData = new zData::Data("TestKey");
-  TEST_EQ(MyData->GetJson(),
-      std::string("{\n    \"zData\": {\n        \"TestKey\": \"\"\n    }\n}\n"));
+  TEST_EQ(MyData->GetJson(), std::string("{\"zData\":{\"TestKey\":\"\"}}\n"));
   TEST_EQ(MyData->GetXml(),
       std::string("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<zData><TestKey/></zData>"));
   delete (MyData);

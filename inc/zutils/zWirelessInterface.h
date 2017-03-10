@@ -26,12 +26,64 @@ namespace zInterface
 {
 
 // ****************************************************************************
+// Class: WirelessConfigPath
+// ****************************************************************************
+
+class WirelessConfigPath : public InterfaceConfigPath
+{
+
+public:
+
+  static const std::string ConfigPhyNamePath;
+  static const std::string ConfigBssidPath;
+  static const std::string ConfigEssidPath;
+  static const std::string ConfigSsidPath;
+  static const std::string ConfigChannelPath;
+  static const std::string ConfigTxPowerPath;
+
+  WirelessConfigPath();
+
+  virtual
+  ~WirelessConfigPath();
+
+  zConfig::ConfigPath
+  PhyName() const;
+
+  zConfig::ConfigPath
+  Bssid() const;
+
+  zConfig::ConfigPath
+  Essid() const;
+
+  zConfig::ConfigPath
+  Ssid() const;
+
+  zConfig::ConfigPath
+  Channel() const;
+
+  zConfig::ConfigPath
+  TxPower() const;
+
+protected:
+
+private:
+
+};
+
+// ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
 
 class WirelessInterface : public Interface
 {
 public:
+
+  static const std::string ConfigPhyNameDefault;
+  static const std::string ConfigBssidDefault;
+  static const std::string ConfigEssidDefault;
+  static const std::string ConfigSsidDefault;
+  static const float ConfigChannelDefault;
+  static const int ConfigTxPowerDefault;
 
   WirelessInterface(const std::string &name_);
 
@@ -43,14 +95,44 @@ public:
   virtual bool
   Refresh();
 
-  virtual void
-  Display(const std::string &prefix_);
-
   std::string
   IwName();
 
   std::string
-  PhyName();
+  GetPhyName() const;
+
+  bool
+  SetPhyName(const std::string& phy_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  std::string
+  GetEssid() const;
+
+  bool
+  SetEssid(const std::string& essid_);
+
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  float
+  GetChannel() const;
+
+  bool
+  SetChannel(const float chnl_);
+
+  int
+  GetTxPower() const;
+
+  bool
+  SetTxPower(int txpow_);
 
   bool
   IsAssociated();
@@ -60,18 +142,6 @@ public:
 
   bool
   Disassociate();
-
-  std::string
-  ApAddress();
-
-  std::string
-  Essid();
-
-  int
-  Channel();
-
-  bool
-  Channel(const int channel_);
 
   int
   LinkQuality();
@@ -84,6 +154,9 @@ public:
 
   int
   BitRate();
+
+  virtual void
+  Display(const std::string &prefix_);
 
 protected:
 
@@ -104,14 +177,23 @@ protected:
   virtual int
   _get_bit_rate();
 
+  virtual float
+  _get_channel();
+
+  virtual bool
+  _set_channel(float chnl_);
+
+  virtual int
+  _get_tx_power();
+
+  virtual bool
+  _set_tx_power(int txpow_);
+
 private:
 
   zSem::Mutex _lock;
   std::string _iw_name;
-  std::string _phy_name;
   bool _associated;
-  std::string _ap_addr;
-  std::string _essid;
 
 };
 

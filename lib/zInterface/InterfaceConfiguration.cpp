@@ -40,7 +40,8 @@ namespace zInterface
 const std::string InterfaceConfigPath::ConfigRoot("zInterface");
 const std::string InterfaceConfigPath::ConfigNamePath("Name");
 const std::string InterfaceConfigPath::ConfigTypePath("Type");
-const std::string InterfaceConfigPath::ConfigAddressPath("Address");
+const std::string InterfaceConfigPath::ConfigHwAddressPath("HwAddress");
+const std::string InterfaceConfigPath::ConfigIpAddressPath("IpAddress");
 const std::string InterfaceConfigPath::ConfigStatePath("State");
 
 InterfaceConfigPath::InterfaceConfigPath() :
@@ -69,10 +70,18 @@ InterfaceConfigPath::Type() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::Address() const
+InterfaceConfigPath::HwAddress() const
 {
   zConfig::ConfigPath path(*this);
-  path.Append(ConfigAddressPath);
+  path.Append(ConfigHwAddressPath);
+  return (path);
+}
+
+zConfig::ConfigPath
+InterfaceConfigPath::IpAddress() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigIpAddressPath);
   return (path);
 }
 
@@ -99,7 +108,9 @@ const std::string InterfaceConfigData::ConfigTypeBond("BOND");
 const std::string InterfaceConfigData::ConfigTypeBridge("BRIDGE");
 const std::string InterfaceConfigData::ConfigTypeDefault(ConfigTypeNone);
 
-const std::string InterfaceConfigData::ConfigAddressDefault("");
+const std::string InterfaceConfigData::ConfigHwAddressDefault("");
+
+const std::string InterfaceConfigData::ConfigIpAddressDefault("");
 
 const std::string InterfaceConfigData::ConfigStateNone("");
 const std::string InterfaceConfigData::ConfigStateUp("UP");
@@ -243,22 +254,41 @@ InterfaceConfigData::SetType(const InterfaceConfigData::TYPE type_)
 }
 
 std::string
-InterfaceConfigData::GetAddress() const
+InterfaceConfigData::GetHwAddress() const
 {
   std::string str;
   InterfaceConfigPath path;
-  if (!this->GetValue(path.Address(), str))
+  if (!this->GetValue(path.HwAddress(), str))
   {
-    str = ConfigAddressDefault;
+    str = ConfigHwAddressDefault;
   }
   return (str);
 }
 
 bool
-InterfaceConfigData::SetAddress(const std::string& addr_)
+InterfaceConfigData::SetHwAddress(const std::string& addr_)
 {
   InterfaceConfigPath path;
-  return (this->PutValue(path.Address(), addr_));
+  return (this->PutValue(path.HwAddress(), addr_));
+}
+
+std::string
+InterfaceConfigData::GetIpAddress() const
+{
+  std::string str;
+  InterfaceConfigPath path;
+  if (!this->GetValue(path.IpAddress(), str))
+  {
+    str = ConfigIpAddressDefault;
+  }
+  return (str);
+}
+
+bool
+InterfaceConfigData::SetIpAddress(const std::string& addr_)
+{
+  InterfaceConfigPath path;
+  return (this->PutValue(path.IpAddress(), addr_));
 }
 
 InterfaceConfigData::STATE
