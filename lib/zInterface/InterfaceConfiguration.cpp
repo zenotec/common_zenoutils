@@ -42,6 +42,7 @@ const std::string InterfaceConfigPath::ConfigNamePath("Name");
 const std::string InterfaceConfigPath::ConfigTypePath("Type");
 const std::string InterfaceConfigPath::ConfigHwAddressPath("HwAddress");
 const std::string InterfaceConfigPath::ConfigIpAddressPath("IpAddress");
+const std::string InterfaceConfigPath::ConfigNetmaskPath("Netmask");
 const std::string InterfaceConfigPath::ConfigStatePath("State");
 
 InterfaceConfigPath::InterfaceConfigPath() :
@@ -86,6 +87,14 @@ InterfaceConfigPath::IpAddress() const
 }
 
 zConfig::ConfigPath
+InterfaceConfigPath::Netmask() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigNetmaskPath);
+  return (path);
+}
+
+zConfig::ConfigPath
 InterfaceConfigPath::State() const
 {
   zConfig::ConfigPath path(*this);
@@ -111,6 +120,8 @@ const std::string InterfaceConfigData::ConfigTypeDefault(ConfigTypeNone);
 const std::string InterfaceConfigData::ConfigHwAddressDefault("");
 
 const std::string InterfaceConfigData::ConfigIpAddressDefault("");
+
+const std::string InterfaceConfigData::ConfigNetmaskDefault("");
 
 const std::string InterfaceConfigData::ConfigStateNone("");
 const std::string InterfaceConfigData::ConfigStateUp("UP");
@@ -289,6 +300,25 @@ InterfaceConfigData::SetIpAddress(const std::string& addr_)
 {
   InterfaceConfigPath path;
   return (this->PutValue(path.IpAddress(), addr_));
+}
+
+std::string
+InterfaceConfigData::GetNetmask() const
+{
+  std::string str;
+  InterfaceConfigPath path;
+  if (!this->GetValue(path.Netmask(), str))
+  {
+    str = ConfigNetmaskDefault;
+  }
+  return (str);
+}
+
+bool
+InterfaceConfigData::SetNetmask(const std::string& addr_)
+{
+  InterfaceConfigPath path;
+  return (this->PutValue(path.Netmask(), addr_));
 }
 
 InterfaceConfigData::STATE

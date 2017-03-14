@@ -18,9 +18,11 @@
 #define __ZETHSOCKET_H__
 
 #include <stdint.h>
+#include <linux/if_ether.h>
 
 #include <string>
 
+#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -28,57 +30,143 @@ namespace zUtils
 namespace zSocket
 {
 
+struct eth_addr
+{
+  uint8_t addr[ETH_ALEN];
+};
+
 //**********************************************************************
 // EthAddress Class
 //**********************************************************************
 
-class EthAddress
+class EthAddress : public SocketAddress
 {
 
 public:
-  static const unsigned int ETHADDR_LEN;
+
+  EthAddress(const std::string &addr_= std::string("00:00:00:00:00:00"));
+
+  EthAddress(SocketAddress &addr_);
 
   EthAddress(const SocketAddress &addr_);
-  EthAddress(const std::string &addr_ = std::string("00:00:00:00:00:00"));
-  EthAddress(const struct sockaddr_in &addr_);
 
   virtual
   ~EthAddress();
 
-  bool
-  operator ==(const EthAddress &other_) const;
-  bool
-  operator !=(const EthAddress &other_) const;
-  bool
-  operator <(const EthAddress &other_) const;
-  bool
-  operator >(const EthAddress &other_) const;
-
-  SocketAddress
-  GetAddr() const;
   std::string
-  GetAddrString() const;
-  struct sockaddr_in
-  GetAddrSockAddr() const;
+  IfName() const;
 
-  bool
-  GetAddr(SocketAddress &addr_) const;
-  bool
-  GetAddr(std::string &addr_) const;
-  bool
-  GetAddr(struct sockaddr_in &addr_) const;
-
-  bool
-  SetAddr(const SocketAddress &addr_);
-  bool
-  SetAddr(const std::string &addr_);
-  bool
-  SetAddr(const struct sockaddr_in &addr_);
+  struct eth_addr
+  Mac() const;
 
 protected:
 
 private:
-  uint8_t *_ethaddr;
+
+  std::string _name;
+  struct eth_addr _mac;
+
+  virtual bool
+  verify(const SocketType type_, const std::string &addr_);
+
+};
+
+//**********************************************************************
+// zSocket::EthSocketRecv Class
+//**********************************************************************
+
+class EthSocketRecv : public zThread::ThreadFunction
+{
+
+public:
+
+  EthSocketRecv()
+  {
+  }
+
+  virtual
+  ~EthSocketRecv()
+  {
+  }
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// zSocket::EthSocketSend Class
+//**********************************************************************
+
+class EthSocketSend : public zThread::ThreadFunction
+{
+
+public:
+
+  EthSocketSend()
+  {
+  }
+
+  virtual
+  ~EthSocketSend()
+  {
+  }
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+protected:
+
+private:
+
+};
+
+//**********************************************************************
+// zSocket::EthSocket Class
+//**********************************************************************
+
+class EthSocket : public Socket, public zThread::ThreadArg
+{
+
+  friend EthSocketRecv;
+  friend EthSocketSend;
+
+public:
+
+  EthSocket();
+
+  virtual
+  ~EthSocket();
+
+  virtual bool
+  Open();
+
+  virtual void
+  Close();
+
+protected:
+
+  int _sock;
+
+  virtual bool
+  _bind();
+
+  virtual ssize_t
+  _recv(zSocket::EthAddress &src_, zSocket::SocketBuffer &sb_);
+
+  virtual ssize_t
+  _send(const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
+
+private:
+
+  zThread::Thread _rx_thread;
+  EthSocketRecv _rx_func;
+  zThread::Thread _tx_thread;
+  EthSocketSend _tx_func;
 
 };
 

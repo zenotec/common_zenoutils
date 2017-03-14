@@ -132,14 +132,6 @@ _addr2sock(const std::string& addr_, struct sockaddr_in& sockaddr_)
       sockaddr_.sin_port = htons(port);
       status = true;
     }
-    else
-    {
-      ZLOG_ERR("Error converting address to Port: '" + addr_ + "'");
-    }
-  }
-  else
-  {
-    ZLOG_ERR("Error converting address to IP: '" + addr_ + "'");
   }
 
   return (status);
@@ -406,58 +398,6 @@ InetSocket::_bind()
 
 }
 
-//bool
-//InetSocket::Connect(const SocketAddress& addr_)
-//{
-//
-//  ZLOG_DEBUG("Connect on socket: " + ZLOG_INT(this->_sock));
-//
-//  if (!this->_sock)
-//  {
-//    ZLOG_CRIT(std::string("Socket not opened"));
-//    return (false);
-//  }
-//
-//  if (this->Address().Type() != SocketType::TYPE_INET)
-//  {
-//    ZLOG_CRIT(std::string("Invalid socket address"));
-//    return (false);
-//  }
-//
-//  if (addr_.Type() != SocketType::TYPE_INET)
-//  {
-//    ZLOG_CRIT(std::string("Invalid socket address type"));
-//    return (false);
-//  }
-//
-//  // Convert string notation address to sockaddr_un
-//  struct sockaddr_in addr =
-//      { 0 };
-//  if (!_addr2sock(addr_.Address(), addr))
-//  {
-//    ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
-//    return (false);
-//  }
-//
-//  // Connect to target address
-//  int ret = connect(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
-//  if (ret < 0)
-//  {
-//    ZLOG_CRIT("Cannot connect socket: " + std::string(strerror(errno)));
-//    return (false);
-//  } // end if
-//
-//  // Start listener threads
-//  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
-//  {
-//    ZLOG_ERR("Error starting listening threads");
-//    return (false);
-//  }
-//
-//  return (true);
-//
-//}
-
 ssize_t
 InetSocket::_recv(zSocket::InetAddress & addr_, zSocket::SocketBuffer & sb_)
 {
@@ -492,11 +432,22 @@ InetSocket::_recv(zSocket::InetAddress & addr_, zSocket::SocketBuffer & sb_)
       }
     }
 
+    uint8_t* p = sb_.Head();
     std::string logstr;
     logstr += "Receiving on socket:\t";
     logstr += "To: " + this->Address().Address() + ";\t";
     logstr += "From: " + addr_.Address() + ";\t";
-    logstr += "Size: " + ZLOG_INT(n) + ";";
+    logstr += "Size: " + ZLOG_INT(n) + ";\t";
+    logstr += "Data: ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ";";
     ZLOG_INFO(logstr);
 
   } // end if

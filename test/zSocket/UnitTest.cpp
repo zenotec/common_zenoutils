@@ -73,6 +73,13 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_UnixSocketDefault, 0);
   UTEST_TEST(zSocketTest_UnixSocketSendReceive, 0);
 
+  UTEST_TEST(zSocketTest_EthAddressGetSet, 0);
+  UTEST_TEST(zSocketTest_EthAddressCompare, 0);
+
+  UTEST_TEST(zSocketTest_EthSocketDefault, 0);
+  UTEST_TEST(zSocketTest_EthSocketSendReceiveLoop, 0);
+  UTEST_TEST(zSocketTest_EthSocketSendReceiveSock2Sock, 0);
+
   UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
   UTEST_TEST(zSocketTest_InetAddressCompare, 0);
 

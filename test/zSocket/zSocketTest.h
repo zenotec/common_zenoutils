@@ -59,6 +59,18 @@ int
 zSocketTest_UnixSocketSendReceive(void* arg_);
 
 int
+zSocketTest_EthAddressGetSet(void* arg_);
+int
+zSocketTest_EthAddressCompare(void* arg_);
+
+int
+zSocketTest_EthSocketDefault(void* arg_);
+int
+zSocketTest_EthSocketSendReceiveLoop(void* arg_);
+int
+zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_);
+
+int
 zSocketTest_InetAddressGetSet(void* arg_);
 int
 zSocketTest_InetAddressCompare(void* arg_);

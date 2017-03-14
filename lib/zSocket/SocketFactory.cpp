@@ -17,21 +17,24 @@
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
 
-#include <zutils/zInet.h>
+#include <zutils/zInetSocket.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-zSocket::SocketAddress *
-SocketFactory::Create(const zSocket::SocketAddress::TYPE &type_)
+SocketAddress *
+SocketFactory::Create(const SocketAddress::TYPE &type_)
 {
-  zSocket::SocketAddress *addr = NULL;
+  SocketAddress *addr = NULL;
   switch (type_)
   {
   case SocketAddress::TYPE_INET:
-    addr = new zSocket::InetAddress;
+    addr = new InetAddress;
+    break;
+  case SocketAddress::TYPE_ETH:
+    addr = new EthAddress;
     break;
   case SocketAddress::TYPE_LOOP:
     default:

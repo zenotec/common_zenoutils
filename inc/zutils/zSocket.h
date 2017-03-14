@@ -165,13 +165,14 @@ public:
 
 protected:
 
+  std::string _addr;
+
   virtual bool
   verify(const SocketType type_, const std::string &addr_) = 0;
 
 private:
 
   SocketType _type;
-  std::string _addr;
 
 };
 

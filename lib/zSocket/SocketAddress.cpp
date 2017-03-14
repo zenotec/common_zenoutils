@@ -33,6 +33,7 @@
 #include <zutils/zLoopSocket.h>
 #include <zutils/zUnixSocket.h>
 #include <zutils/zInetSocket.h>
+#include <zutils/zEthSocket.h>
 
 namespace zUtils
 {
@@ -171,6 +172,7 @@ SocketAddressFactory::Create(const SocketType type_, const std::string& addr_)
     addr = new UnixAddress(addr_);
     break;
   case SocketType::TYPE_ETH:
+    addr = new EthAddress(addr_);
     break;
   case SocketType::TYPE_INET:
     addr = new InetAddress(addr_);
@@ -203,6 +205,20 @@ SocketAddressFactory::Create(const std::string& addr_)
     }
   }
 
+  // Next try to create an Ethernet address
+  if (!addr)
+  {
+    addr = new EthAddress;
+    if (addr)
+    {
+      if (!addr->Address(addr_))
+      {
+        delete(addr);
+        addr = NULL;
+      }
+    }
+  }
+
   // Next try to create a new Unix address
   if (!addr)
   {
@@ -216,8 +232,6 @@ SocketAddressFactory::Create(const std::string& addr_)
       }
     }
   }
-
-  // TODO: Next try to create an Ethernet address
 
   // Next try to create a new Loop address
   if (!addr)

@@ -133,8 +133,11 @@ template<typename T>
   inline std::string
   HexStr(T n_)
   {
-    char str[256];
-    snprintf(str, 256, "%#*x", (int) sizeof(T), (T) n_);
+    char str[256] = { 0x30, 0x78, 0x30, 0x30, 0 };
+    if (n_)
+    {
+      snprintf(str, 256, "%#*x", (int) sizeof(T), (T) n_);
+    }
     return (std::string(str));
   }
 

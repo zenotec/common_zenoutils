@@ -15,4 +15,5 @@ libzSocket_la_SOURCES = \
     Socket.cpp \
     LoopSocket.cpp \
     UnixSocket.cpp \
+    EthSocket.cpp \
     InetSocket.cpp

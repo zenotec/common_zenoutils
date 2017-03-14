@@ -15,211 +15,559 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-#include <arpa/inet.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <poll.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <ifaddrs.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
+#include <linux/ip.h>
+#include <linux/udp.h>
+#include <net/if.h>
+#include <netinet/ether.h>
 
-#include "zutils/zLog.h"
-#include "zutils/zSocket.h"
+#include <zutils/zLog.h>
+#include <zutils/zSocket.h>
+#include <zutils/zEthSocket.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
-#if 0
 
-const uint8_t *
-InetAddress::GetHwAddr() const
+static bool
+_str2mac(const std::string& addr_, struct eth_addr& hwaddr_)
 {
-  return (this->_hwaddr);
+  return (sscanf(addr_.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
+      &hwaddr_.addr[0], &hwaddr_.addr[1], &hwaddr_.addr[2],
+      &hwaddr_.addr[3], &hwaddr_.addr[4], &hwaddr_.addr[5]) == ETH_ALEN);
+}
+
+static bool
+_mac2str(const struct eth_addr& hwaddr_, std::string& addr_)
+{
+  bool status = false;
+  char str[256] = { 0 };
+  if (sprintf(str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+      hwaddr_.addr[0], hwaddr_.addr[1], hwaddr_.addr[2],
+      hwaddr_.addr[3], hwaddr_.addr[4], hwaddr_.addr[5]) > 0)
+  {
+    addr_ = std::string(str);
+    status = true;
+  }
+  return (status);
+}
+
+static bool
+_get_ifindex(const std::string &name_, int index_)
+{
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface index
+    if (ioctl(sock, SIOCGIFINDEX, &ifr) == 0)
+    {
+      index_ = ifr.ifr_ifindex;
+      status = true;
+    }
+    close(sock);
+  }
+  return (status);
+}
+
+static bool
+_get_mac(const std::string &name_, struct eth_addr& addr_)
+{
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface index
+    if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0)
+    {
+      memcpy(&addr_, &ifr.ifr_hwaddr.sa_data, ETH_ALEN);
+      status = true;
+    }
+    close(sock);
+  }
+  return (status);
+}
+
+static bool
+_ethaddr2sock(const EthAddress& addr_, struct sockaddr_ll& sock_)
+{
+  bool status = false;
+  struct eth_addr hwaddr = { 0 };
+  memset(&sock_, 0, sizeof(struct sockaddr_ll));
+  if (_str2mac(addr_.Address(), hwaddr))
+  {
+    sock_.sll_family = AF_PACKET;
+    _get_ifindex(addr_.IfName(), sock_.sll_ifindex);
+    sock_.sll_halen = ETH_ALEN;
+    memcpy(sock_.sll_addr, &hwaddr, ETH_ALEN);
+    status = true;
+  }
+  return (status);
+}
+
+static bool
+_find_byname(const std::string& name_, struct eth_addr& addr_)
+{
+  return (_get_mac(name_, addr_));
+}
+
+static bool
+_find_byhwaddr(const std::string& addr_, std::string& name_)
+{
+  bool status = false;
+  struct ifaddrs *ifp, *tmp;
+
+  getifaddrs(&ifp);
+  tmp = ifp;
+
+  while (tmp)
+  {
+    if (tmp->ifa_addr && tmp->ifa_addr->sa_family == AF_PACKET)
+    {
+
+      struct eth_addr mac = { 0 };
+      std::string addr;
+
+      _get_mac(std::string(tmp->ifa_name), mac);
+      _mac2str(mac, addr);
+
+      if (addr_ == addr)
+      {
+        name_ = std::string(tmp->ifa_name);
+        status = true;
+        break;
+      }
+    }
+    tmp = tmp->ifa_next;
+  }
+  freeifaddrs(ifp);
+  return (status);
+}
+
+//**********************************************************************
+// Class: zSocket::EthAddress
+//**********************************************************************
+
+EthAddress::EthAddress(const std::string &addr_) :
+    SocketAddress(SocketType::TYPE_ETH, addr_)
+{
+  // Address is hardware address
+  if (_str2mac(this->_addr, this->_mac))
+  {
+    _mac2str(this->_mac, this->_addr); // Ensure consistent case
+    _find_byhwaddr(this->_addr, this->_name);
+  }
+  // Address is actually interface name
+  else if (_find_byname(this->_addr, this->_mac))
+  {
+    this->_name = this->_addr;
+    _mac2str(this->_mac, this->_addr);
+  }
+}
+
+EthAddress::EthAddress(SocketAddress &addr_) :
+    SocketAddress(addr_)
+{
+  // Address is hardware address
+  if (_str2mac(this->_addr, this->_mac))
+  {
+    _mac2str(this->_mac, this->_addr); // Ensure consistent case
+    _find_byhwaddr(this->_addr, this->_name);
+  }
+  // Address is actually interface name
+  else if (_find_byname(this->_addr, this->_mac))
+  {
+    this->_name = this->_addr;
+    _mac2str(this->_mac, this->_addr);
+  }
+}
+
+EthAddress::EthAddress(const SocketAddress &addr_) :
+    SocketAddress(addr_)
+{
+  // Address is hardware address
+  if (_str2mac(this->_addr, this->_mac))
+  {
+    _mac2str(this->_mac, this->_addr); // Ensure consistent case
+    _find_byhwaddr(this->_addr, this->_name);
+  }
+  // Address is actually interface name
+  else if (_find_byname(this->_addr, this->_mac))
+  {
+    this->_name = this->_addr;
+    _mac2str(this->_mac, this->_addr);
+  }
+}
+
+EthAddress::~EthAddress()
+{
 }
 
 std::string
-InetAddress::GetHwAddrStr() const
+EthAddress::IfName() const
 {
-  char addr[18] =
-  { 0};
-  sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
-      this->_hwaddr[2], this->_hwaddr[3], this->_hwaddr[4], this->_hwaddr[5]);
-  return (std::string(addr));
+  return (this->_name);
 }
 
-InetAddress::InetAddress(const std::string& addr_)
+struct eth_addr
+EthAddress::Mac() const
 {
-  memset(this->_hwaddr, 0, sizeof(this->_hwaddr));
-  if (!this->SetAddr(addr_))
-  {
-    ZLOG_CRIT("Cannot set zSocket address");
-    throw;
-  } // end if
-}
-
-InetAddress::InetAddress(const struct sockaddr_in& addr_)
-{
-  if (!this->SetAddr(addr_))
-  {
-    ZLOG_CRIT("Cannot set zSocket address");
-    throw;
-  } // end if
-}
-
-InetAddress::~InetAddress()
-{
+  return (this->_mac);
 }
 
 bool
-InetAddress::operator ==(const InetAddress &other_) const
+EthAddress::verify(const SocketType type_, const std::string &addr_)
 {
-  bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
-  && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
-  && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
-  return (same);
+  struct eth_addr hwaddr = { 0 };
+  return ((type_ == SocketType::TYPE_ETH) && _str2mac(addr_, hwaddr));
 }
 
-bool
-InetAddress::operator !=(const InetAddress &other_) const
-{
-  bool same = (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
-  && (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
-  && (this->_ipaddr.sin_port == other_._ipaddr.sin_port);
-  return (!same);
-}
+//**********************************************************************
+// zSocket::EthSocketRecv Class
+//**********************************************************************
 
-bool
-InetAddress::operator <(const InetAddress &other_) const
+void
+EthSocketRecv::Run(zThread::ThreadArg *arg_)
 {
-  if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
+  EthSocket *sock = (EthSocket *) arg_;
+  ssize_t bytes = -1;
+
+  if (!sock || !sock->_sock)
   {
-    if (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return;
+  }
+
+  ZLOG_DEBUG("Waiting for RX data on ETH socket");
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = sock->_sock;
+  fds[0].events = (POLLIN | POLLERR);
+
+  while (!this->Exit())
+  {
+
+    // Poll for received data
+    int ret = poll(fds, 1, 100);
+    if (ret > 0 && (fds[0].revents == POLLIN))
     {
-      return (this->_ipaddr.sin_port < other_._ipaddr.sin_port);
+      int size = 0;
+      ioctl(sock->_sock, FIONREAD, &size);
+      ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
+      SHARED_PTR(EthAddress)addr(new EthAddress);
+      SHARED_PTR(SocketBuffer)sb(new SocketBuffer(size));
+      bytes = sock->_recv(*addr, *sb);
+      if (bytes > 0)
+      {
+        SocketAddressBufferPair p(addr, sb);
+        sock->rxbuf(p);
+      }
     } // end if
-    else
+
+    if (ret < 0)
     {
-      return (this->_ipaddr.sin_addr.s_addr < other_._ipaddr.sin_addr.s_addr);
-    } // end else
+      ZLOG_ERR("Error selecting on socket: " + std::string(strerror(errno)));
+    } // end if
+
+  }
+
+  return;
+
+}
+
+//**********************************************************************
+// zSocket::EthSocketSend Class
+//**********************************************************************
+
+void
+EthSocketSend::Run(zThread::ThreadArg *arg_)
+{
+  EthSocket *sock = (EthSocket *) arg_;
+  SocketAddressBufferPair p;
+
+  if (!sock || !sock->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return;
+  }
+
+  ZLOG_DEBUG("Waiting for TX data on ETH socket");
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = sock->_sock;
+  fds[0].events = (POLLOUT | POLLERR);
+
+  while (!this->Exit())
+  {
+
+    // Wait for data to send
+    if (sock->txbuf(p, 100))
+    {
+      int ret = poll(fds, 1, 100);
+      if (ret > 0 && (fds[0].revents == POLLOUT))
+      {
+        ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+            "(" + ZLOG_INT(p.second->Size()) + ")");
+        if (sock->_send(*p.first, *p.second) != p.second->Size())
+        {
+          ZLOG_ERR("Error sending packet");
+        }
+      }
+    }
+
+  }
+
+  return;
+
+}
+
+//**********************************************************************
+// zSocket::EthSocket Class
+//**********************************************************************
+
+EthSocket::EthSocket() :
+    Socket(SocketType::TYPE_ETH), _rx_thread(&this->_rx_func, this),
+        _tx_thread(&this->_tx_func, this), _sock(0)
+{
+}
+
+EthSocket::~EthSocket()
+{
+  this->Close();
+}
+
+bool
+EthSocket::Open()
+{
+
+  if (!this->_sock)
+  {
+    int sockopt = 0;
+
+    // Create a AF_ETH socket
+    this->_sock = socket( AF_PACKET, (SOCK_RAW | SOCK_NONBLOCK), ETH_P_ALL);
+    if (this->_sock < 0)
+    {
+      ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
+      return (false);
+    } // end if
+
+    ZLOG_DEBUG("Opening socket: " + ZLOG_INT(this->_sock));
+
+    // Enable reuse of socket
+    if (setsockopt(this->_sock, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof sockopt) == -1)
+    {
+      ZLOG_CRIT("Cannot configure socket: " + std::string(strerror(errno)));
+      return (false);
+    }
+
   } // end if
   else
   {
-    return (this->_ipaddr.sin_family < other_._ipaddr.sin_family);
-  } // end else
+    ZLOG_WARN("Socket already open");
+  }
+  return (true);
 }
 
-bool
-InetAddress::operator >(const InetAddress &other_) const
+void
+EthSocket::Close()
 {
-  if (this->_ipaddr.sin_family == other_._ipaddr.sin_family)
+  ZLOG_DEBUG("Closing socket: " + ZLOG_INT(this->_sock));
+  // Close socket
+  if (this->_sock)
   {
-    if (this->_ipaddr.sin_addr.s_addr == other_._ipaddr.sin_addr.s_addr)
+    if (this->_rx_thread.Stop() && this->_tx_thread.Stop())
     {
-      return (this->_ipaddr.sin_port > other_._ipaddr.sin_port);
+      ZLOG_DEBUG("Socket Closed: " + ZLOG_INT(this->_sock));
+      close(this->_sock);
+      this->_sock = 0;
     } // end if
-    else
-    {
-      return (this->_ipaddr.sin_addr.s_addr > other_._ipaddr.sin_addr.s_addr);
-    } // end else
-  } // end if
+  }
   else
   {
-    return (this->_ipaddr.sin_family > other_._ipaddr.sin_family);
-  } // end else
+    ZLOG_WARN("Socket not open");
+  }
 }
 
 bool
-InetAddress::SetAddr(const std::string& addr_)
+EthSocket::_bind()
 {
-  char ip[INET_ADDRSTRLEN] =
-  { 0};
-  int port = 0;
-  int ret = 0;
 
-  // Initialize address
-  this->_ipaddr.sin_family = AF_INET;
-  this->_ipaddr.sin_addr.s_addr = 0;
-  this->_ipaddr.sin_port = 0;
+  struct sockaddr_ll addr = { 0 };
 
-  // Parse address string
-  ret = sscanf(addr_.c_str(), "%[^:]:%d", &ip[0], &port);
-  if (ret < 1)
+  ZLOG_DEBUG("Bind on socket: " + ZLOG_INT(this->_sock));
+
+  if (!this->_sock)
   {
-    ZLOG_ERR("SocketAddr::SetAddr: Cannot parse address! " + ret);
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return (false);
+  }
+
+  if (this->Address().Type() != SocketType::TYPE_ETH)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address type"));
+    return (false);
+  }
+
+  // Convert address to socket address
+  if (!_ethaddr2sock((EthAddress&) *this->_addr, addr))
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (false);
+  }
+
+  // Bind address to socket
+  if (bind(this->_sock, (struct sockaddr*) &addr, sizeof(struct sockaddr_ll)))
+  {
+    ZLOG_CRIT("Cannot bind socket: " + this->Address().Address() +
+        ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  // Perform conversion
-  inet_pton(AF_INET, ip, &this->_ipaddr.sin_addr);
-  if (ret > 1)
+  // Start listener threads
+  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
   {
-    this->_ipaddr.sin_port = htons(port);
+    ZLOG_ERR("Error starting listening threads");
+    return (false);
+  }
+
+  return (true);
+
+}
+
+ssize_t
+EthSocket::_recv(zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
+{
+
+  ssize_t n = -1;
+
+  if (!this->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return (-1);
+  }
+
+  if (this->Address().Type() != SocketType::TYPE_ETH)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (-1);
+  }
+
+  n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, NULL, NULL);
+  if (n > 0)
+  {
+    sb_.Put(n);
+    std::string addr;
+
+    uint8_t* p = sb_.Head();
+    std::string logstr;
+    logstr += "Receiving on socket:\t";
+    logstr += "To: " + this->Address().Address() + ";\t";
+    logstr += "From: " + addr_.Address() + ";\t";
+    logstr += "Size: " + ZLOG_INT(n) + ";\t";
+    logstr += "Data: ";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ZLOG_HEX(*p++)+ ":";
+    logstr += ";";
+    ZLOG_INFO(logstr);
+
   } // end if
 
-  // Return success
-  return (true);
+  return (n);
 }
 
-bool
-InetAddress::SetAddr(const struct sockaddr_in& addr_)
-{
-  this->_ipaddr = addr_;
-  return (true);
-}
-
-struct sockaddr_in
-InetAddress::GetAddr()
-{
-  return (this->_ipaddr);
-}
-
-bool
-InetAddress::SetHwAddr(const std::string &addr_)
+ssize_t
+EthSocket::_send(const zSocket::EthAddress &addr_, zSocket::SocketBuffer &sb_)
 {
 
+  ssize_t n = -1;
+  struct sockaddr_ll dst = { 0 };
+
+  if (!this->_sock)
+  {
+    ZLOG_CRIT(std::string("Socket not opened"));
+    return (-1);
+  }
+
+  if (this->Address().Type() != SocketType::TYPE_ETH)
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (-1);
+  }
+
+  if (addr_.Type() != SocketType::TYPE_ETH)
+  {
+    ZLOG_CRIT(std::string("Invalid destination address type"));
+    return (-1);
+  }
+
+  // Convert destination address to socket address
+  if (!_ethaddr2sock(addr_, dst))
+  {
+    ZLOG_CRIT(std::string("Invalid socket address"));
+    return (-1);
+  }
+
+  // Log info message about message being sent
+  std::string logstr;
+  uint8_t* p = sb_.Head();
+  logstr += "Sending on socket:\t";
+  logstr += "To: " + addr_.Address() + ";\t";
+  logstr += "From: " + this->Address().Address() + ";\t";
+  logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";\t";
+  logstr += "Data: ";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ZLOG_HEX(*p++)+ ":";
+  logstr += ";";
+  ZLOG_INFO(logstr);
+
+  // Send packet
+  n = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
+  if (n < 0)
+  {
+    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+  }
+
+  return (n);
+
 }
 
-const uint8_t *
-InetAddress::GetHwAddr() const
-{
-  return (this->_hwaddr);
-}
-
-std::string
-InetAddress::GetHwAddrStr() const
-{
-  char addr[18] =
-  { 0};
-  sprintf(addr, "%02x:%02x:%02x:%02x:%02x:%02x", this->_hwaddr[0], this->_hwaddr[1],
-      this->_hwaddr[2], this->_hwaddr[3], this->_hwaddr[4], this->_hwaddr[5]);
-  return (std::string(addr));
-}
-
-in_addr_t
-InetAddress::GetIpAddr() const
-{
-  return (ntohl(this->_ipaddr.sin_addr.s_addr));
-}
-
-std::string
-InetAddress::GetIpAddrStr() const
-{
-  char ip[INET_ADDRSTRLEN] =
-  { 0};
-  inet_ntop(AF_INET, &this->_ipaddr.sin_addr, ip, INET_ADDRSTRLEN);
-  return (std::string(ip));
-}
-
-in_port_t
-InetAddress::GetPort()
-{
-  return (ntohs(this->_ipaddr.sin_port));
-}
-
-std::string
-InetAddress::GetPortStr()
-{
-  char port[6] =
-  { 0};
-  sprintf(port, "%d", ntohs(this->_ipaddr.sin_port));
-  return (std::string(port));
-}
-#endif
 }
 }

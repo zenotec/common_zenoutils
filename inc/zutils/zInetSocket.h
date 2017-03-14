@@ -131,9 +131,6 @@ public:
   virtual void
   Close();
 
-//  virtual bool
-//  Connect(const SocketAddress& addr_);
-
 protected:
 
   int _sock;

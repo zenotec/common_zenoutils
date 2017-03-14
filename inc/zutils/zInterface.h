@@ -46,6 +46,7 @@ public:
   static const std::string ConfigTypePath;
   static const std::string ConfigHwAddressPath;
   static const std::string ConfigIpAddressPath;
+  static const std::string ConfigNetmaskPath;
   static const std::string ConfigStatePath;
 
   InterfaceConfigPath();
@@ -64,6 +65,9 @@ public:
 
   zConfig::ConfigPath
   IpAddress() const;
+
+  zConfig::ConfigPath
+  Netmask() const;
 
   zConfig::ConfigPath
   State() const;
@@ -123,6 +127,8 @@ public:
 
   static const std::string ConfigIpAddressDefault;
 
+  static const std::string ConfigNetmaskDefault;
+
   static const std::string ConfigStateNone;
   static const std::string ConfigStateUp;
   static const std::string ConfigStateDown;
@@ -155,13 +161,19 @@ public:
   GetHwAddress() const;
 
   bool
-  SetHwAddress(const std::string& name_);
+  SetHwAddress(const std::string& addr_);
 
   std::string
   GetIpAddress() const;
 
   bool
-  SetIpAddress(const std::string& name_);
+  SetIpAddress(const std::string& addr_);
+
+  std::string
+  GetNetmask() const;
+
+  bool
+  SetNetmask(const std::string& addr_);
 
   InterfaceConfigData::STATE
   GetState() const;
@@ -213,7 +225,7 @@ public:
   ~Interface();
 
   int
-  Index();
+  GetIndex();
 
   virtual bool
   Refresh();

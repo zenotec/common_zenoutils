@@ -60,22 +60,23 @@ static const std::string sysfs_speed("/speed");
 static int
 _get_ifindex(const std::string &name_)
 {
-  int ifindex = -1;
-  std::string val;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+  int index = -1;
 
-  // Construct path for sysfs file
-  std::string sysfs_filename = sysfs_root + name_ + sysfs_ifindex;
-
-  // Read sysfs file
-  std::fstream fs;
-  fs.open(sysfs_filename.c_str(), std::fstream::in);
-  if (fs.is_open())
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
   {
-    fs >> val;
-    fs.close();
-    ifindex = strtol(val.c_str(), NULL, 0);
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface index
+    if (ioctl(sock, SIOCGIFINDEX, &ifr) == 0)
+    {
+      index = ifr.ifr_ifindex;
+    }
+    close(sock);
   }
-  return (ifindex);
+  return (index);
 }
 
 static uint32_t
@@ -202,6 +203,87 @@ _get_ip_addr(const std::string &name_)
     close(sock);
   }
   return (val);
+}
+
+static bool
+_set_ip_addr(const std::string &name_, const std::string& addr_)
+{
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Setup INET address structure
+    struct sockaddr_in* sockaddr = (struct sockaddr_in*)&ifr.ifr_addr;
+    if (inet_pton( AF_INET, addr_.c_str(), &sockaddr->sin_addr) == 1)
+    {
+      // Set interface address
+      if (ioctl(sock, SIOCSIFADDR, &ifr) == 0)
+      {
+        status = true;
+      }
+    }
+    close(sock);
+  }
+  return (status);
+}
+
+static std::string
+_get_netmask(const std::string &name_)
+{
+  std::string val = std::string("0.0.0.0");
+  char str[INET_ADDRSTRLEN] = { 0 };
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface flags
+    if (ioctl(sock, SIOCGIFNETMASK, &ifr) == 0)
+    {
+      if (inet_ntop(AF_INET, &((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr, str,
+      INET_ADDRSTRLEN) == str)
+      {
+        val = std::string(str);
+      }
+    }
+    close(sock);
+  }
+  return (val);
+}
+
+static bool
+_set_netmask(const std::string &name_, const std::string& addr_)
+{
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Setup INET address structure
+    struct sockaddr_in* sockaddr = (struct sockaddr_in*)&ifr.ifr_addr;
+    if (inet_pton( AF_INET, addr_.c_str(), &sockaddr->sin_addr) == 1)
+    {
+      // Set interface address
+      if (ioctl(sock, SIOCSIFNETMASK, &ifr) == 0)
+      {
+        status = true;
+      }
+    }
+    close(sock);
+  }
+  return (status);
 }
 
 static InterfaceConfigData::STATE
@@ -371,9 +453,10 @@ Interface::Interface(const InterfaceConfigData& config_) :
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->_lock.Unlock();
+  this->Refresh();
   this->_timer.RegisterObserver(this);
   this->_timer.Start(INTERFACE_REFRESH_PERIOD_USEC);
-  this->_lock.Unlock();
 }
 
 Interface::~Interface()
@@ -400,12 +483,6 @@ Interface::Refresh()
       // Query interface index
       this->_index = _get_ifindex(name);
 
-      if (this->GetState() != _get_state(name))
-      {
-        this->SetState(_get_state(name));
-        // TODO Notification
-      }
-
       // Query interface MAC address
       if (this->GetHwAddress() != _get_hw_addr(name))
       {
@@ -416,6 +493,18 @@ Interface::Refresh()
       if (this->GetIpAddress() != _get_ip_addr(name))
       {
         this->SetIpAddress(_get_ip_addr(name));
+      }
+
+      // Query interface netmask
+      if (this->GetNetmask() != _get_netmask(name))
+      {
+        this->SetNetmask(_get_netmask(name));
+      }
+
+      if (this->GetState() != _get_state(name))
+      {
+        this->SetState(_get_state(name));
+        // TODO Notification
       }
 
       status = true;
@@ -434,7 +523,7 @@ Interface::Refresh()
 }
 
 int
-Interface::Index()
+Interface::GetIndex()
 {
   int index;
   if (this->_lock.Lock())
@@ -448,17 +537,13 @@ Interface::Index()
 void
 Interface::Display(const std::string &prefix_)
 {
-
   std::cout << prefix_ << "Name: \t" << this->GetName() << std::endl;
   std::cout << prefix_ << "Type: \t" << InterfaceConfigData::GetType() << std::endl;
-
-  // Start critical section
-  std::cout << prefix_ << "Index:  \t" << this->Index() << std::endl;
+  std::cout << prefix_ << "Index:  \t" << this->GetIndex() << std::endl;
   std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
   std::cout << prefix_ << "Address:\t" << this->GetIpAddress() << std::endl;
+  std::cout << prefix_ << "Netmask:\t" << this->GetNetmask() << std::endl;
   std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
-
-  return;
 }
 
 bool
