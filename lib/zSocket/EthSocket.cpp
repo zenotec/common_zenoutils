@@ -31,7 +31,6 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <net/if.h>
-#include <netinet/ether.h>
 
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
