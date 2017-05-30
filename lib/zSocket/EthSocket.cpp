@@ -31,6 +31,7 @@
 #include <linux/ip.h>
 #include <linux/udp.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <netinet/ether.h>
 
 #include <zutils/zLog.h>
@@ -66,7 +67,7 @@ _mac2str(const struct eth_addr& hwaddr_, std::string& addr_)
 }
 
 static bool
-_get_ifindex(const std::string &name_, int index_)
+_get_ifindex(const std::string &name_, int& index_)
 {
   bool status = false;
   int sock = -1;
@@ -82,6 +83,92 @@ _get_ifindex(const std::string &name_, int index_)
     {
       index_ = ifr.ifr_ifindex;
       status = true;
+    }
+    else
+    {
+      printf("Error: Cannot query interface index: %s\n", name_.c_str());
+    }
+    close(sock);
+  }
+  return (status);
+}
+
+static uint32_t
+_get_flags(const std::string &name_)
+{
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+  uint32_t flags = 0;
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface flags
+    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
+    {
+      flags = ifr.ifr_flags;
+    }
+    close(sock);
+  }
+  return (flags);
+}
+
+static bool
+_set_flags(const std::string &name_, const uint32_t flags_)
+{
+
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+  uint32_t flags = 0;
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface flags
+    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
+    {
+      flags = ifr.ifr_flags;
+      printf("Getting flags: 0x%08x\n", flags);
+      flags |= flags_;
+      if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
+      {
+        printf("Setting flags: 0x%08x\n", flags);
+        status = true;
+      }
+    }
+    close(sock);
+  }
+  return (status);
+}
+
+static bool
+_clr_flags(const std::string &name_, const uint32_t flags_)
+{
+
+  bool status = false;
+  int sock = -1;
+  struct ifreq ifr = { 0 };
+  uint32_t flags = 0;
+
+  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
+  {
+    // Initialize interface request structure with name of interface
+    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
+
+    // Query interface flags
+    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
+    {
+      flags = ifr.ifr_flags;
+      flags &= ~flags_;
+      if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
+      {
+        status = true;
+      }
     }
     close(sock);
   }
@@ -120,9 +207,11 @@ _ethaddr2sock(const EthAddress& addr_, struct sockaddr_ll& sock_)
   if (_str2mac(addr_.Address(), hwaddr))
   {
     sock_.sll_family = AF_PACKET;
-    _get_ifindex(addr_.IfName(), sock_.sll_ifindex);
+    sock_.sll_ifindex = addr_.IfIndex();
     sock_.sll_halen = ETH_ALEN;
     memcpy(sock_.sll_addr, &hwaddr, ETH_ALEN);
+    sock_.sll_protocol = htons(ETH_P_ALL);
+    sock_.sll_pkttype = PACKET_HOST;
     status = true;
   }
   return (status);
@@ -232,6 +321,14 @@ EthAddress::IfName() const
   return (this->_name);
 }
 
+int
+EthAddress::IfIndex() const
+{
+  int index = -1;
+  _get_ifindex(this->_name, index);
+  return (index);
+}
+
 struct eth_addr
 EthAddress::Mac() const
 {
@@ -261,7 +358,7 @@ EthSocketRecv::Run(zThread::ThreadArg *arg_)
     return;
   }
 
-  ZLOG_DEBUG("Waiting for RX data on ETH socket");
+  ZLOG_DEBUG("Waiting for RX data on ETH socket: " + zLog::IntStr(sock->_sock));
 
   // Setup for poll loop
   struct pollfd fds[1];
@@ -270,27 +367,31 @@ EthSocketRecv::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-
     // Poll for received data
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLIN))
+    int ret = poll(fds, 1, 5000);
+    if (ret > 0)
     {
-      int size = 0;
-      ioctl(sock->_sock, FIONREAD, &size);
-      ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
-      SHARED_PTR(EthAddress)addr(new EthAddress);
-      SHARED_PTR(SocketBuffer)sb(new SocketBuffer(size));
-      bytes = sock->_recv(*addr, *sb);
-      if (bytes > 0)
+      if (fds[0].revents == POLLIN)
       {
-        SocketAddressBufferPair p(addr, sb);
-        sock->rxbuf(p);
+        SHARED_PTR(EthAddress)addr(new EthAddress);
+        SHARED_PTR(SocketBuffer)sb(new SocketBuffer);
+        bytes = sock->_recv(*addr, *sb);
+        if (bytes > 0)
+        {
+          ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
+          SocketAddressBufferPair p(addr, sb);
+          sock->rxbuf(p);
+        }
+      }
+      else if (fds[0].revents == POLLERR)
+      {
+        ZLOG_WARN("POLLERR");
       }
     } // end if
 
     if (ret < 0)
     {
-      ZLOG_ERR("Error selecting on socket: " + std::string(strerror(errno)));
+      ZLOG_ERR("Error polling on socket: " + std::string(strerror(errno)));
     } // end if
 
   }
@@ -315,7 +416,7 @@ EthSocketSend::Run(zThread::ThreadArg *arg_)
     return;
   }
 
-  ZLOG_DEBUG("Waiting for TX data on ETH socket");
+  ZLOG_DEBUG("Waiting for TX data on ETH socket: " + zLog::IntStr(sock->_sock));
 
   // Setup for poll loop
   struct pollfd fds[1];
@@ -370,7 +471,7 @@ EthSocket::Open()
     int sockopt = 0;
 
     // Create a AF_ETH socket
-    this->_sock = socket( AF_PACKET, (SOCK_RAW | SOCK_NONBLOCK), ETH_P_ALL);
+    this->_sock = socket( PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
     if (this->_sock < 0)
     {
       ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
@@ -418,7 +519,8 @@ bool
 EthSocket::_bind()
 {
 
-  struct sockaddr_ll addr = { 0 };
+  EthAddress* addr = (EthAddress*) this->_addr;
+  struct sockaddr_ll sockaddr = { 0 };
 
   ZLOG_DEBUG("Bind on socket: " + ZLOG_INT(this->_sock));
 
@@ -435,14 +537,22 @@ EthSocket::_bind()
   }
 
   // Convert address to socket address
-  if (!_ethaddr2sock((EthAddress&) *this->_addr, addr))
+  if (!_ethaddr2sock(*addr, sockaddr))
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
+//  // Enable promiscuous mode
+//  if (!_set_flags(addr->IfName(), IFF_PROMISC))
+//  {
+//    ZLOG_ERR("Error: Cannot enable promiscuous mode");
+//    return (false);
+//  }
+
   // Bind address to socket
-  if (bind(this->_sock, (struct sockaddr*) &addr, sizeof(struct sockaddr_ll)))
+  if (setsockopt(this->_sock, SOL_SOCKET, SO_BINDTODEVICE, addr->IfName().c_str(), IFNAMSIZ-1) == -1)
+//  if (bind(this->_sock, (struct sockaddr*) &sockaddr, sizeof(struct sockaddr_ll)))
   {
     ZLOG_CRIT("Cannot bind socket: " + this->Address().Address() +
         ": " + std::string(strerror(errno)));
@@ -490,16 +600,66 @@ EthSocket::_recv(zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
     logstr += "To: " + this->Address().Address() + ";\t";
     logstr += "From: " + addr_.Address() + ";\t";
     logstr += "Size: " + ZLOG_INT(n) + ";\t";
-    logstr += "Data: ";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ZLOG_HEX(*p++)+ ":";
-    logstr += ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x00): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x08): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x10): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x18): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x20): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
+    ZLOG_INFO(logstr);
+    logstr = "Data (0x28): ";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ":";
+    logstr += ZLOG_HEX(*p++) + ";";
     ZLOG_INFO(logstr);
 
   } // end if

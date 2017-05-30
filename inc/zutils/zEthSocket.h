@@ -56,6 +56,9 @@ public:
   std::string
   IfName() const;
 
+  int
+  IfIndex() const;
+
   struct eth_addr
   Mac() const;
 
