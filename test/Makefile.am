@@ -1,9 +1,10 @@
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
+	zLog \
+	zMath \
 	zThread \
 	zProgram \
-	zLog \
 	zSem \
 	zQueue \
 	zData \
@@ -47,9 +48,10 @@ VALGRIND_TESTS = \
 endif
 
 GCOV_TESTS = \
+    zLog/zLogUnitTest \
+    zMath/zMathUnitTest \
     zThread/zThreadUnitTest \
     zProgram/zProgramUnitTest \
-    zLog/zLogUnitTest \
     zSem/zSemUnitTest \
     zQueue/zQueueUnitTest \
     zData/zDataUnitTest \

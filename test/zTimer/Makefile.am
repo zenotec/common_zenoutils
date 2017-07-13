@@ -9,6 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 check_PROGRAMS = zTimerUnitTest
 
 zTimerUnitTest_SOURCES = \
+    $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \
     zTimerTest.h \
     UnitTest.cpp \

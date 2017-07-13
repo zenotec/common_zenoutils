@@ -9,6 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 check_PROGRAMS = zCommandUnitTest
 
 zCommandUnitTest_SOURCES = \
+    $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \
     zCommandTest.h \
     UnitTest.cpp \

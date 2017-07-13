@@ -81,9 +81,10 @@ AC_SUBST([num_cpus])
 AC_CONFIG_FILES([
     Makefile
       lib/Makefile
+        lib/zLog/Makefile
+        lib/zMath/Makefile
         lib/zThread/Makefile
         lib/zProgram/Makefile
-        lib/zLog/Makefile
         lib/zSem/Makefile
         lib/zData/Makefile
         lib/zEvent/Makefile
@@ -101,9 +102,10 @@ AC_CONFIG_FILES([
         lib/zThermo/Makefile
         lib/zDisplay/Makefile
       test/Makefile
+        test/zLog/Makefile
+        test/zMath/Makefile
         test/zThread/Makefile
         test/zProgram/Makefile
-        test/zLog/Makefile
         test/zSem/Makefile
         test/zData/Makefile
         test/zQueue/Makefile

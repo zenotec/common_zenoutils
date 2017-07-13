@@ -12,6 +12,7 @@ check_PROGRAMS = zGpioUnitTest
 #    Switch.cpp
 
 zGpioUnitTest_SOURCES = \
+    $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \
     zGpioTest.h \
     UnitTest.cpp \

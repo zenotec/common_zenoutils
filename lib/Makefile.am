@@ -15,6 +15,7 @@ SUBDIRS = \
 	zInterface \
 	zLed \
 	zLog \
+	zMath \
 	zMessage \
 	zProgram \
 	zSem \
@@ -60,6 +61,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zLed.h \
     $(top_srcdir)/inc/zutils/zLog.h \
     $(top_srcdir)/inc/zutils/zLoopSocket.h \
+    $(top_srcdir)/inc/zutils/zMath.h \
     $(top_srcdir)/inc/zutils/zMessage.h \
     $(top_srcdir)/inc/zutils/zMessageSocket.h \
     $(top_srcdir)/inc/zutils/zNode.h \
@@ -90,6 +92,7 @@ libzutils_la_SOURCES = \
 
 libzutils_la_LIBADD = \
     ${top_builddir}/lib/zLog/libzLog.la \
+    ${top_builddir}/lib/zMath/libzMath.la \
     ${top_builddir}/lib/zSem/libzSem.la \
     ${top_builddir}/lib/zSignal/libzSignal.la \
     ${top_builddir}/lib/zThread/libzThread.la \

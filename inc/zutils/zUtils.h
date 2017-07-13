@@ -91,6 +91,22 @@ template<typename T>
     return (_tostr(value_));
   }
 
+inline std::string
+zToStr(float n_, int precision_ = 6)
+{
+  char str[256];
+  snprintf(str, 256, "%.*f", precision_, n_);
+  return (std::string(str));
+}
+
+inline std::string
+zToStr(double n_, int precision_ = 6)
+{
+  char str[256];
+  snprintf(str, 256, "%.*f", precision_, n_);
+  return (std::string(str));
+}
+
 inline int
 _toint(const std::string& value_)
 {

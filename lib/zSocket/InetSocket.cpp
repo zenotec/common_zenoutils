@@ -370,8 +370,7 @@ InetSocket::_bind()
   }
 
   // Convert string notation address to sockaddr_un
-  struct sockaddr_in addr =
-      { 0 };
+  struct sockaddr_in addr = { 0 };
   if (!_addr2sock(this->Address().Address(), addr))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
@@ -487,8 +486,7 @@ InetSocket::_send(const zSocket::InetAddress &addr_, zSocket::SocketBuffer &sb_)
   logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
-  struct sockaddr_in dst =
-      { 0 };
+  struct sockaddr_in dst = { 0 };
   if (!_addr2sock(addr_.Address(), dst))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
