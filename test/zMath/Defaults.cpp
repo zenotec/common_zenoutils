@@ -152,26 +152,26 @@ zMathTest_StandardDeviation(void* arg_)
 
   zMath::StandardDeviation<int> stddev;
 
-  TEST_TRUE(stddev.empty());
+  TEST_TRUE(stddev.Empty());
 
-  stddev.push_back(8);
-  TEST_FALSE(stddev.empty());
-  TEST_EQ(stddev.size(), 1);
+  stddev.Add(8);
+  TEST_FALSE(stddev.Empty());
+  TEST_EQ(stddev.Size(), 1);
   TEST_EQ(stddev(), 0);
 
-  stddev.push_back(8);
-  TEST_FALSE(stddev.empty());
-  TEST_EQ(stddev.size(), 2);
+  stddev.Add(8);
+  TEST_FALSE(stddev.Empty());
+  TEST_EQ(stddev.Size(), 2);
   TEST_EQ(stddev(), 0);
 
-  stddev.push_back(2);
-  TEST_FALSE(stddev.empty());
-  TEST_EQ(stddev.size(), 3);
+  stddev.Add(2);
+  TEST_FALSE(stddev.Empty());
+  TEST_EQ(stddev.Size(), 3);
   TEST_EQ(stddev(), 2);
 
-  stddev.pop_back();
-  TEST_FALSE(stddev.empty());
-  TEST_EQ(stddev.size(), 2);
+  stddev.Subtract(2);
+  TEST_FALSE(stddev.Empty());
+  TEST_EQ(stddev.Size(), 2);
   TEST_EQ(stddev(), 0);
 
   // Return success

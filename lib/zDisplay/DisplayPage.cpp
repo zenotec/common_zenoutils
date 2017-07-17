@@ -84,9 +84,14 @@ DisplayPage::CreateVar(const std::string &name_, const size_t len_)
 bool
 DisplayPage::DeleteVar(zDisplay::DisplayVar* var_)
 {
-  this->_vars.remove(var_);
-  delete (var_);
-  return (true);
+  bool status = false;
+  if (var_)
+  {
+    this->_vars.remove(var_);
+    delete (var_);
+    status = true;
+  }
+  return (status);
 }
 
 bool

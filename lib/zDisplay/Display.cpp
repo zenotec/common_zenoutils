@@ -98,20 +98,34 @@ Display::DeletePage(DisplayPage* page_)
 bool
 Display::SetRefreshRate(const size_t rate_)
 {
-  // Convert from rate in Hz to microseconds
-  uint32_t usec;
-  usec = 1000000 / rate_;
-  ZLOG_DEBUG("Setting refresh rate to: " + ZLOG_INT(rate_) + "(" + ZLOG_INT(usec) + ")");
-  this->_refresh_timer.Start(usec);
+  if (rate_)
+  {
+    // Convert from rate in Hz to microseconds
+    uint32_t usec;
+    usec = 1000000 / rate_;
+    ZLOG_DEBUG("Setting refresh rate to: " + ZLOG_INT(rate_) + "(" + ZLOG_INT(usec) + ")");
+    this->_refresh_timer.Start(usec);
+  }
+  else
+  {
+    this->_refresh_timer.Stop();
+  }
   return (true);
 }
 
 bool
 Display::SetPageTimeout(const size_t sec_)
 {
-  uint32_t usec;
-  usec = 1000000 * sec_;
-  this->_page_timer.Start(usec);
+  if (sec_)
+  {
+    uint32_t usec;
+    usec = 1000000 * sec_;
+    this->_page_timer.Start(usec);
+  }
+  else
+  {
+    this->_page_timer.Stop();
+  }
   return (true);
 }
 

@@ -82,9 +82,9 @@ template<class T>
     void
     Add(T item)
     {
-      if (((this->_num + 1) < this->_num) || ((this->_sum + item) < this->_sum))
+      if ((this->_num + 1) < this->_num)
       {
-        throw std::out_of_range("Out of Range");
+        throw std::out_of_range("zMath::Sum(): Out of Range");
       }
       this->_sum += item;
       this->_num += 1;
@@ -93,9 +93,9 @@ template<class T>
     void
     Subtract(T item)
     {
-      if ((this->_num == 0) || ((this->_sum - item) > this->_sum))
+      if (this->_num == 0)
       {
-        throw std::out_of_range("Out of Range");
+        throw std::out_of_range("zMath::Sum(): Out of Range");
       }
       this->_sum -= item;
       this->_num -= 1;
@@ -133,18 +133,16 @@ template<class T>
 //**********************************************************************
 
 template<class T>
-  class SumSquares
+  class SumSquares : public Sum<T>
   {
 
   public:
 
-    SumSquares() :
-      _sum(0), _num(0)
+    SumSquares()
     {
     }
 
-    SumSquares(std::vector<T> other) :
-      _sum(0), _num(0)
+    SumSquares(std::vector<T> other)
     {
       FOREACH (auto& item, other)
       {
@@ -152,8 +150,7 @@ template<class T>
       }
     }
 
-    SumSquares(std::list<T> other) :
-      _sum(0), _num(0)
+    SumSquares(std::list<T> other)
     {
       FOREACH (auto& item, other)
       {
@@ -166,58 +163,21 @@ template<class T>
     {
     }
 
-    T
-    operator()()
-    {
-      return (this->_sum);
-    }
-
     void
     Add(T item)
     {
-      if (((this->_num + 1) < this->_num) || ((this->_sum + (item * item)) < this->_sum))
-      {
-        throw std::out_of_range("Out of Range");
-      }
-      this->_sum += (item * item);
-      this->_num += 1;
+      Sum<T>::Add(item * item);
     }
 
     void
     Subtract(T item)
     {
-      if ((this->_num == 0) || ((this->_sum - (item * item)) > this->_sum))
-      {
-        throw std::out_of_range("Out of Range");
-      }
-      this->_sum -= (item * item);
-      this->_num -= 1;
-    }
-
-    virtual T
-    Value() const
-    {
-      return(this->_sum);
-    }
-
-    T
-    Size() const
-    {
-      return(this->_num);
-    }
-
-    bool
-    Empty() const
-    {
-      return(this->_num == 0);
+      Sum<T>::Subtract(item * item);
     }
 
   protected:
 
   private:
-
-    T _sum;
-    T _num;
 
   };
 
@@ -253,7 +213,7 @@ template<class T>
     T
     operator()()
     {
-      return (Sum<T>::Value() / Sum<T>::Size());
+      return (this->Value());
     }
 
     virtual T
@@ -278,7 +238,9 @@ template<class T>
 
   public:
 
-    Variance() {}
+    Variance()
+    {
+    }
 
     Variance(std::vector<T> other) :
       std::vector<T>(other)
@@ -287,6 +249,12 @@ template<class T>
 
     T
     operator()()
+    {
+      return (this->Value());
+    }
+
+    T
+    Value()
     {
       T mean = Mean<T>(*this)();
       std::vector<T> sq_dist;
@@ -309,30 +277,71 @@ template<class T>
 //**********************************************************************
 
 template<class T>
-  class StandardDeviation : public std::vector<T>
+  class StandardDeviation
   {
 
   public:
 
-    StandardDeviation() {}
+    StandardDeviation()
+    {
+    }
 
     StandardDeviation(std::vector<T> other) :
-      std::vector<T>(other)
+      _mean(other), _sum(other)
+    {
+    }
+
+    StandardDeviation(std::list<T> other) :
+      _mean(other), _sum(other)
     {
     }
 
     T
     operator()()
     {
-      T mean = Mean<T>(*this)();
-      T sum_squares = SumSquares<T>(*this)();
-      T stddev = (sum_squares / this->size()) - (mean * mean);
+      return (this->Value());
+    }
+
+    void
+    Add(T item)
+    {
+      this->_mean.Add(item);
+      this->_sum.Add(item);
+    }
+
+    void
+    Subtract(T item)
+    {
+      this->_mean.Subtract(item);
+      this->_sum.Subtract(item);
+    }
+
+    T
+    Value()
+    {
+      T stddev = (this->_sum.Value() / (T)this->_mean.Size()) -
+          (this->_mean.Value() * this->_mean.Value());
       return (sqrt(stddev));
+    }
+
+    T
+    Size() const
+    {
+      return(this->_mean.Size());
+    }
+
+    bool
+    Empty() const
+    {
+      return(this->_mean.Empty());
     }
 
   protected:
 
   private:
+
+    Mean<T> _mean;
+    SumSquares<T> _sum;
 
   };
 
@@ -347,15 +356,21 @@ template<class T>
 
   public:
 
-    FrequencyDistribution() {}
+    FrequencyDistribution()
+    {
+    }
 
-    FrequencyDistribution(std::vector<T> other) :
-      std::vector<T>(other)
+    FrequencyDistribution(std::vector<T> other)
     {
     }
 
     T
     operator()()
+    {
+    }
+
+    T
+    Value()
     {
     }
 

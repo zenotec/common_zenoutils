@@ -17,6 +17,9 @@
 #ifndef __ZDISPLAY_H__
 #define __ZDISPLAY_H__
 
+#include <zutils/zCommand.h>
+#include <zutils/zTimer.h>
+
 namespace zUtils
 {
 namespace zDisplay
