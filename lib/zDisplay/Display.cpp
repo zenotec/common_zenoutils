@@ -184,12 +184,15 @@ Display::EventHandler(zEvent::EventNotification *notification_)
     }
     else if (n->GetEvent() == &this->_page_timer)
     {
-      // Swap out first page to back
+      // Clear out display before switching pages
+      this->clear();
+
+      // Rotate first page to the back
       this->_pages.push_back(this->_pages.front());
       this->_pages.pop_front();
     }
 
-    // Update display
+    // Clear and update display with next page
     status = this->update(page->GetBuffer());
 
   }

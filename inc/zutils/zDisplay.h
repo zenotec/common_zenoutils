@@ -308,6 +308,9 @@ protected:
   virtual bool
   update(const DisplayBuffer& buf_) = 0;
 
+  virtual bool
+  clear() = 0;
+
 private:
 
   size_t _cols;

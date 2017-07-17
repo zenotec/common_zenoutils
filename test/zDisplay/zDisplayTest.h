@@ -108,7 +108,7 @@ private:
     return (true);
   }
 
-  void
+  virtual bool
   clear()
   {
     this->_lock.lock();
