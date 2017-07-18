@@ -69,6 +69,22 @@ _tostr(long n_)
 }
 
 inline std::string
+_tostr(unsigned long long n_)
+{
+  char str[256];
+  snprintf(str, 256, "%llu", n_);
+  return (std::string(str));
+}
+
+inline std::string
+_tostr(long long n_)
+{
+  char str[256];
+  snprintf(str, 256, "%lld", n_);
+  return (std::string(str));
+}
+
+inline std::string
 _tostr(unsigned long n_)
 {
   char str[256];
