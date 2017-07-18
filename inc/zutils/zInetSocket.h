@@ -131,6 +131,12 @@ public:
   virtual void
   Close();
 
+  virtual bool
+  Getopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Setopt(Socket::OPTIONS opt_);
+
 protected:
 
   int _sock;

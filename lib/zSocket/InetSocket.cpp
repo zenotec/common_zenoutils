@@ -312,16 +312,7 @@ InetSocket::Open()
       return (false);
     } // end if
 
-    ZLOG_DEBUG("Opening socket: " + ZLOG_INT(this->_sock));
-
-    // Enable sending to broadcast address
-    int bcastEnable = 1;
-    if (setsockopt(this->_sock, SOL_SOCKET, SO_BROADCAST, &bcastEnable, sizeof(bcastEnable))
-        < 0)
-    {
-      ZLOG_CRIT("Cannot configure socket: " + std::string(strerror(errno)));
-      return (false);
-    }
+    ZLOG_INFO("Opening socket: " + ZLOG_INT(this->_sock));
 
   } // end if
   else
@@ -334,7 +325,7 @@ InetSocket::Open()
 void
 InetSocket::Close()
 {
-  ZLOG_DEBUG("Closing socket: " + ZLOG_INT(this->_sock));
+  ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
   // Close socket
   if (this->_sock)
   {
@@ -349,6 +340,117 @@ InetSocket::Close()
   {
     ZLOG_WARN("Socket not open");
   }
+}
+
+bool
+InetSocket::Getopt(Socket::OPTIONS opt_)
+{
+  bool status = false;
+  switch (opt_)
+  {
+  case Socket::OPTIONS_ALLOW_BCAST:
+  {
+    int optval = 0;
+    socklen_t optlen = sizeof(optval);
+    if (getsockopt(this->_sock, SOL_SOCKET, SO_BROADCAST, &optval, &optlen) < 0)
+    {
+      ZLOG_CRIT("Cannot get socket option: " + std::string(strerror(errno)));
+    }
+    else
+    {
+      std::cerr << "OPTIONS_ALLOW_BCAST: " << optval << std::endl;
+      status = (optval != 0);
+    }
+    break;
+  }
+  case Socket::OPTIONS_TOS_UHP:
+    // No break
+  case Socket::OPTIONS_TOS_HP:
+    // No break
+  case Socket::OPTIONS_TOS_NP:
+    // No break
+  case Socket::OPTIONS_TOS_LP:
+  {
+    int optval = 0;
+    socklen_t optlen = sizeof(optval);
+    if (getsockopt(this->_sock, SOL_IP, IP_TOS, &optval, &optlen) < 0)
+    {
+      ZLOG_CRIT("Cannot get socket option: " + std::string(strerror(errno)));
+    }
+    else
+    {
+      if (opt_ == Socket::OPTIONS_TOS_UHP)
+        status = (optval == 48);
+      else if (opt_ == Socket::OPTIONS_TOS_HP)
+        status = (optval == 32);
+      else if (opt_ == Socket::OPTIONS_TOS_NP)
+        status = (optval == 16);
+      else if (opt_ == Socket::OPTIONS_TOS_LP)
+        status = (optval == 0);
+    }
+    break;
+  }
+  default:
+    break;
+  }
+  return (status);
+}
+
+bool
+InetSocket::Setopt(Socket::OPTIONS opt_)
+{
+  bool status = false;
+  switch (opt_)
+  {
+
+  case Socket::OPTIONS_ALLOW_BCAST:
+  {
+    // Enable sending to broadcast address
+    int optval = 1;
+    if (setsockopt(this->_sock, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) < 0)
+    {
+      ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
+    }
+    else
+    {
+      status = true;
+    }
+    break;
+  }
+
+  case Socket::OPTIONS_TOS_UHP:
+    // No break
+  case Socket::OPTIONS_TOS_HP:
+    // No break
+  case Socket::OPTIONS_TOS_NP:
+    // No break
+  case Socket::OPTIONS_TOS_LP:
+  {
+    int optval = 0;
+    if (opt_ == Socket::OPTIONS_TOS_UHP)
+      optval = 48;
+    else if (opt_ == Socket::OPTIONS_TOS_HP)
+      optval = 32;
+    else if (opt_ == Socket::OPTIONS_TOS_NP)
+      optval = 16;
+    else if (opt_ == Socket::OPTIONS_TOS_LP)
+      optval = 0;
+
+    if (setsockopt(this->_sock, SOL_IP, IP_TOS, &optval, sizeof(optval)) < 0)
+    {
+      ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
+    }
+    else
+    {
+      status = true;
+    }
+    break;
+  }
+
+  default:
+    break;
+  }
+  return (status);
 }
 
 bool

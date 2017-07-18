@@ -67,6 +67,18 @@ Socket::Address() const
 }
 
 bool
+Socket::Getopt(Socket::OPTIONS opt_)
+{
+  return (false);
+}
+
+bool
+Socket::Setopt(Socket::OPTIONS opt_)
+{
+  return (false);
+}
+
+bool
 Socket::Bind(const SocketAddress& addr_)
 {
   bool status = false;

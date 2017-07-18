@@ -218,6 +218,19 @@ class Socket : public zEvent::Event
 
 public:
 
+  enum OPTIONS
+  {
+    OPTIONS_ERR = -1,
+    OPTIONS_NONE = 0,
+    OPTIONS_ALLOW_BCAST = 1,
+    OPTIONS_NONBLOCK = 2,
+    OPTIONS_TOS_LP = 3,
+    OPTIONS_TOS_NP = 4,
+    OPTIONS_TOS_HP = 5,
+    OPTIONS_TOS_UHP = 6,
+    OPTIONS_LAST
+  };
+
   Socket(SocketType type_ = SocketType::TYPE_NONE);
 
   virtual
@@ -234,6 +247,12 @@ public:
 
   virtual void
   Close() = 0;
+
+  virtual bool
+  Getopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Setopt(Socket::OPTIONS opt_);
 
   bool
   Bind(const SocketAddress& addr_);
