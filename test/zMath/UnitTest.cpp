@@ -23,6 +23,8 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
 
+  UTEST_TEST( zMathTest_Min, 0);
+  UTEST_TEST( zMathTest_Max, 0);
   UTEST_TEST( zMathTest_Sum, 0);
   UTEST_TEST( zMathTest_SumSquares, 0);
   UTEST_TEST( zMathTest_Mean, 0);

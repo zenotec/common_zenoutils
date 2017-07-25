@@ -23,6 +23,12 @@
 using namespace zUtils;
 
 int
+zMathTest_Min(void* arg_);
+
+int
+zMathTest_Max(void* arg_);
+
+int
 zMathTest_Sum(void* arg_);
 
 int

@@ -428,13 +428,13 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
   {
     int optval = 0;
     if (opt_ == Socket::OPTIONS_TOS_UHP)
-      optval = 48;
+      optval = 0xb8;
     else if (opt_ == Socket::OPTIONS_TOS_HP)
-      optval = 32;
+      optval = 0x78;
     else if (opt_ == Socket::OPTIONS_TOS_NP)
-      optval = 16;
+      optval = 0x38;
     else if (opt_ == Socket::OPTIONS_TOS_LP)
-      optval = 0;
+      optval = 0x00;
 
     if (setsockopt(this->_sock, SOL_IP, IP_TOS, &optval, sizeof(optval)) < 0)
     {

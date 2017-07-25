@@ -22,6 +22,7 @@
 #include <vector>
 #include <map>
 
+#include <zutils/zUtils.h>
 #include <zutils/zSem.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
@@ -97,11 +98,13 @@ DisplayPage::DeleteVar(zDisplay::DisplayVar* var_)
 bool
 DisplayPage::Refresh()
 {
+  ssize_t size = 0;
   FOREACH (auto& var, this->_vars)
   {
-    if (!this->Update(var->GetString(), var->GetColumn(), var->GetRow()))
+    size = this->Update(var->GetString(), var->GetColumn(), var->GetRow());
+    if (size < var->GetString().size())
     {
-      ZLOG_WARN("Display variable failed to update: " + var->GetName());
+      ZLOG_WARN("Display variable failed to update(" + zToStr(size) + "): " + var->GetName());
     }
   }
   return(true);

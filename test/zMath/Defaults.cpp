@@ -19,6 +19,60 @@
 using namespace zUtils;
 
 int
+zMathTest_Min(void* arg_)
+{
+
+  zMath::Min<int> min;
+
+  TEST_TRUE(min.Empty());
+
+  min.Add(8);
+  TEST_FALSE(min.Empty());
+  TEST_EQ(min.Size(), 1);
+  TEST_EQ(min(), 8);
+
+  min.Add(10);
+  TEST_FALSE(min.Empty());
+  TEST_EQ(min.Size(), 2);
+  TEST_EQ(min(), 8);
+
+  min.Add(6);
+  TEST_FALSE(min.Empty());
+  TEST_EQ(min.Size(), 3);
+  TEST_EQ(min(), 6);
+
+  // Return success
+  return (0);
+}
+
+int
+zMathTest_Max(void* arg_)
+{
+
+  zMath::Max<int> max;
+
+  TEST_TRUE(max.Empty());
+
+  max.Add(8);
+  TEST_FALSE(max.Empty());
+  TEST_EQ(max.Size(), 1);
+  TEST_EQ(max(), 8);
+
+  max.Add(10);
+  TEST_FALSE(max.Empty());
+  TEST_EQ(max.Size(), 2);
+  TEST_EQ(max(), 10);
+
+  max.Add(6);
+  TEST_FALSE(max.Empty());
+  TEST_EQ(max.Size(), 3);
+  TEST_EQ(max(), 10);
+
+  // Return success
+  return (0);
+}
+
+int
 zMathTest_Sum(void* arg_)
 {
 
@@ -40,11 +94,6 @@ zMathTest_Sum(void* arg_)
   TEST_FALSE(sum.Empty());
   TEST_EQ(sum.Size(), 3);
   TEST_EQ(sum(), 22);
-
-  sum.Subtract(6);
-  TEST_FALSE(sum.Empty());
-  TEST_EQ(sum.Size(), 2);
-  TEST_EQ(sum(), 16);
 
   // Return success
   return (0);
@@ -73,11 +122,6 @@ zMathTest_SumSquares(void* arg_)
   TEST_EQ(sum.Size(), 3);
   TEST_EQ(sum(), 164);
 
-  sum.Subtract(6);
-  TEST_FALSE(sum.Empty());
-  TEST_EQ(sum.Size(), 2);
-  TEST_EQ(sum(), 128);
-
   // Return success
   return (0);
 }
@@ -105,11 +149,6 @@ zMathTest_Mean(void* arg_)
   TEST_EQ(mean.Size(), 3);
   TEST_EQ(mean(), 6);
 
-  mean.Subtract(2);
-  TEST_FALSE(mean.Empty());
-  TEST_EQ(mean.Size(), 2);
-  TEST_EQ(mean(), 8);
-
   // Return success
   return (0);
 }
@@ -120,27 +159,22 @@ zMathTest_Variance(void* arg_)
 
   zMath::Variance<int> var;
 
-  TEST_TRUE(var.empty());
+  TEST_TRUE(var.Empty());
 
-  var.push_back(8);
-  TEST_FALSE(var.empty());
-  TEST_EQ(var.size(), 1);
+  var.Add(8);
+  TEST_FALSE(var.Empty());
+  TEST_EQ(var.Size(), 1);
   TEST_EQ(var(), 0);
 
-  var.push_back(8);
-  TEST_FALSE(var.empty());
-  TEST_EQ(var.size(), 2);
+  var.Add(8);
+  TEST_FALSE(var.Empty());
+  TEST_EQ(var.Size(), 2);
   TEST_EQ(var(), 0);
 
-  var.push_back(2);
-  TEST_FALSE(var.empty());
-  TEST_EQ(var.size(), 3);
+  var.Add(2);
+  TEST_FALSE(var.Empty());
+  TEST_EQ(var.Size(), 3);
   TEST_EQ(var(), 8);
-
-  var.pop_back();
-  TEST_FALSE(var.empty());
-  TEST_EQ(var.size(), 2);
-  TEST_EQ(var(), 0);
 
   // Return success
   return (0);
@@ -168,11 +202,6 @@ zMathTest_StandardDeviation(void* arg_)
   TEST_FALSE(stddev.Empty());
   TEST_EQ(stddev.Size(), 3);
   TEST_EQ(stddev(), 2);
-
-  stddev.Subtract(2);
-  TEST_FALSE(stddev.Empty());
-  TEST_EQ(stddev.Size(), 2);
-  TEST_EQ(stddev(), 0);
 
   // Return success
   return (0);

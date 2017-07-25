@@ -23,6 +23,8 @@
 #include <numeric>
 #include <list>
 #include <vector>
+#include <algorithm> // std::min/max_element
+#include <numeric> // std::accumulate
 #include <stdexcept>
 
 #include <zutils/zUtils.h>
@@ -36,6 +38,168 @@ namespace zMath
 {
 
 //**********************************************************************
+// Class: Min
+//**********************************************************************
+
+template<class T>
+  class Min
+  {
+
+  public:
+
+    Min(size_t len = (size_t)-1) :
+        _len(len)
+    {
+    }
+
+    Min(std::vector<T> other) :
+        _len(other.size())
+    {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
+    }
+
+    Min(std::list<T> other) :
+        _len(other.size())
+    {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
+    }
+
+    virtual
+    ~Min()
+    {
+    }
+
+    T
+    operator()()
+    {
+      return (this->Value());
+    }
+
+    void
+    Add(T item)
+    {
+      if ((this->_data.size() + 1) > this->_len)
+      {
+        this->_data.pop_front();
+      }
+      this->_data.push_back(item);
+    }
+
+    virtual T
+    Value() const
+    {
+      return (*std::min_element(this->_data.begin(), this->_data.end()));
+    }
+
+    size_t
+    Size() const
+    {
+      return (this->_data.size());
+    }
+
+    bool
+    Empty() const
+    {
+      return (this->_data.empty());
+    }
+
+  protected:
+
+  private:
+
+    std::list<T> _data;
+    size_t _len;
+
+  };
+
+//**********************************************************************
+// Class: Max
+//**********************************************************************
+
+template<class T>
+  class Max
+  {
+
+  public:
+
+    Max(size_t len = (size_t) -1) :
+        _len(len)
+    {
+    }
+
+    Max(std::vector<T> other) :
+        _len(other.size())
+    {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
+    }
+
+    Max(std::list<T> other) :
+        _len(other.size())
+    {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
+    }
+
+    virtual
+    ~Max()
+    {
+    }
+
+    T
+    operator()()
+    {
+      return (this->Value());
+    }
+
+    void
+    Add(T item)
+    {
+      if ((this->_data.size() + 1) > this->_len)
+      {
+        this->_data.pop_front();
+      }
+      this->_data.push_back(item);
+    }
+
+    virtual T
+    Value() const
+    {
+      return (*std::max_element(this->_data.begin(), this->_data.end()));
+    }
+
+    size_t
+    Size() const
+    {
+      return (this->_data.size());
+    }
+
+    bool
+    Empty() const
+    {
+      return (this->_data.empty());
+    }
+
+  protected:
+
+  private:
+
+    std::list<T> _data;
+    size_t _len;
+
+  };
+
+//**********************************************************************
 // Class: Sum
 //**********************************************************************
 
@@ -45,13 +209,13 @@ template<class T>
 
   public:
 
-    Sum() :
-      _sum(0), _num(0)
+    Sum(size_t len = (size_t) -1) :
+        _len(len)
     {
     }
 
     Sum(std::vector<T> other) :
-      _sum(0), _num(0)
+        _len(other.size())
     {
       FOREACH (auto& item, other)
       {
@@ -60,7 +224,7 @@ template<class T>
     }
 
     Sum(std::list<T> other) :
-      _sum(0), _num(0)
+        _len(other.size())
     {
       FOREACH (auto& item, other)
       {
@@ -76,55 +240,51 @@ template<class T>
     T
     operator()()
     {
-      return (this->_sum);
+      return (this->Value());
     }
 
     void
     Add(T item)
     {
-      if ((this->_num + 1) < this->_num)
+      if ((this->_data.size() + 1) > this->_len)
       {
-        throw std::out_of_range("zMath::Sum(): Out of Range");
+        this->_data.pop_front();
       }
-      this->_sum += item;
-      this->_num += 1;
-    }
-
-    void
-    Subtract(T item)
-    {
-      if (this->_num == 0)
-      {
-        throw std::out_of_range("zMath::Sum(): Out of Range");
-      }
-      this->_sum -= item;
-      this->_num -= 1;
+      this->_data.push_back(item);
+      std::cerr << "zMath::Sum(): item: " << zToStr(item) << " size: " <<
+          zToStr(Size()) << " sum: " << zToStr(Value()) << std::endl;
     }
 
     virtual T
     Value() const
     {
-      return(this->_sum);
+      T sum = 0;
+      FOREACH (auto& item, this->_data)
+      {
+        sum += item;
+      }
+      std::cerr << "zMath::Sum(): sum: " << zToStr(sum) << " size: " << zToStr(Size()) << std::endl;
+      return (sum);
     }
 
-    T
+    size_t
     Size() const
     {
-      return(this->_num);
+      return (this->_data.size());
     }
 
     bool
     Empty() const
     {
-      return(this->_num == 0);
+      return (this->_data.empty());
     }
 
   protected:
 
   private:
 
-    T _sum;
-    T _num;
+    std::list<T> _data;
+    size_t _len;
 
   };
 
@@ -138,7 +298,7 @@ template<class T>
 
   public:
 
-    SumSquares()
+    SumSquares(size_t len = (size_t)-1)
     {
     }
 
@@ -169,12 +329,6 @@ template<class T>
       Sum<T>::Add(item * item);
     }
 
-    void
-    Subtract(T item)
-    {
-      Sum<T>::Subtract(item * item);
-    }
-
   protected:
 
   private:
@@ -191,7 +345,8 @@ template<class T>
 
   public:
 
-    Mean()
+    Mean(size_t len = (size_t)-1) :
+      Sum<T>(len)
     {
     }
 
@@ -233,18 +388,32 @@ template<class T>
 //**********************************************************************
 
 template<class T>
-  class Variance : public std::vector<T>
+  class Variance
   {
 
   public:
 
-    Variance()
+    Variance(size_t len = (size_t)-1) :
+      _len(len)
     {
     }
 
     Variance(std::vector<T> other) :
-      std::vector<T>(other)
+        _len(other.size())
     {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
+    }
+
+    Variance(std::list<T> other) :
+        _len(other.size())
+    {
+      FOREACH (auto& item, other)
+      {
+        this->Add(item);
+      }
     }
 
     T
@@ -253,12 +422,22 @@ template<class T>
       return (this->Value());
     }
 
+    void
+    Add(T item)
+    {
+      if ((this->_data.size() + 1) > this->_len)
+      {
+        this->_data.pop_front();
+      }
+      this->_data.push_back(item);
+    }
+
     T
     Value()
     {
-      T mean = Mean<T>(*this)();
+      T mean = Mean<T>(this->_data)();
       std::vector<T> sq_dist;
-      FOREACH (auto& item, *this)
+      FOREACH (auto& item, this->_data)
       {
         sq_dist.push_back((item - mean) * (item - mean));
       }
@@ -266,9 +445,24 @@ template<class T>
       return (sum / sq_dist.size());
     }
 
+    size_t
+    Size() const
+    {
+      return (this->_data.size());
+    }
+
+    bool
+    Empty() const
+    {
+      return (this->_data.empty());
+    }
+
   protected:
 
   private:
+
+    std::list<T> _data;
+    size_t _len;
 
   };
 
@@ -282,7 +476,8 @@ template<class T>
 
   public:
 
-    StandardDeviation()
+    StandardDeviation(size_t len = (size_t)-1) :
+      _mean(len), _sum(len)
     {
     }
 
@@ -309,13 +504,6 @@ template<class T>
       this->_sum.Add(item);
     }
 
-    void
-    Subtract(T item)
-    {
-      this->_mean.Subtract(item);
-      this->_sum.Subtract(item);
-    }
-
     T
     Value()
     {
@@ -324,7 +512,7 @@ template<class T>
       return (sqrt(stddev));
     }
 
-    T
+    size_t
     Size() const
     {
       return(this->_mean.Size());
@@ -356,11 +544,15 @@ template<class T>
 
   public:
 
-    FrequencyDistribution()
+    FrequencyDistribution(size_t len = (size_t)-1)
     {
     }
 
     FrequencyDistribution(std::vector<T> other)
+    {
+    }
+
+    FrequencyDistribution(std::list<T> other)
     {
     }
 
