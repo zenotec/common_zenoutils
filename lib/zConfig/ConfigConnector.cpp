@@ -78,7 +78,7 @@ ConfigurationFileConnector::Store(ConfigData &data_)
   fs.open(this->_filename.c_str(), std::fstream::out);
   if (fs.is_open())
   {
-    fs << data_.GetJson();
+    fs << data_.GetJsonPretty();
     fs.flush();
     fs.close();
     status = true;
