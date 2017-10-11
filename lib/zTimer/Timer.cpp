@@ -129,6 +129,9 @@ Timer::Timer() :
     return;
   } // end if
 
+  // Start timer monitor thread
+  this->_thread.Start();
+
   this->_lock.Unlock();
 }
 
@@ -139,6 +142,9 @@ Timer::~Timer()
 
   // Stop timer
   this->Stop();
+
+  // Kill timer monitor thread
+  this->_thread.Stop();
 
   // Delete timer
   if (this->_fd)
@@ -160,7 +166,6 @@ Timer::Start(uint32_t usec_)
   if (this->_fd && this->_lock.Lock())
   {
     this->_interval = usec_;
-    this->_thread.Start();
     this->_start();
     this->_lock.Unlock();
   } // end if
@@ -173,7 +178,6 @@ Timer::Stop(void)
   if (this->_fd && this->_lock.Lock())
   {
     this->_stop();
-    this->_thread.Stop();
     this->_lock.Unlock();
   } // end if
 }
