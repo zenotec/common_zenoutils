@@ -251,8 +251,6 @@ template<class T>
         this->_data.pop_front();
       }
       this->_data.push_back(item);
-      std::cerr << "zMath::Sum(): item: " << zToStr(item) << " size: " <<
-          zToStr(Size()) << " sum: " << zToStr(Value()) << std::endl;
     }
 
     virtual T
@@ -263,7 +261,6 @@ template<class T>
       {
         sum += item;
       }
-      std::cerr << "zMath::Sum(): sum: " << zToStr(sum) << " size: " << zToStr(Size()) << std::endl;
       return (sum);
     }
 
