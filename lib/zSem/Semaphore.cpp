@@ -153,8 +153,11 @@ Semaphore::Reset()
 
   if (this->_lock.Lock())
   {
-    this->_cnt = 0;
-    this->_empty.Lock();
+    if (this->_cnt != 0)
+    {
+      this->_cnt = 0;
+      this->_empty.Lock();
+    }
     status = true;
     this->_lock.Unlock();
   }
