@@ -94,6 +94,9 @@ public:
   bool
   TimedWait(uint32_t ms_);
 
+  bool
+  Reset();
+
 protected:
 
 private:

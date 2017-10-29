@@ -143,5 +143,24 @@ Semaphore::TimedWait(uint32_t msec_)
   return (status);
 }
 
+bool
+Semaphore::Reset()
+{
+  bool status = false;
+
+  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
+      ZLOG_UINT(this->_cnt));
+
+  if (this->_lock.Lock())
+  {
+    this->_cnt = 0;
+    this->_empty.Lock();
+    status = true;
+    this->_lock.Unlock();
+  }
+
+  return (status);
+}
+
 }
 }
