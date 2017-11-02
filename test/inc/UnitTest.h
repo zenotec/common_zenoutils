@@ -182,7 +182,7 @@ do { \
 #define TEST_LT(x, y) TEST_LT_MSG(x, y, std::string( "" ))
 #define TEST_LT_MSG(x, y, msg) \
 do { \
-  UnitTest* utest = Test::UnitTest::GetInstance(); \
+  Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Lt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
     return (5); \
 } while(false)
