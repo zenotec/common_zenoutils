@@ -50,6 +50,10 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([Unable to find libp
 AC_CHECK_LIB([rt], [clock_gettime], [], [AC_MSG_ERROR([Unable to find librt])])
 AC_CHECK_LIB([uuid], [uuid_generate], [], [AC_MSG_ERROR([Unable to find libuuid])])
 
+PKG_CHECK_MODULES([NL3], [libnl-3.0], [], [AC_MSG_ERROR([Unable to find libnl-3])])
+PKG_CHECK_MODULES([NLGENL3], [libnl-genl-3.0], [], [AC_MSG_ERROR([Unable to find libnl-genl-3])])
+PKG_CHECK_MODULES([NLRTNL3], [libnl-route-3.0], [], [AC_MSG_ERROR([Unable to find libnl-route-3])])
+
 # Checks for header files.
 AC_CHECK_HEADERS([stdio.h stdlib.h stddef.h stdint.h string.h unistd.h fcntl.h arpa/inet.h netinet/in.h sys/ioctl.h sys/socket.h sys/time.h termios.h])
 
@@ -95,6 +99,8 @@ AC_CONFIG_FILES([
         lib/zLed/Makefile
         lib/zSerial/Makefile
         lib/zInterface/Makefile
+        	lib/zInterface/netlink/Makefile
+        	lib/zInterface/nl80211/Makefile
         lib/zSocket/Makefile
         lib/zMessage/Makefile
         lib/zCommand/Makefile

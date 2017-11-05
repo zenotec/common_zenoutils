@@ -39,16 +39,18 @@ zInterfaceTest_InterfaceCtor(void* arg)
   TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
 
   // Set
-  TEST_TRUE(MyConfig->SetName("eth0"));
-  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_WIRED));
+  TEST_TRUE(MyConfig->SetName("lo"));
+  TEST_TRUE(MyConfig->SetType(InterfaceConfigData::TYPE_LOOP));
   TEST_TRUE(MyConfig->SetIpAddress("1.2.3.4"));
-  TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_UP));
+  TEST_TRUE(MyConfig->SetState(InterfaceConfigData::STATE_DOWN));
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(std::string("eth0"), MyInterface->GetName());
-  TEST_EQ(InterfaceConfigData::TYPE_WIRED, MyInterface->GetType());
-  TEST_NEQ(std::string("1.2.3.4"), MyInterface->GetIpAddress());
+  TEST_TRUE(MyInterface->IsRefreshed());
+  TEST_EQ(1, MyInterface->GetIndex());
+  TEST_EQ(std::string("lo"), MyInterface->GetName());
+  TEST_EQ(InterfaceConfigData::TYPE_LOOP, MyInterface->GetType());
+  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetIpAddress());
   TEST_EQ(InterfaceConfigData::STATE_UP, MyInterface->GetState());
 
   // Cleanup

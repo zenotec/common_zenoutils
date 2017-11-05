@@ -224,11 +224,20 @@ public:
   virtual
   ~Interface();
 
+  bool
+  IsRefreshed();
+
   int
   GetIndex();
 
   virtual bool
   Refresh();
+
+  virtual bool
+  Create();
+
+  virtual bool
+  Destroy();
 
   virtual void
   Display(const std::string& prefix_ = std::string(""));
@@ -243,6 +252,7 @@ private:
   zSem::Mutex _lock;
   zTimer::Timer _timer;
 
+  bool _refreshed;
   int _index;
 
 };

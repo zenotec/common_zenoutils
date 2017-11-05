@@ -42,141 +42,14 @@
 #include <zutils/zCompatibility.h>
 #include <zutils/zInterface.h>
 
+// local includes
+
+#include "netlink/GetLinkCommand.h"
+
 namespace zUtils
 {
 namespace zInterface
 {
-
-static const std::string sysfs_root("/sys/class/net/");
-static const std::string sysfs_brdir("/bridge");
-static const std::string sysfs_bonddir("/bonding");
-static const std::string sysfs_ifindex("/ifindex");
-static const std::string sysfs_hwaddr("/address");
-static const std::string sysfs_flags("/flags");
-static const std::string sysfs_link("/carrier");
-static const std::string sysfs_state("/operstate");
-static const std::string sysfs_speed("/speed");
-
-static int
-_get_ifindex(const std::string &name_)
-{
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-  int index = -1;
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, 0)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface index
-    if (ioctl(sock, SIOCGIFINDEX, &ifr) == 0)
-    {
-      index = ifr.ifr_ifindex;
-    }
-    close(sock);
-  }
-  return (index);
-}
-
-static uint32_t
-_get_flags(const std::string &name_)
-{
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-  uint32_t flags = 0;
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
-    {
-      flags = ifr.ifr_flags;
-    }
-    close(sock);
-  }
-  return (flags);
-}
-
-static bool
-_set_flags(const std::string &name_, const uint32_t flags_)
-{
-
-  bool status = false;
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-  uint32_t flags = 0;
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
-    {
-      flags = ifr.ifr_flags;
-      flags |= flags_;
-      if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
-      {
-        status = true;
-      }
-    }
-    close(sock);
-  }
-  return (status);
-}
-
-static bool
-_clr_flags(const std::string &name_, const uint32_t flags_)
-{
-
-  bool status = false;
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-  uint32_t flags = 0;
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
-    {
-      flags = ifr.ifr_flags;
-      flags &= ~flags_;
-      if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0)
-      {
-        status = true;
-      }
-    }
-    close(sock);
-  }
-  return (status);
-}
-
-static std::string
-_get_hw_addr(const std::string &name_)
-{
-  std::string val = std::string("00:00:00:00:00:00");
-
-  // Construct path for sysfs file
-  std::string sysfs_filename = sysfs_root + name_ + sysfs_hwaddr;
-
-  // Read sysfs file
-  std::fstream fs;
-  fs.open(sysfs_filename.c_str(), std::fstream::in);
-  if (fs.is_open())
-  {
-    fs >> val;
-    fs.close();
-  }
-  return (val);
-}
 
 static std::string
 _get_ip_addr(const std::string &name_)
@@ -286,169 +159,13 @@ _set_netmask(const std::string &name_, const std::string& addr_)
   return (status);
 }
 
-static InterfaceConfigData::STATE
-_get_state(const std::string &name_)
-{
-  InterfaceConfigData::STATE state = InterfaceConfigData::STATE_ERR;
-  uint32_t flags = _get_flags(name_);
-
-  if (flags & IFF_UP)
-  {
-    state = InterfaceConfigData::STATE_UP;
-  }
-  else
-  {
-    state = InterfaceConfigData::STATE_DOWN;
-  }
-
-  return (state);
-}
-
-static bool
-_set_state(const std::string &name_, InterfaceConfigData::STATE state_)
-{
-  bool status = false;
-
-  if (state_ == InterfaceConfigData::STATE_UP)
-  {
-    status = _set_flags(name_, IFF_UP);
-  }
-  else if (state_ == InterfaceConfigData::STATE_DOWN)
-  {
-    status = _clr_flags(name_, IFF_UP);
-  }
-
-  return (status);
-}
-
-static bool
-_is_loopback(const std::string &name_)
-{
-  bool status = false;
-  if (_get_flags(name_) & IFF_LOOPBACK)
-  {
-    status = true;
-  }
-  return (status);
-}
-
-static bool
-_is_bridge(const std::string &name_)
-{
-  bool status = false;
-  struct stat sb;
-
-  // Construct path for sysfs file
-  std::string sysfs_filename = sysfs_root + name_ + sysfs_brdir;
-
-  // Query for bridge support
-  if (stat(sysfs_filename.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
-  {
-    status = true;
-  }
-  return (status);
-}
-
-static bool
-_is_bond(const std::string &name_)
-{
-  bool status = false;
-  struct stat sb;
-
-  // Construct path for sysfs file
-  std::string sysfs_filename = sysfs_root + name_ + sysfs_bonddir;
-
-  // Query for bonding support
-  if (stat(sysfs_filename.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
-  {
-    status = true;
-  }
-  return (status);
-}
-
-static bool
-_is_wired(const std::string &name_)
-{
-  bool status = false;
-
-  // Construct path for sysfs file
-  std::string sysfs_filename = sysfs_root + name_ + sysfs_speed;
-
-  // Read sysfs file
-  std::fstream fs;
-  fs.open(sysfs_filename.c_str(), std::fstream::in);
-  if (fs.is_open())
-  {
-    status = true;
-    fs.close();
-  }
-
-  return (status);
-}
-
-static bool
-_is_wireless(const std::string &name_)
-{
-  int sock = -1;
-  struct iwreq iwr = { 0 };
-  bool status = false;
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIWNAME, &iwr) == 0)
-    {
-      status = true;
-    }
-    close(sock);
-  }
-  return (status);
-}
-
-static InterfaceConfigData::TYPE
-_get_type(const std::string &name_)
-{
-  InterfaceConfigData::TYPE type = InterfaceConfigData::TYPE_ERR;
-  std::string val;
-
-  if (_is_loopback(name_))
-  {
-    type = InterfaceConfigData::TYPE_LOOP;
-  }
-  else if (_is_bridge(name_))
-  {
-    type = InterfaceConfigData::TYPE_BRIDGE;
-  }
-  else if (_is_bond(name_))
-  {
-    type = InterfaceConfigData::TYPE_BOND;
-  }
-  else if (_is_wireless(name_))
-  {
-    type = InterfaceConfigData::TYPE_WIRELESS;
-  }
-  else if (_is_wired(name_))
-  {
-    type = InterfaceConfigData::TYPE_WIRED;
-  }
-  else
-  {
-    type = InterfaceConfigData::TYPE_NONE;
-  }
-
-  return (type);
-}
-
 // ****************************************************************************
 // Class: Interface
 // ****************************************************************************
 
 Interface::Interface(const InterfaceConfigData& config_) :
     InterfaceConfigData(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
-        _lock(zSem::Mutex::LOCKED), _index(-1)
+        _lock(zSem::Mutex::LOCKED), _refreshed(false), _index(-1)
 {
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Path());
@@ -467,59 +184,15 @@ Interface::~Interface()
 }
 
 bool
-Interface::Refresh()
+Interface::IsRefreshed()
 {
-
-  bool status = false;
-  std::string name(this->GetName());
-
-  // Start critical section
+  bool flag = false;
   if (this->_lock.Lock())
   {
-
-    if (!name.empty())
-    {
-
-      // Query interface index
-      this->_index = _get_ifindex(name);
-
-      // Query interface MAC address
-      if (this->GetHwAddress() != _get_hw_addr(name))
-      {
-        this->SetHwAddress(_get_hw_addr(name));
-      }
-
-      // Query interface IP address
-      if (this->GetIpAddress() != _get_ip_addr(name))
-      {
-        this->SetIpAddress(_get_ip_addr(name));
-      }
-
-      // Query interface netmask
-      if (this->GetNetmask() != _get_netmask(name))
-      {
-        this->SetNetmask(_get_netmask(name));
-      }
-
-      if (this->GetState() != _get_state(name))
-      {
-        this->SetState(_get_state(name));
-        // TODO Notification
-      }
-
-      status = true;
-
-    }
-    else
-    {
-      ZLOG_ERR("Interface error: Empty name!");
-    }
-
-    // End critical section
+    flag = this->_refreshed;
     this->_lock.Unlock();
   }
-
-  return (status);
+  return (flag);
 }
 
 int
@@ -532,6 +205,63 @@ Interface::GetIndex()
     this->_lock.Unlock();
   }
   return (index);
+}
+
+bool
+Interface::Refresh()
+{
+
+  bool status = false;
+  std::string name(this->GetName());
+
+  // Look up interface information
+  netlink::GetLinkCommand getlinkcmd(name);
+  if (name.empty() || !getlinkcmd.Exec())
+  {
+    return(false);
+  }
+
+  // Start critical section
+  if (this->_lock.Lock())
+  {
+
+    this->_refreshed = true;
+    this->_index = getlinkcmd.Link.IfIndex();
+    this->SetHwAddress(getlinkcmd.Link.Mac());
+
+    // Update link state
+    uint32_t flags = (getlinkcmd.Link.Flags() & (IFF_UP | IFF_RUNNING));
+    if ((flags) == (IFF_UP | IFF_RUNNING))
+    {
+      this->SetState(InterfaceConfigData::STATE_UP);
+    }
+    else
+    {
+      this->SetState(InterfaceConfigData::STATE_DOWN);
+    }
+
+    this->SetIpAddress(_get_ip_addr(name));
+    this->SetNetmask(_get_netmask(name));
+
+    status = true;
+
+    // End critical section
+    this->_lock.Unlock();
+  }
+
+  return (status);
+}
+
+bool
+Interface::Create()
+{
+  return(false);
+}
+
+bool
+Interface::Destroy()
+{
+  return(false);
 }
 
 void
