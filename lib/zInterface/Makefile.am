@@ -28,9 +28,7 @@ libzInterface_la_LDFLAGS = \
 
 libzInterface_la_SOURCES = \
     InterfaceConfiguration.cpp \
-    Interface.cpp \
-    WirelessInterface.cpp \
-    InterfaceFactory.cpp
+    Interface.cpp
 
 libzInterface_la_LIBADD = \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la \

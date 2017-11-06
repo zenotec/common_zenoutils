@@ -27,16 +27,23 @@
 #include <zutils/zConfig.h>
 #include <zutils/zTimer.h>
 
+namespace netlink
+{
+class GetLinkCommand;
+class SetLinkCommand;
+class RouteLinkEvent;
+}
+
 namespace zUtils
 {
 namespace zInterface
 {
 
 // ****************************************************************************
-// Class: InterfaceConfigPath
+// Class: ConfigPath
 // ****************************************************************************
 
-class InterfaceConfigPath : public zConfig::ConfigPath
+class ConfigPath : public zConfig::ConfigPath
 {
 
 public:
@@ -49,10 +56,10 @@ public:
   static const std::string ConfigNetmaskPath;
   static const std::string ConfigStatePath;
 
-  InterfaceConfigPath();
+  ConfigPath();
 
   virtual
-  ~InterfaceConfigPath();
+  ~ConfigPath();
 
   zConfig::ConfigPath
   Name() const;
@@ -79,10 +86,10 @@ private:
 };
 
 // ****************************************************************************
-// Class: InterfaceConfigData
+// Class: ConfigData
 // ****************************************************************************
 
-class InterfaceConfigData : public zConfig::ConfigData
+class ConfigData : public zConfig::ConfigData
 {
 
 public:
@@ -134,52 +141,52 @@ public:
   static const std::string ConfigStateDown;
   static const std::string ConfigStateDefault;
 
-  InterfaceConfigData();
+  ConfigData();
 
-  InterfaceConfigData(const zData::Data& data_);
+  ConfigData(const zData::Data& data_);
 
-  InterfaceConfigData(const zConfig::ConfigData& config_);
+  ConfigData(const zConfig::ConfigData& config_);
 
-  InterfaceConfigData(const InterfaceConfigData& other_);
+  ConfigData(const ConfigData& other_);
 
   virtual
-  ~InterfaceConfigData();
+  ~ConfigData();
 
   std::string
-  GetName() const;
+  Name() const;
 
   bool
-  SetName(const std::string& name_);
+  Name(const std::string& name_);
 
-  InterfaceConfigData::TYPE
-  GetType() const;
+  ConfigData::TYPE
+  Type() const;
 
   bool
-  SetType(const InterfaceConfigData::TYPE type_);
+  Type(const ConfigData::TYPE type_);
 
   std::string
-  GetHwAddress() const;
+  HwAddress() const;
 
   bool
-  SetHwAddress(const std::string& addr_);
+  HwAddress(const std::string& addr_);
 
   std::string
-  GetIpAddress() const;
+  IpAddress() const;
 
   bool
-  SetIpAddress(const std::string& addr_);
+  IpAddress(const std::string& addr_);
 
   std::string
-  GetNetmask() const;
+  Netmask() const;
 
   bool
-  SetNetmask(const std::string& addr_);
+  Netmask(const std::string& addr_);
 
-  InterfaceConfigData::STATE
-  GetState() const;
+  ConfigData::STATE
+  AdminState() const;
 
   bool
-  SetState(const InterfaceConfigData::STATE state_);
+  AdminState(const ConfigData::STATE state_);
 
 protected:
 
@@ -211,21 +218,70 @@ private:
 // Class: Interface
 // ****************************************************************************
 
-class Interface : public InterfaceConfigData, public zEvent::Event
+class Interface : public zEvent::Event
 {
 
 public:
 
-  Interface(const InterfaceConfigData &config_);
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_DEF = 0,
+    TYPE_LOOP = 1,
+    TYPE_WIRED = 2,
+    TYPE_WIRELESS = 3,
+    TYPE_OTHER = 4,
+    TYPE_BRIDGE = 5,
+    TYPE_BOND = 6,
+    TYPE_LAST
+  };
+
+  enum STATE
+  {
+    STATE_ERR = -1,
+    STATE_NONE = 0,
+    STATE_DEF = 0,
+    STATE_UNKNOWN = 1,
+    STATE_UP = 2,
+    STATE_DOWN = 3,
+    STATE_LAST
+  };
+
+  ConfigData Config;
+
+  Interface(const int index_);
+
+  Interface(const std::string& name_);
+
+  Interface(const ConfigData &config_);
 
   virtual
   ~Interface();
 
   bool
-  IsRefreshed();
+  IsRefreshed() const;
 
   int
-  GetIndex();
+  GetIndex() const;
+
+  std::string
+  GetName() const;
+
+  bool
+  SetName(const std::string& name_);
+
+  std::string
+  GetHwAddress() const;
+
+  bool
+  SetHwAddress(const std::string& addr_);
+
+  Interface::STATE
+  GetAdminState() const;
+
+  bool
+  SetAdminState(const Interface::STATE state_);
 
   virtual bool
   Refresh();
@@ -241,12 +297,14 @@ public:
 
 protected:
 
-private:
-
-  zSem::Mutex _lock;
-
+  mutable zSem::Mutex _lock;
   bool _refreshed;
-  int _index;
+
+  netlink::GetLinkCommand* _getlinkcmd;
+  netlink::SetLinkCommand* _setlinkcmd;
+  netlink::RouteLinkEvent* _rtlinkevent;
+
+private:
 
 };
 

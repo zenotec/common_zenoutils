@@ -596,7 +596,7 @@ const std::string WirelessConfigData::ConfigTypeAX("AX");
 const std::string WirelessConfigData::ConfigTypeDefault(ConfigTypeNone);
 
 WirelessConfigData::WirelessConfigData() :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData()");
   ZLOG_DEBUG(this->Path());
@@ -604,7 +604,7 @@ WirelessConfigData::WirelessConfigData() :
 }
 
 WirelessConfigData::WirelessConfigData(const zData::Data& data_) :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   this->PutChild(data_);
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(data_)");
@@ -613,7 +613,7 @@ WirelessConfigData::WirelessConfigData(const zData::Data& data_) :
 }
 
 WirelessConfigData::WirelessConfigData(const zConfig::ConfigData& config_) :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   this->PutChild(config_.GetData());
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(config_)");
@@ -638,7 +638,7 @@ WirelessConfigData::GetType() const
 {
   WirelessConfigData::TYPE type = WirelessConfigData::TYPE_DEF;
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (this->GetValue(path.Type(), str))
   {
     if (str == WirelessConfigData::ConfigTypeNone)
@@ -685,7 +685,7 @@ bool
 WirelessConfigData::SetType(const WirelessConfigData::TYPE type_)
 {
   bool status = true;
-  InterfaceConfigPath path;
+  ConfigPath path;
   std::string str;
   switch (type_)
   {
@@ -731,14 +731,14 @@ const std::string WirelessInterface::ConfigSsidDefault("");
 const float WirelessInterface::ConfigChannelDefault(0.0);
 const int WirelessInterface::ConfigTxPowerDefault(0);
 
-WirelessInterface::WirelessInterface(const InterfaceConfigData& config_) :
+WirelessInterface::WirelessInterface(const ConfigData& config_) :
     Interface(config_), _associated(false), _link_quality(-1),
         _signal_level(0), _noise_level(-1), _bit_rate(0)
 {
   ZLOG_DEBUG("WirelessInterface::WirelessInterface(config_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-  this->SetType(InterfaceConfigData::TYPE_WIRELESS);
+  ZLOG_DEBUG(this->Config.Path());
+  ZLOG_DEBUG(this->Config.GetJson());
+  this->Type(ConfigData::TYPE_WIRELESS);
   this->_lock.Unlock();
 }
 
@@ -753,7 +753,7 @@ WirelessInterface::Refresh()
 {
 
   bool status = false;
-  const std::string name(this->GetName());
+  const std::string name(this->Config.Name());
   nl80211::GetInterfaceCommand getifacecmd(name);
 
   if (!Interface::Refresh() || !getifacecmd.Exec())
@@ -780,7 +780,7 @@ WirelessInterface::Refresh()
       this->SetPhyName(_get_phyname(name));
     }
 
-    if (this->GetState() == InterfaceConfigData::STATE_UP)
+    if (this->AdminState() == ConfigData::STATE_UP)
     {
       this->_associated = _is_associated(name);
 
@@ -1066,49 +1066,49 @@ WirelessInterface::BitRate()
 int
 WirelessInterface::_get_link_quality()
 {
-  return (__get_link_quality(this->GetName()));
+  return (__get_link_quality(this->Name()));
 }
 
 int
 WirelessInterface::_get_signal_level()
 {
-  return (__get_signal_level(this->GetName()));
+  return (__get_signal_level(this->Name()));
 }
 
 int
 WirelessInterface::_get_noise_level()
 {
-  return (__get_noise_level(this->GetName()));
+  return (__get_noise_level(this->Name()));
 }
 
 int
 WirelessInterface::_get_bit_rate()
 {
-  return (__get_bit_rate(this->GetName()));
+  return (__get_bit_rate(this->Name()));
 }
 
 float
 WirelessInterface::_get_channel()
 {
-  return (__get_channel(this->GetName()));
+  return (__get_channel(this->Name()));
 }
 
 bool
 WirelessInterface::_set_channel(float chnl_)
 {
-  return (__set_channel(this->GetName(), chnl_));
+  return (__set_channel(this->Name(), chnl_));
 }
 
 int
 WirelessInterface::_get_tx_power()
 {
-  return (__get_tx_power(this->GetName()));
+  return (__get_tx_power(this->Name()));
 }
 
 bool
 WirelessInterface::_set_tx_power(int txpow_)
 {
-  return (__set_tx_power(this->GetName(), txpow_));
+  return (__set_tx_power(this->Name(), txpow_));
 }
 
 }

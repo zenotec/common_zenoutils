@@ -40,11 +40,15 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+
+#include "GetLinkCommand.h"
+#include "SetLinkCommand.h"
+#include "RouteLinkEvent.h"
+using namespace netlink;
+
 #include <zutils/zInterface.h>
 
 // local includes
-
-#include "GetLinkCommand.h"
 
 namespace zUtils
 {
@@ -163,23 +167,63 @@ _set_netmask(const std::string &name_, const std::string& addr_)
 // Class: Interface
 // ****************************************************************************
 
-Interface::Interface(const InterfaceConfigData& config_) :
-    InterfaceConfigData(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
-        _lock(zSem::Mutex::LOCKED), _refreshed(false), _index(-1)
+Interface::Interface(const int index_) :
+    zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
+    _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+{
+  this->_getlinkcmd = new GetLinkCommand(index_);
+  this->_setlinkcmd = new SetLinkCommand(index_);
+  this->_rtlinkevent = new RouteLinkEvent;
+  this->_lock.Unlock();
+}
+
+Interface::Interface(const std::string& name_) :
+    zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
+    _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+
+{
+  this->_getlinkcmd = new GetLinkCommand(name_);
+  this->_setlinkcmd = new SetLinkCommand(name_);
+  this->_rtlinkevent = new RouteLinkEvent;
+  this->_lock.Unlock();
+}
+
+Interface::Interface(const ConfigData& config_) :
+		Config(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
+		_refreshed(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+
 {
   ZLOG_DEBUG("Interface::Interface(config_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
+  ZLOG_DEBUG(this->Config.Path());
+  ZLOG_DEBUG(this->Config.GetJson());
+  this->_getlinkcmd = new GetLinkCommand(config_.Name());
+  this->_setlinkcmd = new SetLinkCommand(config_.Name());
+  this->_rtlinkevent = new RouteLinkEvent;
   this->_lock.Unlock();
 }
 
 Interface::~Interface()
 {
   this->_lock.Lock();
+  if (this->_getlinkcmd)
+  {
+    delete (this->_getlinkcmd);
+    this->_getlinkcmd = NULL;
+  }
+  if (this->_setlinkcmd)
+  {
+    delete (this->_setlinkcmd);
+    this->_setlinkcmd = NULL;
+  }
+  if (this->_rtlinkevent)
+  {
+    delete (this->_rtlinkevent);
+    this->_rtlinkevent = NULL;
+  }
 }
 
 bool
-Interface::IsRefreshed()
+Interface::IsRefreshed() const
 {
   bool flag = false;
   if (this->_lock.Lock())
@@ -191,60 +235,150 @@ Interface::IsRefreshed()
 }
 
 int
-Interface::GetIndex()
+Interface::GetIndex() const
 {
-  int index;
+  int index = -1;
   if (this->_lock.Lock())
   {
-    index = this->_index;
+    if (this->_refreshed)
+    {
+      index = this->_getlinkcmd->Link.IfIndex();
+    }
     this->_lock.Unlock();
   }
   return (index);
+}
+
+std::string
+Interface::GetName() const
+{
+  std::string name;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      name = this->_getlinkcmd->Link.IfName();
+    }
+    this->_lock.Unlock();
+  }
+  return (name);
+}
+
+bool
+Interface::SetName(const std::string& name_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed && this->_setlinkcmd)
+    {
+      this->_refreshed = false;
+      this->_setlinkcmd->Link.IfName(name_);
+      status = this->_setlinkcmd->Exec();
+    }
+    this->_lock.Unlock();
+  }
+  return (status);
+}
+
+std::string
+Interface::GetHwAddress() const
+{
+  std::string addr;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      addr = this->_getlinkcmd->Link.Mac();
+    }
+    this->_lock.Unlock();
+  }
+  return (addr);
+}
+
+bool
+Interface::SetHwAddress(const std::string& addr_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      if (this->_refreshed && this->_setlinkcmd)
+      {
+        this->_refreshed = false;
+        this->_setlinkcmd->Link.Mac(addr_);
+        status = this->_setlinkcmd->Exec();
+      }
+    }
+    this->_lock.Unlock();
+  }
+  return (status);
+}
+
+Interface::STATE
+Interface::GetAdminState() const
+{
+  Interface::STATE state = Interface::STATE_ERR;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      uint32_t flags = this->_getlinkcmd->Link.Flags();
+      if ((flags & (IFF_UP|IFF_RUNNING)) == (IFF_UP|IFF_RUNNING))
+      {
+        state = Interface::STATE_UP;
+      }
+      else
+      {
+        state = Interface::STATE_DOWN;
+      }
+    }
+    this->_lock.Unlock();
+  }
+  return (state);
+}
+
+bool
+Interface::SetAdminState(const Interface::STATE state_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed && this->_setlinkcmd)
+    {
+      this->_refreshed = false;
+      if (state_ == Interface::STATE_UP)
+      {
+        this->_setlinkcmd->Link.SetFlags((IFF_UP|IFF_RUNNING));
+      }
+      else
+      {
+        this->_setlinkcmd->Link.ClrFlags((IFF_UP|IFF_RUNNING));
+      }
+      status = this->_setlinkcmd->Exec();
+    }
+    this->_lock.Unlock();
+  }
+  return (status);
 }
 
 bool
 Interface::Refresh()
 {
 
-  bool status = false;
-  std::string name(this->GetName());
-
-  // Look up interface information
-  netlink::GetLinkCommand getlinkcmd(name);
-  if (name.empty() || !getlinkcmd.Exec())
-  {
-    return(false);
-  }
-
-  // Start critical section
   if (this->_lock.Lock())
   {
-
-    this->_refreshed = true;
-    this->_index = getlinkcmd.Link.IfIndex();
-    this->SetHwAddress(getlinkcmd.Link.Mac());
-
-    // Update link state
-    uint32_t flags = (getlinkcmd.Link.Flags() & (IFF_UP | IFF_RUNNING));
-    if ((flags) == (IFF_UP | IFF_RUNNING))
+    // Validate and execute get link command
+    if (this->_getlinkcmd && this->_getlinkcmd->Exec())
     {
-      this->SetState(InterfaceConfigData::STATE_UP);
+      this->_refreshed = true;
     }
-    else
-    {
-      this->SetState(InterfaceConfigData::STATE_DOWN);
-    }
-
-    this->SetIpAddress(_get_ip_addr(name));
-    this->SetNetmask(_get_netmask(name));
-
-    status = true;
-
-    // End critical section
     this->_lock.Unlock();
   }
 
-  return (status);
+  return(this->_refreshed);
+
 }
 
 bool
@@ -262,13 +396,13 @@ Interface::Destroy()
 void
 Interface::Display(const std::string &prefix_)
 {
-  std::cout << prefix_ << "Name: \t" << this->GetName() << std::endl;
-  std::cout << prefix_ << "Type: \t" << InterfaceConfigData::GetType() << std::endl;
-  std::cout << prefix_ << "Index:  \t" << this->GetIndex() << std::endl;
-  std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
-  std::cout << prefix_ << "Address:\t" << this->GetIpAddress() << std::endl;
-  std::cout << prefix_ << "Netmask:\t" << this->GetNetmask() << std::endl;
-  std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
+//  std::cout << prefix_ << "Name: \t" << this->Name() << std::endl;
+//  std::cout << prefix_ << "Type: \t" << ConfigData::Type() << std::endl;
+//  std::cout << prefix_ << "Index:  \t" << this->GetIndex() << std::endl;
+//  std::cout << prefix_ << "MAC:    \t" << this->HwAddress() << std::endl;
+//  std::cout << prefix_ << "Address:\t" << this->IpAddress() << std::endl;
+//  std::cout << prefix_ << "Netmask:\t" << this->Netmask() << std::endl;
+//  std::cout << prefix_ << "State:  \t" << this->AdminState() << std::endl;
 }
 
 }

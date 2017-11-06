@@ -35,12 +35,12 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceConfigurationDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  InterfaceConfigData *MyConfig = new InterfaceConfigData;
+  ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
-  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->Name());
+  TEST_EQ(ConfigData::TYPE_DEF, MyConfig->Type());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->IpAddress());
+  TEST_EQ(ConfigData::STATE_DEF, MyConfig->AdminState());
 
   // Cleanup
   delete (MyConfig);
@@ -58,19 +58,19 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  InterfaceConfigData *MyConfig = new InterfaceConfigData;
+  ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyConfig->GetName());
-  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyConfig->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
-  TEST_EQ(InterfaceConfigData::STATE_DEF, MyConfig->GetState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->Name());
+  TEST_EQ(ConfigData::TYPE_DEF, MyConfig->Type());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->IpAddress());
+  TEST_EQ(ConfigData::STATE_DEF, MyConfig->AdminState());
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(InterfaceConfigData::ConfigNameDefault, MyInterface->GetName());
-  TEST_EQ(InterfaceConfigData::TYPE_DEF, MyInterface->GetType());
-  TEST_EQ(InterfaceConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-  TEST_EQ(InterfaceConfigData::STATE_DEF, MyInterface->GetState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->Name());
+  TEST_EQ(ConfigData::TYPE_DEF, MyInterface->Type());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->IpAddress());
+  TEST_EQ(ConfigData::STATE_DEF, MyInterface->AdminState());
 
   // Cleanup
   delete (MyInterface);

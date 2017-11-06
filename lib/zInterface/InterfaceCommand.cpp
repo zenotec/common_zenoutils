@@ -54,7 +54,7 @@ InterfaceCommand::~InterfaceCommand()
 ListCommand::ListCommand(Interface& if_) :
     InterfaceCommand(if_)
 {
-  std::string name = "if." + if_.GetName() + ".list";
+  std::string name = "if." + if_.Name() + ".list";
   this->SetName(name);
 }
 

@@ -33,15 +33,15 @@ zInterfaceTest_InterfaceFactory(void* arg)
 
   // Setup configuration object to mimic a InterfaceConfiguration configuration object
   zConfig::ConfigData config;
-  InterfaceConfigData iface;
+  ConfigData iface;
 
-  TEST_TRUE(iface.SetName(std::string("lo")));
-  TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_LOOP));
+  TEST_TRUE(iface.Name(std::string("lo")));
+  TEST_TRUE(iface.Type(ConfigData::TYPE_LOOP));
 
   TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
 
-  TEST_TRUE(iface.SetName(std::string("eth0")));
-  TEST_TRUE(iface.SetType(InterfaceConfigData::TYPE_WIRED));
+  TEST_TRUE(iface.Name(std::string("eth0")));
+  TEST_TRUE(iface.Type(ConfigData::TYPE_WIRED));
 
   TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
 

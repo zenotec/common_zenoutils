@@ -43,14 +43,14 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
   ZLOG_DEBUG(config_.GetJson());
 
   InterfaceTable ifaces;
-  InterfaceConfigPath path;
+  ConfigPath path;
   zConfig::ConfigData data;
 
-    for (int i = 0; i < config_(zInterface::InterfaceConfigPath::ConfigRoot).Size(); i++)
+    for (int i = 0; i < config_(zInterface::ConfigPath::ConfigRoot).Size(); i++)
     {
-      InterfaceConfigData config(config_(zInterface::InterfaceConfigPath::ConfigRoot)[i]);
+      ConfigData config(config_(zInterface::ConfigPath::ConfigRoot)[i]);
       SHARED_PTR(Interface)iface;
-      if (config.GetType() == InterfaceConfigData::TYPE_WIRELESS)
+      if (config.Type() == ConfigData::TYPE_WIRELESS)
       {
         iface = SHARED_PTR(Interface)(new WirelessInterface(config));
       }
@@ -58,7 +58,7 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
       {
         iface = SHARED_PTR(Interface)(new Interface(config));
       }
-      ifaces[iface->GetName()] = iface;
+//      ifaces[iface->Name()] = iface;
     }
 
   return (ifaces);

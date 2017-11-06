@@ -29,7 +29,7 @@ namespace zInterface
 // Class: WirelessConfigPath
 // ****************************************************************************
 
-class WirelessConfigPath : public InterfaceConfigPath
+class WirelessConfigPath : public ConfigPath
 {
 
 public:
@@ -182,7 +182,7 @@ public:
 
   WirelessInterface(const std::string &name_);
 
-  WirelessInterface(const InterfaceConfigData& config_);
+  WirelessInterface(const ConfigData& config_);
 
   virtual
   ~WirelessInterface();

@@ -37,25 +37,25 @@ namespace zInterface
 // Class: InterfaceConfigPath
 // ****************************************************************************
 
-const std::string InterfaceConfigPath::ConfigRoot("zInterface");
-const std::string InterfaceConfigPath::ConfigNamePath("Name");
-const std::string InterfaceConfigPath::ConfigTypePath("Type");
-const std::string InterfaceConfigPath::ConfigHwAddressPath("HwAddress");
-const std::string InterfaceConfigPath::ConfigIpAddressPath("IpAddress");
-const std::string InterfaceConfigPath::ConfigNetmaskPath("Netmask");
-const std::string InterfaceConfigPath::ConfigStatePath("State");
+const std::string ConfigPath::ConfigRoot("zInterface");
+const std::string ConfigPath::ConfigNamePath("Name");
+const std::string ConfigPath::ConfigTypePath("Type");
+const std::string ConfigPath::ConfigHwAddressPath("HwAddress");
+const std::string ConfigPath::ConfigIpAddressPath("IpAddress");
+const std::string ConfigPath::ConfigNetmaskPath("Netmask");
+const std::string ConfigPath::ConfigStatePath("State");
 
-InterfaceConfigPath::InterfaceConfigPath() :
+ConfigPath::ConfigPath() :
     zConfig::ConfigPath(ConfigRoot)
 {
 }
 
-InterfaceConfigPath::~InterfaceConfigPath()
+ConfigPath::~ConfigPath()
 {
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::Name() const
+ConfigPath::Name() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigNamePath);
@@ -63,7 +63,7 @@ InterfaceConfigPath::Name() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::Type() const
+ConfigPath::Type() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigTypePath);
@@ -71,7 +71,7 @@ InterfaceConfigPath::Type() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::HwAddress() const
+ConfigPath::HwAddress() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigHwAddressPath);
@@ -79,7 +79,7 @@ InterfaceConfigPath::HwAddress() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::IpAddress() const
+ConfigPath::IpAddress() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigIpAddressPath);
@@ -87,7 +87,7 @@ InterfaceConfigPath::IpAddress() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::Netmask() const
+ConfigPath::Netmask() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigNetmaskPath);
@@ -95,7 +95,7 @@ InterfaceConfigPath::Netmask() const
 }
 
 zConfig::ConfigPath
-InterfaceConfigPath::State() const
+ConfigPath::State() const
 {
   zConfig::ConfigPath path(*this);
   path.Append(ConfigStatePath);
@@ -106,38 +106,38 @@ InterfaceConfigPath::State() const
 // Class: InterfaceConfiguration
 // ****************************************************************************
 
-const std::string InterfaceConfigData::ConfigNameDefault("");
+const std::string ConfigData::ConfigNameDefault("");
 
-const std::string InterfaceConfigData::ConfigTypeNone("");
-const std::string InterfaceConfigData::ConfigTypeLoop("LOOP");
-const std::string InterfaceConfigData::ConfigTypeWired("WIRED");
-const std::string InterfaceConfigData::ConfigTypeWireless("WIRELESS");
-const std::string InterfaceConfigData::ConfigTypeOther("OTHER");
-const std::string InterfaceConfigData::ConfigTypeBond("BOND");
-const std::string InterfaceConfigData::ConfigTypeBridge("BRIDGE");
-const std::string InterfaceConfigData::ConfigTypeDefault(ConfigTypeNone);
+const std::string ConfigData::ConfigTypeNone("");
+const std::string ConfigData::ConfigTypeLoop("LOOP");
+const std::string ConfigData::ConfigTypeWired("WIRED");
+const std::string ConfigData::ConfigTypeWireless("WIRELESS");
+const std::string ConfigData::ConfigTypeOther("OTHER");
+const std::string ConfigData::ConfigTypeBond("BOND");
+const std::string ConfigData::ConfigTypeBridge("BRIDGE");
+const std::string ConfigData::ConfigTypeDefault(ConfigTypeNone);
 
-const std::string InterfaceConfigData::ConfigHwAddressDefault("");
+const std::string ConfigData::ConfigHwAddressDefault("");
 
-const std::string InterfaceConfigData::ConfigIpAddressDefault("");
+const std::string ConfigData::ConfigIpAddressDefault("");
 
-const std::string InterfaceConfigData::ConfigNetmaskDefault("");
+const std::string ConfigData::ConfigNetmaskDefault("");
 
-const std::string InterfaceConfigData::ConfigStateNone("");
-const std::string InterfaceConfigData::ConfigStateUp("UP");
-const std::string InterfaceConfigData::ConfigStateDown("DOWN");
-const std::string InterfaceConfigData::ConfigStateDefault(ConfigStateNone);
+const std::string ConfigData::ConfigStateNone("");
+const std::string ConfigData::ConfigStateUp("UP");
+const std::string ConfigData::ConfigStateDown("DOWN");
+const std::string ConfigData::ConfigStateDefault(ConfigStateNone);
 
-InterfaceConfigData::InterfaceConfigData() :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+ConfigData::ConfigData() :
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
 
-InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+ConfigData::ConfigData(const zData::Data& data_) :
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   this->PutChild(data_);
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(data_)");
@@ -145,8 +145,8 @@ InterfaceConfigData::InterfaceConfigData(const zData::Data& data_) :
   ZLOG_DEBUG(this->GetJson());
 }
 
-InterfaceConfigData::InterfaceConfigData(const zConfig::ConfigData& config_) :
-    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+ConfigData::ConfigData(const zConfig::ConfigData& config_) :
+    zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
   this->PutChild(config_.GetData());
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
@@ -154,7 +154,7 @@ InterfaceConfigData::InterfaceConfigData(const zConfig::ConfigData& config_) :
   ZLOG_DEBUG(this->GetJson());
 }
 
-InterfaceConfigData::InterfaceConfigData(const InterfaceConfigData& other_) :
+ConfigData::ConfigData(const ConfigData& other_) :
     zConfig::ConfigData(other_)
 {
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(other_)");
@@ -162,15 +162,15 @@ InterfaceConfigData::InterfaceConfigData(const InterfaceConfigData& other_) :
   ZLOG_DEBUG(this->GetJson());
 }
 
-InterfaceConfigData::~InterfaceConfigData()
+ConfigData::~ConfigData()
 {
 }
 
 std::string
-InterfaceConfigData::GetName() const
+ConfigData::Name() const
 {
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (!this->GetValue(path.Name(), str))
   {
     str = ConfigNameDefault;
@@ -179,83 +179,83 @@ InterfaceConfigData::GetName() const
 }
 
 bool
-InterfaceConfigData::SetName(const std::string& name_)
+ConfigData::Name(const std::string& name_)
 {
-  InterfaceConfigPath path;
+  ConfigPath path;
   return (this->PutValue(path.Name(), name_));
 }
 
-InterfaceConfigData::TYPE
-InterfaceConfigData::GetType() const
+ConfigData::TYPE
+ConfigData::Type() const
 {
-  InterfaceConfigData::TYPE type = InterfaceConfigData::TYPE_DEF;
+  ConfigData::TYPE type = ConfigData::TYPE_DEF;
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (this->GetValue(path.Type(), str))
   {
-    if (str == InterfaceConfigData::ConfigTypeNone)
+    if (str == ConfigData::ConfigTypeNone)
     {
-      type = InterfaceConfigData::TYPE_NONE;
+      type = ConfigData::TYPE_NONE;
     }
-    else if (str == InterfaceConfigData::ConfigTypeLoop)
+    else if (str == ConfigData::ConfigTypeLoop)
     {
-      type = InterfaceConfigData::TYPE_LOOP;
+      type = ConfigData::TYPE_LOOP;
     }
-    else if (str == InterfaceConfigData::ConfigTypeWired)
+    else if (str == ConfigData::ConfigTypeWired)
     {
-      type = InterfaceConfigData::TYPE_WIRED;
+      type = ConfigData::TYPE_WIRED;
     }
-    else if (str == InterfaceConfigData::ConfigTypeWireless)
+    else if (str == ConfigData::ConfigTypeWireless)
     {
-      type = InterfaceConfigData::TYPE_WIRELESS;
+      type = ConfigData::TYPE_WIRELESS;
     }
-    else if (str == InterfaceConfigData::ConfigTypeOther)
+    else if (str == ConfigData::ConfigTypeOther)
     {
-      type = InterfaceConfigData::TYPE_OTHER;
+      type = ConfigData::TYPE_OTHER;
     }
-    else if (str == InterfaceConfigData::ConfigTypeBond)
+    else if (str == ConfigData::ConfigTypeBond)
     {
-      type = InterfaceConfigData::TYPE_BOND;
+      type = ConfigData::TYPE_BOND;
     }
-    else if (str == InterfaceConfigData::ConfigTypeBridge)
+    else if (str == ConfigData::ConfigTypeBridge)
     {
-      type = InterfaceConfigData::TYPE_BRIDGE;
+      type = ConfigData::TYPE_BRIDGE;
     }
     else
     {
-      type = InterfaceConfigData::TYPE_ERR;
+      type = ConfigData::TYPE_ERR;
     }
   }
   return (type);
 }
 
 bool
-InterfaceConfigData::SetType(const InterfaceConfigData::TYPE type_)
+ConfigData::Type(const ConfigData::TYPE type_)
 {
   bool status = true;
-  InterfaceConfigPath path;
+  ConfigPath path;
   std::string str;
   switch (type_)
   {
-  case InterfaceConfigData::TYPE_NONE:
+  case ConfigData::TYPE_NONE:
     str = ConfigTypeNone;
     break;
-  case InterfaceConfigData::TYPE_LOOP:
+  case ConfigData::TYPE_LOOP:
     str = ConfigTypeLoop;
     break;
-  case InterfaceConfigData::TYPE_WIRED:
+  case ConfigData::TYPE_WIRED:
     str = ConfigTypeWired;
     break;
-  case InterfaceConfigData::TYPE_WIRELESS:
+  case ConfigData::TYPE_WIRELESS:
     str = ConfigTypeWireless;
     break;
-  case InterfaceConfigData::TYPE_OTHER:
+  case ConfigData::TYPE_OTHER:
     str = ConfigTypeOther;
     break;
-  case InterfaceConfigData::TYPE_BOND:
+  case ConfigData::TYPE_BOND:
     str = ConfigTypeBond;
     break;
-  case InterfaceConfigData::TYPE_BRIDGE:
+  case ConfigData::TYPE_BRIDGE:
     str = ConfigTypeBridge;
     break;
   default:
@@ -265,10 +265,10 @@ InterfaceConfigData::SetType(const InterfaceConfigData::TYPE type_)
 }
 
 std::string
-InterfaceConfigData::GetHwAddress() const
+ConfigData::HwAddress() const
 {
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (!this->GetValue(path.HwAddress(), str))
   {
     str = ConfigHwAddressDefault;
@@ -277,17 +277,17 @@ InterfaceConfigData::GetHwAddress() const
 }
 
 bool
-InterfaceConfigData::SetHwAddress(const std::string& addr_)
+ConfigData::HwAddress(const std::string& addr_)
 {
-  InterfaceConfigPath path;
+  ConfigPath path;
   return (this->PutValue(path.HwAddress(), addr_));
 }
 
 std::string
-InterfaceConfigData::GetIpAddress() const
+ConfigData::IpAddress() const
 {
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (!this->GetValue(path.IpAddress(), str))
   {
     str = ConfigIpAddressDefault;
@@ -296,17 +296,17 @@ InterfaceConfigData::GetIpAddress() const
 }
 
 bool
-InterfaceConfigData::SetIpAddress(const std::string& addr_)
+ConfigData::IpAddress(const std::string& addr_)
 {
-  InterfaceConfigPath path;
+  ConfigPath path;
   return (this->PutValue(path.IpAddress(), addr_));
 }
 
 std::string
-InterfaceConfigData::GetNetmask() const
+ConfigData::Netmask() const
 {
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (!this->GetValue(path.Netmask(), str))
   {
     str = ConfigNetmaskDefault;
@@ -315,58 +315,58 @@ InterfaceConfigData::GetNetmask() const
 }
 
 bool
-InterfaceConfigData::SetNetmask(const std::string& addr_)
+ConfigData::Netmask(const std::string& addr_)
 {
-  InterfaceConfigPath path;
+  ConfigPath path;
   return (this->PutValue(path.Netmask(), addr_));
 }
 
-InterfaceConfigData::STATE
-InterfaceConfigData::GetState() const
+ConfigData::STATE
+ConfigData::AdminState() const
 {
-  InterfaceConfigData::STATE state = InterfaceConfigData::STATE_DEF;
+  ConfigData::STATE state = ConfigData::STATE_DEF;
   std::string str;
-  InterfaceConfigPath path;
+  ConfigPath path;
   if (this->GetValue(path.State(), str))
   {
-    if (str == InterfaceConfigData::ConfigStateUp)
+    if (str == ConfigData::ConfigStateUp)
     {
-      state = InterfaceConfigData::STATE_UP;
+      state = ConfigData::STATE_UP;
     }
-    else if (str == InterfaceConfigData::ConfigStateDown)
+    else if (str == ConfigData::ConfigStateDown)
     {
-      state = InterfaceConfigData::STATE_DOWN;
+      state = ConfigData::STATE_DOWN;
     }
-    else if (str == InterfaceConfigData::ConfigStateNone)
+    else if (str == ConfigData::ConfigStateNone)
     {
-      state = InterfaceConfigData::STATE_NONE;
+      state = ConfigData::STATE_NONE;
     }
     else
     {
-      state = InterfaceConfigData::STATE_ERR;
+      state = ConfigData::STATE_ERR;
     }
   }
   return (state);
 }
 
 bool
-InterfaceConfigData::SetState(const InterfaceConfigData::STATE state_)
+ConfigData::AdminState(const ConfigData::STATE state_)
 {
   bool status = true;
-  InterfaceConfigPath path;
+  ConfigPath path;
   std::string str;
   switch (state_)
   {
-  case InterfaceConfigData::STATE_UP:
+  case ConfigData::STATE_UP:
     str = ConfigStateUp;
     break;
-  case InterfaceConfigData::STATE_DOWN:
+  case ConfigData::STATE_DOWN:
     str = ConfigStateDown;
     break;
-  case InterfaceConfigData::STATE_NONE:
+  case ConfigData::STATE_NONE:
     str = ConfigStateDefault;
     break;
-  case InterfaceConfigData::STATE_UNKNOWN:
+  case ConfigData::STATE_UNKNOWN:
     // No break
   default:
     status = false;
