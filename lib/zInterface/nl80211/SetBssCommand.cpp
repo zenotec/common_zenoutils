@@ -18,12 +18,13 @@
 // libc includes
 #include <stdlib.h>
 #include <net/if.h>
-#include <linux/nl80211.h>
+#include <linux/netlink.h>
 #include <netlink/netlink.h>
 #include <netlink/msg.h>
 #include <netlink/attr.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
+#include <linux/nl80211.h>
 
 // libc++ includes
 #include <iostream>
@@ -96,6 +97,10 @@ SetBssCommand::Exec()
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_BSS);
   cmdmsg.PutAttribute(&this->IfIndex);
+  cmdmsg.PutAttribute(&this->BeaconInterval);
+  cmdmsg.PutAttribute(&this->DtimPeriod);
+  cmdmsg.PutAttribute(&this->BeaconHead);
+  cmdmsg.PutAttribute(&this->BeaconTail);
   this->_sock.SendMsg(cmdmsg);
   this->_sock.RecvMsg();
   this->_sock.Disconnect();

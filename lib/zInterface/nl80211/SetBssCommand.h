@@ -19,6 +19,9 @@
 #define __NL80211_SETBSSCOMMAND_H__
 
 // libc includes
+#include <linux/netlink.h>
+#include <netlink/netlink.h>
+#include <netlink/msg.h>
 
 // libc++ includes
 #include <string>
@@ -36,10 +39,14 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
-#include "PhyIndexAttribute.h"
 #include "IfIndexAttribute.h"
 #include "IfNameAttribute.h"
 #include "SsidAttribute.h"
+#include "BeaconIntervalAttribute.h"
+#include "DtimPeriodAttribute.h"
+#include "BeaconHeadAttribute.h"
+#include "BeaconTailAttribute.h"
+using namespace nl80211;
 
 namespace nl80211
 {
@@ -56,6 +63,10 @@ public:
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
   SsidAttribute Ssid;
+  BeaconIntervalAttribute BeaconInterval;
+  DtimPeriodAttribute DtimPeriod;
+  BeaconHeadAttribute BeaconHead;
+  BeaconTailAttribute BeaconTail;
 
   SetBssCommand(int index_ = 0);
 

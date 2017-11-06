@@ -98,6 +98,8 @@ SetBeaconCommand::Exec()
   cmdmsg.PutAttribute(&this->IfIndex);
   cmdmsg.PutAttribute(&this->BeaconInterval);
   cmdmsg.PutAttribute(&this->DtimPeriod);
+  cmdmsg.PutAttribute(&this->BeaconHead);
+  cmdmsg.PutAttribute(&this->BeaconTail);
   this->_sock.SendMsg(cmdmsg);
   this->_sock.RecvMsg();
   this->_sock.Disconnect();

@@ -41,6 +41,8 @@ using namespace netlink;
 #include "SsidAttribute.h"
 #include "BeaconIntervalAttribute.h"
 #include "DtimPeriodAttribute.h"
+#include "BeaconHeadAttribute.h"
+#include "BeaconTailAttribute.h"
 
 namespace nl80211
 {
@@ -59,6 +61,8 @@ public:
   SsidAttribute Ssid;
   BeaconIntervalAttribute BeaconInterval;
   DtimPeriodAttribute DtimPeriod;
+  BeaconHeadAttribute BeaconHead;
+  BeaconTailAttribute BeaconTail;
 
   SetBeaconCommand(int index_ = 0);
 
