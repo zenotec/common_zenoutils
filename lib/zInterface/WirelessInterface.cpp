@@ -45,6 +45,15 @@
 #include <zutils/zInterface.h>
 #include <zutils/zWirelessInterface.h>
 
+// local includes
+
+#include "GetPhyCommand.h"
+#include "GetInterfaceCommand.h"
+#include "SetInterfaceCommand.h"
+#include "NewInterfaceCommand.h"
+#include "DelInterfaceCommand.h"
+using namespace nl80211;
+
 namespace zUtils
 {
 namespace zInterface
@@ -500,6 +509,7 @@ _is_associated(const std::string &name_)
 // Class: WirelessConfigPath
 // ****************************************************************************
 
+const std::string WirelessConfigPath::ConfigPhyIndexPath("PhyIndex");
 const std::string WirelessConfigPath::ConfigPhyNamePath("PhyName");
 const std::string WirelessConfigPath::ConfigBssidPath("Bssid");
 const std::string WirelessConfigPath::ConfigEssidPath("Essid");
@@ -513,6 +523,14 @@ WirelessConfigPath::WirelessConfigPath()
 
 WirelessConfigPath::~WirelessConfigPath()
 {
+}
+
+zConfig::ConfigPath
+WirelessConfigPath::PhyIndex() const
+{
+  zConfig::ConfigPath path(*this);
+  path.Append(ConfigPhyIndexPath);
+  return (path);
 }
 
 zConfig::ConfigPath
@@ -564,9 +582,148 @@ WirelessConfigPath::TxPower() const
 }
 
 // ****************************************************************************
+// Class: WirelessConfigData
+// ****************************************************************************
+
+const std::string WirelessConfigData::ConfigTypeNone("");
+const std::string WirelessConfigData::ConfigTypeA("A");
+const std::string WirelessConfigData::ConfigTypeB("B");
+const std::string WirelessConfigData::ConfigTypeG("G");
+const std::string WirelessConfigData::ConfigTypeN("N");
+const std::string WirelessConfigData::ConfigTypeAC("AC");
+const std::string WirelessConfigData::ConfigTypeAD("AD");
+const std::string WirelessConfigData::ConfigTypeAX("AX");
+const std::string WirelessConfigData::ConfigTypeDefault(ConfigTypeNone);
+
+WirelessConfigData::WirelessConfigData() :
+    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+{
+  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData()");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+WirelessConfigData::WirelessConfigData(const zData::Data& data_) :
+    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+{
+  this->PutChild(data_);
+  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(data_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+WirelessConfigData::WirelessConfigData(const zConfig::ConfigData& config_) :
+    zConfig::ConfigData(InterfaceConfigPath::ConfigRoot)
+{
+  this->PutChild(config_.GetData());
+  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(config_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+WirelessConfigData::WirelessConfigData(const WirelessConfigData& other_) :
+    zConfig::ConfigData(other_)
+{
+  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(other_)");
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
+}
+
+WirelessConfigData::~WirelessConfigData()
+{
+}
+
+WirelessConfigData::TYPE
+WirelessConfigData::GetType() const
+{
+  WirelessConfigData::TYPE type = WirelessConfigData::TYPE_DEF;
+  std::string str;
+  InterfaceConfigPath path;
+  if (this->GetValue(path.Type(), str))
+  {
+    if (str == WirelessConfigData::ConfigTypeNone)
+    {
+      type = WirelessConfigData::TYPE_NONE;
+    }
+    else if (str == WirelessConfigData::ConfigTypeA)
+    {
+      type = WirelessConfigData::TYPE_A;
+    }
+    else if (str == WirelessConfigData::ConfigTypeB)
+    {
+      type = WirelessConfigData::TYPE_B;
+    }
+    else if (str == WirelessConfigData::ConfigTypeG)
+    {
+      type = WirelessConfigData::TYPE_G;
+    }
+    else if (str == WirelessConfigData::ConfigTypeN)
+    {
+      type = WirelessConfigData::TYPE_N;
+    }
+    else if (str == WirelessConfigData::ConfigTypeAC)
+    {
+      type = WirelessConfigData::TYPE_AC;
+    }
+    else if (str == WirelessConfigData::ConfigTypeAD)
+    {
+      type = WirelessConfigData::TYPE_AD;
+    }
+    else if (str == WirelessConfigData::ConfigTypeAX)
+    {
+      type = WirelessConfigData::TYPE_AX;
+    }
+    else
+    {
+      type = WirelessConfigData::TYPE_ERR;
+    }
+  }
+  return (type);
+}
+
+bool
+WirelessConfigData::SetType(const WirelessConfigData::TYPE type_)
+{
+  bool status = true;
+  InterfaceConfigPath path;
+  std::string str;
+  switch (type_)
+  {
+  case WirelessConfigData::TYPE_NONE:
+    str = ConfigTypeNone;
+    break;
+  case WirelessConfigData::TYPE_A:
+    str = ConfigTypeA;
+    break;
+  case WirelessConfigData::TYPE_B:
+    str = ConfigTypeB;
+    break;
+  case WirelessConfigData::TYPE_G:
+    str = ConfigTypeG;
+    break;
+  case WirelessConfigData::TYPE_N:
+    str = ConfigTypeN;
+    break;
+  case WirelessConfigData::TYPE_AC:
+    str = ConfigTypeAC;
+    break;
+  case WirelessConfigData::TYPE_AD:
+    str = ConfigTypeAD;
+    break;
+  case WirelessConfigData::TYPE_AX:
+    str = ConfigTypeAX;
+    break;
+  default:
+    status = false;
+  }
+  return (this->PutValue(path.Type(), str));
+}
+
+// ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
 
+const int WirelessInterface::ConfigPhyIndexDefault(0);
 const std::string WirelessInterface::ConfigPhyNameDefault("");
 const std::string WirelessInterface::ConfigBssidDefault("");
 const std::string WirelessInterface::ConfigEssidDefault("");
@@ -597,18 +754,23 @@ WirelessInterface::Refresh()
 
   bool status = false;
   const std::string name(this->GetName());
+  nl80211::GetInterfaceCommand getifacecmd(name);
 
-  this->_lock.Lock();
-
-  // Initialize
-  this->_associated = false;
-  this->_link_quality = -1;
-  this->_signal_level = 0;
-  this->_noise_level = -1;
-  this->_bit_rate = -1;
-
-  if (Interface::Refresh())
+  if (!Interface::Refresh() || !getifacecmd.Exec())
   {
+    return(false);
+  }
+
+  nl80211::GetPhyCommand getphycmd(getifacecmd.PhyIndex());
+
+  if (getphycmd.Exec() && this->_lock.Lock())
+  {
+    // Initialize
+    this->_associated = false;
+    this->_link_quality = -1;
+    this->_signal_level = 0;
+    this->_noise_level = -1;
+    this->_bit_rate = -1;
 
     // Get wireless parameters
     this->_iw_name = _get_iwname(name);
@@ -648,11 +810,26 @@ WirelessInterface::Refresh()
       }
     }
     status = true;
+
+    this->_lock.Unlock();
   }
 
-  this->_lock.Unlock();
 
   return (status);
+}
+
+bool
+WirelessInterface::Create()
+{
+  bool status = false;
+  return(status);
+}
+
+bool
+WirelessInterface::Destroy()
+{
+  bool status = false;
+  return(status);
 }
 
 void

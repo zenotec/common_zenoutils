@@ -44,7 +44,7 @@
 
 // local includes
 
-#include "netlink/GetLinkCommand.h"
+#include "GetLinkCommand.h"
 
 namespace zUtils
 {
@@ -171,16 +171,11 @@ Interface::Interface(const InterfaceConfigData& config_) :
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
   this->_lock.Unlock();
-  this->Refresh();
-  this->_timer.RegisterObserver(this);
-  this->_timer.Start(INTERFACE_REFRESH_PERIOD_USEC);
 }
 
 Interface::~Interface()
 {
   this->_lock.Lock();
-  this->_timer.Stop();
-  this->_timer.UnregisterObserver(this);
 }
 
 bool
@@ -274,21 +269,6 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "Address:\t" << this->GetIpAddress() << std::endl;
   std::cout << prefix_ << "Netmask:\t" << this->GetNetmask() << std::endl;
   std::cout << prefix_ << "State:  \t" << this->GetState() << std::endl;
-}
-
-bool
-Interface::EventHandler(zEvent::EventNotification* notification_)
-{
-  bool status = false;
-  zTimer::TimerNotification *n = NULL;
-
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
-  {
-    status = this->Refresh();
-  }
-
-  return (status);
-
 }
 
 }

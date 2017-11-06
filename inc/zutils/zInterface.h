@@ -211,10 +211,7 @@ private:
 // Class: Interface
 // ****************************************************************************
 
-#define INTERFACE_REFRESH_PERIOD_HZ     (1)
-#define INTERFACE_REFRESH_PERIOD_USEC	(1000000 / INTERFACE_REFRESH_PERIOD_HZ)
-
-class Interface : public InterfaceConfigData, public zEvent::Event, public zEvent::EventObserver
+class Interface : public InterfaceConfigData, public zEvent::Event
 {
 
 public:
@@ -244,13 +241,9 @@ public:
 
 protected:
 
-  virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
-
 private:
 
   zSem::Mutex _lock;
-  zTimer::Timer _timer;
 
   bool _refreshed;
   int _index;

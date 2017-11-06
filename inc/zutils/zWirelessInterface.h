@@ -34,17 +34,23 @@ class WirelessConfigPath : public InterfaceConfigPath
 
 public:
 
+  static const std::string ConfigPhyIndexPath;
   static const std::string ConfigPhyNamePath;
   static const std::string ConfigBssidPath;
   static const std::string ConfigEssidPath;
   static const std::string ConfigSsidPath;
   static const std::string ConfigChannelPath;
+  static const std::string ConfigChannelWidthPath;
+  static const std::string ConfigChannelTypePath;
   static const std::string ConfigTxPowerPath;
 
   WirelessConfigPath();
 
   virtual
   ~WirelessConfigPath();
+
+  zConfig::ConfigPath
+  PhyIndex() const;
 
   zConfig::ConfigPath
   PhyName() const;
@@ -62,6 +68,12 @@ public:
   Channel() const;
 
   zConfig::ConfigPath
+  ChannelWidth() const;
+
+  zConfig::ConfigPath
+  ChannelType() const;
+
+  zConfig::ConfigPath
   TxPower() const;
 
 protected:
@@ -71,6 +83,64 @@ private:
 };
 
 // ****************************************************************************
+// Class: WirelessConfigData
+// ****************************************************************************
+
+class WirelessConfigData : public zConfig::ConfigData
+{
+
+public:
+
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_DEF = 0,
+    TYPE_A = 1,
+    TYPE_B = 2,
+    TYPE_G = 3,
+    TYPE_N = 4,
+    TYPE_AC = 5,
+    TYPE_AD = 6,
+    TYPE_AX = 7,
+    TYPE_LAST
+  };
+
+  static const std::string ConfigTypeNone;
+  static const std::string ConfigTypeA;
+  static const std::string ConfigTypeB;
+  static const std::string ConfigTypeG;
+  static const std::string ConfigTypeN;
+  static const std::string ConfigTypeAC;
+  static const std::string ConfigTypeAD;
+  static const std::string ConfigTypeAX;
+  static const std::string ConfigTypeDefault;
+
+  WirelessConfigData();
+
+  WirelessConfigData(const zData::Data& data_);
+
+  WirelessConfigData(const zConfig::ConfigData& config_);
+
+  WirelessConfigData(const WirelessConfigData& other_);
+
+  virtual
+  ~WirelessConfigData();
+
+  WirelessConfigData::TYPE
+  GetType() const;
+
+  bool
+  SetType(const WirelessConfigData::TYPE type_);
+
+protected:
+
+private:
+
+};
+
+
+// ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
 
@@ -78,6 +148,7 @@ class WirelessInterface : public Interface
 {
 public:
 
+  static const int ConfigPhyIndexDefault;
   static const std::string ConfigPhyNameDefault;
   static const std::string ConfigBssidDefault;
   static const std::string ConfigEssidDefault;
@@ -94,6 +165,12 @@ public:
 
   virtual bool
   Refresh();
+
+  virtual bool
+  Create();
+
+  virtual bool
+  Destroy();
 
   std::string
   IwName();

@@ -9,7 +9,7 @@ CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS)
+AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS) -I$(srcdir) -I$(srcdir)/netlink -I$(srcdir)/nl80211
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 noinst_LTLIBRARIES = libzInterface.la
