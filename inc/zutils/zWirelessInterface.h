@@ -36,6 +36,7 @@ public:
 
   static const std::string ConfigPhyIndexPath;
   static const std::string ConfigPhyNamePath;
+  static const std::string ConfigModePath;
   static const std::string ConfigBssidPath;
   static const std::string ConfigEssidPath;
   static const std::string ConfigSsidPath;
@@ -54,6 +55,9 @@ public:
 
   zConfig::ConfigPath
   PhyName() const;
+
+  zConfig::ConfigPath
+  Mode() const;
 
   zConfig::ConfigPath
   Bssid() const;
@@ -106,6 +110,15 @@ public:
     TYPE_LAST
   };
 
+  enum MODE
+  {
+    MODE_ERR = -1,
+    MODE_NONE = 0,
+    MODE_STA = 1,
+    MODE_AP = 2,
+    MODE_LAST
+  };
+
   static const std::string ConfigTypeNone;
   static const std::string ConfigTypeA;
   static const std::string ConfigTypeB;
@@ -115,6 +128,11 @@ public:
   static const std::string ConfigTypeAD;
   static const std::string ConfigTypeAX;
   static const std::string ConfigTypeDefault;
+
+  static const std::string ConfigModeNone;
+  static const std::string ConfigModeSTA;
+  static const std::string ConfigModeAP;
+  static const std::string ConfigModeDefault;
 
   WirelessConfigData();
 
@@ -132,6 +150,12 @@ public:
 
   bool
   SetType(const WirelessConfigData::TYPE type_);
+
+  WirelessConfigData::MODE
+  GetMode() const;
+
+  bool
+  SetMode(const WirelessConfigData::MODE mode_);
 
 protected:
 
