@@ -34,18 +34,34 @@ namespace zInterface
 {
 
 // ****************************************************************************
-// Class: InterfaceConfigPath
+// Class: ConfigPath
 // ****************************************************************************
 
 const std::string ConfigPath::ConfigRoot("zInterface");
 const std::string ConfigPath::ConfigNamePath("Name");
 const std::string ConfigPath::ConfigTypePath("Type");
 const std::string ConfigPath::ConfigHwAddressPath("HwAddress");
+const std::string ConfigPath::ConfigMtuPath("MTU");
 const std::string ConfigPath::ConfigIpAddressPath("IpAddress");
+const std::string ConfigPath::ConfigBroadcastPath("Broadcast");
 const std::string ConfigPath::ConfigNetmaskPath("Netmask");
-const std::string ConfigPath::ConfigStatePath("State");
+const std::string ConfigPath::ConfigAdminStatePath("AdminState");
 
-ConfigPath::ConfigPath() :
+ConfigPath::ConfigPath(const std::string& root_) :
+    zConfig::ConfigPath(ConfigRoot)
+{
+  if (!root_.empty())
+  {
+    this->Append(root_);
+  }
+}
+
+ConfigPath::ConfigPath(const ConfigPath& other_) :
+    zConfig::ConfigPath(other_)
+{
+}
+
+ConfigPath::ConfigPath(const zData::DataPath& path_) :
     zConfig::ConfigPath(ConfigRoot)
 {
 }
@@ -54,56 +70,8 @@ ConfigPath::~ConfigPath()
 {
 }
 
-zConfig::ConfigPath
-ConfigPath::Name() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigNamePath);
-  return (path);
-}
-
-zConfig::ConfigPath
-ConfigPath::Type() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigTypePath);
-  return (path);
-}
-
-zConfig::ConfigPath
-ConfigPath::HwAddress() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigHwAddressPath);
-  return (path);
-}
-
-zConfig::ConfigPath
-ConfigPath::IpAddress() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigIpAddressPath);
-  return (path);
-}
-
-zConfig::ConfigPath
-ConfigPath::Netmask() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigNetmaskPath);
-  return (path);
-}
-
-zConfig::ConfigPath
-ConfigPath::State() const
-{
-  zConfig::ConfigPath path(*this);
-  path.Append(ConfigStatePath);
-  return (path);
-}
-
 // ****************************************************************************
-// Class: InterfaceConfiguration
+// Class: ConfigData
 // ****************************************************************************
 
 const std::string ConfigData::ConfigNameDefault("");
@@ -119,14 +87,18 @@ const std::string ConfigData::ConfigTypeDefault(ConfigTypeNone);
 
 const std::string ConfigData::ConfigHwAddressDefault("");
 
+const unsigned int ConfigData::ConfigMtuDefault(1500);
+
 const std::string ConfigData::ConfigIpAddressDefault("");
+
+const std::string ConfigData::ConfigBroadcastDefault("255.255.255.0");
 
 const std::string ConfigData::ConfigNetmaskDefault("");
 
-const std::string ConfigData::ConfigStateNone("");
-const std::string ConfigData::ConfigStateUp("UP");
-const std::string ConfigData::ConfigStateDown("DOWN");
-const std::string ConfigData::ConfigStateDefault(ConfigStateNone);
+const std::string ConfigData::ConfigAdminStateNone("");
+const std::string ConfigData::ConfigAdminStateUp("UP");
+const std::string ConfigData::ConfigAdminStateDown("DOWN");
+const std::string ConfigData::ConfigAdminStateDefault(ConfigAdminStateNone);
 
 ConfigData::ConfigData() :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
@@ -170,8 +142,8 @@ std::string
 ConfigData::Name() const
 {
   std::string str;
-  ConfigPath path;
-  if (!this->GetValue(path.Name(), str))
+  ConfigPath path(ConfigPath::ConfigNamePath);
+  if (!this->GetValue(path, str))
   {
     str = ConfigNameDefault;
   }
@@ -181,95 +153,35 @@ ConfigData::Name() const
 bool
 ConfigData::Name(const std::string& name_)
 {
-  ConfigPath path;
-  return (this->PutValue(path.Name(), name_));
+  ConfigPath path(ConfigPath::ConfigNamePath);
+  return (this->PutValue(path, name_));
 }
 
-ConfigData::TYPE
+std::string
 ConfigData::Type() const
 {
-  ConfigData::TYPE type = ConfigData::TYPE_DEF;
   std::string str;
-  ConfigPath path;
-  if (this->GetValue(path.Type(), str))
+  ConfigPath path(ConfigPath::ConfigTypePath);
+  if (!this->GetValue(path, str))
   {
-    if (str == ConfigData::ConfigTypeNone)
-    {
-      type = ConfigData::TYPE_NONE;
-    }
-    else if (str == ConfigData::ConfigTypeLoop)
-    {
-      type = ConfigData::TYPE_LOOP;
-    }
-    else if (str == ConfigData::ConfigTypeWired)
-    {
-      type = ConfigData::TYPE_WIRED;
-    }
-    else if (str == ConfigData::ConfigTypeWireless)
-    {
-      type = ConfigData::TYPE_WIRELESS;
-    }
-    else if (str == ConfigData::ConfigTypeOther)
-    {
-      type = ConfigData::TYPE_OTHER;
-    }
-    else if (str == ConfigData::ConfigTypeBond)
-    {
-      type = ConfigData::TYPE_BOND;
-    }
-    else if (str == ConfigData::ConfigTypeBridge)
-    {
-      type = ConfigData::TYPE_BRIDGE;
-    }
-    else
-    {
-      type = ConfigData::TYPE_ERR;
-    }
+    str = ConfigTypeDefault;
   }
-  return (type);
+  return (str);
 }
 
 bool
-ConfigData::Type(const ConfigData::TYPE type_)
+ConfigData::Type(const std::string& type_)
 {
-  bool status = true;
-  ConfigPath path;
-  std::string str;
-  switch (type_)
-  {
-  case ConfigData::TYPE_NONE:
-    str = ConfigTypeNone;
-    break;
-  case ConfigData::TYPE_LOOP:
-    str = ConfigTypeLoop;
-    break;
-  case ConfigData::TYPE_WIRED:
-    str = ConfigTypeWired;
-    break;
-  case ConfigData::TYPE_WIRELESS:
-    str = ConfigTypeWireless;
-    break;
-  case ConfigData::TYPE_OTHER:
-    str = ConfigTypeOther;
-    break;
-  case ConfigData::TYPE_BOND:
-    str = ConfigTypeBond;
-    break;
-  case ConfigData::TYPE_BRIDGE:
-    str = ConfigTypeBridge;
-    break;
-  default:
-    status = false;
-  }
-  return (this->PutValue(path.Type(), str));
+  ConfigPath path(ConfigPath::ConfigTypePath);
+  return (this->PutValue(path, type_));
 }
 
 std::string
 ConfigData::HwAddress() const
 {
   std::string str;
-  ConfigPath path;
-  if (!this->GetValue(path.HwAddress(), str))
+  ConfigPath path(ConfigPath::ConfigHwAddressPath);
+  if (!this->GetValue(path, str))
   {
     str = ConfigHwAddressDefault;
   }
@@ -279,16 +191,35 @@ ConfigData::HwAddress() const
 bool
 ConfigData::HwAddress(const std::string& addr_)
 {
-  ConfigPath path;
-  return (this->PutValue(path.HwAddress(), addr_));
+  ConfigPath path(ConfigPath::ConfigHwAddressPath);
+  return (this->PutValue(path, addr_));
+}
+
+unsigned int
+ConfigData::Mtu() const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigMtuPath);
+  if (!this->GetValue<unsigned int>(path, val))
+  {
+    val = ConfigMtuDefault;
+  }
+  return (val);
+}
+
+bool
+ConfigData::Mtu(const unsigned int mtu_)
+{
+  ConfigPath path(ConfigPath::ConfigMtuPath);
+  return (this->PutValue(path, mtu_));
 }
 
 std::string
 ConfigData::IpAddress() const
 {
   std::string str;
-  ConfigPath path;
-  if (!this->GetValue(path.IpAddress(), str))
+  ConfigPath path(ConfigPath::ConfigIpAddressPath);
+  if (!this->GetValue(path, str))
   {
     str = ConfigIpAddressDefault;
   }
@@ -298,16 +229,35 @@ ConfigData::IpAddress() const
 bool
 ConfigData::IpAddress(const std::string& addr_)
 {
-  ConfigPath path;
-  return (this->PutValue(path.IpAddress(), addr_));
+  ConfigPath path(ConfigPath::ConfigIpAddressPath);
+  return (this->PutValue(path, addr_));
+}
+
+std::string
+ConfigData::Broadcast() const
+{
+  std::string str;
+  ConfigPath path(ConfigPath::ConfigBroadcastPath);
+  if (!this->GetValue(path, str))
+  {
+    str = ConfigBroadcastDefault;
+  }
+  return (str);
+}
+
+bool
+ConfigData::Broadcast(const std::string& addr_)
+{
+  ConfigPath path(ConfigPath::ConfigBroadcastPath);
+  return (this->PutValue(path, addr_));
 }
 
 std::string
 ConfigData::Netmask() const
 {
   std::string str;
-  ConfigPath path;
-  if (!this->GetValue(path.Netmask(), str))
+  ConfigPath path(ConfigPath::ConfigNetmaskPath);
+  if (!this->GetValue(path, str))
   {
     str = ConfigNetmaskDefault;
   }
@@ -317,61 +267,27 @@ ConfigData::Netmask() const
 bool
 ConfigData::Netmask(const std::string& addr_)
 {
-  ConfigPath path;
-  return (this->PutValue(path.Netmask(), addr_));
+  ConfigPath path(ConfigPath::ConfigNetmaskPath);
+  return (this->PutValue(path, addr_));
 }
 
-ConfigData::STATE
+std::string
 ConfigData::AdminState() const
 {
-  ConfigData::STATE state = ConfigData::STATE_DEF;
   std::string str;
-  ConfigPath path;
-  if (this->GetValue(path.State(), str))
+  ConfigPath path(ConfigPath::ConfigAdminStatePath);
+  if (!this->GetValue(path, str))
   {
-    if (str == ConfigData::ConfigStateUp)
-    {
-      state = ConfigData::STATE_UP;
-    }
-    else if (str == ConfigData::ConfigStateDown)
-    {
-      state = ConfigData::STATE_DOWN;
-    }
-    else if (str == ConfigData::ConfigStateNone)
-    {
-      state = ConfigData::STATE_NONE;
-    }
-    else
-    {
-      state = ConfigData::STATE_ERR;
-    }
+    str = ConfigAdminStateDefault;
   }
-  return (state);
+  return (str);
 }
 
 bool
-ConfigData::AdminState(const ConfigData::STATE state_)
+ConfigData::AdminState(const std::string& state_)
 {
-  bool status = true;
-  ConfigPath path;
-  std::string str;
-  switch (state_)
-  {
-  case ConfigData::STATE_UP:
-    str = ConfigStateUp;
-    break;
-  case ConfigData::STATE_DOWN:
-    str = ConfigStateDown;
-    break;
-  case ConfigData::STATE_NONE:
-    str = ConfigStateDefault;
-    break;
-  case ConfigData::STATE_UNKNOWN:
-    // No break
-  default:
-    status = false;
-  }
-  return (this->PutValue(path.State(), str));
+  ConfigPath path(ConfigPath::ConfigAdminStatePath);
+  return (this->PutValue(path, state_));
 }
 
 

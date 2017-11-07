@@ -64,6 +64,7 @@ libzutils_la_HEADERS = \
     $(top_srcdir)/inc/zutils/zMath.h \
     $(top_srcdir)/inc/zutils/zMessage.h \
     $(top_srcdir)/inc/zutils/zMessageSocket.h \
+    $(top_srcdir)/inc/zutils/zMonitorInterface.h \
     $(top_srcdir)/inc/zutils/zNode.h \
     $(top_srcdir)/inc/zutils/zProgram.h \
     $(top_srcdir)/inc/zutils/zQueue.h \

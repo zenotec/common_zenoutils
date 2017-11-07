@@ -31,23 +31,23 @@ zInterfaceTest_InterfaceFactory(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceFactory()");
   ZLOG_DEBUG("#############################################################");
 
-  // Setup configuration object to mimic a InterfaceConfiguration configuration object
-  zConfig::ConfigData config;
-  ConfigData iface;
+//  // Setup configuration object to mimic a InterfaceConfiguration configuration object
+//  zConfig::ConfigData config;
+//  ConfigData iface;
+//
+//  TEST_TRUE(iface.Name(std::string("lo")));
+//  TEST_TRUE(iface.Type(ConfigData::TYPE_LOOP));
+//
+//  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
+//
+//  TEST_TRUE(iface.Name(std::string("eth0")));
+//  TEST_TRUE(iface.Type(ConfigData::TYPE_WIRED));
+//
+//  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
 
-  TEST_TRUE(iface.Name(std::string("lo")));
-  TEST_TRUE(iface.Type(ConfigData::TYPE_LOOP));
-
-  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
-
-  TEST_TRUE(iface.Name(std::string("eth0")));
-  TEST_TRUE(iface.Type(ConfigData::TYPE_WIRED));
-
-  TEST_TRUE_MSG(config.AddChild(iface.GetData()), iface.GetJson());
-
-  InterfaceTable MyTable = InterfaceFactory::Create(config);
-  TEST_ISNOT_NULL(MyTable["lo"].get());
-  TEST_ISNOT_NULL(MyTable["eth0"].get());
+//  InterfaceTable MyTable = InterfaceFactory::Create(config);
+//  TEST_ISNOT_NULL(MyTable["lo"].get());
+//  TEST_ISNOT_NULL(MyTable["eth0"].get());
 
   // Return success
   return (0);

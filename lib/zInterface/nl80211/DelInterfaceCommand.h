@@ -46,7 +46,7 @@ public:
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
 
-  DelInterfaceCommand(int index_);
+  DelInterfaceCommand(int index_ = 0);
 
   DelInterfaceCommand(const std::string& name_);
 

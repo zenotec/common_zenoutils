@@ -235,12 +235,12 @@ Interface::IsRefreshed() const
 }
 
 int
-Interface::GetIndex() const
+Interface::GetIfIndex() const
 {
   int index = -1;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->_refreshed && this->_getlinkcmd)
     {
       index = this->_getlinkcmd->Link.IfIndex();
     }
@@ -250,12 +250,12 @@ Interface::GetIndex() const
 }
 
 std::string
-Interface::GetName() const
+Interface::GetIfName() const
 {
   std::string name;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->_refreshed && this->_getlinkcmd)
     {
       name = this->_getlinkcmd->Link.IfName();
     }
@@ -265,7 +265,7 @@ Interface::GetName() const
 }
 
 bool
-Interface::SetName(const std::string& name_)
+Interface::SetIfName(const std::string& name_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -281,13 +281,92 @@ Interface::SetName(const std::string& name_)
   return (status);
 }
 
+Interface::IFTYPE
+Interface::GetIfType() const
+{
+
+  Interface::IFTYPE type = Interface::TYPE_DEF;
+  std::string str = this->Config.Type();
+
+  if (str == ConfigData::ConfigTypeNone)
+  {
+    type = Interface::TYPE_NONE;
+  }
+  else if (str == ConfigData::ConfigTypeLoop)
+  {
+    type = Interface::TYPE_LOOP;
+  }
+  else if (str == ConfigData::ConfigTypeWired)
+  {
+    type = Interface::TYPE_WIRED;
+  }
+  else if (str == ConfigData::ConfigTypeWireless)
+  {
+    type = Interface::TYPE_WIRELESS;
+  }
+  else if (str == ConfigData::ConfigTypeOther)
+  {
+    type = Interface::TYPE_OTHER;
+  }
+  else if (str == ConfigData::ConfigTypeBond)
+  {
+    type = Interface::TYPE_BOND;
+  }
+  else if (str == ConfigData::ConfigTypeBridge)
+  {
+    type = Interface::TYPE_BRIDGE;
+  }
+  else
+  {
+    type = Interface::TYPE_ERR;
+  }
+
+  return (type);
+}
+
+bool
+Interface::SetIfType(const Interface::IFTYPE type_)
+{
+
+  std::string str;
+
+  switch (type_)
+  {
+  case Interface::TYPE_NONE:
+    str = ConfigData::ConfigTypeNone;
+    break;
+  case Interface::TYPE_LOOP:
+    str = ConfigData::ConfigTypeLoop;
+    break;
+  case Interface::TYPE_WIRED:
+    str = ConfigData::ConfigTypeWired;
+    break;
+  case Interface::TYPE_WIRELESS:
+    str = ConfigData::ConfigTypeWireless;
+    break;
+  case Interface::TYPE_OTHER:
+    str = ConfigData::ConfigTypeOther;
+    break;
+  case Interface::TYPE_BOND:
+    str = ConfigData::ConfigTypeBond;
+    break;
+  case Interface::TYPE_BRIDGE:
+    str = ConfigData::ConfigTypeBridge;
+    break;
+  default:
+    return(false);
+  }
+
+  return (this->Config.Type(str));
+}
+
 std::string
 Interface::GetHwAddress() const
 {
   std::string addr;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->_refreshed && this->_getlinkcmd)
     {
       addr = this->_getlinkcmd->Link.Mac();
     }
@@ -302,14 +381,45 @@ Interface::SetHwAddress(const std::string& addr_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->_refreshed && this->_setlinkcmd)
     {
-      if (this->_refreshed && this->_setlinkcmd)
-      {
-        this->_refreshed = false;
-        this->_setlinkcmd->Link.Mac(addr_);
-        status = this->_setlinkcmd->Exec();
-      }
+      this->_refreshed = false;
+      this->_setlinkcmd->Link.Mac(addr_);
+      status = this->_setlinkcmd->Exec();
+      this->_setlinkcmd->Display();
+    }
+    this->_lock.Unlock();
+  }
+  return (status);
+}
+
+unsigned int
+Interface::GetMtu() const
+{
+  unsigned int mtu = 0;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed && this->_getlinkcmd)
+    {
+      mtu = this->_getlinkcmd->Link.Mtu();
+    }
+    this->_lock.Unlock();
+  }
+  return (mtu);
+}
+
+bool
+Interface::SetMtu(const unsigned int mtu_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed && this->_setlinkcmd)
+    {
+      this->_refreshed = false;
+      this->_setlinkcmd->Link.Mtu(mtu_);
+      status = this->_setlinkcmd->Exec();
+      this->_setlinkcmd->Display();
     }
     this->_lock.Unlock();
   }
@@ -322,7 +432,7 @@ Interface::GetAdminState() const
   Interface::STATE state = Interface::STATE_ERR;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->_refreshed && this->_getlinkcmd)
     {
       uint32_t flags = this->_getlinkcmd->Link.Flags();
       if ((flags & (IFF_UP|IFF_RUNNING)) == (IFF_UP|IFF_RUNNING))
@@ -357,6 +467,7 @@ Interface::SetAdminState(const Interface::STATE state_)
         this->_setlinkcmd->Link.ClrFlags((IFF_UP|IFF_RUNNING));
       }
       status = this->_setlinkcmd->Exec();
+      this->_setlinkcmd->Display();
     }
     this->_lock.Unlock();
   }
@@ -367,17 +478,18 @@ bool
 Interface::Refresh()
 {
 
+  bool status = false;
   if (this->_lock.Lock())
   {
     // Validate and execute get link command
     if (this->_getlinkcmd && this->_getlinkcmd->Exec())
     {
-      this->_refreshed = true;
+      status = this->_refreshed = true;
     }
     this->_lock.Unlock();
   }
 
-  return(this->_refreshed);
+  return(status);
 
 }
 
@@ -396,13 +508,27 @@ Interface::Destroy()
 void
 Interface::Display(const std::string &prefix_)
 {
-//  std::cout << prefix_ << "Name: \t" << this->Name() << std::endl;
-//  std::cout << prefix_ << "Type: \t" << ConfigData::Type() << std::endl;
-//  std::cout << prefix_ << "Index:  \t" << this->GetIndex() << std::endl;
-//  std::cout << prefix_ << "MAC:    \t" << this->HwAddress() << std::endl;
-//  std::cout << prefix_ << "Address:\t" << this->IpAddress() << std::endl;
-//  std::cout << prefix_ << "Netmask:\t" << this->Netmask() << std::endl;
-//  std::cout << prefix_ << "State:  \t" << this->AdminState() << std::endl;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
+      std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
+      std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
+      std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
+      std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
+      std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
+    }
+    else
+    {
+      std::cout << prefix_ << "Name:   \t" << this->Config.Name() << std::endl;
+      std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
+      std::cout << prefix_ << "MAC:    \t" << this->Config.HwAddress() << std::endl;
+      std::cout << prefix_ << "MTU:    \t" << this->Config.Mtu() << std::endl;
+      std::cout << prefix_ << "State:  \t" << this->Config.AdminState() << std::endl;
+    }
+    this->_lock.Unlock();
+  }
 }
 
 }

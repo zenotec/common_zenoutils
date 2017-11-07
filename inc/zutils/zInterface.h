@@ -52,32 +52,20 @@ public:
   static const std::string ConfigNamePath;
   static const std::string ConfigTypePath;
   static const std::string ConfigHwAddressPath;
+  static const std::string ConfigMtuPath;
   static const std::string ConfigIpAddressPath;
+  static const std::string ConfigBroadcastPath;
   static const std::string ConfigNetmaskPath;
-  static const std::string ConfigStatePath;
+  static const std::string ConfigAdminStatePath;
 
-  ConfigPath();
+  ConfigPath(const std::string& root_ = std::string(""));
+
+  ConfigPath(const ConfigPath& other_);
+
+  ConfigPath(const zData::DataPath& path_);
 
   virtual
   ~ConfigPath();
-
-  zConfig::ConfigPath
-  Name() const;
-
-  zConfig::ConfigPath
-  Type() const;
-
-  zConfig::ConfigPath
-  HwAddress() const;
-
-  zConfig::ConfigPath
-  IpAddress() const;
-
-  zConfig::ConfigPath
-  Netmask() const;
-
-  zConfig::ConfigPath
-  State() const;
 
 protected:
 
@@ -94,31 +82,6 @@ class ConfigData : public zConfig::ConfigData
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_DEF = 0,
-    TYPE_LOOP = 1,
-    TYPE_WIRED = 2,
-    TYPE_WIRELESS = 3,
-    TYPE_OTHER = 4,
-    TYPE_BRIDGE = 5,
-    TYPE_BOND = 6,
-    TYPE_LAST
-  };
-
-  enum STATE
-  {
-    STATE_ERR = -1,
-    STATE_NONE = 0,
-    STATE_DEF = 0,
-    STATE_UNKNOWN = 1,
-    STATE_UP = 2,
-    STATE_DOWN = 3,
-    STATE_LAST
-  };
-
   static const std::string ConfigNameDefault;
 
   static const std::string ConfigTypeNone;
@@ -132,14 +95,18 @@ public:
 
   static const std::string ConfigHwAddressDefault;
 
+  static const unsigned int ConfigMtuDefault;
+
   static const std::string ConfigIpAddressDefault;
+
+  static const std::string ConfigBroadcastDefault;
 
   static const std::string ConfigNetmaskDefault;
 
-  static const std::string ConfigStateNone;
-  static const std::string ConfigStateUp;
-  static const std::string ConfigStateDown;
-  static const std::string ConfigStateDefault;
+  static const std::string ConfigAdminStateNone;
+  static const std::string ConfigAdminStateUp;
+  static const std::string ConfigAdminStateDown;
+  static const std::string ConfigAdminStateDefault;
 
   ConfigData();
 
@@ -158,17 +125,23 @@ public:
   bool
   Name(const std::string& name_);
 
-  ConfigData::TYPE
+  std::string
   Type() const;
 
   bool
-  Type(const ConfigData::TYPE type_);
+  Type(const std::string& type_);
 
   std::string
   HwAddress() const;
 
   bool
   HwAddress(const std::string& addr_);
+
+  unsigned int
+  Mtu() const;
+
+  bool
+  Mtu(const unsigned int mtu_);
 
   std::string
   IpAddress() const;
@@ -177,16 +150,22 @@ public:
   IpAddress(const std::string& addr_);
 
   std::string
+  Broadcast() const;
+
+  bool
+  Broadcast(const std::string& addr_);
+
+  std::string
   Netmask() const;
 
   bool
   Netmask(const std::string& addr_);
 
-  ConfigData::STATE
+  std::string
   AdminState() const;
 
   bool
-  AdminState(const ConfigData::STATE state_);
+  AdminState(const std::string& state_);
 
 protected:
 
@@ -223,7 +202,7 @@ class Interface : public zEvent::Event
 
 public:
 
-  enum TYPE
+  enum IFTYPE
   {
     TYPE_ERR = -1,
     TYPE_NONE = 0,
@@ -263,19 +242,31 @@ public:
   IsRefreshed() const;
 
   int
-  GetIndex() const;
+  GetIfIndex() const;
 
   std::string
-  GetName() const;
+  GetIfName() const;
 
   bool
-  SetName(const std::string& name_);
+  SetIfName(const std::string& name_);
+
+  Interface::IFTYPE
+  GetIfType() const;
+
+  bool
+  SetIfType(const Interface::IFTYPE type_);
 
   std::string
   GetHwAddress() const;
 
   bool
   SetHwAddress(const std::string& addr_);
+
+  unsigned int
+  GetMtu() const;
+
+  bool
+  SetMtu(const unsigned int mtu_);
 
   Interface::STATE
   GetAdminState() const;

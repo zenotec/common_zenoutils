@@ -20,65 +20,54 @@
 #ifndef __ZWIRELESSINTERFACE_H__
 #define __ZWIRELESSINTERFACE_H__
 
+#include <zutils/zConfig.h>
+#include <zutils/zInterface.h>
+
+namespace nl80211
+{
+ class GetPhyCommand;
+ class GetInterfaceCommand;
+ class SetInterfaceCommand;
+ class NewInterfaceCommand;
+ class DelInterfaceCommand;
+}
+using namespace nl80211;
+
 namespace zUtils
 {
 namespace zInterface
 {
 
 // ****************************************************************************
-// Class: WirelessConfigPath
+// Class: WirelessInterfaceConfigPath
 // ****************************************************************************
 
-class WirelessConfigPath : public ConfigPath
+class WirelessInterfaceConfigPath : public zInterface::ConfigPath
 {
 
 public:
 
   static const std::string ConfigPhyIndexPath;
   static const std::string ConfigPhyNamePath;
-  static const std::string ConfigModePath;
-  static const std::string ConfigBssidPath;
-  static const std::string ConfigEssidPath;
-  static const std::string ConfigSsidPath;
-  static const std::string ConfigChannelPath;
-  static const std::string ConfigChannelWidthPath;
-  static const std::string ConfigChannelTypePath;
-  static const std::string ConfigTxPowerPath;
+  static const std::string ConfigHwModePath;
+  static const std::string ConfigHtModePath;
+  static const std::string ConfigOpModePath;
+//  static const std::string ConfigBssidPath;
+//  static const std::string ConfigEssidPath;
+//  static const std::string ConfigSsidPath;
+//  static const std::string ConfigChannelPath;
+//  static const std::string ConfigChannelWidthPath;
+//  static const std::string ConfigChannelTypePath;
+//  static const std::string ConfigTxPowerPath;
 
-  WirelessConfigPath();
+  WirelessInterfaceConfigPath(const std::string& root_ = std::string(""));
+
+  WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_);
+
+  WirelessInterfaceConfigPath(const zData::DataPath& path_);
 
   virtual
-  ~WirelessConfigPath();
-
-  zConfig::ConfigPath
-  PhyIndex() const;
-
-  zConfig::ConfigPath
-  PhyName() const;
-
-  zConfig::ConfigPath
-  Mode() const;
-
-  zConfig::ConfigPath
-  Bssid() const;
-
-  zConfig::ConfigPath
-  Essid() const;
-
-  zConfig::ConfigPath
-  Ssid() const;
-
-  zConfig::ConfigPath
-  Channel() const;
-
-  zConfig::ConfigPath
-  ChannelWidth() const;
-
-  zConfig::ConfigPath
-  ChannelType() const;
-
-  zConfig::ConfigPath
-  TxPower() const;
+  ~WirelessInterfaceConfigPath();
 
 protected:
 
@@ -87,75 +76,85 @@ private:
 };
 
 // ****************************************************************************
-// Class: WirelessConfigData
+// Class: WirelessInterfaceConfigData
 // ****************************************************************************
 
-class WirelessConfigData : public zConfig::ConfigData
+class WirelessInterfaceConfigData : public zConfig::ConfigData
 {
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_DEF = 0,
-    TYPE_A = 1,
-    TYPE_B = 2,
-    TYPE_G = 3,
-    TYPE_N = 4,
-    TYPE_AC = 5,
-    TYPE_AD = 6,
-    TYPE_AX = 7,
-    TYPE_LAST
-  };
+  static const unsigned int ConfigPhyIndexDefault;
 
-  enum MODE
-  {
-    MODE_ERR = -1,
-    MODE_NONE = 0,
-    MODE_STA = 1,
-    MODE_AP = 2,
-    MODE_LAST
-  };
+  static const std::string ConfigPhyNameDefault;
 
-  static const std::string ConfigTypeNone;
-  static const std::string ConfigTypeA;
-  static const std::string ConfigTypeB;
-  static const std::string ConfigTypeG;
-  static const std::string ConfigTypeN;
-  static const std::string ConfigTypeAC;
-  static const std::string ConfigTypeAD;
-  static const std::string ConfigTypeAX;
-  static const std::string ConfigTypeDefault;
+  static const std::string ConfigHwModeNone;
+  static const std::string ConfigHwModeA;
+  static const std::string ConfigHwModeB;
+  static const std::string ConfigHwModeG;
+  static const std::string ConfigHwModeN;
+  static const std::string ConfigHwModeAC;
+  static const std::string ConfigHwModeAD;
+  static const std::string ConfigHwModeAX;
+  static const std::string ConfigHwModeDefault;
 
-  static const std::string ConfigModeNone;
-  static const std::string ConfigModeSTA;
-  static const std::string ConfigModeAP;
-  static const std::string ConfigModeDefault;
+  static const std::string ConfigHtModeNone;
+  static const std::string ConfigHtModeDefault;
 
-  WirelessConfigData();
+  static const std::string ConfigOpModeNone;
+  static const std::string ConfigOpModeSTA;
+  static const std::string ConfigOpModeAP;
+  static const std::string ConfigOpModeAdhoc;
+  static const std::string ConfigOpModeMonitor;
+  static const std::string ConfigOpModeMesh;
+  static const std::string ConfigOpModeDefault;
 
-  WirelessConfigData(const zData::Data& data_);
+//  static const std::string ConfigBssidDefault;
+//  static const std::string ConfigEssidDefault;
+//  static const std::string ConfigSsidDefault;
+//  static const float ConfigChannelDefault;
+//  static const int ConfigTxPowerDefault;
 
-  WirelessConfigData(const zConfig::ConfigData& config_);
+  WirelessInterfaceConfigData();
 
-  WirelessConfigData(const WirelessConfigData& other_);
+  WirelessInterfaceConfigData(const zData::Data& data_);
+
+  WirelessInterfaceConfigData(const zConfig::ConfigData& config_);
+
+  WirelessInterfaceConfigData(const WirelessInterfaceConfigData& other_);
 
   virtual
-  ~WirelessConfigData();
+  ~WirelessInterfaceConfigData();
 
-  WirelessConfigData::TYPE
-  GetType() const;
-
-  bool
-  SetType(const WirelessConfigData::TYPE type_);
-
-  WirelessConfigData::MODE
-  GetMode() const;
+  unsigned int
+  PhyIndex() const;
 
   bool
-  SetMode(const WirelessConfigData::MODE mode_);
+  PhyIndex(const unsigned int index_);
+
+  std::string
+  PhyName() const;
+
+  bool
+  PhyName(const std::string& name_);
+
+  std::string
+  HwMode() const;
+
+  bool
+  HwMode(const std::string& mode_);
+
+  std::string
+  HtMode() const;
+
+  bool
+  HtMode(const std::string& mode_);
+
+  std::string
+  OpMode() const;
+
+  bool
+  OpMode(const std::string& mode_);
 
 protected:
 
@@ -172,20 +171,84 @@ class WirelessInterface : public Interface
 {
 public:
 
-  static const int ConfigPhyIndexDefault;
-  static const std::string ConfigPhyNameDefault;
-  static const std::string ConfigBssidDefault;
-  static const std::string ConfigEssidDefault;
-  static const std::string ConfigSsidDefault;
-  static const float ConfigChannelDefault;
-  static const int ConfigTxPowerDefault;
+  enum HWMODE
+  {
+    HWMODE_ERR = -1,
+    HWMODE_NONE = 0,
+    HWMODE_DEF = 0,
+    HWMODE_A = 1,
+    HWMODE_B = 2,
+    HWMODE_G = 3,
+    HWMODE_N = 4,
+    HWMODE_AC = 5,
+    HWMODE_AD = 6,
+    HWMODE_AX = 7,
+    HWMODE_LAST
+  };
 
-  WirelessInterface(const std::string &name_);
+  enum HTMODE
+  {
+    HTMODE_ERR = -1,
+    HTMODE_NONE = 0,
+    HTMODE_DEF = 0,
+    HTMODE_NOHT = 1,
+    HTMODE_HT20 = 2,
+    HTMODE_HT40MINUS = 3,
+    HTMODE_HT40PLUS = 4,
+    HTMODE_VHT20 = 5,
+    HTMODE_VHT40 = 6,
+    HTMODE_VHT80 = 7,
+    HTMODE_VHT80PLUS80 = 8,
+    HTMODE_VHT160 = 9,
+    HTMODE_LAST
+  };
 
-  WirelessInterface(const ConfigData& config_);
+  enum OPMODE
+  {
+    OPMODE_ERR = -1,
+    OPMODE_NONE = 0,
+    OPMODE_STA = 1,
+    OPMODE_AP = 2,
+    OPMODE_ADHOC = 3,
+    OPMODE_MONITOR = 4,
+    OPMODE_MESH = 5,
+    OPMODE_LAST
+  };
+
+  WirelessInterfaceConfigData WiConfig;
+
+  WirelessInterface(const int index_ = 0);
+
+  WirelessInterface(const std::string& name_);
+
+  WirelessInterface(const WirelessInterfaceConfigData& config_);
 
   virtual
   ~WirelessInterface();
+
+  unsigned int
+  GetPhyIndex() const;
+
+  std::string
+  GetPhyName() const;
+
+  WirelessInterface::HWMODE
+  GetHwMode() const;
+
+  bool
+  SetHwMode(const WirelessInterface::HWMODE mode_);
+
+  WirelessInterface::HTMODE
+  GetHtMode() const;
+
+  bool
+  SetHtMode(const WirelessInterface::HTMODE mode_);
+
+  WirelessInterface::OPMODE
+  GetOpMode() const;
+
+  bool
+  SetOpMode(const WirelessInterface::OPMODE mode_);
 
   virtual bool
   Refresh();
@@ -196,105 +259,69 @@ public:
   virtual bool
   Destroy();
 
-  std::string
-  IwName();
-
-  std::string
-  GetPhyName() const;
-
-  bool
-  SetPhyName(const std::string& phy_);
-
-  std::string
-  GetBssid() const;
-
-  bool
-  SetBssid(const std::string& bssid_);
-
-  std::string
-  GetEssid() const;
-
-  bool
-  SetEssid(const std::string& essid_);
-
-  std::string
-  GetSsid() const;
-
-  bool
-  SetSsid(const std::string& ssid_);
-
-  float
-  GetChannel() const;
-
-  bool
-  SetChannel(const float chnl_);
-
-  int
-  GetTxPower() const;
-
-  bool
-  SetTxPower(int txpow_);
-
-  bool
-  IsAssociated();
-
-  bool
-  Associate(const std::string &essid_, const unsigned int channel_);
-
-  bool
-  Disassociate();
-
-  int
-  LinkQuality();
-
-  int
-  SignalLevel();
-
-  int
-  NoiseLevel();
-
-  int
-  BitRate();
-
+//  std::string
+//  GetBssid() const;
+//
+//  bool
+//  SetBssid(const std::string& bssid_);
+//
+//  std::string
+//  GetEssid() const;
+//
+//  bool
+//  SetEssid(const std::string& essid_);
+//
+//  std::string
+//  GetSsid() const;
+//
+//  bool
+//  SetSsid(const std::string& ssid_);
+//
+//  float
+//  GetChannel() const;
+//
+//  bool
+//  SetChannel(const float chnl_);
+//
+//  int
+//  GetTxPower() const;
+//
+//  bool
+//  SetTxPower(int txpow_);
+//
+//  bool
+//  IsAssociated();
+//
+//  bool
+//  Associate(const std::string &essid_, const unsigned int channel_);
+//
+//  bool
+//  Disassociate();
+//
+//  int
+//  LinkQuality();
+//
+//  int
+//  SignalLevel();
+//
+//  int
+//  NoiseLevel();
+//
+//  int
+//  BitRate();
+//
   virtual void
   Display(const std::string &prefix_);
 
 protected:
 
-  int _link_quality;
-  int _signal_level;
-  int _noise_level;
-  int _bit_rate;
-
-  virtual int
-  _get_link_quality();
-
-  virtual int
-  _get_signal_level();
-
-  virtual int
-  _get_noise_level();
-
-  virtual int
-  _get_bit_rate();
-
-  virtual float
-  _get_channel();
-
-  virtual bool
-  _set_channel(float chnl_);
-
-  virtual int
-  _get_tx_power();
-
-  virtual bool
-  _set_tx_power(int txpow_);
+  GetPhyCommand* _getphycmd;
+  GetInterfaceCommand* _getifacecmd;
+  SetInterfaceCommand* _setifacecmd;
+  NewInterfaceCommand* _newifacecmd;
+  DelInterfaceCommand* _delifacecmd;
 
 private:
-
-  zSem::Mutex _lock;
-  std::string _iw_name;
-  bool _associated;
 
 };
 
