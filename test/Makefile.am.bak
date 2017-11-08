@@ -2,10 +2,25 @@ export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
 	zLog \
-	zSem \
 	zMath \
+	zThread \
+	zProgram \
+	zSem \
 	zQueue \
-	zData
+	zData \
+	zEvent \
+	zTimer \
+	zConfig \
+	zGpio \
+	zLed \
+	zSerial \
+	zInterface \
+	zSocket \
+	zMessage \
+	zCommand \
+	zSwitch \
+	zThermo \
+	zDisplay
 
 
 if COND_VALGRIND
@@ -34,10 +49,25 @@ endif
 
 GCOV_TESTS = \
     zLog/zLogUnitTest \
-    zSem/zSemUnitTest \
     zMath/zMathUnitTest \
+    zThread/zThreadUnitTest \
+    zProgram/zProgramUnitTest \
+    zSem/zSemUnitTest \
     zQueue/zQueueUnitTest \
-    zData/zDataUnitTest
+    zData/zDataUnitTest \
+    zEvent/zEventUnitTest \
+    zTimer/zTimerUnitTest \
+    zConfig/zConfigUnitTest \
+    zGpio/zGpioUnitTest \
+    zLed/zLedUnitTest \
+    zSerial/zSerialUnitTest \
+    zInterface/zInterfaceUnitTest \
+    zSocket/zSocketUnitTest \
+    zMessage/zMessageUnitTest \
+    zCommand/zCommandUnitTest \
+    zSwitch/zSwitchUnitTest \
+    zThermo/zThermoUnitTest \
+    zDisplay/zDisplayUnitTest
 
 TESTS = \
     $(GCOV_TESTS) $(VALGRIND_TESTS)

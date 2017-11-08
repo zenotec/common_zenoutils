@@ -6,10 +6,26 @@
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
+	zCommand \
+	zConfig \
+	zData \
+	zDisplay \
+	zEvent \
+	zGpio \
+	zInterface \
+	zLed \
 	zLog \
-	zSem \
 	zMath \
-	zData
+	zMessage \
+	zProgram \
+	zSem \
+	zSerial \
+	zSignal \
+	zSocket \
+	zSwitch \
+	zThermo \
+	zThread	\
+	zTimer
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -70,9 +86,30 @@ libzutils_la_HEADERS = \
 libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
+#libzutils_la_LIBADD = \
+#    ${top_builddir}/lib/zException/libzException.la \
+#    ${top_builddir}/lib/zNode/libzNode.la \
+#
+
 libzutils_la_LIBADD = \
     ${top_builddir}/lib/zLog/libzLog.la \
-    ${top_builddir}/lib/zSem/libzSem.la \
     ${top_builddir}/lib/zMath/libzMath.la \
-    ${top_builddir}/lib/zData/libzData.la
+    ${top_builddir}/lib/zSem/libzSem.la \
+    ${top_builddir}/lib/zSignal/libzSignal.la \
+    ${top_builddir}/lib/zThread/libzThread.la \
+    ${top_builddir}/lib/zTimer/libzTimer.la \
+    ${top_builddir}/lib/zData/libzData.la \
+    ${top_builddir}/lib/zEvent/libzEvent.la \
+    ${top_builddir}/lib/zConfig/libzConfig.la \
+    ${top_builddir}/lib/zGpio/libzGpio.la \
+    ${top_builddir}/lib/zLed/libzLed.la \
+    ${top_builddir}/lib/zSerial/libzSerial.la \
+    ${top_builddir}/lib/zInterface/libzInterface.la \
+    ${top_builddir}/lib/zSocket/libzSocket.la \
+    ${top_builddir}/lib/zMessage/libzMessage.la \
+    ${top_builddir}/lib/zCommand/libzCommand.la \
+    ${top_builddir}/lib/zSwitch/libzSwitch.la \
+    ${top_builddir}/lib/zThermo/libzThermo.la \
+    ${top_builddir}/lib/zDisplay/libzDisplay.la \
+    ${top_builddir}/lib/zProgram/libzProgram.la
 

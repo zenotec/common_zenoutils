@@ -215,11 +215,11 @@ zDataTest_PutChildSingle(void* arg_)
   std::string obsVal;
 
   // Create data paths and validate
-  zData::DataPath ParentPath;
-  TEST_TRUE(ParentPath.Append("Employee"));
+  zData::DataPath ParentPath("Employee");
+  TEST_EQ(std::string("Employee"), ParentPath.Root());
 
-  zData::DataPath NamePath;
-  TEST_TRUE(NamePath.Append("Name"));
+  zData::DataPath NamePath("Name");
+  TEST_EQ(std::string("Name"), NamePath.Root());
 
   zData::DataPath FirstNamePath(NamePath);
   TEST_TRUE(FirstNamePath.Append("First"));
@@ -249,8 +249,8 @@ zDataTest_PutChildSingle(void* arg_)
 //  NameData.DisplayJson();
 
   // Set the child and validate
-  TEST_TRUE_MSG(ParentData.PutChild(NameData), ParentData.GetJson());
-//  ParentData.DisplayJson();
+  TEST_TRUE_MSG(ParentData.PutChild(NamePath, NameData), ParentData.GetJson());
+  ParentData.DisplayJson();
 
   // Get child and validate
   zData::Data ObsData;

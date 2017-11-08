@@ -216,6 +216,7 @@ Data::Empty() const
   status = this->_pt.empty();
   return(status);
 }
+
 ssize_t
 Data::Size() const
 {
@@ -251,13 +252,13 @@ Data::GetChild(Data& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("1-Getting data: " + this->Path() + " -> " + child_.Path(this->Key()));
     if (child_._lock.Lock())
     {
+      ZLOG_DEBUG("Get: " + this->Root() + "; Put: " + child_.Root());
       pt::ptree pt;
-      if (this->get(this->Path(), pt))
+      if (this->get(this->Root(), pt))
       {
-        status = child_.put(child_.Path(this->Key()), pt);
+        status = child_.put(child_.Root(), pt);
       }
       child_._lock.Unlock();
     }
@@ -278,9 +279,9 @@ Data::GetChild(const DataPath& path_, Data& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("2-Getting data: " + path_.Path() + " -> " + child_.Path(path_.Key()));
     if (child_._lock.Lock())
     {
+      ZLOG_DEBUG("Get: " + path_.Path() + " -> " + child_.Path(path_.Key()));
       pt::ptree pt;
       if (this->get(path_.Path(), pt))
       {
@@ -307,13 +308,13 @@ Data::PutChild(const Data& child_)
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("1-Putting data: " + child_.Path() + " -> " + this->Path(child_.Key()));
     if (child_._lock.Lock())
     {
+      ZLOG_DEBUG("Get: " + child_.Root() + "; Put: " + this->Root());
       pt::ptree pt;
-      if (child_.get(child_.Path(), pt))
+      if (child_.get(child_.Root(), pt))
       {
-        status = this->put(this->Path(child_.Key()), pt);
+        status = this->put(this->Root(), pt);
       }
       child_._lock.Unlock();
     }
@@ -333,11 +334,11 @@ Data::PutChild(const DataPath& path_, const Data& child_)
 
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("2-Putting data: " + child_.Path() + " -> " + path_.Path(child_.Key()));
     if (child_._lock.Lock())
     {
+      ZLOG_DEBUG("Get: " + child_.Root() + "; Put: " + path_.Path());
       pt::ptree pt;
-      if (child_.get(child_.Path(), pt))
+      if (child_.get(child_.Root(), pt))
       {
         status = this->put(path_.Path(child_.Key()), pt);
       }
