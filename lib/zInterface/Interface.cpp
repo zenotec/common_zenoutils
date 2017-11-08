@@ -55,114 +55,6 @@ namespace zUtils
 namespace zInterface
 {
 
-static std::string
-_get_ip_addr(const std::string &name_)
-{
-  std::string val = std::string("0.0.0.0");
-  char str[INET_ADDRSTRLEN] = { 0 };
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIFADDR, &ifr) == 0)
-    {
-      if (inet_ntop(AF_INET, &((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr, str,
-      INET_ADDRSTRLEN) == str)
-      {
-        val = std::string(str);
-      }
-    }
-    close(sock);
-  }
-  return (val);
-}
-
-static bool
-_set_ip_addr(const std::string &name_, const std::string& addr_)
-{
-  bool status = false;
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Setup INET address structure
-    struct sockaddr_in* sockaddr = (struct sockaddr_in*)&ifr.ifr_addr;
-    if (inet_pton( AF_INET, addr_.c_str(), &sockaddr->sin_addr) == 1)
-    {
-      // Set interface address
-      if (ioctl(sock, SIOCSIFADDR, &ifr) == 0)
-      {
-        status = true;
-      }
-    }
-    close(sock);
-  }
-  return (status);
-}
-
-static std::string
-_get_netmask(const std::string &name_)
-{
-  std::string val = std::string("0.0.0.0");
-  char str[INET_ADDRSTRLEN] = { 0 };
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Query interface flags
-    if (ioctl(sock, SIOCGIFNETMASK, &ifr) == 0)
-    {
-      if (inet_ntop(AF_INET, &((struct sockaddr_in *) &ifr.ifr_addr)->sin_addr, str,
-      INET_ADDRSTRLEN) == str)
-      {
-        val = std::string(str);
-      }
-    }
-    close(sock);
-  }
-  return (val);
-}
-
-static bool
-_set_netmask(const std::string &name_, const std::string& addr_)
-{
-  bool status = false;
-  int sock = -1;
-  struct ifreq ifr = { 0 };
-
-  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-  {
-    // Initialize interface request structure with name of interface
-    strncpy(ifr.ifr_name, name_.c_str(), IFNAMSIZ);
-
-    // Setup INET address structure
-    struct sockaddr_in* sockaddr = (struct sockaddr_in*)&ifr.ifr_addr;
-    if (inet_pton( AF_INET, addr_.c_str(), &sockaddr->sin_addr) == 1)
-    {
-      // Set interface address
-      if (ioctl(sock, SIOCSIFNETMASK, &ifr) == 0)
-      {
-        status = true;
-      }
-    }
-    close(sock);
-  }
-  return (status);
-}
-
 // ****************************************************************************
 // Class: Interface
 // ****************************************************************************
@@ -188,7 +80,7 @@ Interface::Interface(const std::string& name_) :
   this->_lock.Unlock();
 }
 
-Interface::Interface(const ConfigData& config_) :
+Interface::Interface(const zConfig::ConfigData& config_) :
 		Config(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
 		_refreshed(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
@@ -196,8 +88,8 @@ Interface::Interface(const ConfigData& config_) :
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Config.Path());
   ZLOG_DEBUG(this->Config.GetJson());
-  this->_getlinkcmd = new GetLinkCommand(config_.Name());
-  this->_setlinkcmd = new SetLinkCommand(config_.Name());
+  this->_getlinkcmd = new GetLinkCommand(Config.Name());
+  this->_setlinkcmd = new SetLinkCommand(Config.Name());
   this->_rtlinkevent = new RouteLinkEvent;
   this->_lock.Unlock();
 }

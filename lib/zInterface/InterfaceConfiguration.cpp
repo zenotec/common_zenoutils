@@ -106,6 +106,14 @@ ConfigData::ConfigData() :
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData()");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->Name(this->Name());
+  this->Type(this->Type());
+  this->HwAddress(this->HwAddress());
+  this->Mtu(this->Mtu());
+  this->IpAddress(this->IpAddress());
+  this->Broadcast(this->Broadcast());
+  this->Netmask(this->Netmask());
+  this->AdminState(this->AdminState());
 }
 
 ConfigData::ConfigData(const zData::Data& data_) :
@@ -115,6 +123,14 @@ ConfigData::ConfigData(const zData::Data& data_) :
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->Name(this->Name());
+  this->Type(this->Type());
+  this->HwAddress(this->HwAddress());
+  this->Mtu(this->Mtu());
+  this->IpAddress(this->IpAddress());
+  this->Broadcast(this->Broadcast());
+  this->Netmask(this->Netmask());
+  this->AdminState(this->AdminState());
 }
 
 ConfigData::ConfigData(const zConfig::ConfigData& config_) :
@@ -124,6 +140,14 @@ ConfigData::ConfigData(const zConfig::ConfigData& config_) :
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->Name(this->Name());
+  this->Type(this->Type());
+  this->HwAddress(this->HwAddress());
+  this->Mtu(this->Mtu());
+  this->IpAddress(this->IpAddress());
+  this->Broadcast(this->Broadcast());
+  this->Netmask(this->Netmask());
+  this->AdminState(this->AdminState());
 }
 
 ConfigData::ConfigData(const ConfigData& other_) :
@@ -132,6 +156,14 @@ ConfigData::ConfigData(const ConfigData& other_) :
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(other_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
+  this->Name(this->Name());
+  this->Type(this->Type());
+  this->HwAddress(this->HwAddress());
+  this->Mtu(this->Mtu());
+  this->IpAddress(this->IpAddress());
+  this->Broadcast(this->Broadcast());
+  this->Netmask(this->Netmask());
+  this->AdminState(this->AdminState());
 }
 
 ConfigData::~ConfigData()

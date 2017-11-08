@@ -59,453 +59,6 @@ namespace zUtils
 namespace zInterface
 {
 
-//static const std::string sysfs_root("/sys/class/net/");
-//static const std::string sysfs_phy("/phy80211/name");
-//
-//static double
-//_normalize(double min_, double max_, double val_, float weight_ = 1)
-//{
-//  double num = 0.0;
-//
-//  // Test the value is within the range
-//  if (val_ < min_)
-//  {
-//    num = min_;
-//  }
-//  else if (val_ > max_)
-//  {
-//    num = max_;
-//  }
-//  else
-//  {
-//    num = (val_ - min_) / (max_ - min_) * (weight_);
-//  }
-//
-//  return (num);
-//}
-//
-//int
-//_dbm2mwatt(int dbm)
-//{
-//  return floor(pow(10, (((double) dbm) / 10)));
-//}
-//
-//int
-//_mwatt2dbm(int mwatt)
-//{
-//  return ceil(10 * log10(mwatt));
-//}
-//
-//static double
-//_freq2float(const struct iw_freq *freq)
-//{
-//  return ((double) freq->m) * pow(10, freq->e);
-//}
-//
-//static void
-//_float2freq(double floatfreq, struct iw_freq *freq)
-//{
-//  freq->e = (short) floor(log10(floatfreq));
-//  if (freq->e > 8)
-//  {
-//    freq->m = ((long) (floor(floatfreq / pow(10, freq->e - 6)))) * 100;
-//    freq->e -= 8;
-//  }
-//  else
-//  {
-//    freq->m = (long) floatfreq;
-//    freq->e = 0;
-//  }
-//}
-//
-//static std::string
-//_get_iwname(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  std::string wname;
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    // Query interface flags
-//    if (ioctl(sock, SIOCGIWNAME, &iwr) == 0)
-//    {
-//      wname = std::string(iwr.u.name);
-//    }
-//    close(sock);
-//  }
-//  return (wname);
-//}
-//
-//static std::string
-//_get_phyname(const std::string &name_)
-//{
-//  std::string wname;
-//
-//  // Construct path for sysfs file
-//  std::string sysfs_filename = sysfs_root + name_ + sysfs_phy;
-//
-//  // Read sysfs file
-//  std::fstream fs;
-//  fs.open(sysfs_filename.c_str(), std::fstream::in);
-//  if (fs.is_open())
-//  {
-//    fs >> wname;
-//    fs.close();
-//  }
-//  return (wname);
-//}
-//
-//static std::string
-//_get_bssid(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  uint8_t addr[6] = { 0 };
-//  char str[32] = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    // Query MAC address of access point
-//    if (ioctl(sock, SIOCGIWAP, &iwr) == 0)
-//    {
-//      memcpy(addr, iwr.u.ap_addr.sa_data, 6);
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  snprintf(str, 32, "%02x:%02x:%02x:%02x:%02x:%02x", addr[0], addr[1], addr[2], addr[3], addr[4],
-//      addr[5]);
-//
-//  return (std::string(str));
-//
-//}
-//
-//static std::string
-//_get_essid(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  std::string essid;
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    char essid_char[IW_ESSID_MAX_SIZE + 1] = { 0 };
-//    iwr.u.essid.pointer = (caddr_t *) essid_char;
-//    iwr.u.essid.length = IW_ESSID_MAX_SIZE;
-//    iwr.u.essid.flags = 0;
-//    if (ioctl(sock, SIOCGIWESSID, &iwr) == 0)
-//    {
-//      essid = std::string(essid_char);
-//    }
-//
-//    // Close socket
-//    close(sock);
-//
-//  }
-//  return (essid);
-//}
-//
-//static int
-//__get_link_quality(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  int quality = -1;
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    struct iw_statistics iwstats = { 0 };
-//    iwr.u.data.pointer = &iwstats;
-//    iwr.u.data.length = sizeof(iwstats);
-//    if (ioctl(sock, SIOCGIWSTATS, &iwr) == 0)
-//    {
-//      if (iwstats.qual.updated & IW_QUAL_QUAL_UPDATED)
-//      {
-//        if (iwstats.qual.updated & IW_QUAL_DBM)
-//        {
-//          quality = (int) (100.0 * _normalize(0, 70, iwstats.qual.qual, 1));
-//        }
-//        else if (iwstats.qual.updated & IW_QUAL_RCPI)
-//        {
-//          quality = -1;
-//        }
-//        else
-//        {
-//          quality = iwstats.qual.qual;
-//        }
-//      }
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (quality);
-//
-//}
-//
-//static int
-//__get_signal_level(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  int signal_level = 0;
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    struct iw_statistics iwstats = { 0 };
-//    iwr.u.data.pointer = &iwstats;
-//    iwr.u.data.length = sizeof(iwstats);
-//    if (ioctl(sock, SIOCGIWSTATS, &iwr) == 0)
-//    {
-//      if (iwstats.qual.updated & IW_QUAL_LEVEL_UPDATED)
-//      {
-//        if (iwstats.qual.updated & IW_QUAL_DBM)
-//        {
-//          double dbm = iwstats.qual.level - 256;
-//          signal_level = (int) (100.0 * _normalize(-100, -10, dbm, 1));
-//        }
-//        else if (iwstats.qual.updated & IW_QUAL_RCPI)
-//        {
-//          signal_level = -1;
-//        }
-//        else
-//        {
-//          signal_level = iwstats.qual.level;
-//        }
-//      }
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (signal_level);
-//
-//}
-//
-//static int
-//__get_noise_level(const std::string &name_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//  int noise_level = -1;
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    struct iw_statistics iwstats = { 0 };
-//    iwr.u.data.pointer = &iwstats;
-//    iwr.u.data.length = sizeof(iwstats);
-//    if (ioctl(sock, SIOCGIWSTATS, &iwr) == 0)
-//    {
-//      if (iwstats.qual.updated & IW_QUAL_NOISE_UPDATED)
-//      {
-//        if (iwstats.qual.updated & IW_QUAL_DBM)
-//        {
-//          double dbm = iwstats.qual.noise - 256;
-//          noise_level = (int) (100.0 * _normalize(-100, 0, dbm, 1));
-//        }
-//        else if (iwstats.qual.updated & IW_QUAL_RCPI)
-//        {
-//          noise_level = -1;
-//        }
-//        else
-//        {
-//          noise_level = iwstats.qual.noise;
-//        }
-//      }
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (noise_level);
-//
-//}
-//
-//static int
-//__get_bit_rate(const std::string &name_)
-//{
-//  int bit_rate = -1;
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    if (ioctl(sock, SIOCGIWRATE, &iwr) == 0)
-//    {
-//      if (!iwr.u.bitrate.disabled)
-//      {
-//        bit_rate = iwr.u.bitrate.value;
-//      }
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (bit_rate);
-//
-//}
-//
-//static float
-//__get_channel(const std::string &name_)
-//{
-//  float chnl = -1;
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    if (ioctl(sock, SIOCGIWFREQ, &iwr) == 0)
-//    {
-//      chnl = iwr.u.freq.m;
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (chnl);
-//
-//}
-//
-//static bool
-//__set_channel(const std::string &name_, float chnl_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-////    if (ioctl(sock, SIOCSIWTXPOW, &iwr) == 0)
-////    {
-////      if (!iwr.u.txpower.disabled)
-////      {
-////        tx_power = iwr.u.txpower.value;
-////      }
-////    }
-//
-//// Close socket
-//    close(sock);
-//  }
-//
-//  return (true);
-//}
-//
-//static int
-//__get_tx_power(const std::string &name_)
-//{
-//  int tx_power = -1;
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-//    if (ioctl(sock, SIOCGIWTXPOW, &iwr) == 0)
-//    {
-//      if (!iwr.u.txpower.disabled)
-//      {
-//        tx_power = iwr.u.txpower.value;
-//      }
-//    }
-//
-//    // Close socket
-//    close(sock);
-//  }
-//
-//  return (tx_power);
-//
-//}
-//
-//static bool
-//__set_tx_power(const std::string &name_, int tx_power_)
-//{
-//  int sock = -1;
-//  struct iwreq iwr = { 0 };
-//
-//  if ((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_IP)) > 0)
-//  {
-//    // Initialize interface request structure with name of interface
-//    strncpy(iwr.ifr_name, name_.c_str(), IFNAMSIZ);
-//
-////    if (ioctl(sock, SIOCSIWTXPOW, &iwr) == 0)
-////    {
-////      if (!iwr.u.txpower.disabled)
-////      {
-////        tx_power = iwr.u.txpower.value;
-////      }
-////    }
-//
-//// Close socket
-//    close(sock);
-//  }
-//
-//  return (true);
-//}
-//
-//static int
-//__get_error_rate(const std::string &name_)
-//{
-//  int err_rate = -1;
-//  return (err_rate);
-//}
-//
-//static bool
-//_is_associated(const std::string &name_)
-//{
-//  bool associated = false;
-//
-//  const std::string zero("00:00:00:00:00:00");
-//  const std::string bcast("FF:FF:FF:FF:FF:FF");
-//  const std::string hack("44:44:44:44:44:44");
-//
-//  std::string addr(_get_bssid(name_));
-//
-//  if ((addr != zero) && (addr != bcast) && (addr != hack))
-//  {
-//    associated = true;
-//  }
-//
-//  return (associated);
-//
-//}
-//
-
 // ****************************************************************************
 // Class: WirelessInterfaceConfigPath
 // ****************************************************************************
@@ -515,11 +68,6 @@ const std::string WirelessInterfaceConfigPath::ConfigPhyNamePath("PhyName");
 const std::string WirelessInterfaceConfigPath::ConfigHwModePath("HwMode");
 const std::string WirelessInterfaceConfigPath::ConfigHtModePath("HtMode");
 const std::string WirelessInterfaceConfigPath::ConfigOpModePath("OpMode");
-//const std::string WirelessInterfaceConfigPath::ConfigBssidPath("Bssid");
-//const std::string WirelessInterfaceConfigPath::ConfigEssidPath("Essid");
-//const std::string WirelessInterfaceConfigPath::ConfigSsidPath("Ssid");
-//const std::string WirelessInterfaceConfigPath::ConfigChannelPath("Channel");
-//const std::string WirelessInterfaceConfigPath::ConfigTxPowerPath("TxPower");
 
 WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const std::string& root_)
 {
@@ -529,12 +77,12 @@ WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const std::string& root
   }
 }
 
-WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_) :
-    zInterface::ConfigPath(other_)
+WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const zData::DataPath& path_)
 {
 }
 
-WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const zData::DataPath& path_)
+WirelessInterfaceConfigPath::WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_) :
+    zInterface::ConfigPath(other_)
 {
 }
 
@@ -568,12 +116,6 @@ const std::string WirelessInterfaceConfigData::ConfigOpModeMonitor("MONITOR");
 const std::string WirelessInterfaceConfigData::ConfigOpModeMesh("MESH");
 const std::string WirelessInterfaceConfigData::ConfigOpModeDefault(WirelessInterfaceConfigData::ConfigOpModeNone);
 
-//const std::string WirelessInterfaceConfigData::ConfigBssidDefault("");
-//const std::string WirelessInterfaceConfigData::ConfigEssidDefault("");
-//const std::string WirelessInterfaceConfigData::ConfigSsidDefault("");
-//const float WirelessInterfaceConfigData::ConfigChannelDefault(0.0);
-//const int WirelessInterfaceConfigData::ConfigTxPowerDefault(0);
-
 WirelessInterfaceConfigData::WirelessInterfaceConfigData() :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
@@ -594,8 +136,10 @@ WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zData::Data& data
 WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  this->PutChild(config_.GetData());
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(config_)");
+  ZLOG_DEBUG(config_.Path());
+  ZLOG_DEBUG(config_.GetJson());
+  this->PutChild(config_.GetData());
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
@@ -803,7 +347,7 @@ WirelessInterface::WirelessInterface(const std::string& name_) :
   this->_delifacecmd = new DelInterfaceCommand(name_);
 }
 
-WirelessInterface::WirelessInterface(const WirelessInterfaceConfigData& config_) :
+WirelessInterface::WirelessInterface(const zConfig::ConfigData& config_) :
     Interface(config_), WiConfig(config_), _getphycmd(NULL), _getifacecmd(NULL),
     _setifacecmd(NULL), _newifacecmd(NULL), _delifacecmd(NULL)
 {

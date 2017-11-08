@@ -233,7 +233,7 @@ public:
 
   Interface(const std::string& name_);
 
-  Interface(const ConfigData &config_);
+  Interface(const zConfig::ConfigData &config_);
 
   virtual
   ~Interface();

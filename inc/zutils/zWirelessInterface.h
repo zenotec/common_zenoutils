@@ -52,19 +52,12 @@ public:
   static const std::string ConfigHwModePath;
   static const std::string ConfigHtModePath;
   static const std::string ConfigOpModePath;
-//  static const std::string ConfigBssidPath;
-//  static const std::string ConfigEssidPath;
-//  static const std::string ConfigSsidPath;
-//  static const std::string ConfigChannelPath;
-//  static const std::string ConfigChannelWidthPath;
-//  static const std::string ConfigChannelTypePath;
-//  static const std::string ConfigTxPowerPath;
 
   WirelessInterfaceConfigPath(const std::string& root_ = std::string(""));
 
-  WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_);
-
   WirelessInterfaceConfigPath(const zData::DataPath& path_);
+
+  WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_);
 
   virtual
   ~WirelessInterfaceConfigPath();
@@ -108,12 +101,6 @@ public:
   static const std::string ConfigOpModeMonitor;
   static const std::string ConfigOpModeMesh;
   static const std::string ConfigOpModeDefault;
-
-//  static const std::string ConfigBssidDefault;
-//  static const std::string ConfigEssidDefault;
-//  static const std::string ConfigSsidDefault;
-//  static const float ConfigChannelDefault;
-//  static const int ConfigTxPowerDefault;
 
   WirelessInterfaceConfigData();
 
@@ -221,7 +208,7 @@ public:
 
   WirelessInterface(const std::string& name_);
 
-  WirelessInterface(const WirelessInterfaceConfigData& config_);
+  WirelessInterface(const zConfig::ConfigData& config_);
 
   virtual
   ~WirelessInterface();
@@ -311,7 +298,7 @@ public:
 //  BitRate();
 //
   virtual void
-  Display(const std::string &prefix_);
+  Display(const std::string &prefix_ = std::string(""));
 
 protected:
 

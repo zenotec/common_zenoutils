@@ -575,6 +575,9 @@ EthSocket::_recv(zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
 {
 
   ssize_t n = -1;
+  struct sockaddr_ll src = { 0 };
+  socklen_t srclen = sizeof(src);
+  int flags = 0;
 
   if (!this->_sock)
   {
@@ -588,18 +591,23 @@ EthSocket::_recv(zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
     return (-1);
   }
 
-  n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, NULL, NULL);
+  n = recvfrom(this->_sock, sb_.Head(), sb_.TotalSize(), 0, (struct sockaddr *) &src, &srclen);
   if (n > 0)
   {
     sb_.Put(n);
     std::string addr;
+    _mac2str(*(struct eth_addr*)&src.sll_addr, addr);
+    addr_.Address(addr);
 
     uint8_t* p = sb_.Head();
     std::string logstr;
     logstr += "Receiving on socket:\t";
-    logstr += "To: " + this->Address().Address() + ";\t";
-    logstr += "From: " + addr_.Address() + ";\t";
-    logstr += "Size: " + ZLOG_INT(n) + ";\t";
+    logstr += "To:     " + this->Address().Address() + ";\t";
+    logstr += "From:   " + addr_.Address() + ";\t";
+    logstr += "Size:   " + ZLOG_INT(n) + ";\t";
+    logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
+    logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
+    logstr += "Proto:  " + ZLOG_INT(src.sll_protocol) + ";\t";
     ZLOG_INFO(logstr);
     logstr = "Data (0x00): ";
     logstr += ZLOG_HEX(*p++) + ":";
