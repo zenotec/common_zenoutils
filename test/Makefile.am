@@ -1,4 +1,4 @@
-#export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
+export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
