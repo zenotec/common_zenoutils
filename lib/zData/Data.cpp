@@ -254,7 +254,7 @@ Data::GetChild(Data& child_) const
   {
     if (child_._lock.Lock())
     {
-      ZLOG_DEBUG("Get: " + this->Root() + "; Put: " + child_.Root());
+      ZLOG_DEBUG("SRC: " + this->Root() + "; DST: " + child_.Root());
       pt::ptree pt;
       if (this->get(this->Root(), pt))
       {
@@ -271,7 +271,7 @@ Data::GetChild(Data& child_) const
 }
 
 bool
-Data::GetChild(const DataPath& path_, Data& child_) const
+Data::GetChild(const DataPath& src_, Data& child_) const
 {
 
   bool status = false;
@@ -281,15 +281,40 @@ Data::GetChild(const DataPath& path_, Data& child_) const
   {
     if (child_._lock.Lock())
     {
-      ZLOG_DEBUG("Get: " + path_.Path() + " -> " + child_.Path(path_.Key()));
+      ZLOG_DEBUG("SRC: " + src_.Path() + "; DST: " + child_.Root());
       pt::ptree pt;
-      if (this->get(path_.Path(), pt))
+      if (this->get(src_.Path(), pt))
       {
         child_.Clear();
-        if ((status = child_.put(child_.Path(path_.Key()), pt)))
-        {
-          child_.Append(path_.Key());
-        }
+        status = child_.put(child_.Root(), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::GetChild(const DataPath& src_, const DataPath& dst_, Data& child_) const
+{
+
+  bool status = false;
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    if (child_._lock.Lock())
+    {
+      ZLOG_DEBUG("SRC: " + src_.Path() + "; DST: " + dst_.Path());
+      pt::ptree pt;
+      if (this->get(src_.Path(), pt))
+      {
+        child_.Clear();
+        status = child_.put(dst_.Path(), pt);
       }
       child_._lock.Unlock();
     }
@@ -310,7 +335,7 @@ Data::PutChild(const Data& child_)
   {
     if (child_._lock.Lock())
     {
-      ZLOG_DEBUG("Get: " + child_.Root() + "; Put: " + this->Root());
+      ZLOG_DEBUG("SRC: " + child_.Root() + "; DST: " + this->Root());
       pt::ptree pt;
       if (child_.get(child_.Root(), pt))
       {
@@ -327,7 +352,7 @@ Data::PutChild(const Data& child_)
 }
 
 bool
-Data::PutChild(const DataPath& path_, const Data& child_)
+Data::PutChild(const DataPath& dst_, const Data& child_)
 {
 
   bool status = false;
@@ -336,11 +361,37 @@ Data::PutChild(const DataPath& path_, const Data& child_)
   {
     if (child_._lock.Lock())
     {
-      ZLOG_DEBUG("Get: " + child_.Root() + "; Put: " + path_.Path());
+      ZLOG_DEBUG("SRC: " + child_.Root() + "; DST: " + dst_.Path());
       pt::ptree pt;
       if (child_.get(child_.Root(), pt))
       {
-        status = this->put(path_.Path(child_.Key()), pt);
+        status = this->put(dst_.Path(), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::PutChild(const DataPath& dst_, const DataPath& src_, const Data& child_)
+{
+
+  bool status = false;
+
+  if (this->_lock.Lock())
+  {
+    if (child_._lock.Lock())
+    {
+      ZLOG_DEBUG("SRC: " + src_.Path() + "; DST: " + dst_.Path());
+      pt::ptree pt;
+      if (child_.get(src_.Path(), pt))
+      {
+        status = this->put(dst_.Path(), pt);
       }
       child_._lock.Unlock();
     }
@@ -361,13 +412,13 @@ Data::AddChild(const Data& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("1-Adding data: " + child_.Path() + " -> " + this->Path(child_.Key()));
+    ZLOG_DEBUG("SRC: " + child_.Root() + "; DST: " + this->Root());
     if (child_._lock.Lock())
     {
       pt::ptree pt;
-      if (child_.get(child_.Path(), pt))
+      if (child_.get(child_.Root(), pt))
       {
-        status = this->add(this->Path(child_.Key()), pt);
+        status = this->add(this->Root(), pt);
       }
       child_._lock.Unlock();
     }
@@ -380,7 +431,7 @@ Data::AddChild(const Data& child_)
 }
 
 bool
-Data::AddChild(const DataPath& path_, const Data& child_)
+Data::AddChild(const DataPath& dst_, const Data& child_)
 {
 
   bool status = false;
@@ -388,13 +439,40 @@ Data::AddChild(const DataPath& path_, const Data& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG("2-Adding data: " + child_.Path() + " -> " + path_.Path(child_.Key()));
+    ZLOG_DEBUG("SRC: " + child_.Root() + "; DST: " + dst_.Path());
     if (child_._lock.Lock())
     {
       pt::ptree pt;
-      if (child_.get(child_.Path(), pt))
+      if (child_.get(child_.Root(), pt))
       {
-        status = this->add(path_.Path(child_.Key()), pt);
+        status = this->add(dst_.Path(), pt);
+      }
+      child_._lock.Unlock();
+    }
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Data::AddChild(const DataPath& dst_, const DataPath& src_, const Data& child_)
+{
+
+  bool status = false;
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    ZLOG_DEBUG("SRC: " + src_.Path() + "; DST: " + dst_.Path());
+    if (child_._lock.Lock())
+    {
+      pt::ptree pt;
+      if (child_.get(src_.Path(), pt))
+      {
+        status = this->add(dst_.Path(), pt);
       }
       child_._lock.Unlock();
     }

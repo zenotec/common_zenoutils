@@ -192,6 +192,7 @@
 			<resource resourceType="PROJECT" workspacePath="/zenoutils"/>
 		</configuration>
 		<configuration configurationName="mips-openwrt-linux-musl"/>
+		<configuration configurationName="Check"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>

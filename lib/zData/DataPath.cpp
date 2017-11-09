@@ -89,6 +89,14 @@ DataPath::operator=(const DataPath& other_)
   return(*this);
 }
 
+DataPath
+DataPath::operator+(const DataPath& other_)
+{
+  DataPath path(*this);
+  path += other_;
+  return (path);
+}
+
 DataPath &
 DataPath::operator+=(const DataPath& other_)
 {
@@ -290,9 +298,10 @@ DataPath::Clear()
 void
 DataPath::DisplayPath() const
 {
-  std::cout << this->Root() << std::endl;
-  std::cout << this->Base() << std::endl;
-  std::cout << this->Path() << std::endl;
+  std::cout << "Root: " << this->Root() << std::endl;
+  std::cout << "Base: " << this->Base() << std::endl;
+  std::cout << "Key: " << this->Key() << std::endl;
+  std::cout << "Path: " << this->Path() << std::endl;
 }
 
 }

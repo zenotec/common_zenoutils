@@ -68,6 +68,9 @@ public:
   DataPath &
   operator=(const DataPath& other_);
 
+  DataPath
+  operator+(const DataPath& other_);
+
   DataPath &
   operator+=(const DataPath& other_);
 
@@ -185,7 +188,10 @@ public:
   GetChild(Data& child_) const;
 
   bool
-  GetChild(const DataPath& path_, Data& child_) const;
+  GetChild(const DataPath& src_, Data& child_) const;
+
+  bool
+  GetChild(const DataPath& src_, const DataPath& dst_, Data& child_) const;
 
   template<typename T>
     T
@@ -208,7 +214,7 @@ public:
 
   template<typename T>
     bool
-    GetValue(const DataPath& path_, T &value_) const
+    GetValue(const DataPath& src_, T &value_) const
         {
 
       bool status = false;
@@ -216,7 +222,7 @@ public:
       // Begin critical section
       if (this->_lock.Lock())
       {
-        status = this->get<T>(path_.Path(), value_);
+        status = this->get<T>(src_.Path(), value_);
         this->_lock.Unlock();
       }
 
@@ -229,11 +235,14 @@ public:
   PutChild(const Data& child_);
 
   bool
-  PutChild(const DataPath& path_, const Data& child_);
+  PutChild(const DataPath& dst_, const Data& child_);
+
+  bool
+  PutChild(const DataPath& dst_, const DataPath& src_, const Data& child_);
 
   template<typename T>
     bool
-    PutValue(const DataPath& path_, const T &value_)
+    PutValue(const DataPath& dst_, const T &value_)
     {
 
       bool status = false;
@@ -241,7 +250,7 @@ public:
       // Begin critical section
       if (this->_lock.Lock())
       {
-        status = this->put<T>(path_.Path(), value_);
+        status = this->put<T>(dst_.Path(), value_);
         this->_lock.Unlock();
       }
 
@@ -254,7 +263,10 @@ public:
   AddChild(const Data& child_);
 
   bool
-  AddChild(const DataPath& path_, const Data& child_);
+  AddChild(const DataPath& dst_, const Data& child_);
+
+  bool
+  AddChild(const DataPath& dst_, const DataPath& src_, const Data& child_);
 
   template<typename T>
     bool

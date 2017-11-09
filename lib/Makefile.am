@@ -1,23 +1,221 @@
-#SUBDIRS = \
-#	zException \
-#	zNode \
-#
-
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
-SUBDIRS = \
-	zLog \
-	zSem \
-	zMath \
-	zData
-
-if COND_GCOV
-CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
-LDFLAGS_GCOV = -lgcov
+if COND_ZSOCKET
+ZSOCKET_SUBDIRS = zSocket
+ZSOCKET_SOURCE = \
+	$(top_srcdir)/inc/zutils/zSocket.h \
+	$(top_srcdir)/inc/zutils/zEthSocket.h \
+	$(top_srcdir)/inc/zutils/zInetSocket.h \
+	$(top_srcdir)/inc/zutils/zLoopSocket.h \
+	$(top_srcdir)/inc/zutils/zUnixSocket.h
+ZSOCKET_CPPFLAGS =
+ZSOCKET_LDFLAGS =
+ZSOCKET_LIBS = \
+	${top_builddir}/lib/zSocket/libzSocket.la
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV) -Werror -Wfatal-errors
-AM_LDFLAGS := $(LDFLAGS_GCOV)
+if COND_ZPROGRAM
+ZPROGRAM_SUBDIRS = zProgram
+ZPROGRAM_SOURCE = $(top_srcdir)/inc/zutils/zProgram.h
+ZPROGRAM_CPPFLAGS =
+ZPROGRAM_LDFLAGS =
+ZPROGRAM_LIBS = \
+	${top_builddir}/lib/zProgram/libzProgram.la
+endif
+
+if COND_ZINTERFACE
+ZINTERFACE_SUBDIRS = zInterface
+ZINTERFACE_SOURCE = \
+	$(top_srcdir)/inc/zutils/zInterface.h \
+	$(top_srcdir)/inc/zutils/zLoopInterface.h \
+	$(top_srcdir)/inc/zutils/zWirelessInterface.h \
+	$(top_srcdir)/inc/zutils/zMonitorInterface.h
+ZINTERFACE_CPPFLAGS =
+ZINTERFACE_LDFLAGS =
+ZINTERFACE_LIBS = \
+	${top_builddir}/lib/zInterface/libzInterface.la
+endif
+
+if COND_ZSERIAL
+ZSERIAL_SUBDIRS = zSerial
+ZSERIAL_SOURCE = \
+	$(top_srcdir)/inc/zutils/zSerial.h \
+	$(top_srcdir)/inc/zutils/zEchoSerialPort.h \
+	$(top_srcdir)/inc/zutils/zTtySerialPort.h
+ZSERIAL_CPPFLAGS =
+ZSERIAL_LDFLAGS =
+ZSERIAL_LIBS = \
+	${top_builddir}/lib/zSerial/libzSerial.la
+endif
+
+if COND_ZLED
+ZLED_SUBDIRS = zLed
+ZLED_SOURCE = \
+	$(top_srcdir)/inc/zutils/zLed.h
+ZLED_CPPFLAGS =
+ZLED_LDFLAGS =
+ZLED_LIBS = \
+	${top_builddir}/lib/zLed/libzLed.la
+endif
+
+if COND_ZGPIO
+ZGPIO_SUBDIRS = zGpio
+ZGPIO_SOURCE = \
+	$(top_srcdir)/inc/zutils/zGpio.h
+ZGPIO_CPPFLAGS =
+ZGPIO_LDFLAGS =
+ZGPIO_LIBS = \
+	${top_builddir}/lib/zGpio/libzGpio.la
+endif
+
+if COND_ZTIMER
+ZTIMER_SUBDIRS = zTimer
+ZTIMER_SOURCE = \
+	$(top_srcdir)/inc/zutils/zTimer.h
+ZTIMER_CPPFLAGS =
+ZTIMER_LDFLAGS =
+ZTIMER_LIBS = \
+	${top_builddir}/lib/zTimer/libzTimer.la
+endif
+
+if COND_ZTHREAD
+ZTHREAD_SUBDIRS = zThread
+ZTHREAD_SOURCE = \
+	$(top_srcdir)/inc/zutils/zThread.h
+ZTHREAD_CPPFLAGS =
+ZTHREAD_LDFLAGS =
+ZTHREAD_LIBS = \
+	${top_builddir}/lib/zThread/libzThread.la
+endif
+
+if COND_ZSIGNAL
+ZSIGNAL_SUBDIRS = zSignal
+ZSIGNAL_SOURCE = \
+	$(top_srcdir)/inc/zutils/zSignal.h
+ZSIGNAL_CPPFLAGS =
+ZSIGNAL_LDFLAGS =
+ZSIGNAL_LIBS = \
+	${top_builddir}/lib/zSignal/libzSignal.la
+endif
+
+if COND_ZEVENT
+ZEVENT_SUBDIRS = zEvent
+ZEVENT_SOURCE = \
+	$(top_srcdir)/inc/zutils/zEvent.h
+ZEVENT_CPPFLAGS =
+ZEVENT_LDFLAGS =
+ZEVENT_LIBS = \
+	${top_builddir}/lib/zEvent/libzEvent.la
+endif
+
+if COND_ZMATH
+ZMATH_SUBDIRS = zMath
+ZMATH_SOURCE = \
+	$(top_srcdir)/inc/zutils/zMath.h
+ZMATH_CPPFLAGS =
+ZMATH_LDFLAGS =
+ZMATH_LIBS = \
+	${top_builddir}/lib/zMath/libzMath.la
+endif
+
+if COND_ZCONFIG
+ZCONFIG_SUBDIRS = zConfig
+ZCONFIG_SOURCE = \
+	$(top_srcdir)/inc/zutils/zConfig.h
+ZCONFIG_CPPFLAGS =
+ZCONFIG_LDFLAGS =
+ZCONFIG_LIBS = \
+	${top_builddir}/lib/zConfig/libzConfig.la
+endif
+
+if COND_ZDATA
+ZDATA_SUBDIRS = zData
+ZDATA_SOURCE = \
+	$(top_srcdir)/inc/zutils/zData.h
+ZDATA_CPPFLAGS =
+ZDATA_LDFLAGS =
+ZDATA_LIBS = \
+	${top_builddir}/lib/zData/libzData.la
+endif
+
+if COND_ZSEM
+ZSEM_SUBDIRS = zSem
+ZSEM_SOURCE = \
+	$(top_srcdir)/inc/zutils/zSem.h
+ZSEM_CPPFLAGS =
+ZSEM_LDFLAGS =
+ZSEM_LIBS = \
+	${top_builddir}/lib/zSem/libzSem.la
+endif
+
+if COND_ZLOG
+ZLOG_SUBDIRS = zLog
+ZLOG_SOURCE = \
+	$(top_srcdir)/inc/zutils/zLog.h
+ZLOG_CPPFLAGS =
+ZLOG_LDFLAGS =
+ZLOG_LIBS = \
+	${top_builddir}/lib/zLog/libzLog.la
+endif
+
+if COND_GCOV
+GCOV_CPPFLAGS = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
+GCOV_LDFLAGS = -lgcov
+endif
+
+SUBDIRS = \
+	$(ZLOG_SUBDIRS) \
+	$(ZSEM_SUBDIRS) \
+	$(ZDATA_SUBDIRS) \
+	$(ZMATH_SUBDIRS) \
+	$(ZEVENT_SUBDIRS) \
+	$(ZCONFIG_SUBDIRS) \
+	$(ZSIGNAL_SUBDIRS) \
+	$(ZTHREAD_SUBDIRS) \
+	$(ZTIMER_SUBDIRS) \
+	$(ZGPIO_SUBDIRS) \
+	$(ZLED_SUBDIRS) \
+	$(ZSERIAL_SUBDIRS) \
+	$(ZINTERFACE_SUBDIRS) \
+	$(ZPROGRAM_SUBDIRS) \
+	$(ZSOCKET_SUBDIRS)
+
+AM_CPPFLAGS := \
+	$(GCOV_CPPFLAGS) \
+	$(ZLOG_CPPFLAGS) \
+	$(ZSEM_CPPFLAGS) \
+	$(ZDATA_CPPFLAGS) \
+	$(ZMATH_CPPFLAGS) \
+	$(ZEVENT_CPPFLAGS) \
+	$(ZCONFIG_CPPFLAGS) \
+	$(ZSIGNAL_CPPFLAGS) \
+	$(ZTHREAD_CPPFLAGS) \
+	$(ZTIMER_CPPFLAGS) \
+	$(ZGPIO_CPPFLAGS) \
+	$(ZLED_CPPFLAGS) \
+	$(ZSERIAL_CPPFLAGS) \
+	$(ZINTERFACE_CPPFLAGS) \
+	$(ZPROGRAM_CPPFLAGS) \
+	$(ZSOCKET_CPPFLAGS) \
+	-Werror -Wfatal-errors
+
+AM_LDFLAGS := \
+	$(GCOV_LDFLAGS) \
+	$(ZLOG_LDFLAGS) \
+	$(ZSEM_LDFLAGS) \
+	$(ZDATA_LDFLAGS) \
+	$(ZMATH_LDFLAGS) \
+	$(ZEVENT_LDFLAGS) \
+	$(ZCONFIG_LDFLAGS) \
+	$(ZSIGNAL_LDFLAGS) \
+	$(ZTHREAD_LDFLAGS) \
+	$(ZTIMER_LDFLAGS) \
+	$(ZGPIO_LDFLAGS) \
+	$(ZLED_LDFLAGS) \
+	$(ZSERIAL_LDFLAGS) \
+	$(ZINTERFACE_LDFLAGS) \
+	$(ZPROGRAM_LDFLAGS) \
+	$(ZSOCKET_LDFLAGS)
 
 lib_LTLIBRARIES = libzutils.la
 
@@ -26,53 +224,42 @@ libzutils_ladir = $(includedir)/zutils
 
 # Headers to install
 libzutils_la_HEADERS = \
-    $(top_srcdir)/inc/zutils/zAckMessage.h \
-    $(top_srcdir)/inc/zutils/zByeMessage.h \
-    $(top_srcdir)/inc/zutils/zCommand.h \
-    $(top_srcdir)/inc/zutils/zCommandMessage.h \
-    $(top_srcdir)/inc/zutils/zCompatibility.h \
-    $(top_srcdir)/inc/zutils/zConfig.h \
-    $(top_srcdir)/inc/zutils/zData.h \
-    $(top_srcdir)/inc/zutils/zDisplay.h \
-    $(top_srcdir)/inc/zutils/zEchoSerialPort.h \
-    $(top_srcdir)/inc/zutils/zEthSocket.h \
-    $(top_srcdir)/inc/zutils/zEvent.h \
-    $(top_srcdir)/inc/zutils/zException.h \
-    $(top_srcdir)/inc/zutils/zGpio.h \
-    $(top_srcdir)/inc/zutils/zHelloMessage.h \
-    $(top_srcdir)/inc/zutils/zInetSocket.h \
-    $(top_srcdir)/inc/zutils/zInterface.h \
-    $(top_srcdir)/inc/zutils/zLed.h \
-    $(top_srcdir)/inc/zutils/zLog.h \
-    $(top_srcdir)/inc/zutils/zLoopSocket.h \
-    $(top_srcdir)/inc/zutils/zMath.h \
-    $(top_srcdir)/inc/zutils/zMessage.h \
-    $(top_srcdir)/inc/zutils/zMessageSocket.h \
-    $(top_srcdir)/inc/zutils/zMonitorInterface.h \
-    $(top_srcdir)/inc/zutils/zNode.h \
-    $(top_srcdir)/inc/zutils/zProgram.h \
-    $(top_srcdir)/inc/zutils/zQueue.h \
-    $(top_srcdir)/inc/zutils/zSem.h \
-    $(top_srcdir)/inc/zutils/zSerial.h \
-    $(top_srcdir)/inc/zutils/zSignal.h \
-    $(top_srcdir)/inc/zutils/zSocket.h \
-    $(top_srcdir)/inc/zutils/zSwitch.h \
-    $(top_srcdir)/inc/zutils/zThermo.h \
-    $(top_srcdir)/inc/zutils/zThread.h \
-    $(top_srcdir)/inc/zutils/zTimer.h \
-    $(top_srcdir)/inc/zutils/zTtySerialPort.h \
-    $(top_srcdir)/inc/zutils/zUnixSocket.h \
-    $(top_srcdir)/inc/zutils/zUtils.h \
-    $(top_srcdir)/inc/zutils/zUuid.h \
-    $(top_srcdir)/inc/zutils/zWirelessInterface.h
+	$(top_srcdir)/inc/zutils/zCompatibility.h \
+	$(top_srcdir)/inc/zutils/zUtils.h \
+	$(top_srcdir)/inc/zutils/zUuid.h \
+	$(ZLOG_SOURCE) \
+	$(ZSEM_SOURCE) \
+	$(ZDATA_SOURCE) \
+	$(ZMATH_SOURCE) \
+	$(ZEVENT_SOURCE) \
+	$(ZCONFIG_SOURCE) \
+	$(ZSIGNAL_SOURCE) \
+	$(ZTHREAD_SOURCE) \
+	$(ZTIMER_SOURCE) \
+	$(ZGPIO_SOURCE) \
+	$(ZLED_SOURCE) \
+	$(ZSERIAL_SOURCE) \
+	$(ZINTERFACE_SOURCE) \
+	$(ZPROGRAM_SOURCE) \
+	$(ZSOCKET_SOURCE)
 
 # Sources to include in the package
 libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 libzutils_la_LIBADD = \
-    ${top_builddir}/lib/zLog/libzLog.la \
-    ${top_builddir}/lib/zSem/libzSem.la \
-    ${top_builddir}/lib/zMath/libzMath.la \
-    ${top_builddir}/lib/zData/libzData.la
-
+	$(ZLOG_LIBS) \
+	$(ZSEM_LIBS) \
+	$(ZDATA_LIBS) \
+	$(ZMATH_LIBS) \
+	$(ZEVENT_LIBS) \
+	$(ZCONFIG_LIBS) \
+	$(ZSIGNAL_LIBS) \
+	$(ZTHREAD_LIBS) \
+ 	$(ZTIMER_LIBS) \
+	$(ZGPIO_LIBS) \
+	$(ZLED_LIBS) \
+	$(ZSERIAL_LIBS) \
+	$(ZINTERFACE_LIBS) \
+	$(ZPROGRAM_LIBS) \
+	$(ZSOCKET_LIBS)

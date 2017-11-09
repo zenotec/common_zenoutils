@@ -44,10 +44,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zDataTest_PutValueSingle, 0);
   UTEST_TEST(zDataTest_PutValueMultiple, 0);
 
-  UTEST_TEST(zDataTest_GetChildSingle, 0);
-  UTEST_TEST(zDataTest_GetChildMultiple, 0);
-  UTEST_TEST(zDataTest_PutChildSingle, 0);
-  UTEST_TEST(zDataTest_PutChildMultiple, 0);
+  UTEST_TEST(zDataTest_GetChild, 0);
+  UTEST_TEST(zDataTest_PutChild, 0);
+  UTEST_TEST(zDataTest_AddChild, 0);
 
   UTEST_TEST(zDataTest_JsonSimple, 0);
 

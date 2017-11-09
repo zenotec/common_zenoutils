@@ -20,6 +20,7 @@
 #include <string>
 #include <thread>
 
+#include <zutils/zSem.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils

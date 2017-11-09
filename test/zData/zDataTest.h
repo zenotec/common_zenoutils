@@ -38,13 +38,11 @@ int
 zDataTest_PutValueSingle(void* arg_);
 
 int
-zDataTest_GetChildSingle(void* arg_);
+zDataTest_GetChild(void* arg_);
 int
-zDataTest_GetChildMultiple(void* arg_);
+zDataTest_PutChild(void* arg_);
 int
-zDataTest_PutChildSingle(void* arg_);
-int
-zDataTest_PutChildMultiple(void* arg_);
+zDataTest_AddChild(void* arg_);
 
 int
 zDataTest_JsonSimple(void* arg_);
