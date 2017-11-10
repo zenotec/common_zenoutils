@@ -47,24 +47,29 @@ ptKey(pt::ptree pt_, int index_ = 0)
   return (key);
 }
 
-static void
-ptDisplay(pt::ptree pt_)
+static std::string
+ptJson(pt::ptree pt_)
 {
   std::stringstream json;
-  std::cout << std::endl << "pt: " << std::endl;
   try
   {
     pt::write_json(json, pt_);
-    std::cout << json.str() << std::endl;
   }
   catch (pt::json_parser_error const &e)
   {
-    std::cout << "Parser error: " << e.what();
+    json << "Parser error: " << e.what();
   }
   catch (pt::ptree_bad_path const &e)
   {
-    std::cout << "Path error: " << e.what();
+    json << "Path error: " << e.what();
   }
+  return(json.str());
+}
+
+static void
+ptDisplay(pt::ptree pt_)
+{
+  std::cout << ptJson(pt_) << std::endl;
 }
 
 //**********************************************************************
@@ -602,7 +607,7 @@ Data::DisplayXml() const
 
 bool
 Data::get(const std::string &path_, pt::ptree &pt_) const
-    {
+{
   bool status = false;
 
   if (!path_.empty())
@@ -616,6 +621,7 @@ Data::get(const std::string &path_, pt::ptree &pt_) const
     catch (pt::ptree_bad_path const &e)
     {
       ZLOG_WARN(std::string("Path error: ") + e.what());
+      ZLOG_DEBUG(ptJson(this->_pt));
       status = false;
     }
   }
@@ -639,6 +645,7 @@ Data::put(const std::string &path_, const pt::ptree &pt_)
     catch (pt::ptree_bad_path const &e)
     {
       ZLOG_WARN(std::string("Path error: ") + e.what());
+      ZLOG_DEBUG(ptJson(pt_));
       status = false;
     }
   }

@@ -404,5 +404,16 @@ Configuration::Add(const ConfigPath& dst_, const ConfigPath& src_, const ConfigD
 
 }
 
+void
+Configuration::Display(const std::string& prefix_) const
+{
+  std::cout << prefix_ << "Staging: " << std::endl;
+  this->_staging.DisplayPath();
+  this->_staging.DisplayJson();
+  std::cout << prefix_ << "Working: " << std::endl;
+  this->_working.DisplayPath();
+  this->_working.DisplayJson();
+}
+
 }
 }

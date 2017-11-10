@@ -273,13 +273,6 @@ public:
   bool
   Store();
 
-  void
-  Display()
-  {
-    this->_staging.DisplayJson();
-    this->_working.DisplayJson();
-  }
-
   bool
   IsModified() const;
 
@@ -383,6 +376,9 @@ public:
       // Return status
       return (status);
     }
+
+  void
+  Display(const std::string& prefix_ = std::string("")) const;
 
 protected:
 
