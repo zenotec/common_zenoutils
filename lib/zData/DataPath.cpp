@@ -111,13 +111,13 @@ DataPath::operator+=(const DataPath& other_)
 
 bool
 DataPath::operator ==(const DataPath& other_) const
-    {
+{
   return (this->Path() == other_.Path());
 }
 
 bool
 DataPath::operator !=(const DataPath& other_) const
-    {
+{
   return (this->Path() != other_.Path());
 }
 

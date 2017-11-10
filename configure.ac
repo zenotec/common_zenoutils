@@ -49,6 +49,15 @@ AM_CONDITIONAL([COND_GCOV],[test '!' "$enable_gcov" = no])
 
 #########################################################################################
 
+AC_ARG_ENABLE([zmessage],
+  [AS_HELP_STRING([--disable-zmessage],
+    [disable building zMessage subsystem])],
+    [],
+    [enable_zmessage=yes])
+AM_CONDITIONAL([COND_ZSOCKET],[test "$enable_zmessage" = yes])
+
+#########################################################################################
+
 AC_ARG_ENABLE([zsocket],
   [AS_HELP_STRING([--disable-zsocket],
     [disable building zSocket subsystem])],
@@ -117,6 +126,8 @@ AC_ARG_ENABLE([zthread],
     [disable building zThread subsystem])],
     [],
     [enable_zthread=yes])
+AM_CONDITIONAL([COND_ZTHREAD],[test "$enable_zmessage" = yes])
+AM_CONDITIONAL([COND_ZTHREAD],[test "$enable_zsocket" = yes])
 AM_CONDITIONAL([COND_ZTHREAD],[test "$enable_zinterface" = yes])
 AM_CONDITIONAL([COND_ZTHREAD],[test "$enable_zserial" = yes])
 AM_CONDITIONAL([COND_ZTHREAD],[test "$enable_zled" = yes])
@@ -194,6 +205,8 @@ AC_ARG_ENABLE([zsem],
     [disable building zSem subsystem])],
     [],
     [enable_zsem=yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zmessage" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsocket" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zinterface" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zserial" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zled" = yes])
@@ -213,6 +226,8 @@ AC_ARG_ENABLE([zlog],
     [disable building zLog subsystem])],
     [],
     [enable_zlog=yes])
+AM_CONDITIONAL([COND_ZLOG],[test "$enable_zmessage" = yes])
+AM_CONDITIONAL([COND_ZLOG],[test "$enable_zsocket" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zinterface" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zserial" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zled" = yes])

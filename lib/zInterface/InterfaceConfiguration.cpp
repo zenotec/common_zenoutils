@@ -119,7 +119,8 @@ ConfigData::ConfigData() :
 ConfigData::ConfigData(const zData::Data& data_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  this->PutChild(data_);
+  ConfigPath path;
+  this->PutChild(path, path, data_);
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -136,7 +137,8 @@ ConfigData::ConfigData(const zData::Data& data_) :
 ConfigData::ConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  this->PutChild(config_.GetData());
+  ConfigPath path;
+  this->PutChild(path, path, config_);
   ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());

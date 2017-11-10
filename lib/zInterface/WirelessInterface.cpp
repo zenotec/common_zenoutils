@@ -127,7 +127,8 @@ WirelessInterfaceConfigData::WirelessInterfaceConfigData() :
 WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zData::Data& data_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  this->PutChild(data_);
+  ConfigPath path;
+  this->PutChild(path, path, data_);
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(data_)");
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
@@ -136,10 +137,9 @@ WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zData::Data& data
 WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
+  ConfigPath path;
+  this->PutChild(path, path, config_);
   ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(config_)");
-  ZLOG_DEBUG(config_.Path());
-  ZLOG_DEBUG(config_.GetJson());
-  this->PutChild(config_.GetData());
   ZLOG_DEBUG(this->Path());
   ZLOG_DEBUG(this->GetJson());
 }
