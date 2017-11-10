@@ -21,7 +21,59 @@ using namespace Test;
 using namespace zUtils;
 
 int
-zConfigTest_DataGetPutValue(void* arg_)
+zConfigTest_ConfigDataCtor(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_DataCtor()");
+  ZLOG_DEBUG("#############################################################");
+
+  std::string ObsVal;
+  std::string Street = "1234 Victory Dr.";
+  std::string City = "Hometown";
+  std::string State = "Colorado";
+
+  zData::DataPath ConfigPath(zConfig::ConfigPath::ConfigRoot);
+  zData::DataPath AddressPath(ConfigPath);
+  TEST_TRUE_MSG(AddressPath.Append("Address"), AddressPath.Path());
+  zData::DataPath StreetPath(AddressPath);
+  TEST_TRUE_MSG(StreetPath.Append("Street"), StreetPath.Path());
+  zData::DataPath CityPath(AddressPath);
+  TEST_TRUE_MSG(CityPath.Append("City"), CityPath.Path());
+  zData::DataPath StatePath(AddressPath);
+  TEST_TRUE_MSG(StatePath.Append("State"), StatePath.Path());
+
+  // Create data and validate
+  zData::Data* MyData = new zData::Data;
+  TEST_ISNOT_NULL(MyData);
+  TEST_TRUE_MSG(MyData->PutValue(StreetPath, Street), MyData->GetJson());
+  TEST_TRUE_MSG(MyData->PutValue(CityPath, City), MyData->GetJson());
+  TEST_TRUE_MSG(MyData->PutValue(StatePath, State), MyData->GetJson());
+//  MyData->DisplayPath();
+//  MyData->DisplayJson();
+
+  // Create configdata from data and verify
+  zConfig::ConfigData* MyConfig = new zConfig::ConfigData(*MyData);
+  TEST_ISNOT_NULL(MyConfig);
+//  MyConfig->DisplayPath();
+//  MyConfig->DisplayJson();
+  TEST_TRUE_MSG(MyData->GetValue(StreetPath, ObsVal), MyData->GetJson());
+  TEST_EQ(Street, ObsVal);
+  TEST_TRUE_MSG(MyData->GetValue(CityPath, ObsVal), MyData->GetJson());
+  TEST_EQ(City, ObsVal);
+  TEST_TRUE_MSG(MyData->GetValue(StatePath, ObsVal), MyData->GetJson());
+  TEST_EQ(State, ObsVal);
+
+  // Cleanup
+  delete(MyConfig);
+  delete(MyData);
+
+  // Return success
+  return (0);
+}
+
+int
+zConfigTest_ConfigDataGetPutValue(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
@@ -57,7 +109,7 @@ zConfigTest_DataGetPutValue(void* arg_)
 }
 
 int
-zConfigTest_DataGetPutChild(void* arg_)
+zConfigTest_ConfigDataGetPutChild(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");

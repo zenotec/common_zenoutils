@@ -163,6 +163,15 @@ class ConfigConnector
 
 public:
 
+  ConfigConnector()
+  {
+  }
+
+  virtual
+  ~ConfigConnector()
+  {
+  }
+
   virtual bool
   Load(ConfigData &data_) = 0;
 
@@ -243,7 +252,7 @@ public:
   bool
   operator !=(const Configuration &other_) const;
 
-  std::unique_ptr<Configuration>
+  UNIQUE_PTR(Configuration)
   operator [](const std::string &key_);
 
   ConfigPath&
@@ -284,7 +293,10 @@ public:
   Get(ConfigData& child_) const;
 
   bool
-  Get(ConfigPath& path_, ConfigData& child_) const;
+  Get(ConfigPath& src_, ConfigData& child_) const;
+
+  bool
+  Get(ConfigPath& src_, ConfigPath& dst_, ConfigData& child_) const;
 
   template<typename T>
     bool
@@ -310,7 +322,10 @@ public:
   Put(const ConfigData& child_);
 
   bool
-  Put(const ConfigPath& path_, const ConfigData& child_);
+  Put(const ConfigPath& dst_, const ConfigData& child_);
+
+  bool
+  Put(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_);
 
   template<typename T>
     bool
@@ -340,7 +355,10 @@ public:
   Add(const ConfigData& child_);
 
   bool
-  Add(const ConfigPath& path_, const ConfigData& child_);
+  Add(const ConfigPath& dst_, const ConfigData& child_);
+
+  bool
+  Add(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_);
 
   template<typename T>
     bool

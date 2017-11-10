@@ -205,7 +205,7 @@ Configuration::Restore()
 
 bool
 Configuration::Get(ConfigData& child_) const
-    {
+{
   bool status = false;
 
   ZLOG_DEBUG(std::string("Getting configuration: ") + this->_working.Path());
@@ -213,7 +213,7 @@ Configuration::Get(ConfigData& child_) const
   // Begin critical section
   if (this->_lock.Lock())
   {
-    status = this->_working.GetChild(child_.GetData());
+    status = this->_working.GetChild(child_);
     // End critical section
     this->_lock.Unlock();
   }
@@ -223,16 +223,35 @@ Configuration::Get(ConfigData& child_) const
 }
 
 bool
-Configuration::Get(ConfigPath& path_, ConfigData& child_) const
-    {
+Configuration::Get(ConfigPath& src_, ConfigData& child_) const
+{
   bool status = false;
 
-  ZLOG_DEBUG(std::string("Getting configuration: ") + path_.Path());
+  ZLOG_DEBUG(std::string("Getting configuration: ") + src_.Path());
 
   // Begin critical section
   if (this->_lock.Lock())
   {
-    status = this->_working.GetChild(path_.GetDataPath(), child_.GetData());
+    status = this->_working.GetChild(src_, child_);
+    // End critical section
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+}
+
+bool
+Configuration::Get(ConfigPath& src_, ConfigPath& dst_, ConfigData& child_) const
+{
+  bool status = false;
+
+  ZLOG_DEBUG(std::string("Getting configuration: ") + src_.Path());
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    status = this->_working.GetChild(src_, dst_, child_);
     // End critical section
     this->_lock.Unlock();
   }
@@ -251,7 +270,7 @@ Configuration::Put(const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.PutChild(child_.GetData()))
+    if (this->_staging.PutChild(child_))
     {
       this->_modified = true;
       status = true;
@@ -266,16 +285,40 @@ Configuration::Put(const ConfigData& child_)
 }
 
 bool
-Configuration::Put(const ConfigPath& path_, const ConfigData& child_)
+Configuration::Put(const ConfigPath& dst_, const ConfigData& child_)
 {
   bool status = false;
 
-  ZLOG_DEBUG(std::string("Putting configuration: ") + path_.Path());
+  ZLOG_DEBUG(std::string("Putting configuration: ") + dst_.Path());
 
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.PutChild(path_.GetDataPath(), child_.GetData()))
+    if (this->_staging.PutChild(dst_, child_))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Configuration::Put(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_)
+{
+  bool status = false;
+
+  ZLOG_DEBUG(std::string("Putting configuration: ") + dst_.Path());
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    if (this->_staging.PutChild(dst_, src_, child_))
     {
       this->_modified = true;
       status = true;
@@ -299,7 +342,7 @@ Configuration::Add(const ConfigData& child_)
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.AddChild(child_.GetData()))
+    if (this->_staging.AddChild(child_))
     {
       this->_modified = true;
       status = true;
@@ -314,16 +357,40 @@ Configuration::Add(const ConfigData& child_)
 }
 
 bool
-Configuration::Add(const ConfigPath& path_, const ConfigData& child_)
+Configuration::Add(const ConfigPath& dst_, const ConfigData& child_)
 {
   bool status = false;
 
-  ZLOG_DEBUG(std::string("Adding configuration: ") + path_.Path());
+  ZLOG_DEBUG(std::string("Adding configuration: ") + dst_.Path());
 
   // Begin critical section
   if (this->_lock.Lock())
   {
-    if (this->_staging.AddChild(path_.GetDataPath(), child_.GetData()))
+    if (this->_staging.AddChild(dst_, child_))
+    {
+      this->_modified = true;
+      status = true;
+    }
+    // End critical section
+    this->_lock.Unlock();
+  }
+
+  // Return status
+  return (status);
+
+}
+
+bool
+Configuration::Add(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_)
+{
+  bool status = false;
+
+  ZLOG_DEBUG(std::string("Adding configuration: ") + dst_.Path());
+
+  // Begin critical section
+  if (this->_lock.Lock())
+  {
+    if (this->_staging.AddChild(dst_, src_, child_))
     {
       this->_modified = true;
       status = true;

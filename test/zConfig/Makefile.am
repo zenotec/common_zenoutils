@@ -14,7 +14,7 @@ zConfigUnitTest_SOURCES = \
     zConfTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Data.cpp \
+    ConfigData.cpp \
     Configuration.cpp \
     File.cpp
 

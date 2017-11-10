@@ -28,6 +28,8 @@
 #include "UnitTest.h"
 
 int
+zConfigTest_PathDefaults(void* arg_);
+int
 zConfigTest_DataDefaults(void* arg_);
 int
 zConfigTest_ConfigurationDefaults(void* arg_);
@@ -35,9 +37,11 @@ int
 zConfigTest_ConnectorDefaults(void* arg_);
 
 int
-zConfigTest_DataGetPutValue(void* arg_);
+zConfigTest_ConfigDataCtor(void* arg_);
 int
-zConfigTest_DataGetPutChild(void* arg_);
+zConfigTest_ConfigDataGetPutValue(void* arg_);
+int
+zConfigTest_ConfigDataGetPutChild(void* arg_);
 
 int
 zConfigTest_FileLoadStore(void* arg_);

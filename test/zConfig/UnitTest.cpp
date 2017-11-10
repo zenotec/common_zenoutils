@@ -35,11 +35,13 @@ main(int argc, const char **argv)
   // Test all classes
   UTEST_INIT();
 
+  UTEST_TEST(zConfigTest_PathDefaults, 0);
   UTEST_TEST(zConfigTest_DataDefaults, 0);
   UTEST_TEST(zConfigTest_ConfigurationDefaults, 0);
 
-  UTEST_TEST(zConfigTest_DataGetPutValue, 0);
-  UTEST_TEST(zConfigTest_DataGetPutChild, 0);
+  UTEST_TEST(zConfigTest_ConfigDataCtor, 0);
+  UTEST_TEST(zConfigTest_ConfigDataGetPutValue, 0);
+  UTEST_TEST(zConfigTest_ConfigDataGetPutChild, 0);
 
   UTEST_TEST(zConfigTest_FileLoadStore, 0);
 

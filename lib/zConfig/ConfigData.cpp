@@ -32,28 +32,25 @@ namespace zConfig
 //**********************************************************************
 
 ConfigData::ConfigData(const std::string& path_) :
-    zData::Data(ConfigPath::ConfigRoot)
+    zData::Data(ConfigPath(path_))
 {
-  if (!path_.empty())
-  {
-    this->Append(path_);
-    this->PutValue(*this, std::string(""));
-  }
 }
 
 ConfigData::ConfigData(ConfigPath& path_) :
-    zData::Data(path_.GetDataPath())
+    zData::Data(path_)
 {
 }
 
 ConfigData::ConfigData(zData::Data& data_) :
-    zData::Data(data_)
+    zData::Data(ConfigPath())
 {
+  this->PutChild(*this, *this, data_);
 }
 
 ConfigData::ConfigData(const zData::Data& data_) :
-    zData::Data(data_)
+    zData::Data(ConfigPath())
 {
+  this->PutChild(*this, *this, data_);
 }
 
 ConfigData::~ConfigData()
@@ -63,14 +60,14 @@ ConfigData::~ConfigData()
 ConfigData&
 ConfigData::operator=(zData::Data& data_)
 {
-  *this = data_;
+  this->PutChild(*this, *this, data_);
   return (*this);
 }
 
 ConfigData&
 ConfigData::operator=(const zData::Data& data_)
 {
-  *this = data_;
+  this->PutChild(*this, *this, data_);
   return (*this);
 }
 

@@ -21,6 +21,25 @@ using namespace Test;
 using namespace zUtils;
 
 int
+zConfigTest_PathDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zConfigTest_PathDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  // Create new configuration data item and verify
+  zConfig::ConfigPath *MyPath = new zConfig::ConfigPath;
+  TEST_ISNOT_NULL(MyPath);
+
+  // Cleanup
+  delete (MyPath);
+
+  // Return success
+  return (0);
+}
+
+int
 zConfigTest_DataDefaults(void* arg_)
 {
 
