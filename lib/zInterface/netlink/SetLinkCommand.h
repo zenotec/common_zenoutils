@@ -39,8 +39,6 @@ public:
 
   SetLinkCommand(int index_);
 
-  SetLinkCommand(const std::string& name_);
-
   virtual
   ~SetLinkCommand();
 

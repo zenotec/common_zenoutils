@@ -59,12 +59,6 @@ SetLinkCommand::SetLinkCommand(int index_)
   this->Link.IfIndex(index_);
 }
 
-SetLinkCommand::SetLinkCommand(const std::string& name_)
-{
-  this->_orig.IfName(name_);
-  this->Link.IfName(name_);
-}
-
 SetLinkCommand::~SetLinkCommand()
 {
 }

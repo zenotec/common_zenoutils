@@ -75,8 +75,6 @@ Interface::Interface(const std::string& name_) :
 
 {
   this->_getlinkcmd = new GetLinkCommand(name_);
-  this->_setlinkcmd = new SetLinkCommand(name_);
-  this->_rtlinkevent = new RouteLinkEvent;
   this->_lock.Unlock();
 }
 
@@ -88,9 +86,7 @@ Interface::Interface(const zConfig::ConfigData& config_) :
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Config.Path());
   ZLOG_DEBUG(this->Config.GetJson());
-  this->_getlinkcmd = new GetLinkCommand(Config.Name());
-  this->_setlinkcmd = new SetLinkCommand(Config.Name());
-  this->_rtlinkevent = new RouteLinkEvent;
+  this->_getlinkcmd = new GetLinkCommand(this->Config.Name());
   this->_lock.Unlock();
 }
 
@@ -378,6 +374,14 @@ Interface::Refresh()
     {
       status = this->_refreshed = true;
     }
+    if (!this->_setlinkcmd)
+    {
+      this->_setlinkcmd = new SetLinkCommand(this->_getlinkcmd->Link.IfIndex());
+    }
+    if (!this->_rtlinkevent)
+    {
+      this->_rtlinkevent = new RouteLinkEvent;
+    }
     this->_lock.Unlock();
   }
 
@@ -400,26 +404,22 @@ Interface::Destroy()
 void
 Interface::Display(const std::string &prefix_)
 {
-  if (this->_lock.Lock())
+  if (this->_refreshed)
   {
-    if (this->_refreshed)
-    {
-      std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
-      std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
-      std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
-      std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
-      std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
-      std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
-    }
-    else
-    {
-      std::cout << prefix_ << "Name:   \t" << this->Config.Name() << std::endl;
-      std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
-      std::cout << prefix_ << "MAC:    \t" << this->Config.HwAddress() << std::endl;
-      std::cout << prefix_ << "MTU:    \t" << this->Config.Mtu() << std::endl;
-      std::cout << prefix_ << "State:  \t" << this->Config.AdminState() << std::endl;
-    }
-    this->_lock.Unlock();
+    std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
+    std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
+    std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
+    std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
+    std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
+    std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
+  }
+  else
+  {
+    std::cout << prefix_ << "Name:   \t" << this->Config.Name() << std::endl;
+    std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
+    std::cout << prefix_ << "MAC:    \t" << this->Config.HwAddress() << std::endl;
+    std::cout << prefix_ << "MTU:    \t" << this->Config.Mtu() << std::endl;
+    std::cout << prefix_ << "State:  \t" << this->Config.AdminState() << std::endl;
   }
 }
 
