@@ -141,11 +141,9 @@ bool
 Message::GetAttribute(const int attr_, AttributeBuffer buf_)
 {
   bool status = false;
-  std::cout << "Message::GetAttribute(AttributeBuffer)" << std::endl;
   if (this->_attrs[attr_] && buf_.first && buf_.second)
   {
     char* m = (char*)nla_data(this->_attrs[attr_]);
-    printf("MAC[0]: %p -> %02x\n", m, m[0]);
     memcpy(buf_.first, nla_data(this->_attrs[attr_]), buf_.second);
     status = true;
   }

@@ -47,6 +47,7 @@
 
 // local includes
 
+#include "GetLinkCommand.h"
 #include "GetPhyCommand.h"
 #include "GetInterfaceCommand.h"
 #include "SetInterfaceCommand.h"
@@ -91,238 +92,30 @@ WirelessInterfaceConfigPath::~WirelessInterfaceConfigPath()
 }
 
 // ****************************************************************************
-// Class: WirelessInterfaceConfigData
-// ****************************************************************************
-
-const unsigned int WirelessInterfaceConfigData::ConfigPhyIndexDefault(0);
-
-const std::string WirelessInterfaceConfigData::ConfigPhyNameDefault("");
-
-const std::string WirelessInterfaceConfigData::ConfigHwModeNone("");
-const std::string WirelessInterfaceConfigData::ConfigHwModeA("A");
-const std::string WirelessInterfaceConfigData::ConfigHwModeB("B");
-const std::string WirelessInterfaceConfigData::ConfigHwModeG("G");
-const std::string WirelessInterfaceConfigData::ConfigHwModeN("N");
-const std::string WirelessInterfaceConfigData::ConfigHwModeAC("AC");
-const std::string WirelessInterfaceConfigData::ConfigHwModeAD("AD");
-const std::string WirelessInterfaceConfigData::ConfigHwModeAX("AX");
-const std::string WirelessInterfaceConfigData::ConfigHwModeDefault(WirelessInterfaceConfigData::ConfigHwModeNone);
-
-const std::string WirelessInterfaceConfigData::ConfigOpModeNone("");
-const std::string WirelessInterfaceConfigData::ConfigOpModeSTA("STATION");
-const std::string WirelessInterfaceConfigData::ConfigOpModeAP("AP");
-const std::string WirelessInterfaceConfigData::ConfigOpModeAdhoc("ADHOC");
-const std::string WirelessInterfaceConfigData::ConfigOpModeMonitor("MONITOR");
-const std::string WirelessInterfaceConfigData::ConfigOpModeMesh("MESH");
-const std::string WirelessInterfaceConfigData::ConfigOpModeDefault(WirelessInterfaceConfigData::ConfigOpModeNone);
-
-WirelessInterfaceConfigData::WirelessInterfaceConfigData() :
-    zConfig::ConfigData(ConfigPath::ConfigRoot)
-{
-  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData()");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
-WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zData::Data& data_) :
-    zConfig::ConfigData(ConfigPath::ConfigRoot)
-{
-  ConfigPath path;
-  this->PutChild(path, path, data_);
-  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(data_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
-WirelessInterfaceConfigData::WirelessInterfaceConfigData(const zConfig::ConfigData& config_) :
-    zConfig::ConfigData(ConfigPath::ConfigRoot)
-{
-  ConfigPath path;
-  this->PutChild(path, path, config_);
-  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(config_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
-WirelessInterfaceConfigData::WirelessInterfaceConfigData(const WirelessInterfaceConfigData& other_) :
-    zConfig::ConfigData(other_)
-{
-  ZLOG_DEBUG("WirelessConfigData::WirelessConfigData(other_)");
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
-}
-
-WirelessInterfaceConfigData::~WirelessInterfaceConfigData()
-{
-}
-
-unsigned int
-WirelessInterfaceConfigData::PhyIndex() const
-{
-  unsigned int val = 0;
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
-  if (!this->GetValue<unsigned int>(path, val))
-  {
-    val = ConfigPhyIndexDefault;
-  }
-  return (val);
-}
-
-bool
-WirelessInterfaceConfigData::PhyIndex(const unsigned int index_)
-{
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
-  return (this->PutValue(path, index_));
-}
-
-std::string
-WirelessInterfaceConfigData::PhyName() const
-{
-  std::string str;
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyNamePath);
-  if (!this->GetValue(path, str))
-  {
-    str = ConfigPhyNameDefault;
-  }
-  return (str);
-}
-
-bool
-WirelessInterfaceConfigData::PhyName(const std::string& name_)
-{
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyNamePath);
-  return (this->PutValue(path, name_));
-}
-
-std::string
-WirelessInterfaceConfigData::HwMode() const
-{
-  std::string str;
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHwModePath);
-  if (!this->GetValue(path, str))
-  {
-    str = ConfigHwModeDefault;
-  }
-  return (str);
-
-}
-
-bool
-WirelessInterfaceConfigData::HwMode(const std::string& mode_)
-{
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHwModePath);
-  return (this->PutValue(path, mode_));
-}
-
-std::string
-WirelessInterfaceConfigData::OpMode() const
-{
-  std::string str;
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigOpModePath);
-  if (!this->GetValue(path, str))
-  {
-    str = ConfigOpModeDefault;
-  }
-  return (str);
-
-}
-
-bool
-WirelessInterfaceConfigData::OpMode(const std::string& mode_)
-{
-  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigOpModePath);
-  return (this->PutValue(path, mode_));
-}
-//
-//WirelessInterfaceConfigData::TYPE
-//WirelessInterfaceConfigData::GetType() const
-//{
-//  WirelessInterfaceConfigData::TYPE type = WirelessInterfaceConfigData::TYPE_DEF;
-//  std::string str;
-//  ConfigPath path;
-//  if (this->GetValue(path.Type(), str))
-//  {
-//    if (str == WirelessInterfaceConfigData::ConfigTypeNone)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_NONE;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeA)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_A;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeB)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_B;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeG)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_G;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeN)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_N;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeAC)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_AC;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeAD)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_AD;
-//    }
-//    else if (str == WirelessInterfaceConfigData::ConfigTypeAX)
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_AX;
-//    }
-//    else
-//    {
-//      type = WirelessInterfaceConfigData::TYPE_ERR;
-//    }
-//  }
-//  return (type);
-//}
-//
-//bool
-//WirelessInterfaceConfigData::SetType(const WirelessInterfaceConfigData::TYPE type_)
-//{
-//  bool status = true;
-//  ConfigPath path;
-//  std::string str;
-//  switch (type_)
-//  {
-//  case WirelessInterfaceConfigData::TYPE_NONE:
-//    str = ConfigTypeNone;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_A:
-//    str = ConfigTypeA;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_B:
-//    str = ConfigTypeB;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_G:
-//    str = ConfigTypeG;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_N:
-//    str = ConfigTypeN;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_AC:
-//    str = ConfigTypeAC;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_AD:
-//    str = ConfigTypeAD;
-//    break;
-//  case WirelessInterfaceConfigData::TYPE_AX:
-//    str = ConfigTypeAX;
-//    break;
-//  default:
-//    status = false;
-//  }
-//  return (this->PutValue(path.Type(), str));
-//}
-
-// ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
+
+const unsigned int WirelessInterface::ConfigPhyIndexDefault(0);
+
+const std::string WirelessInterface::ConfigPhyNameDefault("");
+
+const std::string WirelessInterface::ConfigHwModeNone("");
+const std::string WirelessInterface::ConfigHwModeA("A");
+const std::string WirelessInterface::ConfigHwModeB("B");
+const std::string WirelessInterface::ConfigHwModeG("G");
+const std::string WirelessInterface::ConfigHwModeN("N");
+const std::string WirelessInterface::ConfigHwModeAC("AC");
+const std::string WirelessInterface::ConfigHwModeAD("AD");
+const std::string WirelessInterface::ConfigHwModeAX("AX");
+const std::string WirelessInterface::ConfigHwModeDefault(WirelessInterface::ConfigHwModeNone);
+
+const std::string WirelessInterface::ConfigOpModeNone("");
+const std::string WirelessInterface::ConfigOpModeSTA("STATION");
+const std::string WirelessInterface::ConfigOpModeAP("AP");
+const std::string WirelessInterface::ConfigOpModeAdhoc("ADHOC");
+const std::string WirelessInterface::ConfigOpModeMonitor("MONITOR");
+const std::string WirelessInterface::ConfigOpModeMesh("MESH");
+const std::string WirelessInterface::ConfigOpModeDefault(WirelessInterface::ConfigOpModeNone);
 
 WirelessInterface::WirelessInterface(const int index_) :
     Interface(index_), _getphycmd(NULL), _getifacecmd(NULL), _setifacecmd(NULL),
@@ -347,11 +140,11 @@ WirelessInterface::WirelessInterface(const std::string& name_) :
   this->_delifacecmd = new DelInterfaceCommand(name_);
 }
 
-WirelessInterface::WirelessInterface(const zConfig::ConfigData& config_) :
-    Interface(config_), WiConfig(config_), _getphycmd(NULL), _getifacecmd(NULL),
+WirelessInterface::WirelessInterface(const zInterface::ConfigData& config_) :
+    Interface(config_), _getphycmd(NULL), _getifacecmd(NULL),
     _setifacecmd(NULL), _newifacecmd(NULL), _delifacecmd(NULL)
 {
-  this->_getphycmd = new GetPhyCommand(this->WiConfig.PhyIndex());
+  this->_getphycmd = new GetPhyCommand(this->ConfigPhyIndex());
   this->_getifacecmd = new GetInterfaceCommand(this->Config.Name());
   this->_setifacecmd = new SetInterfaceCommand(this->Config.Name());
   this->_newifacecmd = new NewInterfaceCommand(this->Config.Name());
@@ -385,6 +178,83 @@ WirelessInterface::~WirelessInterface()
     delete (this->_delifacecmd);
     this->_delifacecmd = NULL;
   }
+}
+unsigned int
+WirelessInterface::ConfigPhyIndex() const
+{
+  unsigned int val = 0;
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
+  if (!this->Config.GetValue<unsigned int>(path, val))
+  {
+    val = ConfigPhyIndexDefault;
+  }
+  return (val);
+}
+
+bool
+WirelessInterface::ConfigPhyIndex(const unsigned int index_)
+{
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
+  return (this->Config.PutValue(path, index_));
+}
+
+std::string
+WirelessInterface::ConfigPhyName() const
+{
+  std::string str;
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyNamePath);
+  if (!this->Config.GetValue(path, str))
+  {
+    str = ConfigPhyNameDefault;
+  }
+  return (str);
+}
+
+bool
+WirelessInterface::ConfigPhyName(const std::string& name_)
+{
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyNamePath);
+  return (this->Config.PutValue(path, name_));
+}
+
+std::string
+WirelessInterface::ConfigHwMode() const
+{
+  std::string str;
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHwModePath);
+  if (!this->Config.GetValue(path, str))
+  {
+    str = ConfigHwModeDefault;
+  }
+  return (str);
+
+}
+
+bool
+WirelessInterface::ConfigHwMode(const std::string& mode_)
+{
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHwModePath);
+  return (this->Config.PutValue(path, mode_));
+}
+
+std::string
+WirelessInterface::ConfigOpMode() const
+{
+  std::string str;
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigOpModePath);
+  if (!this->Config.GetValue(path, str))
+  {
+    str = ConfigOpModeDefault;
+  }
+  return (str);
+
+}
+
+bool
+WirelessInterface::ConfigOpMode(const std::string& mode_)
+{
+  WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigOpModePath);
+  return (this->Config.PutValue(path, mode_));
 }
 
 unsigned int
@@ -598,13 +468,22 @@ WirelessInterface::Refresh()
 
   if (status && this->_lock.Lock())
   {
+    status = false;
     this->_refreshed = false;
-    if (this->_getphycmd && this->_getifacecmd && this->_getifacecmd->Exec())
+    if (this->_getphycmd && this->_getifacecmd)
     {
-      this->_getphycmd->PhyIndex(this->_getifacecmd->PhyIndex());
-      status = this->_refreshed = this->_getphycmd->Exec();
+      this->_getifacecmd->IfIndex(this->_getlinkcmd->Link.IfIndex());
+      if (this->_getifacecmd->Exec())
+      {
+        this->_getphycmd->PhyIndex(this->_getifacecmd->PhyIndex());
+        status = this->_refreshed = this->_getphycmd->Exec();
+      }
     }
     this->_lock.Unlock();
+  }
+  else
+  {
+    ZLOG_ERR("Error refreshing interface: " + this->Config.Name());
   }
 
   return (status);
@@ -617,24 +496,25 @@ WirelessInterface::Create()
 
   bool status = false;
 
+  ZLOG_DEBUG("WirelessInterface::Create(): Enter");
   if (this->_lock.Lock())
   {
     if (this->_newifacecmd)
     {
-      this->_newifacecmd->PhyIndex(this->WiConfig.PhyIndex());
-      if (this->WiConfig.OpMode() == WirelessInterfaceConfigData::ConfigOpModeSTA)
+      this->_newifacecmd->PhyIndex(this->ConfigPhyIndex());
+      if (this->ConfigOpMode() == WirelessInterface::ConfigOpModeSTA)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_STATION);
       }
-      else if (this->WiConfig.OpMode() == WirelessInterfaceConfigData::ConfigOpModeAP)
+      else if (this->ConfigOpMode() == WirelessInterface::ConfigOpModeAP)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_AP);
       }
-      else if (this->WiConfig.OpMode() == WirelessInterfaceConfigData::ConfigOpModeAdhoc)
+      else if (this->ConfigOpMode() == WirelessInterface::ConfigOpModeAdhoc)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_ADHOC);
       }
-      else if (this->WiConfig.OpMode() == WirelessInterfaceConfigData::ConfigOpModeMonitor)
+      else if (this->ConfigOpMode() == WirelessInterface::ConfigOpModeMonitor)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_MONITOR);
       }
@@ -647,6 +527,8 @@ WirelessInterface::Create()
     this->_lock.Unlock();
   }
 
+  ZLOG_DEBUG("WirelessInterface::Create(): Exit");
+
   return(status);
 
 }
@@ -657,10 +539,19 @@ WirelessInterface::Destroy()
 
   bool status = false;
 
+  ZLOG_DEBUG("WirelessInterface::Destroy(): Enter");
+
   if (this->_lock.Lock())
   {
+    if (this->_refreshed && this->_delifacecmd)
+    {
+      this->_delifacecmd->IfIndex(this->_getifacecmd->IfIndex());
+      status = this->_delifacecmd->Exec();
+    }
     this->_lock.Unlock();
   }
+
+  ZLOG_DEBUG("WirelessInterface::Destroy(): Exit");
 
   return(status);
 

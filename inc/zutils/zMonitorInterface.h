@@ -39,7 +39,7 @@ public:
 
   MonitorInterface(const std::string &name_);
 
-  MonitorInterface(const ConfigData& config_);
+  MonitorInterface(const zInterface::ConfigData& config_);
 
   virtual
   ~MonitorInterface();

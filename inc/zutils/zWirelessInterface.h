@@ -69,12 +69,11 @@ private:
 };
 
 // ****************************************************************************
-// Class: WirelessInterfaceConfigData
+// Class: WirelessInterface
 // ****************************************************************************
 
-class WirelessInterfaceConfigData : public zConfig::ConfigData
+class WirelessInterface : public Interface
 {
-
 public:
 
   static const unsigned int ConfigPhyIndexDefault;
@@ -91,73 +90,6 @@ public:
   static const std::string ConfigHwModeAX;
   static const std::string ConfigHwModeDefault;
 
-  static const std::string ConfigHtModeNone;
-  static const std::string ConfigHtModeDefault;
-
-  static const std::string ConfigOpModeNone;
-  static const std::string ConfigOpModeSTA;
-  static const std::string ConfigOpModeAP;
-  static const std::string ConfigOpModeAdhoc;
-  static const std::string ConfigOpModeMonitor;
-  static const std::string ConfigOpModeMesh;
-  static const std::string ConfigOpModeDefault;
-
-  WirelessInterfaceConfigData();
-
-  WirelessInterfaceConfigData(const zData::Data& data_);
-
-  WirelessInterfaceConfigData(const zConfig::ConfigData& config_);
-
-  WirelessInterfaceConfigData(const WirelessInterfaceConfigData& other_);
-
-  virtual
-  ~WirelessInterfaceConfigData();
-
-  unsigned int
-  PhyIndex() const;
-
-  bool
-  PhyIndex(const unsigned int index_);
-
-  std::string
-  PhyName() const;
-
-  bool
-  PhyName(const std::string& name_);
-
-  std::string
-  HwMode() const;
-
-  bool
-  HwMode(const std::string& mode_);
-
-  std::string
-  HtMode() const;
-
-  bool
-  HtMode(const std::string& mode_);
-
-  std::string
-  OpMode() const;
-
-  bool
-  OpMode(const std::string& mode_);
-
-protected:
-
-private:
-
-};
-
-
-// ****************************************************************************
-// Class: WirelessInterface
-// ****************************************************************************
-
-class WirelessInterface : public Interface
-{
-public:
-
   enum HWMODE
   {
     HWMODE_ERR = -1,
@@ -172,6 +104,9 @@ public:
     HWMODE_AX = 7,
     HWMODE_LAST
   };
+
+  static const std::string ConfigHtModeNone;
+  static const std::string ConfigHtModeDefault;
 
   enum HTMODE
   {
@@ -190,6 +125,14 @@ public:
     HTMODE_LAST
   };
 
+  static const std::string ConfigOpModeNone;
+  static const std::string ConfigOpModeSTA;
+  static const std::string ConfigOpModeAP;
+  static const std::string ConfigOpModeAdhoc;
+  static const std::string ConfigOpModeMonitor;
+  static const std::string ConfigOpModeMesh;
+  static const std::string ConfigOpModeDefault;
+
   enum OPMODE
   {
     OPMODE_ERR = -1,
@@ -202,16 +145,44 @@ public:
     OPMODE_LAST
   };
 
-  WirelessInterfaceConfigData WiConfig;
-
   WirelessInterface(const int index_ = 0);
 
   WirelessInterface(const std::string& name_);
 
-  WirelessInterface(const zConfig::ConfigData& config_);
+  WirelessInterface(const zInterface::ConfigData& config_);
 
   virtual
   ~WirelessInterface();
+
+  unsigned int
+  ConfigPhyIndex() const;
+
+  bool
+  ConfigPhyIndex(const unsigned int index_);
+
+  std::string
+  ConfigPhyName() const;
+
+  bool
+  ConfigPhyName(const std::string& name_);
+
+  std::string
+  ConfigHwMode() const;
+
+  bool
+  ConfigHwMode(const std::string& mode_);
+
+  std::string
+  ConfigHtMode() const;
+
+  bool
+  ConfigHtMode(const std::string& mode_);
+
+  std::string
+  ConfigOpMode() const;
+
+  bool
+  ConfigOpMode(const std::string& mode_);
 
   unsigned int
   GetPhyIndex() const;

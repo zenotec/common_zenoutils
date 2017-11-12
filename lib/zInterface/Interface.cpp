@@ -348,10 +348,12 @@ Interface::SetAdminState(const Interface::STATE state_)
       this->_refreshed = false;
       if (state_ == Interface::STATE_UP)
       {
+        ZLOG_INFO("Administrative UP");
         this->_setlinkcmd->Link.SetFlags((IFF_UP|IFF_RUNNING));
       }
       else
       {
+        ZLOG_INFO("Administrative DOWN");
         this->_setlinkcmd->Link.ClrFlags((IFF_UP|IFF_RUNNING));
       }
       status = this->_setlinkcmd->Exec();
@@ -373,14 +375,14 @@ Interface::Refresh()
     if (this->_getlinkcmd && this->_getlinkcmd->Exec())
     {
       status = this->_refreshed = true;
-    }
-    if (!this->_setlinkcmd)
-    {
-      this->_setlinkcmd = new SetLinkCommand(this->_getlinkcmd->Link.IfIndex());
-    }
-    if (!this->_rtlinkevent)
-    {
-      this->_rtlinkevent = new RouteLinkEvent;
+      if (!this->_setlinkcmd)
+      {
+        this->_setlinkcmd = new SetLinkCommand(this->_getlinkcmd->Link.IfIndex());
+      }
+      if (!this->_rtlinkevent)
+      {
+        this->_rtlinkevent = new RouteLinkEvent;
+      }
     }
     this->_lock.Unlock();
   }

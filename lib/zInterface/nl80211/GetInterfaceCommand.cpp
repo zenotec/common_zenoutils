@@ -55,12 +55,6 @@ GetInterfaceCommand::GetInterfaceCommand(int index_)
 GetInterfaceCommand::GetInterfaceCommand(const std::string& name_)
 {
   this->IfName.SetValue(name_);
-  this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));
-  if (!this->IfIndex())
-  {
-    ZLOG_ERR("Error retrieving interface index for: " + name_);
-    return;
-  }
 }
 
 GetInterfaceCommand::~GetInterfaceCommand()

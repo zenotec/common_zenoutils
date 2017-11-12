@@ -110,8 +110,6 @@ RouteLinkEvent::Run(zThread::ThreadArg *arg_)
 int
 RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 {
-  std::cout << "RouteLinkEvent::valid_cb()" << std::endl;
-
   RouteMessage msg(msg_);
   if (!msg.Parse())
   {
@@ -122,7 +120,6 @@ RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 //  msg.DisplayAttributes();
 
   RouteLinkNotification* n = new RouteLinkNotification(RouteLinkEvent::EVENT_UPDOWN, msg.LinkIndex());
-  n->Link.Display();
   this->Notify(n);
   delete(n);
 

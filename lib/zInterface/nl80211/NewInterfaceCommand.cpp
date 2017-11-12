@@ -78,6 +78,16 @@ NewInterfaceCommand::~NewInterfaceCommand()
 bool
 NewInterfaceCommand::Exec()
 {
+
+  this->_status = false;
+  this->_count.Reset();
+
+  if (this->IfName().empty())
+  {
+    ZLOG_ERR("Error executing NewInterfaceCommand: name is empty");
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -91,14 +101,52 @@ NewInterfaceCommand::Exec()
   }
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_NEW_INTERFACE);
-  cmdmsg.PutAttribute(&this->PhyIndex);
-  cmdmsg.PutAttribute(&this->IfName);
-  cmdmsg.PutAttribute(&this->IfType);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+
+  // Set phy index attribute
+  if (!cmdmsg.PutAttribute(&this->PhyIndex))
+  {
+    ZLOG_ERR("Error setting phyindex attribute");
+    return (false);
+  }
+
+  // Set interface name attribute
+  if (!cmdmsg.PutAttribute(&this->IfName))
+  {
+    ZLOG_ERR("Error setting interface name attribute");
+    return (false);
+  }
+
+  // Set interface type attribute
+  if (!cmdmsg.PutAttribute(&this->IfType))
+  {
+    ZLOG_ERR("Error setting iftype attribute");
+    return (false);
+  }
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 }
 
 void
@@ -146,7 +194,10 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
     return(NL_SKIP);
   }
 
-  return (NL_OK);
+  this->_status = true;
+  this->_count.Post();
+
+  return(NL_OK);
 }
 
 int
@@ -154,6 +205,8 @@ NewInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, voi
 {
   ZLOG_ERR("Error executing NewInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

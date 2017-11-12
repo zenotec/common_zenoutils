@@ -71,12 +71,6 @@ SetInterfaceCommand::SetInterfaceCommand(int index_)
 SetInterfaceCommand::SetInterfaceCommand(const std::string& name_)
 {
   this->IfName.SetValue(name_);
-  this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));
-  if (!this->IfIndex())
-  {
-    ZLOG_ERR("Error retrieving interface index for: " + name_);
-    return;
-  }
 }
 
 SetInterfaceCommand::~SetInterfaceCommand()
@@ -86,6 +80,16 @@ SetInterfaceCommand::~SetInterfaceCommand()
 bool
 SetInterfaceCommand::Exec()
 {
+
+  this->_status = false;
+  this->_count.Reset();
+
+  if (!this->IfIndex())
+  {
+    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -99,13 +103,45 @@ SetInterfaceCommand::Exec()
   }
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_INTERFACE);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->IfType);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+
+  // Set interface index attribute
+  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  {
+    ZLOG_ERR("Error setting ifindex attribute");
+    return (false);
+  }
+
+  // Set interface type attribute
+  if (!cmdmsg.PutAttribute(&this->IfType))
+  {
+    ZLOG_ERR("Error setting iftype attribute");
+    return (false);
+  }
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 }
 
 void
@@ -146,6 +182,9 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  this->_status = true;
+  this->_count.Post();
+
   return (NL_OK);
 }
 
@@ -154,6 +193,8 @@ SetInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, voi
 {
   ZLOG_ERR("Error executing SetInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

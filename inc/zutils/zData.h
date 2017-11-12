@@ -215,7 +215,7 @@ public:
   template<typename T>
     bool
     GetValue(const DataPath& src_, T &value_) const
-        {
+    {
 
       bool status = false;
 
@@ -327,7 +327,7 @@ private:
   template<typename T>
     bool
     get(const std::string &path_, T &value_) const
-        {
+    {
       bool status = false;
       if (!path_.empty())
       {
