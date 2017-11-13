@@ -14,4 +14,4 @@ libzCommand_la_SOURCES = \
     CommandData.cpp \
     CommandNotification.cpp \
     Command.cpp
-    
+
