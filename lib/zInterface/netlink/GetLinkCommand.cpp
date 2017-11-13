@@ -74,6 +74,12 @@ GetLinkCommand::Exec()
   int ret = 0;
   struct rtnl_link* link = NULL;
 
+  if (!this->Link.IfIndex() && this->Link.IfName().empty())
+  {
+    ZLOG_ERR("Either valid ifindex or name must be specified");
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting Netlink socket");
