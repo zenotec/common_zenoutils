@@ -384,7 +384,7 @@ zDataTest_AddChild(void* arg_)
   TEST_EQ(ParentData.Key(), ParentPath.Key());
 
   // Create name data object and validate
-  zData::Data NameData[2](NamePath);
+  zData::Data NameData[2]{NamePath, NamePath};
   TEST_EQ(NameData[0].Key(), NamePath.Key());
   TEST_EQ(NameData[1].Key(), NamePath.Key());
 
