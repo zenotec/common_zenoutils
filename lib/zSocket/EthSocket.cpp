@@ -451,9 +451,9 @@ EthSocketSend::Run(zThread::ThreadArg *arg_)
 // zSocket::EthSocket Class
 //**********************************************************************
 
-EthSocket::EthSocket() :
-    Socket(SocketType::TYPE_ETH), _rx_thread(&this->_rx_func, this),
-        _tx_thread(&this->_tx_func, this), _sock(0)
+EthSocket::EthSocket(const PROTO proto_) :
+    Socket(SocketType::TYPE_ETH), _proto(proto_),
+    _rx_thread(&this->_rx_func, this), _tx_thread(&this->_tx_func, this), _sock(0)
 {
 }
 
@@ -471,7 +471,7 @@ EthSocket::Open()
     int sockopt = 0;
 
     // Create a AF_ETH socket
-    this->_sock = socket( PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+    this->_sock = socket( PF_PACKET, SOCK_RAW, htons(this->_proto));
     if (this->_sock < 0)
     {
       ZLOG_CRIT("Cannot create socket: " + std::string(strerror(errno)));
@@ -607,7 +607,8 @@ EthSocket::_recv(zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
     logstr += "Size:   " + ZLOG_INT(n) + ";\t";
     logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
     logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
-    logstr += "Proto:  " + ZLOG_INT(src.sll_protocol) + ";\t";
+    int proto = htobe16(src.sll_protocol);
+    logstr += "Proto:  " + ZLOG_HEX(proto) + ";\t";
     ZLOG_INFO(logstr);
     logstr = "Data (0x00): ";
     logstr += ZLOG_HEX(*p++) + ":";

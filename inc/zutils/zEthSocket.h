@@ -140,7 +140,18 @@ class EthSocket : public Socket, public zThread::ThreadArg
 
 public:
 
-  EthSocket();
+  enum PROTO
+  {
+    PROTO_ERR = -1,
+    PROTO_NONE = 1,
+    PROTO_ALL = ETH_P_ALL,
+    PROTO_LLC = ETH_P_802_2,
+    PROTO_LOOP = ETH_P_LOOP,
+    PROTO_IP = ETH_P_IP,
+    PROTO_LAST
+  };
+
+  EthSocket(const PROTO proto_ = PROTO_ALL);
 
   virtual
   ~EthSocket();
@@ -165,6 +176,8 @@ protected:
   _send(const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
 
 private:
+
+  PROTO _proto;
 
   zThread::Thread _rx_thread;
   EthSocketRecv _rx_func;
