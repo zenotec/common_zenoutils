@@ -17,6 +17,8 @@
 #ifndef _ZCONFTEST_H_
 #define _ZCONFTEST_H_
 
+#include <unistd.h>
+
 #include <list>
 #include <mutex>
 #include <memory>
