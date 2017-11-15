@@ -104,6 +104,14 @@ ZDATA_TESTS += zData/valgrind.sh
 endif
 endif
 
+if COND_ZQUEUE
+ZQUEUE_SUBDIRS = zQueue
+ZQUEUE_TESTS = zQueue/zQueueUnitTest
+if COND_VALGRIND
+ZQUEUE_TESTS += zQueue/valgrind.sh
+endif
+endif
+
 if COND_ZLOG
 ZLOG_SUBDIRS = zLog
 ZLOG_TESTS = zLog/zLogUnitTest
@@ -123,6 +131,7 @@ endif
 SUBDIRS = \
 	$(ZLOG_SUBDIRS) \
 	$(ZSEM_SUBDIRS) \
+	$(ZQUEUE_SUBDIRS) \
 	$(ZDATA_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
 	$(ZCONFIG_SUBDIRS) \
@@ -138,6 +147,7 @@ SUBDIRS = \
 TESTS = \
 	$(ZLOG_TESTS) \
 	$(ZSEM_TESTS) \
+	$(ZQUEUE_TESTS) \
 	$(ZDATA_TESTS) \
 	$(ZEVENT_TESTS) \
 	$(ZCONFIG_TESTS) \

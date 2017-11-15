@@ -19,6 +19,7 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {

@@ -200,6 +200,15 @@ AM_CONDITIONAL([COND_ZDATA],[test "$enable_zdata" = yes])
 
 #########################################################################################
 
+AC_ARG_ENABLE([zqueue],
+  [AS_HELP_STRING([--disable-zqueue],
+    [disable building zQueue subsystem])],
+    [],
+    [enable_zqueue=yes])
+AM_CONDITIONAL([COND_ZQUEUE],[test "$enable_zqueue" = yes])
+
+#########################################################################################
+
 AC_ARG_ENABLE([zsem],
   [AS_HELP_STRING([--disable-zsem],
     [disable building zSem subsystem])],
@@ -217,6 +226,7 @@ AM_CONDITIONAL([COND_ZSEM],[test "$enable_zthread" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zevent" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zconfig" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zdata" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zqueue" = yes])
 AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsem" = yes])
 
 #########################################################################################
@@ -240,6 +250,7 @@ AM_CONDITIONAL([COND_ZLOG],[test "$enable_zevent" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zmath" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zconfig" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zdata" = yes])
+AM_CONDITIONAL([COND_ZLOG],[test "$enable_zqueue" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zsem" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zlog" = yes])
 

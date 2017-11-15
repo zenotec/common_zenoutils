@@ -138,6 +138,13 @@ ZDATA_LIBS = \
 	${top_builddir}/lib/zData/libzData.la
 endif
 
+if COND_ZQUEUE
+ZDATA_SOURCE = \
+	$(top_srcdir)/inc/zutils/zQueue.h
+ZDATA_CPPFLAGS =
+ZDATA_LDFLAGS =
+endif
+
 if COND_ZSEM
 ZSEM_SUBDIRS = zSem
 ZSEM_SOURCE = \
@@ -166,6 +173,7 @@ endif
 SUBDIRS = \
 	$(ZLOG_SUBDIRS) \
 	$(ZSEM_SUBDIRS) \
+	$(ZQUEUE_SUBDIRS) \
 	$(ZDATA_SUBDIRS) \
 	$(ZMATH_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
@@ -184,6 +192,7 @@ AM_CPPFLAGS := \
 	$(GCOV_CPPFLAGS) \
 	$(ZLOG_CPPFLAGS) \
 	$(ZSEM_CPPFLAGS) \
+	$(ZQUEUE_CPPFLAGS) \
 	$(ZDATA_CPPFLAGS) \
 	$(ZMATH_CPPFLAGS) \
 	$(ZEVENT_CPPFLAGS) \
@@ -203,6 +212,7 @@ AM_LDFLAGS := \
 	$(GCOV_LDFLAGS) \
 	$(ZLOG_LDFLAGS) \
 	$(ZSEM_LDFLAGS) \
+	$(ZQUEUE_LDFLAGS) \
 	$(ZDATA_LDFLAGS) \
 	$(ZMATH_LDFLAGS) \
 	$(ZEVENT_LDFLAGS) \
@@ -229,6 +239,7 @@ libzutils_la_HEADERS = \
 	$(top_srcdir)/inc/zutils/zUuid.h \
 	$(ZLOG_SOURCE) \
 	$(ZSEM_SOURCE) \
+	$(ZQUEUE_SOURCE) \
 	$(ZDATA_SOURCE) \
 	$(ZMATH_SOURCE) \
 	$(ZEVENT_SOURCE) \
@@ -250,6 +261,7 @@ libzutils_la_SOURCES = \
 libzutils_la_LIBADD = \
 	$(ZLOG_LIBS) \
 	$(ZSEM_LIBS) \
+	$(ZQUEUE_LIBS) \
 	$(ZDATA_LIBS) \
 	$(ZMATH_LIBS) \
 	$(ZEVENT_LIBS) \

@@ -21,7 +21,6 @@
 
 #include <zutils/zLog.h>
 #include <zutils/zSem.h>
-#include <zutils/zEvent.h>
 
 namespace zUtils
 {
