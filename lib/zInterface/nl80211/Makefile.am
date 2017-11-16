@@ -19,7 +19,11 @@ libnl80211_la_LDFLAGS = \
 noinst_LTLIBRARIES = libnl80211.la
 
 libnl80211_la_SOURCES = \
+	BeaconHeadAttribute.h \
 	BeaconIntervalAttribute.h \
+	BeaconTailAttribute.h \
+	ChannelTypeAttribute.h \
+	ChannelWidthAttribute.h \
 	DtimPeriodAttribute.h \
 	FrequencyAttribute.h \
 	IfIndexAttribute.h \

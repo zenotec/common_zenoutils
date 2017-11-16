@@ -1,5 +1,18 @@
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
+if COND_ZMESSAGE
+ZMESSAGE_SUBDIRS = zMessage
+ZMESSAGE_SOURCE = \
+	$(top_srcdir)/inc/zutils/zMessage.h \
+	$(top_srcdir)/inc/zutils/zAckMessage.h \
+	$(top_srcdir)/inc/zutils/zByeMessage.h \
+	$(top_srcdir)/inc/zutils/zHelloMessage.h
+ZMESSAGE_CPPFLAGS =
+ZMESSAGE_LDFLAGS =
+ZMESSAGE_LIBS = \
+	${top_builddir}/lib/zMessage/libzMessage.la
+endif
+
 if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
 ZSOCKET_SOURCE = \
@@ -186,7 +199,8 @@ SUBDIRS = \
 	$(ZSERIAL_SUBDIRS) \
 	$(ZINTERFACE_SUBDIRS) \
 	$(ZPROGRAM_SUBDIRS) \
-	$(ZSOCKET_SUBDIRS)
+	$(ZSOCKET_SUBDIRS) \
+	$(ZMESSAGE_SUBDIRS)
 
 AM_CPPFLAGS := \
 	$(GCOV_CPPFLAGS) \
@@ -206,6 +220,7 @@ AM_CPPFLAGS := \
 	$(ZINTERFACE_CPPFLAGS) \
 	$(ZPROGRAM_CPPFLAGS) \
 	$(ZSOCKET_CPPFLAGS) \
+	$(ZMESSAGE_CPPFLAGS) \
 	-Werror -Wfatal-errors
 
 AM_LDFLAGS := \
@@ -225,7 +240,8 @@ AM_LDFLAGS := \
 	$(ZSERIAL_LDFLAGS) \
 	$(ZINTERFACE_LDFLAGS) \
 	$(ZPROGRAM_LDFLAGS) \
-	$(ZSOCKET_LDFLAGS)
+	$(ZSOCKET_LDFLAGS) \
+	$(ZMESSAGE_LDFLAGS)
 
 lib_LTLIBRARIES = libzutils.la
 
@@ -252,7 +268,8 @@ libzutils_la_HEADERS = \
 	$(ZSERIAL_SOURCE) \
 	$(ZINTERFACE_SOURCE) \
 	$(ZPROGRAM_SOURCE) \
-	$(ZSOCKET_SOURCE)
+	$(ZSOCKET_SOURCE) \
+	$(ZMESSAGE_SOURCE)
 
 # Sources to include in the package
 libzutils_la_SOURCES = \
@@ -274,4 +291,6 @@ libzutils_la_LIBADD = \
 	$(ZSERIAL_LIBS) \
 	$(ZINTERFACE_LIBS) \
 	$(ZPROGRAM_LIBS) \
-	$(ZSOCKET_LIBS)
+	$(ZSOCKET_LIBS) \
+	$(ZMESSAGE_LIBS)
+	

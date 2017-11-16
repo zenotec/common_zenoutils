@@ -6,6 +6,9 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
+CLEANFILES = \
+	zProgramTest.zlog
+
 check_PROGRAMS = zProgramUnitTest
 
 zProgramUnitTest_SOURCES = \

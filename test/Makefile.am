@@ -1,5 +1,13 @@
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
+if COND_ZMESSAGE
+ZMESSAGE_SUBDIRS = zMessage
+ZMESSAGE_TESTS = zMessage/zMessageUnitTest
+if COND_VALGRIND
+ZMESSAGE_TESTS += zMessage/valgrind.sh
+endif
+endif
+
 if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
 ZSOCKET_TESTS = zSocket/zSocketUnitTest
@@ -133,6 +141,7 @@ SUBDIRS = \
 	$(ZSEM_SUBDIRS) \
 	$(ZQUEUE_SUBDIRS) \
 	$(ZDATA_SUBDIRS) \
+	$(ZMATH_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
 	$(ZCONFIG_SUBDIRS) \
 	$(ZTHREAD_SUBDIRS) \
@@ -142,13 +151,15 @@ SUBDIRS = \
 	$(ZSERIAL_SUBDIRS) \
 	$(ZINTERFACE_SUBDIRS) \
 	$(ZPROGRAM_SUBDIRS) \
-	$(ZSOCKET_SUBDIRS)
+	$(ZSOCKET_SUBDIRS) \
+	$(ZMESSAGE_SUBDIRS)
 
 TESTS = \
 	$(ZLOG_TESTS) \
 	$(ZSEM_TESTS) \
 	$(ZQUEUE_TESTS) \
 	$(ZDATA_TESTS) \
+	$(ZMATH_TESTS) \
 	$(ZEVENT_TESTS) \
 	$(ZCONFIG_TESTS) \
 	$(ZTHREAD_TESTS) \
@@ -158,4 +169,8 @@ TESTS = \
 	$(ZSERIAL_TESTS) \
 	$(ZINTERFACE_TESTS) \
 	$(ZPROGRAM_TESTS) \
-	$(ZSOCKET_TESTS)
+	$(ZSOCKET_TESTS) \
+	$(ZMESSAGE_TESTS)
+
+clean-local:
+	rm -f *.zlog

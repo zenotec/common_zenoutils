@@ -8,6 +8,9 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 check_PROGRAMS = zGpioUnitTest
 
+CLEANFILES = \
+	zGpioTest.zlog
+
 #zGpioUnitTest_SOURCES = \
 #    Switch.cpp
 

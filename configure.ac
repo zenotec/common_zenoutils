@@ -49,20 +49,33 @@ AM_CONDITIONAL([COND_GCOV],[test '!' "$enable_gcov" = no])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zmessage],
-  [AS_HELP_STRING([--disable-zmessage],
-    [disable building zMessage subsystem])],
+AC_ARG_ENABLE(
+	[zgpio],
+	[AS_HELP_STRING([--disable-zgpio], [disable building zGpio subsystem])],
     [],
-    [enable_zmessage=yes])
-AM_CONDITIONAL([COND_ZSOCKET],[test "$enable_zmessage" = yes])
+    [enable_zgpio=no]
+)
+AM_CONDITIONAL([COND_ZGPIO],[test "$enable_zgpio" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zsocket],
-  [AS_HELP_STRING([--disable-zsocket],
-    [disable building zSocket subsystem])],
-    [],
-    [enable_zsocket=yes])
+AC_ARG_ENABLE(
+	[zmessage],
+	[AS_HELP_STRING([--disable-zmessage], [disable building zMessage subsystem])],
+	[],
+	[enable_zmessage=no]
+)
+AM_CONDITIONAL([COND_ZMESSAGE],[test "$enable_zmessage" = yes])
+
+#########################################################################################
+
+AC_ARG_ENABLE(
+	[zsocket],
+	[AS_HELP_STRING([--disable-zsocket], [disable building zSocket subsystem])],
+	[],
+	[enable_zsocket=yes]
+)
+AM_CONDITIONAL([COND_ZSOCKET],[test "$enable_zmessage" = yes])
 AM_CONDITIONAL([COND_ZSOCKET],[test "$enable_zsocket" = yes])
 
 #########################################################################################
@@ -76,47 +89,42 @@ AM_CONDITIONAL([COND_ZINTERFACE],[test "$enable_zinterface" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zserial],
-  [AS_HELP_STRING([--disable-zserial],
-    [disable building zSerial subsystem])],
-    [],
-    [enable_zserial=yes])
+AC_ARG_ENABLE(
+	[zserial],
+	[AS_HELP_STRING([--disable-zserial], [disable building zSerial subsystem])],
+	[],
+	[enable_zserial=no]
+)
 AM_CONDITIONAL([COND_ZSERIAL],[test "$enable_zserial" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zled],
-  [AS_HELP_STRING([--disable-zled],
-    [disable building zLed subsystem])],
-    [],
-    [enable_zled=yes])
+AC_ARG_ENABLE(
+	[zled],
+	[AS_HELP_STRING([--disable-zled], [disable building zLed subsystem])],
+	[],
+	[enable_zled=no]
+)
 AM_CONDITIONAL([COND_ZLED],[test "$enable_zled" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zgpio],
-  [AS_HELP_STRING([--disable-zgpio],
-    [disable building zGpio subsystem])],
-    [],
-    [enable_zgpio=yes])
-AM_CONDITIONAL([COND_ZGPIO],[test "$enable_zgpio" = yes])
-
-#########################################################################################
-
-AC_ARG_ENABLE([zprogram],
-  [AS_HELP_STRING([--disable-zprogram],
-    [disable building zProgram subsystem])],
-    [],
-    [enable_zprogram=yes])
+AC_ARG_ENABLE(
+	[zprogram],
+	[AS_HELP_STRING([--disable-zprogram], [disable building zProgram subsystem])],
+	[],
+	[enable_zprogram=yes]
+)
 AM_CONDITIONAL([COND_ZPROGRAM],[test "$enable_zprogram" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([ztimer],
-  [AS_HELP_STRING([--disable-ztimer],
-    [disable building zTimer subsystem])],
-    [],
-    [enable_ztimer=yes])
+AC_ARG_ENABLE(
+	[ztimer],
+	[AS_HELP_STRING([--disable-ztimer], [disable building zTimer subsystem])],
+	[],
+	[enable_ztimer=yes]
+)
 AM_CONDITIONAL([COND_ZTIMER],[test "$enable_ztimer" = yes])
 
 #########################################################################################
@@ -231,11 +239,12 @@ AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsem" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zlog],
-  [AS_HELP_STRING([--disable-zlog],
-    [disable building zLog subsystem])],
-    [],
-    [enable_zlog=yes])
+AC_ARG_ENABLE(
+  [zlog],
+  [AS_HELP_STRING([--disable-zlog], [disable building zLog subsystem])],
+  [],
+  [enable_zlog=yes]
+)
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zmessage" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zsocket" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zinterface" = yes])
@@ -293,53 +302,29 @@ AC_SUBST([com_incdir])
 num_cpus='$(grep -c ^processor /proc/cpuinfo)'
 AC_SUBST([num_cpus])
 
-AC_CONFIG_FILES([
-    Makefile
-      lib/Makefile
-        lib/zLog/Makefile
-        lib/zSem/Makefile
-        lib/zData/Makefile
-        lib/zMath/Makefile
-        lib/zEvent/Makefile
-        lib/zConfig/Makefile
-        lib/zSignal/Makefile
-        lib/zThread/Makefile
-        lib/zTimer/Makefile
-        lib/zProgram/Makefile
-        lib/zGpio/Makefile
-        lib/zLed/Makefile
-        lib/zSerial/Makefile
-        lib/zInterface/Makefile
-        	lib/zInterface/netlink/Makefile
-        	lib/zInterface/nl80211/Makefile
-        lib/zSocket/Makefile
-        lib/zMessage/Makefile
-        lib/zCommand/Makefile
-        lib/zSwitch/Makefile
-        lib/zThermo/Makefile
-        lib/zDisplay/Makefile
-      test/Makefile
-        test/zLog/Makefile
-        test/zSem/Makefile
-        test/zMath/Makefile
-        test/zEvent/Makefile
-        test/zThread/Makefile
-        test/zTimer/Makefile
-        test/zProgram/Makefile
-        test/zData/Makefile
-        test/zQueue/Makefile
-        test/zConfig/Makefile
-        test/zGpio/Makefile
-        test/zLed/Makefile
-        test/zSerial/Makefile
-        test/zInterface/Makefile
-        test/zSocket/Makefile
-        test/zMessage/Makefile
-        test/zCommand/Makefile
-        test/zSwitch/Makefile
-        test/zThermo/Makefile
-        test/zDisplay/Makefile
-])
+AC_CONFIG_FILES([Makefile lib/Makefile test/Makefile])
+AC_CONFIG_FILES([lib/zLog/Makefile test/zLog/Makefile])
+AC_CONFIG_FILES([lib/zSem/Makefile test/zSem/Makefile])
+AC_CONFIG_FILES([lib/zData/Makefile test/zData/Makefile])
+AC_CONFIG_FILES([lib/zMath/Makefile test/zMath/Makefile])
+AC_CONFIG_FILES([lib/zEvent/Makefile test/zEvent/Makefile])
+AC_CONFIG_FILES([lib/zConfig/Makefile test/zConfig/Makefile])
+AC_CONFIG_FILES([lib/zSignal/Makefile])
+AC_CONFIG_FILES([lib/zThread/Makefile test/zThread/Makefile])
+AC_CONFIG_FILES([lib/zTimer/Makefile test/zTimer/Makefile])
+AC_CONFIG_FILES([lib/zProgram/Makefile test/zProgram/Makefile])
+AC_CONFIG_FILES([test/zQueue/Makefile])
+AC_CONFIG_FILES([lib/zGpio/Makefile test/zGpio/Makefile])
+AC_CONFIG_FILES([lib/zLed/Makefile test/zLed/Makefile])
+AC_CONFIG_FILES([lib/zSerial/Makefile test/zSerial/Makefile])
+AC_CONFIG_FILES([lib/zInterface/Makefile lib/zInterface/netlink/Makefile lib/zInterface/nl80211/Makefile test/zInterface/Makefile])
+AC_CONFIG_FILES([lib/zSocket/Makefile test/zSocket/Makefile])
+AC_CONFIG_FILES([lib/zMessage/Makefile test/zMessage/Makefile])
+#AC_CONFIG_FILES([lib/zCommand/Makefile test/zCommand/Makefile])
+#AC_CONFIG_FILES([lib/zSwitch/Makefile test/zSwitch/Makefile])
+#AC_CONFIG_FILES([lib/zThermo/Makefile test/zThermo/Makefile])
+#AC_CONFIG_FILES([lib/zDisplay/Makefile test/zDisplay/Makefile])
+
 
 # Boost checks
 BOOST_REQUIRE([1.41.1])

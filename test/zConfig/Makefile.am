@@ -8,6 +8,9 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 check_PROGRAMS = zConfigUnitTest
 
+CLEANFILES = \
+	zConfTest.zlog
+
 zConfigUnitTest_SOURCES = \
     $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \

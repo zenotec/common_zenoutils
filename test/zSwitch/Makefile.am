@@ -6,6 +6,9 @@ endif
 AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) -I${top_srcdir}/test/inc $(BOOST_CPPFLAGS)
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
+CLEANFILES = \
+	zSwitchTest.zlog
+
 check_PROGRAMS = zSwitchUnitTest
 
 zSwitchUnitTest_SOURCES = \
