@@ -152,10 +152,10 @@ ZDATA_LIBS = \
 endif
 
 if COND_ZQUEUE
-ZDATA_SOURCE = \
+ZQUEUE_SOURCE = \
 	$(top_srcdir)/inc/zutils/zQueue.h
-ZDATA_CPPFLAGS =
-ZDATA_LDFLAGS =
+ZQUEUE_CPPFLAGS =
+ZQUEUE_LDFLAGS =
 endif
 
 if COND_ZSEM
