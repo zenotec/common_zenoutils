@@ -37,8 +37,8 @@ using namespace zUtils;
 #include "RouteSocket.h"
 using namespace netlink;
 
+#include "GetLinkCommand.h"
 #include "SetLinkCommand.h"
-
 
 namespace netlink
 {
@@ -55,40 +55,84 @@ __errstr(int code)
 
 SetLinkCommand::SetLinkCommand(int index_)
 {
-  this->_orig.IfIndex(index_);
-  this->Link.IfIndex(index_);
+  this->SetIfIndex(index_);
+}
+
+SetLinkCommand::SetLinkCommand(const std::string& name_)
+{
+  this->SetIfName(name_);
 }
 
 SetLinkCommand::~SetLinkCommand()
 {
 }
 
+int
+SetLinkCommand::GetIfIndex() const
+{
+  return (this->_orig.IfIndex());
+}
+
+bool
+SetLinkCommand::SetIfIndex(const int index_)
+{
+  bool status = false;
+  GetLinkCommand cmd(index_);
+  if (index_ && cmd.Exec())
+  {
+    this->_orig.IfIndex(cmd.Link.IfIndex());
+    this->_orig.IfName(cmd.Link.IfName());
+    this->Link.IfIndex(cmd.Link.IfIndex());
+    this->Link.IfName(cmd.Link.IfName());
+    status = true;
+  }
+  return (status);
+}
+
+std::string
+SetLinkCommand::GetIfName() const
+{
+  return (this->_orig.IfName());
+}
+
+bool
+SetLinkCommand::SetIfName(const std::string& name_)
+{
+  bool status = false;
+  GetLinkCommand cmd(name_);
+  if (!name_.empty() && cmd.Exec())
+  {
+    this->_orig.IfIndex(cmd.Link.IfIndex());
+    this->_orig.IfName(cmd.Link.IfName());
+    this->Link.IfIndex(cmd.Link.IfIndex());
+    this->Link.IfName(cmd.Link.IfName());
+    status = true;
+  }
+  return (status);
+}
+
 bool
 SetLinkCommand::Exec()
 {
-  int ret = 0;
-  struct rtnl_link* link = NULL;
 
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting Netlink socket");
-    return(false);
+    return (false);
   }
 
-  ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
+  int ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
   if (ret < 0)
   {
-    ZLOG_ERR(
-        "Error executing GetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
+    ZLOG_ERR("Error executing GetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
             + std::string("): ") + this->_orig.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
     return (false);
   }
 
-  this->Link(link);
   this->_sock.Disconnect();
 
-  return(true);
+  return (true);
 }
 
 void

@@ -229,7 +229,7 @@ public:
 
   ConfigData Config;
 
-  Interface(const int index_);
+  Interface(const int index_ = 0);
 
   Interface(const std::string& name_);
 
@@ -243,6 +243,9 @@ public:
 
   int
   GetIfIndex() const;
+
+  bool
+  SetIfIndex(const int index_);
 
   std::string
   GetIfName() const;
@@ -290,6 +293,7 @@ protected:
 
   mutable zSem::Mutex _lock;
   bool _refreshed;
+  bool _stale;
 
   netlink::GetLinkCommand* _getlinkcmd;
   netlink::SetLinkCommand* _setlinkcmd;

@@ -21,8 +21,10 @@
 #include <linux/if_ether.h>
 
 #include <string>
+#include <map>
 
 #include <zutils/zThread.h>
+#include <zutils/zInterface.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -30,7 +32,7 @@ namespace zUtils
 namespace zSocket
 {
 
-struct eth_addr
+struct hwaddr
 {
   uint8_t addr[ETH_ALEN];
 };
@@ -53,21 +55,15 @@ public:
   virtual
   ~EthAddress();
 
-  std::string
-  IfName() const;
+  struct hwaddr
+  HwAddress() const;
 
-  int
-  IfIndex() const;
-
-  struct eth_addr
-  Mac() const;
+  bool
+  HwAddress(const struct hwaddr addr_);
 
 protected:
 
 private:
-
-  std::string _name;
-  struct eth_addr _mac;
 
   virtual bool
   verify(const SocketType type_, const std::string &addr_);
@@ -132,7 +128,7 @@ private:
 // zSocket::EthSocket Class
 //**********************************************************************
 
-class EthSocket : public Socket, public zThread::ThreadArg
+class EthSocket : public Socket, public zThread::ThreadArg, zEvent::EventObserver
 {
 
   friend EthSocketRecv;
@@ -151,33 +147,46 @@ public:
     PROTO_LAST
   };
 
-  EthSocket(const PROTO proto_ = PROTO_ALL);
+  EthSocket();
 
   virtual
   ~EthSocket();
 
+  bool
+  Open(const PROTO proto_);
+
   virtual bool
   Open();
+
+  bool
+  Close(const PROTO proto_);
 
   virtual void
   Close();
 
+  bool
+  Bind(const zInterface::Interface& iface_);
+
 protected:
 
-  int _sock;
+  std::map<PROTO, int> _sockfd;
 
   virtual bool
   _bind();
 
   virtual ssize_t
-  _recv(zSocket::EthAddress &src_, zSocket::SocketBuffer &sb_);
+  _recv(const int fd_, zSocket::EthAddress &src_, zSocket::SocketBuffer &sb_);
 
   virtual ssize_t
-  _send(const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
+  _send(const int fd_, const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
+
+  virtual bool
+  EventHandler(zEvent::EventNotification* notification_);
 
 private:
 
-  PROTO _proto;
+  zInterface::Interface* _iface;
+  zEvent::EventHandler _iface_handler;
 
   zThread::Thread _rx_thread;
   EthSocketRecv _rx_func;

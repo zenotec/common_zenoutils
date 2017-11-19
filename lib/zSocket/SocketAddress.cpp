@@ -154,6 +154,11 @@ SocketAddress::Address(const std::string &addr_)
   return (status);
 }
 
+bool
+SocketAddress::verify(const SocketType type_, const std::string &addr_)
+{
+  return (false);
+}
 
 //**********************************************************************
 // Class: zSocket::SocketAddressFactory

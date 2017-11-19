@@ -37,10 +37,24 @@ public:
 
   RouteLink Link;
 
-  SetLinkCommand(int index_);
+  SetLinkCommand(int index_ = 0);
+
+  SetLinkCommand(const std::string& name_);
 
   virtual
   ~SetLinkCommand();
+
+  int
+  GetIfIndex() const;
+
+  bool
+  SetIfIndex(const int index_);
+
+  std::string
+  GetIfName() const;
+
+  bool
+  SetIfName(const std::string& name_);
 
   virtual bool
   Exec();

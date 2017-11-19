@@ -169,7 +169,7 @@ protected:
   std::string _addr;
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_) = 0;
+  verify(const SocketType type_, const std::string &addr_);
 
 private:
 

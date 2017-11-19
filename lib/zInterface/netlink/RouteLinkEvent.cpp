@@ -46,10 +46,11 @@ __errstr(int code)
 // Class: RouteLinkEvent
 //*****************************************************************************
 
-RouteLinkEvent::RouteLinkEvent() :
-    zEvent::Event(zEvent::Event::TYPE_LAST), _thread(this, this)
+RouteLinkEvent::RouteLinkEvent(const int index_) :
+    zEvent::Event(zEvent::Event::TYPE_LAST), _thread(this, this), _ifindex(0)
 {
-  int ret = 0;
+
+  this->SetIfIndex(index_);
 
   if (!this->_sock.Connect())
   {
@@ -66,7 +67,7 @@ RouteLinkEvent::RouteLinkEvent() :
   nl_socket_set_nonblocking(this->_sock());
   nl_socket_disable_seq_check(this->_sock());
 
-  ret = nl_socket_add_membership(this->_sock(), RTNLGRP_LINK);
+  int ret = nl_socket_add_membership(this->_sock(), RTNLGRP_LINK);
   if (ret < 0)
   {
     ZLOG_ERR("Error joining RTNLGRP_LINK multicast group");
@@ -74,9 +75,35 @@ RouteLinkEvent::RouteLinkEvent() :
     return;
   }
 
-  if (!this->_thread.Start())
+
+}
+
+RouteLinkEvent::RouteLinkEvent(const std::string& name_) :
+    zEvent::Event(zEvent::Event::TYPE_LAST), _thread(this, this), _ifindex(0)
+{
+  this->SetIfName(name_);
+
+  if (!this->_sock.Connect())
   {
-    ZLOG_ERR("Error starting receiving thread");
+    ZLOG_ERR("Error connecting Netlink socket");
+    return;
+  }
+
+  if (!this->_sock.SetHandler(this))
+  {
+    ZLOG_ERR("Error setting up message handlers");
+    return;
+  }
+
+  nl_socket_set_nonblocking(this->_sock());
+  nl_socket_disable_seq_check(this->_sock());
+
+  int ret = nl_socket_add_membership(this->_sock(), RTNLGRP_LINK);
+  if (ret < 0)
+  {
+    ZLOG_ERR("Error joining RTNLGRP_LINK multicast group");
+    ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+    return;
   }
 
 }
@@ -108,6 +135,58 @@ RouteLinkEvent::Run(zThread::ThreadArg *arg_)
 }
 
 int
+RouteLinkEvent::GetIfIndex() const
+{
+  return(this->_ifindex);
+}
+
+bool
+RouteLinkEvent::SetIfIndex(const int index_)
+{
+  bool status = false;
+  GetLinkCommand cmd(index_);
+  if (index_ && cmd.Exec())
+  {
+    this->_ifindex = cmd.Link.IfIndex();
+    this->_ifname = cmd.Link.IfName();
+    status = true;
+  }
+  return(status);
+}
+
+std::string
+RouteLinkEvent::GetIfName() const
+{
+  return(this->_ifname);
+}
+
+bool
+RouteLinkEvent::SetIfName(const std::string& name_)
+{
+  bool status = false;
+  GetLinkCommand cmd(name_);
+  if (!name_.empty() && cmd.Exec())
+  {
+    this->_ifindex = cmd.Link.IfIndex();
+    this->_ifname = cmd.Link.IfName();
+    status = true;
+  }
+  return(status);
+}
+
+bool
+RouteLinkEvent::Start()
+{
+  return (this->_thread.Start());
+}
+
+bool
+RouteLinkEvent::Stop()
+{
+  return (this->_thread.Stop());
+}
+
+int
 RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 {
   RouteMessage msg(msg_);
@@ -119,9 +198,12 @@ RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 //  msg.Display();
 //  msg.DisplayAttributes();
 
-  RouteLinkNotification* n = new RouteLinkNotification(RouteLinkEvent::EVENT_UPDOWN, msg.LinkIndex());
-  this->Notify(n);
-  delete(n);
+  if (!this->_ifindex || (this->_ifindex == msg.LinkIndex()))
+  {
+    RouteLinkNotification* n = new RouteLinkNotification(RouteLinkEvent::EVENT_UPDOWN, msg.LinkIndex());
+    this->Notify(n);
+    delete(n);
+  }
 
   return(NL_OK);
 }
@@ -142,7 +224,7 @@ RouteLinkEvent::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* 
 //*****************************************************************************
 
 RouteLinkNotification::RouteLinkNotification(RouteLinkEvent::EVENT id_, uint32_t index_) :
-  _id(id_)
+    _id(id_)
 {
   GetLinkCommand cmd(index_);
   if (cmd.Exec())
@@ -158,9 +240,7 @@ RouteLinkNotification::~RouteLinkNotification()
 RouteLinkEvent::EVENT
 RouteLinkNotification::Id() const
 {
-  return(this->_id);
+  return (this->_id);
 }
 
-
 }
-

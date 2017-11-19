@@ -61,32 +61,36 @@ namespace zInterface
 
 Interface::Interface(const int index_) :
     zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
-    _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+    _stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 {
   this->_getlinkcmd = new GetLinkCommand(index_);
   this->_setlinkcmd = new SetLinkCommand(index_);
-  this->_rtlinkevent = new RouteLinkEvent;
+  this->_rtlinkevent = new RouteLinkEvent(index_);
   this->_lock.Unlock();
 }
 
 Interface::Interface(const std::string& name_) :
     zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
-    _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+    _stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
   this->_getlinkcmd = new GetLinkCommand(name_);
+  this->_setlinkcmd = new SetLinkCommand(name_);
+  this->_rtlinkevent = new RouteLinkEvent(name_);
   this->_lock.Unlock();
 }
 
 Interface::Interface(const zConfig::ConfigData& config_) :
-		Config(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE),
-		_refreshed(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+	Config(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
+	_stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
   ZLOG_DEBUG("Interface::Interface(config_)");
   ZLOG_DEBUG(this->Config.Path());
   ZLOG_DEBUG(this->Config.GetJson());
   this->_getlinkcmd = new GetLinkCommand(this->Config.Name());
+  this->_setlinkcmd = new SetLinkCommand(this->Config.Name());
+  this->_rtlinkevent = new RouteLinkEvent(this->Config.Name());
   this->_lock.Unlock();
 }
 
@@ -128,13 +132,25 @@ Interface::GetIfIndex() const
   int index = -1;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_getlinkcmd)
-    {
-      index = this->_getlinkcmd->Link.IfIndex();
-    }
+    index = this->_getlinkcmd->Link.IfIndex();
     this->_lock.Unlock();
   }
   return (index);
+}
+
+bool
+Interface::SetIfIndex(const int index_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    this->_refreshed = false;
+    this->_getlinkcmd->Link.IfIndex(index_);
+    this->_setlinkcmd->SetIfIndex(index_);
+    this->_rtlinkevent->SetIfIndex(index_);
+    this->_lock.Unlock();
+  }
+  return (status);
 }
 
 std::string
@@ -143,10 +159,7 @@ Interface::GetIfName() const
   std::string name;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_getlinkcmd)
-    {
-      name = this->_getlinkcmd->Link.IfName();
-    }
+    name = this->_getlinkcmd->Link.IfName();
     this->_lock.Unlock();
   }
   return (name);
@@ -158,12 +171,10 @@ Interface::SetIfName(const std::string& name_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_setlinkcmd)
-    {
-      this->_refreshed = false;
-      this->_setlinkcmd->Link.IfName(name_);
-      status = this->_setlinkcmd->Exec();
-    }
+    this->_refreshed = false;
+    this->_getlinkcmd->Link.IfName(name_);
+    this->_setlinkcmd->SetIfName(name_);
+    this->_rtlinkevent->SetIfName(name_);
     this->_lock.Unlock();
   }
   return (status);
@@ -254,7 +265,7 @@ Interface::GetHwAddress() const
   std::string addr;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_getlinkcmd)
+    if (this->_refreshed)
     {
       addr = this->_getlinkcmd->Link.Mac();
     }
@@ -269,13 +280,9 @@ Interface::SetHwAddress(const std::string& addr_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_setlinkcmd)
-    {
-      this->_refreshed = false;
-      this->_setlinkcmd->Link.Mac(addr_);
-      status = this->_setlinkcmd->Exec();
-      this->_setlinkcmd->Display();
-    }
+    this->_refreshed = false;
+    this->_stale = true;
+    this->_setlinkcmd->Link.Mac(addr_);
     this->_lock.Unlock();
   }
   return (status);
@@ -287,7 +294,7 @@ Interface::GetMtu() const
   unsigned int mtu = 0;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_getlinkcmd)
+    if (this->_refreshed)
     {
       mtu = this->_getlinkcmd->Link.Mtu();
     }
@@ -302,13 +309,9 @@ Interface::SetMtu(const unsigned int mtu_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_setlinkcmd)
-    {
-      this->_refreshed = false;
-      this->_setlinkcmd->Link.Mtu(mtu_);
-      status = this->_setlinkcmd->Exec();
-      this->_setlinkcmd->Display();
-    }
+    this->_stale = true;
+    this->_refreshed = false;
+    this->_setlinkcmd->Link.Mtu(mtu_);
     this->_lock.Unlock();
   }
   return (status);
@@ -320,7 +323,7 @@ Interface::GetAdminState() const
   Interface::STATE state = Interface::STATE_ERR;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_getlinkcmd)
+    if (this->_refreshed)
     {
       uint32_t flags = this->_getlinkcmd->Link.Flags();
       if ((flags & (IFF_UP|IFF_RUNNING)) == (IFF_UP|IFF_RUNNING))
@@ -343,21 +346,17 @@ Interface::SetAdminState(const Interface::STATE state_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed && this->_setlinkcmd)
+    this->_stale = true;
+    this->_refreshed = false;
+    if (state_ == Interface::STATE_UP)
     {
-      this->_refreshed = false;
-      if (state_ == Interface::STATE_UP)
-      {
-        ZLOG_INFO("Administrative UP");
-        this->_setlinkcmd->Link.SetFlags((IFF_UP|IFF_RUNNING));
-      }
-      else
-      {
-        ZLOG_INFO("Administrative DOWN");
-        this->_setlinkcmd->Link.ClrFlags((IFF_UP|IFF_RUNNING));
-      }
-      status = this->_setlinkcmd->Exec();
-      this->_setlinkcmd->Display();
+      ZLOG_INFO("Administrative UP");
+      this->_setlinkcmd->Link.SetFlags((IFF_UP | IFF_RUNNING));
+    }
+    else
+    {
+      ZLOG_INFO("Administrative DOWN");
+      this->_setlinkcmd->Link.ClrFlags((IFF_UP | IFF_RUNNING));
     }
     this->_lock.Unlock();
   }
@@ -372,18 +371,16 @@ Interface::Refresh()
   if (this->_lock.Lock())
   {
     // Validate and execute get link command
-    if (this->_getlinkcmd && this->_getlinkcmd->Exec())
+    this->_refreshed = this->_getlinkcmd->Exec();
+    if (this->_refreshed && this->_stale)
     {
-      status = this->_refreshed = true;
-      if (!this->_setlinkcmd)
+      if (this->_setlinkcmd->Exec())
       {
-        this->_setlinkcmd = new SetLinkCommand(this->_getlinkcmd->Link.IfIndex());
-      }
-      if (!this->_rtlinkevent)
-      {
-        this->_rtlinkevent = new RouteLinkEvent;
+        this->_stale = false;
+        this->_refreshed = this->_getlinkcmd->Exec();
       }
     }
+    status = (this->_refreshed && !this->_stale);
     this->_lock.Unlock();
   }
 

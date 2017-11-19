@@ -57,10 +57,30 @@ public:
     EVENT_LAST
   };
 
-  RouteLinkEvent();
+  RouteLinkEvent(const int index_ = 0);
+
+  RouteLinkEvent(const std::string& name_);
 
   virtual
   ~RouteLinkEvent();
+
+  int
+  GetIfIndex() const;
+
+  bool
+  SetIfIndex(const int index_);
+
+  std::string
+  GetIfName() const;
+
+  bool
+  SetIfName(const std::string& name_);
+
+  bool
+  Start();
+
+  bool
+  Stop();
 
 protected:
 
@@ -77,6 +97,9 @@ private:
 
   RouteSocket _sock;
   zThread::Thread _thread;
+
+  int _ifindex;
+  std::string _ifname;
 
 };
 
