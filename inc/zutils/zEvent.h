@@ -132,6 +132,16 @@ private:
 class EventObserver
 {
 public:
+
+  EventObserver()
+  {
+  }
+
+  virtual
+  ~EventObserver()
+  {
+  };
+
   virtual bool
   EventHandler(zEvent::EventNotification* notification_) = 0;
 };
