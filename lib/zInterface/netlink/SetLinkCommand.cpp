@@ -115,6 +115,22 @@ bool
 SetLinkCommand::Exec()
 {
 
+  if (!this->_orig.IfIndex() && this->_orig.IfName().empty())
+  {
+    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
+            + std::string("): ") + this->_orig.IfName());
+    ZLOG_ERR("Either valid ifindex or name must be specified");
+    return(false);
+  }
+
+  if (!this->Link.IfIndex() && this->Link.IfName().empty())
+  {
+    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->Link.IfIndex())
+            + std::string("): ") + this->Link.IfName());
+    ZLOG_ERR("Either valid ifindex or name must be specified");
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting Netlink socket");
@@ -124,7 +140,7 @@ SetLinkCommand::Exec()
   int ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing GetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
+    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
             + std::string("): ") + this->_orig.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
     return (false);

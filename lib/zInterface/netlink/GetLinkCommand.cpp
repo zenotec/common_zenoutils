@@ -92,7 +92,8 @@ GetLinkCommand::Exec()
   ret = rtnl_link_get_kernel(this->_sock(), index, name, &link);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing GetLinkCommand");
+    ZLOG_ERR("Error executing GetLinkCommand: (" + ZLOG_INT(this->Link.IfIndex()) + "): " +
+        this->Link.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
     return(false);
   }

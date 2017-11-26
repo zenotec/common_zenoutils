@@ -374,6 +374,7 @@ Interface::Refresh()
     this->_refreshed = this->_getlinkcmd->Exec();
     if (this->_refreshed && this->_stale)
     {
+      this->_setlinkcmd->SetIfIndex(this->_getlinkcmd->Link.IfIndex());
       if (this->_setlinkcmd->Exec())
       {
         this->_stale = false;
