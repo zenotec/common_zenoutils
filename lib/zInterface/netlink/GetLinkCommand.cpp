@@ -71,11 +71,15 @@ GetLinkCommand::~GetLinkCommand()
 bool
 GetLinkCommand::Exec()
 {
+
+  bool status = false;
   int ret = 0;
   struct rtnl_link* link = NULL;
 
   if (!this->Link.IfIndex() && this->Link.IfName().empty())
   {
+    ZLOG_ERR("Error executing GetLinkCommand: (" + ZLOG_INT(this->Link.IfIndex()) + "): " +
+        this->Link.IfName());
     ZLOG_ERR("Either valid ifindex or name must be specified");
     return(false);
   }
@@ -95,13 +99,16 @@ GetLinkCommand::Exec()
     ZLOG_ERR("Error executing GetLinkCommand: (" + ZLOG_INT(this->Link.IfIndex()) + "): " +
         this->Link.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return(false);
+  }
+  else
+  {
+    this->Link(link);
+    status = true;
   }
 
-  this->Link(link);
   this->_sock.Disconnect();
 
-  return(true);
+  return(status);
 }
 
 void
