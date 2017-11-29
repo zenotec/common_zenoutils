@@ -154,6 +154,12 @@ SocketAddress::Address(const std::string &addr_)
   return (status);
 }
 
+void
+SocketAddress::Display() const
+{
+  std::cout << "SocketAddress: [" << (int)this->Type() << "]: " << this->Address() << std::endl;
+}
+
 bool
 SocketAddress::verify(const SocketType type_, const std::string &addr_)
 {

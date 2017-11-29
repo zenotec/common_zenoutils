@@ -164,6 +164,9 @@ public:
   bool
   Address(const std::string &addr_);
 
+  virtual void
+  Display() const;
+
 protected:
 
   std::string _addr;

@@ -490,13 +490,16 @@ EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Socke
 {
 
   ssize_t n = -1;
-  struct sockaddr_ll sockaddr = { 0 };
+  struct sockaddr_ll src = { 0 };
 
   if (!fd_)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (-1);
   }
+
+  // Set socket address fields
+  src.sll_ifindex = this->_iface->GetIfIndex();
 
   // Log info message about message being sent
   std::string logstr;
@@ -506,6 +509,11 @@ EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Socke
   logstr += "To: " + addr_.Address() + ";\t";
 //  logstr += "From: " + src->Address() + ";\t";
   logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";\t";
+  logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
+  logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
+  int proto = htobe16(src.sll_protocol);
+  logstr += "Proto:  " + ZLOG_HEX(proto) + ";\t";
+  ZLOG_INFO(logstr);
   logstr = "Data (0x00): ";
   logstr += ZLOG_HEX(*p++) + ":";
   logstr += ZLOG_HEX(*p++) + ":";
@@ -528,7 +536,7 @@ EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Socke
   ZLOG_INFO(logstr);
 
   // Send packet
-  n = sendto(fd_, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sockaddr, sizeof(sockaddr));
+  n = sendto(fd_, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &src, sizeof(src));
   if (n < 0)
   {
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
