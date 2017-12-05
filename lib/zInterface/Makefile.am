@@ -30,8 +30,10 @@ libzInterface_la_SOURCES = \
     InterfaceConfiguration.cpp \
     Interface.cpp \
     LoopInterface.cpp \
+    WirelessConfiguration.cpp \
     WirelessInterface.cpp \
-    MonitorInterface.cpp
+    MonitorInterface.cpp \
+    AccessPointInterface.cpp
 
 libzInterface_la_LIBADD = \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la \

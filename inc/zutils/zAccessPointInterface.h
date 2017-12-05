@@ -2,6 +2,8 @@
  * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
+ * Copyright (c) 2014-2017 ZenoTec LLC (http://www.zenotec.net)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at:
@@ -15,54 +17,37 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_SETLINKCOMMAND_H__
-#define __NETLINK_SETLINKCOMMAND_H__
+#ifndef __ZACCESSPOINTINTERFACE_H__
+#define __ZACCESSPOINTINTERFACE_H__
 
-#include "Command.h"
+#include <zutils/zWirelessInterface.h>
 
-#include "RouteSocket.h"
-#include "RouteLink.h"
-
-namespace netlink
+namespace zUtils
+{
+namespace zInterface
 {
 
-//*****************************************************************************
-// Class: SetLinkCommand
-//*****************************************************************************
+// ****************************************************************************
+// Class: AccessPointInterface
+// ****************************************************************************
 
-class SetLinkCommand : public Command
+class AccessPointInterface : public WirelessInterface
 {
-
 public:
 
-  RouteLink Link;
+  AccessPointInterface(const std::string &name_);
 
-  SetLinkCommand(const std::string& name_ = "");
+  AccessPointInterface(const zInterface::ConfigData& config_);
 
   virtual
-  ~SetLinkCommand();
-
-  std::string
-  GetIfName() const;
-
-  bool
-  SetIfName(const std::string& name_);
-
-  virtual bool
-  Exec();
-
-  void
-  Display() const;
+  ~AccessPointInterface();
 
 protected:
 
 private:
 
-  RouteSocket _sock;
-  RouteLink _orig;
-
 };
 
 }
-
-#endif /* __NETLINK_SETLINKCOMMAND_H__ */
+}
+#endif /* __ZACCESSPOINTINTERFACE_H__ */

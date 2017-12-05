@@ -53,40 +53,14 @@ __errstr(int code)
 // Class: SetLinkCommand
 //*****************************************************************************
 
-SetLinkCommand::SetLinkCommand(int index_)
-{
-  this->SetIfIndex(index_);
-}
 
 SetLinkCommand::SetLinkCommand(const std::string& name_)
 {
-  this->SetIfName(name_);
+  this->_orig.IfName(name_);
 }
 
 SetLinkCommand::~SetLinkCommand()
 {
-}
-
-int
-SetLinkCommand::GetIfIndex() const
-{
-  return (this->_orig.IfIndex());
-}
-
-bool
-SetLinkCommand::SetIfIndex(const int index_)
-{
-  bool status = false;
-  GetLinkCommand cmd(index_);
-  if (index_ && cmd.Exec())
-  {
-    this->_orig.IfIndex(cmd.Link.IfIndex());
-    this->_orig.IfName(cmd.Link.IfName());
-    this->Link.IfIndex(cmd.Link.IfIndex());
-    this->Link.IfName(cmd.Link.IfName());
-    status = true;
-  }
-  return (status);
 }
 
 std::string
@@ -98,36 +72,19 @@ SetLinkCommand::GetIfName() const
 bool
 SetLinkCommand::SetIfName(const std::string& name_)
 {
-  bool status = false;
-  GetLinkCommand cmd(name_);
-  if (!name_.empty() && cmd.Exec())
-  {
-    this->_orig.IfIndex(cmd.Link.IfIndex());
-    this->_orig.IfName(cmd.Link.IfName());
-    this->Link.IfIndex(cmd.Link.IfIndex());
-    this->Link.IfName(cmd.Link.IfName());
-    status = true;
-  }
-  return (status);
+  return (this->_orig.IfName(name_));
 }
 
 bool
 SetLinkCommand::Exec()
 {
 
-  if (!this->_orig.IfIndex() && this->_orig.IfName().empty())
-  {
-    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
-            + std::string("): ") + this->_orig.IfName());
-    ZLOG_ERR("Either valid ifindex or name must be specified");
-    return(false);
-  }
+  bool status = false;
 
-  if (!this->Link.IfIndex() && this->Link.IfName().empty())
+  if (this->_orig.IfName().empty())
   {
-    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->Link.IfIndex())
-            + std::string("): ") + this->Link.IfName());
-    ZLOG_ERR("Either valid ifindex or name must be specified");
+    ZLOG_ERR("Error executing SetLinkCommand: " + this->_orig.IfName());
+    ZLOG_ERR("Valid interface name must be specified");
     return(false);
   }
 
@@ -140,10 +97,12 @@ SetLinkCommand::Exec()
   int ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing SetLinkCommand: (" + zLog::IntStr(this->_orig.IfIndex())
-            + std::string("): ") + this->_orig.IfName());
+    ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return (false);
+  }
+  else
+  {
+    status = true;
   }
 
   this->_sock.Disconnect();

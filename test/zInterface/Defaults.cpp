@@ -37,13 +37,13 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
 
   ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->Name());
-  TEST_EQ(ConfigData::ConfigTypeDefault, MyConfig->Type());
-  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->HwAddress());
-  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->Mtu());
-  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->IpAddress());
-  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->Netmask());
-  TEST_EQ(ConfigData::ConfigAdminStateDefault, MyConfig->AdminState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
+  TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
 
   // Cleanup
   delete (MyConfig);
@@ -63,20 +63,23 @@ zInterfaceTest_InterfaceDefaults(void* arg)
 
   ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->Name());
-  TEST_EQ(ConfigData::ConfigTypeDefault, MyConfig->Type());
-  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->HwAddress());
-  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->Mtu());
-  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->IpAddress());
-  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->Netmask());
-  TEST_EQ(ConfigData::ConfigAdminStateDefault, MyConfig->AdminState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
+  TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
-//  TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->Name());
-//  TEST_EQ(ConfigData::TYPE_DEF, MyInterface->Type());
-//  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->IpAddress());
-//  TEST_EQ(ConfigData::STATE_DEF, MyInterface->AdminState());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->Config.GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->Config.GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->Config.GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->Config.GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->Config.GetNetmask());
+  TEST_EQ(ConfigData::STATE_ERR, MyInterface->GetAdminState());
 
   // Cleanup
   delete (MyInterface);

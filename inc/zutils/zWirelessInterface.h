@@ -25,11 +25,12 @@
 
 namespace nl80211
 {
- class GetPhyCommand;
- class GetInterfaceCommand;
- class SetInterfaceCommand;
- class NewInterfaceCommand;
- class DelInterfaceCommand;
+  class GetPhyCommand;
+  class SetPhyCommand;
+  class GetInterfaceCommand;
+  class SetInterfaceCommand;
+  class NewInterfaceCommand;
+  class DelInterfaceCommand;
 }
 using namespace nl80211;
 
@@ -52,12 +53,12 @@ public:
   static const std::string ConfigHwModePath;
   static const std::string ConfigHtModePath;
   static const std::string ConfigOpModePath;
+  static const std::string ConfigSsidPath;
+  static const std::string ConfigBssidPath;
+  static const std::string ConfigChannelPath;
+  static const std::string ConfigTxPowerPath;
 
   WirelessInterfaceConfigPath(const std::string& root_ = std::string(""));
-
-  WirelessInterfaceConfigPath(const zData::DataPath& path_);
-
-  WirelessInterfaceConfigPath(const WirelessInterfaceConfigPath& other_);
 
   virtual
   ~WirelessInterfaceConfigPath();
@@ -69,13 +70,13 @@ private:
 };
 
 // ****************************************************************************
-// Class: WirelessInterface
+// Class: WirelessInterfaceConfigData
 // ****************************************************************************
 
-class WirelessInterface : public Interface
+class WirelessInterfaceConfigData
 {
-public:
 
+public:
   static const unsigned int ConfigPhyIndexDefault;
 
   static const std::string ConfigPhyNameDefault;
@@ -145,71 +146,157 @@ public:
     OPMODE_LAST
   };
 
-  WirelessInterface(const int index_ = 0);
+  static const std::string ConfigSsidDefault;
+  static const std::string ConfigBssidDefault;
+  static const unsigned int ConfigChannelDefault;
+  static const unsigned int ConfigTxPowerDefault;
 
-  WirelessInterface(const std::string& name_);
+  WirelessInterfaceConfigData(zInterface::ConfigData& config_);
+
+  virtual
+  ~WirelessInterfaceConfigData();
+
+  unsigned int
+  GetPhyIndex() const;
+
+  bool
+  SetPhyIndex(const unsigned int index_);
+
+  std::string
+  GetPhyName() const;
+
+  bool
+  SetPhyName(const std::string& name_);
+
+  WirelessInterfaceConfigData::HWMODE
+  GetHwMode() const;
+
+  bool
+  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_);
+
+  WirelessInterfaceConfigData::HTMODE
+  GetHtMode() const;
+
+  bool
+  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_);
+
+  WirelessInterfaceConfigData::OPMODE
+  GetOpMode() const;
+
+  bool
+  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_);
+
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  unsigned int
+  GetChannel() const;
+
+  bool
+  SetChannel(const unsigned int channel_);
+
+  unsigned int
+  GetTxPower() const;
+
+  bool
+  SetTxPower(const unsigned int power_);
+
+protected:
+
+private:
+
+  zInterface::ConfigData& _config;
+
+};
+
+// ****************************************************************************
+// Class: WirelessInterface
+// ****************************************************************************
+
+class WirelessInterface : public Interface
+{
+public:
+
+  WirelessInterfaceConfigData WiConfig;
+
+  WirelessInterface(const std::string& name_ = "");
 
   WirelessInterface(const zInterface::ConfigData& config_);
 
   virtual
   ~WirelessInterface();
 
-  unsigned int
-  ConfigPhyIndex() const;
-
-  bool
-  ConfigPhyIndex(const unsigned int index_);
-
-  std::string
-  ConfigPhyName() const;
-
-  bool
-  ConfigPhyName(const std::string& name_);
-
-  std::string
-  ConfigHwMode() const;
-
-  bool
-  ConfigHwMode(const std::string& mode_);
-
-  std::string
-  ConfigHtMode() const;
-
-  bool
-  ConfigHtMode(const std::string& mode_);
-
-  std::string
-  ConfigOpMode() const;
-
-  bool
-  ConfigOpMode(const std::string& mode_);
+  virtual bool
+  SetIfName(const std::string& name_);
 
   unsigned int
   GetPhyIndex() const;
 
+  bool
+  SetPhyIndex(const int index_);
+
   std::string
   GetPhyName() const;
 
-  WirelessInterface::HWMODE
+  bool
+  SetPhyName(const std::string& name_);
+
+  WirelessInterfaceConfigData::HWMODE
   GetHwMode() const;
 
   bool
-  SetHwMode(const WirelessInterface::HWMODE mode_);
+  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_);
 
-  WirelessInterface::HTMODE
+  WirelessInterfaceConfigData::HTMODE
   GetHtMode() const;
 
   bool
-  SetHtMode(const WirelessInterface::HTMODE mode_);
+  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_);
 
-  WirelessInterface::OPMODE
+  WirelessInterfaceConfigData::OPMODE
   GetOpMode() const;
 
   bool
-  SetOpMode(const WirelessInterface::OPMODE mode_);
+  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_);
+
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  unsigned int
+  GetChannel() const;
+
+  bool
+  SetChannel(const unsigned int channel_);
+
+  unsigned int
+  GetTxPower() const;
+
+  bool
+  SetTxPower(unsigned int txpower_);
 
   virtual bool
   Refresh();
+
+  virtual bool
+  Commit();
 
   virtual bool
   Create();
@@ -217,67 +304,20 @@ public:
   virtual bool
   Destroy();
 
-//  std::string
-//  GetBssid() const;
-//
-//  bool
-//  SetBssid(const std::string& bssid_);
-//
-//  std::string
-//  GetEssid() const;
-//
-//  bool
-//  SetEssid(const std::string& essid_);
-//
-//  std::string
-//  GetSsid() const;
-//
-//  bool
-//  SetSsid(const std::string& ssid_);
-//
-//  float
-//  GetChannel() const;
-//
-//  bool
-//  SetChannel(const float chnl_);
-//
-//  int
-//  GetTxPower() const;
-//
-//  bool
-//  SetTxPower(int txpow_);
-//
-//  bool
-//  IsAssociated();
-//
-//  bool
-//  Associate(const std::string &essid_, const unsigned int channel_);
-//
-//  bool
-//  Disassociate();
-//
-//  int
-//  LinkQuality();
-//
-//  int
-//  SignalLevel();
-//
-//  int
-//  NoiseLevel();
-//
-//  int
-//  BitRate();
-//
   virtual void
   Display(const std::string &prefix_ = std::string(""));
 
 protected:
 
   GetPhyCommand* _getphycmd;
+  SetPhyCommand* _setphycmd;
   GetInterfaceCommand* _getifacecmd;
   SetInterfaceCommand* _setifacecmd;
   NewInterfaceCommand* _newifacecmd;
   DelInterfaceCommand* _delifacecmd;
+
+  void
+  _init();
 
 private:
 

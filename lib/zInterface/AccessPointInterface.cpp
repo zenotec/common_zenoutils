@@ -18,24 +18,30 @@
  */
 
 // libc includes
-//#include <stdlib.h>
-//#include <string.h>
-//#include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <sys/ioctl.h>
-//#include <sys/socket.h>
-//#include <linux/if.h>
-//#include <linux/wireless.h>
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
-//#include <ifaddrs.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <math.h>
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <linux/wireless.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <ifaddrs.h>
 
 // libc++ includes
 
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <list>
+#include <map>
+
 // libzutils includes
 
-#include <zutils/zLoopInterface.h>
+#include <zutils/zAccessPointInterface.h>
 
 // local includes
 
@@ -45,53 +51,23 @@ namespace zInterface
 {
 
 // ****************************************************************************
-// Class: LoopInterface
+// Class: AccessPointInterface
 // ****************************************************************************
 
-LoopInterface::LoopInterface(const std::string& name_) :
-    Interface(name_)
+AccessPointInterface::AccessPointInterface(const std::string& name_) :
+    WirelessInterface(name_)
 {
-  this->Config.SetIfType(ConfigData::IFTYPE_LOOP);
+  this->WiConfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
 }
 
-LoopInterface::LoopInterface(const zInterface::ConfigData& config_) :
-    Interface(config_)
+AccessPointInterface::AccessPointInterface(const zInterface::ConfigData& config_) :
+    WirelessInterface(config_)
 {
-  this->Config.SetIfType(ConfigData::IFTYPE_LOOP);
+  this->WiConfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
 }
 
-LoopInterface::~LoopInterface()
+AccessPointInterface::~AccessPointInterface()
 {
-}
-
-bool
-LoopInterface::Refresh()
-{
-  return (Interface::Refresh());
-}
-
-bool
-LoopInterface::Commit()
-{
-  return (Interface::Commit());
-}
-
-bool
-LoopInterface::Create()
-{
-  return (Interface::Create());
-}
-
-bool
-LoopInterface::Destroy()
-{
-  return (Interface::Destroy());
-}
-
-void
-LoopInterface::Display(const std::string &prefix_)
-{
-  Interface::Display(prefix_);
 }
 
 }

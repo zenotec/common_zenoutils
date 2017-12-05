@@ -41,34 +41,24 @@ namespace netlink
 // Class: RouteLinkEvent
 //*****************************************************************************
 
-class RouteLinkEvent : public Handler,
-    public zEvent::Event,
-    public zThread::ThreadFunction,
-    public zThread::ThreadArg
+class RouteLinkEvent : public Handler, public zEvent::Event,
+    public zThread::ThreadFunction, public zThread::ThreadArg
 {
 
 public:
 
-  enum EVENT
+  enum EVENTID
   {
-    EVENT_ERR = -1,
-    EVENT_NONE = 0,
-    EVENT_UPDOWN = 1,
-    EVENT_LAST
+    EVENTID_ERR = -1,
+    EVENTID_NONE = 0,
+    EVENTID_UPDOWN = 1,
+    EVENTID_LAST
   };
 
-  RouteLinkEvent(const int index_ = 0);
-
-  RouteLinkEvent(const std::string& name_);
+  RouteLinkEvent(const std::string& name_ = "");
 
   virtual
   ~RouteLinkEvent();
-
-  int
-  GetIfIndex() const;
-
-  bool
-  SetIfIndex(const int index_);
 
   std::string
   GetIfName() const;
@@ -114,19 +104,19 @@ public:
 
   RouteLink Link;
 
-  RouteLinkNotification(RouteLinkEvent::EVENT id_, uint32_t index_);
+  RouteLinkNotification(RouteLinkEvent::EVENTID id_, uint32_t index_);
 
   virtual
   ~RouteLinkNotification();
 
-  RouteLinkEvent::EVENT
+  RouteLinkEvent::EVENTID
   Id() const;
 
 protected:
 
 private:
 
-  RouteLinkEvent::EVENT _id;
+  RouteLinkEvent::EVENTID _id;
 
 };
 

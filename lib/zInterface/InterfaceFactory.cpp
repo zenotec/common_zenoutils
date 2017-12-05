@@ -50,7 +50,7 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
     {
       ConfigData config(config_(zInterface::ConfigPath::ConfigRoot)[i]);
       SHARED_PTR(Interface)iface;
-      if (config.Type() == ConfigData::TYPE_WIRELESS)
+      if (config.GetIfType() == ConfigData::TYPE_WIRELESS)
       {
         iface = SHARED_PTR(Interface)(new WirelessInterface(config));
       }

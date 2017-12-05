@@ -26,14 +26,10 @@ int
 zInterfaceTest_InterfaceDefaults (void* arg);
 
 int
-zInterfaceTest_InterfaceConfigurationCtor (void* arg);
-int
-zInterfaceTest_InterfaceConfigurationGetSet (void* arg);
+zInterfaceTest_InterfaceConfiguration (void* arg);
 
 int
-zInterfaceTest_InterfaceCtor (void* arg);
-int
-zInterfaceTest_InterfaceRefresh(void* arg);
+zInterfaceTest_InterfaceLoop (void* arg);
 
 int
 zInterfaceTest_InterfaceFactory (void* arg);

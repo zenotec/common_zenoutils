@@ -26,6 +26,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <linux/if.h>
+#include <linux/if_arp.h>
 #include <linux/wireless.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -41,14 +42,14 @@
 
 #include <zutils/zCompatibility.h>
 
+#include <zutils/zInterface.h>
+
+// local includes
+
 #include "GetLinkCommand.h"
 #include "SetLinkCommand.h"
 #include "RouteLinkEvent.h"
 using namespace netlink;
-
-#include <zutils/zInterface.h>
-
-// local includes
 
 namespace zUtils
 {
@@ -59,38 +60,21 @@ namespace zInterface
 // Class: Interface
 // ****************************************************************************
 
-Interface::Interface(const int index_) :
-    zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
-    _stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
-{
-  this->_getlinkcmd = new GetLinkCommand(index_);
-  this->_setlinkcmd = new SetLinkCommand(index_);
-  this->_rtlinkevent = new RouteLinkEvent(index_);
-  this->_lock.Unlock();
-}
-
 Interface::Interface(const std::string& name_) :
-    zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
-    _stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+    zEvent::Event(zEvent::Event::TYPE_INTERFACE), Config(name_), _refreshed(false),
+    _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
-  this->_getlinkcmd = new GetLinkCommand(name_);
-  this->_setlinkcmd = new SetLinkCommand(name_);
-  this->_rtlinkevent = new RouteLinkEvent(name_);
+  this->_init();
   this->_lock.Unlock();
 }
 
-Interface::Interface(const zConfig::ConfigData& config_) :
-	Config(config_), zEvent::Event(zEvent::Event::TYPE_INTERFACE), _refreshed(false),
-	_stale(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
+Interface::Interface(const zInterface::ConfigData& config_) :
+    zEvent::Event(zEvent::Event::TYPE_INTERFACE), Config(config_), _refreshed(false),
+    _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
-  ZLOG_DEBUG("Interface::Interface(config_)");
-  ZLOG_DEBUG(this->Config.Path());
-  ZLOG_DEBUG(this->Config.GetJson());
-  this->_getlinkcmd = new GetLinkCommand(this->Config.Name());
-  this->_setlinkcmd = new SetLinkCommand(this->Config.Name());
-  this->_rtlinkevent = new RouteLinkEvent(this->Config.Name());
+  this->_init();
   this->_lock.Unlock();
 }
 
@@ -107,11 +91,6 @@ Interface::~Interface()
     delete (this->_setlinkcmd);
     this->_setlinkcmd = NULL;
   }
-  if (this->_rtlinkevent)
-  {
-    delete (this->_rtlinkevent);
-    this->_rtlinkevent = NULL;
-  }
 }
 
 bool
@@ -126,31 +105,31 @@ Interface::IsRefreshed() const
   return (flag);
 }
 
-int
-Interface::GetIfIndex() const
+bool
+Interface::IsModified() const
 {
-  int index = -1;
+  bool flag = false;
   if (this->_lock.Lock())
   {
-    index = this->_getlinkcmd->Link.IfIndex();
+    flag = this->_modified;
+    this->_lock.Unlock();
+  }
+  return (flag);
+}
+
+unsigned int
+Interface::GetIfIndex() const
+{
+  unsigned int index = 0;
+  if (this->_lock.Lock())
+  {
+    if (this->_refreshed)
+    {
+      index = this->_getlinkcmd->Link.IfIndex();
+    }
     this->_lock.Unlock();
   }
   return (index);
-}
-
-bool
-Interface::SetIfIndex(const int index_)
-{
-  bool status = false;
-  if (this->_lock.Lock())
-  {
-    this->_refreshed = false;
-    this->_getlinkcmd->Link.IfIndex(index_);
-    this->_setlinkcmd->SetIfIndex(index_);
-    this->_rtlinkevent->SetIfIndex(index_);
-    this->_lock.Unlock();
-  }
-  return (status);
 }
 
 std::string
@@ -159,7 +138,10 @@ Interface::GetIfName() const
   std::string name;
   if (this->_lock.Lock())
   {
-    name = this->_getlinkcmd->Link.IfName();
+    if (this->_refreshed)
+    {
+      name = this->_getlinkcmd->Link.IfName();
+    }
     this->_lock.Unlock();
   }
   return (name);
@@ -172,91 +154,45 @@ Interface::SetIfName(const std::string& name_)
   if (this->_lock.Lock())
   {
     this->_refreshed = false;
-    this->_getlinkcmd->Link.IfName(name_);
+    this->_getlinkcmd->SetIfName(name_);
     this->_setlinkcmd->SetIfName(name_);
-    this->_rtlinkevent->SetIfName(name_);
     this->_lock.Unlock();
   }
   return (status);
 }
 
-Interface::IFTYPE
+ConfigData::IFTYPE
 Interface::GetIfType() const
 {
-
-  Interface::IFTYPE type = Interface::TYPE_DEF;
-  std::string str = this->Config.Type();
-
-  if (str == ConfigData::ConfigTypeNone)
+  ConfigData::IFTYPE type = ConfigData::IFTYPE_ERR;
+  if (this->_lock.Lock())
   {
-    type = Interface::TYPE_NONE;
+    if (this->_refreshed)
+    {
+      unsigned int arptype = this->_getlinkcmd->Link.ArpType();
+      switch (arptype)
+      {
+      case ARPHRD_ETHER:
+        // no break
+      case ARPHRD_IEEE802:
+        type = ConfigData::IFTYPE_IEEE8023;
+        break;
+      case ARPHRD_LOOPBACK:
+        type = ConfigData::IFTYPE_LOOP;
+        break;
+      case ARPHRD_IEEE80211:
+        // no break
+      case ARPHRD_IEEE80211_RADIOTAP:
+        type = ConfigData::IFTYPE_IEEE80211;
+        break;
+      default:
+        type = ConfigData::IFTYPE_UNKNOWN;
+        break;
+      }
+    }
+    this->_lock.Unlock();
   }
-  else if (str == ConfigData::ConfigTypeLoop)
-  {
-    type = Interface::TYPE_LOOP;
-  }
-  else if (str == ConfigData::ConfigTypeWired)
-  {
-    type = Interface::TYPE_WIRED;
-  }
-  else if (str == ConfigData::ConfigTypeWireless)
-  {
-    type = Interface::TYPE_WIRELESS;
-  }
-  else if (str == ConfigData::ConfigTypeOther)
-  {
-    type = Interface::TYPE_OTHER;
-  }
-  else if (str == ConfigData::ConfigTypeBond)
-  {
-    type = Interface::TYPE_BOND;
-  }
-  else if (str == ConfigData::ConfigTypeBridge)
-  {
-    type = Interface::TYPE_BRIDGE;
-  }
-  else
-  {
-    type = Interface::TYPE_ERR;
-  }
-
   return (type);
-}
-
-bool
-Interface::SetIfType(const Interface::IFTYPE type_)
-{
-
-  std::string str;
-
-  switch (type_)
-  {
-  case Interface::TYPE_NONE:
-    str = ConfigData::ConfigTypeNone;
-    break;
-  case Interface::TYPE_LOOP:
-    str = ConfigData::ConfigTypeLoop;
-    break;
-  case Interface::TYPE_WIRED:
-    str = ConfigData::ConfigTypeWired;
-    break;
-  case Interface::TYPE_WIRELESS:
-    str = ConfigData::ConfigTypeWireless;
-    break;
-  case Interface::TYPE_OTHER:
-    str = ConfigData::ConfigTypeOther;
-    break;
-  case Interface::TYPE_BOND:
-    str = ConfigData::ConfigTypeBond;
-    break;
-  case Interface::TYPE_BRIDGE:
-    str = ConfigData::ConfigTypeBridge;
-    break;
-  default:
-    return(false);
-  }
-
-  return (this->Config.Type(str));
 }
 
 std::string
@@ -267,7 +203,7 @@ Interface::GetHwAddress() const
   {
     if (this->_refreshed)
     {
-      addr = this->_getlinkcmd->Link.Mac();
+      addr = this->_getlinkcmd->Link.HwAddress();
     }
     this->_lock.Unlock();
   }
@@ -280,9 +216,7 @@ Interface::SetHwAddress(const std::string& addr_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    this->_refreshed = false;
-    this->_stale = true;
-    this->_setlinkcmd->Link.Mac(addr_);
+    status = this->_modified = this->_setlinkcmd->Link.HwAddress(addr_);
     this->_lock.Unlock();
   }
   return (status);
@@ -309,30 +243,28 @@ Interface::SetMtu(const unsigned int mtu_)
   bool status = false;
   if (this->_lock.Lock())
   {
-    this->_stale = true;
-    this->_refreshed = false;
-    this->_setlinkcmd->Link.Mtu(mtu_);
+    status = this->_modified = this->_setlinkcmd->Link.Mtu(mtu_);
     this->_lock.Unlock();
   }
   return (status);
 }
 
-Interface::STATE
+ConfigData::STATE
 Interface::GetAdminState() const
 {
-  Interface::STATE state = Interface::STATE_ERR;
+  ConfigData::STATE state = ConfigData::STATE_ERR;
   if (this->_lock.Lock())
   {
     if (this->_refreshed)
     {
       uint32_t flags = this->_getlinkcmd->Link.Flags();
-      if ((flags & (IFF_UP|IFF_RUNNING)) == (IFF_UP|IFF_RUNNING))
+      if ((flags & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING))
       {
-        state = Interface::STATE_UP;
+        state = ConfigData::STATE_UP;
       }
       else
       {
-        state = Interface::STATE_DOWN;
+        state = ConfigData::STATE_DOWN;
       }
     }
     this->_lock.Unlock();
@@ -341,22 +273,21 @@ Interface::GetAdminState() const
 }
 
 bool
-Interface::SetAdminState(const Interface::STATE state_)
+Interface::SetAdminState(const ConfigData::STATE state_)
 {
   bool status = false;
+
   if (this->_lock.Lock())
   {
-    this->_stale = true;
-    this->_refreshed = false;
-    if (state_ == Interface::STATE_UP)
+    if (state_ == ConfigData::STATE_UP)
     {
       ZLOG_INFO("Administrative UP");
-      this->_setlinkcmd->Link.SetFlags((IFF_UP | IFF_RUNNING));
+      status = this->_modified = this->_setlinkcmd->Link.SetFlags((IFF_UP | IFF_RUNNING));
     }
     else
     {
       ZLOG_INFO("Administrative DOWN");
-      this->_setlinkcmd->Link.ClrFlags((IFF_UP | IFF_RUNNING));
+      status = this->_modified = this->_setlinkcmd->Link.ClrFlags((IFF_UP | IFF_RUNNING));
     }
     this->_lock.Unlock();
   }
@@ -371,21 +302,31 @@ Interface::Refresh()
   if (this->_lock.Lock())
   {
     // Validate and execute get link command
-    this->_refreshed = this->_getlinkcmd->Exec();
-    if (this->_refreshed && this->_stale)
-    {
-      this->_setlinkcmd->SetIfIndex(this->_getlinkcmd->Link.IfIndex());
-      if (this->_setlinkcmd->Exec())
-      {
-        this->_stale = false;
-        this->_refreshed = this->_getlinkcmd->Exec();
-      }
-    }
-    status = (this->_refreshed && !this->_stale);
+    status = this->_refreshed = this->_getlinkcmd->Exec();
     this->_lock.Unlock();
   }
-
   return(status);
+
+}
+
+bool
+Interface::Commit()
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    if (this->_modified)
+    {
+      // Execute set link command and refresh
+      if (this->_setlinkcmd->Exec())
+      {
+        this->_modified = false;
+        status = this->_getlinkcmd->Exec();
+      }
+    }
+    this->_lock.Unlock();
+  }
+  return (status);
 
 }
 
@@ -404,23 +345,23 @@ Interface::Destroy()
 void
 Interface::Display(const std::string &prefix_)
 {
-  if (this->_refreshed)
+  std::cout << prefix_ << "Refreshed: " << (this->IsRefreshed() ? "true" : "false");
+  if (this->IsRefreshed())
   {
     std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
     std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
-    std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
+    std::cout << prefix_ << "Type:   \t" << this->GetIfType() << std::endl;
     std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
     std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
     std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
   }
-  else
-  {
-    std::cout << prefix_ << "Name:   \t" << this->Config.Name() << std::endl;
-    std::cout << prefix_ << "Type:   \t" << this->Config.Type() << std::endl;
-    std::cout << prefix_ << "MAC:    \t" << this->Config.HwAddress() << std::endl;
-    std::cout << prefix_ << "MTU:    \t" << this->Config.Mtu() << std::endl;
-    std::cout << prefix_ << "State:  \t" << this->Config.AdminState() << std::endl;
-  }
+}
+
+void
+Interface::_init()
+{
+  this->_getlinkcmd = new GetLinkCommand(this->Config.GetIfName());
+  this->_setlinkcmd = new SetLinkCommand(this->Config.GetIfName());
 }
 
 }

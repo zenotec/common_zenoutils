@@ -228,7 +228,7 @@ RouteLink::IfName(const std::string& name_)
 }
 
 unsigned int
-RouteLink::Type() const
+RouteLink::ArpType() const
 {
   int type = -1;
   if (this->_link)
@@ -239,7 +239,7 @@ RouteLink::Type() const
 }
 
 bool
-RouteLink::Type(const unsigned int type_)
+RouteLink::ArpType(const unsigned int type_)
 {
   bool status = false;
   if (this->_link)
@@ -396,7 +396,7 @@ RouteLink::CarrierState(const RouteLink::STATE state_)
 }
 
 std::string
-RouteLink::Mac() const
+RouteLink::HwAddress() const
 {
   struct nl_addr* addr = NULL;
   char mac[256] = { 0 };
@@ -409,12 +409,12 @@ RouteLink::Mac() const
 }
 
 bool
-RouteLink::Mac(const std::string& mac_)
+RouteLink::HwAddress(const std::string& addr_)
 {
   bool status = false;
   int ret = 0;
   struct nl_addr* addr = NULL;
-  ret = nl_addr_parse(mac_.c_str(), AF_LLC, &addr);
+  ret = nl_addr_parse(addr_.c_str(), AF_LLC, &addr);
   if (this->_link && (ret == 0))
   {
     rtnl_link_set_addr(this->_link, addr);
@@ -430,12 +430,12 @@ RouteLink::Display() const
   std::cout << "Link: " << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  std::cout << "\tType:  \t" << _arptype2str(this->Type()) << std::endl;
+  std::cout << "\tType:  \t" << _arptype2str(this->ArpType()) << std::endl;
   std::cout << "\tType:  \t" << this->TypeString() << std::endl;
   std::cout << "\tFlags: \t" << this->Flags() << std::endl;
   std::cout << "\tMTU:   \t" << this->Mtu() << std::endl;
   std::cout << "\tLink:  \t" << _state2str(this->CarrierState()) << std::endl;
   std::cout << "\tState: \t" << _state2str(this->OperationalState()) << std::endl;
-  std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
+  std::cout << "\tMAC:   \t" << this->HwAddress() << std::endl;
 }
 }

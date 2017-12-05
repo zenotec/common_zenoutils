@@ -75,10 +75,10 @@ public:
   IfName(const std::string& name_);
 
   unsigned int
-  Type() const;
+  ArpType() const;
 
   bool
-  Type(const unsigned int type_);
+  ArpType(const unsigned int type_);
 
   std::string
   TypeString() const;
@@ -114,10 +114,10 @@ public:
   CarrierState(const RouteLink::STATE state_);
 
   std::string
-  Mac() const;
+  HwAddress() const;
 
   bool
-  Mac(const std::string& mac_);
+  HwAddress(const std::string& addr_);
 
   void
   Display() const;

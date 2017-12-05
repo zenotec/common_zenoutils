@@ -46,11 +46,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zInterfaceTest_InterfaceConfigurationDefaults, 0);
   UTEST_TEST(zInterfaceTest_InterfaceDefaults, 0);
 
-  UTEST_TEST(zInterfaceTest_InterfaceConfigurationCtor, 0);
-  UTEST_TEST(zInterfaceTest_InterfaceConfigurationGetSet, 0);
+  UTEST_TEST(zInterfaceTest_InterfaceConfiguration, 0);
 
-  UTEST_TEST(zInterfaceTest_InterfaceCtor, 0);
-  UTEST_TEST(zInterfaceTest_InterfaceRefresh, 0);
+  UTEST_TEST(zInterfaceTest_InterfaceLoop, 0);
 
   UTEST_TEST(zInterfaceTest_InterfaceFactory, 0);
 

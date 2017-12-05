@@ -37,6 +37,8 @@ libnl80211_la_SOURCES = \
 	ListPhysCommand.cpp \
 	GetPhyCommand.h \
 	GetPhyCommand.cpp \
+	SetPhyCommand.h \
+	SetPhyCommand.cpp \
 	ListInterfacesCommand.h \
 	ListInterfacesCommand.cpp \
 	GetInterfaceCommand.h \

@@ -35,9 +35,7 @@ class MonitorInterface : public WirelessInterface
 {
 public:
 
-  MonitorInterface(const int index_ = 0);
-
-  MonitorInterface(const std::string &name_);
+  MonitorInterface(const std::string &name_ = "");
 
   MonitorInterface(const zInterface::ConfigData& config_);
 

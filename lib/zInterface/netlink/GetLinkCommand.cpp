@@ -53,11 +53,6 @@ __errstr(int code)
 // Class: GetLinkCommand
 //*****************************************************************************
 
-GetLinkCommand::GetLinkCommand(int index_)
-{
-  this->Link.IfIndex(index_);
-}
-
 GetLinkCommand::GetLinkCommand(const std::string& name_)
 {
   this->Link.IfName(name_);
@@ -65,7 +60,18 @@ GetLinkCommand::GetLinkCommand(const std::string& name_)
 
 GetLinkCommand::~GetLinkCommand()
 {
-  this->_sock.Disconnect();
+}
+
+std::string
+GetLinkCommand::GetIfName() const
+{
+  return (this->Link.IfName());
+}
+
+bool
+GetLinkCommand::SetIfName(const std::string& name_)
+{
+  return (this->Link.IfName(name_));
 }
 
 bool
@@ -76,33 +82,29 @@ GetLinkCommand::Exec()
   int ret = 0;
   struct rtnl_link* link = NULL;
 
-  if (!this->Link.IfIndex() && this->Link.IfName().empty())
+  if (this->Link.IfName().empty())
   {
-    ZLOG_ERR("Error executing GetLinkCommand: (" + ZLOG_INT(this->Link.IfIndex()) + "): " +
-        this->Link.IfName());
-    ZLOG_ERR("Either valid ifindex or name must be specified");
+    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
+    ZLOG_ERR("Valid interface name must be specified");
     return(false);
   }
 
   if (!this->_sock.Connect())
   {
+    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
     ZLOG_ERR("Error connecting Netlink socket");
     return(false);
   }
 
-  int index = this->Link.IfIndex();
-  const char* name = (this->Link.IfName().empty() ? NULL : this->Link.IfName().c_str());
-
-  ret = rtnl_link_get_kernel(this->_sock(), index, name, &link);
+  ret = rtnl_link_get_kernel(this->_sock(), 0, this->Link.IfName().c_str(), &link);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing GetLinkCommand: (" + ZLOG_INT(this->Link.IfIndex()) + "): " +
-        this->Link.IfName());
+    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
   }
   else
   {
-    this->Link(link);
+    this->Link(link); // Transfers ownership of link memory
     status = true;
   }
 

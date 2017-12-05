@@ -36,17 +36,18 @@ class LoopInterface : public zInterface::Interface
 
 public:
 
-  LoopInterface(const int index_);
+  LoopInterface(const std::string& name_ = "");
 
-  LoopInterface(const std::string& name_);
-
-  LoopInterface(const ConfigData &config_);
+  LoopInterface(const zInterface::ConfigData &config_);
 
   virtual
   ~LoopInterface();
 
   virtual bool
   Refresh();
+
+  virtual bool
+  Commit();
 
   virtual bool
   Create();

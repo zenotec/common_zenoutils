@@ -15,10 +15,15 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_GETLINKCOMMAND_H__
-#define __NETLINK_GETLINKCOMMAND_H__
+#ifndef __NL80211_SETPHYCOMMAND_H__
+#define __NL80211_SETPHYCOMMAND_H__
 
 // libc includes
+#include <linux/nl80211.h>
+#include <linux/netlink.h>
+#include <netlink/netlink.h>
+#include <netlink/msg.h>
+#include <netlink/attr.h>
 
 // libc++ includes
 #include <string>
@@ -27,34 +32,39 @@
 
 // local includes
 #include "Command.h"
+#include "Attribute.h"
 
-#include "RouteSocket.h"
-#include "RouteLink.h"
+#include "Message.h"
+#include "Handler.h"
+#include "Socket.h"
+#include "GenericMessage.h"
+#include "GenericSocket.h"
+using namespace netlink;
 
-namespace netlink
+#include "PhyIndexAttribute.h"
+#include "PhyNameAttribute.h"
+
+namespace nl80211
 {
 
 //*****************************************************************************
-// Class: GetLinkCommand
+// Class: SetPhyCommand
 //*****************************************************************************
 
-class GetLinkCommand : public Command
+class SetPhyCommand : public Command, public netlink::Handler
 {
 
 public:
 
-  RouteLink Link;
+  PhyIndexAttribute PhyIndex;
+  PhyNameAttribute PhyName;
 
-  GetLinkCommand(const std::string& name_ = "");
+  SetPhyCommand(int index_ = 0);
+
+  SetPhyCommand(const std::string& name_);
 
   virtual
-  ~GetLinkCommand();
-
-  std::string
-  GetIfName() const;
-
-  bool
-  SetIfName(const std::string& name_);
+  ~SetPhyCommand();
 
   virtual bool
   Exec();
@@ -64,12 +74,18 @@ public:
 
 protected:
 
+  virtual int
+  valid_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
+  err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_);
+
 private:
 
-  RouteSocket _sock;
+  netlink::GenericSocket _sock;
 
 };
 
 }
 
-#endif /* __NETLINK_GETLINKCOMMAND_H__ */
+#endif /* __NL80211_SETPHYCOMMAND_H__ */

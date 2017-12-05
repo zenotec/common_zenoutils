@@ -46,7 +46,7 @@ using namespace netlink;
 
 #include "PhyIndexAttribute.h"
 #include "PhyNameAttribute.h"
-#include "GetPhyCommand.h"
+#include "SetPhyCommand.h"
 
 namespace nl80211
 {
@@ -58,25 +58,25 @@ __errstr(int code)
 }
 
 //*****************************************************************************
-// Class: GetPhyCommand
+// Class: SetPhyCommand
 //*****************************************************************************
 
-GetPhyCommand::GetPhyCommand(int index_)
+SetPhyCommand::SetPhyCommand(int index_)
 {
   this->PhyIndex.SetValue(index_);
 }
 
-GetPhyCommand::GetPhyCommand(const std::string& name_)
+SetPhyCommand::SetPhyCommand(const std::string& name_)
 {
   this->PhyName.SetValue(name_);
 }
 
-GetPhyCommand::~GetPhyCommand()
+SetPhyCommand::~SetPhyCommand()
 {
 }
 
 void
-GetPhyCommand::Display() const
+SetPhyCommand::Display() const
 {
   std::cout << "Phy:" << std::endl;
   std::cout << "\tIndex: \t" << this->PhyIndex.GetValue() << std::endl;
@@ -84,7 +84,7 @@ GetPhyCommand::Display() const
 }
 
 bool
-GetPhyCommand::Exec()
+SetPhyCommand::Exec()
 {
   if (!this->_sock.Connect())
   {
@@ -98,7 +98,7 @@ GetPhyCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_WIPHY);
+  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_WIPHY);
   cmdmsg.PutAttribute(&this->PhyIndex);
   cmdmsg.PutAttribute(&this->PhyName);
   this->_sock.SendMsg(cmdmsg);
@@ -110,7 +110,7 @@ GetPhyCommand::Exec()
 }
 
 int
-GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+SetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -265,7 +265,7 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 }
 
 int
-GetPhyCommand::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_)
+SetPhyCommand::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_)
 {
   ZLOG_ERR("Error executing GetPhyCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr_->error) + ") " + __errstr(nlerr_->error));
