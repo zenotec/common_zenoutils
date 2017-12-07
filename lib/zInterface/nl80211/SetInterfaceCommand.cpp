@@ -111,6 +111,13 @@ SetInterfaceCommand::Exec()
     return (false);
   }
 
+  // Set interface name attribute
+  if (!cmdmsg.PutAttribute(&this->IfName))
+  {
+    ZLOG_ERR("Error setting interface name attribute");
+    return (false);
+  }
+
   // Set interface type attribute
   if (!cmdmsg.PutAttribute(&this->IfType))
   {
@@ -121,20 +128,20 @@ SetInterfaceCommand::Exec()
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
-    ZLOG_ERR("Error sending get_interface netlink message");
+    ZLOG_ERR("Error sending set_interface netlink message");
     return(false);
   }
 
   // Wait for the response
   if (!this->_sock.RecvMsg())
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response message for set_interface netlink message");
     return(false);
   }
 
   if (!this->_count.TimedWait(100))
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Timed out response for set_interface netlink message");
     return(false);
   }
 
@@ -167,19 +174,19 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
-    return(NL_SKIP);
+    return (NL_SKIP);
   }
 
   if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
-    return(NL_SKIP);
+    return (NL_SKIP);
   }
 
   if (!msg.GetAttribute(&this->IfType))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.Id()));
-    return(NL_SKIP);
+    return (NL_SKIP);
   }
 
   this->_status = true;
@@ -195,7 +202,7 @@ SetInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, voi
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();
-  return(NL_SKIP);
+  return (NL_SKIP);
 }
 
 }

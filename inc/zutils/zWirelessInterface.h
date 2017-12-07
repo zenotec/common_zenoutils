@@ -228,7 +228,7 @@ public:
 
   WirelessInterfaceConfigData WiConfig;
 
-  WirelessInterface(const std::string& name_ = "");
+  WirelessInterface(const std::string& name_);
 
   WirelessInterface(const zInterface::ConfigData& config_);
 

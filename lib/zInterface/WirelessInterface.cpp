@@ -69,6 +69,10 @@ WirelessInterface::WirelessInterface(const std::string& name_) :
     Interface(name_), WiConfig(this->Config), _getphycmd(NULL), _setphycmd(NULL),
     _getifacecmd(NULL), _setifacecmd(NULL), _newifacecmd(NULL), _delifacecmd(NULL)
 {
+  if (name_.empty())
+  {
+    ZLOG_WARN("WirelessInterface(name_): Name is empty!");
+  }
   this->_init();
 }
 
@@ -76,6 +80,10 @@ WirelessInterface::WirelessInterface(const zInterface::ConfigData& config_) :
     Interface(config_), WiConfig(this->Config), _getphycmd(NULL), _setphycmd(NULL),
     _getifacecmd(NULL), _setifacecmd(NULL), _newifacecmd(NULL), _delifacecmd(NULL)
 {
+  if (this->Config.GetIfName().empty())
+  {
+    ZLOG_WARN("WirelessInterface(config_): Name is empty!");
+  }
   this->_init();
 }
 
@@ -432,17 +440,7 @@ WirelessInterface::Refresh()
 bool
 WirelessInterface::Commit()
 {
-
-  bool status = false;
-  if (this->_lock.Lock())
-  {
-    if (this->_modified)
-    {
-    }
-    this->_lock.Unlock();
-  }
-  return (status);
-
+  return (Interface::Commit());
 }
 
 bool
@@ -460,28 +458,37 @@ WirelessInterface::Create()
       if (this->WiConfig.GetOpMode() == WirelessInterfaceConfigData::OPMODE_STA)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_STATION);
+        this->_setifacecmd->IfType(NL80211_IFTYPE_STATION);
       }
       else if (this->WiConfig.GetOpMode() == WirelessInterfaceConfigData::OPMODE_AP)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_AP);
+        this->_setifacecmd->IfType(NL80211_IFTYPE_AP);
       }
       else if (this->WiConfig.GetOpMode() == WirelessInterfaceConfigData::OPMODE_ADHOC)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_ADHOC);
+        this->_setifacecmd->IfType(NL80211_IFTYPE_ADHOC);
       }
       else if (this->WiConfig.GetOpMode() == WirelessInterfaceConfigData::OPMODE_MONITOR)
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_MONITOR);
+        this->_setifacecmd->IfType(NL80211_IFTYPE_MONITOR);
       }
       else
       {
         this->_newifacecmd->IfType(NL80211_IFTYPE_UNSPECIFIED);
+        this->_setifacecmd->IfType(NL80211_IFTYPE_UNSPECIFIED);
       }
       status = this->_newifacecmd->Exec();
     }
     if (status && this->_setphycmd)
     {
+      std::cout << "New interface created: [" << this->_newifacecmd->IfIndex() << "]: " << this->_newifacecmd->IfName() << std::endl;
       this->_setphycmd->PhyIndex(this->_getphycmd->PhyIndex());
+      this->_getifacecmd->IfIndex(this->_newifacecmd->IfIndex());
+      this->_setifacecmd->IfIndex(this->_newifacecmd->IfIndex());
+      this->_delifacecmd->IfIndex(this->_newifacecmd->IfIndex());
     }
     this->_lock.Unlock();
   }
@@ -530,6 +537,7 @@ WirelessInterface::_init()
   this->_setphycmd = new SetPhyCommand();
   this->_getifacecmd = new GetInterfaceCommand(this->Config.GetIfName());
   this->_setifacecmd = new SetInterfaceCommand(this->Config.GetIfName());
+  this->_newifacecmd = new NewInterfaceCommand(this->Config.GetIfName());
   this->_delifacecmd = new DelInterfaceCommand(this->Config.GetIfName());
 }
 

@@ -57,6 +57,7 @@ __errstr(int code)
 SetLinkCommand::SetLinkCommand(const std::string& name_)
 {
   this->_orig.IfName(name_);
+  this->Link.IfName(name_);
 }
 
 SetLinkCommand::~SetLinkCommand()
@@ -72,7 +73,7 @@ SetLinkCommand::GetIfName() const
 bool
 SetLinkCommand::SetIfName(const std::string& name_)
 {
-  return (this->_orig.IfName(name_));
+  return (this->_orig.IfName(name_) && this->Link.IfName(name_));
 }
 
 bool
@@ -80,6 +81,8 @@ SetLinkCommand::Exec()
 {
 
   bool status = false;
+  int ret = 0;
+  struct rtnl_link* link = NULL;
 
   if (this->_orig.IfName().empty())
   {
@@ -94,15 +97,28 @@ SetLinkCommand::Exec()
     return (false);
   }
 
-  int ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
+  // Query the interface to retrieve the interface index
+  ret = rtnl_link_get_kernel(this->_sock(), 0, this->_orig.IfName().c_str(), &link);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
+    ZLOG_ERR("Error executing SetLinkCommand: " + this->_orig.IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
   }
   else
   {
-    status = true;
+    this->_orig.IfIndex(rtnl_link_get_ifindex(link));
+    this->Link.IfIndex(rtnl_link_get_ifindex(link));
+
+    ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
+    if (ret < 0)
+    {
+      ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
+      ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+    }
+    else
+    {
+      status = true;
+    }
   }
 
   this->_sock.Disconnect();

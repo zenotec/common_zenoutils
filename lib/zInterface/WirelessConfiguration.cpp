@@ -163,9 +163,33 @@ WirelessInterfaceConfigData::GetHwMode() const
     str = ConfigHwModeDefault;
   }
 
-  if (str == WirelessInterfaceConfigData::ConfigHwModeA)
+  if (str == ConfigHwModeA)
   {
-    mode = WirelessInterfaceConfigData::HWMODE_A;
+    mode = HWMODE_A;
+  }
+  else if (str == ConfigHwModeB)
+  {
+    mode = HWMODE_B;
+  }
+  else if (str == ConfigHwModeG)
+  {
+    mode = HWMODE_G;
+  }
+  else if (str == ConfigHwModeN)
+  {
+    mode = HWMODE_N;
+  }
+  else if (str == ConfigHwModeAC)
+  {
+    mode = HWMODE_AC;
+  }
+  else if (str == ConfigHwModeAD)
+  {
+    mode = HWMODE_AD;
+  }
+  else if (str == ConfigHwModeAX)
+  {
+    mode = HWMODE_AX;
   }
 
   return (mode);
@@ -174,8 +198,38 @@ WirelessInterfaceConfigData::GetHwMode() const
 bool
 WirelessInterfaceConfigData::SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_)
 {
+  std::string str;
   WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHwModePath);
-  return (this->_config.PutValue(path, mode_));
+
+  switch (mode_)
+  {
+  case HWMODE_A:
+    str = ConfigHwModeA;
+    break;
+  case HWMODE_B:
+    str = ConfigHwModeB;
+    break;
+  case HWMODE_G:
+    str = ConfigHwModeG;
+    break;
+  case HWMODE_N:
+    str = ConfigHwModeN;
+    break;
+  case HWMODE_AC:
+    str = ConfigHwModeAC;
+    break;
+  case HWMODE_AD:
+    str = ConfigHwModeAD;
+    break;
+  case HWMODE_AX:
+    str = ConfigHwModeAX;
+    break;
+  default:
+    str = ConfigHwModeNone;
+    break;
+  }
+
+  return (this->_config.PutValue(path, str));
 }
 
 WirelessInterfaceConfigData::HTMODE
@@ -195,8 +249,10 @@ WirelessInterfaceConfigData::GetHtMode() const
 bool
 WirelessInterfaceConfigData::SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_)
 {
+  std::string str;
   WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigHtModePath);
-  return (this->_config.PutValue(path, mode_));
+
+  return (this->_config.PutValue(path, str));
 }
 
 WirelessInterfaceConfigData::OPMODE
@@ -210,6 +266,28 @@ WirelessInterfaceConfigData::GetOpMode() const
   {
     str = ConfigOpModeDefault;
   }
+
+  if (str == ConfigOpModeSTA)
+  {
+    mode = OPMODE_STA;
+  }
+  else if (str == ConfigOpModeAP)
+  {
+    mode = OPMODE_AP;
+  }
+  else if (str == ConfigOpModeAdhoc)
+  {
+    mode = OPMODE_ADHOC;
+  }
+  else if (str == ConfigOpModeMonitor)
+  {
+    mode = OPMODE_MONITOR;
+  }
+  else if (str == ConfigOpModeMesh)
+  {
+    mode = OPMODE_MESH;
+  }
+
   return (mode);
 
 }
@@ -217,8 +295,32 @@ WirelessInterfaceConfigData::GetOpMode() const
 bool
 WirelessInterfaceConfigData::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
 {
+  std::string str;
   WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigOpModePath);
-  return (this->_config.PutValue(path, mode_));
+
+  switch (mode_)
+  {
+  case OPMODE_STA:
+    str = ConfigOpModeSTA;
+    break;
+  case OPMODE_AP:
+    str = ConfigOpModeAP;
+    break;
+  case OPMODE_ADHOC:
+    str = ConfigOpModeAdhoc;
+    break;
+  case OPMODE_MONITOR:
+    str = ConfigOpModeMonitor;
+    break;
+  case OPMODE_MESH:
+    str = ConfigOpModeMesh;
+    break;
+  default:
+    str = ConfigOpModeNone;
+    break;
+  }
+
+  return (this->_config.PutValue(path, str));
 }
 
 std::string

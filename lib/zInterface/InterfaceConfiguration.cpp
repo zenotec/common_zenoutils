@@ -82,7 +82,7 @@ const std::string ConfigData::ConfigTypeBond("BOND");
 const std::string ConfigData::ConfigTypeBridge("BRIDGE");
 const std::string ConfigData::ConfigTypeDefault(ConfigData::ConfigTypeNone);
 
-const std::string ConfigData::ConfigHwAddressDefault("");
+const std::string ConfigData::ConfigHwAddressDefault("00:00:00:00:00:00");
 
 const unsigned int ConfigData::ConfigMtuDefault(1500);
 
@@ -100,7 +100,7 @@ const std::string ConfigData::ConfigAdminStateDefault(ConfigData::ConfigAdminSta
 ConfigData::ConfigData(const std::string& name_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(name_)");
+  ZLOG_DEBUG("zInterface::ConfigData::ConfigData(name_)");
   this->SetIfName(name_);
   this->_init();
 }
@@ -108,7 +108,7 @@ ConfigData::ConfigData(const std::string& name_) :
 ConfigData::ConfigData(const zConfig::ConfigData& config_) :
     zConfig::ConfigData(ConfigPath::ConfigRoot)
 {
-  ZLOG_DEBUG("InterfaceConfigData::InterfaceConfigData(config_)");
+  ZLOG_DEBUG("zInterface::ConfigData::ConfigData(config_)");
   this->PutChild(ConfigPath(), ConfigPath(), config_);
   this->_init();
 }

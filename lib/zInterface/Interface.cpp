@@ -65,6 +65,10 @@ Interface::Interface(const std::string& name_) :
     _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
+  if (name_.empty())
+  {
+    ZLOG_WARN("Interface(name_): Name is empty!");
+  }
   this->_init();
   this->_lock.Unlock();
 }
@@ -74,6 +78,10 @@ Interface::Interface(const zInterface::ConfigData& config_) :
     _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
 
 {
+  if (this->Config.GetIfName().empty())
+  {
+    ZLOG_WARN("Interface(config_): Name is empty!");
+  }
   this->_init();
   this->_lock.Unlock();
 }
@@ -138,10 +146,7 @@ Interface::GetIfName() const
   std::string name;
   if (this->_lock.Lock())
   {
-    if (this->_refreshed)
-    {
-      name = this->_getlinkcmd->Link.IfName();
-    }
+    name = this->_getlinkcmd->GetIfName();
     this->_lock.Unlock();
   }
   return (name);

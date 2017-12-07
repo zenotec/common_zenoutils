@@ -134,7 +134,7 @@ public:
   static const std::string ConfigAdminStateDown;
   static const std::string ConfigAdminStateDefault;
 
-  ConfigData(const std::string& name_ = ConfigData::ConfigNameDefault);
+  ConfigData(const std::string& name_ = ConfigNameDefault);
 
   ConfigData(const zConfig::ConfigData& config_);
 

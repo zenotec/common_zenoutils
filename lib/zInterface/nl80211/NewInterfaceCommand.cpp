@@ -68,7 +68,7 @@ __errstr(int code)
 
 NewInterfaceCommand::NewInterfaceCommand(const std::string& name_)
 {
-  this->IfName.SetValue(name_);
+  this->IfName(name_);
 }
 
 NewInterfaceCommand::~NewInterfaceCommand()
