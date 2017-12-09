@@ -338,7 +338,7 @@ EthSocket::Bind(const zInterface::Interface& iface_)
     this->_iface = NULL;
   }
   this->_iface = new zInterface::Interface(iface_.GetIfName());
-  if (this->_iface && this->_iface->Refresh())
+  if (this->_iface)
   {
     EthAddress addr(this->_iface->GetHwAddress());
     status = Socket::Bind(addr);

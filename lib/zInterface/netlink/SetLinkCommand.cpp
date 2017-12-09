@@ -54,26 +54,14 @@ __errstr(int code)
 //*****************************************************************************
 
 
-SetLinkCommand::SetLinkCommand(const std::string& name_)
+SetLinkCommand::SetLinkCommand(const unsigned int ifindex_)
 {
-  this->_orig.IfName(name_);
-  this->Link.IfName(name_);
+  this->_orig.IfIndex(ifindex_);
+//  this->Link.IfIndex(ifindex_);
 }
 
 SetLinkCommand::~SetLinkCommand()
 {
-}
-
-std::string
-SetLinkCommand::GetIfName() const
-{
-  return (this->_orig.IfName());
-}
-
-bool
-SetLinkCommand::SetIfName(const std::string& name_)
-{
-  return (this->_orig.IfName(name_) && this->Link.IfName(name_));
 }
 
 bool
@@ -82,12 +70,11 @@ SetLinkCommand::Exec()
 
   bool status = false;
   int ret = 0;
-  struct rtnl_link* link = NULL;
 
-  if (this->_orig.IfName().empty())
+  if (!this->_orig.IfIndex())
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + this->_orig.IfName());
-    ZLOG_ERR("Valid interface name must be specified");
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->_orig.IfIndex()));
+    ZLOG_ERR("Valid interface index must be specified");
     return(false);
   }
 
@@ -97,33 +84,20 @@ SetLinkCommand::Exec()
     return (false);
   }
 
-  // Query the interface to retrieve the interface index
-  ret = rtnl_link_get_kernel(this->_sock(), 0, this->_orig.IfName().c_str(), &link);
+  ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + this->_orig.IfName());
+    ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
   }
   else
   {
-    this->_orig.IfIndex(rtnl_link_get_ifindex(link));
-    this->Link.IfIndex(rtnl_link_get_ifindex(link));
-
-    ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
-    if (ret < 0)
-    {
-      ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
-      ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    }
-    else
-    {
-      status = true;
-    }
+    status = true;
   }
 
   this->_sock.Disconnect();
 
-  return (true);
+  return (status);
 }
 
 void

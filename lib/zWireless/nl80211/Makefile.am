@@ -3,7 +3,13 @@ CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS) -I$(srcdir) -I$(srcdir)/../netlink
+AM_CPPFLAGS := \
+  $(CPPFLAGS_GCOV) \
+  $(com_incdir) \
+  $(BOOST_CPPFLAGS) \
+  -I$(srcdir) \
+  -I${top_srcdir}/lib/zInterface/netlink
+
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 libnl80211_la_CPPFLAGS = \
@@ -51,6 +57,8 @@ libnl80211_la_SOURCES = \
 	DelInterfaceCommand.cpp \
 	SetBssCommand.h \
 	SetBssCommand.cpp \
+	NewBeaconCommand.h \
+	NewBeaconCommand.cpp \
 	SetBeaconCommand.h \
 	SetBeaconCommand.cpp \
 	StartApCommand.h \

@@ -53,25 +53,34 @@ __errstr(int code)
 // Class: GetLinkCommand
 //*****************************************************************************
 
-GetLinkCommand::GetLinkCommand(const std::string& name_)
+GetLinkCommand::GetLinkCommand(const unsigned int ifindex_) :
+    _ifindex(ifindex_)
 {
-  this->Link.IfName(name_);
+  if (!ifindex_)
+  {
+    ZLOG_WARN("Interface index is NULL");
+  }
+}
+
+GetLinkCommand::GetLinkCommand(const std::string& ifname_) :
+    _ifindex(0)
+{
+  if (!ifname_.empty())
+  {
+    this->_ifindex = if_nametoindex(ifname_.c_str());
+    if (!this->_ifindex)
+    {
+      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
+    }
+  }
+  else
+  {
+    ZLOG_WARN("Name is empty!");
+  }
 }
 
 GetLinkCommand::~GetLinkCommand()
 {
-}
-
-std::string
-GetLinkCommand::GetIfName() const
-{
-  return (this->Link.IfName());
-}
-
-bool
-GetLinkCommand::SetIfName(const std::string& name_)
-{
-  return (this->Link.IfName(name_));
 }
 
 bool
@@ -82,10 +91,10 @@ GetLinkCommand::Exec()
   int ret = 0;
   struct rtnl_link* link = NULL;
 
-  if (this->Link.IfName().empty())
+  if (!this->_ifindex)
   {
     ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
-    ZLOG_ERR("Valid interface name must be specified");
+    ZLOG_ERR("Valid interface index must be specified");
     return(false);
   }
 
@@ -96,7 +105,7 @@ GetLinkCommand::Exec()
     return(false);
   }
 
-  ret = rtnl_link_get_kernel(this->_sock(), 0, this->Link.IfName().c_str(), &link);
+  ret = rtnl_link_get_kernel(this->_sock(), this->_ifindex, NULL, &link);
   if (ret < 0)
   {
     ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
@@ -104,7 +113,7 @@ GetLinkCommand::Exec()
   }
   else
   {
-    this->Link(link); // Transfers ownership of link memory
+    this->Link(link); // Transfers ownership of link pointer
     status = true;
   }
 

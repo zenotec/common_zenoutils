@@ -60,18 +60,13 @@ __errstr(int code)
 // Class: SetBssCommand
 //*****************************************************************************
 
-SetBssCommand::SetBssCommand(int index_)
+SetBssCommand::SetBssCommand(const std::string& ifname_)
 {
-  this->IfIndex.SetValue(index_);
-}
-
-SetBssCommand::SetBssCommand(const std::string& name_)
-{
-  this->IfName.SetValue(name_);
-  this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));
+  this->IfName.SetValue(ifname_);
+  this->IfIndex.SetValue((uint32_t)if_nametoindex(ifname_.c_str()));
   if (!this->IfIndex())
   {
-    ZLOG_ERR("Error retrieving interface index for: " + name_);
+    ZLOG_ERR("Error retrieving interface index for: " + ifname_);
     return;
   }
 }

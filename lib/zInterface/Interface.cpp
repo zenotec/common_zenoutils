@@ -60,94 +60,84 @@ namespace zInterface
 // Class: Interface
 // ****************************************************************************
 
-Interface::Interface(const std::string& name_) :
-    zEvent::Event(zEvent::Event::TYPE_INTERFACE), Config(name_), _refreshed(false),
-    _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
-
+Interface::Interface(const std::string& ifname_) :
+    _modified(false), ifindex(0), config(ifname_)
 {
-  if (name_.empty())
-  {
-    ZLOG_WARN("Interface(name_): Name is empty!");
-  }
-  this->_init();
-  this->_lock.Unlock();
+  this->lock.Unlock();
+  this->Refresh();
 }
 
 Interface::Interface(const zInterface::ConfigData& config_) :
-    zEvent::Event(zEvent::Event::TYPE_INTERFACE), Config(config_), _refreshed(false),
-    _modified(false), _getlinkcmd(NULL), _setlinkcmd(NULL), _rtlinkevent(NULL)
-
+    _modified(false), ifindex(0), config(config_)
 {
-  if (this->Config.GetIfName().empty())
-  {
-    ZLOG_WARN("Interface(config_): Name is empty!");
-  }
-  this->_init();
-  this->_lock.Unlock();
+  this->lock.Unlock();
+  this->Refresh();
+  this->SetIfName(config_.GetIfName(this->config.GetIfName()));
+  this->SetIfType(config_.GetIfType(this->config.GetIfType()));
+  this->SetHwAddress(config_.GetHwAddress(this->config.GetHwAddress()));
+  this->SetMtu(config_.GetMtu(this->config.GetMtu()));
+  this->SetAdminState(config_.GetAdminState(this->config.GetAdminState()));
+  this->SetIpAddress(config_.GetIpAddress(this->config.GetIpAddress()));
+  this->SetNetmask(config_.GetNetmask(this->config.GetNetmask()));
 }
 
 Interface::~Interface()
 {
-  this->_lock.Lock();
-  if (this->_getlinkcmd)
-  {
-    delete (this->_getlinkcmd);
-    this->_getlinkcmd = NULL;
-  }
-  if (this->_setlinkcmd)
-  {
-    delete (this->_setlinkcmd);
-    this->_setlinkcmd = NULL;
-  }
-}
-
-bool
-Interface::IsRefreshed() const
-{
-  bool flag = false;
-  if (this->_lock.Lock())
-  {
-    flag = this->_refreshed;
-    this->_lock.Unlock();
-  }
-  return (flag);
-}
-
-bool
-Interface::IsModified() const
-{
-  bool flag = false;
-  if (this->_lock.Lock())
-  {
-    flag = this->_modified;
-    this->_lock.Unlock();
-  }
-  return (flag);
+  this->lock.Lock();
 }
 
 unsigned int
-Interface::GetIfIndex() const
+Interface::GetIfIndex()
 {
   unsigned int index = 0;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_refreshed)
+    if (!this->ifindex)
     {
-      index = this->_getlinkcmd->Link.IfIndex();
+      GetLinkCommand cmd(this->config.GetIfName());
+      if (cmd.Exec())
+      {
+        this->ifindex = cmd.Link.IfIndex();
+      }
     }
-    this->_lock.Unlock();
+    index = this->ifindex;
+    this->lock.Unlock();
   }
   return (index);
+}
+
+bool
+Interface::SetIfIndex(const unsigned int ifindex_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    this->ifindex = ifindex_;
+    this->lock.Unlock();
+    status = true;
+  }
+  return (status);
 }
 
 std::string
 Interface::GetIfName() const
 {
   std::string name;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    name = this->_getlinkcmd->GetIfName();
-    this->_lock.Unlock();
+    if (this->ifindex)
+    {
+      GetLinkCommand cmd(this->ifindex);
+      if (cmd.Exec())
+      {
+        name = cmd.Link.IfName();
+      }
+    }
+    else
+    {
+      name = this->config.GetIfName();
+    }
+    this->lock.Unlock();
   }
   return (name);
 }
@@ -156,12 +146,13 @@ bool
 Interface::SetIfName(const std::string& name_)
 {
   bool status = false;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    this->_refreshed = false;
-    this->_getlinkcmd->SetIfName(name_);
-    this->_setlinkcmd->SetIfName(name_);
-    this->_lock.Unlock();
+    if ((name_ != this->config.GetIfName()) && this->config.SetIfName(name_))
+    {
+      status = this->_modified = true;
+    }
+    this->lock.Unlock();
   }
   return (status);
 }
@@ -170,47 +161,74 @@ ConfigData::IFTYPE
 Interface::GetIfType() const
 {
   ConfigData::IFTYPE type = ConfigData::IFTYPE_ERR;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->ifindex)
     {
-      unsigned int arptype = this->_getlinkcmd->Link.ArpType();
-      switch (arptype)
+      GetLinkCommand cmd(this->ifindex);
+      if (cmd.Exec())
       {
-      case ARPHRD_ETHER:
-        // no break
-      case ARPHRD_IEEE802:
-        type = ConfigData::IFTYPE_IEEE8023;
-        break;
-      case ARPHRD_LOOPBACK:
-        type = ConfigData::IFTYPE_LOOP;
-        break;
-      case ARPHRD_IEEE80211:
-        // no break
-      case ARPHRD_IEEE80211_RADIOTAP:
-        type = ConfigData::IFTYPE_IEEE80211;
-        break;
-      default:
-        type = ConfigData::IFTYPE_UNKNOWN;
-        break;
+        switch (cmd.Link.ArpType())
+        {
+        case ARPHRD_ETHER:
+          // no break
+        case ARPHRD_IEEE802:
+          type = ConfigData::IFTYPE_IEEE8023;
+          break;
+        case ARPHRD_LOOPBACK:
+          type = ConfigData::IFTYPE_LOOP;
+          break;
+        case ARPHRD_IEEE80211:
+          // no break
+        case ARPHRD_IEEE80211_RADIOTAP:
+          type = ConfigData::IFTYPE_IEEE80211;
+          break;
+        default:
+          type = ConfigData::IFTYPE_UNKNOWN;
+          break;
+        }
       }
     }
-    this->_lock.Unlock();
+    else
+    {
+      type = this->config.GetIfType();
+    }
+    this->lock.Unlock();
   }
   return (type);
+}
+
+bool
+Interface::SetIfType(const ConfigData::IFTYPE type_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->config.SetIfType(type_);
+    this->lock.Unlock();
+  }
+  return (status);
 }
 
 std::string
 Interface::GetHwAddress() const
 {
   std::string addr;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->ifindex)
     {
-      addr = this->_getlinkcmd->Link.HwAddress();
+      GetLinkCommand cmd(this->ifindex);
+      if (cmd.Exec())
+      {
+        addr = cmd.Link.HwAddress();
+      }
     }
-    this->_lock.Unlock();
+    else
+    {
+      addr = this->config.GetHwAddress();
+    }
+    this->lock.Unlock();
   }
   return (addr);
 }
@@ -219,10 +237,13 @@ bool
 Interface::SetHwAddress(const std::string& addr_)
 {
   bool status = false;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    status = this->_modified = this->_setlinkcmd->Link.HwAddress(addr_);
-    this->_lock.Unlock();
+    if ((addr_ != this->config.GetHwAddress()) && this->config.SetHwAddress(addr_))
+    {
+      status = this->_modified = true;
+    }
+    this->lock.Unlock();
   }
   return (status);
 }
@@ -231,13 +252,21 @@ unsigned int
 Interface::GetMtu() const
 {
   unsigned int mtu = 0;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->ifindex)
     {
-      mtu = this->_getlinkcmd->Link.Mtu();
+      GetLinkCommand cmd(this->ifindex);
+      if (cmd.Exec())
+      {
+        mtu = cmd.Link.Mtu();
+      }
     }
-    this->_lock.Unlock();
+    else
+    {
+      mtu = this->config.GetMtu();
+    }
+    this->lock.Unlock();
   }
   return (mtu);
 }
@@ -246,10 +275,13 @@ bool
 Interface::SetMtu(const unsigned int mtu_)
 {
   bool status = false;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    status = this->_modified = this->_setlinkcmd->Link.Mtu(mtu_);
-    this->_lock.Unlock();
+    if ((mtu_ != this->config.GetMtu()) && this->config.SetMtu(mtu_))
+    {
+      status = this->_modified = true;
+    }
+    this->lock.Unlock();
   }
   return (status);
 }
@@ -258,21 +290,28 @@ ConfigData::STATE
 Interface::GetAdminState() const
 {
   ConfigData::STATE state = ConfigData::STATE_ERR;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_refreshed)
+    if (this->ifindex)
     {
-      uint32_t flags = this->_getlinkcmd->Link.Flags();
-      if ((flags & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING))
+      GetLinkCommand cmd(this->ifindex);
+      if (cmd.Exec())
       {
-        state = ConfigData::STATE_UP;
-      }
-      else
-      {
-        state = ConfigData::STATE_DOWN;
+        if ((cmd.Link.Flags() & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING))
+        {
+          state = ConfigData::STATE_UP;
+        }
+        else
+        {
+          state = ConfigData::STATE_DOWN;
+        }
       }
     }
-    this->_lock.Unlock();
+    else
+    {
+      state = this->config.GetAdminState();
+    }
+    this->lock.Unlock();
   }
   return (state);
 }
@@ -281,20 +320,67 @@ bool
 Interface::SetAdminState(const ConfigData::STATE state_)
 {
   bool status = false;
-
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (state_ == ConfigData::STATE_UP)
+    if ((state_ != this->config.GetAdminState()) && this->config.SetAdminState(state_))
     {
-      ZLOG_INFO("Administrative UP");
-      status = this->_modified = this->_setlinkcmd->Link.SetFlags((IFF_UP | IFF_RUNNING));
+      status = this->_modified = true;
     }
-    else
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+std::string
+Interface::GetIpAddress() const
+{
+  std::string addr;
+  if (this->lock.Lock())
+  {
+    addr = this->config.GetIpAddress();
+    this->lock.Unlock();
+  }
+  return (addr);
+}
+
+bool
+Interface::SetIpAddress(const std::string& addr_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    if ((addr_ != this->config.GetIpAddress()) && this->config.SetIpAddress(addr_))
     {
-      ZLOG_INFO("Administrative DOWN");
-      status = this->_modified = this->_setlinkcmd->Link.ClrFlags((IFF_UP | IFF_RUNNING));
+      status = this->_modified = true;
     }
-    this->_lock.Unlock();
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+std::string
+Interface::GetNetmask() const
+{
+  std::string addr;
+  if (this->lock.Lock())
+  {
+    addr = this->config.GetNetmask();
+    this->lock.Unlock();
+  }
+  return (addr);
+}
+
+bool
+Interface::SetNetmask(const std::string& addr_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    if ((addr_ != this->config.GetNetmask()) && this->config.SetNetmask(addr_))
+    {
+      status = this->_modified = true;
+    }
+    this->lock.Unlock();
   }
   return (status);
 }
@@ -302,71 +388,112 @@ Interface::SetAdminState(const ConfigData::STATE state_)
 bool
 Interface::Refresh()
 {
-
   bool status = false;
-  if (this->_lock.Lock())
-  {
-    // Validate and execute get link command
-    status = this->_refreshed = this->_getlinkcmd->Exec();
-    this->_lock.Unlock();
-  }
-  return(status);
+  GetLinkCommand* cmd = NULL;
 
+  // Use the interface index if it is known otherwise lookup by name
+  if (this->ifindex)
+  {
+    cmd = new GetLinkCommand(this->ifindex);
+  }
+  else
+  {
+    cmd = new GetLinkCommand(this->config.GetIfName());
+  }
+
+  // Execute command
+  if (cmd)
+  {
+    if (cmd->Exec())
+    {
+      this->ifindex = cmd->Link.IfIndex();
+      this->SetIfName(this->GetIfName());
+      this->SetIfType(this->GetIfType());
+      this->SetHwAddress(this->GetHwAddress());
+      this->SetMtu(this->GetMtu());
+      this->SetAdminState(this->GetAdminState());
+      status = true;
+    }
+    delete (cmd);
+  }
+  return (status);
 }
 
 bool
 Interface::Commit()
 {
   bool status = false;
-  if (this->_lock.Lock())
+  if (this->lock.Lock())
   {
-    if (this->_modified)
+    if (this->ifindex)
     {
-      // Execute set link command and refresh
-      if (this->_setlinkcmd->Exec())
+      if (this->_modified)
       {
-        this->_modified = false;
-        status = this->_getlinkcmd->Exec();
+        SetLinkCommand cmd(this->ifindex);
+        cmd.Link.IfName(this->config.GetIfName());
+        cmd.Link.HwAddress(this->config.GetHwAddress());
+        cmd.Link.Mtu(this->config.GetMtu());
+        if (this->config.GetAdminState() == ConfigData::STATE_UP)
+        {
+          cmd.Link.SetFlags((IFF_UP | IFF_RUNNING));
+        }
+        else
+        {
+          cmd.Link.ClrFlags((IFF_UP | IFF_RUNNING));
+        }
+        ZLOG_INFO("8888");
+        status = cmd.Exec();
+      }
+      else
+      {
+        status = true;
       }
     }
-    this->_lock.Unlock();
+    this->lock.Unlock();
   }
   return (status);
-
 }
 
 bool
 Interface::Create()
 {
-  return(false);
+  return(true);
 }
 
 bool
 Interface::Destroy()
 {
-  return(false);
+  return(true);
 }
 
 void
 Interface::Display(const std::string &prefix_)
 {
-  std::cout << prefix_ << "Refreshed: " << (this->IsRefreshed() ? "true" : "false");
-  if (this->IsRefreshed())
-  {
-    std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
-    std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
-    std::cout << prefix_ << "Type:   \t" << this->GetIfType() << std::endl;
-    std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
-    std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
-    std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
-  }
+  std::cout << std::endl << "--------------- Interface ---------------" << std::endl;
+  std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
+  std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
+  std::cout << prefix_ << "Type:   \t" << this->GetIfType() << std::endl;
+  std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
+  std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
+  std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
+}
+
+bool
+Interface::is_modified() const
+{
+  return (this->_modified);
 }
 
 void
-Interface::_init()
+Interface::set_modified()
 {
-  this->_getlinkcmd = new GetLinkCommand(this->Config.GetIfName());
-  this->_setlinkcmd = new SetLinkCommand(this->Config.GetIfName());
+  this->_modified = true;
+}
+
+void
+Interface::clr_modified()
+{
+  this->_modified = false;
 }
 
 }

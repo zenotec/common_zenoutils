@@ -64,9 +64,7 @@ public:
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
 
-  StartApCommand(int index_ = 0);
-
-  StartApCommand(const std::string& name_);
+  StartApCommand(const unsigned int ifindex_);
 
   virtual
   ~StartApCommand();

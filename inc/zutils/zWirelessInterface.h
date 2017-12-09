@@ -23,17 +23,6 @@
 #include <zutils/zConfig.h>
 #include <zutils/zInterface.h>
 
-namespace nl80211
-{
-  class GetPhyCommand;
-  class SetPhyCommand;
-  class GetInterfaceCommand;
-  class SetInterfaceCommand;
-  class NewInterfaceCommand;
-  class DelInterfaceCommand;
-}
-using namespace nl80211;
-
 namespace zUtils
 {
 namespace zInterface
@@ -57,6 +46,9 @@ public:
   static const std::string ConfigBssidPath;
   static const std::string ConfigChannelPath;
   static const std::string ConfigTxPowerPath;
+  static const std::string ConfigHiddenSsidPath;
+  static const std::string ConfigBeaconIntervalPath;
+  static const std::string ConfigDtimIntervalPath;
 
   WirelessInterfaceConfigPath(const std::string& root_ = std::string(""));
 
@@ -139,6 +131,7 @@ public:
     OPMODE_ERR = -1,
     OPMODE_NONE = 0,
     OPMODE_STA = 1,
+    OPMODE_DEF = 1,
     OPMODE_AP = 2,
     OPMODE_ADHOC = 3,
     OPMODE_MONITOR = 4,
@@ -155,6 +148,83 @@ public:
 
   virtual
   ~WirelessInterfaceConfigData();
+
+  unsigned int
+  GetPhyIndex(const unsigned int index_ = ConfigPhyIndexDefault) const;
+
+  bool
+  SetPhyIndex(const unsigned int index_ = ConfigPhyIndexDefault);
+
+  std::string
+  GetPhyName(const std::string& name_ = ConfigPhyNameDefault) const;
+
+  bool
+  SetPhyName(const std::string& name_ = ConfigPhyNameDefault);
+
+  WirelessInterfaceConfigData::HWMODE
+  GetHwMode(const WirelessInterfaceConfigData::HWMODE mode_ = HWMODE_DEF) const;
+
+  bool
+  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_ = HWMODE_DEF);
+
+  WirelessInterfaceConfigData::HTMODE
+  GetHtMode(const WirelessInterfaceConfigData::HTMODE mode_ = HTMODE_DEF) const;
+
+  bool
+  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_ = HTMODE_DEF);
+
+  WirelessInterfaceConfigData::OPMODE
+  GetOpMode(const WirelessInterfaceConfigData::OPMODE mode_ = OPMODE_DEF) const;
+
+  bool
+  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_ = OPMODE_DEF);
+
+  std::string
+  GetSsid(const std::string& ssid_ = ConfigSsidDefault) const;
+
+  bool
+  SetSsid(const std::string& ssid_ = ConfigSsidDefault);
+
+  std::string
+  GetBssid(const std::string& bssid_ = ConfigBssidDefault) const;
+
+  bool
+  SetBssid(const std::string& bssid_ = ConfigBssidDefault);
+
+  unsigned int
+  GetChannel(const unsigned int channel_ = ConfigChannelDefault) const;
+
+  bool
+  SetChannel(const unsigned int channel_ = ConfigChannelDefault);
+
+  unsigned int
+  GetTxPower(const unsigned int power_ = ConfigTxPowerDefault) const;
+
+  bool
+  SetTxPower(const unsigned int power_ = ConfigTxPowerDefault);
+
+protected:
+
+private:
+
+  zInterface::ConfigData& _config;
+
+};
+
+// ****************************************************************************
+// Class: WirelessInterface
+// ****************************************************************************
+
+class WirelessInterface : public Interface
+{
+public:
+
+  WirelessInterface(const std::string& name_);
+
+  WirelessInterface(const zInterface::ConfigData& config_);
+
+  virtual
+  ~WirelessInterface();
 
   unsigned int
   GetPhyIndex() const;
@@ -186,100 +256,6 @@ public:
   bool
   SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_);
 
-  std::string
-  GetSsid() const;
-
-  bool
-  SetSsid(const std::string& ssid_);
-
-  std::string
-  GetBssid() const;
-
-  bool
-  SetBssid(const std::string& bssid_);
-
-  unsigned int
-  GetChannel() const;
-
-  bool
-  SetChannel(const unsigned int channel_);
-
-  unsigned int
-  GetTxPower() const;
-
-  bool
-  SetTxPower(const unsigned int power_);
-
-protected:
-
-private:
-
-  zInterface::ConfigData& _config;
-
-};
-
-// ****************************************************************************
-// Class: WirelessInterface
-// ****************************************************************************
-
-class WirelessInterface : public Interface
-{
-public:
-
-  WirelessInterfaceConfigData WiConfig;
-
-  WirelessInterface(const std::string& name_);
-
-  WirelessInterface(const zInterface::ConfigData& config_);
-
-  virtual
-  ~WirelessInterface();
-
-  virtual bool
-  SetIfName(const std::string& name_);
-
-  unsigned int
-  GetPhyIndex() const;
-
-  bool
-  SetPhyIndex(const int index_);
-
-  std::string
-  GetPhyName() const;
-
-  bool
-  SetPhyName(const std::string& name_);
-
-  WirelessInterfaceConfigData::HWMODE
-  GetHwMode() const;
-
-  bool
-  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_);
-
-  WirelessInterfaceConfigData::HTMODE
-  GetHtMode() const;
-
-  bool
-  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_);
-
-  WirelessInterfaceConfigData::OPMODE
-  GetOpMode() const;
-
-  bool
-  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_);
-
-  std::string
-  GetSsid() const;
-
-  bool
-  SetSsid(const std::string& ssid_);
-
-  std::string
-  GetBssid() const;
-
-  bool
-  SetBssid(const std::string& bssid_);
-
   unsigned int
   GetChannel() const;
 
@@ -309,20 +285,24 @@ public:
 
 protected:
 
-  GetPhyCommand* _getphycmd;
-  SetPhyCommand* _setphycmd;
-  GetInterfaceCommand* _getifacecmd;
-  SetInterfaceCommand* _setifacecmd;
-  NewInterfaceCommand* _newifacecmd;
-  DelInterfaceCommand* _delifacecmd;
+  WirelessInterfaceConfigData wconfig;
 
-  void
-  _init();
+  virtual bool
+  is_modified() const;
+
+  virtual void
+  set_modified();
+
+  virtual void
+  clr_modified();
 
 private:
+
+  bool _modified;
 
 };
 
 }
 }
+
 #endif /* __ZWIRELESSINTERFACE_H__ */

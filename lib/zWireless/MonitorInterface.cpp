@@ -41,7 +41,7 @@
 
 // libzutils includes
 
-#include <zutils/zAccessPointInterface.h>
+#include <zutils/zMonitorInterface.h>
 
 // local includes
 
@@ -51,22 +51,22 @@ namespace zInterface
 {
 
 // ****************************************************************************
-// Class: AccessPointInterface
+// Class: MonitorInterface
 // ****************************************************************************
 
-AccessPointInterface::AccessPointInterface(const std::string& name_) :
+MonitorInterface::MonitorInterface(const std::string& name_) :
     WirelessInterface(name_)
 {
-  this->WiConfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
+  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_MONITOR);
 }
 
-AccessPointInterface::AccessPointInterface(const zInterface::ConfigData& config_) :
+MonitorInterface::MonitorInterface(const zInterface::ConfigData& config_) :
     WirelessInterface(config_)
 {
-  this->WiConfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
+  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_MONITOR);
 }
 
-AccessPointInterface::~AccessPointInterface()
+MonitorInterface::~MonitorInterface()
 {
 }
 

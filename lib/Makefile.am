@@ -36,13 +36,23 @@ ZPROGRAM_LIBS = \
 	${top_builddir}/lib/zProgram/libzProgram.la
 endif
 
+if COND_ZWIRELESS
+ZWIRELESS_SUBDIRS = zWireless
+ZWIRELESS_SOURCE = \
+	$(top_srcdir)/inc/zutils/zWirelessInterface.h \
+	$(top_srcdir)/inc/zutils/zMonitorInterface.h \
+	$(top_srcdir)/inc/zutils/zAccessPointInterface.h
+ZWIRELESS_CPPFLAGS =
+ZWIRELESS_LDFLAGS =
+ZWIRELESS_LIBS = \
+	${top_builddir}/lib/zWireless/libzWireless.la
+endif
+
 if COND_ZINTERFACE
 ZINTERFACE_SUBDIRS = zInterface
 ZINTERFACE_SOURCE = \
 	$(top_srcdir)/inc/zutils/zInterface.h \
-	$(top_srcdir)/inc/zutils/zLoopInterface.h \
-	$(top_srcdir)/inc/zutils/zWirelessInterface.h \
-	$(top_srcdir)/inc/zutils/zMonitorInterface.h
+	$(top_srcdir)/inc/zutils/zLoopInterface.h
 ZINTERFACE_CPPFLAGS =
 ZINTERFACE_LDFLAGS =
 ZINTERFACE_LIBS = \
@@ -198,6 +208,7 @@ SUBDIRS = \
 	$(ZLED_SUBDIRS) \
 	$(ZSERIAL_SUBDIRS) \
 	$(ZINTERFACE_SUBDIRS) \
+	$(ZWIRELESS_SUBDIRS) \
 	$(ZPROGRAM_SUBDIRS) \
 	$(ZSOCKET_SUBDIRS) \
 	$(ZMESSAGE_SUBDIRS)
@@ -218,6 +229,7 @@ AM_CPPFLAGS := \
 	$(ZLED_CPPFLAGS) \
 	$(ZSERIAL_CPPFLAGS) \
 	$(ZINTERFACE_CPPFLAGS) \
+	$(ZWIRELESS_CPPFLAGS) \
 	$(ZPROGRAM_CPPFLAGS) \
 	$(ZSOCKET_CPPFLAGS) \
 	$(ZMESSAGE_CPPFLAGS) \
@@ -239,6 +251,7 @@ AM_LDFLAGS := \
 	$(ZLED_LDFLAGS) \
 	$(ZSERIAL_LDFLAGS) \
 	$(ZINTERFACE_LDFLAGS) \
+	$(ZWIRELESS_LDFLAGS) \
 	$(ZPROGRAM_LDFLAGS) \
 	$(ZSOCKET_LDFLAGS) \
 	$(ZMESSAGE_LDFLAGS)
@@ -267,6 +280,7 @@ libzutils_la_HEADERS = \
 	$(ZLED_SOURCE) \
 	$(ZSERIAL_SOURCE) \
 	$(ZINTERFACE_SOURCE) \
+	$(ZWIRELESS_SOURCE) \
 	$(ZPROGRAM_SOURCE) \
 	$(ZSOCKET_SOURCE) \
 	$(ZMESSAGE_SOURCE)
@@ -290,7 +304,7 @@ libzutils_la_LIBADD = \
 	$(ZLED_LIBS) \
 	$(ZSERIAL_LIBS) \
 	$(ZINTERFACE_LIBS) \
+	$(ZWIRELESS_LIBS) \
 	$(ZPROGRAM_LIBS) \
 	$(ZSOCKET_LIBS) \
 	$(ZMESSAGE_LIBS)
-	

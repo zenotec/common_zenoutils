@@ -80,11 +80,21 @@ AM_CONDITIONAL([COND_ZSOCKET],[test "$enable_zsocket" = yes])
 
 #########################################################################################
 
+AC_ARG_ENABLE([zwireless],
+  [AS_HELP_STRING([--disable-zwireless],
+    [disable building zWireless subsystem])],
+    [],
+    [enable_zwireless=yes])
+AM_CONDITIONAL([COND_ZWIRELESS],[test "$enable_zwireless" = yes])
+
+#########################################################################################
+
 AC_ARG_ENABLE([zinterface],
   [AS_HELP_STRING([--disable-zinterface],
     [disable building zInterface subsystem])],
     [],
     [enable_zinterface=yes])
+AM_CONDITIONAL([COND_ZINTERFACE],[test "$enable_zwireless" = yes])
 AM_CONDITIONAL([COND_ZINTERFACE],[test "$enable_zinterface" = yes])
 
 #########################################################################################
@@ -317,7 +327,8 @@ AC_CONFIG_FILES([test/zQueue/Makefile])
 AC_CONFIG_FILES([lib/zGpio/Makefile test/zGpio/Makefile])
 AC_CONFIG_FILES([lib/zLed/Makefile test/zLed/Makefile])
 AC_CONFIG_FILES([lib/zSerial/Makefile test/zSerial/Makefile])
-AC_CONFIG_FILES([lib/zInterface/Makefile lib/zInterface/netlink/Makefile lib/zInterface/nl80211/Makefile test/zInterface/Makefile])
+AC_CONFIG_FILES([lib/zInterface/Makefile lib/zInterface/netlink/Makefile test/zInterface/Makefile])
+AC_CONFIG_FILES([lib/zWireless/Makefile lib/zWireless/nl80211/Makefile lib/zWireless/ieee80211/Makefile test/zWireless/Makefile])
 AC_CONFIG_FILES([lib/zSocket/Makefile test/zSocket/Makefile])
 AC_CONFIG_FILES([lib/zMessage/Makefile test/zMessage/Makefile])
 #AC_CONFIG_FILES([lib/zCommand/Makefile test/zCommand/Makefile])

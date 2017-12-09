@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
- *                    and others.  All rights reserved.
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,48 +14,41 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_SETLINKCOMMAND_H__
-#define __NETLINK_SETLINKCOMMAND_H__
+#include "RadioTapField.h"
 
-#include "Command.h"
-
-#include "RouteSocket.h"
-#include "RouteLink.h"
-
-namespace netlink
+namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: SetLinkCommand
+// Class: RadioTapFieldTsft
 //*****************************************************************************
-
-class SetLinkCommand : public Command
+RadioTapFieldTsft::RadioTapFieldTsft() :
+    RadioTapField(RadioTapField::ID_TSFT)
 {
-
-public:
-
-  RouteLink Link;
-
-  SetLinkCommand(const unsigned int ifindex_);
-
-  virtual
-  ~SetLinkCommand();
-
-  virtual bool
-  Exec();
-
-  void
-  Display() const;
-
-protected:
-
-private:
-
-  RouteSocket _sock;
-  RouteLink _orig;
-
-};
-
 }
 
-#endif /* __NETLINK_SETLINKCOMMAND_H__ */
+RadioTapFieldTsft::~RadioTapFieldTsft()
+{
+}
+
+uint64_t
+RadioTapFieldTsft::operator()() const
+{
+  uint64_t val = 0;
+  this->GetValue(val);
+  return (val);
+}
+
+bool
+RadioTapFieldTsft::operator ()(const uint64_t val_)
+{
+  return(this->PutValue(val_));
+}
+
+void
+RadioTapFieldTsft::Display() const
+{
+  RadioTapField::Display();
+}
+
+}

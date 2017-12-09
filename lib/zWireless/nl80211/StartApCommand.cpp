@@ -22,17 +22,29 @@
 #include <netlink/netlink.h>
 #include <netlink/msg.h>
 #include <netlink/attr.h>
+#include <netlink/genl/genl.h>
+#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
+#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
 
 // local includes
+#include "Command.h"
+#include "Attribute.h"
 
-#include "GetInterfaceCommand.h"
+#include "Message.h"
+#include "Handler.h"
+#include "Socket.h"
+#include "GenericMessage.h"
+#include "GenericSocket.h"
+using namespace netlink;
+
+#include "StartApCommand.h"
 
 namespace nl80211
 {
@@ -44,42 +56,21 @@ __errstr(int code)
 }
 
 //*****************************************************************************
-// Class: GetInterfaceCommand
+// Class: StartApCommand
 //*****************************************************************************
 
-GetInterfaceCommand::GetInterfaceCommand(int index_)
+StartApCommand::StartApCommand(const unsigned int ifindex_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex(ifindex_);
 }
 
-GetInterfaceCommand::GetInterfaceCommand(const std::string& name_)
+StartApCommand::~StartApCommand()
 {
-  this->IfName.SetValue(name_);
-}
-
-GetInterfaceCommand::~GetInterfaceCommand()
-{
-}
-
-void
-GetInterfaceCommand::Display() const
-{
-  std::cout << "Interface: " << std::endl;
-  std::cout << "\tPhy:   \t" << this->PhyIndex.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
-  std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
-  std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
-  std::cout << "\tSSID:  \t" << this->Ssid.GetValue() << std::endl;
 }
 
 bool
-GetInterfaceCommand::Exec()
+StartApCommand::Exec()
 {
-
-  this->_status = false;
-  this->_count.Reset();
 
   if (!this->IfIndex())
   {
@@ -90,23 +81,22 @@ GetInterfaceCommand::Exec()
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
-    return (false);
+    return(false);
   }
 
   if (!this->_sock.SetHandler(this))
   {
     ZLOG_ERR("Error setting up message handlers");
-    return (false);
+    return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_INTERFACE);
-
-  // Set interface index attribute
-  if (!cmdmsg.PutAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Error setting ifindex attribute");
-    return (false);
-  }
+  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_START_AP);
+  cmdmsg.PutAttribute(&this->IfIndex);
+  cmdmsg.PutAttribute(&this->Ssid);
+  cmdmsg.PutAttribute(&this->BeaconInterval);
+  cmdmsg.PutAttribute(&this->DtimPeriod);
+  cmdmsg.PutAttribute(&this->BeaconHead);
+  cmdmsg.PutAttribute(&this->BeaconTail);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -134,8 +124,17 @@ GetInterfaceCommand::Exec()
   return(this->_status);
 }
 
+void
+StartApCommand::Display() const
+{
+  std::cout << "Set BSS: " << std::endl;
+  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tSsid:  \t" << this->Ssid.GetValue() << std::endl;
+}
+
 int
-GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+StartApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -144,13 +143,7 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
-//  msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->PhyIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.Id()));
-    return(NL_SKIP);
-  }
+  msg.DisplayAttributes();
 
   if (!msg.GetAttribute(&this->IfIndex))
   {
@@ -164,23 +157,10 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfType))
+  if (!msg.GetAttribute(&this->Ssid))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
     return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->Mac))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Mac.Id()));
-    return (NL_SKIP);
-  }
-
-  if (msg.GetAttribute(&this->Ssid))
-  {
-    msg.GetAttribute(&this->Frequency);
-    msg.GetAttribute(&this->ChannelType);
-    msg.GetAttribute(&this->ChannelWidth);
   }
 
   this->_status = true;
@@ -190,10 +170,9 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 }
 
 int
-GetInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
+StartApCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
-  ZLOG_ERR("Error executing GetInterfaceCommand: (" + zLog::IntStr(this->IfIndex()) +
-      std::string("): ") + this->IfName());
+  ZLOG_ERR("Error executing StartApCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();

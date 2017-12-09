@@ -1,8 +1,7 @@
 export MAKEFLAGS="-j $(grep -c ^processor /proc/cpuinfo)"
 
 SUBDIRS = \
-    netlink \
-    nl80211
+    netlink
 
 if COND_GCOV
 CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
@@ -29,12 +28,7 @@ libzInterface_la_LDFLAGS = \
 libzInterface_la_SOURCES = \
     InterfaceConfiguration.cpp \
     Interface.cpp \
-    LoopInterface.cpp \
-    WirelessConfiguration.cpp \
-    WirelessInterface.cpp \
-    MonitorInterface.cpp \
-    AccessPointInterface.cpp
+    LoopInterface.cpp
 
 libzInterface_la_LIBADD = \
-    ${top_builddir}/lib/zInterface/netlink/libnetlink.la \
-    ${top_builddir}/lib/zInterface/nl80211/libnl80211.la
+    ${top_builddir}/lib/zInterface/netlink/libnetlink.la

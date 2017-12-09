@@ -15,58 +15,80 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_GETLINKCOMMAND_H__
-#define __NETLINK_GETLINKCOMMAND_H__
+#ifndef __IEEE80211_DATAFRAME_H__
+#define __IEEE80211_DATAFRAME_H__
 
 // libc includes
 
 // libc++ includes
-#include <string>
 
 // libzutils includes
 
 // local includes
-#include "Command.h"
+#include "Frame.h"
 
-#include "RouteSocket.h"
-#include "RouteLink.h"
-
-namespace netlink
+namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: GetLinkCommand
+// Class: DataFrame
 //*****************************************************************************
 
-class GetLinkCommand : public Command
+class DataFrame : public Frame
 {
 
 public:
 
-  RouteLink Link;
-
-  GetLinkCommand(const unsigned int ifindex_);
-
-  GetLinkCommand(const std::string& ifname_);
+  DataFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_ERR);
 
   virtual
-  ~GetLinkCommand();
+  ~DataFrame();
 
-  virtual bool
-  Exec();
+  virtual uint8_t*
+  Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
 
-  void
+  virtual uint8_t*
+  Disassemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
+
+  std::string
+  ReceiverAddress() const;
+
+  bool
+  ReceiverAddress(const std::string& address_);
+
+  std::string
+  TransmitterAddress() const;
+
+  bool
+  TransmitterAddress(const std::string& address_);
+
+  std::string
+  DestinationAddress() const;
+
+  bool
+  DestinationAddress(const std::string& address_);
+
+  std::string
+  SourceAddress() const;
+
+  bool
+  SourceAddress(const std::string& address_);
+
+  std::string
+  Bssid() const;
+
+  bool
+  Bssid(const std::string& address_);
+
+  virtual void
   Display() const;
 
 protected:
 
 private:
 
-  unsigned int _ifindex;
-  RouteSocket _sock;
-
 };
 
 }
 
-#endif /* __NETLINK_GETLINKCOMMAND_H__ */
+#endif /* __IEEE80211_DATAFRAME_H__ */

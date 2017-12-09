@@ -33,6 +33,124 @@ namespace zUtils
 namespace zInterface
 {
 
+static ConfigData::IFTYPE
+_str2iftype(const std::string& str_)
+{
+  ConfigData::IFTYPE type = ConfigData::IFTYPE_ERR;
+  if (str_ == ConfigData::ConfigTypeNone)
+  {
+    type = ConfigData::IFTYPE_NONE;
+  }
+  else if (str_ == ConfigData::ConfigTypeLoop)
+  {
+    type = ConfigData::IFTYPE_LOOP;
+  }
+  else if (str_ == ConfigData::ConfigTypeWired)
+  {
+    type = ConfigData::IFTYPE_IEEE8023;
+  }
+  else if (str_ == ConfigData::ConfigTypeWireless)
+  {
+    type = ConfigData::IFTYPE_IEEE80211;
+  }
+  else if (str_ == ConfigData::ConfigTypeOther)
+  {
+    type = ConfigData::IFTYPE_OTHER;
+  }
+  else if (str_ == ConfigData::ConfigTypeBond)
+  {
+    type = ConfigData::IFTYPE_BOND;
+  }
+  else if (str_ == ConfigData::ConfigTypeBridge)
+  {
+    type = ConfigData::IFTYPE_BRIDGE;
+  }
+  else
+  {
+    type = ConfigData::IFTYPE_DEF;
+  }
+  return (type);
+}
+
+static std::string
+_iftype2str(const ConfigData::IFTYPE type_)
+{
+  std::string str;
+  switch (type_)
+  {
+  case ConfigData::IFTYPE_NONE:
+    str = ConfigData::ConfigTypeNone;
+    break;
+  case ConfigData::IFTYPE_LOOP:
+    str = ConfigData::ConfigTypeLoop;
+    break;
+  case ConfigData::IFTYPE_IEEE8023:
+    str = ConfigData::ConfigTypeWired;
+    break;
+  case ConfigData::IFTYPE_IEEE80211:
+    str = ConfigData::ConfigTypeWireless;
+    break;
+  case ConfigData::IFTYPE_OTHER:
+    str = ConfigData::ConfigTypeOther;
+    break;
+  case ConfigData::IFTYPE_BOND:
+    str = ConfigData::ConfigTypeBond;
+    break;
+  case ConfigData::IFTYPE_BRIDGE:
+    str = ConfigData::ConfigTypeBridge;
+    break;
+  default:
+    str = ConfigData::ConfigTypeDefault;
+    break;
+  }
+  return (str);
+}
+
+static ConfigData::STATE
+_str2state(const std::string& str_)
+{
+  ConfigData::STATE state = ConfigData::STATE_ERR;
+  if (str_ == ConfigData::ConfigAdminStateUp)
+  {
+    state = ConfigData::STATE_UP;
+  }
+  else if (str_ == ConfigData::ConfigAdminStateDown)
+  {
+    state = ConfigData::STATE_DOWN;
+  }
+  else if (str_ == ConfigData::ConfigAdminStateNone)
+  {
+    state = ConfigData::STATE_NONE;
+  }
+  else
+  {
+    state = ConfigData::STATE_DEF;
+  }
+  return (state);
+}
+
+static std::string
+_state2str(const ConfigData::STATE state_)
+{
+  std::string str;
+  switch (state_)
+  {
+  case ConfigData::STATE_UP:
+    str = ConfigData::ConfigAdminStateUp;
+    break;
+  case ConfigData::STATE_DOWN:
+    str = ConfigData::ConfigAdminStateDown;
+    break;
+  case ConfigData::STATE_NONE:
+    str = ConfigData::ConfigAdminStateNone;
+    break;
+  default:
+    str = ConfigData::ConfigAdminStateDefault;
+    break;
+  }
+  return (str);
+}
+
 // ****************************************************************************
 // Class: ConfigPath
 // ****************************************************************************
@@ -82,7 +200,7 @@ const std::string ConfigData::ConfigTypeBond("BOND");
 const std::string ConfigData::ConfigTypeBridge("BRIDGE");
 const std::string ConfigData::ConfigTypeDefault(ConfigData::ConfigTypeNone);
 
-const std::string ConfigData::ConfigHwAddressDefault("00:00:00:00:00:00");
+const std::string ConfigData::ConfigHwAddressDefault("");
 
 const unsigned int ConfigData::ConfigMtuDefault(1500);
 
@@ -102,7 +220,8 @@ ConfigData::ConfigData(const std::string& name_) :
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(name_)");
   this->SetIfName(name_);
-  this->_init();
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 ConfigData::ConfigData(const zConfig::ConfigData& config_) :
@@ -110,7 +229,8 @@ ConfigData::ConfigData(const zConfig::ConfigData& config_) :
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(config_)");
   this->PutChild(ConfigPath(), ConfigPath(), config_);
-  this->_init();
+  ZLOG_DEBUG(this->Path());
+  ZLOG_DEBUG(this->GetJson());
 }
 
 ConfigData::~ConfigData()
@@ -118,13 +238,13 @@ ConfigData::~ConfigData()
 }
 
 std::string
-ConfigData::GetIfName() const
+ConfigData::GetIfName(const std::string& name_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigIfNamePath);
   if (!this->GetValue(path, str))
   {
-    str = ConfigNameDefault;
+    str = name_;
   }
   return (str);
 }
@@ -137,45 +257,16 @@ ConfigData::SetIfName(const std::string& name_)
 }
 
 ConfigData::IFTYPE
-ConfigData::GetIfType() const
+ConfigData::GetIfType(const ConfigData::IFTYPE type_) const
 {
 
-  ConfigData::IFTYPE type = ConfigData::IFTYPE_DEF;
+  ConfigData::IFTYPE type = type_;
+  ConfigPath path(ConfigPath::ConfigIfTypePath);
   std::string str;
 
-  ConfigPath path(ConfigPath::ConfigIfTypePath);
-  if (!this->GetValue(path, str))
+  if (this->GetValue(path, str))
   {
-    str = ConfigTypeDefault;
-  }
-
-  if (str == ConfigData::ConfigTypeNone)
-  {
-    type = ConfigData::IFTYPE_NONE;
-  }
-  else if (str == ConfigData::ConfigTypeLoop)
-  {
-    type = ConfigData::IFTYPE_LOOP;
-  }
-  else if (str == ConfigData::ConfigTypeWired)
-  {
-    type = ConfigData::IFTYPE_IEEE8023;
-  }
-  else if (str == ConfigData::ConfigTypeWireless)
-  {
-    type = ConfigData::IFTYPE_IEEE80211;
-  }
-  else if (str == ConfigData::ConfigTypeOther)
-  {
-    type = ConfigData::IFTYPE_OTHER;
-  }
-  else if (str == ConfigData::ConfigTypeBond)
-  {
-    type = ConfigData::IFTYPE_BOND;
-  }
-  else if (str == ConfigData::ConfigTypeBridge)
-  {
-    type = ConfigData::IFTYPE_BRIDGE;
+    type = _str2iftype(str);
   }
 
   return (type);
@@ -184,49 +275,20 @@ ConfigData::GetIfType() const
 bool
 ConfigData::SetIfType(const ConfigData::IFTYPE type_)
 {
-
-  std::string str;
   ConfigPath path(ConfigPath::ConfigIfTypePath);
-
-  switch (type_)
-  {
-  case ConfigData::IFTYPE_NONE:
-    str = ConfigData::ConfigTypeNone;
-    break;
-  case ConfigData::IFTYPE_LOOP:
-    str = ConfigData::ConfigTypeLoop;
-    break;
-  case ConfigData::IFTYPE_IEEE8023:
-    str = ConfigData::ConfigTypeWired;
-    break;
-  case ConfigData::IFTYPE_IEEE80211:
-    str = ConfigData::ConfigTypeWireless;
-    break;
-  case ConfigData::IFTYPE_OTHER:
-    str = ConfigData::ConfigTypeOther;
-    break;
-  case ConfigData::IFTYPE_BOND:
-    str = ConfigData::ConfigTypeBond;
-    break;
-  case ConfigData::IFTYPE_BRIDGE:
-    str = ConfigData::ConfigTypeBridge;
-    break;
-  default:
-    return (false);
-  }
-
+  std::string str = _iftype2str(type_);
   return (this->PutValue(path, str));
 
 }
 
 unsigned int
-ConfigData::GetMtu() const
+ConfigData::GetMtu(const unsigned int mtu_) const
 {
   unsigned int val = 0;
   ConfigPath path(ConfigPath::ConfigMtuPath);
   if (!this->GetValue(path, val))
   {
-    val = ConfigMtuDefault;
+    val = mtu_;
   }
   return (val);
 }
@@ -239,13 +301,13 @@ ConfigData::SetMtu(const unsigned int mtu_)
 }
 
 std::string
-ConfigData::GetHwAddress() const
+ConfigData::GetHwAddress(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigHwAddressPath);
   if (!this->GetValue(path, str))
   {
-    str = ConfigHwAddressDefault;
+    str = addr_;
   }
   return (str);
 }
@@ -258,13 +320,13 @@ ConfigData::SetHwAddress(const std::string& addr_)
 }
 
 std::string
-ConfigData::GetIpAddress() const
+ConfigData::GetIpAddress(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigIpAddressPath);
   if (!this->GetValue(path, str))
   {
-    str = ConfigIpAddressDefault;
+    str = addr_;
   }
   return (str);
 }
@@ -277,13 +339,13 @@ ConfigData::SetIpAddress(const std::string& addr_)
 }
 
 std::string
-ConfigData::GetNetmask() const
+ConfigData::GetNetmask(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigNetmaskPath);
   if (!this->GetValue(path, str))
   {
-    str = ConfigNetmaskDefault;
+    str = addr_;
   }
   return (str);
 }
@@ -296,69 +358,24 @@ ConfigData::SetNetmask(const std::string& addr_)
 }
 
 ConfigData::STATE
-ConfigData::GetAdminState() const
+ConfigData::GetAdminState(const ConfigData::STATE state_) const
 {
-  ConfigData::STATE state = ConfigData::STATE_ERR;
-  std::string str;
-
+  ConfigData::STATE state = state_;
   ConfigPath path(ConfigPath::ConfigAdminStatePath);
-  if (!this->GetValue(path, str))
+  std::string str;
+  if (this->GetValue(path, str))
   {
-    str = ConfigData::ConfigAdminStateDefault;
+    state = _str2state(str);
   }
-
-  if (str == ConfigData::ConfigAdminStateUp)
-  {
-    state = ConfigData::STATE_UP;
-  }
-  else if (str == ConfigData::ConfigAdminStateDown)
-  {
-    state = ConfigData::STATE_DOWN;
-  }
-  else if (str == ConfigData::ConfigAdminStateNone)
-  {
-    state = ConfigData::STATE_NONE;
-  }
-
   return (state);
-
 }
 
 bool
 ConfigData::SetAdminState(const ConfigData::STATE state_)
 {
-
   ConfigPath path(ConfigPath::ConfigAdminStatePath);
-  std::string str;
-
-  switch (state_)
-  {
-  case ConfigData::STATE_UP:
-    str = ConfigData::ConfigAdminStateUp;
-    break;
-  case ConfigData::STATE_DOWN:
-    str = ConfigData::ConfigAdminStateDown;
-    break;
-  default:
-    return (false);
-  }
-
+  std::string str = _state2str(state_);
   return (this->PutValue(path, str));
-
-}
-
-void
-ConfigData::_init()
-{
-  this->SetIfName(this->GetIfName());
-  this->SetIfType(this->GetIfType());
-  this->SetHwAddress(this->GetHwAddress());
-  this->SetMtu(this->GetMtu());
-  this->SetIpAddress(this->GetIpAddress());
-  this->SetNetmask(this->GetNetmask());
-  this->SetAdminState(this->GetAdminState());
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
 }
 
 }

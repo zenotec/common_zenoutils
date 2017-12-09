@@ -2,8 +2,6 @@
  * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
- * Copyright (c) 2014-2017 ZenoTec LLC (http://www.zenotec.net)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at:
@@ -17,43 +15,34 @@
  * limitations under the License.
  */
 
-#ifndef __ZLOOPINTERFACE_H__
-#define __ZLOOPINTERFACE_H__
+#ifndef __NL80211_IFNAMEATTRIBUTE_H__
+#define __NL80211_IFNAMEATTRIBUTE_H__
 
-#include <zutils/zInterface.h>
+// libc includes
+#include <stdint.h>
+#include <linux/nl80211.h>
 
-namespace zUtils
+namespace nl80211
 {
-namespace zInterface
-{
 
-// ****************************************************************************
-// Class: LoopInterface
-// ****************************************************************************
+//*****************************************************************************
+// Class: IfNameAttribute
+//*****************************************************************************
 
-class LoopInterface : public zInterface::Interface
+class IfNameAttribute : public Attribute<std::string>
 {
 
 public:
 
-  LoopInterface(const std::string& name_ = "");
-
-  LoopInterface(const zInterface::ConfigData &config_);
+  IfNameAttribute() :
+      Attribute(NL80211_ATTR_IFNAME)
+  {
+  }
 
   virtual
-  ~LoopInterface();
-
-  virtual bool
-  Commit();
-
-  virtual bool
-  Create();
-
-  virtual bool
-  Destroy();
-
-  virtual void
-  Display(const std::string& prefix_ = std::string(""));
+  ~IfNameAttribute()
+  {
+  }
 
 protected:
 
@@ -62,6 +51,5 @@ private:
 };
 
 }
-}
 
-#endif /* __ZLOOPINTERFACE_H__ */
+#endif /* __NL80211_IFNAMEATTRIBUTE_H__ */

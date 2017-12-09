@@ -44,7 +44,7 @@ using namespace zUtils;
 #include "GenericSocket.h"
 using namespace netlink;
 
-#include "StartApCommand.h"
+#include "NewBeaconCommand.h"
 
 namespace nl80211
 {
@@ -56,18 +56,13 @@ __errstr(int code)
 }
 
 //*****************************************************************************
-// Class: StartApCommand
+// Class: NewBeaconCommand
 //*****************************************************************************
 
-StartApCommand::StartApCommand(int index_)
+NewBeaconCommand::NewBeaconCommand(const std::string& name_)
 {
-  this->IfIndex.SetValue(index_);
-}
-
-StartApCommand::StartApCommand(const std::string& name_)
-{
-  this->IfName.SetValue(name_);
-  this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));
+  this->IfName(name_);
+  this->IfIndex((uint32_t)if_nametoindex(name_.c_str()));
   if (!this->IfIndex())
   {
     ZLOG_ERR("Error retrieving interface index for: " + name_);
@@ -75,12 +70,12 @@ StartApCommand::StartApCommand(const std::string& name_)
   }
 }
 
-StartApCommand::~StartApCommand()
+NewBeaconCommand::~NewBeaconCommand()
 {
 }
 
 bool
-StartApCommand::Exec()
+NewBeaconCommand::Exec()
 {
   if (!this->_sock.Connect())
   {
@@ -94,9 +89,8 @@ StartApCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_START_AP);
+  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_NEW_BEACON);
   cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Ssid);
   cmdmsg.PutAttribute(&this->BeaconInterval);
   cmdmsg.PutAttribute(&this->DtimPeriod);
   cmdmsg.PutAttribute(&this->BeaconHead);
@@ -109,7 +103,7 @@ StartApCommand::Exec()
 }
 
 void
-StartApCommand::Display() const
+NewBeaconCommand::Display() const
 {
   std::cout << "Set BSS: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
@@ -118,7 +112,7 @@ StartApCommand::Display() const
 }
 
 int
-StartApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+NewBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -141,19 +135,13 @@ StartApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->Ssid))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
-    return(NL_SKIP);
-  }
-
   return (NL_OK);
 }
 
 int
-StartApCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
+NewBeaconCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
-  ZLOG_ERR("Error executing StartApCommand");
+  ZLOG_ERR("Error executing NewBeaconCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   return(NL_SKIP);
 }

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
- *                    and others.  All rights reserved.
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +14,49 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_IFINDEXATTRIBUTE_H__
-#define __NL80211_IFINDEXATTRIBUTE_H__
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <endian.h>
 
-namespace nl80211
+#include <string>
+
+#include "RadioTapField.h"
+
+namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: IfIndexAttribute
+// Class: RadioTapFieldSignalNoise
 //*****************************************************************************
 
-class IfIndexAttribute : public Attribute<uint32_t>
+RadioTapFieldSignalNoise::RadioTapFieldSignalNoise() :
+    RadioTapField(RadioTapField::ID_DBM_ANTNOISE)
 {
-
-public:
-
-  IfIndexAttribute() :
-      Attribute(NL80211_ATTR_IFINDEX)
-  {
-    this->SetValue(0);
-  }
-
-  virtual
-  ~IfIndexAttribute()
-  {
-  }
-
-protected:
-
-private:
-
-};
-
 }
 
-#endif /* __NL80211_IFINDEXATTRIBUTE_H__ */
+RadioTapFieldSignalNoise::~RadioTapFieldSignalNoise()
+{
+}
+
+uint8_t
+RadioTapFieldSignalNoise::operator()() const
+{
+  uint8_t val = 0;
+  this->GetValue(val);
+  return (val);
+}
+
+bool
+RadioTapFieldSignalNoise::operator ()(const uint8_t val_)
+{
+  return(this->PutValue(val_));
+}
+
+void
+RadioTapFieldSignalNoise::Display() const
+{
+  RadioTapField::Display();
+}
+
+}

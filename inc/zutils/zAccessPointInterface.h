@@ -42,9 +42,45 @@ public:
   virtual
   ~AccessPointInterface();
 
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  virtual bool
+  Commit();
+
+  virtual bool
+  Create();
+
+  virtual bool
+  Destroy();
+
+  virtual void
+  Display(const std::string &prefix_ = std::string(""));
+
 protected:
 
+  virtual bool
+  is_modified() const;
+
+  virtual void
+  set_modified();
+
+  virtual void
+  clr_modified();
+
 private:
+
+  bool _modified;
+  uint8_t _beaconbuf[512];
 
 };
 

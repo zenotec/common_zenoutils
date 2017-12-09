@@ -18,18 +18,6 @@
  */
 
 // libc includes
-//#include <stdlib.h>
-//#include <string.h>
-//#include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/stat.h>
-//#include <sys/ioctl.h>
-//#include <sys/socket.h>
-//#include <linux/if.h>
-//#include <linux/wireless.h>
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
-//#include <ifaddrs.h>
 
 // libc++ includes
 
@@ -51,23 +39,17 @@ namespace zInterface
 LoopInterface::LoopInterface(const std::string& name_) :
     Interface(name_)
 {
-  this->Config.SetIfType(ConfigData::IFTYPE_LOOP);
+  this->config.SetIfType(ConfigData::IFTYPE_LOOP);
 }
 
 LoopInterface::LoopInterface(const zInterface::ConfigData& config_) :
     Interface(config_)
 {
-  this->Config.SetIfType(ConfigData::IFTYPE_LOOP);
+  this->config.SetIfType(ConfigData::IFTYPE_LOOP);
 }
 
 LoopInterface::~LoopInterface()
 {
-}
-
-bool
-LoopInterface::Refresh()
-{
-  return (Interface::Refresh());
 }
 
 bool

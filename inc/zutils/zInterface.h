@@ -27,13 +27,6 @@
 #include <zutils/zConfig.h>
 #include <zutils/zTimer.h>
 
-namespace netlink
-{
-  class GetLinkCommand;
-  class SetLinkCommand;
-  class RouteLinkEvent;
-}
-
 namespace zUtils
 {
 namespace zInterface
@@ -142,53 +135,50 @@ public:
   ~ConfigData();
 
   std::string
-  GetIfName() const;
+  GetIfName(const std::string& name_ = ConfigNameDefault) const;
 
   virtual bool
-  SetIfName(const std::string& name_);
+  SetIfName(const std::string& name_ = ConfigNameDefault);
 
   ConfigData::IFTYPE
-  GetIfType() const;
+  GetIfType(const ConfigData::IFTYPE type_ = ConfigData::IFTYPE_DEF) const;
 
   bool
-  SetIfType(const ConfigData::IFTYPE type_);
+  SetIfType(const ConfigData::IFTYPE type_ = ConfigData::IFTYPE_DEF);
 
   std::string
-  GetHwAddress() const;
+  GetHwAddress(const std::string& addr_ = ConfigHwAddressDefault) const;
 
   bool
-  SetHwAddress(const std::string& addr_);
+  SetHwAddress(const std::string& addr_ = ConfigHwAddressDefault);
 
   unsigned int
-  GetMtu() const;
+  GetMtu(const unsigned int mtu_ = ConfigMtuDefault) const;
 
   bool
-  SetMtu(const unsigned int mtu_);
+  SetMtu(const unsigned int mtu_ = ConfigMtuDefault);
 
   std::string
-  GetIpAddress() const;
+  GetIpAddress(const std::string& addr_ = ConfigIpAddressDefault) const;
 
   bool
-  SetIpAddress(const std::string& addr_);
+  SetIpAddress(const std::string& addr_ = ConfigIpAddressDefault);
 
   std::string
-  GetNetmask() const;
+  GetNetmask(const std::string& addr_ = ConfigNetmaskDefault) const;
 
   bool
-  SetNetmask(const std::string& addr_);
+  SetNetmask(const std::string& addr_ = ConfigNetmaskDefault);
 
   ConfigData::STATE
-  GetAdminState() const;
+  GetAdminState(const ConfigData::STATE state_ = ConfigData::STATE_DEF) const;
 
   bool
-  SetAdminState(const ConfigData::STATE state_);
+  SetAdminState(const ConfigData::STATE state_ = ConfigData::STATE_DEF);
 
 protected:
 
 private:
-
-  void
-  _init();
 
 };
 
@@ -216,12 +206,10 @@ private:
 // Class: Interface
 // ****************************************************************************
 
-class Interface : public zEvent::Event
+class Interface
 {
 
 public:
-
-  zInterface::ConfigData Config;
 
   Interface(const std::string& name_);
 
@@ -230,14 +218,11 @@ public:
   virtual
   ~Interface();
 
-  bool
-  IsRefreshed() const;
-
-  bool
-  IsModified() const;
-
   unsigned int
-  GetIfIndex() const;
+  GetIfIndex();
+
+  bool
+  SetIfIndex(const unsigned int ifindex_);
 
   std::string
   GetIfName() const;
@@ -247,6 +232,9 @@ public:
 
   ConfigData::IFTYPE
   GetIfType() const;
+
+  bool
+  SetIfType(const ConfigData::IFTYPE type_);
 
   std::string
   GetHwAddress() const;
@@ -266,6 +254,18 @@ public:
   bool
   SetAdminState(const ConfigData::STATE state_);
 
+  std::string
+  GetIpAddress() const;
+
+  bool
+  SetIpAddress(const std::string& addr_);
+
+  std::string
+  GetNetmask() const;
+
+  bool
+  SetNetmask(const std::string& addr_);
+
   virtual bool
   Refresh();
 
@@ -283,18 +283,22 @@ public:
 
 protected:
 
-  mutable zSem::Mutex _lock;
-  bool _refreshed;
-  bool _modified;
+  mutable zSem::Mutex lock;
+  zInterface::ConfigData config;
+  unsigned int ifindex;
 
-  netlink::GetLinkCommand* _getlinkcmd;
-  netlink::SetLinkCommand* _setlinkcmd;
-  netlink::RouteLinkEvent* _rtlinkevent;
+  virtual bool
+  is_modified() const;
 
-  void
-  _init();
+  virtual void
+  set_modified();
+
+  virtual void
+  clr_modified();
 
 private:
+
+  bool _modified;
 
 };
 

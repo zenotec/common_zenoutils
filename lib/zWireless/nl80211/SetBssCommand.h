@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_GETINTERFACECOMMAND_H__
-#define __NL80211_GETINTERFACECOMMAND_H__
+#ifndef __NL80211_SETBSSCOMMAND_H__
+#define __NL80211_SETBSSCOMMAND_H__
 
 // libc includes
+#include <linux/netlink.h>
+#include <netlink/netlink.h>
+#include <netlink/msg.h>
 
 // libc++ includes
 #include <string>
@@ -36,44 +39,39 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
-#include "PhyIndexAttribute.h"
 #include "IfIndexAttribute.h"
 #include "IfNameAttribute.h"
-#include "IfTypeAttribute.h"
-#include "MacAttribute.h"
 #include "SsidAttribute.h"
-#include "FrequencyAttribute.h"
-#include "ChannelWidthAttribute.h"
-#include "ChannelTypeAttribute.h"
+#include "BeaconIntervalAttribute.h"
+#include "DtimPeriodAttribute.h"
+#include "BeaconHeadAttribute.h"
+#include "BeaconTailAttribute.h"
+using namespace nl80211;
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: GetInterfaceCommand
+// Class: SetBssCommand
 //*****************************************************************************
 
-class GetInterfaceCommand : public Command, public Handler
+class SetBssCommand : public Command, public netlink::Handler
 {
 
 public:
 
-  PhyIndexAttribute PhyIndex;
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  IfTypeAttribute IfType;
-  MacAttribute Mac;
   SsidAttribute Ssid;
-  FrequencyAttribute Frequency;
-  ChannelTypeAttribute ChannelType;
-  ChannelWidthAttribute ChannelWidth;
+  BeaconIntervalAttribute BeaconInterval;
+  DtimPeriodAttribute DtimPeriod;
+  BeaconHeadAttribute BeaconHead;
+  BeaconTailAttribute BeaconTail;
 
-  GetInterfaceCommand(int index_ = 0);
-
-  GetInterfaceCommand(const std::string& name_);
+  SetBssCommand(const std::string& name_);
 
   virtual
-  ~GetInterfaceCommand();
+  ~SetBssCommand();
 
   virtual bool
   Exec();
@@ -97,4 +95,4 @@ private:
 
 }
 
-#endif /* __NL80211_GETINTERFACECOMMAND_H__ */
+#endif /* __NL80211_SETBSSCOMMAND_H__ */

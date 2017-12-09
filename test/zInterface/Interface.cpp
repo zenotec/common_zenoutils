@@ -48,8 +48,6 @@ zInterfaceTest_InterfaceLoop(void* arg)
 
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_TRUE(MyInterface->Refresh());
-  TEST_TRUE(MyInterface->IsRefreshed());
   TEST_EQ(1, MyInterface->GetIfIndex());
   TEST_EQ(std::string("lo"), MyInterface->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_LOOP, MyInterface->GetIfType());

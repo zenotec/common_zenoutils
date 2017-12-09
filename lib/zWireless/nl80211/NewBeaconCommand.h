@@ -15,13 +15,10 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBSSCOMMAND_H__
-#define __NL80211_SETBSSCOMMAND_H__
+#ifndef __NL80211_NEWBEACONCOMMAND_H__
+#define __NL80211_NEWBEACONCOMMAND_H__
 
 // libc includes
-#include <linux/netlink.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
 
 // libc++ includes
 #include <string>
@@ -46,16 +43,15 @@ using namespace netlink;
 #include "DtimPeriodAttribute.h"
 #include "BeaconHeadAttribute.h"
 #include "BeaconTailAttribute.h"
-using namespace nl80211;
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBssCommand
+// Class: NewBeaconCommand
 //*****************************************************************************
 
-class SetBssCommand : public Command, public netlink::Handler
+class NewBeaconCommand : public Command, public netlink::Handler
 {
 
 public:
@@ -68,12 +64,10 @@ public:
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
 
-  SetBssCommand(int index_ = 0);
-
-  SetBssCommand(const std::string& name_);
+  NewBeaconCommand(const std::string& name_);
 
   virtual
-  ~SetBssCommand();
+  ~NewBeaconCommand();
 
   virtual bool
   Exec();
@@ -97,4 +91,4 @@ private:
 
 }
 
-#endif /* __NL80211_SETBSSCOMMAND_H__ */
+#endif /* __NL80211_NEWBEACONCOMMAND_H__ */

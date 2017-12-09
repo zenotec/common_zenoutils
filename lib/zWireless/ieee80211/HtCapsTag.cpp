@@ -15,37 +15,20 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_IFNAMEATTRIBUTE_H__
-#define __NL80211_IFNAMEATTRIBUTE_H__
+#include "HtCapsTag.h"
 
-namespace nl80211
+namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: IfNameAttribute
+// Class: HtCapsTag
 //*****************************************************************************
 
-class IfNameAttribute : public Attribute<std::string>
+void
+HtCapsTag::Display() const
 {
-
-public:
-
-  IfNameAttribute() :
-      Attribute(NL80211_ATTR_IFNAME)
-  {
-  }
-
-  virtual
-  ~IfNameAttribute()
-  {
-  }
-
-protected:
-
-private:
-
-};
-
+  Tag::Display();
 }
 
-#endif /* __NL80211_IFNAMEATTRIBUTE_H__ */
+
+} // ns ieee80211

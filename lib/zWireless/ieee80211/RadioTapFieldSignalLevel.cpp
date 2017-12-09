@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
- *                    and others.  All rights reserved.
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,58 +14,49 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_GETLINKCOMMAND_H__
-#define __NETLINK_GETLINKCOMMAND_H__
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <endian.h>
 
-// libc includes
-
-// libc++ includes
 #include <string>
 
-// libzutils includes
+#include "RadioTapField.h"
 
-// local includes
-#include "Command.h"
-
-#include "RouteSocket.h"
-#include "RouteLink.h"
-
-namespace netlink
+namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: GetLinkCommand
+// Class: RadioTapFieldSignalLevel
 //*****************************************************************************
 
-class GetLinkCommand : public Command
+RadioTapFieldSignalLevel::RadioTapFieldSignalLevel() :
+    RadioTapField(RadioTapField::ID_DBM_ANTSIGNAL)
 {
-
-public:
-
-  RouteLink Link;
-
-  GetLinkCommand(const unsigned int ifindex_);
-
-  GetLinkCommand(const std::string& ifname_);
-
-  virtual
-  ~GetLinkCommand();
-
-  virtual bool
-  Exec();
-
-  void
-  Display() const;
-
-protected:
-
-private:
-
-  unsigned int _ifindex;
-  RouteSocket _sock;
-
-};
-
 }
 
-#endif /* __NETLINK_GETLINKCOMMAND_H__ */
+RadioTapFieldSignalLevel::~RadioTapFieldSignalLevel()
+{
+}
+
+int8_t
+RadioTapFieldSignalLevel::operator()() const
+{
+  int8_t val = 0;
+  this->GetValue(val);
+  return (val);
+}
+
+bool
+RadioTapFieldSignalLevel::operator ()(const int8_t val_)
+{
+  return(this->PutValue(val_));
+}
+
+void
+RadioTapFieldSignalLevel::Display() const
+{
+  RadioTapField::Display();
+}
+
+}

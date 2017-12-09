@@ -74,12 +74,12 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   Interface *MyInterface = new zInterface::Interface(*MyConfig);
   TEST_ISNOT_NULL(MyInterface);
   TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->GetIfName());
-  TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->Config.GetIfType());
-  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->Config.GetHwAddress());
-  TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->Config.GetMtu());
-  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->Config.GetIpAddress());
-  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->Config.GetNetmask());
-  TEST_EQ(ConfigData::STATE_ERR, MyInterface->GetAdminState());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+  TEST_EQ(ConfigData::STATE_DEF, MyInterface->GetAdminState());
 
   // Cleanup
   delete (MyInterface);
