@@ -220,7 +220,7 @@ WirelessInterfaceConfigPath::~WirelessInterfaceConfigPath()
 // Class: WirelessInterfaceConfigData
 // ****************************************************************************
 
-const unsigned int WirelessInterfaceConfigData::ConfigPhyIndexDefault(0);
+const int WirelessInterfaceConfigData::ConfigPhyIndexDefault(-1);
 
 const std::string WirelessInterfaceConfigData::ConfigPhyNameDefault("");
 
@@ -263,10 +263,10 @@ WirelessInterfaceConfigData::~WirelessInterfaceConfigData()
 {
 }
 
-unsigned int
-WirelessInterfaceConfigData::GetPhyIndex(const unsigned int index_) const
+int
+WirelessInterfaceConfigData::GetPhyIndex(const int index_) const
 {
-  unsigned int val = 0;
+  int val = 0;
   WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
   if (!this->_config.GetValue(path, val))
   {
@@ -276,7 +276,7 @@ WirelessInterfaceConfigData::GetPhyIndex(const unsigned int index_) const
 }
 
 bool
-WirelessInterfaceConfigData::SetPhyIndex(const unsigned int index_)
+WirelessInterfaceConfigData::SetPhyIndex(const int index_)
 {
   WirelessInterfaceConfigPath path(WirelessInterfaceConfigPath::ConfigPhyIndexPath);
   return (this->_config.PutValue(path, index_));

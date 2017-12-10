@@ -67,15 +67,14 @@ namespace zInterface
 WirelessInterface::WirelessInterface(const std::string& ifname_) :
     Interface(ifname_), wconfig(this->config), _modified(false)
 {
-  this->config.SetIfType(ConfigData::IFTYPE_IEEE80211);
+  this->_init();
 }
 
 WirelessInterface::WirelessInterface(const zInterface::ConfigData& config_) :
     Interface(config_), wconfig(this->config), _modified(false)
 {
-  this->Refresh();
   WirelessInterfaceConfigData wconfig_((zInterface::ConfigData&)config_);
-  this->config.SetIfType(ConfigData::IFTYPE_IEEE80211);
+  this->_init();
   this->SetPhyIndex(wconfig_.GetPhyIndex(this->wconfig.GetPhyIndex()));
   this->SetPhyName(wconfig_.GetPhyName(this->wconfig.GetPhyName()));
   this->SetHwMode(wconfig_.GetHwMode(this->wconfig.GetHwMode()));
@@ -89,10 +88,10 @@ WirelessInterface::~WirelessInterface()
 {
 }
 
-unsigned int
+int
 WirelessInterface::GetPhyIndex() const
 {
-  unsigned int index = 0;
+  int index = -1;
   if (this->lock.Lock())
   {
     if (this->ifindex)
@@ -113,7 +112,7 @@ WirelessInterface::GetPhyIndex() const
 }
 
 bool
-WirelessInterface::SetPhyIndex(const unsigned int index_)
+WirelessInterface::SetPhyIndex(const int index_)
 {
   bool status = false;
   if (this->lock.Lock())
@@ -141,7 +140,7 @@ WirelessInterface::GetPhyName() const
   int index = this->GetPhyIndex();
   if (this->lock.Lock())
   {
-    if (this->ifindex)
+    if (index >= 0)
     {
       GetPhyCommand cmd(index);
       if (cmd.Exec())
@@ -164,9 +163,16 @@ WirelessInterface::SetPhyName(const std::string& name_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if ((name_ != this->wconfig.GetPhyName()) && this->wconfig.SetPhyName(name_))
+    if (name_ != this->wconfig.GetPhyName())
     {
+      if (this->wconfig.SetPhyName(name_))
+      {
       status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
     }
     this->lock.Unlock();
   }
@@ -201,8 +207,17 @@ WirelessInterface::SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->wconfig.SetHwMode(mode_);
-    this->_modified = true;
+    if (mode_ != this->wconfig.GetHwMode())
+    {
+      if (this->wconfig.SetHwMode(mode_))
+      {
+        status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
+    }
     this->lock.Unlock();
   }
   return (status);
@@ -276,8 +291,17 @@ WirelessInterface::SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->wconfig.SetHtMode(mode_);
-    this->_modified = true;
+    if (mode_ != this->wconfig.GetHtMode())
+    {
+      if (this->wconfig.SetHtMode(mode_))
+      {
+        status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
+    }
     this->lock.Unlock();
   }
   return (status);
@@ -328,8 +352,17 @@ WirelessInterface::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->wconfig.SetOpMode(mode_);
-    this->_modified = true;
+    if (mode_ != this->wconfig.GetOpMode())
+    {
+      if (this->wconfig.SetOpMode(mode_))
+      {
+        status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
+    }
     this->lock.Unlock();
   }
   return (status);
@@ -338,6 +371,24 @@ WirelessInterface::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
 unsigned int
 WirelessInterface::GetChannel() const
 {
+  unsigned int channel = 0;
+  if (this->lock.Lock())
+  {
+    if (this->ifindex)
+    {
+      GetInterfaceCommand cmd(this->ifindex);
+      if (cmd.Exec())
+      {
+        channel = cmd.Frequency.GetChannel();
+      }
+    }
+    else
+    {
+      channel = this->wconfig.GetChannel();
+    }
+    this->lock.Unlock();
+  }
+  return (channel);
 }
 
 bool
@@ -346,8 +397,17 @@ WirelessInterface::SetChannel(const unsigned int channel_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->wconfig.SetChannel(channel_);
-    this->_modified = true;
+    if (channel_ != this->wconfig.GetChannel())
+    {
+      if (this->wconfig.SetChannel(channel_))
+      {
+        status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
+    }
     this->lock.Unlock();
   }
   return (status);
@@ -356,6 +416,24 @@ WirelessInterface::SetChannel(const unsigned int channel_)
 unsigned int
 WirelessInterface::GetTxPower() const
 {
+  unsigned int power = 0;
+  if (this->lock.Lock())
+  {
+    if (this->ifindex)
+    {
+      GetInterfaceCommand cmd(this->ifindex);
+      if (cmd.Exec())
+      {
+        power = 0;
+      }
+    }
+    else
+    {
+      power = this->wconfig.GetTxPower();
+    }
+    this->lock.Unlock();
+  }
+  return (power);
 }
 
 bool
@@ -364,8 +442,17 @@ WirelessInterface::SetTxPower(const unsigned int txpower_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->wconfig.SetTxPower(txpower_);
-    this->_modified = true;
+    if (txpower_ != this->wconfig.GetTxPower())
+    {
+      if (this->wconfig.SetTxPower(txpower_))
+      {
+        status = this->_modified = true;
+      }
+    }
+    else
+    {
+      status = true;
+    }
     this->lock.Unlock();
   }
   return (status);
@@ -374,10 +461,17 @@ WirelessInterface::SetTxPower(const unsigned int txpower_)
 bool
 WirelessInterface::Refresh()
 {
-  bool status = Interface::Refresh();
-  if (status)
+  bool status = false;
+  if (Interface::Refresh())
   {
-
+    this->SetPhyIndex(this->GetPhyIndex());
+    this->SetPhyName(this->GetPhyName());
+    this->SetHwMode(this->GetHwMode());
+    this->SetHtMode(this->GetHtMode());
+    this->SetOpMode(this->GetOpMode());
+    this->SetChannel(this->GetChannel());
+    this->SetTxPower(this->GetTxPower());
+    status = true;
   }
   return (status);
 }
@@ -394,7 +488,7 @@ WirelessInterface::Commit()
     if (this->ifindex && this->_modified)
     {
       SetInterfaceCommand cmd(this->ifindex);
-      cmd.IfName(this->GetIfName());
+      cmd.IfName(this->config.GetIfName());
       // Translate hardware mode
       switch (this->wconfig.GetHwMode())
       {
@@ -425,8 +519,11 @@ WirelessInterface::Commit()
       default:
         break;
       }
-      status = cmd.Exec();
-      this->_modified = !status;
+      if (cmd.Exec())
+      {
+        this->clr_modified();
+        status = true;
+      }
     }
     this->lock.Unlock();
   }
@@ -522,6 +619,20 @@ void
 WirelessInterface::clr_modified()
 {
   this->_modified = false;
+}
+
+void
+WirelessInterface::_init()
+{
+  this->config.SetIfType(ConfigData::IFTYPE_IEEE80211);
+  this->SetPhyIndex(this->GetPhyIndex());
+  this->SetPhyName(this->GetPhyName());
+  this->SetHwMode(this->GetHwMode());
+  this->SetHtMode(this->GetHtMode());
+  this->SetOpMode(this->GetOpMode());
+  this->SetChannel(this->GetChannel());
+  this->SetTxPower(this->GetTxPower());
+  this->clr_modified();
 }
 
 }

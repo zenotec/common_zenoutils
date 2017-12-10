@@ -69,7 +69,7 @@ class WirelessInterfaceConfigData
 {
 
 public:
-  static const unsigned int ConfigPhyIndexDefault;
+  static const int ConfigPhyIndexDefault;
 
   static const std::string ConfigPhyNameDefault;
 
@@ -149,11 +149,11 @@ public:
   virtual
   ~WirelessInterfaceConfigData();
 
-  unsigned int
-  GetPhyIndex(const unsigned int index_ = ConfigPhyIndexDefault) const;
+  int
+  GetPhyIndex(const int index_ = ConfigPhyIndexDefault) const;
 
   bool
-  SetPhyIndex(const unsigned int index_ = ConfigPhyIndexDefault);
+  SetPhyIndex(const int index_ = ConfigPhyIndexDefault);
 
   std::string
   GetPhyName(const std::string& name_ = ConfigPhyNameDefault) const;
@@ -226,11 +226,11 @@ public:
   virtual
   ~WirelessInterface();
 
-  unsigned int
+  int
   GetPhyIndex() const;
 
   bool
-  SetPhyIndex(const unsigned int index_);
+  SetPhyIndex(const int index_);
 
   std::string
   GetPhyName() const;
@@ -299,6 +299,9 @@ protected:
 private:
 
   bool _modified;
+
+  void
+  _init();
 
 };
 

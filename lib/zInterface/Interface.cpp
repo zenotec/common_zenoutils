@@ -64,14 +64,14 @@ Interface::Interface(const std::string& ifname_) :
     _modified(false), ifindex(0), config(ifname_)
 {
   this->lock.Unlock();
-  this->Refresh();
+  this->_init();
 }
 
 Interface::Interface(const zInterface::ConfigData& config_) :
     _modified(false), ifindex(0), config(config_)
 {
   this->lock.Unlock();
-  this->Refresh();
+  this->_init();
   this->SetIfName(config_.GetIfName(this->config.GetIfName()));
   this->SetIfType(config_.GetIfType(this->config.GetIfType()));
   this->SetHwAddress(config_.GetHwAddress(this->config.GetHwAddress()));
@@ -297,7 +297,7 @@ Interface::GetAdminState() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        if ((cmd.Link.Flags() & (IFF_UP | IFF_RUNNING)) == (IFF_UP | IFF_RUNNING))
+        if ((cmd.Link.Flags() & IFF_UP))
         {
           state = ConfigData::STATE_UP;
         }
@@ -435,14 +435,17 @@ Interface::Commit()
         cmd.Link.Mtu(this->config.GetMtu());
         if (this->config.GetAdminState() == ConfigData::STATE_UP)
         {
-          cmd.Link.SetFlags((IFF_UP | IFF_RUNNING));
+          cmd.Link.SetFlags(IFF_UP);
         }
         else
         {
-          cmd.Link.ClrFlags((IFF_UP | IFF_RUNNING));
+          cmd.Link.ClrFlags(IFF_UP);
         }
-        ZLOG_INFO("8888");
-        status = cmd.Exec();
+        if (cmd.Exec())
+        {
+          this->clr_modified();
+          status = true;
+        }
       }
       else
       {
@@ -494,6 +497,22 @@ void
 Interface::clr_modified()
 {
   this->_modified = false;
+}
+
+void
+Interface::_init()
+{
+  GetLinkCommand cmd(this->config.GetIfName());
+  if (cmd.Exec())
+  {
+    this->ifindex = cmd.Link.IfIndex();
+    this->SetIfName(this->GetIfName());
+    this->SetIfType(this->GetIfType());
+    this->SetHwAddress(this->GetHwAddress());
+    this->SetMtu(this->GetMtu());
+    this->SetAdminState(this->GetAdminState());
+    this->clr_modified();
+  }
 }
 
 }

@@ -158,7 +158,7 @@ AccessPointInterface::Commit()
 bool
 AccessPointInterface::Create()
 {
-  return (WirelessInterface::Create());
+  return (WirelessInterface::Create() && WirelessInterface::Refresh());
 }
 
 bool
