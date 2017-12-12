@@ -48,7 +48,7 @@ namespace nl80211
 // Class: SetInterfaceCommand
 //*****************************************************************************
 
-class SetInterfaceCommand : public Command, public netlink::Handler
+class SetInterfaceCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

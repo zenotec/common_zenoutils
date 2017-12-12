@@ -27,9 +27,8 @@
 
 // local includes
 #include "Command.h"
-
-#include "RouteSocket.h"
 #include "RouteLink.h"
+#include "RouteSocket.h"
 
 namespace netlink
 {
@@ -38,12 +37,10 @@ namespace netlink
 // Class: GetLinkCommand
 //*****************************************************************************
 
-class GetLinkCommand : public Command
+class GetLinkCommand : public Command, public RouteLink
 {
 
 public:
-
-  RouteLink Link;
 
   GetLinkCommand(const unsigned int ifindex_);
 
@@ -55,14 +52,13 @@ public:
   virtual bool
   Exec();
 
-  void
+  virtual void
   Display() const;
 
 protected:
 
 private:
 
-  unsigned int _ifindex;
   RouteSocket _sock;
 
 };

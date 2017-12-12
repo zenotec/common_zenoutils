@@ -537,7 +537,6 @@ WirelessInterface::Create()
 
   bool status = false;
 
-  ZLOG_DEBUG("WirelessInterface::Create(): Enter");
   if (this->lock.Lock())
   {
     NewInterfaceCommand cmd(this->config.GetIfName());
@@ -563,14 +562,21 @@ WirelessInterface::Create()
     if (cmd.Exec())
     {
       std::cout << "New interface created: [" << cmd.IfIndex() << "]: " << cmd.IfName() << std::endl;
-      this->_modified = false;
-      status = true;
       this->ifindex = cmd.IfIndex();
+      status = true;
+    }
+    else
+    {
+      ZLOG_ERR("Error creating wireless interface: " + this->config.GetIfName());
     }
     this->lock.Unlock();
   }
 
-  ZLOG_DEBUG("WirelessInterface::Create(): Exit");
+  if (status)
+  {
+    status = this->Refresh();
+    this->clr_modified();
+  }
 
   return(status);
 
@@ -601,12 +607,19 @@ void
 WirelessInterface::Display(const std::string &prefix_)
 {
   Interface::Display(prefix_);
+  std::cout << "--------- Wireless Interface -----------" << std::endl;
+  std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName() << std::endl;
+  std::cout << prefix_ << "HWMODE: \t" << this->GetHwMode() << std::endl;
+  std::cout << prefix_ << "HTMODE: \t" << this->GetHtMode() << std::endl;
+  std::cout << prefix_ << "OPMODE: \t" << this->GetOpMode() << std::endl;
+  std::cout << prefix_ << "Channel:\t" << this->GetChannel() << std::endl;
+  std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
 
 bool
 WirelessInterface::is_modified() const
 {
-  return (this->_modified);
+  return (Interface::is_modified() || this->_modified);
 }
 
 void
@@ -618,6 +631,7 @@ WirelessInterface::set_modified()
 void
 WirelessInterface::clr_modified()
 {
+  Interface::clr_modified();
   this->_modified = false;
 }
 

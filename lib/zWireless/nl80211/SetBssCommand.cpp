@@ -60,7 +60,8 @@ __errstr(int code)
 // Class: SetBssCommand
 //*****************************************************************************
 
-SetBssCommand::SetBssCommand(const std::string& ifname_)
+SetBssCommand::SetBssCommand(const std::string& ifname_) :
+    Command(ifname_)
 {
   this->IfName.SetValue(ifname_);
   this->IfIndex.SetValue((uint32_t)if_nametoindex(ifname_.c_str()));

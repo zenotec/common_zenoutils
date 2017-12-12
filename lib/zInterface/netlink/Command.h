@@ -21,21 +21,37 @@
 #include <zutils/zSem.h>
 using namespace zUtils;
 
+#include "Attribute.h"
+
 //*****************************************************************************
 // Class: Command
 //*****************************************************************************
+
+namespace netlink
+{
 
 class Command
 {
 public:
 
-  Command();
+  Command(const unsigned int ifindex_);
+
+  Command(const std::string& ifname_);
+
+  virtual unsigned int
+  GetIfIndex();
+
+  virtual bool
+  SetIfIndex(const unsigned int ifindex_);
 
   virtual
   ~Command();
 
   virtual bool
   Exec() = 0;
+
+  virtual void
+  Display() const = 0;
 
 protected:
 
@@ -44,6 +60,11 @@ protected:
 
 private:
 
+  unsigned int _ifindex;
+  std::string _ifname;
+
 };
+
+}
 
 #endif /* __COMMAND_H__ */

@@ -53,7 +53,8 @@ __errstr(int code)
 // Class: ListLinksCommand
 //*****************************************************************************
 
-ListLinksCommand::ListLinksCommand()
+ListLinksCommand::ListLinksCommand() :
+    Command(0)
 {
 }
 

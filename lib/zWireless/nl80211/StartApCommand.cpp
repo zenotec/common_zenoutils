@@ -59,7 +59,8 @@ __errstr(int code)
 // Class: StartApCommand
 //*****************************************************************************
 
-StartApCommand::StartApCommand(const unsigned int ifindex_)
+StartApCommand::StartApCommand(const unsigned int ifindex_) :
+    Command(ifindex_)
 {
   this->IfIndex(ifindex_);
 }

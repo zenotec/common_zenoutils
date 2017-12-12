@@ -44,7 +44,7 @@ namespace nl80211
 // Class: ListPhysCommand
 //*****************************************************************************
 
-class ListPhysCommand : public Command, public netlink::Handler
+class ListPhysCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

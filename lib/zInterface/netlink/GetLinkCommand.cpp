@@ -54,29 +54,14 @@ __errstr(int code)
 //*****************************************************************************
 
 GetLinkCommand::GetLinkCommand(const unsigned int ifindex_) :
-    _ifindex(ifindex_)
+    Command(ifindex_)
 {
-  if (!ifindex_)
-  {
-    ZLOG_WARN("Interface index is NULL");
-  }
 }
 
 GetLinkCommand::GetLinkCommand(const std::string& ifname_) :
-    _ifindex(0)
+    Command(ifname_)
 {
-  if (!ifname_.empty())
-  {
-    this->_ifindex = if_nametoindex(ifname_.c_str());
-    if (!this->_ifindex)
-    {
-      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
-    }
-  }
-  else
-  {
-    ZLOG_WARN("Name is empty!");
-  }
+  this->IfName(ifname_);
 }
 
 GetLinkCommand::~GetLinkCommand()
@@ -91,29 +76,36 @@ GetLinkCommand::Exec()
   int ret = 0;
   struct rtnl_link* link = NULL;
 
-  if (!this->_ifindex)
+  if (!this->GetIfIndex())
   {
-    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Valid interface index must be specified");
+    return(false);
+  }
+
+  if (!this->IfIndex(this->GetIfIndex()))
+  {
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Error setting interface index");
     return(false);
   }
 
   if (!this->_sock.Connect())
   {
-    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Error connecting Netlink socket");
-    return(false);
+    return (false);
   }
 
-  ret = rtnl_link_get_kernel(this->_sock(), this->_ifindex, NULL, &link);
+  ret = rtnl_link_get_kernel(this->_sock(), this->GetIfIndex(), NULL, &link);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing GetLinkCommand: " + this->Link.IfName());
+    ZLOG_ERR("Error executing GetLinkCommand: " + this->IfName());
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
   }
   else
   {
-    this->Link(link); // Transfers ownership of link pointer
+    this->operator()(link); // Transfers ownership of link pointer
     status = true;
   }
 
@@ -125,7 +117,10 @@ GetLinkCommand::Exec()
 void
 GetLinkCommand::Display() const
 {
-  this->Link.Display();
+  std::cout << "##################################################" << std::endl;
+  std::cout << "GetLinkCommand: " << std::endl;
+  RouteLink::Display();
+  std::cout << "##################################################" << std::endl;
 }
 
 }

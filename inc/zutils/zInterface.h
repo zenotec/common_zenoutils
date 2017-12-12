@@ -27,6 +27,11 @@
 #include <zutils/zConfig.h>
 #include <zutils/zTimer.h>
 
+namespace netlink
+{
+  class Command;
+}
+
 namespace zUtils
 {
 namespace zInterface
@@ -269,7 +274,7 @@ public:
   virtual bool
   Refresh();
 
-  virtual bool
+  bool
   Commit();
 
   virtual bool
@@ -286,6 +291,7 @@ protected:
   mutable zSem::Mutex lock;
   zInterface::ConfigData config;
   unsigned int ifindex;
+  std::list<netlink::Command*> _cmds;
 
   virtual bool
   is_modified() const;

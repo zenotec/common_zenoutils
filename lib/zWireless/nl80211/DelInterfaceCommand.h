@@ -38,7 +38,7 @@ namespace nl80211
 // Class: DelInterfaceCommand
 //*****************************************************************************
 
-class DelInterfaceCommand : public Command, public netlink::Handler
+class DelInterfaceCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

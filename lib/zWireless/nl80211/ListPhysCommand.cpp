@@ -61,7 +61,8 @@ __errstr(int code)
 // Class: ListPhysCommand
 //*****************************************************************************
 
-ListPhysCommand::ListPhysCommand()
+ListPhysCommand::ListPhysCommand() :
+    Command(0)
 {
 }
 

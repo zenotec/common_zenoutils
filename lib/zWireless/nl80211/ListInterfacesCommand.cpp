@@ -63,7 +63,8 @@ __errstr(int code)
 // Class: ListInterfacesCommand
 //*****************************************************************************
 
-ListInterfacesCommand::ListInterfacesCommand()
+ListInterfacesCommand::ListInterfacesCommand() :
+    Command(0)
 {
 }
 

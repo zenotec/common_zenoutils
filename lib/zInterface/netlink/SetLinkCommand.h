@@ -19,9 +19,8 @@
 #define __NETLINK_SETLINKCOMMAND_H__
 
 #include "Command.h"
-
-#include "RouteSocket.h"
 #include "RouteLink.h"
+#include "RouteSocket.h"
 
 namespace netlink
 {
@@ -30,14 +29,14 @@ namespace netlink
 // Class: SetLinkCommand
 //*****************************************************************************
 
-class SetLinkCommand : public Command
+class SetLinkCommand : public Command, public RouteLink
 {
 
 public:
 
-  RouteLink Link;
-
   SetLinkCommand(const unsigned int ifindex_);
+
+  SetLinkCommand(const std::string& ifname_);
 
   virtual
   ~SetLinkCommand();

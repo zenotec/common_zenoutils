@@ -137,10 +137,10 @@ RouteLink::RouteLink(struct rtnl_link *link_) :
   }
 }
 
-RouteLink::RouteLink(RouteLink& other_) :
-    _link(other_._link)
+RouteLink::RouteLink(const RouteLink& other_) :
+    _link(rtnl_link_alloc())
 {
-  other_._link = NULL;
+  this->_copy(other_);
 }
 
 RouteLink::~RouteLink()
@@ -170,14 +170,9 @@ RouteLink::operator ()(struct rtnl_link *link_)
 }
 
 RouteLink&
-RouteLink::operator =(RouteLink& other_)
+RouteLink::operator =(const RouteLink& other_)
 {
-  if (this->_link)
-  {
-    rtnl_link_put(this->_link);
-  }
-  this->_link = other_._link;
-  other_._link = NULL;
+  this->_copy(other_);
   return(*this);
 }
 
@@ -438,4 +433,22 @@ RouteLink::Display() const
   std::cout << "\tState: \t" << _state2str(this->OperationalState()) << std::endl;
   std::cout << "\tMAC:   \t" << this->HwAddress() << std::endl;
 }
+
+bool
+RouteLink::_copy(const RouteLink& other_)
+{
+  bool status = true;
+  status &= this->IfIndex(other_.IfIndex());
+  status &= this->IfName(other_.IfName());
+  status &= this->ArpType(other_.ArpType());
+  status &= this->TypeString(other_.TypeString());
+  status &= this->ClrFlags(~other_.Flags());
+  status &= this->SetFlags(other_.Flags());
+  status &= this->Mtu(other_.Mtu());
+  status &= this->OperationalState(other_.OperationalState());
+  status &= this->CarrierState(other_.CarrierState());
+  status &= this->HwAddress(other_.HwAddress());
+  return (status);
+}
+
 }

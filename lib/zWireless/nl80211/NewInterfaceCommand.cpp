@@ -66,7 +66,8 @@ __errstr(int code)
 // Class: NewInterfaceCommand
 //*****************************************************************************
 
-NewInterfaceCommand::NewInterfaceCommand(const std::string& name_)
+NewInterfaceCommand::NewInterfaceCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName(name_);
 }

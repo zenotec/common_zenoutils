@@ -47,12 +47,14 @@ __errstr(int code)
 // Class: GetInterfaceCommand
 //*****************************************************************************
 
-GetInterfaceCommand::GetInterfaceCommand(int index_)
+GetInterfaceCommand::GetInterfaceCommand(int index_) :
+    Command(index_)
 {
   this->IfIndex(index_);
 }
 
-GetInterfaceCommand::GetInterfaceCommand(const std::string& ifname_)
+GetInterfaceCommand::GetInterfaceCommand(const std::string& ifname_) :
+    Command(ifname_)
 {
   if (!ifname_.empty())
   {

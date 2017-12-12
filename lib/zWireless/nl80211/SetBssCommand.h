@@ -55,7 +55,7 @@ namespace nl80211
 // Class: SetBssCommand
 //*****************************************************************************
 
-class SetBssCommand : public Command, public netlink::Handler
+class SetBssCommand : public netlink::Command, public netlink::Handler
 {
 
 public:
@@ -76,7 +76,7 @@ public:
   virtual bool
   Exec();
 
-  void
+  virtual void
   Display() const;
 
 protected:

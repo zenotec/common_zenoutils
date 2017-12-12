@@ -51,7 +51,7 @@ namespace nl80211
 // Class: NewBeaconCommand
 //*****************************************************************************
 
-class NewBeaconCommand : public Command, public netlink::Handler
+class NewBeaconCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

@@ -62,12 +62,14 @@ __errstr(int code)
 // Class: DelInterfaceCommand
 //*****************************************************************************
 
-DelInterfaceCommand::DelInterfaceCommand(int index_)
+DelInterfaceCommand::DelInterfaceCommand(int index_) :
+    Command(index_)
 {
   this->IfIndex.SetValue(index_);
 }
 
-DelInterfaceCommand::DelInterfaceCommand(const std::string& name_)
+DelInterfaceCommand::DelInterfaceCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName.SetValue(name_);
 }

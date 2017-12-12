@@ -63,12 +63,14 @@ __errstr(int code)
 // Class: SetInterfaceCommand
 //*****************************************************************************
 
-SetInterfaceCommand::SetInterfaceCommand(int index_)
+SetInterfaceCommand::SetInterfaceCommand(int index_) :
+    Command(index_)
 {
   this->IfIndex.SetValue(index_);
 }
 
-SetInterfaceCommand::SetInterfaceCommand(const std::string& name_)
+SetInterfaceCommand::SetInterfaceCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName.SetValue(name_);
 }

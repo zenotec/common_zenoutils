@@ -54,10 +54,20 @@ __errstr(int code)
 //*****************************************************************************
 
 
-SetLinkCommand::SetLinkCommand(const unsigned int ifindex_)
+SetLinkCommand::SetLinkCommand(const unsigned int ifindex_) :
+    Command(ifindex_)
 {
-  this->_orig.IfIndex(ifindex_);
-//  this->Link.IfIndex(ifindex_);
+  this->_orig.IfIndex(this->GetIfIndex());
+  this->IfIndex(this->GetIfIndex());
+}
+
+SetLinkCommand::SetLinkCommand(const std::string& ifname_) :
+    Command(ifname_)
+{
+  this->_orig.IfIndex(this->GetIfIndex());
+  this->_orig.IfName(ifname_);
+  this->IfIndex(this->GetIfIndex());
+  this->IfName(ifname_);
 }
 
 SetLinkCommand::~SetLinkCommand()
@@ -71,23 +81,31 @@ SetLinkCommand::Exec()
   bool status = false;
   int ret = 0;
 
-  if (!this->_orig.IfIndex())
+  if (!this->GetIfIndex())
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->_orig.IfIndex()));
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Valid interface index must be specified");
+    return(false);
+  }
+
+  if (!this->_orig.IfIndex(this->GetIfIndex()) || !this->IfIndex(this->GetIfIndex()))
+  {
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Error setting interface index");
     return(false);
   }
 
   if (!this->_sock.Connect())
   {
+    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Error connecting Netlink socket");
     return (false);
   }
 
-  ret = rtnl_link_change(this->_sock(), this->_orig(), this->Link(), 0);
+  ret = rtnl_link_change(this->_sock(), this->_orig(), this->operator ()(), 0);
   if (ret < 0)
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->_orig.IfIndex()));
+    ZLOG_ERR("Error executing SetLinkCommand: " + zLog::IntStr(this->GetIfIndex()));
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
   }
   else
@@ -103,7 +121,13 @@ SetLinkCommand::Exec()
 void
 SetLinkCommand::Display() const
 {
-  this->Link.Display();
+  std::cout << "##################################################" << std::endl;
+  std::cout << "SetLinkCommand: " << std::endl;
+  std::cout << "Orig: " << std::endl;
+  this->_orig.Display();
+  std::cout << "New:  " << std::endl;
+  RouteLink::Display();
+  std::cout << "##################################################" << std::endl;
 }
 
 }

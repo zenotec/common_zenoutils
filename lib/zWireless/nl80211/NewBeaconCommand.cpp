@@ -59,7 +59,8 @@ __errstr(int code)
 // Class: NewBeaconCommand
 //*****************************************************************************
 
-NewBeaconCommand::NewBeaconCommand(const std::string& name_)
+NewBeaconCommand::NewBeaconCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName(name_);
   this->IfIndex((uint32_t)if_nametoindex(name_.c_str()));

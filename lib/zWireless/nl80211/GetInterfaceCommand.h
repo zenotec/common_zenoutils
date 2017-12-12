@@ -53,7 +53,7 @@ namespace nl80211
 // Class: GetInterfaceCommand
 //*****************************************************************************
 
-class GetInterfaceCommand : public Command, public Handler
+class GetInterfaceCommand : public netlink::Command, public Handler
 {
 
 public:

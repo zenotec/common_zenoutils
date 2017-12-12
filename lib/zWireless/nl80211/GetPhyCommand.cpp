@@ -61,12 +61,14 @@ __errstr(int code)
 // Class: GetPhyCommand
 //*****************************************************************************
 
-GetPhyCommand::GetPhyCommand(int index_)
+GetPhyCommand::GetPhyCommand(int index_) :
+    Command(index_)
 {
   this->PhyIndex.SetValue(index_);
 }
 
-GetPhyCommand::GetPhyCommand(const std::string& name_)
+GetPhyCommand::GetPhyCommand(const std::string& name_) :
+    Command(name_)
 {
   this->PhyName.SetValue(name_);
 }

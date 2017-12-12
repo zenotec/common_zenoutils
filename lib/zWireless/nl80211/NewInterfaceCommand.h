@@ -39,7 +39,7 @@ namespace nl80211
 // Class: NewInterfaceCommand
 //*****************************************************************************
 
-class NewInterfaceCommand : public Command, public netlink::Handler
+class NewInterfaceCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

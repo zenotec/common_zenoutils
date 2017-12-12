@@ -90,8 +90,8 @@ RouteLinkEvent::SetIfName(const std::string& name_)
   GetLinkCommand cmd(name_);
   if (!name_.empty() && cmd.Exec())
   {
-    this->_ifindex = cmd.Link.IfIndex();
-    this->_ifname = cmd.Link.IfName();
+    this->_ifindex = cmd.IfIndex();
+    this->_ifname = cmd.IfName();
     status = true;
   }
   return(status);

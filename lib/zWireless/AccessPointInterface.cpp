@@ -131,9 +131,16 @@ AccessPointInterface::SetBssid(const std::string& bssid_)
 bool
 AccessPointInterface::Commit()
 {
-  bool status = WirelessInterface::Commit();
+  return (WirelessInterface::Commit());
+}
 
-  if (status)
+bool
+AccessPointInterface::Create()
+{
+#if 0
+  bool status = false;
+
+  if (WirelessInterface::Create())
   {
     Beacon beacon;
     size_t blen = sizeof(this->_beaconbuf);
@@ -147,18 +154,18 @@ AccessPointInterface::Commit()
     cmd.Ssid(this->wconfig.GetSsid());
     cmd.BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
     cmd.BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-    ZLOG_INFO("8000");
     status = cmd.Exec();
-    ZLOG_INFO("8001");
+  }
+
+  if (!status)
+  {
+
   }
 
   return (status);
-}
-
-bool
-AccessPointInterface::Create()
-{
-  return (WirelessInterface::Create() && WirelessInterface::Refresh());
+#else
+  return (WirelessInterface::Create());
+#endif
 }
 
 bool
@@ -170,13 +177,16 @@ AccessPointInterface::Destroy()
 void
 AccessPointInterface::Display(const std::string& prefix_)
 {
-  WirelessInterface::Display();
+  WirelessInterface::Display(prefix_);
+  std::cout << "------ Access Point Interface ----------" << std::endl;
+  std::cout << prefix_ << "SSID:   \t" << this->GetSsid() << std::endl;
+  std::cout << prefix_ << "BSSID:  \t" << this->GetBssid() << std::endl;
 }
 
 bool
 AccessPointInterface::is_modified() const
 {
-  return (this->_modified);
+  return (WirelessInterface::is_modified() || this->_modified);
 }
 
 void
@@ -188,6 +198,7 @@ AccessPointInterface::set_modified()
 void
 AccessPointInterface::clr_modified()
 {
+  WirelessInterface::clr_modified();
   this->_modified = false;
 }
 

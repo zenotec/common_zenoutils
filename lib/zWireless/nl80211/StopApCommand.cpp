@@ -59,12 +59,14 @@ __errstr(int code)
 // Class: StopApCommand
 //*****************************************************************************
 
-StopApCommand::StopApCommand(int index_)
+StopApCommand::StopApCommand(int index_) :
+    Command(index_)
 {
   this->IfIndex.SetValue(index_);
 }
 
-StopApCommand::StopApCommand(const std::string& name_)
+StopApCommand::StopApCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName.SetValue(name_);
   this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));

@@ -28,9 +28,8 @@
 
 // local includes
 #include "Command.h"
-
-#include "RouteSocket.h"
 #include "RouteLink.h"
+#include "RouteSocket.h"
 
 namespace netlink
 {

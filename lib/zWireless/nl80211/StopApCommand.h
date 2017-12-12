@@ -48,7 +48,7 @@ namespace nl80211
 // Class: StopApCommand
 //*****************************************************************************
 
-class StopApCommand : public Command, public netlink::Handler
+class StopApCommand : public netlink::Command, public netlink::Handler
 {
 
 public:

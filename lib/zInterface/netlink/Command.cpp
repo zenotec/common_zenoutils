@@ -16,23 +16,76 @@
  */
 
 // libc includes
+#include <net/if.h>
 
 // libc++ includes
 
 // libzutils includes
+#include <zutils/zLog.h>
 
 // local includes
 #include "Command.h"
+
+namespace netlink
+{
 
 //*****************************************************************************
 // Class: Command
 //*****************************************************************************
 
-Command::Command() :
-  _status(false)
+Command::Command(const unsigned int ifindex_) :
+  _status(false), _ifindex(ifindex_)
 {
+  if (!ifindex_)
+  {
+    ZLOG_WARN("Interface index is NULL");
+  }
 }
+
+
+Command::Command(const std::string& ifname_) :
+  _status(false), _ifindex(0), _ifname(ifname_)
+{
+  if (!ifname_.empty())
+  {
+    this->_ifindex = if_nametoindex(ifname_.c_str());
+    if (!this->_ifindex)
+    {
+      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
+    }
+  }
+  else
+  {
+    ZLOG_WARN("Name is empty!");
+  }
+}
+
 
 Command::~Command()
 {
+}
+
+unsigned int
+Command::GetIfIndex()
+{
+  unsigned int index = this->_ifindex;
+  if (!index && !this->_ifname.empty())
+  {
+    index = this->_ifindex = if_nametoindex(this->_ifname.c_str());
+  }
+  return (index);
+}
+
+bool
+Command::SetIfIndex(const unsigned int ifindex_)
+{
+  bool status = false;
+  if (ifindex_)
+  {
+    this->_ifindex = ifindex_;
+    status = true;
+  }
+  return (status);
+}
+
 }

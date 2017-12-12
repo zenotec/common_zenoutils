@@ -48,7 +48,7 @@ public:
 
   RouteLink(struct rtnl_link *link_ = NULL);
 
-  RouteLink(RouteLink& other_);
+  RouteLink(const RouteLink& other_);
 
   virtual
   ~RouteLink();
@@ -57,7 +57,7 @@ public:
   operator()();
 
   RouteLink&
-  operator=(RouteLink& other_);
+  operator=(const RouteLink& other_);
 
   struct rtnl_link*
   operator ()(struct rtnl_link *link_);
@@ -119,7 +119,7 @@ public:
   bool
   HwAddress(const std::string& addr_);
 
-  void
+  virtual void
   Display() const;
 
 protected:
@@ -128,10 +128,8 @@ protected:
 
 private:
 
-  RouteLink(const RouteLink& other_);
-
-  RouteLink&
-  operator=(const RouteLink& other_);
+  bool
+  _copy(const RouteLink& other_);
 
 };
 

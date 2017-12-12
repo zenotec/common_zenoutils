@@ -59,12 +59,14 @@ __errstr(int code)
 // Class: SetBeaconCommand
 //*****************************************************************************
 
-SetBeaconCommand::SetBeaconCommand(int index_)
+SetBeaconCommand::SetBeaconCommand(int index_) :
+    Command(index_)
 {
   this->IfIndex.SetValue(index_);
 }
 
-SetBeaconCommand::SetBeaconCommand(const std::string& name_)
+SetBeaconCommand::SetBeaconCommand(const std::string& name_) :
+    Command(name_)
 {
   this->IfName.SetValue(name_);
   this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));

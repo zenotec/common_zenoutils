@@ -97,7 +97,7 @@ Interface::GetIfIndex()
       GetLinkCommand cmd(this->config.GetIfName());
       if (cmd.Exec())
       {
-        this->ifindex = cmd.Link.IfIndex();
+        this->ifindex = cmd.IfIndex();
       }
     }
     index = this->ifindex;
@@ -130,7 +130,7 @@ Interface::GetIfName() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        name = cmd.Link.IfName();
+        name = cmd.IfName();
       }
     }
     else
@@ -148,9 +148,15 @@ Interface::SetIfName(const std::string& name_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if ((name_ != this->config.GetIfName()) && this->config.SetIfName(name_))
+    if ((name_ != this->config.GetIfName()) && this->config.SetIfName(name_) && this->ifindex)
     {
-      status = this->_modified = true;
+      SetLinkCommand* cmd = new SetLinkCommand(this->ifindex);
+      if (cmd->IfName(name_))
+      {
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
+      }
     }
     this->lock.Unlock();
   }
@@ -168,7 +174,7 @@ Interface::GetIfType() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        switch (cmd.Link.ArpType())
+        switch (cmd.ArpType())
         {
         case ARPHRD_ETHER:
           // no break
@@ -221,7 +227,7 @@ Interface::GetHwAddress() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        addr = cmd.Link.HwAddress();
+        addr = cmd.HwAddress();
       }
     }
     else
@@ -239,9 +245,15 @@ Interface::SetHwAddress(const std::string& addr_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if ((addr_ != this->config.GetHwAddress()) && this->config.SetHwAddress(addr_))
+    if ((addr_ != this->config.GetHwAddress()) && this->config.SetHwAddress(addr_) && this->ifindex)
     {
-      status = this->_modified = true;
+      SetLinkCommand* cmd = new SetLinkCommand(this->ifindex);
+      if (cmd->HwAddress(addr_))
+      {
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
+      }
     }
     this->lock.Unlock();
   }
@@ -259,7 +271,7 @@ Interface::GetMtu() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        mtu = cmd.Link.Mtu();
+        mtu = cmd.Mtu();
       }
     }
     else
@@ -277,9 +289,15 @@ Interface::SetMtu(const unsigned int mtu_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if ((mtu_ != this->config.GetMtu()) && this->config.SetMtu(mtu_))
+    if ((mtu_ != this->config.GetMtu()) && this->config.SetMtu(mtu_) && this->ifindex)
     {
-      status = this->_modified = true;
+      SetLinkCommand* cmd = new SetLinkCommand(this->ifindex);
+      if (cmd->Mtu(mtu_))
+      {
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
+      }
     }
     this->lock.Unlock();
   }
@@ -297,7 +315,7 @@ Interface::GetAdminState() const
       GetLinkCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        if ((cmd.Link.Flags() & IFF_UP))
+        if ((cmd.Flags() & IFF_UP))
         {
           state = ConfigData::STATE_UP;
         }
@@ -324,7 +342,20 @@ Interface::SetAdminState(const ConfigData::STATE state_)
   {
     if ((state_ != this->config.GetAdminState()) && this->config.SetAdminState(state_))
     {
-      status = this->_modified = true;
+      SetLinkCommand* cmd = new SetLinkCommand(this->ifindex);
+      if (state_ == ConfigData::STATE_UP)
+      {
+        status = cmd->SetFlags(IFF_UP);
+      }
+      else
+      {
+        status = cmd->ClrFlags(IFF_UP);
+      }
+      if (status)
+      {
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+      }
     }
     this->lock.Unlock();
   }
@@ -406,7 +437,7 @@ Interface::Refresh()
   {
     if (cmd->Exec())
     {
-      this->ifindex = cmd->Link.IfIndex();
+      this->ifindex = cmd->IfIndex();
       this->SetIfName(this->GetIfName());
       this->SetIfType(this->GetIfType());
       this->SetHwAddress(this->GetHwAddress());
@@ -416,7 +447,7 @@ Interface::Refresh()
     }
     delete (cmd);
   }
-  return (status);
+  return(status);
 }
 
 bool
@@ -425,32 +456,17 @@ Interface::Commit()
   bool status = false;
   if (this->lock.Lock())
   {
-    if (this->ifindex)
+    status = true;
+    while (!this->_cmds.empty())
     {
-      if (this->_modified)
+      Command* cmd = this->_cmds.front();
+      cmd->Display();
+      if (!(status = cmd->Exec()))
       {
-        SetLinkCommand cmd(this->ifindex);
-        cmd.Link.IfName(this->config.GetIfName());
-        cmd.Link.HwAddress(this->config.GetHwAddress());
-        cmd.Link.Mtu(this->config.GetMtu());
-        if (this->config.GetAdminState() == ConfigData::STATE_UP)
-        {
-          cmd.Link.SetFlags(IFF_UP);
-        }
-        else
-        {
-          cmd.Link.ClrFlags(IFF_UP);
-        }
-        if (cmd.Exec())
-        {
-          this->clr_modified();
-          status = true;
-        }
+        break;
       }
-      else
-      {
-        status = true;
-      }
+      this->_cmds.pop_front();
+      delete (cmd);
     }
     this->lock.Unlock();
   }
@@ -460,13 +476,13 @@ Interface::Commit()
 bool
 Interface::Create()
 {
-  return(true);
+  return(this->Commit());
 }
 
 bool
 Interface::Destroy()
 {
-  return(true);
+  return(this->Commit());
 }
 
 void
@@ -496,6 +512,11 @@ Interface::set_modified()
 void
 Interface::clr_modified()
 {
+  while (!this->_cmds.empty())
+  {
+    delete (this->_cmds.front());
+    this->_cmds.pop_front();
+  }
   this->_modified = false;
 }
 
@@ -505,7 +526,7 @@ Interface::_init()
   GetLinkCommand cmd(this->config.GetIfName());
   if (cmd.Exec())
   {
-    this->ifindex = cmd.Link.IfIndex();
+    this->ifindex = cmd.IfIndex();
     this->SetIfName(this->GetIfName());
     this->SetIfType(this->GetIfType());
     this->SetHwAddress(this->GetHwAddress());

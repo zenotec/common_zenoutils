@@ -25,7 +25,7 @@ namespace nl80211
 // Class: ListInterfacesCommand
 //*****************************************************************************
 
-class ListInterfacesCommand : public Command, public netlink::Handler
+class ListInterfacesCommand : public netlink::Command, public netlink::Handler
 {
 
 public:
