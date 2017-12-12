@@ -60,13 +60,65 @@ namespace zUtils
 namespace zInterface
 {
 
+static WirelessInterfaceConfigData::OPMODE
+_nl2opmode(const uint32_t iftype_)
+{
+  WirelessInterfaceConfigData::OPMODE mode = WirelessInterfaceConfigData::OPMODE_ERR;
+  switch (iftype_)
+  {
+  case NL80211_IFTYPE_STATION:
+    mode = WirelessInterfaceConfigData::OPMODE_STA;
+    break;
+  case NL80211_IFTYPE_AP:
+    mode = WirelessInterfaceConfigData::OPMODE_AP;
+    break;
+  case NL80211_IFTYPE_MONITOR:
+    mode = WirelessInterfaceConfigData::OPMODE_MONITOR;
+    break;
+  case NL80211_IFTYPE_ADHOC:
+    mode = WirelessInterfaceConfigData::OPMODE_ADHOC;
+    break;
+  default:
+    mode = WirelessInterfaceConfigData::OPMODE_DEF;
+    break;
+  }
+  return (mode);
+}
+
+static uint32_t
+_opmode2nl(const WirelessInterfaceConfigData::OPMODE mode_)
+{
+  uint32_t iftype = 0;
+  // Translate operational mode to NL80211 interface type
+  switch (mode_)
+  {
+  case WirelessInterfaceConfigData::OPMODE_STA:
+    iftype = NL80211_IFTYPE_STATION;
+    break;
+  case WirelessInterfaceConfigData::OPMODE_AP:
+    iftype = NL80211_IFTYPE_AP;
+    break;
+  case WirelessInterfaceConfigData::OPMODE_MONITOR:
+    iftype = NL80211_IFTYPE_MONITOR;
+    break;
+  case WirelessInterfaceConfigData::OPMODE_ADHOC:
+    iftype = NL80211_IFTYPE_ADHOC;
+    break;
+  default:
+    iftype = NL80211_IFTYPE_UNSPECIFIED;
+    break;
+  }
+  return (iftype);
+}
+
 // ****************************************************************************
 // Class: WirelessInterface
 // ****************************************************************************
 
-WirelessInterface::WirelessInterface(const std::string& ifname_) :
+WirelessInterface::WirelessInterface(const std::string& ifname_, const unsigned int phyindex_) :
     Interface(ifname_), wconfig(this->config), _modified(false)
 {
+  this-SetPhyIndex(phyindex_);
   this->_init();
 }
 
@@ -209,7 +261,7 @@ WirelessInterface::SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_)
   {
     if (mode_ != this->wconfig.GetHwMode())
     {
-      if (this->wconfig.SetHwMode(mode_))
+      if (this->wconfig.SetHwMode(mode_) && this->ifindex)
       {
         status = this->_modified = true;
       }
@@ -293,7 +345,7 @@ WirelessInterface::SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_)
   {
     if (mode_ != this->wconfig.GetHtMode())
     {
-      if (this->wconfig.SetHtMode(mode_))
+      if (this->wconfig.SetHtMode(mode_) && this->ifindex)
       {
         status = this->_modified = true;
       }
@@ -318,23 +370,7 @@ WirelessInterface::GetOpMode() const
       GetInterfaceCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        switch (cmd.ChannelType())
-        {
-        case NL80211_IFTYPE_STATION:
-          mode = WirelessInterfaceConfigData::OPMODE_STA;
-          break;
-        case NL80211_IFTYPE_AP:
-          mode = WirelessInterfaceConfigData::OPMODE_AP;
-          break;
-        case NL80211_IFTYPE_MONITOR:
-          mode = WirelessInterfaceConfigData::OPMODE_MONITOR;
-          break;
-        case NL80211_IFTYPE_ADHOC:
-          mode = WirelessInterfaceConfigData::OPMODE_ADHOC;
-          break;
-        default:
-          break;
-        }
+        mode = _nl2opmode(cmd.IfType());
       }
     }
     else
@@ -354,9 +390,13 @@ WirelessInterface::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
   {
     if (mode_ != this->wconfig.GetOpMode())
     {
-      if (this->wconfig.SetOpMode(mode_))
+      if (this->wconfig.SetOpMode(mode_) && this->ifindex)
       {
-        status = this->_modified = true;
+        SetInterfaceCommand* cmd = new SetInterfaceCommand(this->ifindex);
+        cmd->IfType(_opmode2nl(mode_));
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
       }
     }
     else
@@ -399,7 +439,7 @@ WirelessInterface::SetChannel(const unsigned int channel_)
   {
     if (channel_ != this->wconfig.GetChannel())
     {
-      if (this->wconfig.SetChannel(channel_))
+      if (this->wconfig.SetChannel(channel_) && this->ifindex)
       {
         status = this->_modified = true;
       }
@@ -444,7 +484,7 @@ WirelessInterface::SetTxPower(const unsigned int txpower_)
   {
     if (txpower_ != this->wconfig.GetTxPower())
     {
-      if (this->wconfig.SetTxPower(txpower_))
+      if (this->wconfig.SetTxPower(txpower_) && this->ifindex)
       {
         status = this->_modified = true;
       }
@@ -479,56 +519,7 @@ WirelessInterface::Refresh()
 bool
 WirelessInterface::Commit()
 {
-
-  int iftype = 0;
-  bool status = Interface::Commit();
-
-  if (this->lock.Lock())
-  {
-    if (this->ifindex && this->_modified)
-    {
-      SetInterfaceCommand cmd(this->ifindex);
-      cmd.IfName(this->config.GetIfName());
-      // Translate hardware mode
-      switch (this->wconfig.GetHwMode())
-      {
-      default:
-        break;
-      }
-      // Translate high throughput mode
-      switch (this->wconfig.GetHtMode())
-      {
-      default:
-        break;
-      }
-      // Translate operational mode
-      switch (this->wconfig.GetOpMode())
-      {
-      case WirelessInterfaceConfigData::OPMODE_STA:
-        cmd.IfType(NL80211_IFTYPE_STATION);
-        break;
-      case WirelessInterfaceConfigData::OPMODE_AP:
-        cmd.IfType(NL80211_IFTYPE_AP);
-        break;
-      case WirelessInterfaceConfigData::OPMODE_MONITOR:
-        cmd.IfType(NL80211_IFTYPE_MONITOR);
-        break;
-      case WirelessInterfaceConfigData::OPMODE_ADHOC:
-        cmd.IfType(NL80211_IFTYPE_ADHOC);
-        break;
-      default:
-        break;
-      }
-      if (cmd.Exec())
-      {
-        this->clr_modified();
-        status = true;
-      }
-    }
-    this->lock.Unlock();
-  }
-
-  return (status);
+  return (Interface::Commit());
 }
 
 bool
@@ -539,46 +530,27 @@ WirelessInterface::Create()
 
   if (this->lock.Lock())
   {
-    NewInterfaceCommand cmd(this->config.GetIfName());
-    // Translate operational mode
-    switch (this->wconfig.GetOpMode())
-    {
-    case WirelessInterfaceConfigData::OPMODE_STA:
-      cmd.IfType(NL80211_IFTYPE_STATION);
-      break;
-    case WirelessInterfaceConfigData::OPMODE_AP:
-      cmd.IfType(NL80211_IFTYPE_AP);
-      break;
-    case WirelessInterfaceConfigData::OPMODE_MONITOR:
-      cmd.IfType(NL80211_IFTYPE_MONITOR);
-      break;
-    case WirelessInterfaceConfigData::OPMODE_ADHOC:
-      cmd.IfType(NL80211_IFTYPE_ADHOC);
-      break;
-    default:
-      cmd.IfType(NL80211_IFTYPE_UNSPECIFIED);
-      break;
-    }
-    if (cmd.Exec())
-    {
-      std::cout << "New interface created: [" << cmd.IfIndex() << "]: " << cmd.IfName() << std::endl;
-      this->ifindex = cmd.IfIndex();
-      status = true;
-    }
-    else
-    {
-      ZLOG_ERR("Error creating wireless interface: " + this->config.GetIfName());
-    }
+    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->config.GetIfName());
+    cmd->PhyIndex(this->wconfig.GetPhyIndex());
+    cmd->IfType(_opmode2nl(this->wconfig.GetOpMode()));
+    this->_cmds.push_back(cmd);
+    this->set_modified();
+    status = true;
     this->lock.Unlock();
   }
 
   if (status)
   {
-    status = this->Refresh();
-    this->clr_modified();
+    status = false;
+    if (Interface::Create() && this->GetIfIndex())
+    {
+      status = this->Refresh();
+      Interface::clr_modified();
+      this->clr_modified();
+    }
   }
 
-  return(status);
+  return (status);
 
 }
 
@@ -619,7 +591,7 @@ WirelessInterface::Display(const std::string &prefix_)
 bool
 WirelessInterface::is_modified() const
 {
-  return (Interface::is_modified() || this->_modified);
+  return (this->_modified);
 }
 
 void
@@ -631,7 +603,6 @@ WirelessInterface::set_modified()
 void
 WirelessInterface::clr_modified()
 {
-  Interface::clr_modified();
   this->_modified = false;
 }
 

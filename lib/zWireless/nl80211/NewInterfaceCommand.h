@@ -49,7 +49,7 @@ public:
   IfNameAttribute IfName;
   IfTypeAttribute IfType;
 
-  NewInterfaceCommand(const std::string& name_ = std::string(""));
+  NewInterfaceCommand(const std::string& name_, const int phyindex_ = 0);
 
   virtual
   ~NewInterfaceCommand();

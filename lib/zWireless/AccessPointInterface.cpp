@@ -64,8 +64,9 @@ namespace zInterface
 // Class: AccessPointInterface
 // ****************************************************************************
 
-AccessPointInterface::AccessPointInterface(const std::string& name_) :
-    WirelessInterface(name_), _modified(false), _beaconbuf{0}
+AccessPointInterface::AccessPointInterface(const std::string& name_,
+    const unsigned int phyindex_) :
+    WirelessInterface(name_, phyindex_), _modified(false), _beaconbuf{0}
 {
   this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
 }
@@ -186,7 +187,7 @@ AccessPointInterface::Display(const std::string& prefix_)
 bool
 AccessPointInterface::is_modified() const
 {
-  return (WirelessInterface::is_modified() || this->_modified);
+  return (this->_modified);
 }
 
 void
@@ -198,7 +199,6 @@ AccessPointInterface::set_modified()
 void
 AccessPointInterface::clr_modified()
 {
-  WirelessInterface::clr_modified();
   this->_modified = false;
 }
 

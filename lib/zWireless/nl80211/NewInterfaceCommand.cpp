@@ -66,10 +66,11 @@ __errstr(int code)
 // Class: NewInterfaceCommand
 //*****************************************************************************
 
-NewInterfaceCommand::NewInterfaceCommand(const std::string& name_) :
-    Command(name_)
+NewInterfaceCommand::NewInterfaceCommand(const std::string& ifname_, const int phyindex_) :
+    Command(ifname_)
 {
-  this->IfName(name_);
+  this->IfName(ifname_);
+  this->PhyIndex(phyindex_);
 }
 
 NewInterfaceCommand::~NewInterfaceCommand()
@@ -195,6 +196,7 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
     return(NL_SKIP);
   }
 
+  this->SetIfIndex(this->IfIndex());
   this->_status = true;
   this->_count.Post();
 

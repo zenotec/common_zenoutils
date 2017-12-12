@@ -219,7 +219,7 @@ class WirelessInterface : public Interface
 {
 public:
 
-  WirelessInterface(const std::string& name_);
+  WirelessInterface(const std::string& name_, const unsigned int phyindex_ = 0);
 
   WirelessInterface(const zInterface::ConfigData& config_);
 
