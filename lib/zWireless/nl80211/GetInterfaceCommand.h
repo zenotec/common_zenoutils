@@ -45,6 +45,7 @@ using namespace netlink;
 #include "FrequencyAttribute.h"
 #include "ChannelWidthAttribute.h"
 #include "ChannelTypeAttribute.h"
+#include "TxPowerAttribute.h"
 
 namespace nl80211
 {
@@ -67,6 +68,7 @@ public:
   FrequencyAttribute Frequency;
   ChannelTypeAttribute ChannelType;
   ChannelWidthAttribute ChannelWidth;
+  TxPowerAttribute TxPower;
 
   GetInterfaceCommand(int index_);
 

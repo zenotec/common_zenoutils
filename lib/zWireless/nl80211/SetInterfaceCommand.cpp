@@ -113,13 +113,6 @@ SetInterfaceCommand::Exec()
     return (false);
   }
 
-  // Set interface name attribute
-  if (!cmdmsg.PutAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Error setting interface name attribute");
-    return (false);
-  }
-
   // Set interface type attribute
   if (!cmdmsg.PutAttribute(&this->IfType))
   {
@@ -166,12 +159,16 @@ int
 SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
+  std::cout << "SetInterfaceCommand::valid_cb()" << std::endl;
+
   GenericMessage msg(msg_);
   if (!msg.Parse())
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+  msg.Display();
+  msg.DisplayAttributes();
 
   if (!msg.GetAttribute(&this->IfIndex))
   {
@@ -200,6 +197,7 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 int
 SetInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
+  std::cout << "SetInterfaceCommand::err_cb()" << std::endl;
   ZLOG_ERR("Error executing SetInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;

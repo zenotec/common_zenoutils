@@ -22,10 +22,11 @@
 
 #include <zutils/zConfig.h>
 #include <zutils/zInterface.h>
+using namespace zUtils::zInterface;
 
 namespace zUtils
 {
-namespace zInterface
+namespace zWireless
 {
 
 // ****************************************************************************

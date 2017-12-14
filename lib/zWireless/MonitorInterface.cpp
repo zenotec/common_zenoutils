@@ -47,7 +47,7 @@
 
 namespace zUtils
 {
-namespace zInterface
+namespace zWireless
 {
 
 // ****************************************************************************

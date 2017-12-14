@@ -2,8 +2,6 @@
  * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
- * Copyright (c) 2014-2017 ZenoTec LLC (http://www.zenotec.net)
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at:
@@ -17,30 +15,40 @@
  * limitations under the License.
  */
 
-#ifndef __ZMONITORINTERFACE_H__
-#define __ZMONITORINTERFACE_H__
+#ifndef __NL80211_TXPOWERATTRIBUTE_H__
+#define __NL80211_TXPOWERATTRIBUTE_H__
 
-#include <zutils/zWirelessInterface.h>
+// libc includes
+#include <stdint.h>
+#include <linux/nl80211.h>
 
-namespace zUtils
+// libc++ includes
+
+// local includes
+#include "Attribute.h"
+
+namespace nl80211
 {
-namespace zWireless
+
+//*****************************************************************************
+// Class: TxPowerAttribute
+//*****************************************************************************
+
+class TxPowerAttribute : public Attribute<uint32_t>
 {
 
-// ****************************************************************************
-// Class: MonitorInterface
-// ****************************************************************************
-
-class MonitorInterface : public WirelessInterface
-{
 public:
 
-  MonitorInterface(const std::string &name_ = "");
-
-  MonitorInterface(const zInterface::ConfigData& config_);
+  TxPowerAttribute() :
+      Attribute(NL80211_ATTR_WIPHY_TX_POWER_LEVEL)
+  {
+    this->SetValue(0);
+  }
 
   virtual
-  ~MonitorInterface();
+  ~TxPowerAttribute()
+  {
+  }
 
 protected:
 
@@ -49,5 +57,5 @@ private:
 };
 
 }
-}
-#endif /* __ZMONITORINTERFACE_H__ */
+
+#endif /* __NL80211_PHYINDEXATTRIBUTE_H__ */

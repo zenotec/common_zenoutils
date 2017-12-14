@@ -64,7 +64,7 @@ public:
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
 
-  NewBeaconCommand(const std::string& name_);
+  NewBeaconCommand(const unsigned int ifindex_);
 
   virtual
   ~NewBeaconCommand();

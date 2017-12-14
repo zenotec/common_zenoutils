@@ -30,9 +30,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <ifaddrs.h>
-
-// libc++ includes
-
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -40,10 +37,7 @@
 #include <map>
 
 // libzutils includes
-
 #include <zutils/zAccessPointInterface.h>
-
-// local includes
 
 #include "GetInterfaceCommand.h"
 #include "StartApCommand.h"
@@ -57,22 +51,21 @@ using namespace ieee80211;
 
 namespace zUtils
 {
-namespace zInterface
+namespace zWireless
 {
 
 // ****************************************************************************
 // Class: AccessPointInterface
 // ****************************************************************************
 
-AccessPointInterface::AccessPointInterface(const std::string& name_,
-    const unsigned int phyindex_) :
-    WirelessInterface(name_, phyindex_), _modified(false), _beaconbuf{0}
+AccessPointInterface::AccessPointInterface(const std::string& name_, const unsigned int phyindex_) :
+    WirelessInterface(name_, phyindex_)
 {
   this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
 }
 
 AccessPointInterface::AccessPointInterface(const zInterface::ConfigData& config_) :
-    WirelessInterface(config_), _modified(false), _beaconbuf{0}
+    WirelessInterface(config_)
 {
   this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
 }
@@ -81,125 +74,11 @@ AccessPointInterface::~AccessPointInterface()
 {
 }
 
-std::string
-AccessPointInterface::GetSsid() const
-{
-  std::string ssid;
-  if (this->lock.Lock())
-  {
-    if (this->ifindex)
-    {
-      GetInterfaceCommand cmd(this->ifindex);
-      if (cmd.Exec())
-      {
-        ssid = cmd.Ssid();
-      }
-    }
-    else
-    {
-      ssid = this->wconfig.GetSsid();
-    }
-    this->lock.Unlock();
-  }
-  return (ssid);
-}
-
-bool
-AccessPointInterface::SetSsid(const std::string& ssid_)
-{
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->wconfig.SetSsid(ssid_);
-    this->_modified = true;
-    this->lock.Unlock();
-  }
-  return (status);
-}
-
-std::string
-AccessPointInterface::GetBssid() const
-{
-  return (this->GetHwAddress());
-}
-
-bool
-AccessPointInterface::SetBssid(const std::string& bssid_)
-{
-  return (this->SetHwAddress(bssid_));
-}
-
-bool
-AccessPointInterface::Commit()
-{
-  return (WirelessInterface::Commit());
-}
-
-bool
-AccessPointInterface::Create()
-{
-#if 0
-  bool status = false;
-
-  if (WirelessInterface::Create())
-  {
-    Beacon beacon;
-    size_t blen = sizeof(this->_beaconbuf);
-    beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
-    beacon.TransmitterAddress(this->GetHwAddress());
-    beacon.Bssid(this->GetHwAddress());
-    beacon.Ssid(this->wconfig.GetSsid());
-    beacon.Assemble(this->_beaconbuf, blen);
-
-    StartApCommand cmd(this->ifindex);
-    cmd.Ssid(this->wconfig.GetSsid());
-    cmd.BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-    cmd.BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-    status = cmd.Exec();
-  }
-
-  if (!status)
-  {
-
-  }
-
-  return (status);
-#else
-  return (WirelessInterface::Create());
-#endif
-}
-
-bool
-AccessPointInterface::Destroy()
-{
-  return (WirelessInterface::Destroy());
-}
-
 void
 AccessPointInterface::Display(const std::string& prefix_)
 {
   WirelessInterface::Display(prefix_);
-  std::cout << "------ Access Point Interface ----------" << std::endl;
-  std::cout << prefix_ << "SSID:   \t" << this->GetSsid() << std::endl;
-  std::cout << prefix_ << "BSSID:  \t" << this->GetBssid() << std::endl;
-}
-
-bool
-AccessPointInterface::is_modified() const
-{
-  return (this->_modified);
-}
-
-void
-AccessPointInterface::set_modified()
-{
-  this->_modified = true;
-}
-
-void
-AccessPointInterface::clr_modified()
-{
-  this->_modified = false;
+  std::cout << prefix_ << "------ Access Point Interface ----------" << std::endl;
 }
 
 }

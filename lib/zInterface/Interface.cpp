@@ -56,6 +56,52 @@ namespace zUtils
 namespace zInterface
 {
 
+static std::string
+_type2str(const ConfigData::IFTYPE type_)
+{
+  std::string str;
+  switch (type_)
+  {
+  case ConfigData::IFTYPE_NONE:
+    str = "None";
+    break;
+  case ConfigData::IFTYPE_IEEE8023:
+    str = "IEEE802.3";
+    break;
+  case ConfigData::IFTYPE_IEEE80211:
+    str = "IEEE802.11";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
+}
+
+static std::string
+_state2str(const ConfigData::STATE state_)
+{
+  std::string str;
+  switch (state_)
+  {
+  case ConfigData::STATE_NONE:
+    str = "None";
+    break;
+  case ConfigData::STATE_UP:
+    str = "Up";
+    break;
+  case ConfigData::STATE_DOWN:
+    str = "Down";
+    break;
+  case ConfigData::STATE_UNKNOWN:
+    // no break
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
+}
+
 // ****************************************************************************
 // Class: Interface
 // ****************************************************************************
@@ -502,9 +548,11 @@ Interface::Commit()
     while (!this->_cmds.empty())
     {
       Command* cmd = this->_cmds.front();
-      cmd->Display();
+//      cmd->Display();
       if (!(status = cmd->Exec()))
       {
+        std::cout << "Error executing command: " << std::endl;
+        cmd->Display();
         break;
       }
       if (cmd->GetIfIndex())
@@ -537,10 +585,10 @@ Interface::Display(const std::string &prefix_)
   std::cout << std::endl << "--------------- Interface ---------------" << std::endl;
   std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
   std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
-  std::cout << prefix_ << "Type:   \t" << this->GetIfType() << std::endl;
+  std::cout << prefix_ << "Type:   \t" << _type2str(this->GetIfType()) << std::endl;
   std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
   std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
-  std::cout << prefix_ << "State:  \t" << this->GetAdminState() << std::endl;
+  std::cout << prefix_ << "State:  \t" << _state2str(this->GetAdminState()) << std::endl;
 }
 
 bool

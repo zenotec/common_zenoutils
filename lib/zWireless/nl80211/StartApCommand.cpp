@@ -73,6 +73,8 @@ bool
 StartApCommand::Exec()
 {
 
+  this->_count.Reset();
+
   if (!this->IfIndex())
   {
     ZLOG_ERR("Error getting interface index for: " + this->IfName());

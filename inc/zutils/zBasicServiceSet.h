@@ -17,10 +17,12 @@
  * limitations under the License.
  */
 
-#ifndef __ZMONITORINTERFACE_H__
-#define __ZMONITORINTERFACE_H__
+#ifndef __ZBASICSERVICESET_H__
+#define __ZBASICSERVICESET_H__
 
-#include <zutils/zWirelessInterface.h>
+#include <string>
+
+#include <zutils/zAccessPointInterface.h>
 
 namespace zUtils
 {
@@ -28,26 +30,50 @@ namespace zWireless
 {
 
 // ****************************************************************************
-// Class: MonitorInterface
+// Class: BasicServiceSet
 // ****************************************************************************
 
-class MonitorInterface : public WirelessInterface
+class BasicServiceSet : private AccessPointInterface
 {
 public:
 
-  MonitorInterface(const std::string &name_ = "");
-
-  MonitorInterface(const zInterface::ConfigData& config_);
+  BasicServiceSet(const std::string& ifname_, const std::string &ssid_);
 
   virtual
-  ~MonitorInterface();
+  ~BasicServiceSet();
+
+  std::string
+  GetSsid();
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid();
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  virtual bool
+  Commit();
+
+  virtual bool
+  Create();
+
+  virtual bool
+  Destroy();
+
+  virtual void
+  Display(const std::string &prefix_ = std::string(""));
 
 protected:
 
 private:
 
+  uint8_t _beaconbuf[512];
+
 };
 
 }
 }
-#endif /* __ZMONITORINTERFACE_H__ */
+#endif /* __ZBASICSERVICESET_H__ */

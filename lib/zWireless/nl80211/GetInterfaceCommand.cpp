@@ -85,6 +85,7 @@ GetInterfaceCommand::Display() const
   std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
   std::cout << "\tSSID:  \t" << this->Ssid.GetValue() << std::endl;
+  std::cout << "\tPower: \t" << this->TxPower.GetValue() << std::endl;
 }
 
 bool
@@ -158,6 +159,8 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
+//  msg.Display();
 //  msg.DisplayAttributes();
 
   if (!msg.GetAttribute(&this->PhyIndex))
@@ -187,6 +190,12 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   if (!msg.GetAttribute(&this->Mac))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Mac.Id()));
+    return (NL_SKIP);
+  }
+
+  if (!msg.GetAttribute(&this->TxPower))
+  {
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->TxPower.Id()));
     return (NL_SKIP);
   }
 

@@ -38,7 +38,8 @@ libzWireless_la_SOURCES = \
     WirelessConfiguration.cpp \
     WirelessInterface.cpp \
     MonitorInterface.cpp \
-    AccessPointInterface.cpp
+    AccessPointInterface.cpp \
+    BasicServiceSet.cpp
 
 libzWireless_la_LIBADD = \
     ${top_builddir}/lib/zWireless/nl80211/libnl80211.la \

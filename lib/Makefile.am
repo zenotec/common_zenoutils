@@ -41,7 +41,8 @@ ZWIRELESS_SUBDIRS = zWireless
 ZWIRELESS_SOURCE = \
 	$(top_srcdir)/inc/zutils/zWirelessInterface.h \
 	$(top_srcdir)/inc/zutils/zMonitorInterface.h \
-	$(top_srcdir)/inc/zutils/zAccessPointInterface.h
+	$(top_srcdir)/inc/zutils/zAccessPointInterface.h \
+	$(top_srcdir)/inc/zutils/zBasicServiceSet.h
 ZWIRELESS_CPPFLAGS =
 ZWIRELESS_LDFLAGS =
 ZWIRELESS_LIBS = \

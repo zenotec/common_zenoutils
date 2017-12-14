@@ -59,16 +59,11 @@ __errstr(int code)
 // Class: NewBeaconCommand
 //*****************************************************************************
 
-NewBeaconCommand::NewBeaconCommand(const std::string& name_) :
-    Command(name_)
+
+NewBeaconCommand::NewBeaconCommand(const unsigned int ifindex_) :
+    Command(ifindex_)
 {
-  this->IfName(name_);
-  this->IfIndex((uint32_t)if_nametoindex(name_.c_str()));
-  if (!this->IfIndex())
-  {
-    ZLOG_ERR("Error retrieving interface index for: " + name_);
-    return;
-  }
+  this->IfIndex(ifindex_);
 }
 
 NewBeaconCommand::~NewBeaconCommand()
@@ -78,6 +73,15 @@ NewBeaconCommand::~NewBeaconCommand()
 bool
 NewBeaconCommand::Exec()
 {
+
+  this->_count.Reset();
+
+  if (!this->IfIndex())
+  {
+    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -96,11 +100,32 @@ NewBeaconCommand::Exec()
   cmdmsg.PutAttribute(&this->DtimPeriod);
   cmdmsg.PutAttribute(&this->BeaconHead);
   cmdmsg.PutAttribute(&this->BeaconTail);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for new_beacon netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for new_beacon netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
+
 }
 
 void
@@ -136,6 +161,9 @@ NewBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  this->_status = true;
+  this->_count.Post();
+
   return (NL_OK);
 }
 
@@ -144,6 +172,8 @@ NewBeaconCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* 
 {
   ZLOG_ERR("Error executing NewBeaconCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

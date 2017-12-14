@@ -33,7 +33,7 @@
 
 namespace zUtils
 {
-namespace zInterface
+namespace zWireless
 {
 
 static std::string

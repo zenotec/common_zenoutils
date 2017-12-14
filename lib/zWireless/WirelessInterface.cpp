@@ -57,8 +57,79 @@ using namespace nl80211;
 
 namespace zUtils
 {
-namespace zInterface
+namespace zWireless
 {
+
+static std::string
+_hwmode2str(WirelessInterfaceConfigData::HWMODE mode_)
+{
+  std::string str;
+  switch (mode_)
+  {
+  case WirelessInterfaceConfigData::HWMODE_NONE:
+    str = "None";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_ERR:
+    str = "Error";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_A:
+    str = "A";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_B:
+    str = "B";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_G:
+    str = "G";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_N:
+    str = "N";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_AC:
+    str = "AC";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_AD:
+    str = "AD";
+    break;
+  case WirelessInterfaceConfigData::HWMODE_AX:
+    str = "AX";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
+}
+
+static std::string
+_htmode2str(WirelessInterfaceConfigData::HTMODE mode_)
+{
+  std::string str;
+  switch (mode_)
+  {
+  case WirelessInterfaceConfigData::HTMODE_NONE:
+    str = "None";
+    break;
+  case WirelessInterfaceConfigData::HTMODE_ERR:
+    str = "Error";
+    break;
+  case WirelessInterfaceConfigData::HTMODE_NOHT:
+    str = "Non-HT";
+    break;
+  case WirelessInterfaceConfigData::HTMODE_HT20:
+    str = "HT20";
+    break;
+  case WirelessInterfaceConfigData::HTMODE_HT40MINUS:
+    str = "HT40-";
+    break;
+  case WirelessInterfaceConfigData::HTMODE_HT40PLUS:
+    str = "HT40+";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
+}
 
 static WirelessInterfaceConfigData::OPMODE
 _nl2opmode(const uint32_t iftype_)
@@ -109,6 +180,37 @@ _opmode2nl(const WirelessInterfaceConfigData::OPMODE mode_)
     break;
   }
   return (iftype);
+}
+
+static std::string
+_opmode2str(const WirelessInterfaceConfigData::OPMODE mode_)
+{
+  std::string str;
+  switch (mode_)
+  {
+  case WirelessInterfaceConfigData::OPMODE_NONE:
+    str = "None";
+    break;
+  case WirelessInterfaceConfigData::OPMODE_ERR:
+    str = "Error";
+    break;
+  case WirelessInterfaceConfigData::OPMODE_STA:
+    str = "Station";
+    break;
+  case WirelessInterfaceConfigData::OPMODE_AP:
+    str = "AP";
+    break;
+  case WirelessInterfaceConfigData::OPMODE_MONITOR:
+    str = "Monitor";
+    break;
+  case WirelessInterfaceConfigData::OPMODE_ADHOC:
+    str = "AdHoc";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
 }
 
 // ****************************************************************************
@@ -464,7 +566,7 @@ WirelessInterface::GetTxPower() const
       GetInterfaceCommand cmd(this->ifindex);
       if (cmd.Exec())
       {
-        power = 0;
+        power = cmd.TxPower();
       }
     }
     else
@@ -581,9 +683,9 @@ WirelessInterface::Display(const std::string &prefix_)
   Interface::Display(prefix_);
   std::cout << "--------- Wireless Interface -----------" << std::endl;
   std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName() << std::endl;
-  std::cout << prefix_ << "HWMODE: \t" << this->GetHwMode() << std::endl;
-  std::cout << prefix_ << "HTMODE: \t" << this->GetHtMode() << std::endl;
-  std::cout << prefix_ << "OPMODE: \t" << this->GetOpMode() << std::endl;
+  std::cout << prefix_ << "HWMODE: \t" << _hwmode2str(this->GetHwMode()) << std::endl;
+  std::cout << prefix_ << "HTMODE: \t" << _htmode2str(this->GetHtMode()) << std::endl;
+  std::cout << prefix_ << "OPMODE: \t" << _opmode2str(this->GetOpMode()) << std::endl;
   std::cout << prefix_ << "Channel:\t" << this->GetChannel() << std::endl;
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
@@ -603,6 +705,7 @@ WirelessInterface::set_modified()
 void
 WirelessInterface::clr_modified()
 {
+  Interface::clr_modified();
   this->_modified = false;
 }
 

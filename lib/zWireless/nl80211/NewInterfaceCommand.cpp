@@ -165,6 +165,8 @@ int
 NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
 {
 
+  this->_count.Reset();
+
   GenericMessage msg(msg_);
   if (!msg.Parse())
   {
