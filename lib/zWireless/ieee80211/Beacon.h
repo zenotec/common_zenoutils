@@ -30,11 +30,14 @@
 #include "SsidTag.h"
 #include "RatesTag.h"
 #include "DsssTag.h"
+#include "TimTag.h"
 #include "PowerCapsTag.h"
 #include "HtCapsTag.h"
 #include "ExtRatesTag.h"
 #include "WmmWmeTag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -50,6 +53,7 @@ public:
   SsidTag Ssid;
   RatesTag Rates;
   DsssTag Dsss;
+  TimTag Tim;
   PowerCapsTag PowerCaps;
   HtCapsTag HtCaps;
   ExtRatesTag ExtRates;
@@ -113,6 +117,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* __IEEE80211_BEACON_H__ */

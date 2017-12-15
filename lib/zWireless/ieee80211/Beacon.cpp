@@ -28,8 +28,8 @@
 // local includes
 #include "Beacon.h"
 
-using namespace zUtils;
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -141,6 +141,7 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Ssid);
   this->PutTag(this->Rates);
   this->PutTag(this->Dsss);
+  this->PutTag(this->Tim);
   this->PutTag(this->PowerCaps);
   this->PutTag(this->HtCaps);
   this->PutTag(this->ExtRates);
@@ -216,6 +217,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Ssid);
   this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
+  this->GetTag(this->Tim);
   this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
   this->GetTag(this->ExtRates);
@@ -251,20 +253,20 @@ Beacon::TailSize() const
 void
 Beacon::Display() const
 {
-#ifdef DISPLAY_BEACON_FRAMES
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Beacon ------------------" << std::endl;
   std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
-  this->Ssid.Display();
-  this->Rates.Display();
-  this->Dsss.Display();
-  this->PowerCaps.Display();
-  this->HtCaps.Display();
-  this->ExtRates.Display();
-  this->WmmWme.Display();
-#endif
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
+  if (this->Dsss.Valid()) this->Dsss.Display();
+  if (this->Tim.Valid()) this->Tim.Display();
+  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
+}
 }

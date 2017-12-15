@@ -28,8 +28,8 @@
 // local includes
 #include "Probe.h"
 
-using namespace zUtils;
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -291,4 +291,5 @@ ProbeResponse::Display() const
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
 }
 
+}
 }

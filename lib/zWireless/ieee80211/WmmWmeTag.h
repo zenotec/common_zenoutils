@@ -22,6 +22,8 @@
 #include <array>
 using namespace std;
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -56,7 +58,7 @@ public:
   };
 
   WmmWmeTag() :
-    Tag(Tag::ID_WMM_WME)
+      Tag(Tag::ID_WMM_WME)
   {
   }
 
@@ -71,19 +73,19 @@ public:
     vector<uint8_t> wmmwme;
     wmmwme.resize(this->Length());
     this->GetValue(wmmwme.data(), wmmwme.size());
-    return(wmmwme);
+    return (wmmwme);
   }
 
   virtual bool
   operator()(const std::vector<uint8_t>& caps_)
   {
-    return(this->PutValue(caps_.data(), caps_.size()));
+    return (this->PutValue(caps_.data(), caps_.size()));
   }
 
   bool
   operator()(wmm_wme& wmmwme_)
   {
-    return(this->PutValue<wmm_wme>(wmmwme_));
+    return (this->PutValue<wmm_wme>(wmmwme_));
   }
 
   wmm_wme
@@ -99,7 +101,8 @@ public:
   {
     Tag::Display();
     vector<uint8_t> minmax = this->operator()();
-    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back()) << endl;
+    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back())
+        << endl;
   }
 
 protected:
@@ -109,8 +112,6 @@ private:
 };
 
 }
-
-
-
+}
 
 #endif /* INC_IEEE80211_WMMWMETAG_H_ */

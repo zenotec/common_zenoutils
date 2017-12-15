@@ -21,6 +21,8 @@
 #include <vector>
 using namespace std;
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -76,8 +78,6 @@ private:
 };
 
 }
-
-
-
+}
 
 #endif /* INC_IEEE80211_CHANNELSTAG_H_ */

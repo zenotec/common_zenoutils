@@ -28,8 +28,8 @@
 // local includes
 #include "DataFrame.h"
 
-using namespace zUtils;
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -323,4 +323,5 @@ DataFrame::Display() const
 #endif
 }
 
+}
 }

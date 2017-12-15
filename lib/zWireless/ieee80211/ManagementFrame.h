@@ -27,6 +27,8 @@
 // local includes
 #include "Frame.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -90,6 +92,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* __IEEE80211_MANAGEMENTFRAME_H__ */

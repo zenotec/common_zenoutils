@@ -545,19 +545,22 @@ Interface::Commit()
   if (this->lock.Lock())
   {
     status = true;
-    while (!this->_cmds.empty())
+    while (status && !this->_cmds.empty())
     {
       Command* cmd = this->_cmds.front();
-//      cmd->Display();
-      if (!(status = cmd->Exec()))
+      cmd->Display();
+      status = cmd->Exec();
+      if (status)
+      {
+        if (cmd->GetIfIndex())
+        {
+          this->ifindex = cmd->GetIfIndex();
+        }
+      }
+      else
       {
         std::cout << "Error executing command: " << std::endl;
         cmd->Display();
-        break;
-      }
-      if (cmd->GetIfIndex())
-      {
-        this->ifindex = cmd->GetIfIndex();
       }
       this->_cmds.pop_front();
       delete (cmd);

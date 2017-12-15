@@ -17,6 +17,8 @@
 
 #include "HtCapsTag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -32,3 +34,4 @@ HtCapsTag::Display() const
 
 
 } // ns ieee80211
+}

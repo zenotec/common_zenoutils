@@ -21,6 +21,8 @@
 #include <vector>
 using namespace std;
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -34,7 +36,7 @@ class PowerCapsTag : public Tag
 public:
 
   PowerCapsTag() :
-    Tag(Tag::ID_POWER_CAPS)
+      Tag(Tag::ID_POWER_CAPS)
   {
   }
 
@@ -49,7 +51,7 @@ public:
     vector<uint8_t> minmax;
     minmax.resize(this->Length());
     this->GetValue(minmax.data(), minmax.size());
-    return(minmax);
+    return (minmax);
   }
 
   bool
@@ -58,7 +60,7 @@ public:
     std::vector<uint8_t> minmax;
     minmax.push_back(min_);
     minmax.push_back(max_);
-    return(this->PutValue(minmax.data(), 2));
+    return (this->PutValue(minmax.data(), 2));
   }
 
   virtual void
@@ -66,7 +68,8 @@ public:
   {
     Tag::Display();
     vector<uint8_t> minmax = this->operator()();
-    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back()) << endl;
+    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back())
+        << endl;
   }
 
 protected:
@@ -76,8 +79,6 @@ private:
 };
 
 }
-
-
-
+}
 
 #endif /* INC_IEEE80211_POWERCAPSTAG_H_ */

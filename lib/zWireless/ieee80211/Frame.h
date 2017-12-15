@@ -31,6 +31,8 @@
 #include "ieee80211.h"
 #include "Tag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -283,6 +285,7 @@ private:
   uint32_t _fcs;
 };
 
+}
 }
 
 #endif /* __IEEE80211_FRAME_H__ */

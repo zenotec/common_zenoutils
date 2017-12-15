@@ -22,6 +22,8 @@ using namespace std;
 
 #include "Tag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -43,7 +45,7 @@ public:
 
   struct mcs_set
   {
-    array<uint8_t,10> rx_mcs_bitmask;
+    std::array<uint8_t,10> rx_mcs_bitmask;
     uint16_t rx_highest_rate;
     tx_mcs tx_mcs_fields;
   } __attribute__ ((packed));
@@ -107,4 +109,6 @@ private:
 };
 
 }
+}
+
 #endif /* __IEEE80211_HTCAPSTAG_H__ */

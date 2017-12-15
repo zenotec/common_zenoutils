@@ -18,23 +18,6 @@
  */
 
 // libc includes
-//#include <string.h>
-//#include <stdio.h>
-//#include <unistd.h>
-//#include <math.h>
-//#include <sys/types.h>
-//#include <sys/ioctl.h>
-//#include <sys/socket.h>
-//#include <linux/wireless.h>
-//
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
-//#include <ifaddrs.h>
-//#include <string>
-//#include <iostream>
-//#include <fstream>
-//#include <list>
-//#include <map>
 
 // libzutils includes
 #include <zutils/zAccessPointInterface.h>
@@ -43,6 +26,7 @@
 #include "GetInterfaceCommand.h"
 #include "NewBeaconCommand.h"
 #include "SetBeaconCommand.h"
+#include "StartApCommand.h"
 #include "StopApCommand.h"
 #include "SetBeaconCommand.h"
 using namespace nl80211;
@@ -61,7 +45,7 @@ namespace zWireless
 // ****************************************************************************
 
 BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& ssid_) :
-    AccessPointInterface(ifname_), _beaconbuf { 0 }
+    AccessPointInterface(ifname_), _beaconbuf { 0 }, _beaconlen(0)
 {
   Beacon beacon;
   size_t blen = sizeof(this->_beaconbuf);
@@ -79,7 +63,13 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
   beacon.Rates(36);
   beacon.Rates(48);
   beacon.Rates(54);
-  beacon.Assemble(this->_beaconbuf, blen);
+  beacon.Dsss(this->GetChannel());
+  beacon.Tim.Period(1);
+  beacon.Display();
+  if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
+  {
+    this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
+  }
 }
 
 BasicServiceSet::~BasicServiceSet()
@@ -90,7 +80,7 @@ std::string
 BasicServiceSet::GetSsid()
 {
   Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
+  size_t blen = this->_beaconlen;
   beacon.Disassemble(this->_beaconbuf, blen);
   return (beacon.Ssid());
 }
@@ -100,7 +90,7 @@ BasicServiceSet::SetSsid(const std::string& ssid_)
 {
   bool status = false;
   Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
+  size_t blen = this->_beaconlen;
   if (beacon.Disassemble(this->_beaconbuf, blen))
   {
     beacon.Ssid(ssid_);
@@ -114,7 +104,7 @@ std::string
 BasicServiceSet::GetBssid()
 {
   Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
+  size_t blen = this->_beaconlen;
   beacon.Disassemble(this->_beaconbuf, blen);
   return (beacon.Bssid());
 }
@@ -124,7 +114,7 @@ BasicServiceSet::SetBssid(const std::string& bssid_)
 {
   bool status = false;
   Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
+  size_t blen = this->_beaconlen;
   if (beacon.Disassemble(this->_beaconbuf, blen))
   {
     beacon.Bssid(bssid_);
@@ -153,17 +143,43 @@ BasicServiceSet::Create()
   }
 
   Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
-  if (beacon.Disassemble(this->_beaconbuf, blen))
+  size_t blen = this->_beaconlen;
+  if (beacon.Disassemble(this->_beaconbuf, blen) != NULL)
   {
     this->SetAdminState(zInterface::ConfigData::STATE_UP);
     NewBeaconCommand* cmd = new NewBeaconCommand(this->GetIfIndex());
     cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
     cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
     cmd->BeaconInterval(100);
+    cmd->DtimPeriod(beacon.Tim.Period());
+    cmd->Ssid(beacon.Ssid());
     this->_cmds.push_back(cmd);
   }
-  return (AccessPointInterface::Commit());
+
+  if (!(status = AccessPointInterface::Commit()))
+  {
+    SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
+    cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
+    cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
+    cmd->BeaconInterval(100);
+    cmd->DtimPeriod(beacon.Tim.Period());
+    cmd->Ssid(beacon.Ssid());
+    this->_cmds.push_back(cmd);
+  }
+
+  if (!(status = AccessPointInterface::Commit()))
+  {
+    StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
+    cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
+    cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
+    cmd->BeaconInterval(100);
+    cmd->DtimPeriod(beacon.Tim.Period());
+    cmd->Ssid(beacon.Ssid());
+    this->_cmds.push_back(cmd);
+    status = AccessPointInterface::Commit();
+  }
+
+  return (status);
 }
 
 bool

@@ -64,7 +64,7 @@ public:
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
 
-  SetBeaconCommand(int index_ = 0);
+  SetBeaconCommand(int index_);
 
   SetBeaconCommand(const std::string& name_);
 

@@ -28,8 +28,8 @@
 // local includes
 #include "ControlFrame.h"
 
-using namespace zUtils;
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -150,4 +150,5 @@ ControlFrame::Display() const
   std::cout << "\tTA:       \t" << this->TransmitterAddress() << std::endl;
 }
 
+}
 }

@@ -71,6 +71,7 @@ protected:
 private:
 
   uint8_t _beaconbuf[512];
+  size_t _beaconlen;
 
 };
 

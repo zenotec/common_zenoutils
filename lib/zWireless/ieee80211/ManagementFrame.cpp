@@ -28,8 +28,8 @@
 // local includes
 #include "ManagementFrame.h"
 
-using namespace zUtils;
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -214,4 +214,5 @@ ManagementFrame::Display() const
 #endif
 }
 
+}
 }

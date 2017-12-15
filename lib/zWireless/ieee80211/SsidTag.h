@@ -20,6 +20,8 @@
 
 #include "Tag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -70,4 +72,6 @@ private:
 };
 
 }
+}
+
 #endif /* __IEEE80211_TAG_H__ */

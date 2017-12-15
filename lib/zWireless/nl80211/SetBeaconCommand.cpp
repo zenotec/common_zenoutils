@@ -84,6 +84,15 @@ SetBeaconCommand::~SetBeaconCommand()
 bool
 SetBeaconCommand::Exec()
 {
+
+  this->_count.Reset();
+
+  if (!this->IfIndex())
+  {
+    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    return(false);
+  }
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -98,24 +107,52 @@ SetBeaconCommand::Exec()
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_BEACON);
   cmdmsg.PutAttribute(&this->IfIndex);
+  cmdmsg.PutAttribute(&this->Ssid);
   cmdmsg.PutAttribute(&this->BeaconInterval);
   cmdmsg.PutAttribute(&this->DtimPeriod);
   cmdmsg.PutAttribute(&this->BeaconHead);
   cmdmsg.PutAttribute(&this->BeaconTail);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
+
 }
 
 void
 SetBeaconCommand::Display() const
 {
-  std::cout << "Set BSS: " << std::endl;
+  std::cout << "##################################################" << std::endl;
+  std::cout << "SetBeaconCommand: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
   std::cout << "\tSsid:  \t" << this->Ssid.GetValue() << std::endl;
+  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue() << std::endl;
+  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue() << std::endl;
+  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue().second << std::endl;
+  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue().second << std::endl;
+  std::cout << "##################################################" << std::endl;
 }
 
 int
@@ -142,6 +179,15 @@ SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  if (!msg.GetAttribute(&this->Ssid))
+  {
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
+    return(NL_SKIP);
+  }
+
+  this->_status = true;
+  this->_count.Post();
+
   return (NL_OK);
 }
 
@@ -150,6 +196,8 @@ SetBeaconCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* 
 {
   ZLOG_ERR("Error executing SetBeaconCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

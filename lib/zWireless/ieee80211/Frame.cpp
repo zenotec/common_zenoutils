@@ -29,9 +29,8 @@
 // local includes
 #include "Frame.h"
 
-using namespace zUtils;
-
-
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -599,4 +598,5 @@ Frame::chkfcs(uint8_t* f_, size_t& rem_)
   return(0); // TODO: implement FCS computation
 }
 
+}
 }

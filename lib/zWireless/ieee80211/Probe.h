@@ -30,6 +30,8 @@
 #include "SsidTag.h"
 #include "RatesTag.h"
 
+namespace zUtils
+{
 namespace ieee80211
 {
 
@@ -119,6 +121,7 @@ private:
 
 };
 
+}
 }
 
 #endif /* __IEEE80211_PROBE_H__ */
