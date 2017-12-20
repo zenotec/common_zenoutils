@@ -218,14 +218,13 @@ _opmode2str(const WirelessInterfaceConfigData::OPMODE mode_)
 // ****************************************************************************
 
 WirelessInterface::WirelessInterface(const std::string& ifname_, const unsigned int phyindex_) :
-    Interface(ifname_), wconfig(this->config), _modified(false)
+    Interface(ifname_), phyindex(phyindex_), wconfig(this->config), _modified(false)
 {
-  this-SetPhyIndex(phyindex_);
   this->_init();
 }
 
 WirelessInterface::WirelessInterface(const zInterface::ConfigData& config_) :
-    Interface(config_), wconfig(this->config), _modified(false)
+    Interface(config_), phyindex(0), wconfig(this->config), _modified(false)
 {
   WirelessInterfaceConfigData wconfig_((zInterface::ConfigData&)config_);
   this->_init();
@@ -258,7 +257,7 @@ WirelessInterface::GetPhyIndex() const
     }
     else
     {
-      index = this->wconfig.GetPhyIndex();
+      index = this->phyindex;
     }
     this->lock.Unlock();
   }
@@ -271,18 +270,9 @@ WirelessInterface::SetPhyIndex(const int index_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (index_ != this->wconfig.GetPhyIndex())
-    {
-      if (this->wconfig.SetPhyIndex(index_))
-      {
-        status = this->_modified = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    this->phyindex = index_;
     this->lock.Unlock();
+    status = true;
   }
   return (status);
 }
@@ -321,7 +311,11 @@ WirelessInterface::SetPhyName(const std::string& name_)
     {
       if (this->wconfig.SetPhyName(name_))
       {
-      status = this->_modified = true;
+        SetPhyCommand* cmd = new SetPhyCommand(this->phyindex);
+        cmd->PhyName(name_);
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
       }
     }
     else
@@ -543,7 +537,11 @@ WirelessInterface::SetChannel(const unsigned int channel_)
     {
       if (this->wconfig.SetChannel(channel_) && this->ifindex)
       {
-        status = this->_modified = true;
+        SetPhyCommand* cmd = new SetPhyCommand(this->ifindex);
+        cmd->Frequency.SetChannel(channel_);
+        this->_cmds.push_back(cmd);
+        this->set_modified();
+        status = true;
       }
     }
     else
@@ -588,7 +586,11 @@ WirelessInterface::SetTxPower(const unsigned int txpower_)
     {
       if (this->wconfig.SetTxPower(txpower_) && this->ifindex)
       {
-        status = this->_modified = true;
+//        SetPhyCommand* cmd = new SetPhyCommand(this->ifindex);
+//        cmd->TxPower(txpower_);
+//        this->_cmds.push_back(cmd);
+//        this->set_modified();
+        status = true;
       }
     }
     else
@@ -633,7 +635,7 @@ WirelessInterface::Create()
   if (this->lock.Lock())
   {
     NewInterfaceCommand *cmd = new NewInterfaceCommand(this->config.GetIfName());
-    cmd->PhyIndex(this->wconfig.GetPhyIndex());
+    cmd->PhyIndex(this->phyindex);
     cmd->IfType(_opmode2nl(this->wconfig.GetOpMode()));
     this->_cmds.push_back(cmd);
     this->set_modified();

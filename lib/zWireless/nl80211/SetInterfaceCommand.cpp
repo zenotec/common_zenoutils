@@ -197,7 +197,6 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 int
 SetInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
-  std::cout << "SetInterfaceCommand::err_cb()" << std::endl;
   ZLOG_ERR("Error executing SetInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;

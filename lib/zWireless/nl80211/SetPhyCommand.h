@@ -41,8 +41,11 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
+#include "IfIndexAttribute.h"
+#include "IfNameAttribute.h"
 #include "PhyIndexAttribute.h"
 #include "PhyNameAttribute.h"
+#include "FrequencyAttribute.h"
 
 namespace nl80211
 {
@@ -56,8 +59,11 @@ class SetPhyCommand : public netlink::Command, public netlink::Handler
 
 public:
 
+  IfIndexAttribute IfIndex;
+  IfNameAttribute IfName;
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
+  FrequencyAttribute Frequency;
 
   SetPhyCommand(int index_ = 0);
 
@@ -75,7 +81,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg_, void* arg_);
+  ack_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
   err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_);

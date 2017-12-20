@@ -147,29 +147,19 @@ BasicServiceSet::Create()
   if (beacon.Disassemble(this->_beaconbuf, blen) != NULL)
   {
     this->SetAdminState(zInterface::ConfigData::STATE_UP);
-    NewBeaconCommand* cmd = new NewBeaconCommand(this->GetIfIndex());
+    StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
     cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
     cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
     cmd->Ssid(beacon.Ssid());
+    cmd->Channel(this->GetChannel());
     this->_cmds.push_back(cmd);
   }
 
   if (!(status = AccessPointInterface::Commit()))
   {
     SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
-    cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-    cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-    cmd->BeaconInterval(100);
-    cmd->DtimPeriod(beacon.Tim.Period());
-    cmd->Ssid(beacon.Ssid());
-    this->_cmds.push_back(cmd);
-  }
-
-  if (!(status = AccessPointInterface::Commit()))
-  {
-    StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
     cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
     cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
     cmd->BeaconInterval(100);
@@ -189,7 +179,7 @@ BasicServiceSet::Destroy()
 
   if (!this->GetIfIndex())
   {
-    ZLOG_ERR("Error creating BSS, interface does not exist: " + this->GetIfName());
+    ZLOG_ERR("Error destroying BSS, interface does not exist: " + this->GetIfName());
     return (false);
   }
 

@@ -60,7 +60,13 @@ public:
     bool
     GetAttribute(Attribute<T>* attr_)
     {
-      return (this->GetAttribute(attr_->Id(), attr_->operator ()()));
+      bool status = false;
+      if (attr_ && this->GetAttribute(attr_->Id(), attr_->operator ()()))
+      {
+        attr_->SetValid();
+        status = true;
+      }
+      return (status);
     }
 
   bool
@@ -79,7 +85,12 @@ public:
     bool
     PutAttribute(Attribute<T>* attr_)
     {
-      return (this->PutAttribute(attr_->Id(), attr_->GetValue()));
+      bool status = false;
+      if (attr_ && attr_->IsValid())
+      {
+        status = this->PutAttribute(attr_->Id(), attr_->GetValue());
+      }
+      return (status);
     }
 
   bool

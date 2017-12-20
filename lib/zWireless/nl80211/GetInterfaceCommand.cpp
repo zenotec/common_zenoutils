@@ -47,27 +47,17 @@ __errstr(int code)
 // Class: GetInterfaceCommand
 //*****************************************************************************
 
-GetInterfaceCommand::GetInterfaceCommand(int index_) :
-    Command(index_)
+GetInterfaceCommand::GetInterfaceCommand(int ifindex_) :
+    Command(ifindex_)
 {
-  this->IfIndex(index_);
+  this->IfIndex(this->GetIfIndex());
 }
 
 GetInterfaceCommand::GetInterfaceCommand(const std::string& ifname_) :
     Command(ifname_)
 {
-  if (!ifname_.empty())
-  {
-    this->IfIndex(if_nametoindex(ifname_.c_str()));
-    if (!this->IfIndex())
-    {
-      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
-    }
-  }
-  else
-  {
-    ZLOG_WARN("Name is empty!");
-  }
+  this->IfIndex(this->GetIfIndex());
+  this->IfName(ifname_);
 }
 
 GetInterfaceCommand::~GetInterfaceCommand()
@@ -77,15 +67,17 @@ GetInterfaceCommand::~GetInterfaceCommand()
 void
 GetInterfaceCommand::Display() const
 {
-  std::cout << "Interface: " << std::endl;
-  std::cout << "\tPhy:   \t" << this->PhyIndex.GetValue() << std::endl;
+  std::cout << "##################################################" << std::endl;
+  std::cout << "GetInterfaceCommand: " << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
   std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
+  std::cout << "\tPhy:   \t" << this->PhyIndex.GetValue() << std::endl;
   std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
   std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
   std::cout << "\tSSID:  \t" << this->Ssid.GetValue() << std::endl;
   std::cout << "\tPower: \t" << this->TxPower.GetValue() << std::endl;
+  std::cout << "##################################################" << std::endl;
 }
 
 bool
@@ -137,7 +129,7 @@ GetInterfaceCommand::Exec()
     return(false);
   }
 
-  if (!this->_count.TimedWait(100))
+  if (!this->_count.TimedWait(1000))
   {
     ZLOG_ERR("Error receiving response for get_interface netlink message");
     return(false);
@@ -160,6 +152,7 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
+//  std::cout << "GetInterfaceCommand::valid_cb()" << std::endl;
 //  msg.Display();
 //  msg.DisplayAttributes();
 

@@ -88,6 +88,10 @@ GetPhyCommand::Display() const
 bool
 GetPhyCommand::Exec()
 {
+
+  this->_status = false;
+  this->_count.Reset();
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -101,13 +105,38 @@ GetPhyCommand::Exec()
   }
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_WIPHY);
-  cmdmsg.PutAttribute(&this->PhyIndex);
-  cmdmsg.PutAttribute(&this->PhyName);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+
+  // Set interface index attribute
+  if (!cmdmsg.PutAttribute(&this->PhyIndex))
+  {
+    ZLOG_ERR("Error setting phyindex attribute");
+    return (false);
+  }
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(1000))
+  {
+    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 
 }
 
@@ -122,6 +151,10 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
+//  msg.Display();
+  msg.DisplayAttributes();
+
   if (!msg.GetAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.Id()));
@@ -134,134 +167,8 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-//  for (int i = 0; i < NL80211_ATTR_MAX; i++)
-//  {
-//    if (!tb[i])
-//      continue;
-//    switch (i)
-//    {
-//    case NL80211_ATTR_WIPHY:
-//      this->_phyindex = nla_get_u32(tb[i]);
-//      break;
-//    case NL80211_ATTR_WIPHY_NAME:
-//      this->_phyname = std::string(nla_get_string(tb[i]));
-//      break;
-//    case NL80211_ATTR_WIPHY_BANDS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SUPPORTED_IFTYPES:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_NUM_SCAN_SSIDS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_GENERATION:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SUPPORTED_COMMANDS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_SCAN_IE_LEN:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_CIPHER_SUITES:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_RETRY_SHORT:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_RETRY_LONG:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_FRAG_THRESHOLD:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_RTS_THRESHOLD:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_NUM_PMKIDS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_COVERAGE_CLASS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_TX_FRAME_TYPES:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_RX_FRAME_TYPES:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_CONTROL_PORT_ETHERTYPE:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SUPPORT_IBSS_RSN:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_ANTENNA_TX:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_ANTENNA_RX:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_OFFCHANNEL_TX_OK:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_REMAIN_ON_CHANNEL_DURATION:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_ANTENNA_AVAIL_TX:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_WIPHY_ANTENNA_AVAIL_RX:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SUPPORT_MESH_AUTH:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_INTERFACE_COMBINATIONS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SOFTWARE_IFTYPES:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_NUM_SCHED_SCAN_SSIDS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_SCHED_SCAN_IE_LEN:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_SUPPORT_AP_UAPSD:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_MATCH_SETS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_TDLS_SUPPORT:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_TDLS_EXTERNAL_SETUP:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_FEATURE_FLAGS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_HT_CAPABILITY_MASK:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_NUM_SCHED_SCAN_PLANS:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_SCAN_PLAN_INTERVAL:
-//      // TODO
-//      break;
-//    case NL80211_ATTR_MAX_SCAN_PLAN_ITERATIONS:
-//      // TODO
-//      break;
-//    default:
-//      ZLOG_INFO("Unhandled attribute: " + zLog::IntStr(i));
-//      break;
-//    }
-//  }
+  this->_status = true;
+  this->_count.Post();
 
   return (NL_OK);
 }
@@ -271,6 +178,8 @@ GetPhyCommand::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* a
 {
   ZLOG_ERR("Error executing GetPhyCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr_->error) + ") " + __errstr(nlerr_->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

@@ -51,6 +51,8 @@
 #include "RouteLinkEvent.h"
 using namespace netlink;
 
+#define IFFLAGS_UP      (IFF_UP | IFF_RUNNING)
+
 namespace zUtils
 {
 namespace zInterface
@@ -414,11 +416,11 @@ Interface::SetAdminState(const ConfigData::STATE state_)
         SetLinkCommand* cmd = new SetLinkCommand(this->ifindex);
         if (state_ == ConfigData::STATE_UP)
         {
-          status = cmd->SetFlags(IFF_UP);
+          status = cmd->SetFlags(IFFLAGS_UP);
         }
         else
         {
-          status = cmd->ClrFlags(IFF_UP);
+          status = cmd->ClrFlags(IFFLAGS_UP);
         }
         if (status)
         {

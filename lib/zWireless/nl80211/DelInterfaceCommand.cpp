@@ -122,13 +122,13 @@ DelInterfaceCommand::Exec()
   // Wait for the response
   if (!this->_sock.RecvMsg())
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
     return(false);
   }
 
   if (!this->_count.TimedWait(100))
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
     return(false);
   }
 
@@ -147,7 +147,7 @@ DelInterfaceCommand::Display() const
 }
 
 int
-DelInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+DelInterfaceCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -156,24 +156,14 @@ DelInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
+  std::cout << "DelInterfaceCommand::ack_cb()" << std::endl;
   msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
-    return(NL_SKIP);
-  }
 
   this->_status = true;
   this->_count.Post();
 
-  return(NL_OK);
+  return (NL_OK);
 }
 
 int
@@ -184,7 +174,7 @@ DelInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, voi
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();
-  return(NL_SKIP);
+  return (NL_SKIP);
 }
 
 }

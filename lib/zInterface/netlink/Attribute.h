@@ -32,7 +32,7 @@ template<class T>
   public:
 
     Attribute(const uint32_t id_) :
-        _id(id_)
+        _valid(false), _id(id_)
     {
     }
 
@@ -47,10 +47,29 @@ template<class T>
       return (this->_value);
     }
 
+    bool
+    IsValid() const
+    {
+      return (this->_valid);
+    }
+
+    void
+    SetValid()
+    {
+      this->_valid = true;
+    }
+
+    void
+    ClrValid()
+    {
+      this->_valid = false;
+    }
+
     virtual void
     operator()(const T val_)
     {
       this->_value = val_;
+      this->_valid = true;
     }
 
     uint32_t
@@ -69,12 +88,14 @@ template<class T>
     SetValue(const T val_)
     {
       this->_value = val_;
+      this->_valid = true;
     }
 
   protected:
 
   private:
 
+    bool _valid;
     uint32_t _id;
     T _value;
 

@@ -39,6 +39,7 @@ using namespace netlink;
 #include "IfIndexAttribute.h"
 #include "IfNameAttribute.h"
 #include "SsidAttribute.h"
+#include "FrequencyAttribute.h"
 #include "BeaconIntervalAttribute.h"
 #include "DtimPeriodAttribute.h"
 #include "BeaconHeadAttribute.h"
@@ -59,6 +60,7 @@ public:
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
   SsidAttribute Ssid;
+  FrequencyAttribute Channel;
   BeaconIntervalAttribute BeaconInterval;
   DtimPeriodAttribute DtimPeriod;
   BeaconHeadAttribute BeaconHead;
@@ -78,7 +80,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg, void* arg);
+  ack_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);

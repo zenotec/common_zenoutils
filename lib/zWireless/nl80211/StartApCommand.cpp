@@ -73,6 +73,7 @@ bool
 StartApCommand::Exec()
 {
 
+  this->_status = false;
   this->_count.Reset();
 
   if (!this->IfIndex())
@@ -104,20 +105,20 @@ StartApCommand::Exec()
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
-    ZLOG_ERR("Error sending get_interface netlink message");
+    ZLOG_ERR("Error sending netlink message");
     return(false);
   }
 
   // Wait for the response
   if (!this->_sock.RecvMsg())
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for netlink message");
     return(false);
   }
 
-  if (!this->_count.TimedWait(100))
+  if (!this->_count.TimedWait(1000))
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for netlink message");
     return(false);
   }
 
@@ -143,7 +144,7 @@ StartApCommand::Display() const
 }
 
 int
-StartApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+StartApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -152,25 +153,10 @@ StartApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
+  std::cout << "StartApCommand::ack_cb()" << std::endl;
+  msg.Display();
   msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->Ssid))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
-    return(NL_SKIP);
-  }
 
   this->_status = true;
   this->_count.Post();

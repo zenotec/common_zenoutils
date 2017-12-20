@@ -94,16 +94,26 @@ Handler::ErrorCallback(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* ar
 }
 
 int
+Handler::valid_cb(struct nl_msg* msg, void* arg)
+{
+  this->_msgcnt = 0;
+  ZLOG_WARN("Unhandled valid callback");
+  return(NL_SKIP);
+}
+
+int
 Handler::finish_cb(struct nl_msg* msg, void* arg)
 {
   this->_msgcnt = 0;
-  return(NL_OK);
+  ZLOG_WARN("Unhandled finish callback");
+  return(NL_SKIP);
 }
 
 int
 Handler::ack_cb(struct nl_msg* msg, void* arg)
 {
   this->_msgcnt = 0;
+  ZLOG_WARN("Unhandled ack callback");
   return(NL_SKIP);
 }
 

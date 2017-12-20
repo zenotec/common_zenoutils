@@ -286,6 +286,7 @@ public:
 
 protected:
 
+  unsigned int phyindex;
   WirelessInterfaceConfigData wconfig;
 
   virtual bool

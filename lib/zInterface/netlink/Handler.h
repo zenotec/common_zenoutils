@@ -53,7 +53,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg_, void* arg_) = 0;
+  valid_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
   finish_cb(struct nl_msg* msg_, void* arg_);
