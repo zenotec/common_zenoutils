@@ -152,7 +152,7 @@ BasicServiceSet::Create()
     cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
-    cmd->Ssid(beacon.Ssid());
+    cmd->Ssid.SetString(beacon.Ssid());
     cmd->Channel(this->GetChannel());
     this->_cmds.push_back(cmd);
   }
@@ -164,7 +164,7 @@ BasicServiceSet::Create()
     cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
-    cmd->Ssid(beacon.Ssid());
+    cmd->Ssid.SetString(beacon.Ssid());
     this->_cmds.push_back(cmd);
     status = AccessPointInterface::Commit();
   }

@@ -111,7 +111,7 @@ StopApCommand::Display() const
   std::cout << "Set BSS: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid.GetValue() << std::endl;
+  std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
 }
 
 int

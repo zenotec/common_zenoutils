@@ -75,7 +75,7 @@ GetInterfaceCommand::Display() const
   std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
   std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
-  std::cout << "\tSSID:  \t" << this->Ssid.GetValue() << std::endl;
+  std::cout << "\tSSID:  \t" << this->Ssid.GetString() << std::endl;
   std::cout << "\tPower: \t" << this->TxPower.GetValue() << std::endl;
   std::cout << "##################################################" << std::endl;
 }

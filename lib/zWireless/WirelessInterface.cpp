@@ -634,8 +634,7 @@ WirelessInterface::Create()
 
   if (this->lock.Lock())
   {
-    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->config.GetIfName());
-    cmd->PhyIndex(this->phyindex);
+    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->config.GetIfName(), this->phyindex);
     cmd->IfType(_opmode2nl(this->wconfig.GetOpMode()));
     this->_cmds.push_back(cmd);
     this->set_modified();
