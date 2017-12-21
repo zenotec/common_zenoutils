@@ -154,7 +154,7 @@ BasicServiceSet::Create()
     cmd->DtimPeriod(beacon.Tim.Period());
     cmd->Ssid.SetString(beacon.Ssid());
     cmd->Channel(this->GetChannel());
-    this->_cmds.push_back(cmd);
+    this->addCommand(cmd);
   }
 
   if (!(status = AccessPointInterface::Commit()))
@@ -165,7 +165,7 @@ BasicServiceSet::Create()
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
     cmd->Ssid.SetString(beacon.Ssid());
-    this->_cmds.push_back(cmd);
+    this->addCommand(cmd);
     status = AccessPointInterface::Commit();
   }
 
@@ -186,7 +186,7 @@ BasicServiceSet::Destroy()
   this->SetAdminState(zInterface::ConfigData::STATE_UP);
 
   StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
-  this->_cmds.push_back(cmd);
+  this->addCommand(cmd);
 
   return (this->Commit());
 }

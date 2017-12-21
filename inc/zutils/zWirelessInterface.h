@@ -289,21 +289,7 @@ protected:
   unsigned int phyindex;
   WirelessInterfaceConfigData wconfig;
 
-  virtual bool
-  is_modified() const;
-
-  virtual void
-  set_modified();
-
-  virtual void
-  clr_modified();
-
 private:
-
-  bool _modified;
-
-  void
-  _init();
 
 };
 

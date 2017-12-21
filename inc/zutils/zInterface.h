@@ -290,24 +290,17 @@ protected:
 
   mutable zSem::Mutex lock;
   zInterface::ConfigData config;
-  unsigned int ifindex;
-  std::list<netlink::Command*> _cmds;
+  unsigned int ifIndex;
 
-  virtual bool
-  is_modified() const;
+  size_t
+  addCommand(netlink::Command* cmd_, size_t index_ = -1); // 0 - begin of list, -1 == end of list
 
-  virtual void
-  set_modified();
-
-  virtual void
-  clr_modified();
+  bool
+  clrCommands();
 
 private:
 
-  bool _modified;
-
-  void
-  _init();
+  std::list<netlink::Command*> _cmds;
 
 };
 
