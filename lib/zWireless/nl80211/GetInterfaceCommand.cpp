@@ -186,11 +186,8 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->TxPower))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->TxPower.Id()));
-    return (NL_SKIP);
-  }
+  // Optional attributes
+  msg.GetAttribute(&this->TxPower);
 
   if (msg.GetAttribute(&this->Ssid))
   {
