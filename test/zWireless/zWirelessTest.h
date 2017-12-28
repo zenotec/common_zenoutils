@@ -35,4 +35,7 @@ zWirelessTest_MonitorInterface(void* arg);
 int
 zWirelessTest_AccessPointInterface(void* arg);
 
+int
+zWirelessTest_BasicServiceSet(void* arg);
+
 #endif /* __ZWIRELESSTEST_H__ */

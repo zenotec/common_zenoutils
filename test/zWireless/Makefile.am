@@ -39,7 +39,8 @@ zWirelessUnitTest_SOURCES = \
     UnitTest.cpp \
     Defaults.cpp \
     Configuration.cpp \
-    Interface.cpp
+    Interface.cpp \
+    BasicServiceSet.cpp
 
 zWirelessUnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la
