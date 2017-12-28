@@ -208,9 +208,9 @@
 <option id="no-create" value="false"/>
 <option id="quiet" value="false"/>
 <option id="version" value="false"/>
-<option id="host" value="arm-openwrt-linux"/>
+<option id="host" value=""/>
 <option id="build" value=""/>
-<option id="target" value="arm-openwrt-linux"/>
+<option id="target" value=""/>
 <option id="prefix" value=""/>
 <option id="exec-prefix" value=""/>
 <option id="libdir" value=""/>
@@ -229,14 +229,14 @@
 <option id="program-prefix" value=""/>
 <option id="program-suffix" value=""/>
 <option id="program-transform-name" value=""/>
-<option id="env_vars" value="STAGING_DIR=&quot;$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi&quot; PATH=&quot;$STAGING_DIR/bin:$PATH&quot;"/>
+<option id="env_vars" value=""/>
 <option id="enable-maintainer-mode" value="false"/>
 <flag id="CFLAGS" value="CFLAGS|CXXFLAGS">
 <flagvalue id="cflags-debug" value="false"/>
 <flagvalue id="cflags-gprof" value="false"/>
 <flagvalue id="cflags-gcov" value="false"/>
 </flag>
-<option id="user" value="CFLAGS=&quot;-g -O0&quot; CXXFLAGS=&quot;-g -O0&quot;"/>
+<option id="user" value=""/>
 <option id="autogen" value="autogen.sh"/>
 <option id="autogenOpts" value=""/>
 </configuration>

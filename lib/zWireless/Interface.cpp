@@ -297,9 +297,10 @@ Interface::GetPhyName() const
   std::string name;
   if (this->lock.Lock())
   {
-    if (this->_config.GetPhyIndex() >= 0)
+    if ((this->_config.GetPhyIndex() >= 0))
     {
-      GetPhyCommand cmd(this->_config.GetPhyIndex());
+      GetPhyCommand cmd(this->_config.GetIfIndex()); // Interface index is not used; just the phy index
+      cmd.PhyIndex(this->_config.GetPhyIndex());
       if (cmd.Exec())
       {
         name = cmd.PhyName();
@@ -322,9 +323,11 @@ Interface::SetPhyName(const std::string& name_)
   {
     if (name_ != this->_config.GetPhyName())
     {
-      if (this->_config.SetPhyName(name_))
+      if (this->_config.SetPhyName(name_) && this->_config.GetIfIndex() &&
+          (this->_config.GetPhyIndex() >= 0))
       {
-        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetPhyIndex());
+        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
+        cmd->PhyIndex(this->_config.GetPhyIndex());
         cmd->PhyName(name_);
         this->addCommand(cmd);
         status = true;
@@ -523,9 +526,9 @@ Interface::GetChannel() const
   unsigned int channel = 0;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex() && (this->_config.GetPhyIndex() >= 0))
+    if (this->_config.GetIfIndex())
     {
-      GetPhyCommand cmd(this->_config.GetPhyIndex());
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         channel = cmd.Frequency.GetChannel();
@@ -577,9 +580,9 @@ Interface::GetTxPower() const
   unsigned int power = 0;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex() && (this->_config.GetPhyIndex() >= 0))
+    if (this->_config.GetIfIndex())
     {
-      GetPhyCommand cmd(this->_config.GetPhyIndex());
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         power = cmd.TxPowerLevel();
@@ -605,7 +608,7 @@ Interface::SetTxPower(const unsigned int txpower_)
       if (this->_config.SetTxPower(txpower_) && this->_config.GetIfIndex() &&
           (this->_config.GetPhyIndex() >= 0))
       {
-        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetPhyIndex());
+        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
         cmd->PhyIndex(this->_config.GetPhyIndex());
         cmd->TxPowerMode.SetMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
         cmd->TxPowerLevel(txpower_);

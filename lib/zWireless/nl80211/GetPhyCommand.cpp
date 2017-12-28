@@ -61,16 +61,17 @@ __errstr(int code)
 // Class: GetPhyCommand
 //*****************************************************************************
 
-GetPhyCommand::GetPhyCommand(int index_) :
-    Command(index_)
+GetPhyCommand::GetPhyCommand(int ifindex_) :
+    Command(ifindex_)
 {
-  this->PhyIndex.SetValue(index_);
+  this->IfIndex(this->GetIfIndex());
 }
 
-GetPhyCommand::GetPhyCommand(const std::string& name_) :
-    Command(name_)
+GetPhyCommand::GetPhyCommand(const std::string& ifname_) :
+    Command(ifname_)
 {
-  this->PhyName.SetValue(name_);
+  this->IfIndex(this->GetIfIndex());
+  this->IfName(ifname_);
 }
 
 GetPhyCommand::~GetPhyCommand()
@@ -110,7 +111,7 @@ GetPhyCommand::Exec()
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_WIPHY);
 
-  // Set interface index attribute
+  // Set PHY index attribute
   if (!cmdmsg.PutAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");

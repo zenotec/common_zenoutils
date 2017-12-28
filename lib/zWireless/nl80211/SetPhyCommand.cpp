@@ -199,9 +199,9 @@ SetPhyCommand::ack_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  std::cout << "SetPhyCommand::ack_cb()" << std::endl;
-  //msg.Display();
-  msg.DisplayAttributes();
+//  std::cout << "SetPhyCommand::ack_cb()" << std::endl;
+//  msg.Display();
+//  msg.DisplayAttributes();
 
   this->_status = true;
   this->_count.Post();

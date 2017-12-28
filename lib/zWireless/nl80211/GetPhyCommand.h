@@ -41,6 +41,8 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
+#include "IfIndexAttribute.h"
+#include "IfNameAttribute.h"
 #include "PhyIndexAttribute.h"
 #include "PhyNameAttribute.h"
 #include "FrequencyAttribute.h"
@@ -61,6 +63,8 @@ class GetPhyCommand : public netlink::Command, public netlink::Handler
 
 public:
 
+  IfIndexAttribute IfIndex;
+  IfNameAttribute IfName;
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
   FrequencyAttribute Frequency;
@@ -69,9 +73,9 @@ public:
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel;
 
-  GetPhyCommand(int index_);
+  GetPhyCommand(int ifindex_);
 
-  GetPhyCommand(const std::string& name_);
+  GetPhyCommand(const std::string& ifname_);
 
   virtual
   ~GetPhyCommand();

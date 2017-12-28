@@ -363,7 +363,7 @@ ConfigData::~ConfigData()
 int
 ConfigData::GetPhyIndex(const int index_) const
 {
-  int val = 0;
+  int val = -1;
   ConfigPath path(ConfigPath::ConfigPhyIndexPath);
   if (!this->GetData()->GetValue(path, val))
   {

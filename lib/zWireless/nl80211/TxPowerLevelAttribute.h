@@ -34,7 +34,7 @@ namespace nl80211
 // Class: TxPowerLevelAttribute
 //*****************************************************************************
 
-class TxPowerLevelAttribute : public Attribute<int32_t>
+class TxPowerLevelAttribute : public Attribute<uint32_t>
 {
 
 public:

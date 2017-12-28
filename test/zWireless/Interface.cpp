@@ -79,7 +79,7 @@ zWirelessTest_WirelessInterface(void* arg)
     TEST_EQ(iface.first, MyInterface->GetIfIndex());
     TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
     TEST_EQ(iface.second, MyInterface->GetIfName());
-    TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE8023, MyInterface->GetIfType());
+    TEST_NEQ(zInterface::ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
     TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
 //    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
@@ -202,7 +202,7 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
     TEST_EQ(zWireless::ConfigData::OPMODE_MONITOR, MyInterface->GetOpMode());
     TEST_EQ(6, MyInterface->GetChannel());
-    TEST_EQ(20, MyInterface->GetTxPower());
+    TEST_EQ(2000, MyInterface->GetTxPower());
 
     // Cleanup
     TEST_TRUE(MyInterface->Destroy());
