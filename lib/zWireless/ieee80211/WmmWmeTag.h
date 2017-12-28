@@ -58,7 +58,7 @@ public:
   };
 
   WmmWmeTag() :
-      Tag(Tag::ID_WMM_WME)
+      Tag(Tag::ID_VENDOR_SPECIFIC)
   {
   }
 

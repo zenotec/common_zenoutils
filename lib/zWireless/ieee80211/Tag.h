@@ -47,8 +47,7 @@ public:
     ID_CHANNELS = 36, // 0x24
     ID_HT_CAPS = 45, // 0x2D
     ID_EXT_RATES = 50, // 0x32
-    // Vendor Specific
-    ID_WMM_WME = 221, // 0xDD
+    ID_VENDOR_SPECIFIC = 221, // 0xDD
     ID_LAST
   };
 
@@ -74,6 +73,7 @@ public:
       case ID_CHANNELS: { return "ID_CHANNELS"; break; }
       case ID_HT_CAPS: { return "ID_HT_CAPS"; break; }
       case ID_EXT_RATES: { return "ID_EXT_RATES"; break; }
+      case ID_VENDOR_SPECIFIC: { return "ID_VENDOR_SPECIFIC"; break; }
       default: { return "UNKNOWN"; break; }
     }
   }
