@@ -76,7 +76,7 @@ GetInterfaceCommand::Display() const
   std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
   std::cout << "\tSSID:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tPower: \t" << this->TxPower.GetValue() << std::endl;
+  std::cout << "\tPower: \t" << this->TxPowerLevel.GetValue() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -187,14 +187,12 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 
   // Optional attributes
-  msg.GetAttribute(&this->TxPower);
-
-  if (msg.GetAttribute(&this->Ssid))
-  {
-    msg.GetAttribute(&this->Frequency);
-    msg.GetAttribute(&this->ChannelType);
-    msg.GetAttribute(&this->ChannelWidth);
-  }
+  msg.GetAttribute(&this->Ssid);
+  msg.GetAttribute(&this->Frequency);
+  msg.GetAttribute(&this->ChannelType);
+  msg.GetAttribute(&this->ChannelWidth);
+  msg.GetAttribute(&this->TxPowerMode);
+  msg.GetAttribute(&this->TxPowerLevel);
 
   this->_status = true;
   this->_count.Post();

@@ -17,7 +17,7 @@ zInterfaceUnitTest_SOURCES = \
     zInterfaceTest.h \
     UnitTest.cpp \
     Defaults.cpp \
-    Config.cpp \
+    Configuration.cpp \
     Interface.cpp \
     Factory.cpp
 

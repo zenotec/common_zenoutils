@@ -59,15 +59,9 @@ namespace zWireless
 // ****************************************************************************
 
 AccessPointInterface::AccessPointInterface(const std::string& name_, const unsigned int phyindex_) :
-    WirelessInterface(name_, phyindex_)
+    Interface(name_, phyindex_)
 {
-  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
-}
-
-AccessPointInterface::AccessPointInterface(const zInterface::ConfigData& config_) :
-    WirelessInterface(config_)
-{
-  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_AP);
+  this->SetOpMode(ConfigData::OPMODE_AP);
 }
 
 AccessPointInterface::~AccessPointInterface()
@@ -77,7 +71,7 @@ AccessPointInterface::~AccessPointInterface()
 void
 AccessPointInterface::Display(const std::string& prefix_)
 {
-  WirelessInterface::Display(prefix_);
+  Interface::Display(prefix_);
   std::cout << prefix_ << "------ Access Point Interface ----------" << std::endl;
 }
 

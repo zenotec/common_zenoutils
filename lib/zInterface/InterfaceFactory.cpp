@@ -24,7 +24,7 @@
 // libzutils includes
 #include <zutils/zCompatibility.h>
 #include <zutils/zInterface.h>
-#include <zutils/zWirelessInterface.h>
+#include <zutils/zWireless.h>
 
 namespace zUtils
 {

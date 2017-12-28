@@ -43,6 +43,7 @@ public:
       Attribute(NL80211_ATTR_WIPHY)
   {
     this->SetValue(0);
+    this->ClrValid();
   }
 
   virtual

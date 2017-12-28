@@ -15,15 +15,10 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETPHYCOMMAND_H__
-#define __NL80211_SETPHYCOMMAND_H__
+#ifndef __NL80211_SETCHANNELCOMMAND_H__
+#define __NL80211_SETCHANNELCOMMAND_H__
 
 // libc includes
-#include <linux/nl80211.h>
-#include <linux/netlink.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
 
 // libc++ includes
 #include <string>
@@ -41,44 +36,35 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
+#include "PhyIndexAttribute.h"
 #include "IfIndexAttribute.h"
 #include "IfNameAttribute.h"
-#include "PhyIndexAttribute.h"
-#include "PhyNameAttribute.h"
 #include "FrequencyAttribute.h"
-#include "ChannelTypeAttribute.h"
 #include "ChannelWidthAttribute.h"
-#include "TxPowerModeAttribute.h"
-#include "TxPowerLevelAttribute.h"
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetPhyCommand
+// Class: SetChannelCommand
 //*****************************************************************************
 
-class SetPhyCommand : public netlink::Command, public netlink::Handler
+class SetChannelCommand : public netlink::Command, public netlink::Handler
 {
 
 public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  PhyIndexAttribute PhyIndex;
-  PhyNameAttribute PhyName;
   FrequencyAttribute Frequency;
-  ChannelTypeAttribute ChannelType;
   ChannelWidthAttribute ChannelWidth;
-  TxPowerModeAttribute TxPowerMode;
-  TxPowerLevelAttribute TxPowerLevel;
 
-  SetPhyCommand(int ifindex_);
+  SetChannelCommand(int index_);
 
-  SetPhyCommand(const std::string& ifname_);
+  SetChannelCommand(const std::string& name_);
 
   virtual
-  ~SetPhyCommand();
+  ~SetChannelCommand();
 
   virtual bool
   Exec();
@@ -89,10 +75,10 @@ public:
 protected:
 
   virtual int
-  ack_cb(struct nl_msg* msg_, void* arg_);
+  ack_cb(struct nl_msg* msg, void* arg);
 
   virtual int
-  err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_);
+  err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);
 
 private:
 
@@ -102,4 +88,4 @@ private:
 
 }
 
-#endif /* __NL80211_SETPHYCOMMAND_H__ */
+#endif /* __NL80211_SETCHANNELCOMMAND_H__ */

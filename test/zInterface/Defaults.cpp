@@ -35,8 +35,23 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceConfigurationDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  ConfigData *MyConfig = new ConfigData;
+  ConfigData *MyConfig = NULL;
+
+  MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
+  TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
+
+  SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData);
+  MyConfig = new ConfigData(data);
+  TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
   TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
@@ -61,18 +76,9 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  ConfigData *MyConfig = new ConfigData;
-  TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
-  TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
-  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
-  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
-  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
-  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
-  TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
-
-  Interface *MyInterface = new zInterface::Interface(*MyConfig);
+  Interface *MyInterface = new zInterface::Interface(ConfigData::ConfigNameDefault);
   TEST_ISNOT_NULL(MyInterface);
+  TEST_EQ(ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
   TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -83,10 +89,8 @@ zInterfaceTest_InterfaceDefaults(void* arg)
 
   // Cleanup
   delete (MyInterface);
-  delete (MyConfig);
 
   // Return success
   return (0);
 
 }
-

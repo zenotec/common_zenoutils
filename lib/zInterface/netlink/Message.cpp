@@ -126,6 +126,18 @@ Message::GetAttribute(const int attr_, uint32_t& value_)
 }
 
 bool
+Message::GetAttribute(const int attr_, int32_t& value_)
+{
+  bool status = false;
+  if (this->_attrs[attr_])
+  {
+    value_ = nla_get_s32(this->_attrs[attr_]);
+    status = true;
+  }
+  return(status);
+}
+
+bool
 Message::GetAttribute(const int attr_, std::string& value_)
 {
   bool status = false;
@@ -167,6 +179,19 @@ bool
 Message::PutAttribute(const int attr_, const uint32_t value_)
 {
   int ret = nla_put_u32(this->_msg, attr_, value_);
+  if (ret < 0)
+  {
+    ZLOG_ERR("Error putting message attributes");
+    ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+    return (false);
+  }
+  return(true);
+}
+
+bool
+Message::PutAttribute(const int attr_, const int32_t value_)
+{
+  int ret = nla_put_s32(this->_msg, attr_, value_);
   if (ret < 0)
   {
     ZLOG_ERR("Error putting message attributes");

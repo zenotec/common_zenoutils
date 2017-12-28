@@ -31,23 +31,19 @@ zInterfaceTest_InterfaceLoop(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceLoop()");
   ZLOG_DEBUG("#############################################################");
 
-  ConfigData *MyConfig = new ConfigData;
-  TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
-  TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
-  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
-  TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
-  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyConfig->GetIpAddress());
-  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
-  TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
-
-  // Setup configuration for loopback interface
-  TEST_TRUE(MyConfig->SetIfName("lo"));
-  TEST_TRUE(MyConfig->SetIfType(ConfigData::IFTYPE_LOOP));
-  TEST_TRUE(MyConfig->SetAdminState(ConfigData::STATE_UP));
-
-  Interface *MyInterface = new zInterface::Interface(*MyConfig);
+  Interface *MyInterface = new zInterface::Interface("lo");
   TEST_ISNOT_NULL(MyInterface);
+  TEST_EQ(1, MyInterface->GetIfIndex());
+  TEST_EQ(std::string("lo"), MyInterface->GetIfName());
+  TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
+  TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
+  TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+  TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+  TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+  TEST_EQ(ConfigData::STATE_DEF, MyInterface->GetAdminState());
+
+  // Refresh
+  TEST_TRUE(MyInterface->Refresh());
   TEST_EQ(1, MyInterface->GetIfIndex());
   TEST_EQ(std::string("lo"), MyInterface->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_LOOP, MyInterface->GetIfType());
@@ -57,7 +53,6 @@ zInterfaceTest_InterfaceLoop(void* arg)
 
   // Cleanup
   delete (MyInterface);
-  delete (MyConfig);
 
   // Return success
   return (0);

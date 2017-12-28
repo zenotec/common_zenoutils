@@ -17,12 +17,11 @@
  * limitations under the License.
  */
 
-#ifndef __ZWIRELESSINTERFACE_H__
-#define __ZWIRELESSINTERFACE_H__
+#ifndef __ZWIRELESS_H__
+#define __ZWIRELESS_H__
 
 #include <zutils/zConfig.h>
 #include <zutils/zInterface.h>
-using namespace zUtils::zInterface;
 
 namespace zUtils
 {
@@ -30,10 +29,10 @@ namespace zWireless
 {
 
 // ****************************************************************************
-// Class: WirelessInterfaceConfigPath
+// Class: Wireless::ConfigPath
 // ****************************************************************************
 
-class WirelessInterfaceConfigPath : public zInterface::ConfigPath
+class ConfigPath : public zInterface::ConfigPath
 {
 
 public:
@@ -51,10 +50,10 @@ public:
   static const std::string ConfigBeaconIntervalPath;
   static const std::string ConfigDtimIntervalPath;
 
-  WirelessInterfaceConfigPath(const std::string& root_ = std::string(""));
+  ConfigPath(const std::string& root_ = std::string(""));
 
   virtual
-  ~WirelessInterfaceConfigPath();
+  ~ConfigPath();
 
 protected:
 
@@ -63,10 +62,10 @@ private:
 };
 
 // ****************************************************************************
-// Class: WirelessInterfaceConfigData
+// Class: zWireless::ConfigData
 // ****************************************************************************
 
-class WirelessInterfaceConfigData
+class ConfigData : public zInterface::ConfigData
 {
 
 public:
@@ -100,6 +99,14 @@ public:
   };
 
   static const std::string ConfigHtModeNone;
+  static const std::string ConfigHtModeHT20;
+  static const std::string ConfigHtModeHT40Minus;
+  static const std::string ConfigHtModeHT40Plus;
+  static const std::string ConfigHtModeVHT20;
+  static const std::string ConfigHtModeVHT40;
+  static const std::string ConfigHtModeVHT80;
+  static const std::string ConfigHtModeVHT80Plus80;
+  static const std::string ConfigHtModeVHT160;
   static const std::string ConfigHtModeDefault;
 
   enum HTMODE
@@ -145,10 +152,12 @@ public:
   static const unsigned int ConfigChannelDefault;
   static const unsigned int ConfigTxPowerDefault;
 
-  WirelessInterfaceConfigData(zInterface::ConfigData& config_);
+  ConfigData(const std::string& name_ = ConfigNameDefault);
+
+  ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
 
   virtual
-  ~WirelessInterfaceConfigData();
+  ~ConfigData();
 
   int
   GetPhyIndex(const int index_ = ConfigPhyIndexDefault) const;
@@ -162,23 +171,23 @@ public:
   bool
   SetPhyName(const std::string& name_ = ConfigPhyNameDefault);
 
-  WirelessInterfaceConfigData::HWMODE
-  GetHwMode(const WirelessInterfaceConfigData::HWMODE mode_ = HWMODE_DEF) const;
+  ConfigData::HWMODE
+  GetHwMode(const ConfigData::HWMODE mode_ = HWMODE_DEF) const;
 
   bool
-  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_ = HWMODE_DEF);
+  SetHwMode(const ConfigData::HWMODE mode_ = HWMODE_DEF);
 
-  WirelessInterfaceConfigData::HTMODE
-  GetHtMode(const WirelessInterfaceConfigData::HTMODE mode_ = HTMODE_DEF) const;
-
-  bool
-  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_ = HTMODE_DEF);
-
-  WirelessInterfaceConfigData::OPMODE
-  GetOpMode(const WirelessInterfaceConfigData::OPMODE mode_ = OPMODE_DEF) const;
+  ConfigData::HTMODE
+  GetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF) const;
 
   bool
-  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_ = OPMODE_DEF);
+  SetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF);
+
+  ConfigData::OPMODE
+  GetOpMode(const ConfigData::OPMODE mode_ = OPMODE_DEF) const;
+
+  bool
+  SetOpMode(const ConfigData::OPMODE mode_ = OPMODE_DEF);
 
   std::string
   GetSsid(const std::string& ssid_ = ConfigSsidDefault) const;
@@ -208,24 +217,28 @@ protected:
 
 private:
 
-  zInterface::ConfigData& _config;
+  SHARED_PTR(zConfig::ConfigData) _data;
 
 };
 
 // ****************************************************************************
-// Class: WirelessInterface
+// Class: zWireless::Interface
 // ****************************************************************************
 
-class WirelessInterface : public Interface
+class Interface : public zInterface::Interface
 {
 public:
 
-  WirelessInterface(const std::string& name_, const unsigned int phyindex_ = 0);
-
-  WirelessInterface(const zInterface::ConfigData& config_);
+  Interface(const std::string& name_, const int phyindex_ = ConfigData::ConfigPhyIndexDefault);
 
   virtual
-  ~WirelessInterface();
+  ~Interface();
+
+  zWireless::ConfigData
+  GetConfig() const;
+
+  bool
+  SetConfig(zWireless::ConfigData config_);
 
   int
   GetPhyIndex() const;
@@ -239,23 +252,23 @@ public:
   bool
   SetPhyName(const std::string& name_);
 
-  WirelessInterfaceConfigData::HWMODE
+  ConfigData::HWMODE
   GetHwMode() const;
 
   bool
-  SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_);
+  SetHwMode(const ConfigData::HWMODE mode_);
 
-  WirelessInterfaceConfigData::HTMODE
+  ConfigData::HTMODE
   GetHtMode() const;
 
   bool
-  SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_);
+  SetHtMode(const ConfigData::HTMODE mode_);
 
-  WirelessInterfaceConfigData::OPMODE
+  ConfigData::OPMODE
   GetOpMode() const;
 
   bool
-  SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_);
+  SetOpMode(const ConfigData::OPMODE mode_);
 
   unsigned int
   GetChannel() const;
@@ -286,14 +299,13 @@ public:
 
 protected:
 
-  unsigned int phyindex;
-  WirelessInterfaceConfigData wconfig;
-
 private:
+
+  zWireless::ConfigData _config;
 
 };
 
 }
 }
 
-#endif /* __ZWIRELESSINTERFACE_H__ */
+#endif /* __ZWIRELESS_H__ */

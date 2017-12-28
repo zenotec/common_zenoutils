@@ -34,6 +34,7 @@ public:
       Attribute(NL80211_ATTR_IFTYPE)
   {
     this->SetValue(0);
+    this->ClrValid();
   }
 
   virtual

@@ -47,6 +47,7 @@ class ConfigPath : public zConfig::ConfigPath
 public:
 
   static const std::string ConfigRoot;
+  static const std::string ConfigIfIndexPath;
   static const std::string ConfigIfNamePath;
   static const std::string ConfigIfTypePath;
   static const std::string ConfigMtuPath;
@@ -75,7 +76,7 @@ private:
 // Class: ConfigData
 // ****************************************************************************
 
-class ConfigData : public zConfig::ConfigData
+class ConfigData
 {
 
 public:
@@ -106,6 +107,8 @@ public:
     STATE_LAST
   };
 
+  static const unsigned int ConfigIndexDefault;
+
   static const std::string ConfigNameDefault;
 
   static const std::string ConfigTypeNone;
@@ -134,10 +137,22 @@ public:
 
   ConfigData(const std::string& name_ = ConfigNameDefault);
 
-  ConfigData(const zConfig::ConfigData& config_);
+  ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
 
   virtual
   ~ConfigData();
+
+  SHARED_PTR(zConfig::ConfigData)
+  GetData() const;
+
+  bool
+  SetData(SHARED_PTR(zConfig::ConfigData) data_);
+
+  unsigned int
+  GetIfIndex(const unsigned int mtu_ = ConfigIndexDefault) const;
+
+  bool
+  SetIfIndex(const unsigned int mtu_ = ConfigIndexDefault);
 
   std::string
   GetIfName(const std::string& name_ = ConfigNameDefault) const;
@@ -185,6 +200,8 @@ protected:
 
 private:
 
+  SHARED_PTR(zConfig::ConfigData) _data;
+
 };
 
 // ****************************************************************************
@@ -218,13 +235,17 @@ public:
 
   Interface(const std::string& name_);
 
-  Interface(const zInterface::ConfigData& config_);
-
   virtual
   ~Interface();
 
+  zInterface::ConfigData
+  GetConfig() const;
+
+  bool
+  SetConfig(zInterface::ConfigData config_);
+
   unsigned int
-  GetIfIndex();
+  GetIfIndex() const;
 
   bool
   SetIfIndex(const unsigned int ifindex_);
@@ -289,8 +310,6 @@ public:
 protected:
 
   mutable zSem::Mutex lock;
-  zInterface::ConfigData config;
-  unsigned int ifIndex;
 
   size_t
   addCommand(netlink::Command* cmd_, size_t index_ = -1); // 0 - begin of list, -1 == end of list
@@ -300,6 +319,7 @@ protected:
 
 private:
 
+  zInterface::ConfigData _config;
   std::list<netlink::Command*> _cmds;
 
 };

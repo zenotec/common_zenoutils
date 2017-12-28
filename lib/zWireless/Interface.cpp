@@ -43,16 +43,15 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zInterface.h>
-#include <zutils/zWirelessInterface.h>
-
-// local includes
-
+#include <zutils/zWireless.h>
 #include "GetPhyCommand.h"
 #include "SetPhyCommand.h"
 #include "GetInterfaceCommand.h"
 #include "SetInterfaceCommand.h"
 #include "NewInterfaceCommand.h"
 #include "DelInterfaceCommand.h"
+#include "SetChannelCommand.h"
+
 using namespace nl80211;
 
 namespace zUtils
@@ -61,36 +60,36 @@ namespace zWireless
 {
 
 static std::string
-_hwmode2str(WirelessInterfaceConfigData::HWMODE mode_)
+_hwmode2str(ConfigData::HWMODE mode_)
 {
   std::string str;
   switch (mode_)
   {
-  case WirelessInterfaceConfigData::HWMODE_NONE:
+  case ConfigData::HWMODE_NONE:
     str = "None";
     break;
-  case WirelessInterfaceConfigData::HWMODE_ERR:
+  case ConfigData::HWMODE_ERR:
     str = "Error";
     break;
-  case WirelessInterfaceConfigData::HWMODE_A:
+  case ConfigData::HWMODE_A:
     str = "A";
     break;
-  case WirelessInterfaceConfigData::HWMODE_B:
+  case ConfigData::HWMODE_B:
     str = "B";
     break;
-  case WirelessInterfaceConfigData::HWMODE_G:
+  case ConfigData::HWMODE_G:
     str = "G";
     break;
-  case WirelessInterfaceConfigData::HWMODE_N:
+  case ConfigData::HWMODE_N:
     str = "N";
     break;
-  case WirelessInterfaceConfigData::HWMODE_AC:
+  case ConfigData::HWMODE_AC:
     str = "AC";
     break;
-  case WirelessInterfaceConfigData::HWMODE_AD:
+  case ConfigData::HWMODE_AD:
     str = "AD";
     break;
-  case WirelessInterfaceConfigData::HWMODE_AX:
+  case ConfigData::HWMODE_AX:
     str = "AX";
     break;
   default:
@@ -101,27 +100,27 @@ _hwmode2str(WirelessInterfaceConfigData::HWMODE mode_)
 }
 
 static std::string
-_htmode2str(WirelessInterfaceConfigData::HTMODE mode_)
+_htmode2str(ConfigData::HTMODE mode_)
 {
   std::string str;
   switch (mode_)
   {
-  case WirelessInterfaceConfigData::HTMODE_NONE:
+  case ConfigData::HTMODE_NONE:
     str = "None";
     break;
-  case WirelessInterfaceConfigData::HTMODE_ERR:
+  case ConfigData::HTMODE_ERR:
     str = "Error";
     break;
-  case WirelessInterfaceConfigData::HTMODE_NOHT:
+  case ConfigData::HTMODE_NOHT:
     str = "Non-HT";
     break;
-  case WirelessInterfaceConfigData::HTMODE_HT20:
+  case ConfigData::HTMODE_HT20:
     str = "HT20";
     break;
-  case WirelessInterfaceConfigData::HTMODE_HT40MINUS:
+  case ConfigData::HTMODE_HT40MINUS:
     str = "HT40-";
     break;
-  case WirelessInterfaceConfigData::HTMODE_HT40PLUS:
+  case ConfigData::HTMODE_HT40PLUS:
     str = "HT40+";
     break;
   default:
@@ -131,48 +130,48 @@ _htmode2str(WirelessInterfaceConfigData::HTMODE mode_)
   return (str);
 }
 
-static WirelessInterfaceConfigData::OPMODE
+static ConfigData::OPMODE
 _nl2opmode(const uint32_t iftype_)
 {
-  WirelessInterfaceConfigData::OPMODE mode = WirelessInterfaceConfigData::OPMODE_ERR;
+  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
   switch (iftype_)
   {
   case NL80211_IFTYPE_STATION:
-    mode = WirelessInterfaceConfigData::OPMODE_STA;
+    mode = ConfigData::OPMODE_STA;
     break;
   case NL80211_IFTYPE_AP:
-    mode = WirelessInterfaceConfigData::OPMODE_AP;
+    mode = ConfigData::OPMODE_AP;
     break;
   case NL80211_IFTYPE_MONITOR:
-    mode = WirelessInterfaceConfigData::OPMODE_MONITOR;
+    mode = ConfigData::OPMODE_MONITOR;
     break;
   case NL80211_IFTYPE_ADHOC:
-    mode = WirelessInterfaceConfigData::OPMODE_ADHOC;
+    mode = ConfigData::OPMODE_ADHOC;
     break;
   default:
-    mode = WirelessInterfaceConfigData::OPMODE_DEF;
+    mode = ConfigData::OPMODE_DEF;
     break;
   }
   return (mode);
 }
 
 static uint32_t
-_opmode2nl(const WirelessInterfaceConfigData::OPMODE mode_)
+_opmode2nl(const ConfigData::OPMODE mode_)
 {
   uint32_t iftype = 0;
   // Translate operational mode to NL80211 interface type
   switch (mode_)
   {
-  case WirelessInterfaceConfigData::OPMODE_STA:
+  case ConfigData::OPMODE_STA:
     iftype = NL80211_IFTYPE_STATION;
     break;
-  case WirelessInterfaceConfigData::OPMODE_AP:
+  case ConfigData::OPMODE_AP:
     iftype = NL80211_IFTYPE_AP;
     break;
-  case WirelessInterfaceConfigData::OPMODE_MONITOR:
+  case ConfigData::OPMODE_MONITOR:
     iftype = NL80211_IFTYPE_MONITOR;
     break;
-  case WirelessInterfaceConfigData::OPMODE_ADHOC:
+  case ConfigData::OPMODE_ADHOC:
     iftype = NL80211_IFTYPE_ADHOC;
     break;
   default:
@@ -183,27 +182,27 @@ _opmode2nl(const WirelessInterfaceConfigData::OPMODE mode_)
 }
 
 static std::string
-_opmode2str(const WirelessInterfaceConfigData::OPMODE mode_)
+_opmode2str(const ConfigData::OPMODE mode_)
 {
   std::string str;
   switch (mode_)
   {
-  case WirelessInterfaceConfigData::OPMODE_NONE:
+  case ConfigData::OPMODE_NONE:
     str = "None";
     break;
-  case WirelessInterfaceConfigData::OPMODE_ERR:
+  case ConfigData::OPMODE_ERR:
     str = "Error";
     break;
-  case WirelessInterfaceConfigData::OPMODE_STA:
+  case ConfigData::OPMODE_STA:
     str = "Station";
     break;
-  case WirelessInterfaceConfigData::OPMODE_AP:
+  case ConfigData::OPMODE_AP:
     str = "AP";
     break;
-  case WirelessInterfaceConfigData::OPMODE_MONITOR:
+  case ConfigData::OPMODE_MONITOR:
     str = "Monitor";
     break;
-  case WirelessInterfaceConfigData::OPMODE_ADHOC:
+  case ConfigData::OPMODE_ADHOC:
     str = "AdHoc";
     break;
   default:
@@ -214,48 +213,57 @@ _opmode2str(const WirelessInterfaceConfigData::OPMODE mode_)
 }
 
 // ****************************************************************************
-// Class: WirelessInterface
+// Class: zWireless::Interface
 // ****************************************************************************
 
-WirelessInterface::WirelessInterface(const std::string& ifname_, const unsigned int phyindex_) :
-    Interface(ifname_), phyindex(phyindex_), wconfig(this->config)
+Interface::Interface(const std::string& ifname_, const int phyindex_) :
+    zInterface::Interface(ifname_), _config(zInterface::Interface::GetConfig().GetData())
 {
   this->Refresh();
-  this->config.SetIfType(ConfigData::IFTYPE_IEEE80211);
+  this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
+  this->SetPhyIndex(phyindex_);
 }
 
-WirelessInterface::WirelessInterface(const zInterface::ConfigData& config_) :
-    Interface(config_), phyindex(0), wconfig(this->config)
+Interface::~Interface()
 {
-  WirelessInterfaceConfigData wconfig_((zInterface::ConfigData&)config_);
-  this->Refresh();
-  this->config.SetIfType(ConfigData::IFTYPE_IEEE80211);
-  this->SetAdminState(ConfigData::STATE_DOWN); // make sure the interface is down
-  this->Commit();
-  this->SetPhyIndex(wconfig_.GetPhyIndex(this->wconfig.GetPhyIndex()));
-  this->SetPhyName(wconfig_.GetPhyName(this->wconfig.GetPhyName()));
-  this->SetHwMode(wconfig_.GetHwMode(this->wconfig.GetHwMode()));
-  this->SetHtMode(wconfig_.GetHtMode(this->wconfig.GetHtMode()));
-  this->SetOpMode(wconfig_.GetOpMode(this->wconfig.GetOpMode()));
-  this->SetChannel(wconfig_.GetChannel(this->wconfig.GetChannel()));
-  this->SetTxPower(wconfig_.GetTxPower(this->wconfig.GetTxPower()));
-  this->SetAdminState(config_.GetAdminState());
-  this->Commit();
 }
 
-WirelessInterface::~WirelessInterface()
+zWireless::ConfigData
+Interface::GetConfig() const
 {
+  return (this->_config);
+}
+
+bool
+Interface::SetConfig(zWireless::ConfigData config_)
+{
+  this->SetIfIndex(config_.GetIfIndex(this->_config.GetIfIndex()));
+  this->SetIfName(config_.GetIfName(this->_config.GetIfName()));
+  this->SetIfType(config_.GetIfType(this->_config.GetIfType()));
+  this->SetHwAddress(config_.GetHwAddress(this->_config.GetHwAddress()));
+  this->SetMtu(config_.GetMtu(this->_config.GetMtu()));
+  this->SetIpAddress(config_.GetIpAddress(this->_config.GetIpAddress()));
+  this->SetNetmask(config_.GetNetmask(this->_config.GetNetmask()));
+  this->SetPhyIndex(config_.GetPhyIndex(this->_config.GetPhyIndex()));
+  this->SetPhyName(config_.GetPhyName(this->_config.GetPhyName()));
+  this->SetHwMode(config_.GetHwMode(this->_config.GetHwMode()));
+  this->SetHtMode(config_.GetHtMode(this->_config.GetHtMode()));
+  this->SetOpMode(config_.GetOpMode(this->_config.GetOpMode()));
+  this->SetAdminState(config_.GetAdminState(this->_config.GetAdminState())); // must be before setting channel
+  this->SetChannel(config_.GetChannel(this->_config.GetChannel()));
+  this->SetTxPower(config_.GetTxPower(this->_config.GetTxPower()));
+  return (this->Commit());
 }
 
 int
-WirelessInterface::GetPhyIndex() const
+Interface::GetPhyIndex() const
 {
   int index = -1;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         index = cmd.PhyIndex();
@@ -263,7 +271,7 @@ WirelessInterface::GetPhyIndex() const
     }
     else
     {
-      index = this->phyindex;
+      index = this->_config.GetPhyIndex();
     }
     this->lock.Unlock();
   }
@@ -271,12 +279,12 @@ WirelessInterface::GetPhyIndex() const
 }
 
 bool
-WirelessInterface::SetPhyIndex(const int index_)
+Interface::SetPhyIndex(const int index_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    this->phyindex = index_;
+    this->_config.SetPhyIndex(index_);
     this->lock.Unlock();
     status = true;
   }
@@ -284,15 +292,14 @@ WirelessInterface::SetPhyIndex(const int index_)
 }
 
 std::string
-WirelessInterface::GetPhyName() const
+Interface::GetPhyName() const
 {
   std::string name;
-  int index = this->GetPhyIndex();
   if (this->lock.Lock())
   {
-    if (index >= 0)
+    if (this->_config.GetPhyIndex() >= 0)
     {
-      GetPhyCommand cmd(index);
+      GetPhyCommand cmd(this->_config.GetPhyIndex());
       if (cmd.Exec())
       {
         name = cmd.PhyName();
@@ -300,7 +307,7 @@ WirelessInterface::GetPhyName() const
     }
     else
     {
-      name = this->wconfig.GetPhyName();
+      name = this->_config.GetPhyName();
     }
     this->lock.Unlock();
   }
@@ -308,16 +315,16 @@ WirelessInterface::GetPhyName() const
 }
 
 bool
-WirelessInterface::SetPhyName(const std::string& name_)
+Interface::SetPhyName(const std::string& name_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (name_ != this->wconfig.GetPhyName())
+    if (name_ != this->_config.GetPhyName())
     {
-      if (this->wconfig.SetPhyName(name_))
+      if (this->_config.SetPhyName(name_))
       {
-        SetPhyCommand* cmd = new SetPhyCommand(this->phyindex);
+        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetPhyIndex());
         cmd->PhyName(name_);
         this->addCommand(cmd);
         status = true;
@@ -332,22 +339,24 @@ WirelessInterface::SetPhyName(const std::string& name_)
   return (status);
 }
 
-WirelessInterfaceConfigData::HWMODE
-WirelessInterface::GetHwMode() const
+ConfigData::HWMODE
+Interface::GetHwMode() const
 {
-  WirelessInterfaceConfigData::HWMODE mode = WirelessInterfaceConfigData::HWMODE_ERR;
+  ConfigData::HWMODE mode = ConfigData::HWMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
+        // TODO: Implement this
+        mode = this->_config.GetHwMode();
       }
     }
     else
     {
-      mode = this->wconfig.GetHwMode();
+      mode = this->_config.GetHwMode();
     }
     this->lock.Unlock();
   }
@@ -355,14 +364,14 @@ WirelessInterface::GetHwMode() const
 }
 
 bool
-WirelessInterface::SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_)
+Interface::SetHwMode(const ConfigData::HWMODE mode_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->wconfig.GetHwMode())
+    if (mode_ != this->_config.GetHwMode())
     {
-      if (this->wconfig.SetHwMode(mode_) && this->ifIndex)
+      if (this->_config.SetHwMode(mode_) && this->_config.GetIfIndex())
       {
         status = true;
       }
@@ -376,30 +385,30 @@ WirelessInterface::SetHwMode(const WirelessInterfaceConfigData::HWMODE mode_)
   return (status);
 }
 
-WirelessInterfaceConfigData::HTMODE
-WirelessInterface::GetHtMode() const
+ConfigData::HTMODE
+Interface::GetHtMode() const
 {
-  WirelessInterfaceConfigData::HTMODE mode = WirelessInterfaceConfigData::HTMODE_ERR;
+  ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         switch(cmd.ChannelType())
         {
         case NL80211_CHAN_NO_HT:
-          mode = WirelessInterfaceConfigData::HTMODE_NOHT;
+          mode = ConfigData::HTMODE_NOHT;
           break;
         case NL80211_CHAN_HT20:
-          mode = WirelessInterfaceConfigData::HTMODE_HT20;
+          mode = ConfigData::HTMODE_HT20;
           break;
         case NL80211_CHAN_HT40MINUS:
-          mode = WirelessInterfaceConfigData::HTMODE_HT40MINUS;
+          mode = ConfigData::HTMODE_HT40MINUS;
           break;
         case NL80211_CHAN_HT40PLUS:
-          mode = WirelessInterfaceConfigData::HTMODE_HT40PLUS;
+          mode = ConfigData::HTMODE_HT40PLUS;
           break;
         default:
           break;
@@ -407,22 +416,22 @@ WirelessInterface::GetHtMode() const
         switch(cmd.ChannelWidth())
         {
         case NL80211_CHAN_WIDTH_20_NOHT:
-          mode = WirelessInterfaceConfigData::HTMODE_NOHT;
+          mode = ConfigData::HTMODE_NOHT;
           break;
         case NL80211_CHAN_WIDTH_20:
-          mode = WirelessInterfaceConfigData::HTMODE_VHT20;
+          mode = ConfigData::HTMODE_VHT20;
           break;
         case NL80211_CHAN_WIDTH_40:
-          mode = WirelessInterfaceConfigData::HTMODE_VHT40;
+          mode = ConfigData::HTMODE_VHT40;
           break;
         case NL80211_CHAN_WIDTH_80:
-          mode = WirelessInterfaceConfigData::HTMODE_VHT80;
+          mode = ConfigData::HTMODE_VHT80;
           break;
         case NL80211_CHAN_WIDTH_80P80:
-          mode = WirelessInterfaceConfigData::HTMODE_VHT80PLUS80;
+          mode = ConfigData::HTMODE_VHT80PLUS80;
           break;
         case NL80211_CHAN_WIDTH_160:
-          mode = WirelessInterfaceConfigData::HTMODE_VHT160;
+          mode = ConfigData::HTMODE_VHT160;
           break;
         default:
           break;
@@ -431,7 +440,7 @@ WirelessInterface::GetHtMode() const
     }
     else
     {
-      mode = this->wconfig.GetHtMode();
+      mode = this->_config.GetHtMode();
     }
     this->lock.Unlock();
   }
@@ -439,14 +448,14 @@ WirelessInterface::GetHtMode() const
 }
 
 bool
-WirelessInterface::SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_)
+Interface::SetHtMode(const ConfigData::HTMODE mode_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->wconfig.GetHtMode())
+    if (mode_ != this->_config.GetHtMode())
     {
-      if (this->wconfig.SetHtMode(mode_) && this->ifIndex)
+      if (this->_config.SetHtMode(mode_) && this->_config.GetIfIndex())
       {
         status = true;
       }
@@ -460,15 +469,15 @@ WirelessInterface::SetHtMode(const WirelessInterfaceConfigData::HTMODE mode_)
   return (status);
 }
 
-WirelessInterfaceConfigData::OPMODE
-WirelessInterface::GetOpMode() const
+ConfigData::OPMODE
+Interface::GetOpMode() const
 {
-  WirelessInterfaceConfigData::OPMODE mode = WirelessInterfaceConfigData::OPMODE_ERR;
+  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetInterfaceCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         mode = _nl2opmode(cmd.IfType());
@@ -476,7 +485,7 @@ WirelessInterface::GetOpMode() const
     }
     else
     {
-      mode = this->wconfig.GetOpMode();
+      mode = this->_config.GetOpMode();
     }
     this->lock.Unlock();
   }
@@ -484,16 +493,16 @@ WirelessInterface::GetOpMode() const
 }
 
 bool
-WirelessInterface::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
+Interface::SetOpMode(const ConfigData::OPMODE mode_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->wconfig.GetOpMode())
+    if (mode_ != this->_config.GetOpMode())
     {
-      if (this->wconfig.SetOpMode(mode_) && this->ifIndex)
+      if (this->_config.SetOpMode(mode_) && this->_config.GetIfIndex())
       {
-        SetInterfaceCommand* cmd = new SetInterfaceCommand(this->ifIndex);
+        SetInterfaceCommand* cmd = new SetInterfaceCommand(this->_config.GetIfIndex());
         cmd->IfType(_opmode2nl(mode_));
         this->addCommand(cmd);
         status = true;
@@ -509,14 +518,14 @@ WirelessInterface::SetOpMode(const WirelessInterfaceConfigData::OPMODE mode_)
 }
 
 unsigned int
-WirelessInterface::GetChannel() const
+Interface::GetChannel() const
 {
   unsigned int channel = 0;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex() && (this->_config.GetPhyIndex() >= 0))
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetPhyCommand cmd(this->_config.GetPhyIndex());
       if (cmd.Exec())
       {
         channel = cmd.Frequency.GetChannel();
@@ -524,7 +533,7 @@ WirelessInterface::GetChannel() const
     }
     else
     {
-      channel = this->wconfig.GetChannel();
+      channel = this->_config.GetChannel();
     }
     this->lock.Unlock();
   }
@@ -532,16 +541,22 @@ WirelessInterface::GetChannel() const
 }
 
 bool
-WirelessInterface::SetChannel(const unsigned int channel_)
+Interface::SetChannel(const unsigned int channel_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (channel_ != this->wconfig.GetChannel())
+    if (channel_ != this->_config.GetChannel())
     {
-      if (this->wconfig.SetChannel(channel_) && this->ifIndex)
+      if (this->_config.GetAdminState() != ConfigData::STATE_UP)
       {
-        SetPhyCommand* cmd = new SetPhyCommand(this->ifIndex);
+        ZLOG_WARN("Interface must be UP before setting channel");
+      }
+      if (this->_config.SetChannel(channel_) && this->_config.GetIfIndex() &&
+          (this->_config.GetPhyIndex() >= 0))
+      {
+        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
+        cmd->PhyIndex(this->_config.GetPhyIndex());
         cmd->Frequency.SetChannel(channel_);
         this->addCommand(cmd);
         status = true;
@@ -557,22 +572,22 @@ WirelessInterface::SetChannel(const unsigned int channel_)
 }
 
 unsigned int
-WirelessInterface::GetTxPower() const
+Interface::GetTxPower() const
 {
   unsigned int power = 0;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex() && (this->_config.GetPhyIndex() >= 0))
     {
-      GetInterfaceCommand cmd(this->ifIndex);
+      GetPhyCommand cmd(this->_config.GetPhyIndex());
       if (cmd.Exec())
       {
-        power = cmd.TxPower();
+        power = cmd.TxPowerLevel();
       }
     }
     else
     {
-      power = this->wconfig.GetTxPower();
+      power = this->_config.GetTxPower();
     }
     this->lock.Unlock();
   }
@@ -580,19 +595,21 @@ WirelessInterface::GetTxPower() const
 }
 
 bool
-WirelessInterface::SetTxPower(const unsigned int txpower_)
+Interface::SetTxPower(const unsigned int txpower_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    if (txpower_ != this->wconfig.GetTxPower())
+    if (txpower_ != this->_config.GetTxPower())
     {
-      if (this->wconfig.SetTxPower(txpower_) && this->ifIndex)
+      if (this->_config.SetTxPower(txpower_) && this->_config.GetIfIndex() &&
+          (this->_config.GetPhyIndex() >= 0))
       {
-//        SetPhyCommand* cmd = new SetPhyCommand(this->ifindex);
-//        cmd->TxPower(txpower_);
-//        this->_cmds.push_back(cmd);
-//        this->set_modified();
+        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetPhyIndex());
+        cmd->PhyIndex(this->_config.GetPhyIndex());
+        cmd->TxPowerMode.SetMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
+        cmd->TxPowerLevel(txpower_);
+        this->addCommand(cmd);
         status = true;
       }
     }
@@ -606,39 +623,40 @@ WirelessInterface::SetTxPower(const unsigned int txpower_)
 }
 
 bool
-WirelessInterface::Refresh()
+Interface::Refresh()
 {
   bool status = false;
-  if (Interface::Refresh())
+  if (zInterface::Interface::Refresh())
   {
-    this->wconfig.SetPhyIndex(this->GetPhyIndex());
-    this->wconfig.SetPhyName(this->GetPhyName());
-    this->wconfig.SetHwMode(this->GetHwMode());
-    this->wconfig.SetHtMode(this->GetHtMode());
-    this->wconfig.SetOpMode(this->GetOpMode());
-    this->wconfig.SetChannel(this->GetChannel());
-    this->wconfig.SetTxPower(this->GetTxPower());
+    this->_config.SetPhyIndex(this->GetPhyIndex());
+    this->_config.SetPhyName(this->GetPhyName());
+    this->_config.SetHwMode(this->GetHwMode());
+    this->_config.SetHtMode(this->GetHtMode());
+    this->_config.SetOpMode(this->GetOpMode());
+    this->_config.SetChannel(this->GetChannel());
+    this->_config.SetTxPower(this->GetTxPower());
     status = true;
   }
   return (status);
 }
 
 bool
-WirelessInterface::Commit()
+Interface::Commit()
 {
-  return (Interface::Commit());
+  return (zInterface::Interface::Commit());
 }
 
 bool
-WirelessInterface::Create()
+Interface::Create()
 {
 
   bool status = false;
 
   if (this->lock.Lock())
   {
-    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->config.GetIfName(), this->phyindex);
-    cmd->IfType(_opmode2nl(this->wconfig.GetOpMode()));
+    NewInterfaceCommand *cmd =
+        new NewInterfaceCommand(this->_config.GetIfName(), this->_config.GetPhyIndex());
+    cmd->IfType(_opmode2nl(this->_config.GetOpMode()));
     this->addCommand(cmd);
     status = true;
     this->lock.Unlock();
@@ -647,7 +665,7 @@ WirelessInterface::Create()
   if (status)
   {
     status = false;
-    if (Interface::Create() && this->GetIfIndex())
+    if (zInterface::Interface::Create() && this->GetIfIndex())
     {
       status = this->Refresh();
     }
@@ -658,7 +676,7 @@ WirelessInterface::Create()
 }
 
 bool
-WirelessInterface::Destroy()
+Interface::Destroy()
 {
 
   bool status = false;
@@ -667,7 +685,7 @@ WirelessInterface::Destroy()
 
   if (this->lock.Lock())
   {
-    DelInterfaceCommand cmd(this->ifIndex);
+    DelInterfaceCommand cmd(this->_config.GetIfIndex());
     status = cmd.Exec();
     this->lock.Unlock();
   }
@@ -679,7 +697,7 @@ WirelessInterface::Destroy()
 }
 
 void
-WirelessInterface::Display(const std::string &prefix_)
+Interface::Display(const std::string &prefix_)
 {
   Interface::Display(prefix_);
   std::cout << "--------- Wireless Interface -----------" << std::endl;

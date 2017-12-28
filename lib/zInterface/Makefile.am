@@ -26,7 +26,7 @@ libzInterface_la_LDFLAGS = \
   ${NLRTNL3_LIBS}
 
 libzInterface_la_SOURCES = \
-    InterfaceConfiguration.cpp \
+    Configuration.cpp \
     Interface.cpp \
     LoopInterface.cpp
 

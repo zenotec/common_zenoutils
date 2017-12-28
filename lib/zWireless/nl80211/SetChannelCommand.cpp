@@ -44,7 +44,7 @@ using namespace zUtils;
 #include "GenericSocket.h"
 using namespace netlink;
 
-#include "SetBeaconCommand.h"
+#include "SetChannelCommand.h"
 
 namespace nl80211
 {
@@ -56,27 +56,27 @@ __errstr(int code)
 }
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: SetChannelCommand
 //*****************************************************************************
 
-SetBeaconCommand::SetBeaconCommand(int index_) :
+SetChannelCommand::SetChannelCommand(int index_) :
     Command(index_)
 {
   this->IfIndex.SetValue(index_);
 }
 
-SetBeaconCommand::SetBeaconCommand(const std::string& name_) :
+SetChannelCommand::SetChannelCommand(const std::string& name_) :
     Command(name_)
 {
   this->IfName.SetValue(name_);
 }
 
-SetBeaconCommand::~SetBeaconCommand()
+SetChannelCommand::~SetChannelCommand()
 {
 }
 
 bool
-SetBeaconCommand::Exec()
+SetChannelCommand::Exec()
 {
 
   this->_count.Reset();
@@ -99,31 +99,28 @@ SetBeaconCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_BEACON);
+  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_CHANNEL);
   cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Ssid);
-  cmdmsg.PutAttribute(&this->BeaconInterval);
-  cmdmsg.PutAttribute(&this->DtimPeriod);
-  cmdmsg.PutAttribute(&this->BeaconHead);
-  cmdmsg.PutAttribute(&this->BeaconTail);
+  cmdmsg.PutAttribute(&this->Frequency);
+  cmdmsg.PutAttribute(&this->ChannelWidth);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
-    ZLOG_ERR("Error sending get_interface netlink message");
+    ZLOG_ERR("Error sending set_channel netlink message");
     return(false);
   }
 
   // Wait for the response
   if (!this->_sock.RecvMsg())
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for set_channel netlink message");
     return(false);
   }
 
   if (!this->_count.TimedWait(100))
   {
-    ZLOG_ERR("Error receiving response for get_interface netlink message");
+    ZLOG_ERR("Error receiving response for set_channel netlink message");
     return(false);
   }
 
@@ -131,26 +128,19 @@ SetBeaconCommand::Exec()
   this->_sock.Disconnect();
 
   return(this->_status);
-
 }
 
 void
-SetBeaconCommand::Display() const
+SetChannelCommand::Display() const
 {
-  std::cout << "##################################################" << std::endl;
-  std::cout << "SetBeaconCommand: " << std::endl;
+  std::cout << "Set Channel: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue() << std::endl;
-  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue().second << std::endl;
-  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue().second << std::endl;
-  std::cout << "##################################################" << std::endl;
+  std::cout << "\tChannel:  \t" << this->Frequency.GetChannel() << std::endl;
 }
 
 int
-SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+SetChannelCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
 
   GenericMessage msg(msg_);
@@ -159,25 +149,10 @@ SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
+//  std::cout << "SetChannelCommand::ack_cb()" << std::endl;
+//  msg.Display();
 //  msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->Ssid))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
-    return(NL_SKIP);
-  }
 
   this->_status = true;
   this->_count.Post();
@@ -186,9 +161,9 @@ SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 }
 
 int
-SetBeaconCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
+SetChannelCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
-  ZLOG_ERR("Error executing SetBeaconCommand");
+  ZLOG_ERR("Error executing SetChannelCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();

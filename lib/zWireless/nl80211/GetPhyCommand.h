@@ -43,6 +43,11 @@ using namespace netlink;
 
 #include "PhyIndexAttribute.h"
 #include "PhyNameAttribute.h"
+#include "FrequencyAttribute.h"
+#include "ChannelTypeAttribute.h"
+#include "ChannelWidthAttribute.h"
+#include "TxPowerModeAttribute.h"
+#include "TxPowerLevelAttribute.h"
 
 namespace nl80211
 {
@@ -58,8 +63,13 @@ public:
 
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
+  FrequencyAttribute Frequency;
+  ChannelTypeAttribute ChannelType;
+  ChannelWidthAttribute ChannelWidth;
+  TxPowerModeAttribute TxPowerMode;
+  TxPowerLevelAttribute TxPowerLevel;
 
-  GetPhyCommand(int index_ = 0);
+  GetPhyCommand(int index_);
 
   GetPhyCommand(const std::string& name_);
 

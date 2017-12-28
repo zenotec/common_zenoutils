@@ -54,20 +54,21 @@ namespace zWireless
 // Class: MonitorInterface
 // ****************************************************************************
 
-MonitorInterface::MonitorInterface(const std::string& name_) :
-    WirelessInterface(name_)
+MonitorInterface::MonitorInterface(const std::string& name_, const int phyindex_) :
+    Interface(name_, phyindex_)
 {
-  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_MONITOR);
-}
-
-MonitorInterface::MonitorInterface(const zInterface::ConfigData& config_) :
-    WirelessInterface(config_)
-{
-  this->wconfig.SetOpMode(WirelessInterfaceConfigData::OPMODE_MONITOR);
+  this->SetOpMode(ConfigData::OPMODE_MONITOR);
 }
 
 MonitorInterface::~MonitorInterface()
 {
+}
+
+void
+MonitorInterface::Display(const std::string& prefix_)
+{
+  Interface::Display(prefix_);
+  std::cout << prefix_ << "--------- Monitor Interface ------------" << std::endl;
 }
 
 }

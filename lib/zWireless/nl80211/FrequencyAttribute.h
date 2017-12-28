@@ -106,6 +106,7 @@ public:
       Attribute(NL80211_ATTR_WIPHY_FREQ)
   {
     this->SetValue(0);
+    this->ClrValid();
   }
 
   virtual

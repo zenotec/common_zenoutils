@@ -76,6 +76,9 @@ public:
   GetAttribute(const int attr_, uint32_t& value_);
 
   bool
+  GetAttribute(const int attr_, int32_t& value_);
+
+  bool
   GetAttribute(const int attr_, std::string& value_);
 
   bool
@@ -98,6 +101,9 @@ public:
 
   bool
   PutAttribute(const int attr_, const uint32_t value_);
+
+  bool
+  PutAttribute(const int attr_, const int32_t value_);
 
   bool
   PutAttribute(const int attr_, const std::string& value_);

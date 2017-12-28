@@ -57,7 +57,7 @@ public:
   IfNameAttribute IfName;
   SsidAttribute Ssid;
 
-  StopApCommand(int index_ = 0);
+  StopApCommand(int index_);
 
   StopApCommand(const std::string& name_);
 

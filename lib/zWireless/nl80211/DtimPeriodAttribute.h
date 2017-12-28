@@ -44,6 +44,7 @@ public:
       Attribute(NL80211_ATTR_DTIM_PERIOD)
   {
     this->SetValue(3);
+    this->ClrValid();
   }
 
   virtual

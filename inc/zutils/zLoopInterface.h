@@ -38,22 +38,11 @@ public:
 
   LoopInterface(const std::string& name_ = "");
 
-  LoopInterface(const zInterface::ConfigData &config_);
-
   virtual
   ~LoopInterface();
 
-  virtual bool
-  Commit();
-
-  virtual bool
-  Create();
-
-  virtual bool
-  Destroy();
-
   virtual void
-  Display(const std::string& prefix_ = std::string(""));
+  Display(const std::string &prefix_ = std::string(""));
 
 protected:
 

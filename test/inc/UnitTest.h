@@ -78,11 +78,16 @@
    for (int i = 0; i < n; i++) IPRINTF("."); \
 }
 
+#define UTEST_PASS  Test::UnitTest::RESULT_PASS
+#define UTEST_FAIL  Test::UnitTest::RESULT_FAIL
+#define UTEST_SKIP  Test::UnitTest::RESULT_SKIP
+
 #define UTEST_INIT() \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest ) \
   { \
+    utest->SetStatus(UTEST_PASS); \
     utest->SetName( std::string(__FUNCTION__) ); \
     utest->DisplayHeader(); \
   } \
@@ -100,12 +105,17 @@ do { \
 
 #define UTEST_TEST(fnc, arg) \
 do { \
-   int status = 0; \
+   Test::UnitTest::RESULT status = UTEST_PASS; \
    IPRINTF( "  %s()", #fnc ); \
    DOTS((50-sizeof(#fnc))); \
-   if ( !( status = (fnc)(arg) ) ) \
+   status = (Test::UnitTest::RESULT)(fnc)(arg); \
+   if ( status == UTEST_PASS ) \
    { \
       IPRINTF( "success\n" ); \
+   } \
+   else if ( status == UTEST_SKIP) \
+   { \
+     IPRINTF( "skipped\n" ); \
    } \
    else \
    { \
@@ -119,32 +129,35 @@ do { \
    } \
 } while(false)
 
+#define UTEST_RETURN    return(Test::UnitTest::RESULT_PASS);
+#define UTEST_BYPASS    return(Test::UnitTest::RESULT_SKIP);
+
 #define TEST_IS_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<void*>( __LINE__, (void*)(x), (void*)NULL, std::string( "" ) ) != true ) \
-      return (1); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_ISNOT_NULL(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<void*>( __LINE__, (x), NULL, std::string( "" ) ) != true ) \
-      return (1); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_IS_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
-      return (1); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_ISNOT_ZERO(x) \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<int>( __LINE__, (x), 0, std::string( "" ) ) != true ) \
-      return (2); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_TRUE(x) TEST_TRUE_MSG(x, std::string( "" ))
@@ -152,7 +165,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->True( __LINE__, (x), msg ) != true ) \
-      return (1); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_FALSE(x) TEST_FALSE_MSG(x, std::string( "" ))
@@ -160,7 +173,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->False( __LINE__, (x), msg ) != true ) \
-      return (2); \
+      return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_EQ(x, y) TEST_EQ_MSG(x, y, std::string( "" ))
@@ -168,7 +181,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Eq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
-    return (3); \
+    return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_NEQ(x, y) TEST_NEQ_MSG(x, y, std::string( "" ))
@@ -176,7 +189,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Neq<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
-    return (4); \
+    return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_LT(x, y) TEST_LT_MSG(x, y, std::string( "" ))
@@ -184,7 +197,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Lt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
-    return (5); \
+    return (UTEST_FAIL); \
 } while(false)
 
 #define TEST_GT(x, y) TEST_GT_MSG((x), (y), std::string( "" ) )
@@ -192,7 +205,7 @@ do { \
 do { \
   Test::UnitTest* utest = Test::UnitTest::GetInstance(); \
   if( utest && utest->Gt<typeof(x)>( __LINE__, (x), (y), (msg) ) != true ) \
-    return (6); \
+    return (UTEST_FAIL); \
 } while(false)
 
 //*****************************************************************************
@@ -256,6 +269,15 @@ class UnitTest
 {
 
 public:
+
+  enum RESULT
+  {
+    RESULT_ERR = -1,
+    RESULT_PASS = 0,
+    RESULT_FAIL = 1,
+    RESULT_SKIP = 2,
+    RESULT_LAST
+  };
 
   static UnitTest*
   GetInstance()
@@ -420,21 +442,21 @@ public:
     std::cerr.flush();
   }
 
-  int
+  UnitTest::RESULT
   GetStatus()
   {
     return (this->_status);
   }
 
   void
-  SetStatus(int status_)
+  SetStatus(UnitTest::RESULT status_)
   {
     this->_status = status_;
   }
 
 protected:
   UnitTest() :
-      _status(0)
+      _status(RESULT_PASS)
   {
   }
 
@@ -446,7 +468,7 @@ protected:
 private:
 
   std::string _name;
-  int _status;
+  UnitTest::RESULT _status;
   struct timespec _start;
   struct timespec _stop;
   std::queue<Log> _log;

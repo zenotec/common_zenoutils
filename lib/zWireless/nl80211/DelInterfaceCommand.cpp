@@ -157,8 +157,8 @@ DelInterfaceCommand::ack_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  std::cout << "DelInterfaceCommand::ack_cb()" << std::endl;
-  msg.DisplayAttributes();
+//  std::cout << "DelInterfaceCommand::ack_cb()" << std::endl;
+//  msg.DisplayAttributes();
 
   this->_status = true;
   this->_count.Post();

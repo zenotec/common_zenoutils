@@ -44,6 +44,7 @@ public:
       Attribute(NL80211_ATTR_BEACON_INTERVAL)
   {
     this->SetValue(0);
+    this->ClrValid();
   }
 
   virtual

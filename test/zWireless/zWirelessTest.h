@@ -17,41 +17,22 @@
  * limitations under the License.
  */
 
-// libc includes
+#ifndef __ZWIRELESSTEST_H__
+#define __ZWIRELESSTEST_H__
 
-// libc++ includes
+int
+zWirelessTest_WirelessConfigurationDefaults(void* arg);
+int
+zWirelessTest_WirelessDefaults(void* arg);
 
-// libzutils includes
+int
+zWirelessTest_WirelessConfiguration(void* arg);
 
-#include <zutils/zLoopInterface.h>
+int
+zWirelessTest_WirelessInterface(void* arg);
+int
+zWirelessTest_MonitorInterface(void* arg);
+int
+zWirelessTest_AccessPointInterface(void* arg);
 
-// local includes
-
-namespace zUtils
-{
-namespace zInterface
-{
-
-// ****************************************************************************
-// Class: LoopInterface
-// ****************************************************************************
-
-LoopInterface::LoopInterface(const std::string& name_) :
-    Interface(name_)
-{
-  this->SetIfType(ConfigData::IFTYPE_LOOP);
-}
-
-LoopInterface::~LoopInterface()
-{
-}
-
-void
-LoopInterface::Display(const std::string& prefix_)
-{
-  Interface::Display(prefix_);
-  std::cout << prefix_ << "-------- Loopback Interface ------------" << std::endl;
-}
-
-}
-}
+#endif /* __ZWIRELESSTEST_H__ */

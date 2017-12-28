@@ -156,6 +156,7 @@ _state2str(const ConfigData::STATE state_)
 // ****************************************************************************
 
 const std::string ConfigPath::ConfigRoot("zInterface");
+const std::string ConfigPath::ConfigIfIndexPath("IfIndex");
 const std::string ConfigPath::ConfigIfNamePath("IfName");
 const std::string ConfigPath::ConfigIfTypePath("IfType");
 const std::string ConfigPath::ConfigHwAddressPath("HwAddress");
@@ -189,6 +190,8 @@ ConfigPath::~ConfigPath()
 // Class: ConfigData
 // ****************************************************************************
 
+const unsigned int ConfigData::ConfigIndexDefault(0);
+
 const std::string ConfigData::ConfigNameDefault("");
 
 const std::string ConfigData::ConfigTypeNone("");
@@ -216,25 +219,63 @@ const std::string ConfigData::ConfigAdminStateDown("DOWN");
 const std::string ConfigData::ConfigAdminStateDefault(ConfigData::ConfigAdminStateNone);
 
 ConfigData::ConfigData(const std::string& name_) :
-    zConfig::ConfigData(ConfigPath::ConfigRoot)
+    _data(NULL)
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(name_)");
+  SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData(ConfigPath::ConfigRoot));
+  this->SetData(data);
   this->SetIfName(name_);
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
 }
 
-ConfigData::ConfigData(const zConfig::ConfigData& config_) :
-    zConfig::ConfigData(ConfigPath::ConfigRoot)
+ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
+    _data(NULL)
 {
-  ZLOG_DEBUG("zInterface::ConfigData::ConfigData(config_)");
-  this->PutChild(ConfigPath(), ConfigPath(), config_);
-  ZLOG_DEBUG(this->Path());
-  ZLOG_DEBUG(this->GetJson());
+  ZLOG_DEBUG("zInterface::ConfigData::ConfigData(data_)");
+  this->SetData(data_);
 }
 
 ConfigData::~ConfigData()
 {
+}
+
+SHARED_PTR(zConfig::ConfigData)
+ConfigData::GetData() const
+{
+  return (this->_data);
+}
+
+bool
+ConfigData::SetData(SHARED_PTR(zConfig::ConfigData) data_)
+{
+  this->_data = data_;
+  if (!this->_data)
+  {
+    std::string errmsg = "NULL interface configuration data pointer";
+    ZLOG_CRIT(errmsg);
+    throw errmsg;
+  }
+  ZLOG_DEBUG(this->_data->Path());
+  ZLOG_DEBUG(this->_data->GetJson());
+  return (true);
+}
+
+unsigned int
+ConfigData::GetIfIndex(const unsigned int index_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigIfIndexPath);
+  if (!this->_data->GetValue(path, val))
+  {
+    val = index_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetIfIndex(const unsigned int index_)
+{
+  ConfigPath path(ConfigPath::ConfigIfIndexPath);
+  return (this->_data->PutValue(path, index_));
 }
 
 std::string
@@ -242,7 +283,7 @@ ConfigData::GetIfName(const std::string& name_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigIfNamePath);
-  if (!this->GetValue(path, str))
+  if (!this->_data->GetValue(path, str))
   {
     str = name_;
   }
@@ -253,7 +294,7 @@ bool
 ConfigData::SetIfName(const std::string& name_)
 {
   ConfigPath path(ConfigPath::ConfigIfNamePath);
-  return (this->PutValue(path, name_));
+  return (this->_data->PutValue(path, name_));
 }
 
 ConfigData::IFTYPE
@@ -264,7 +305,7 @@ ConfigData::GetIfType(const ConfigData::IFTYPE type_) const
   ConfigPath path(ConfigPath::ConfigIfTypePath);
   std::string str;
 
-  if (this->GetValue(path, str))
+  if (this->_data->GetValue(path, str))
   {
     type = _str2iftype(str);
   }
@@ -277,7 +318,7 @@ ConfigData::SetIfType(const ConfigData::IFTYPE type_)
 {
   ConfigPath path(ConfigPath::ConfigIfTypePath);
   std::string str = _iftype2str(type_);
-  return (this->PutValue(path, str));
+  return (this->_data->PutValue(path, str));
 
 }
 
@@ -286,7 +327,7 @@ ConfigData::GetMtu(const unsigned int mtu_) const
 {
   unsigned int val = 0;
   ConfigPath path(ConfigPath::ConfigMtuPath);
-  if (!this->GetValue(path, val))
+  if (!this->_data->GetValue(path, val))
   {
     val = mtu_;
   }
@@ -297,7 +338,7 @@ bool
 ConfigData::SetMtu(const unsigned int mtu_)
 {
   ConfigPath path(ConfigPath::ConfigMtuPath);
-  return (this->PutValue(path, mtu_));
+  return (this->_data->PutValue(path, mtu_));
 }
 
 std::string
@@ -305,7 +346,7 @@ ConfigData::GetHwAddress(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigHwAddressPath);
-  if (!this->GetValue(path, str))
+  if (!this->_data->GetValue(path, str))
   {
     str = addr_;
   }
@@ -316,7 +357,7 @@ bool
 ConfigData::SetHwAddress(const std::string& addr_)
 {
   ConfigPath path(ConfigPath::ConfigHwAddressPath);
-  return (this->PutValue(path, addr_));
+  return (this->_data->PutValue(path, addr_));
 }
 
 std::string
@@ -324,7 +365,7 @@ ConfigData::GetIpAddress(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigIpAddressPath);
-  if (!this->GetValue(path, str))
+  if (!this->_data->GetValue(path, str))
   {
     str = addr_;
   }
@@ -335,7 +376,7 @@ bool
 ConfigData::SetIpAddress(const std::string& addr_)
 {
   ConfigPath path(ConfigPath::ConfigIpAddressPath);
-  return (this->PutValue(path, addr_));
+  return (this->_data->PutValue(path, addr_));
 }
 
 std::string
@@ -343,7 +384,7 @@ ConfigData::GetNetmask(const std::string& addr_) const
 {
   std::string str;
   ConfigPath path(ConfigPath::ConfigNetmaskPath);
-  if (!this->GetValue(path, str))
+  if (!this->_data->GetValue(path, str))
   {
     str = addr_;
   }
@@ -354,7 +395,7 @@ bool
 ConfigData::SetNetmask(const std::string& addr_)
 {
   ConfigPath path(ConfigPath::ConfigNetmaskPath);
-  return (this->PutValue(path, addr_));
+  return (this->_data->PutValue(path, addr_));
 }
 
 ConfigData::STATE
@@ -363,7 +404,7 @@ ConfigData::GetAdminState(const ConfigData::STATE state_) const
   ConfigData::STATE state = state_;
   ConfigPath path(ConfigPath::ConfigAdminStatePath);
   std::string str;
-  if (this->GetValue(path, str))
+  if (this->_data->GetValue(path, str))
   {
     state = _str2state(str);
   }
@@ -375,7 +416,7 @@ ConfigData::SetAdminState(const ConfigData::STATE state_)
 {
   ConfigPath path(ConfigPath::ConfigAdminStatePath);
   std::string str = _state2str(state_);
-  return (this->PutValue(path, str));
+  return (this->_data->PutValue(path, str));
 }
 
 }

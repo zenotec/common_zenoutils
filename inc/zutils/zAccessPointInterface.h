@@ -23,7 +23,7 @@
 #include <zutils/zInterface.h>
 using namespace zUtils::zInterface;
 
-#include <zutils/zWirelessInterface.h>
+#include <zutils/zWireless.h>
 
 namespace zUtils
 {
@@ -34,13 +34,11 @@ namespace zWireless
 // Class: AccessPointInterface
 // ****************************************************************************
 
-class AccessPointInterface : public WirelessInterface
+class AccessPointInterface : public Interface
 {
 public:
 
   AccessPointInterface(const std::string &name_, const unsigned int phyindex_ = 0);
-
-  AccessPointInterface(const zInterface::ConfigData& config_);
 
   virtual
   ~AccessPointInterface();

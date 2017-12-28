@@ -31,6 +31,7 @@ zInterfaceTest_InterfaceConfiguration (void* arg)
 
   ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
+  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
   TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
@@ -40,6 +41,7 @@ zInterfaceTest_InterfaceConfiguration (void* arg)
   TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
 
   // Set
+  TEST_TRUE(MyConfig->SetIfIndex(3));
   TEST_TRUE(MyConfig->SetIfName("eth0"));
   TEST_TRUE(MyConfig->SetIfType(ConfigData::IFTYPE_IEEE8023));
   TEST_TRUE(MyConfig->SetHwAddress("00:11:22:33:44:55"));
@@ -49,6 +51,8 @@ zInterfaceTest_InterfaceConfiguration (void* arg)
   TEST_TRUE(MyConfig->SetAdminState(ConfigData::STATE_UP));
 
   // Get
+  TEST_NEQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(3, MyConfig->GetIfIndex());
   TEST_NEQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
   TEST_EQ(std::string("eth0"), MyConfig->GetIfName());
   TEST_NEQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());

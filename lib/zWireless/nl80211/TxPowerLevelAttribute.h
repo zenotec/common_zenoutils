@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_TXPOWERATTRIBUTE_H__
-#define __NL80211_TXPOWERATTRIBUTE_H__
+#ifndef __NL80211_TXPOWERLEVELATTRIBUTE_H__
+#define __NL80211_TXPOWERLEVELATTRIBUTE_H__
 
 // libc includes
 #include <stdint.h>
@@ -31,22 +31,23 @@ namespace nl80211
 {
 
 //*****************************************************************************
-// Class: TxPowerAttribute
+// Class: TxPowerLevelAttribute
 //*****************************************************************************
 
-class TxPowerAttribute : public Attribute<uint32_t>
+class TxPowerLevelAttribute : public Attribute<int32_t>
 {
 
 public:
 
-  TxPowerAttribute() :
+  TxPowerLevelAttribute() :
       Attribute(NL80211_ATTR_WIPHY_TX_POWER_LEVEL)
   {
     this->SetValue(0);
+    this->ClrValid();
   }
 
   virtual
-  ~TxPowerAttribute()
+  ~TxPowerLevelAttribute()
   {
   }
 
@@ -58,4 +59,4 @@ private:
 
 }
 
-#endif /* __NL80211_PHYINDEXATTRIBUTE_H__ */
+#endif /* __NL80211_TXPOWERLEVELATTRIBUTE_H__ */

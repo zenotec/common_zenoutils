@@ -74,6 +74,7 @@ public:
       Attribute(NL80211_ATTR_CHANNEL_WIDTH)
   {
     this->SetValue(NL80211_CHAN_WIDTH_20_NOHT);
+    this->ClrValid();
   }
 
   virtual

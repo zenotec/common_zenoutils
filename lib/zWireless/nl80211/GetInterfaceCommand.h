@@ -43,9 +43,10 @@ using namespace netlink;
 #include "MacAttribute.h"
 #include "SsidAttribute.h"
 #include "FrequencyAttribute.h"
-#include "ChannelWidthAttribute.h"
 #include "ChannelTypeAttribute.h"
-#include "TxPowerAttribute.h"
+#include "ChannelWidthAttribute.h"
+#include "TxPowerModeAttribute.h"
+#include "TxPowerLevelAttribute.h"
 
 namespace nl80211
 {
@@ -68,7 +69,8 @@ public:
   FrequencyAttribute Frequency;
   ChannelTypeAttribute ChannelType;
   ChannelWidthAttribute ChannelWidth;
-  TxPowerAttribute TxPower;
+  TxPowerModeAttribute TxPowerMode;
+  TxPowerLevelAttribute TxPowerLevel;
 
   GetInterfaceCommand(int index_);
 

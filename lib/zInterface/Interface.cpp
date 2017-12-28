@@ -109,25 +109,9 @@ _state2str(const ConfigData::STATE state_)
 // ****************************************************************************
 
 Interface::Interface(const std::string& ifname_) :
-    ifIndex(0), config(ifname_)
+    _config(ifname_)
 {
   this->lock.Unlock();
-  this->Refresh();
-}
-
-Interface::Interface(const zInterface::ConfigData& config_) :
-    ifIndex(0), config(config_)
-{
-  this->lock.Unlock();
-  this->Refresh();
-  this->SetIfName(config_.GetIfName(this->config.GetIfName()));
-  this->SetIfType(config_.GetIfType(this->config.GetIfType()));
-  this->SetHwAddress(config_.GetHwAddress(this->config.GetHwAddress()));
-  this->SetMtu(config_.GetMtu(this->config.GetMtu()));
-  this->SetAdminState(config_.GetAdminState(this->config.GetAdminState()));
-  this->SetIpAddress(config_.GetIpAddress(this->config.GetIpAddress()));
-  this->SetNetmask(config_.GetNetmask(this->config.GetNetmask()));
-  this->Commit();
 }
 
 Interface::~Interface()
@@ -135,24 +119,47 @@ Interface::~Interface()
   this->lock.Lock();
 }
 
-unsigned int
-Interface::GetIfIndex()
+zInterface::ConfigData
+Interface::GetConfig() const
 {
-  unsigned int index = 0;
+  return (this->_config);
+}
+
+bool
+Interface::SetConfig(zInterface::ConfigData config_)
+{
+  this->SetIfIndex(config_.GetIfIndex(this->_config.GetIfIndex()));
+  this->SetIfName(config_.GetIfName(this->_config.GetIfName()));
+  this->SetIfType(config_.GetIfType(this->_config.GetIfType()));
+  this->SetHwAddress(config_.GetHwAddress(this->_config.GetHwAddress()));
+  this->SetMtu(config_.GetMtu(this->_config.GetMtu()));
+  this->SetIpAddress(config_.GetIpAddress(this->_config.GetIpAddress()));
+  this->SetNetmask(config_.GetNetmask(this->_config.GetNetmask()));
+  this->SetAdminState(config_.GetAdminState(this->_config.GetAdminState())); // must be last
+  return (this->Commit());
+}
+
+unsigned int
+Interface::GetIfIndex() const
+{
+  unsigned int ifindex = 0;
   if (this->lock.Lock())
   {
-    if (!this->ifIndex)
+    if (!this->_config.GetIfIndex() && !this->_config.GetIfName().empty())
     {
-      GetLinkCommand cmd(this->config.GetIfName());
+      GetLinkCommand cmd(this->_config.GetIfName());
       if (cmd.Exec())
       {
-        this->ifIndex = cmd.IfIndex();
+        ifindex = cmd.IfIndex();
       }
     }
-    index = this->ifIndex;
+    else
+    {
+      ifindex = this->_config.GetIfIndex();
+    }
     this->lock.Unlock();
   }
-  return (index);
+  return (ifindex);
 }
 
 bool
@@ -161,7 +168,7 @@ Interface::SetIfIndex(const unsigned int ifindex_)
   bool status = false;
   if (this->lock.Lock())
   {
-    this->ifIndex = ifindex_;
+    this->_config.SetIfIndex(ifindex_);
     this->lock.Unlock();
     status = true;
   }
@@ -174,9 +181,9 @@ Interface::GetIfName() const
   std::string name;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetLinkCommand cmd(this->ifIndex);
+      GetLinkCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         name = cmd.IfName();
@@ -184,7 +191,7 @@ Interface::GetIfName() const
     }
     else
     {
-      name = this->config.GetIfName();
+      name = this->_config.GetIfName();
     }
     this->lock.Unlock();
   }
@@ -197,11 +204,11 @@ Interface::SetIfName(const std::string& name_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (name_ != this->config.GetIfName())
+    if (name_ != this->_config.GetIfName())
     {
-      if (this->config.SetIfName(name_) && this->ifIndex)
+      if (this->_config.SetIfName(name_) && this->_config.GetIfIndex())
       {
-        SetLinkCommand* cmd = new SetLinkCommand(this->ifIndex);
+        SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->IfName(name_))
         {
           this->addCommand(cmd);
@@ -224,9 +231,9 @@ Interface::GetIfType() const
   ConfigData::IFTYPE type = ConfigData::IFTYPE_ERR;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetLinkCommand cmd(this->ifIndex);
+      GetLinkCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         switch (cmd.ArpType())
@@ -252,7 +259,7 @@ Interface::GetIfType() const
     }
     else
     {
-      type = this->config.GetIfType();
+      type = this->_config.GetIfType();
     }
     this->lock.Unlock();
   }
@@ -265,7 +272,7 @@ Interface::SetIfType(const ConfigData::IFTYPE type_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->config.SetIfType(type_);
+    status = this->_config.SetIfType(type_);
     this->lock.Unlock();
   }
   return (status);
@@ -277,9 +284,9 @@ Interface::GetHwAddress() const
   std::string addr;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetLinkCommand cmd(this->ifIndex);
+      GetLinkCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         addr = cmd.HwAddress();
@@ -287,7 +294,7 @@ Interface::GetHwAddress() const
     }
     else
     {
-      addr = this->config.GetHwAddress();
+      addr = this->_config.GetHwAddress();
     }
     this->lock.Unlock();
   }
@@ -300,11 +307,11 @@ Interface::SetHwAddress(const std::string& addr_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (addr_ != this->config.GetHwAddress())
+    if (addr_ != this->_config.GetHwAddress())
     {
-      if (this->config.SetHwAddress(addr_) && this->ifIndex)
+      if (this->_config.SetHwAddress(addr_) && this->_config.GetIfIndex())
       {
-        SetLinkCommand* cmd = new SetLinkCommand(this->ifIndex);
+        SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->HwAddress(addr_))
         {
           this->addCommand(cmd);
@@ -327,9 +334,9 @@ Interface::GetMtu() const
   unsigned int mtu = 0;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetLinkCommand cmd(this->ifIndex);
+      GetLinkCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         mtu = cmd.Mtu();
@@ -337,7 +344,7 @@ Interface::GetMtu() const
     }
     else
     {
-      mtu = this->config.GetMtu();
+      mtu = this->_config.GetMtu();
     }
     this->lock.Unlock();
   }
@@ -350,11 +357,11 @@ Interface::SetMtu(const unsigned int mtu_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mtu_ != this->config.GetMtu())
+    if (mtu_ != this->_config.GetMtu())
     {
-      if (this->config.SetMtu(mtu_) && this->ifIndex)
+      if (this->_config.SetMtu(mtu_) && this->_config.GetIfIndex())
       {
-        SetLinkCommand* cmd = new SetLinkCommand(this->ifIndex);
+        SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->Mtu(mtu_))
         {
           this->addCommand(cmd);
@@ -377,9 +384,9 @@ Interface::GetAdminState() const
   ConfigData::STATE state = ConfigData::STATE_ERR;
   if (this->lock.Lock())
   {
-    if (this->ifIndex)
+    if (this->_config.GetIfIndex())
     {
-      GetLinkCommand cmd(this->ifIndex);
+      GetLinkCommand cmd(this->_config.GetIfIndex());
       if (cmd.Exec())
       {
         if ((cmd.Flags() & IFF_UP))
@@ -394,7 +401,7 @@ Interface::GetAdminState() const
     }
     else
     {
-      state = this->config.GetAdminState();
+      state = this->_config.GetAdminState();
     }
     this->lock.Unlock();
   }
@@ -407,11 +414,11 @@ Interface::SetAdminState(const ConfigData::STATE state_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (state_ != this->config.GetAdminState())
+    if (state_ != this->_config.GetAdminState())
     {
-      if (this->config.SetAdminState(state_) && this->ifIndex)
+      if (this->_config.SetAdminState(state_) && this->_config.GetIfIndex())
       {
-        SetLinkCommand* cmd = new SetLinkCommand(this->ifIndex);
+        SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (state_ == ConfigData::STATE_UP)
         {
           status = cmd->SetFlags(IFFLAGS_UP);
@@ -441,7 +448,7 @@ Interface::GetIpAddress() const
   std::string addr;
   if (this->lock.Lock())
   {
-    addr = this->config.GetIpAddress();
+    addr = this->_config.GetIpAddress();
     this->lock.Unlock();
   }
   return (addr);
@@ -453,9 +460,9 @@ Interface::SetIpAddress(const std::string& addr_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (addr_ != this->config.GetIpAddress())
+    if (addr_ != this->_config.GetIpAddress())
     {
-      if (this->config.SetIpAddress(addr_) && this->ifIndex)
+      if (this->_config.SetIpAddress(addr_) && this->_config.GetIfIndex())
       {
         status = true;
       }
@@ -475,7 +482,7 @@ Interface::GetNetmask() const
   std::string addr;
   if (this->lock.Lock())
   {
-    addr = this->config.GetNetmask();
+    addr = this->_config.GetNetmask();
     this->lock.Unlock();
   }
   return (addr);
@@ -487,9 +494,9 @@ Interface::SetNetmask(const std::string& addr_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (addr_ != this->config.GetNetmask())
+    if (addr_ != this->_config.GetNetmask())
     {
-      if (this->config.SetNetmask(addr_) && this->ifIndex)
+      if (this->_config.SetNetmask(addr_) && this->_config.GetIfIndex())
       {
         status = true;
       }
@@ -507,13 +514,14 @@ bool
 Interface::Refresh()
 {
   bool status = false;
-  if ((this->ifIndex = this->GetIfIndex()))
+  if (this->GetIfIndex())
   {
-    this->config.SetIfName(this->GetIfName());
-    this->config.SetIfType(this->GetIfType());
-    this->config.SetHwAddress(this->GetHwAddress());
-    this->config.SetMtu(this->GetMtu());
-    this->config.SetAdminState(this->GetAdminState());
+    this->_config.SetIfIndex(this->GetIfIndex());
+    this->_config.SetIfName(this->GetIfName());
+    this->_config.SetIfType(this->GetIfType());
+    this->_config.SetHwAddress(this->GetHwAddress());
+    this->_config.SetMtu(this->GetMtu());
+    this->_config.SetAdminState(this->GetAdminState());
     status = true;
   }
   return(status);
@@ -529,13 +537,13 @@ Interface::Commit()
     while (status && !this->_cmds.empty())
     {
       Command* cmd = this->_cmds.front();
-      cmd->Display();
+//      cmd->Display();
       status = cmd->Exec();
       if (status)
       {
         if (cmd->GetIfIndex())
         {
-          this->ifIndex = cmd->GetIfIndex();
+          this->_config.SetIfIndex(cmd->GetIfIndex());
         }
       }
       else

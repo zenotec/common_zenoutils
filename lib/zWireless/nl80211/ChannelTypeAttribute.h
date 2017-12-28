@@ -60,6 +60,7 @@ public:
       Attribute(NL80211_ATTR_WIPHY_CHANNEL_TYPE)
   {
     this->SetValue(NL80211_CHAN_NO_HT);
+    this->ClrValid();
   }
 
   virtual

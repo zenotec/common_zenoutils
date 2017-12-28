@@ -55,6 +55,8 @@ libnl80211_la_SOURCES = \
 	NewInterfaceCommand.cpp \
 	DelInterfaceCommand.h \
 	DelInterfaceCommand.cpp \
+	SetChannelCommand.h \
+	SetChannelCommand.cpp \
 	SetBssCommand.h \
 	SetBssCommand.cpp \
 	NewBeaconCommand.h \

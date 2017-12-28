@@ -20,7 +20,7 @@
 #ifndef __ZMONITORINTERFACE_H__
 #define __ZMONITORINTERFACE_H__
 
-#include <zutils/zWirelessInterface.h>
+#include <zutils/zWireless.h>
 
 namespace zUtils
 {
@@ -31,16 +31,17 @@ namespace zWireless
 // Class: MonitorInterface
 // ****************************************************************************
 
-class MonitorInterface : public WirelessInterface
+class MonitorInterface : public Interface
 {
 public:
 
-  MonitorInterface(const std::string &name_ = "");
-
-  MonitorInterface(const zInterface::ConfigData& config_);
+  MonitorInterface(const std::string& name_, const int phyindex_ = 0);
 
   virtual
   ~MonitorInterface();
+
+  virtual void
+  Display(const std::string &prefix_ = std::string(""));
 
 protected:
 

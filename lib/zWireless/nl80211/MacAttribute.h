@@ -61,6 +61,7 @@ public:
       Attribute(NL80211_ATTR_IFTYPE), _mac{0}
   {
     this->SetValue(std::make_pair(this->_mac, sizeof(this->_mac)));
+    this->ClrValid();
   }
 
   virtual
@@ -72,14 +73,23 @@ public:
   GetString() const
   {
     std::string str;
-    _mac2str(this->_mac, str);
+    if (this->IsValid())
+    {
+      _mac2str(this->_mac, str);
+    }
     return(str);
   }
 
   bool
   SetString(const std::string& addr_)
   {
-    return(_str2mac(addr_, this->_mac));
+    bool status = false;
+    if (_str2mac(addr_, this->_mac))
+    {
+      this->SetValid();
+      status = true;
+    }
+    return(status);
   }
 
 protected:

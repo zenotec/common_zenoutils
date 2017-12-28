@@ -44,6 +44,7 @@ public:
       Attribute(NL80211_ATTR_BEACON_TAIL), _buf{0}
   {
     this->SetValue(std::make_pair(this->_buf, sizeof(this->_buf)));
+    this->ClrValid();
   }
 
   virtual

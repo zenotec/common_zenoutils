@@ -35,8 +35,8 @@ libzWireless_la_LDFLAGS = \
   ${NLRTNL3_LIBS}
 
 libzWireless_la_SOURCES = \
-    WirelessConfiguration.cpp \
-    WirelessInterface.cpp \
+    Configuration.cpp \
+    Interface.cpp \
     MonitorInterface.cpp \
     AccessPointInterface.cpp \
     BasicServiceSet.cpp

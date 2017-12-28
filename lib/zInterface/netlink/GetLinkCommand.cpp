@@ -78,21 +78,21 @@ GetLinkCommand::Exec()
 
   if (!this->GetIfIndex())
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Error executing GetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Valid interface index must be specified");
     return(false);
   }
 
   if (!this->IfIndex(this->GetIfIndex()))
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Error executing GetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Error setting interface index");
     return(false);
   }
 
   if (!this->_sock.Connect())
   {
-    ZLOG_ERR("Error executing SetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Error executing GetLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Error connecting Netlink socket");
     return (false);
   }
