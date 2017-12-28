@@ -154,6 +154,8 @@ public:
 
   ConfigData(const std::string& name_ = ConfigNameDefault);
 
+  ConfigData(zInterface::ConfigData config_);
+
   ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
 
   virtual

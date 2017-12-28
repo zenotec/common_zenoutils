@@ -342,10 +342,17 @@ ConfigData::ConfigData(const std::string& name_) :
   this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
 }
 
+ConfigData::ConfigData(zInterface::ConfigData config_) :
+    zInterface::ConfigData(config_)
+{
+  ZLOG_DEBUG("zWireless::ConfigData::ConfigData(config_)");
+  this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
+}
+
 ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
     zInterface::ConfigData(data_)
 {
-  ZLOG_DEBUG("zWireless::ConfigData::ConfigData(name_)");
+  ZLOG_DEBUG("zWireless::ConfigData::ConfigData(data_)");
   this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
 }
 
