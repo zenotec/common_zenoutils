@@ -107,9 +107,32 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_NEQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
     TEST_NEQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
 
-    // Setup and verify; commit each independently so we know which one failed, if any
-    TEST_TRUE(MyInterface->SetIfName(ifname));
+    // Setup interface; commit each independently so we know which one failed, if any
+    TEST_TRUE(MyInterface->SetAdminState(zWireless::ConfigData::STATE_UP));
     TEST_TRUE(MyInterface->Commit());
+    TEST_TRUE(MyInterface->SetChannel(1));
+    TEST_TRUE(MyInterface->Commit());
+    TEST_TRUE(MyInterface->SetTxPower(2100));
+    TEST_TRUE(MyInterface->Commit());
+
+    // Verify
+    TEST_NEQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
+    TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+    TEST_EQ(ifname, MyInterface->GetIfName());
+    TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE8023, MyInterface->GetIfType());
+    TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
+    TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+    TEST_EQ(zInterface::ConfigData::STATE_UP, MyInterface->GetAdminState());
+    TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
+    TEST_EQ(phy.first, MyInterface->GetPhyIndex());
+    TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
+    TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyInterface->GetHwMode());
+    TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
+    TEST_EQ(zWireless::ConfigData::OPMODE_AP, MyInterface->GetOpMode());
+//    TEST_EQ(1, MyInterface->GetChannel());
+//    TEST_EQ(2100, MyInterface->GetTxPower());
 
     // Create BSS
     std::string ssid = std::string("TestSsid-") + zToStr(phy.first);

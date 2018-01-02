@@ -95,12 +95,48 @@ StartApCommand::Exec()
   }
 
   GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_START_AP);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Ssid);
-  cmdmsg.PutAttribute(&this->BeaconInterval);
-  cmdmsg.PutAttribute(&this->DtimPeriod);
-  cmdmsg.PutAttribute(&this->BeaconHead);
-  cmdmsg.PutAttribute(&this->BeaconTail);
+
+  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  {
+    ZLOG_ERR("Error putting interface index attribute");
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->Ssid))
+  {
+    ZLOG_ERR("Error putting SSID attribute: " + this->Ssid.GetString());
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->Channel))
+  {
+    ZLOG_ERR("Error putting channel attribute: " + zToStr(this->Channel.GetChannel()));
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->BeaconInterval))
+  {
+    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval.GetValue()));
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->DtimPeriod))
+  {
+    ZLOG_ERR("Error putting DTIM period attribute");
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->BeaconHead))
+  {
+    ZLOG_ERR("Error putting beacon head attribute");
+    return (false);
+  }
+
+  if (!cmdmsg.PutAttribute(&this->BeaconTail))
+  {
+    ZLOG_ERR("Error putting beacon tail attribute");
+    return (false);
+  }
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -133,13 +169,22 @@ StartApCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "StartApCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue() << std::endl;
-  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue().second << std::endl;
-  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue().second << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:   \t" << this->IfName.GetValue() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex:  \t" << this->IfIndex.GetValue() << std::endl;
+  if (this->Ssid.IsValid())
+    std::cout << "\tSsid:   \t" << this->Ssid.GetString() << std::endl;
+  if (this->Channel.IsValid())
+    std::cout << "\tChannel:\t" << this->Channel.GetChannel() << std::endl;
+  if (this->BeaconInterval.IsValid())
+    std::cout << "\tBINT:   \t" << this->BeaconInterval.GetValue() << std::endl;
+  if (this->DtimPeriod.IsValid())
+    std::cout << "\tDTIM:   \t" << this->DtimPeriod.GetValue() << std::endl;
+  if (this->BeaconHead.IsValid())
+    std::cout << "\tBHEAD:  \t" << this->BeaconHead.GetValue().second << std::endl;
+  if (this->BeaconTail.IsValid())
+    std::cout << "\tBTAIL:  \t" << this->BeaconTail.GetValue().second << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -154,9 +199,9 @@ StartApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  std::cout << "StartApCommand::ack_cb()" << std::endl;
-  msg.Display();
-  msg.DisplayAttributes();
+//  std::cout << "StartApCommand::ack_cb()" << std::endl;
+//  msg.Display();
+//  msg.DisplayAttributes();
 
   this->_status = true;
   this->_count.Post();

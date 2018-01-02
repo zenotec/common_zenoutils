@@ -91,12 +91,12 @@ uint8_t*
 Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
-  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
-  struct ieee80211_beacon* f = (ieee80211_beacon*) p_;
-  this->_head = NULL;
-  this->_tail = NULL;
-  this->_end = NULL;
+  struct ieee80211_beacon* f = NULL;
+  this->_head = p_;
+  this->_tail = p_;
+  this->_end = p_;
 
+  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
   if (p_ == NULL)
   {
     ZLOG_ERR("Error assembling beacon frame header: " + ZLOG_INT(rem_));
@@ -109,7 +109,8 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  this->_head = p_;
+  f = (ieee80211_beacon*) p_;
+
   p_ = this->chklen(p_, sizeof(f->timestamp), rem_);
   if (!p_)
   {
@@ -171,48 +172,68 @@ uint8_t*
 Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
-  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
-  struct ieee80211_beacon* f = (ieee80211_beacon*) p_;
-  this->_head = NULL;
-  this->_tail = NULL;
-  this->_end = NULL;
+  struct ieee80211_beacon* f = NULL;
+  this->_head = p_;
+  this->_tail = p_;
+  this->_end = p_;
 
-  if (f == NULL)
+  // Disassemble base and verify
+  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
+  if (p_ == NULL)
   {
     ZLOG_ERR("Error disassembling beacon frame header: " + ZLOG_INT(rem_));
     return (NULL);
   }
 
+  // Validate frame is proper type/subtype
   if (this->Subtype() != ManagementFrame::SUBTYPE_BEACON)
   {
     ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
     return (NULL);
   }
 
+  f = (ieee80211_beacon*) p_;
+
   p_ = this->chklen(p_, sizeof(f->timestamp), rem_);
   if (!p_ || !this->Timestamp(le64toh(f->timestamp)))
   {
     return (NULL);
   }
+  this->_tail = p_;
+  this->_end = p_;
 
   p_ = this->chklen(p_, sizeof(f->interval), rem_);
   if (!p_ || !this->Interval(le16toh(f->interval)))
   {
     return (NULL);
   }
+  this->_tail = p_;
+  this->_end = p_;
 
   p_ = this->chklen(p_, sizeof(f->capabilities), rem_);
   if (!p_ || !this->Capabilities(le16toh(f->capabilities)))
   {
     return (NULL);
   }
+  this->_tail = p_;
+  this->_end = p_;
 
-  p_ = this->DisassembleTags((uint8_t*)&f->tags, rem_);
+  p_ = this->DisassembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));
     return (NULL);
   }
+  this->_tail = p_;
+  this->_end = p_;
+
+  p_ = this->DisassembleTags(p_, rem_, TAGTYPE_TAIL);
+  if (!p_)
+  {
+    ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));
+    return (NULL);
+  }
+  this->_end = p_;
 
   this->GetTag(this->Ssid);
   this->GetTag(this->Rates);

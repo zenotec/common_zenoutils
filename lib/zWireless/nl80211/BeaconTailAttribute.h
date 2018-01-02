@@ -41,7 +41,7 @@ class BeaconTailAttribute : public Attribute<AttributeBuffer>
 public:
 
   BeaconTailAttribute() :
-      Attribute(NL80211_ATTR_BEACON_TAIL), _buf{0}
+      Attribute(NL80211_ATTR_BEACON_TAIL), _buf { 0 }
   {
     this->SetValue(std::make_pair(this->_buf, sizeof(this->_buf)));
     this->ClrValid();
@@ -62,11 +62,17 @@ public:
   PutBuffer(void* buf_, size_t len_)
   {
     bool status = false;
-    if (len_ < 256)
+    //printf("BeaconTailAttribute::PutBuffer(%p, %zd)\n", buf_, len_);
+    if (buf_ && len_ && (len_ < sizeof(this->_buf)))
     {
-      status = (memcpy(this->_buf, buf_, len_) == this->_buf);
+      if (memcpy(this->_buf, buf_, len_) == this->_buf)
+      {
+        memset((this->_buf + len_), 0, (sizeof(this->_buf) - len_));
+        this->SetValue(std::make_pair(this->_buf, len_));
+        status = true;
+      }
     }
-    return(status);
+    return (status);
   }
 
 protected:

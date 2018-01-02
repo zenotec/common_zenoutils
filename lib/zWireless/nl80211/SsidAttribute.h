@@ -63,10 +63,14 @@ public:
   SetString(const std::string& str)
   {
     bool status = false;
-    if (str.size() <= MAX_SSID_LEN)
+    if (str.size() && (str.size() <= MAX_SSID_LEN))
     {
-      status = (memcpy(this->_buf, str.c_str(), str.size()) == this->_buf);
-      this->SetValue(std::make_pair(this->_buf, str.size()));
+      if (memcpy(this->_buf, str.c_str(), str.size()) == this->_buf)
+      {
+        memset((this->_buf + str.size()), 0, (sizeof(this->_buf) - str.size()));
+        this->SetValue(std::make_pair(this->_buf, str.size()));
+        status = true;
+      }
     }
     return (status);
   }

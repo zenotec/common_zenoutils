@@ -211,7 +211,9 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
   struct ieee80211_tag* t = (struct ieee80211_tag*)p_;
 
   // Clear out any previously "put/added" tags
-  for (int i = Tag::TYPE_HEAD; i < Tag::TYPE_LAST; i++)
+  int type_begin = (tagtype_ & TAGTYPE_HEAD) ? Tag::TYPE_HEAD : Tag::TYPE_TAIL;
+  int type_end = (tagtype_ & TAGTYPE_TAIL) ? Tag::TYPE_LAST : Tag::TYPE_TAIL;
+  for (int i = type_begin; i < type_end; i++)
   {
     this->_tags[i].clear();
   }
@@ -219,13 +221,35 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
   // Loop until the end of the specified buffer; rem_ should be zero when finished
   while (p_ && rem_)
   {
-    p_ = this->chklen(p_, (sizeof(t->tag) + sizeof(t->len) + t->len), rem_);
-    if (p_)
+    size_t tmp_rem = rem_;
+    uint8_t* tmp_p = this->chklen(p_, (sizeof(t->tag) + sizeof(t->len) + t->len), tmp_rem);
+    if (tmp_p)
     {
       Tag tag((Tag::ID)t->tag, t->len);
-      tag.PutValue(t->val, t->len);
-      this->_tags[tag.Type()][tag.Id()].push_back(tag);
-      t = (struct ieee80211_tag*)p_;
+      uint8_t type = TAGTYPE_NONE;
+      switch (tag.Type())
+      {
+      case Tag::TYPE_HEAD:
+        type = TAGTYPE_HEAD;
+        break;
+      case Tag::TYPE_TAIL:
+        type = TAGTYPE_TAIL;
+        break;
+      default:
+        break;
+      }
+      if (type & tagtype_)
+      {
+        tag.PutValue(t->val, t->len);
+        this->_tags[tag.Type()][tag.Id()].push_back(tag);
+        p_ = tmp_p;
+        rem_ = tmp_rem;
+        t = (struct ieee80211_tag*)p_;
+      }
+      else
+      {
+        break;
+      }
     }
   }
 

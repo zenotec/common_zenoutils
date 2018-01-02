@@ -53,7 +53,7 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
   beacon.TransmitterAddress(this->GetHwAddress());
   beacon.Bssid(this->GetHwAddress());
   beacon.Interval(100);
-  beacon.Capabilities(0x0000);
+  beacon.Capabilities(0x0001);
   beacon.Ssid(ssid_);
   beacon.Rates(6);
   beacon.Rates(9);
@@ -63,9 +63,9 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
   beacon.Rates(36);
   beacon.Rates(48);
   beacon.Rates(54);
-  beacon.Dsss(this->GetChannel());
-  beacon.Tim.Period(1);
-  beacon.Display();
+  beacon.Dsss(1);
+  beacon.Tim.Period(2);
+//  beacon.Display();
   if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
   {
     this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
@@ -153,7 +153,8 @@ BasicServiceSet::Create()
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
     cmd->Ssid.SetString(beacon.Ssid());
-    cmd->Channel(this->GetChannel());
+    cmd->Channel.SetChannel(1);
+//    cmd->Display();
     this->addCommand(cmd);
   }
 
@@ -165,6 +166,7 @@ BasicServiceSet::Create()
     cmd->BeaconInterval(100);
     cmd->DtimPeriod(beacon.Tim.Period());
     cmd->Ssid.SetString(beacon.Ssid());
+//    cmd->Display();
     this->addCommand(cmd);
     status = AccessPointInterface::Commit();
   }
@@ -183,12 +185,13 @@ BasicServiceSet::Destroy()
     return (false);
   }
 
-  this->SetAdminState(zInterface::ConfigData::STATE_UP);
+  if (this->GetAdminState() == zInterface::ConfigData::STATE_UP)
+  {
+    StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
+    this->addCommand(cmd);
+  }
 
-  StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
-  this->addCommand(cmd);
-
-  return (this->Commit());
+  return (AccessPointInterface::Commit());
 }
 
 void

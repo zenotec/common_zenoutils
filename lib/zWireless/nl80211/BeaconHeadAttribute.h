@@ -41,7 +41,7 @@ class BeaconHeadAttribute : public Attribute<AttributeBuffer>
 public:
 
   BeaconHeadAttribute() :
-      Attribute(NL80211_ATTR_BEACON_HEAD), _buf{0}
+      Attribute(NL80211_ATTR_BEACON_HEAD), _buf { 0 }
   {
     this->SetValue(std::make_pair(this->_buf, sizeof(this->_buf)));
     this->ClrValid();
@@ -55,18 +55,24 @@ public:
   void*
   GetBuffer() const
   {
-    return((void*)this->_buf);
+    return ((void*) this->_buf);
   }
 
   bool
   PutBuffer(void* buf_, size_t len_)
   {
     bool status = false;
-    if (len_ < 512)
+    //printf("BeaconHeadAttribute::PutBuffer(%p, %zd)\n", buf_, len_);
+    if (buf_ && len_ && (len_ < sizeof(this->_buf)))
     {
-      status = (memcpy(this->_buf, buf_, len_) == this->_buf);
+      if (memcpy(this->_buf, buf_, len_) == this->_buf)
+      {
+        memset((this->_buf + len_), 0, (sizeof(this->_buf) - len_));
+        this->SetValue(std::make_pair(this->_buf, len_));
+        status = true;
+      }
     }
-    return(status);
+    return (status);
   }
 
 protected:
