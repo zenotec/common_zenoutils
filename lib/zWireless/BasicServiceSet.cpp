@@ -29,6 +29,8 @@
 #include "StartApCommand.h"
 #include "StopApCommand.h"
 #include "SetBeaconCommand.h"
+#include "NewStationCommand.h"
+#include "DelStationCommand.h"
 using namespace nl80211;
 
 #include "Beacon.h"
@@ -91,12 +93,30 @@ BasicServiceSet::SetSsid(const std::string& ssid_)
   bool status = false;
   Beacon beacon;
   size_t blen = this->_beaconlen;
+
   if (beacon.Disassemble(this->_beaconbuf, blen))
   {
     beacon.Ssid(ssid_);
     blen = sizeof(this->_beaconbuf);
-    status = (beacon.Assemble(this->_beaconbuf, blen) != NULL);
+    if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
+    {
+      this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
+      if (this->GetIfIndex())
+      {
+        SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
+        cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
+        cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
+        cmd->BeaconInterval(100);
+        cmd->DtimPeriod(beacon.Tim.Period());
+        cmd->Ssid.SetString(beacon.Ssid());
+        cmd->Channel.SetChannel(1);
+//        cmd->Display();
+        this->addCommand(cmd);
+      }
+      status = true;
+    }
   }
+
   return (status);
 }
 
@@ -119,16 +139,66 @@ BasicServiceSet::SetBssid(const std::string& bssid_)
   {
     beacon.Bssid(bssid_);
     blen = sizeof(this->_beaconbuf);
-    status = (beacon.Assemble(this->_beaconbuf, blen) != NULL);
+    if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
+    {
+      this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
+      SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
+      cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
+      cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
+      cmd->BeaconInterval(100);
+      cmd->DtimPeriod(beacon.Tim.Period());
+      cmd->Ssid.SetString(beacon.Ssid());
+      cmd->Channel.SetChannel(1);
+//      cmd->Display();
+      this->addCommand(cmd);
+      status = true;
+    }
   }
+  return (status);
+}
+
+bool
+BasicServiceSet::AddStation(const std::string& addr_)
+{
+  bool status = false;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error adding stations, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  NewStationCommand* cmd = new NewStationCommand(this->GetIfIndex());
+  cmd->Mac.SetString(addr_);
+  cmd->Display();
+  this->addCommand(cmd);
+
+  return (status);
+}
+
+bool
+BasicServiceSet::DelStation(const std::string& addr_)
+{
+  bool status = false;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error deleting station, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  DelStationCommand* cmd = new DelStationCommand(this->GetIfIndex());
+  cmd->Mac.SetString(addr_);
+  cmd->Display();
+  this->addCommand(cmd);
+
   return (status);
 }
 
 bool
 BasicServiceSet::Commit()
 {
-  bool status = false;
-  return (status);
+  return (AccessPointInterface::Commit());
 }
 
 bool
@@ -136,11 +206,14 @@ BasicServiceSet::Create()
 {
   bool status = false;
 
-  if (!this->GetIfIndex())
+  if (!this->GetIfIndex() && !AccessPointInterface::Create())
   {
     ZLOG_ERR("Error creating BSS, interface does not exist: " + this->GetIfName());
     return (false);
   }
+
+  // Set interface state to UP
+  this->SetAdminState(zWireless::ConfigData::STATE_UP);
 
   Beacon beacon;
   size_t blen = this->_beaconlen;
@@ -158,20 +231,7 @@ BasicServiceSet::Create()
     this->addCommand(cmd);
   }
 
-  if (!(status = AccessPointInterface::Commit()))
-  {
-    SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
-    cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-    cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-    cmd->BeaconInterval(100);
-    cmd->DtimPeriod(beacon.Tim.Period());
-    cmd->Ssid.SetString(beacon.Ssid());
-//    cmd->Display();
-    this->addCommand(cmd);
-    status = AccessPointInterface::Commit();
-  }
-
-  return (status);
+  return (AccessPointInterface::Commit());
 }
 
 bool
@@ -191,7 +251,8 @@ BasicServiceSet::Destroy()
     this->addCommand(cmd);
   }
 
-  return (AccessPointInterface::Commit());
+  // Call base destroy which will eventually execute all commands in order
+  return (AccessPointInterface::Destroy());
 }
 
 void

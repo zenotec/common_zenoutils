@@ -36,10 +36,10 @@ libnl80211_la_SOURCES = \
 	IfNameAttribute.h \
 	IfTypeAttribute.h \
 	MacAttribute.h \
-	ListPhysCommand.h \
 	PhyIndexAttribute.h \
 	PhyNameAttribute.h \
 	SsidAttribute.h \
+	ListPhysCommand.h \
 	ListPhysCommand.cpp \
 	GetPhyCommand.h \
 	GetPhyCommand.cpp \
@@ -55,6 +55,16 @@ libnl80211_la_SOURCES = \
 	NewInterfaceCommand.cpp \
 	DelInterfaceCommand.h \
 	DelInterfaceCommand.cpp \
+	ListStationsCommand.h \
+	ListStationsCommand.cpp \
+	GetStationCommand.h \
+	GetStationCommand.cpp \
+	SetStationCommand.h \
+	SetStationCommand.cpp \
+	NewStationCommand.h \
+	NewStationCommand.cpp \
+	DelStationCommand.h \
+	DelStationCommand.cpp \
 	SetChannelCommand.h \
 	SetChannelCommand.cpp \
 	SetBssCommand.h \

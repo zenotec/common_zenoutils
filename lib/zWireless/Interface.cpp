@@ -216,12 +216,11 @@ _opmode2str(const ConfigData::OPMODE mode_)
 // Class: zWireless::Interface
 // ****************************************************************************
 
-Interface::Interface(const std::string& ifname_, const int phyindex_) :
+Interface::Interface(const std::string& ifname_) :
     zInterface::Interface(ifname_), _config(zInterface::Interface::GetConfig().GetData())
 {
   this->Refresh();
   this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
-  this->SetPhyIndex(phyindex_);
 }
 
 Interface::~Interface()
@@ -684,18 +683,20 @@ Interface::Destroy()
 
   bool status = false;
 
-  ZLOG_DEBUG("WirelessInterface::Destroy(): Enter");
-
   if (this->lock.Lock())
   {
-    DelInterfaceCommand cmd(this->_config.GetIfIndex());
-    status = cmd.Exec();
+    DelInterfaceCommand* cmd = new DelInterfaceCommand(this->_config.GetIfIndex());
+    this->addCommand(cmd);
+    status = true;
     this->lock.Unlock();
   }
 
-  ZLOG_DEBUG("WirelessInterface::Destroy(): Exit");
+  if (status)
+  {
+    status = zInterface::Interface::Destroy();
+  }
 
-  return(status);
+  return (status);
 
 }
 

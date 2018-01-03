@@ -33,7 +33,7 @@ namespace zWireless
 // Class: BasicServiceSet
 // ****************************************************************************
 
-class BasicServiceSet : private AccessPointInterface
+class BasicServiceSet : public AccessPointInterface
 {
 public:
 
@@ -53,6 +53,12 @@ public:
 
   bool
   SetBssid(const std::string& bssid_);
+
+  bool
+  AddStation(const std::string& addr_);
+
+  bool
+  DelStation(const std::string& addr_);
 
   virtual bool
   Commit();

@@ -58,8 +58,8 @@ namespace zWireless
 // Class: AccessPointInterface
 // ****************************************************************************
 
-AccessPointInterface::AccessPointInterface(const std::string& name_, const unsigned int phyindex_) :
-    Interface(name_, phyindex_)
+AccessPointInterface::AccessPointInterface(const std::string& name_) :
+    Interface(name_)
 {
   this->SetOpMode(ConfigData::OPMODE_AP);
 }

@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBEACONCOMMAND_H__
-#define __NL80211_SETBEACONCOMMAND_H__
+#ifndef __NL80211_LISTSTATIONSSCOMMAND_H__
+#define __NL80211_LISTSTATIONSSCOMMAND_H__
 
 // libc includes
 
 // libc++ includes
+#include <map>
 #include <string>
 
 // libzutils includes
@@ -36,45 +37,30 @@
 #include "GenericSocket.h"
 using namespace netlink;
 
-#include "IfIndexAttribute.h"
-#include "IfNameAttribute.h"
-#include "SsidAttribute.h"
-#include "FrequencyAttribute.h"
-#include "BeaconIntervalAttribute.h"
-#include "DtimPeriodAttribute.h"
-#include "BeaconHeadAttribute.h"
-#include "BeaconTailAttribute.h"
-
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: ListStationsCommand
 //*****************************************************************************
 
-class SetBeaconCommand : public netlink::Command, public netlink::Handler
+class ListStationsCommand : public netlink::Command, public netlink::Handler
 {
 
 public:
 
   IfIndexAttribute IfIndex;
-  IfNameAttribute IfName;
-  SsidAttribute Ssid;
-  FrequencyAttribute Channel;
-  BeaconIntervalAttribute BeaconInterval;
-  DtimPeriodAttribute DtimPeriod;
-  BeaconHeadAttribute BeaconHead;
-  BeaconTailAttribute BeaconTail;
 
-  SetBeaconCommand(int index_);
-
-  SetBeaconCommand(const std::string& name_);
+  ListStationsCommand(const unsigned int ifindex_);
 
   virtual
-  ~SetBeaconCommand();
+  ~ListStationsCommand();
 
   virtual bool
   Exec();
+
+  virtual std::map<int, std::string>
+  operator() ();
 
   void
   Display() const;
@@ -90,9 +76,10 @@ protected:
 private:
 
   netlink::GenericSocket _sock;
+  std::map<int, std::string> _stas;
 
 };
 
 }
 
-#endif /* __NL80211_SETBEACONCOMMAND_H__ */
+#endif /* __NL80211_LISTSTATIONSSCOMMAND_H__ */

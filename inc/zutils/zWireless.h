@@ -231,7 +231,7 @@ class Interface : public zInterface::Interface
 {
 public:
 
-  Interface(const std::string& name_, const int phyindex_ = ConfigData::ConfigPhyIndexDefault);
+  Interface(const std::string& name_);
 
   virtual
   ~Interface();

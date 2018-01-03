@@ -131,7 +131,7 @@ zWirelessTest_MonitorInterface(void* arg)
   FOREACH(auto& phy, phys)
   {
     std::string ifname = std::string("mon") + zToStr(phy.first);
-    MyInterface = new zWireless::MonitorInterface(ifname, phy.first);
+    MyInterface = new zWireless::MonitorInterface(ifname);
     TEST_ISNOT_NULL(MyInterface);
 
     if (zInterface::ConfigData::ConfigIndexDefault == MyInterface->GetIfIndex())
@@ -146,6 +146,7 @@ zWirelessTest_MonitorInterface(void* arg)
 //    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
       TEST_EQ(zInterface::ConfigData::STATE_DEF, MyInterface->GetAdminState());
       TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
+      TEST_TRUE(MyInterface->SetPhyIndex(phy.first));
       TEST_EQ(phy.first, MyInterface->GetPhyIndex());
       TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
       TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyInterface->GetHwMode());
@@ -243,7 +244,7 @@ zWirelessTest_AccessPointInterface(void* arg)
   FOREACH(auto& phy, phys)
   {
     std::string ifname = std::string("vap") + zToStr(phy.first);
-    MyInterface = new zWireless::AccessPointInterface(ifname, phy.first);
+    MyInterface = new zWireless::AccessPointInterface(ifname);
     TEST_ISNOT_NULL(MyInterface);
 
     if (zInterface::ConfigData::ConfigIndexDefault == MyInterface->GetIfIndex())
@@ -258,6 +259,7 @@ zWirelessTest_AccessPointInterface(void* arg)
 //    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
       TEST_EQ(zInterface::ConfigData::STATE_DEF, MyInterface->GetAdminState());
       TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
+      TEST_TRUE(MyInterface->SetPhyIndex(phy.first));
       TEST_EQ(phy.first, MyInterface->GetPhyIndex());
       TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
       TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyInterface->GetHwMode());

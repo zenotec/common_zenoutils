@@ -35,7 +35,7 @@ class MonitorInterface : public Interface
 {
 public:
 
-  MonitorInterface(const std::string& name_, const int phyindex_ = 0);
+  MonitorInterface(const std::string& name_);
 
   virtual
   ~MonitorInterface();

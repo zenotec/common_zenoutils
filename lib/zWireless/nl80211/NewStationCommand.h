@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBEACONCOMMAND_H__
-#define __NL80211_SETBEACONCOMMAND_H__
+#ifndef __NL80211_NEWSTATIONCOMMAND_H__
+#define __NL80211_NEWSTATIONCOMMAND_H__
 
 // libc includes
 
@@ -38,40 +38,28 @@ using namespace netlink;
 
 #include "IfIndexAttribute.h"
 #include "IfNameAttribute.h"
-#include "SsidAttribute.h"
-#include "FrequencyAttribute.h"
-#include "BeaconIntervalAttribute.h"
-#include "DtimPeriodAttribute.h"
-#include "BeaconHeadAttribute.h"
-#include "BeaconTailAttribute.h"
+#include "MacAttribute.h"
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: NewStationCommand
 //*****************************************************************************
 
-class SetBeaconCommand : public netlink::Command, public netlink::Handler
+class NewStationCommand : public netlink::Command, public netlink::Handler
 {
 
 public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  SsidAttribute Ssid;
-  FrequencyAttribute Channel;
-  BeaconIntervalAttribute BeaconInterval;
-  DtimPeriodAttribute DtimPeriod;
-  BeaconHeadAttribute BeaconHead;
-  BeaconTailAttribute BeaconTail;
+  MacAttribute Mac;
 
-  SetBeaconCommand(int index_);
-
-  SetBeaconCommand(const std::string& name_);
+  NewStationCommand(const unsigned int ifindex_);
 
   virtual
-  ~SetBeaconCommand();
+  ~NewStationCommand();
 
   virtual bool
   Exec();
@@ -95,4 +83,4 @@ private:
 
 }
 
-#endif /* __NL80211_SETBEACONCOMMAND_H__ */
+#endif /* __NL80211_NEWSTATIONCOMMAND_H__ */
