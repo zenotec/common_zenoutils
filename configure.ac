@@ -227,6 +227,15 @@ AM_CONDITIONAL([COND_ZQUEUE],[test "$enable_zqueue" = yes])
 
 #########################################################################################
 
+AC_ARG_ENABLE([zuuid],
+  [AS_HELP_STRING([--disable-zuuid],
+    [disable building zUuid subsystem])],
+    [],
+    [enable_zuuid=yes])
+AM_CONDITIONAL([COND_ZUUID],[test "$enable_zuuid" = yes])
+
+#########################################################################################
+
 AC_ARG_ENABLE([zsem],
   [AS_HELP_STRING([--disable-zsem],
     [disable building zSem subsystem])],
@@ -323,6 +332,7 @@ AC_CONFIG_FILES([lib/zSignal/Makefile])
 AC_CONFIG_FILES([lib/zThread/Makefile test/zThread/Makefile])
 AC_CONFIG_FILES([lib/zTimer/Makefile test/zTimer/Makefile])
 AC_CONFIG_FILES([lib/zProgram/Makefile test/zProgram/Makefile])
+AC_CONFIG_FILES([test/zUuid/Makefile])
 AC_CONFIG_FILES([test/zQueue/Makefile])
 AC_CONFIG_FILES([lib/zGpio/Makefile test/zGpio/Makefile])
 AC_CONFIG_FILES([lib/zLed/Makefile test/zLed/Makefile])

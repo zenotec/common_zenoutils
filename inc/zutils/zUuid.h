@@ -31,20 +31,114 @@ namespace zUuid
 
 class Uuid
 {
+
 public:
-  static std::string
-  Create(const unsigned int len = 64)
+
+  Uuid() :
+    _uuid { 0 }
   {
-    uuid_t uuid;
-    uuid_generate(uuid);
+    uuid_generate(this->_uuid);
+  }
+
+  Uuid(const uint8_t uuid_[16]) :
+    _uuid { 0 }
+  {
+    this->operator =(uuid_);
+  }
+
+  Uuid(const uint32_t uuid_[4]) :
+    _uuid { 0 }
+  {
+    this->operator =(uuid_);
+  }
+
+  Uuid(const uint64_t uuid_[2]) :
+    _uuid { 0 }
+  {
+    this->operator =(uuid_);
+  }
+
+  virtual
+  ~Uuid()
+  {
+  }
+
+  Uuid&
+  operator=(const uint8_t uuid_[16])
+  {
+    uuid_copy(this->_uuid, uuid_);
+    return (*this);
+  }
+
+  Uuid&
+  operator=(const uint32_t uuid_[4])
+  {
+    memcpy(&this->_uuid[0], &uuid_[0], sizeof(this->_uuid));
+    return (*this);
+  }
+
+  Uuid&
+  operator=(const uint64_t uuid_[2])
+  {
+    memcpy(&this->_uuid[0], &uuid_[0], sizeof(this->_uuid));
+    return (*this);
+  }
+
+  bool
+  operator<(const Uuid& other)
+  {
+    return (uuid_compare(this->_uuid, other._uuid) < 0);
+  }
+
+  bool
+  operator>(const Uuid& other)
+  {
+    return (uuid_compare(this->_uuid, other._uuid) > 0);
+  }
+
+  bool
+  operator<=(const Uuid& other)
+  {
+    return (!(*this > other));
+  }
+
+  bool
+  operator>=(const Uuid& other)
+  {
+    return (!(*this < other));
+  }
+
+  bool
+  operator==(const Uuid& other)
+  {
+    return (uuid_compare(this->_uuid, other._uuid) == 0);
+  }
+
+  bool
+  operator!=(const Uuid& other)
+  {
+    return (uuid_compare(this->_uuid, other._uuid) != 0);
+  }
+
+  std::string
+  Str() const
+  {
     char c_str[256] = { 0 };
-    uuid_unparse(uuid, c_str);
+    uuid_unparse(this->_uuid, c_str);
     return (std::string(c_str));
+  }
+
+  void
+  Regenerate()
+  {
+    uuid_generate(this->_uuid);
   }
 
 protected:
 
 private:
+
+  uuid_t _uuid;
 
 };
 
