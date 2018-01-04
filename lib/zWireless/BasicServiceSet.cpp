@@ -34,8 +34,7 @@
 using namespace nl80211;
 
 #include "Beacon.h"
-#include "Probe.h"
-using namespace ieee80211;
+using namespace zUtils::zWireless::ieee80211;
 
 namespace zUtils
 {
@@ -47,113 +46,64 @@ namespace zWireless
 // ****************************************************************************
 
 BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& ssid_) :
-    AccessPointInterface(ifname_), _beaconbuf { 0 }, _beaconlen(0)
+    AccessPointInterface(ifname_), _beacon(NULL)
 {
-  Beacon beacon;
-  size_t blen = sizeof(this->_beaconbuf);
-  beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
-  beacon.TransmitterAddress(this->GetHwAddress());
-  beacon.Bssid(this->GetHwAddress());
-  beacon.Interval(100);
-  beacon.Capabilities(0x0001);
-  beacon.Ssid(ssid_);
-  beacon.Rates(6);
-  beacon.Rates(9);
-  beacon.Rates(12);
-  beacon.Rates(18);
-  beacon.Rates(24);
-  beacon.Rates(36);
-  beacon.Rates(48);
-  beacon.Rates(54);
-  beacon.Dsss(1);
-  beacon.Tim.Period(2);
-//  beacon.Display();
-  if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
+  this->_beacon = new ieee80211::Beacon();
+  if (this->_beacon)
   {
-    this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
+    this->_beacon->ReceiverAddress("ff:ff:ff:ff:ff:ff");
+    this->_beacon->TransmitterAddress(this->GetHwAddress());
+    this->_beacon->Bssid(this->GetHwAddress());
+    this->_beacon->Interval(100);
+    this->_beacon->Capabilities(0x0001);
+    this->_beacon->Ssid(ssid_);
+    this->_beacon->Rates(6);
+    this->_beacon->Rates(9);
+    this->_beacon->Rates(12);
+    this->_beacon->Rates(18);
+    this->_beacon->Rates(24);
+    this->_beacon->Rates(36);
+    this->_beacon->Rates(48);
+    this->_beacon->Rates(54);
+    this->_beacon->Dsss(1);
+    this->_beacon->Tim.Period(2);
+//    this->_beacon->Display();
   }
 }
 
 BasicServiceSet::~BasicServiceSet()
 {
+  if (this->_beacon)
+  {
+    delete (this->_beacon);
+    this->_beacon = NULL;
+  }
 }
 
 std::string
 BasicServiceSet::GetSsid()
 {
-  Beacon beacon;
-  size_t blen = this->_beaconlen;
-  beacon.Disassemble(this->_beaconbuf, blen);
-  return (beacon.Ssid());
+  return (this->_beacon->Ssid());
 }
 
 bool
 BasicServiceSet::SetSsid(const std::string& ssid_)
 {
-  bool status = false;
-  Beacon beacon;
-  size_t blen = this->_beaconlen;
-
-  if (beacon.Disassemble(this->_beaconbuf, blen))
-  {
-    beacon.Ssid(ssid_);
-    blen = sizeof(this->_beaconbuf);
-    if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
-    {
-      this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
-      if (this->GetIfIndex())
-      {
-        SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
-        cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-        cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-        cmd->BeaconInterval(100);
-        cmd->DtimPeriod(beacon.Tim.Period());
-        cmd->Ssid.SetString(beacon.Ssid());
-        cmd->Channel.SetChannel(1);
-//        cmd->Display();
-        this->addCommand(cmd);
-      }
-      status = true;
-    }
-  }
-
-  return (status);
+  return (this->_beacon->Ssid(ssid_));
 }
 
 std::string
 BasicServiceSet::GetBssid()
 {
-  Beacon beacon;
-  size_t blen = this->_beaconlen;
-  beacon.Disassemble(this->_beaconbuf, blen);
-  return (beacon.Bssid());
+  return (this->_beacon->Bssid());
 }
 
 bool
 BasicServiceSet::SetBssid(const std::string& bssid_)
 {
-  bool status = false;
-  Beacon beacon;
-  size_t blen = this->_beaconlen;
-  if (beacon.Disassemble(this->_beaconbuf, blen))
-  {
-    beacon.Bssid(bssid_);
-    blen = sizeof(this->_beaconbuf);
-    if (beacon.Assemble(this->_beaconbuf, blen) != NULL)
-    {
-      this->_beaconlen = (sizeof(this->_beaconbuf) - blen);
-      SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
-      cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-      cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
-      cmd->BeaconInterval(100);
-      cmd->DtimPeriod(beacon.Tim.Period());
-      cmd->Ssid.SetString(beacon.Ssid());
-      cmd->Channel.SetChannel(1);
-//      cmd->Display();
-      this->addCommand(cmd);
-      status = true;
-    }
-  }
+  bool status = this->SetHwAddress(bssid_);
+  status &= this->_beacon->TransmitterAddress(bssid_);
+  status &= this->_beacon->Bssid(bssid_);
   return (status);
 }
 
@@ -212,20 +162,23 @@ BasicServiceSet::Create()
     return (false);
   }
 
+  this->_beacon->TransmitterAddress(this->GetHwAddress());
+  this->_beacon->Bssid(this->GetHwAddress());
+
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
 
-  Beacon beacon;
-  size_t blen = this->_beaconlen;
-  if (beacon.Disassemble(this->_beaconbuf, blen) != NULL)
+  uint8_t buf[512] = { 0 };
+  size_t blen = sizeof(buf);
+  if (this->_beacon->Assemble(buf, blen) != NULL)
   {
     this->SetAdminState(zInterface::ConfigData::STATE_UP);
     StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
-    cmd->BeaconHead.PutBuffer(beacon.Head(), beacon.HeadSize());
-    cmd->BeaconTail.PutBuffer(beacon.Tail(), beacon.TailSize());
+    cmd->BeaconHead.PutBuffer(this->_beacon->Head(), this->_beacon->HeadSize());
+    cmd->BeaconTail.PutBuffer(this->_beacon->Tail(), this->_beacon->TailSize());
     cmd->BeaconInterval(100);
-    cmd->DtimPeriod(beacon.Tim.Period());
-    cmd->Ssid.SetString(beacon.Ssid());
+    cmd->DtimPeriod(this->_beacon->Tim.Period());
+    cmd->Ssid.SetString(this->_beacon->Ssid());
     cmd->Channel.SetChannel(1);
 //    cmd->Display();
     this->addCommand(cmd);

@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -150,5 +152,6 @@ ControlFrame::Display() const
   std::cout << "\tTA:       \t" << this->TransmitterAddress() << std::endl;
 }
 
+}
 }
 }

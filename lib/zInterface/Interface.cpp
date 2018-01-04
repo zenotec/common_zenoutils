@@ -206,13 +206,13 @@ Interface::SetIfName(const std::string& name_)
   {
     if (name_ != this->_config.GetIfName())
     {
-      if (this->_config.SetIfName(name_) && this->_config.GetIfIndex())
+      status = this->_config.SetIfName(name_);
+      if (status && this->_config.GetIfIndex())
       {
         SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->IfName(name_))
         {
           this->addCommand(cmd);
-          status = true;
         }
       }
     }
@@ -309,13 +309,13 @@ Interface::SetHwAddress(const std::string& addr_)
   {
     if (addr_ != this->_config.GetHwAddress())
     {
-      if (this->_config.SetHwAddress(addr_) && this->_config.GetIfIndex())
+      status = this->_config.SetHwAddress(addr_);
+      if (status && this->_config.GetIfIndex())
       {
         SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->HwAddress(addr_))
         {
           this->addCommand(cmd);
-          status = true;
         }
       }
     }
@@ -359,13 +359,13 @@ Interface::SetMtu(const unsigned int mtu_)
   {
     if (mtu_ != this->_config.GetMtu())
     {
-      if (this->_config.SetMtu(mtu_) && this->_config.GetIfIndex())
+      status = this->_config.SetMtu(mtu_);
+      if (status && this->_config.GetIfIndex())
       {
         SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (cmd->Mtu(mtu_))
         {
           this->addCommand(cmd);
-          status = true;
         }
       }
     }
@@ -416,21 +416,19 @@ Interface::SetAdminState(const ConfigData::STATE state_)
   {
     if (state_ != this->_config.GetAdminState())
     {
-      if (this->_config.SetAdminState(state_) && this->_config.GetIfIndex())
+      status = this->_config.SetAdminState(state_);
+      if (status && this->_config.GetIfIndex())
       {
         SetLinkCommand* cmd = new SetLinkCommand(this->_config.GetIfIndex());
         if (state_ == ConfigData::STATE_UP)
         {
-          status = cmd->SetFlags(IFFLAGS_UP);
+          cmd->SetFlags(IFFLAGS_UP);
         }
         else
         {
-          status = cmd->ClrFlags(IFFLAGS_UP);
+          cmd->ClrFlags(IFFLAGS_UP);
         }
-        if (status)
-        {
-          status = this->addCommand(cmd);
-        }
+        this->addCommand(cmd);
       }
     }
     else
@@ -462,7 +460,8 @@ Interface::SetIpAddress(const std::string& addr_)
   {
     if (addr_ != this->_config.GetIpAddress())
     {
-      if (this->_config.SetIpAddress(addr_) && this->_config.GetIfIndex())
+      status = this->_config.SetIpAddress(addr_);
+      if (status && this->_config.GetIfIndex())
       {
         status = true;
       }

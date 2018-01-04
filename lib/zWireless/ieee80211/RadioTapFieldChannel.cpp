@@ -23,6 +23,8 @@
 
 #include "RadioTapField.h"
 
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -377,4 +379,5 @@ RadioTapFieldChannel::Display() const
   RadioTapField::Display();
 }
 
+}
 }

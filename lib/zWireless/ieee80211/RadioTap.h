@@ -24,6 +24,8 @@
 
 #include "RadioTapField.h"
 
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -82,6 +84,7 @@ private:
 
 };
 
+}
 }
 
 #endif // __IEEE80211_RADIOTAP_H__

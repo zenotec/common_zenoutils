@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -311,7 +313,6 @@ DataFrame::Bssid(const std::string& address_)
 void
 DataFrame::Display() const
 {
-#ifdef DISPLAY_DATA_FRAMES
   Frame::Display();
   std::cout << "----- IEEE802.11 Data Header -------------" << std::endl;
   std::cout << "\tRA:       \t" << this->ReceiverAddress() << std::endl;
@@ -320,8 +321,8 @@ DataFrame::Display() const
   std::cout << "\tSA:       \t" << this->SourceAddress() << std::endl;
   std::cout << "\tBSSID:    \t" << this->Bssid() << std::endl;
   std::cout << "\tSeq:      \t" << (int) this->SequenceControl() << std::endl;
-#endif
 }
 
+}
 }
 }

@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -202,7 +204,6 @@ ManagementFrame::Bssid(const std::string& address_)
 void
 ManagementFrame::Display() const
 {
-#ifdef DISPLAY_MANAGEMENT_FRAMES
   Frame::Display();
   std::cout << "----- IEEE802.11 Mgmt Header -------------" << std::endl;
   std::cout << "\tRA:       \t" << this->ReceiverAddress() << std::endl;
@@ -211,8 +212,8 @@ ManagementFrame::Display() const
   std::cout << "\tSA:       \t" << this->SourceAddress() << std::endl;
   std::cout << "\tBSSID:    \t" << this->Bssid() << std::endl;
   std::cout << "\tSeq:      \t" << (int) this->SequenceControl() << std::endl;
-#endif
 }
 
+}
 }
 }

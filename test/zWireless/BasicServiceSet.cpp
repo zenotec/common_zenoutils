@@ -65,6 +65,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     // Create BSS
     zWireless::BasicServiceSet* MyBss = new zWireless::BasicServiceSet(ifname, ssid);
     TEST_ISNOT_NULL(MyBss);
+    TEST_TRUE(MyBss->SetPhyIndex(phy.first));
     TEST_TRUE(MyBss->Create());
 
     // Setup interface; commit each independently so we know which one failed, if any

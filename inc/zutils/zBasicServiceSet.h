@@ -26,8 +26,14 @@
 
 namespace zUtils
 {
+
 namespace zWireless
 {
+
+namespace ieee80211
+{
+  class Beacon;
+}
 
 // ****************************************************************************
 // Class: BasicServiceSet
@@ -76,8 +82,7 @@ protected:
 
 private:
 
-  uint8_t _beaconbuf[512];
-  size_t _beaconlen;
+  ieee80211::Beacon* _beacon;
 
 };
 

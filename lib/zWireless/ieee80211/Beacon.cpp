@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -289,5 +291,6 @@ Beacon::Display() const
   if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
+}
 }
 }

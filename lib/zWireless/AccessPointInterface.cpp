@@ -45,10 +45,6 @@
 #include "SetBeaconCommand.h"
 using namespace nl80211;
 
-#include "Beacon.h"
-#include "Probe.h"
-using namespace ieee80211;
-
 namespace zUtils
 {
 namespace zWireless

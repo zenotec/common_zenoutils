@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -291,5 +293,6 @@ ProbeResponse::Display() const
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
 }
 
+}
 }
 }

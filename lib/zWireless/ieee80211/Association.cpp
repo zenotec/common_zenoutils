@@ -30,6 +30,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -327,5 +329,6 @@ AssociationResponse::Display() const
   std::cout << "\tStatus:   \t" << (int) this->Status() << std::endl;
 }
 
+}
 }
 }

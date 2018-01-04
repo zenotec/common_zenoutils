@@ -22,6 +22,8 @@
 #include <vector>
 #include <map>
 
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -531,6 +533,7 @@ public:
 
 };
 
+}
 }
 
 #endif // __IEEE80211_RADIOTAPFIELD_H__

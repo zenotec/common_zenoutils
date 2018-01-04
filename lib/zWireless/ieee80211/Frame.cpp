@@ -31,6 +31,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -92,7 +94,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   {
     if (!(this->_fcs = this->chkfcs(p_, rem_)))
     {
-      ZLOG_WARN("FCS check failed");
+//      ZLOG_WARN("FCS check failed");
     }
   }
 
@@ -622,5 +624,6 @@ Frame::chkfcs(uint8_t* f_, size_t& rem_)
   return(0); // TODO: implement FCS computation
 }
 
+}
 }
 }

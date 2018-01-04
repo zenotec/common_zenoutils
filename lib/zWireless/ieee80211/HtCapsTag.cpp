@@ -19,6 +19,8 @@
 
 namespace zUtils
 {
+namespace zWireless
+{
 namespace ieee80211
 {
 
@@ -33,5 +35,6 @@ HtCapsTag::Display() const
 }
 
 
-} // ns ieee80211
+}
+}
 }
