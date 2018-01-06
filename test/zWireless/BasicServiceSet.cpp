@@ -66,12 +66,13 @@ zWirelessTest_BasicServiceSet(void* arg)
     zWireless::BasicServiceSet* MyBss = new zWireless::BasicServiceSet(ifname, ssid);
     TEST_ISNOT_NULL(MyBss);
     TEST_TRUE(MyBss->SetPhyIndex(phy.first));
+    TEST_TRUE(MyBss->SetBssid("00:08:d0:d0:50:00"));
     TEST_TRUE(MyBss->Create());
 
     // Setup interface; commit each independently so we know which one failed, if any
     TEST_TRUE(MyBss->SetChannel(1));
     TEST_TRUE(MyBss->Commit());
-    TEST_TRUE(MyBss->SetTxPower(2100));
+    TEST_TRUE(MyBss->SetTxPower(1000));
     TEST_TRUE(MyBss->Commit());
 
     // Verify
@@ -79,7 +80,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_NEQ(zWireless::ConfigData::ConfigNameDefault, MyBss->GetIfName());
     TEST_EQ(ifname, MyBss->GetIfName());
     TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE8023, MyBss->GetIfType());
-    TEST_NEQ(zWireless::ConfigData::ConfigHwAddressDefault, MyBss->GetHwAddress());
+    TEST_EQ(std::string("00:08:d0:d0:50:00"), MyBss->GetHwAddress());
     TEST_EQ(zWireless::ConfigData::ConfigMtuDefault, MyBss->GetMtu());
 //    TEST_NEQ(zWireless::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
 //    TEST_NEQ(zWireless::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
@@ -90,10 +91,10 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyBss->GetHwMode());
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyBss->GetHtMode());
     TEST_EQ(zWireless::ConfigData::OPMODE_AP, MyBss->GetOpMode());
-//    TEST_EQ(1, MyBss->GetChannel());
-//    TEST_EQ(2100, MyBss->GetTxPower());
+    TEST_EQ(1, MyBss->GetChannel());
+    TEST_EQ(1000, MyBss->GetTxPower());
 
-// Cleanup
+    // Cleanup
     TEST_TRUE(MyBss->Destroy());
     delete (MyBss);
   }

@@ -303,7 +303,50 @@ protected:
 
 private:
 
-  zWireless::ConfigData _config;
+  zWireless::ConfigData stagingConfig;
+  zWireless::ConfigData workingConfig;
+
+  int
+  _getPhyIndex() const;
+
+  bool
+  _setPhyIndex(const int index_);
+
+  std::string
+  _getPhyName() const;
+
+  bool
+  _setPhyName(const std::string& name_);
+
+  ConfigData::HWMODE
+  _getHwMode() const;
+
+  bool
+  _setHwMode(const ConfigData::HWMODE mode_);
+
+  ConfigData::HTMODE
+  _getHtMode() const;
+
+  bool
+  _setHtMode(const ConfigData::HTMODE mode_);
+
+  ConfigData::OPMODE
+  _getOpMode() const;
+
+  bool
+  _setOpMode(const ConfigData::OPMODE mode_);
+
+  unsigned int
+  _getChannel() const;
+
+  bool
+  _setChannel(const unsigned int channel_);
+
+  unsigned int
+  _getTxPower() const;
+
+  bool
+  _setTxPower(unsigned int txpower_);
 
 };
 

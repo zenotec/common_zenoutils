@@ -57,14 +57,14 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
     this->_beacon->Interval(100);
     this->_beacon->Capabilities(0x0001);
     this->_beacon->Ssid(ssid_);
-    this->_beacon->Rates(6);
-    this->_beacon->Rates(9);
-    this->_beacon->Rates(12);
-    this->_beacon->Rates(18);
-    this->_beacon->Rates(24);
-    this->_beacon->Rates(36);
-    this->_beacon->Rates(48);
-    this->_beacon->Rates(54);
+    this->_beacon->Rates.AddRateMbsp(6);
+    this->_beacon->Rates.AddRateMbsp(9);
+    this->_beacon->Rates.AddRateMbsp(12);
+    this->_beacon->Rates.AddRateMbsp(18);
+    this->_beacon->Rates.AddRateMbsp(24);
+    this->_beacon->Rates.AddRateMbsp(36);
+    this->_beacon->Rates.AddRateMbsp(48);
+    this->_beacon->Rates.AddRateMbsp(54);
     this->_beacon->Dsss(1);
     this->_beacon->Tim.Period(2);
 //    this->_beacon->Display();
@@ -167,6 +167,7 @@ BasicServiceSet::Create()
 
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
+  this->Commit();
 
   uint8_t buf[512] = { 0 };
   size_t blen = sizeof(buf);

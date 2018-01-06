@@ -199,6 +199,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->timestamp), rem_);
   if (!p_ || !this->Timestamp(le64toh(f->timestamp)))
   {
+    ZLOG_ERR("Missing timestamp field");
     return (NULL);
   }
   this->_tail = p_;
@@ -207,6 +208,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->interval), rem_);
   if (!p_ || !this->Interval(le16toh(f->interval)))
   {
+    ZLOG_ERR("Missing interval field");
     return (NULL);
   }
   this->_tail = p_;
@@ -215,6 +217,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->capabilities), rem_);
   if (!p_ || !this->Capabilities(le16toh(f->capabilities)))
   {
+    ZLOG_ERR("Missing capabilities field");
     return (NULL);
   }
   this->_tail = p_;

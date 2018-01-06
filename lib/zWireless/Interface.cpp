@@ -217,9 +217,10 @@ _opmode2str(const ConfigData::OPMODE mode_)
 // ****************************************************************************
 
 Interface::Interface(const std::string& ifname_) :
-    zInterface::Interface(ifname_), _config(zInterface::Interface::GetConfig().GetData())
+    zInterface::Interface(ifname_),
+    stagingConfig(zInterface::Interface::stagingConfig),
+    workingConfig(zInterface::Interface::workingConfig)
 {
-  this->Refresh();
   this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
 }
 
@@ -230,28 +231,21 @@ Interface::~Interface()
 zWireless::ConfigData
 Interface::GetConfig() const
 {
-  return (this->_config);
+  return (this->workingConfig);
 }
 
 bool
 Interface::SetConfig(zWireless::ConfigData config_)
 {
-  this->SetIfIndex(config_.GetIfIndex(this->_config.GetIfIndex()));
-  this->SetIfName(config_.GetIfName(this->_config.GetIfName()));
-  this->SetIfType(config_.GetIfType(this->_config.GetIfType()));
-  this->SetHwAddress(config_.GetHwAddress(this->_config.GetHwAddress()));
-  this->SetMtu(config_.GetMtu(this->_config.GetMtu()));
-  this->SetIpAddress(config_.GetIpAddress(this->_config.GetIpAddress()));
-  this->SetNetmask(config_.GetNetmask(this->_config.GetNetmask()));
-  this->SetPhyIndex(config_.GetPhyIndex(this->_config.GetPhyIndex()));
-  this->SetPhyName(config_.GetPhyName(this->_config.GetPhyName()));
-  this->SetHwMode(config_.GetHwMode(this->_config.GetHwMode()));
-  this->SetHtMode(config_.GetHtMode(this->_config.GetHtMode()));
-  this->SetOpMode(config_.GetOpMode(this->_config.GetOpMode()));
-  this->SetAdminState(config_.GetAdminState(this->_config.GetAdminState())); // must be before setting channel
-  this->SetChannel(config_.GetChannel(this->_config.GetChannel()));
-  this->SetTxPower(config_.GetTxPower(this->_config.GetTxPower()));
-  return (this->Commit());
+  bool status = zInterface::Interface::SetConfig(config_);
+  status &= this->SetPhyIndex(config_.GetPhyIndex(this->workingConfig.GetPhyIndex()));
+  status &= this->SetPhyName(config_.GetPhyName(this->workingConfig.GetPhyName()));
+  status &= this->SetHwMode(config_.GetHwMode(this->workingConfig.GetHwMode()));
+  status &= this->SetHtMode(config_.GetHtMode(this->workingConfig.GetHtMode()));
+  status &= this->SetOpMode(config_.GetOpMode(this->workingConfig.GetOpMode()));
+  status &= this->SetChannel(config_.GetChannel(this->workingConfig.GetChannel()));
+  status &= this->SetTxPower(config_.GetTxPower(this->workingConfig.GetTxPower()));
+  return (status);
 }
 
 int
@@ -260,17 +254,10 @@ Interface::GetPhyIndex() const
   int index = -1;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    index = this->_getPhyIndex();
+    if (index == -1)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        index = cmd.PhyIndex();
-      }
-    }
-    else
-    {
-      index = this->_config.GetPhyIndex();
+      index = this->workingConfig.GetPhyIndex();
     }
     this->lock.Unlock();
   }
@@ -283,9 +270,8 @@ Interface::SetPhyIndex(const int index_)
   bool status = false;
   if (this->lock.Lock())
   {
-    this->_config.SetPhyIndex(index_);
+    status = this->stagingConfig.SetPhyIndex(index_);
     this->lock.Unlock();
-    status = true;
   }
   return (status);
 }
@@ -296,18 +282,10 @@ Interface::GetPhyName() const
   std::string name;
   if (this->lock.Lock())
   {
-    if ((this->_config.GetPhyIndex() >= 0))
+    name = this->_getPhyName();
+    if (name.empty())
     {
-      GetPhyCommand cmd(this->_config.GetIfIndex()); // Interface index is not used; just the phy index
-      cmd.PhyIndex(this->_config.GetPhyIndex());
-      if (cmd.Exec())
-      {
-        name = cmd.PhyName();
-      }
-    }
-    else
-    {
-      name = this->_config.GetPhyName();
+      name = this->workingConfig.GetPhyName();
     }
     this->lock.Unlock();
   }
@@ -320,22 +298,7 @@ Interface::SetPhyName(const std::string& name_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (name_ != this->_config.GetPhyName())
-    {
-      if (this->_config.SetPhyName(name_) && this->_config.GetIfIndex() &&
-          (this->_config.GetPhyIndex() >= 0))
-      {
-        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
-        cmd->PhyIndex(this->_config.GetPhyIndex());
-        cmd->PhyName(name_);
-        this->addCommand(cmd);
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetPhyName(name_);
     this->lock.Unlock();
   }
   return (status);
@@ -347,18 +310,10 @@ Interface::GetHwMode() const
   ConfigData::HWMODE mode = ConfigData::HWMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    mode = this->_getHwMode();
+    if (mode == ConfigData::HWMODE_ERR)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        // TODO: Implement this
-        mode = this->_config.GetHwMode();
-      }
-    }
-    else
-    {
-      mode = this->_config.GetHwMode();
+      mode = this->workingConfig.GetHwMode();
     }
     this->lock.Unlock();
   }
@@ -371,17 +326,7 @@ Interface::SetHwMode(const ConfigData::HWMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->_config.GetHwMode())
-    {
-      if (this->_config.SetHwMode(mode_) && this->_config.GetIfIndex())
-      {
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetHwMode(mode_);
     this->lock.Unlock();
   }
   return (status);
@@ -393,56 +338,10 @@ Interface::GetHtMode() const
   ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    mode = this->_getHtMode();
+    if (mode == ConfigData::HTMODE_ERR)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        switch(cmd.ChannelType())
-        {
-        case NL80211_CHAN_NO_HT:
-          mode = ConfigData::HTMODE_NOHT;
-          break;
-        case NL80211_CHAN_HT20:
-          mode = ConfigData::HTMODE_HT20;
-          break;
-        case NL80211_CHAN_HT40MINUS:
-          mode = ConfigData::HTMODE_HT40MINUS;
-          break;
-        case NL80211_CHAN_HT40PLUS:
-          mode = ConfigData::HTMODE_HT40PLUS;
-          break;
-        default:
-          break;
-        }
-        switch(cmd.ChannelWidth())
-        {
-        case NL80211_CHAN_WIDTH_20_NOHT:
-          mode = ConfigData::HTMODE_NOHT;
-          break;
-        case NL80211_CHAN_WIDTH_20:
-          mode = ConfigData::HTMODE_VHT20;
-          break;
-        case NL80211_CHAN_WIDTH_40:
-          mode = ConfigData::HTMODE_VHT40;
-          break;
-        case NL80211_CHAN_WIDTH_80:
-          mode = ConfigData::HTMODE_VHT80;
-          break;
-        case NL80211_CHAN_WIDTH_80P80:
-          mode = ConfigData::HTMODE_VHT80PLUS80;
-          break;
-        case NL80211_CHAN_WIDTH_160:
-          mode = ConfigData::HTMODE_VHT160;
-          break;
-        default:
-          break;
-        }
-      }
-    }
-    else
-    {
-      mode = this->_config.GetHtMode();
+      mode = this->workingConfig.GetHtMode();
     }
     this->lock.Unlock();
   }
@@ -455,17 +354,7 @@ Interface::SetHtMode(const ConfigData::HTMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->_config.GetHtMode())
-    {
-      if (this->_config.SetHtMode(mode_) && this->_config.GetIfIndex())
-      {
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetHtMode(mode_);
     this->lock.Unlock();
   }
   return (status);
@@ -477,17 +366,10 @@ Interface::GetOpMode() const
   ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    mode = this->_getOpMode();
+    if (mode == ConfigData::OPMODE_ERR)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        mode = _nl2opmode(cmd.IfType());
-      }
-    }
-    else
-    {
-      mode = this->_config.GetOpMode();
+      mode = this->workingConfig.GetOpMode();
     }
     this->lock.Unlock();
   }
@@ -500,20 +382,7 @@ Interface::SetOpMode(const ConfigData::OPMODE mode_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (mode_ != this->_config.GetOpMode())
-    {
-      if (this->_config.SetOpMode(mode_) && this->_config.GetIfIndex())
-      {
-        SetInterfaceCommand* cmd = new SetInterfaceCommand(this->_config.GetIfIndex());
-        cmd->IfType(_opmode2nl(mode_));
-        this->addCommand(cmd);
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetOpMode(mode_);
     this->lock.Unlock();
   }
   return (status);
@@ -525,17 +394,10 @@ Interface::GetChannel() const
   unsigned int channel = 0;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    channel = this->_getChannel();
+    if (channel == 0)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        channel = cmd.Frequency.GetChannel();
-      }
-    }
-    else
-    {
-      channel = this->_config.GetChannel();
+      channel = this->workingConfig.GetChannel();
     }
     this->lock.Unlock();
   }
@@ -548,26 +410,7 @@ Interface::SetChannel(const unsigned int channel_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (channel_ != this->_config.GetChannel())
-    {
-      if (this->_config.GetAdminState() != ConfigData::STATE_UP)
-      {
-        ZLOG_WARN("Interface must be UP before setting channel");
-      }
-      if (this->_config.SetChannel(channel_) && this->_config.GetIfIndex() &&
-          (this->_config.GetPhyIndex() >= 0))
-      {
-        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
-        cmd->PhyIndex(this->_config.GetPhyIndex());
-        cmd->Frequency.SetChannel(channel_);
-        this->addCommand(cmd);
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetChannel(channel_);
     this->lock.Unlock();
   }
   return (status);
@@ -579,17 +422,10 @@ Interface::GetTxPower() const
   unsigned int power = 0;
   if (this->lock.Lock())
   {
-    if (this->_config.GetIfIndex())
+    power = this->_getTxPower();
+    if (power == 0)
     {
-      GetInterfaceCommand cmd(this->_config.GetIfIndex());
-      if (cmd.Exec())
-      {
-        power = cmd.TxPowerLevel();
-      }
-    }
-    else
-    {
-      power = this->_config.GetTxPower();
+      power = this->workingConfig.GetTxPower();
     }
     this->lock.Unlock();
   }
@@ -602,23 +438,7 @@ Interface::SetTxPower(const unsigned int txpower_)
   bool status = false;
   if (this->lock.Lock())
   {
-    if (txpower_ != this->_config.GetTxPower())
-    {
-      if (this->_config.SetTxPower(txpower_) && this->_config.GetIfIndex() &&
-          (this->_config.GetPhyIndex() >= 0))
-      {
-        SetPhyCommand* cmd = new SetPhyCommand(this->_config.GetIfIndex());
-        cmd->PhyIndex(this->_config.GetPhyIndex());
-        cmd->TxPowerMode.SetMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
-        cmd->TxPowerLevel(txpower_);
-        this->addCommand(cmd);
-        status = true;
-      }
-    }
-    else
-    {
-      status = true;
-    }
+    status = this->stagingConfig.SetTxPower(txpower_);
     this->lock.Unlock();
   }
   return (status);
@@ -627,25 +447,96 @@ Interface::SetTxPower(const unsigned int txpower_)
 bool
 Interface::Refresh()
 {
-  bool status = false;
-  if (zInterface::Interface::Refresh())
-  {
-    this->_config.SetPhyIndex(this->GetPhyIndex());
-    this->_config.SetPhyName(this->GetPhyName());
-    this->_config.SetHwMode(this->GetHwMode());
-    this->_config.SetHtMode(this->GetHtMode());
-    this->_config.SetOpMode(this->GetOpMode());
-    this->_config.SetChannel(this->GetChannel());
-    this->_config.SetTxPower(this->GetTxPower());
-    status = true;
-  }
+  bool status = zInterface::Interface::Refresh();
+  status &= this->workingConfig.SetPhyIndex(this->GetPhyIndex());
+  status &= this->workingConfig.SetPhyName(this->GetPhyName());
+  status &= this->workingConfig.SetHwMode(this->GetHwMode());
+  status &= this->workingConfig.SetHtMode(this->GetHtMode());
+  status &= this->workingConfig.SetOpMode(this->GetOpMode());
+  status &= this->workingConfig.SetChannel(this->GetChannel());
+  status &= this->workingConfig.SetTxPower(this->GetTxPower());
   return (status);
 }
 
 bool
 Interface::Commit()
 {
-  return (zInterface::Interface::Commit());
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = true; // Innocent until proven guilty
+
+    if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
+    {
+      status &= this->setIfName(this->stagingConfig.GetIfName());
+    }
+
+    if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
+    {
+      status &= this->setIfType(this->stagingConfig.GetIfType());
+    }
+
+    if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
+    {
+      status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
+    }
+
+    if (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu())
+    {
+      status &= this->setMtu(this->stagingConfig.GetMtu());
+    }
+
+    if (this->stagingConfig.GetIpAddress() != this->workingConfig.GetIpAddress())
+    {
+      status &= this->setIpAddress(this->stagingConfig.GetIpAddress());
+    }
+
+    if (this->stagingConfig.GetNetmask() != this->workingConfig.GetNetmask())
+    {
+      status &= this->setNetmask(this->stagingConfig.GetNetmask());
+    }
+
+    if (this->stagingConfig.GetPhyName() != this->workingConfig.GetPhyName())
+    {
+      status &= this->_setPhyName(this->stagingConfig.GetPhyName());
+    }
+
+    if (this->stagingConfig.GetHwMode() != this->workingConfig.GetHwMode())
+    {
+      status &= this->_setHwMode(this->stagingConfig.GetHwMode());
+    }
+
+    if (this->stagingConfig.GetHtMode() != this->workingConfig.GetHtMode())
+    {
+      status &= this->_setHtMode(this->stagingConfig.GetHtMode());
+    }
+
+    if (this->stagingConfig.GetOpMode() != this->workingConfig.GetOpMode())
+    {
+      status &= this->_setOpMode(this->stagingConfig.GetOpMode());
+    }
+
+    // Always make this command last to ensure all commands are executed while the interface is down
+    if (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState())
+    {
+      status &= this->setAdminState(this->stagingConfig.GetAdminState());
+    }
+
+    if (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel())
+    {
+      status &= this->_setChannel(this->stagingConfig.GetChannel());
+    }
+
+    if (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower())
+    {
+      status &= this->_setTxPower(this->stagingConfig.GetTxPower());
+    }
+
+    status &= this->execCommands();
+
+    this->lock.Unlock();
+  }
+  return (status);
 }
 
 bool
@@ -657,20 +548,24 @@ Interface::Create()
   if (this->lock.Lock())
   {
     NewInterfaceCommand *cmd =
-        new NewInterfaceCommand(this->_config.GetIfName(), this->_config.GetPhyIndex());
-    cmd->IfType(_opmode2nl(this->_config.GetOpMode()));
+        new NewInterfaceCommand(this->stagingConfig.GetIfName(), this->stagingConfig.GetPhyIndex());
+    cmd->IfType(_opmode2nl(this->stagingConfig.GetOpMode()));
     this->addCommand(cmd);
-    status = true;
+    status = this->execCommands();
     this->lock.Unlock();
+  }
+
+  if (status && this->GetIfIndex())
+  {
+    this->workingConfig.SetIfIndex(this->GetIfIndex());
+    this->workingConfig.SetOpMode(this->GetOpMode());
+    status &= this->Commit();
+    status &= this->Refresh();
   }
 
   if (status)
   {
-    status = false;
-    if (zInterface::Interface::Create() && this->GetIfIndex())
-    {
-      status = this->Refresh();
-    }
+    *this->stagingConfig.GetData() = *this->workingConfig.GetData();
   }
 
   return (status);
@@ -685,15 +580,10 @@ Interface::Destroy()
 
   if (this->lock.Lock())
   {
-    DelInterfaceCommand* cmd = new DelInterfaceCommand(this->_config.GetIfIndex());
+    DelInterfaceCommand* cmd = new DelInterfaceCommand(this->workingConfig.GetIfIndex());
     this->addCommand(cmd);
-    status = true;
+    status = this->execCommands();
     this->lock.Unlock();
-  }
-
-  if (status)
-  {
-    status = zInterface::Interface::Destroy();
   }
 
   return (status);
@@ -705,12 +595,227 @@ Interface::Display(const std::string &prefix_)
 {
   zInterface::Interface::Display(prefix_);
   std::cout << "--------- Wireless Interface -----------" << std::endl;
-  std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName() << std::endl;
+  std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName()
+      << std::endl;
   std::cout << prefix_ << "HWMODE: \t" << _hwmode2str(this->GetHwMode()) << std::endl;
   std::cout << prefix_ << "HTMODE: \t" << _htmode2str(this->GetHtMode()) << std::endl;
   std::cout << prefix_ << "OPMODE: \t" << _opmode2str(this->GetOpMode()) << std::endl;
   std::cout << prefix_ << "Channel:\t" << this->GetChannel() << std::endl;
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
+}
+
+int
+Interface::_getPhyIndex() const
+{
+  int index = -1;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      index = cmd.PhyIndex();
+    }
+  }
+  return (index);
+}
+
+bool
+Interface::_setPhyIndex(const int index_)
+{
+  return (true);
+}
+
+std::string
+Interface::_getPhyName() const
+{
+  std::string name;
+  if (this->workingConfig.GetPhyIndex() >= 0)
+  {
+    GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
+    cmd.PhyIndex(this->workingConfig.GetPhyIndex());
+    if (cmd.Exec())
+    {
+      name = cmd.PhyName();
+    }
+  }
+  return (name);
+}
+
+bool
+Interface::_setPhyName(const std::string& name_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && !name_.empty())
+  {
+    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
+    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
+    cmd->PhyName(name_);
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
+}
+
+ConfigData::HWMODE
+Interface::_getHwMode() const
+{
+  return (ConfigData::HWMODE_ERR);
+}
+
+bool
+Interface::_setHwMode(const ConfigData::HWMODE mode_)
+{
+  return (true);
+}
+
+ConfigData::HTMODE
+Interface::_getHtMode() const
+{
+  ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      switch (cmd.ChannelType())
+      {
+      case NL80211_CHAN_NO_HT:
+        mode = ConfigData::HTMODE_NOHT;
+        break;
+      case NL80211_CHAN_HT20:
+        mode = ConfigData::HTMODE_HT20;
+        break;
+      case NL80211_CHAN_HT40MINUS:
+        mode = ConfigData::HTMODE_HT40MINUS;
+        break;
+      case NL80211_CHAN_HT40PLUS:
+        mode = ConfigData::HTMODE_HT40PLUS;
+        break;
+      default:
+        break;
+      }
+      switch (cmd.ChannelWidth())
+      {
+      case NL80211_CHAN_WIDTH_20_NOHT:
+        mode = ConfigData::HTMODE_NOHT;
+        break;
+      case NL80211_CHAN_WIDTH_20:
+        mode = ConfigData::HTMODE_VHT20;
+        break;
+      case NL80211_CHAN_WIDTH_40:
+        mode = ConfigData::HTMODE_VHT40;
+        break;
+      case NL80211_CHAN_WIDTH_80:
+        mode = ConfigData::HTMODE_VHT80;
+        break;
+      case NL80211_CHAN_WIDTH_80P80:
+        mode = ConfigData::HTMODE_VHT80PLUS80;
+        break;
+      case NL80211_CHAN_WIDTH_160:
+        mode = ConfigData::HTMODE_VHT160;
+        break;
+      default:
+        break;
+      }
+    }
+  }
+  return (mode);
+}
+
+bool
+Interface::_setHtMode(const ConfigData::HTMODE mode_)
+{
+  return (true); // TODO
+}
+
+ConfigData::OPMODE
+Interface::_getOpMode() const
+{
+  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      mode = _nl2opmode(cmd.IfType());
+    }
+  }
+  return (mode);
+}
+
+bool
+Interface::_setOpMode(const ConfigData::OPMODE mode_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex())
+  {
+    SetInterfaceCommand* cmd = new SetInterfaceCommand(this->workingConfig.GetIfIndex());
+    cmd->IfType(_opmode2nl(mode_));
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
+}
+
+unsigned int
+Interface::_getChannel() const
+{
+  unsigned int channel = 0;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      channel = cmd.Frequency.GetChannel();
+    }
+  }
+  return (channel);
+}
+
+bool
+Interface::_setChannel(const unsigned int channel_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && channel_)
+  {
+    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
+    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
+    cmd->Frequency.SetChannel(channel_);
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
+}
+
+unsigned int
+Interface::_getTxPower() const
+{
+  unsigned int power = 0;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      power = cmd.TxPowerLevel();
+    }
+  }
+  return (power);
+}
+
+bool
+Interface::_setTxPower(unsigned int txpower_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && txpower_)
+  {
+    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
+    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
+    cmd->TxPowerMode.SetMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
+    cmd->TxPowerLevel(txpower_);
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
 }
 
 }

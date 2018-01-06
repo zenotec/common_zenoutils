@@ -142,6 +142,9 @@ public:
   virtual
   ~ConfigData();
 
+  zInterface::ConfigData&
+  operator=(const zInterface::ConfigData& other_);
+
   SHARED_PTR(zConfig::ConfigData)
   GetData() const;
 
@@ -311,16 +314,69 @@ protected:
 
   mutable zSem::Mutex lock;
 
+  zInterface::ConfigData stagingConfig; // Contains the desired interface configuration
+  zInterface::ConfigData workingConfig; // Contains the current interface configuration
+
   size_t
   addCommand(netlink::Command* cmd_, size_t index_ = -1); // 0 - begin of list, -1 == end of list
 
   bool
+  execCommands();
+
+  bool
   clrCommands();
+
+  unsigned int
+  getIfIndex() const;
+
+  bool
+  setIfIndex(const unsigned int ifindex_);
+
+  std::string
+  getIfName() const;
+
+  bool
+  setIfName(const std::string& name_);
+
+  ConfigData::IFTYPE
+  getIfType() const;
+
+  bool
+  setIfType(const ConfigData::IFTYPE type_);
+
+  std::string
+  getHwAddress() const;
+
+  bool
+  setHwAddress(const std::string& addr_);
+
+  unsigned int
+  getMtu() const;
+
+  bool
+  setMtu(const unsigned int mtu_);
+
+  ConfigData::STATE
+  getAdminState() const;
+
+  bool
+  setAdminState(const ConfigData::STATE state_);
+
+  std::string
+  getIpAddress() const;
+
+  bool
+  setIpAddress(const std::string& addr_);
+
+  std::string
+  getNetmask() const;
+
+  bool
+  setNetmask(const std::string& addr_);
 
 private:
 
-  zInterface::ConfigData _config;
-  std::list<netlink::Command*> _cmds;
+  std::list<netlink::Command*> _cmds; // List of commands to invoke during commit
 
 };
 

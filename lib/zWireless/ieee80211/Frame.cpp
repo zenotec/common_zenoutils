@@ -110,14 +110,17 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->Version((fc >> 0) & 0x03);
   if (this->Version() != 0)
   {
+    ZLOG_ERR("Invalid header version: " + ZLOG_INT(this->Version()))
     return (NULL);
   }
   if (!this->Type((Frame::TYPE)((fc >> 2) & 0x03)))
   {
+    ZLOG_ERR("Invalid type: " + ZLOG_INT(this->Type()))
     return(NULL);
   }
   if(!this->Subtype((Frame::SUBTYPE)((fc >> 4) & 0x0f)))
   {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()))
     return(NULL);
   }
   if(!this->ToDS(!!(fc & (1 << 8))))
@@ -156,6 +159,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->duration), rem_);
   if (p_)
   {
+    ZLOG_ERR("Missing duration field");
     this->DurationId(le16toh(f->duration));
   }
 

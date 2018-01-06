@@ -104,37 +104,41 @@ ManagementFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   if (f == NULL)
   {
-    ZLOG_WARN("Error disassembling management frame: " + ZLOG_INT(rem_));
+    ZLOG_ERR("Error disassembling management frame: " + ZLOG_INT(rem_));
     return (NULL);
   }
 
   if (this->Type() != Frame::TYPE_MGMT)
   {
-    ZLOG_WARN("Frame type not management");
+    ZLOG_ERR("Frame type not management");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->ra), rem_);
   if (!p_ || !this->Address(ADDRESS_1, f->ra))
   {
+    ZLOG_ERR("Missing address field: 1");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->ta), rem_);
   if (!p_ || !this->Address(ADDRESS_2, f->ta))
   {
+    ZLOG_ERR("Missing address field: 2");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->bssid), rem_);
   if (!p_ || !this->Address(ADDRESS_3, f->bssid))
   {
+    ZLOG_ERR("Missing address field: 3");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
   if (!p_ || !this->SequenceControl(le16toh(f->seqcntl)))
   {
+    ZLOG_ERR("Missing sequence control field");
     return(NULL);
   }
 

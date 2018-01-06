@@ -48,8 +48,10 @@ zInterfaceTest_InterfaceLoop(void* arg)
   TEST_EQ(std::string("lo"), MyInterface->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_LOOP, MyInterface->GetIfType());
   TEST_EQ(std::string("00:00:00:00:00:00"), MyInterface->GetHwAddress());
-//  TEST_EQ(std::string("127.0.0.1"), MyInterface->IpAddress());
+  TEST_EQ(65536, MyInterface->GetMtu());
   TEST_EQ(ConfigData::STATE_UP, MyInterface->GetAdminState());
+  //  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetIpAddress());
+  //  TEST_EQ(std::string("255.255.255.0"), MyInterface->GetNetmask());
 
   // Cleanup
   delete (MyInterface);
