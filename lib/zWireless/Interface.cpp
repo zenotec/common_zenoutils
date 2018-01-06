@@ -594,7 +594,7 @@ void
 Interface::Display(const std::string &prefix_)
 {
   zInterface::Interface::Display(prefix_);
-  std::cout << "--------- Wireless Interface -----------" << std::endl;
+  std::cout << prefix_ << "--------- Wireless Interface -----------" << std::endl;
   std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName()
       << std::endl;
   std::cout << prefix_ << "HWMODE: \t" << _hwmode2str(this->GetHwMode()) << std::endl;

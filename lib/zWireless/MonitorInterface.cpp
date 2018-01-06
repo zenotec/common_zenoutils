@@ -67,7 +67,7 @@ MonitorInterface::~MonitorInterface()
 void
 MonitorInterface::Display(const std::string& prefix_)
 {
-  Interface::Display(prefix_);
+  zWireless::Interface::Display(prefix_);
   std::cout << prefix_ << "--------- Monitor Interface ------------" << std::endl;
 }
 

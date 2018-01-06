@@ -31,7 +31,7 @@ namespace zWireless
 // Class: MonitorInterface
 // ****************************************************************************
 
-class MonitorInterface : public Interface
+class MonitorInterface : public zWireless::Interface
 {
 public:
 
