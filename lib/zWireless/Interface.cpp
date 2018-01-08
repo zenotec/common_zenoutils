@@ -257,7 +257,7 @@ Interface::GetPhyIndex() const
     index = this->_getPhyIndex();
     if (index == -1)
     {
-      index = this->workingConfig.GetPhyIndex();
+      index = this->stagingConfig.GetPhyIndex();
     }
     this->lock.Unlock();
   }
@@ -285,7 +285,7 @@ Interface::GetPhyName() const
     name = this->_getPhyName();
     if (name.empty())
     {
-      name = this->workingConfig.GetPhyName();
+      name = this->stagingConfig.GetPhyName();
     }
     this->lock.Unlock();
   }
@@ -313,7 +313,7 @@ Interface::GetHwMode() const
     mode = this->_getHwMode();
     if (mode == ConfigData::HWMODE_ERR)
     {
-      mode = this->workingConfig.GetHwMode();
+      mode = this->stagingConfig.GetHwMode();
     }
     this->lock.Unlock();
   }
@@ -341,7 +341,7 @@ Interface::GetHtMode() const
     mode = this->_getHtMode();
     if (mode == ConfigData::HTMODE_ERR)
     {
-      mode = this->workingConfig.GetHtMode();
+      mode = this->stagingConfig.GetHtMode();
     }
     this->lock.Unlock();
   }
@@ -369,7 +369,7 @@ Interface::GetOpMode() const
     mode = this->_getOpMode();
     if (mode == ConfigData::OPMODE_ERR)
     {
-      mode = this->workingConfig.GetOpMode();
+      mode = this->stagingConfig.GetOpMode();
     }
     this->lock.Unlock();
   }
@@ -397,7 +397,7 @@ Interface::GetChannel() const
     channel = this->_getChannel();
     if (channel == 0)
     {
-      channel = this->workingConfig.GetChannel();
+      channel = this->stagingConfig.GetChannel();
     }
     this->lock.Unlock();
   }
@@ -425,7 +425,7 @@ Interface::GetTxPower() const
     power = this->_getTxPower();
     if (power == 0)
     {
-      power = this->workingConfig.GetTxPower();
+      power = this->stagingConfig.GetTxPower();
     }
     this->lock.Unlock();
   }
@@ -455,6 +455,10 @@ Interface::Refresh()
   status &= this->workingConfig.SetOpMode(this->GetOpMode());
   status &= this->workingConfig.SetChannel(this->GetChannel());
   status &= this->workingConfig.SetTxPower(this->GetTxPower());
+  if (status)
+  {
+    *this->stagingConfig.GetData() = *this->workingConfig.GetData();
+  }
   return (status);
 }
 

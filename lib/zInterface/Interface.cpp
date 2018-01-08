@@ -122,7 +122,7 @@ Interface::~Interface()
 zInterface::ConfigData
 Interface::GetConfig() const
 {
-  return (this->workingConfig);
+  return (this->stagingConfig);
 }
 
 bool
@@ -148,7 +148,7 @@ Interface::GetIfIndex() const
     ifindex = this->getIfIndex();
     if (!ifindex)
     {
-      ifindex = this->workingConfig.GetIfIndex();
+      ifindex = this->stagingConfig.GetIfIndex();
     }
     this->lock.Unlock();
   }
@@ -176,7 +176,7 @@ Interface::GetIfName() const
     name = this->getIfName();
     if (name.empty())
     {
-      name = this->workingConfig.GetIfName();
+      name = this->stagingConfig.GetIfName();
     }
     this->lock.Unlock();
   }
@@ -204,7 +204,7 @@ Interface::GetIfType() const
     type = this->getIfType();
     if (type == ConfigData::IFTYPE_ERR)
     {
-      type = this->workingConfig.GetIfType();
+      type = this->stagingConfig.GetIfType();
     }
     this->lock.Unlock();
   }
@@ -232,7 +232,7 @@ Interface::GetHwAddress() const
     addr = this->getHwAddress();
     if (addr.empty())
     {
-      addr = this->workingConfig.GetHwAddress();
+      addr = this->stagingConfig.GetHwAddress();
     }
     this->lock.Unlock();
   }
@@ -260,7 +260,7 @@ Interface::GetMtu() const
     mtu = this->getMtu();
     if (!mtu)
     {
-      mtu = this->workingConfig.GetMtu();
+      mtu = this->stagingConfig.GetMtu();
     }
     this->lock.Unlock();
   }
@@ -288,7 +288,7 @@ Interface::GetAdminState() const
     state = this->getAdminState();
     if (state == ConfigData::STATE_ERR)
     {
-      state = this->workingConfig.GetAdminState();
+      state = this->stagingConfig.GetAdminState();
     }
     this->lock.Unlock();
   }
@@ -316,7 +316,7 @@ Interface::GetIpAddress() const
     addr = this->getIpAddress();
     if (addr.empty())
     {
-      addr = this->workingConfig.GetIpAddress();
+      addr = this->stagingConfig.GetIpAddress();
     }
     this->lock.Unlock();
   }
@@ -344,7 +344,7 @@ Interface::GetNetmask() const
     addr = this->getNetmask();
     if (addr.empty())
     {
-      addr = this->workingConfig.GetNetmask();
+      addr = this->stagingConfig.GetNetmask();
     }
     this->lock.Unlock();
   }

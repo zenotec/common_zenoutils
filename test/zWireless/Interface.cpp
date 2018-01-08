@@ -179,7 +179,8 @@ zWirelessTest_MonitorInterface(void* arg)
       TEST_TRUE(MyInterface->Create());
     }
 
-    // Verify
+    // Force a refresh to retrieve interface attributes and verify
+    TEST_TRUE(MyInterface->Refresh());
     TEST_NEQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
     TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
     TEST_EQ(ifname, MyInterface->GetIfName());
