@@ -332,7 +332,7 @@ const std::string ConfigData::ConfigBssidDefault("");
 
 const unsigned int ConfigData::ConfigChannelDefault(1);
 
-const unsigned int ConfigData::ConfigTxPowerDefault(17);
+const unsigned int ConfigData::ConfigTxPowerDefault(1700);
 
 
 ConfigData::ConfigData(const std::string& name_) :
