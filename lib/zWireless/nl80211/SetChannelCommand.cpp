@@ -143,17 +143,6 @@ int
 SetChannelCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
-  {
-    ZLOG_ERR("Error parsing generic message");
-    return (NL_SKIP);
-  }
-
-//  std::cout << "SetChannelCommand::ack_cb()" << std::endl;
-//  msg.Display();
-//  msg.DisplayAttributes();
-
   this->_status = true;
   this->_count.Post();
 
