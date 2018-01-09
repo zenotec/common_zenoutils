@@ -23,10 +23,13 @@
 
 #include <zutils/zUtils.h>
 #include <zutils/zSocket.h>
+using namespace zUtils;
 
 #include "RadioTapField.h"
 #include "RadioTap.h"
 
+namespace zUtils
+{
 namespace zWireless
 {
 namespace ieee80211
@@ -291,5 +294,6 @@ RadioTap::Display() const
   return;
 }
 
+}
 }
 }

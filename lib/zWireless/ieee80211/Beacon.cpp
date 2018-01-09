@@ -24,9 +24,11 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+using namespace zUtils;
 
 // local includes
 #include "Beacon.h"
+using namespace zWireless::ieee80211;
 
 namespace zUtils
 {

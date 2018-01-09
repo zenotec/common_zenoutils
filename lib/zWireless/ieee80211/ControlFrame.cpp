@@ -24,6 +24,7 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+using namespace zUtils;
 
 // local includes
 #include "ControlFrame.h"

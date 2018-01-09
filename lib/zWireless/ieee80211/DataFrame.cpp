@@ -24,6 +24,7 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+using namespace zUtils;
 
 // local includes
 #include "DataFrame.h"
@@ -109,7 +110,7 @@ _bssid_addrid(bool tods_, bool fromds_)
 //*****************************************************************************
 
 DataFrame::DataFrame(const Frame::SUBTYPE subtype_) :
-    Frame(Frame::TYPE_CNTL)
+    Frame(Frame::TYPE_DATA)
 {
   this->Subtype(subtype_);
 }
@@ -140,24 +141,28 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->addr1), rem_);
   if (!p_ || this->Address(ADDRESS_1).empty() || !this->str2mac(this->Address(ADDRESS_1), f->addr1))
   {
+    ZLOG_ERR("Missing or invalid address field: 1");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->addr2), rem_);
   if (!p_ || this->Address(ADDRESS_2).empty() || !this->str2mac(this->Address(ADDRESS_2), f->addr2))
   {
+    ZLOG_ERR("Missing or invalid address field: 2");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->addr3), rem_);
   if (!p_ || this->Address(ADDRESS_3).empty() || !this->str2mac(this->Address(ADDRESS_3), f->addr3))
   {
+    ZLOG_ERR("Missing or invalid address field: 3");
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
   if (p_)
   {
+    ZLOG_ERR("Missing sequence control field");
     f->seqcntl = htole16(this->SequenceControl());
   }
 
@@ -203,32 +208,37 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, sizeof(f->addr1), rem_);
   if (!p_ || !this->Address(ADDRESS_1, f->addr1))
   {
+    ZLOG_ERR("Error disassembling address field 1: " + ZLOG_P(p_));
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->addr2), rem_);
   if (!p_ || !this->Address(ADDRESS_2, f->addr2))
   {
+    ZLOG_ERR("Error disassembling address field 2: " + ZLOG_P(p_));
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->addr3), rem_);
   if (!p_ || !this->Address(ADDRESS_3, f->addr3))
   {
+    ZLOG_ERR("Error disassembling address field 3: " + ZLOG_P(p_));
     return (NULL);
   }
 
   p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
   if (!p_ || !this->SequenceControl(le16toh(f->seqcntl)))
   {
+    ZLOG_ERR("Error disassembling sequence control field: " + ZLOG_P(p_));
     return(NULL);
   }
 
-  if (this->Subtype() & Frame::SUBTYPE_DATAQOS)
+  if (this->Subtype() == Frame::SUBTYPE_DATAQOS)
   {
     p_ = this->chklen(p_, sizeof(f->u.qosdata.qoscntl), rem_);
     if (!p_ || !this->QosControl(le16toh(f->u.qosdata.qoscntl)))
     {
+      ZLOG_ERR("Error disassembling QoS control field: " + ZLOG_P(p_));
       return(NULL);
     }
   }
@@ -238,6 +248,7 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(pay, len, rem_);
   if (!p_ || !this->PutPayload(pay, len))
   {
+    ZLOG_ERR("Error disassembling payload: " + ZLOG_P(p_));
     return(NULL);
   }
 

@@ -337,8 +337,18 @@ AC_CONFIG_FILES([test/zQueue/Makefile])
 AC_CONFIG_FILES([lib/zGpio/Makefile test/zGpio/Makefile])
 AC_CONFIG_FILES([lib/zLed/Makefile test/zLed/Makefile])
 AC_CONFIG_FILES([lib/zSerial/Makefile test/zSerial/Makefile])
-AC_CONFIG_FILES([lib/zInterface/Makefile lib/zInterface/netlink/Makefile test/zInterface/Makefile])
-AC_CONFIG_FILES([lib/zWireless/Makefile lib/zWireless/nl80211/Makefile lib/zWireless/ieee80211/Makefile test/zWireless/Makefile])
+AC_CONFIG_FILES([
+	lib/zInterface/Makefile
+	lib/zInterface/netlink/Makefile
+	test/zInterface/Makefile
+])
+AC_CONFIG_FILES([
+	lib/zWireless/Makefile
+	lib/zWireless/nl80211/Makefile
+	lib/zWireless/ieee80211/Makefile
+	test/zWireless/Makefile
+	test/zWireless/ieee80211/Makefile
+])
 AC_CONFIG_FILES([lib/zSocket/Makefile test/zSocket/Makefile])
 AC_CONFIG_FILES([lib/zMessage/Makefile test/zMessage/Makefile])
 #AC_CONFIG_FILES([lib/zCommand/Makefile test/zCommand/Makefile])

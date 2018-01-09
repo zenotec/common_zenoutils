@@ -38,7 +38,7 @@ class PowerCapsTag : public Tag
 public:
 
   PowerCapsTag() :
-      Tag(Tag::ID_POWER_CAPS)
+    Tag(Tag::ID_POWER_CAPS)
   {
   }
 
@@ -70,8 +70,7 @@ public:
   {
     Tag::Display();
     vector<uint8_t> minmax = this->operator()();
-    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back())
-        << endl;
+    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back()) << endl;
   }
 
 protected:

@@ -9,7 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libieee80211.la
 
 libieee80211_la_SOURCES = \
-	$(top_srcdir)/inc/ieee80211/RadioTapField.h \
+	RadioTapField.h \
 	RadioTapField.cpp \
 	RadioTapFieldTsft.cpp \
 	RadioTapFieldFlags.cpp \
@@ -20,22 +20,24 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldAntenna.cpp \
 	RadioTapFieldRxFlags.cpp \
 	RadioTapFieldTxFlags.cpp \
-	$(top_srcdir)/inc/ieee80211/RadioTap.h \
+	RadioTap.h \
 	RadioTap.cpp \
-	$(top_srcdir)/inc/ieee80211/Frame.h \
+	Frame.h \
 	Frame.cpp \
-	$(top_srcdir)/inc/ieee80211/ControlFrame.h \
+	ControlFrame.h \
 	ControlFrame.cpp \
-	$(top_srcdir)/inc/ieee80211/ManagementFrame.h \
+	ManagementFrame.h \
 	ManagementFrame.cpp \
-	$(top_srcdir)/inc/ieee80211/Beacon.h \
+	Beacon.h \
 	Beacon.cpp \
-	$(top_srcdir)/inc/ieee80211/Probe.h \
+	Probe.h \
 	Probe.cpp \
-	$(top_srcdir)/inc/ieee80211/HtCapsTag.h \
+	HtCapsTag.h \
 	HtCapsTag.cpp \
-	$(top_srcdir)/inc/ieee80211/Association.h \
+	Authentication.h \
+	Authentication.cpp \
+	Association.h \
 	Association.cpp \
-	$(top_srcdir)/inc/ieee80211/DataFrame.h \
+	DataFrame.h \
 	DataFrame.cpp
 	

@@ -25,6 +25,7 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+using namespace zUtils;
 
 // local includes
 #include "Frame.h"
@@ -94,7 +95,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   {
     if (!(this->_fcs = this->chkfcs(p_, rem_)))
     {
-//      ZLOG_WARN("FCS check failed");
+//      ZLOG_WARN("FCS check failed"); // TODO:
     }
   }
 
@@ -563,7 +564,13 @@ bool
 Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 {
   bool status = false;
-  if (buf_ && len_ && (len_ < 7952))
+
+  if (!len_)
+  {
+    ZLOG_WARN("Zero length payload");
+  }
+
+  if (buf_ && (len_ < 7952))
   {
     this->_payload.clear();
     this->_payload.resize(len_);

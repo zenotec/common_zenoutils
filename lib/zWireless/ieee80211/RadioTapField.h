@@ -22,6 +22,8 @@
 #include <vector>
 #include <map>
 
+namespace zUtils
+{
 namespace zWireless
 {
 namespace ieee80211
@@ -533,6 +535,7 @@ public:
 
 };
 
+}
 }
 }
 

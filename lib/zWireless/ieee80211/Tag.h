@@ -189,6 +189,33 @@ public:
       return (this->PutValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
     }
 
+  size_t
+  AddValue(const uint8_t* p_, size_t len_)
+  {
+    this->_valid = true;
+    uint8_t origLen = Length();
+    uint8_t newLen = std::min(origLen + len_, (size_t)256);
+    this->_value.resize(newLen, 0);
+    for (int i = 0; i < newLen - origLen; i++)
+    {
+      this->_value[i + origLen] = p_[i];
+    }
+    return(newLen - origLen);
+  }
+
+  bool
+  AddValue(const std::string& str_)
+  {
+    return(this->AddValue((uint8_t*)str_.c_str(), str_.size()) == str_.size());
+  }
+
+  template<typename T>
+    bool
+    AddValue(T& value_)
+    {
+      return (this->AddValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
+    }
+
   virtual void
   Display() const
   {

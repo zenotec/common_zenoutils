@@ -20,7 +20,11 @@
 
 #include <vector>
 #include <array>
+#include <iomanip>
+#include <string.h> // memcpy
 using namespace std;
+
+#include "VendorSpecificTag.h"
 
 namespace zUtils
 {
@@ -33,7 +37,7 @@ namespace ieee80211
 // Class: WmmWmeTag
 //*****************************************************************************
 
-class WmmWmeTag : public Tag
+class WmmWmeTag : public VendorSpecificTag
 {
 
 public:
@@ -42,14 +46,12 @@ public:
   {
     uint8_t aci_aifsn_field;
     uint8_t ecw;
-    uint16_t txop_limit;
-  };
+    uint16_t txop_limit; // transmit opportunity
+  } __attribute__ ((packed));
 
   struct wmm_wme
   {
-    array<uint8_t, 3> oui;
-    uint8_t oui_type; // WMM/WME = 0x02
-    uint8_t wme_subtype;
+    uint8_t wme_subtype;    // Parameter Element (1)
     uint8_t wme_version;
     uint8_t wme_qos_info;
     uint8_t reserved;
@@ -57,10 +59,11 @@ public:
     ac_parms aci1; // background
     ac_parms aci2; // video
     ac_parms aci3; // voice
-  };
+  } __attribute__ ((packed));
 
+  // Microsoft WMM/WME OUI = 00:50:F2, type 2
   WmmWmeTag() :
-      Tag(Tag::ID_VENDOR_SPECIFIC)
+    VendorSpecificTag(0x00,0x50,0xF2, OUI_TYPE_WMM_WME)
   {
   }
 
@@ -69,42 +72,56 @@ public:
   {
   }
 
-  vector<uint8_t>
+  virtual vector<uint8_t>
   operator()() const
   {
-    vector<uint8_t> wmmwme;
-    wmmwme.resize(this->Length());
-    this->GetValue(wmmwme.data(), wmmwme.size());
-    return (wmmwme);
-  }
-
-  virtual bool
-  operator()(const std::vector<uint8_t>& caps_)
-  {
-    return (this->PutValue(caps_.data(), caps_.size()));
+    vector<uint8_t> vendor;
+    vendor.resize(this->Length());
+    this->GetValue(vendor.data(), vendor.size());
+    return(vendor);
   }
 
   bool
   operator()(wmm_wme& wmmwme_)
   {
-    return (this->PutValue<wmm_wme>(wmmwme_));
+    return (this->AddValue<wmm_wme>(wmmwme_));
   }
 
   wmm_wme
   WmmWme() const
   {
     wmm_wme wmmwme;
-    GetValue<wmm_wme>(wmmwme);
+    vector<uint8_t> value = {};
+    value.resize(Length());
+    GetValue(value.data(), Length());
+    memcpy((uint8_t*)&wmmwme, value.data() + 4, sizeof(wmm_wme));
     return wmmwme;
   }
 
   virtual void
   Display() const
   {
-    Tag::Display();
-    vector<uint8_t> minmax = this->operator()();
-    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back())
-        << endl;
+    VendorSpecificTag::Display();
+    wmm_wme wmmwme = this->WmmWme();
+    cout << "WME Subtype: " << int(wmmwme.wme_subtype) << endl;
+    cout << "WME Version: " << int(wmmwme.wme_version) << endl;
+    cout << "WME QOS: " << int(wmmwme.wme_qos_info) << endl;
+    cout << "AC Parameters AC0 (Best Effort): ";
+    cout << "\t ACI/AIFSN: " << int(wmmwme.aci0.aci_aifsn_field);
+    cout << " ECW: " << int(wmmwme.aci0.ecw);
+    cout << " TXOP: " << int(wmmwme.aci0.txop_limit) << endl;
+    cout << "AC Parameters AC1 (Background): ";
+    cout << "\t ACI/AIFSN: " << int(wmmwme.aci1.aci_aifsn_field);
+    cout << " ECW: " << int(wmmwme.aci1.ecw);
+    cout << " TXOP: " << int(wmmwme.aci1.txop_limit) << endl;
+    cout << "AC Parameters AC2 (Video): ";
+    cout << "\t\t ACI/AIFSN: " << int(wmmwme.aci2.aci_aifsn_field);
+    cout << " ECW: " << int(wmmwme.aci2.ecw);
+    cout << " TXOP: " << int(wmmwme.aci2.txop_limit) << endl;
+    cout << "AC Parameters AC3 (Voice): ";
+    cout << "\t\t ACI/AIFSN: " << int(wmmwme.aci3.aci_aifsn_field);
+    cout << " ECW: " << int(wmmwme.aci3.ecw);
+    cout << " TXOP: " << int(wmmwme.aci3.txop_limit) << endl;
   }
 
 protected:

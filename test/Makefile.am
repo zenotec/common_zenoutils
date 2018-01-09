@@ -26,7 +26,7 @@ endif
 
 if COND_ZWIRELESS
 ZWIRELESS_SUBDIRS = zWireless
-ZWIRELESS_TESTS = zWireless/zWirelessUnitTest
+ZWIRELESS_TESTS = zWireless/zWirelessUnitTest zWireless/ieee80211/Ieee80211UnitTest
 if COND_VALGRIND
 ZWIRELESS_TESTS += zWireless/valgrind.sh
 endif

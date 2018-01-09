@@ -3,6 +3,8 @@ CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
+SUBDIRS = ieee80211
+
 AM_CPPFLAGS := \
   $(CPPFLAGS_GCOV) \
   $(com_incdir) \

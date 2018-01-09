@@ -24,6 +24,7 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+using namespace zUtils;
 
 // local includes
 #include "Probe.h"
@@ -103,17 +104,13 @@ ProbeRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  if (!this->GetTag(this->Ssid))
-  {
-    ZLOG_ERR("Error disassembling probe request frame: Missing SSID");
-    return (NULL);
-  }
-
   if (!this->GetTag(this->Rates))
   {
     ZLOG_ERR("Error disassembling probe request frame: Missing Rates");
     return (NULL);
   }
+
+  this->GetTag(this->Ssid); // Optional - ignore return value
 
   return (p_);
 }

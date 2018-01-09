@@ -57,6 +57,14 @@ struct ieee80211_assreq
   ieee80211_tag tags;
 } __attribute__ ((packed));
 
+struct ieee80211_auth
+{
+  uint16_t algorithm;
+  uint16_t seqNumber;
+  uint16_t statusCode;
+  ieee80211_tag tags;
+} __attribute__ ((packed));
+
 struct ieee80211_assresp
 {
   uint16_t capabilities;
