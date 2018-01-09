@@ -31,6 +31,7 @@
 #include "RatesTag.h"
 #include "DsssTag.h"
 #include "TimTag.h"
+#include "CountryTag.h"
 #include "PowerCapsTag.h"
 #include "HtCapsTag.h"
 #include "ExtRatesTag.h"
@@ -56,10 +57,11 @@ public:
   RatesTag Rates;
   DsssTag Dsss;
   TimTag Tim;
+  CountryTag Country;
   PowerCapsTag PowerCaps;
   HtCapsTag HtCaps;
   ExtRatesTag ExtRates;
-  WmmWmeTag WmmWme;
+//  WmmWmeTag WmmWme;
 
   Beacon();
 

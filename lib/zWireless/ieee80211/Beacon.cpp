@@ -147,10 +147,11 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Rates);
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
+  this->PutTag(this->Country);
   this->PutTag(this->PowerCaps);
   this->PutTag(this->HtCaps);
   this->PutTag(this->ExtRates);
-  this->PutTag(this->WmmWme);
+//  this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
@@ -246,10 +247,11 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
+  this->GetTag(this->Country);
   this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
   this->GetTag(this->ExtRates);
-  this->GetTag(this->WmmWme);
+//  this->GetTag(this->WmmWme);
 
   return (p_);
 }
@@ -293,7 +295,7 @@ Beacon::Display() const
   if (this->PowerCaps.Valid()) this->PowerCaps.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
-  if (this->WmmWme.Valid()) this->WmmWme.Display();
+//  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }
