@@ -146,7 +146,6 @@ BasicServiceSet::DelStation(const std::string& addr_)
 
   DelStationCommand* cmd = new DelStationCommand(this->GetIfIndex());
   cmd->Mac.SetString(addr_);
-  cmd->Display();
   this->addCommand(cmd);
 
   return (status);
@@ -175,8 +174,6 @@ BasicServiceSet::Create()
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->Commit();
-
-  this->_beacon->Display();
 
   uint8_t buf[512] = { 0 };
   size_t blen = sizeof(buf);

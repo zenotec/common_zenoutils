@@ -470,6 +470,13 @@ Interface::Commit()
   {
     status = true; // Innocent until proven guilty
 
+    // Always make this command first to ensure all commands are executed while the interface is down
+    if (zWireless::ConfigData::STATE_DOWN != this->workingConfig.GetAdminState())
+    {
+      this->workingConfig.SetAdminState(zWireless::ConfigData::STATE_DOWN);
+      status &= this->setAdminState(zWireless::ConfigData::STATE_DOWN);
+    }
+
     if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
     {
       status &= this->setIfName(this->stagingConfig.GetIfName());
@@ -520,7 +527,8 @@ Interface::Commit()
       status &= this->_setOpMode(this->stagingConfig.GetOpMode());
     }
 
-    // Always make this command last to ensure all commands are executed while the interface is down
+    // Always make this command last but before setting the channel / TX power to ensure
+    //   all commands are executed while the interface is down
     if (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState())
     {
       status &= this->setAdminState(this->stagingConfig.GetAdminState());

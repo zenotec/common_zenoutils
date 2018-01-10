@@ -330,9 +330,9 @@ const std::string ConfigData::ConfigSsidDefault("");
 
 const std::string ConfigData::ConfigBssidDefault("");
 
-const unsigned int ConfigData::ConfigChannelDefault(1);
+const unsigned int ConfigData::ConfigChannelDefault(0);
 
-const unsigned int ConfigData::ConfigTxPowerDefault(1700);
+const unsigned int ConfigData::ConfigTxPowerDefault(0);
 
 
 ConfigData::ConfigData(const std::string& name_) :
