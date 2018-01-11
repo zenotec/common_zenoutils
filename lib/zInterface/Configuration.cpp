@@ -438,7 +438,7 @@ ConfigData::GetPromiscuousMode(const ConfigData::PROMODE mode_) const
 bool
 ConfigData::SetPromiscuousMode(const ConfigData::PROMODE mode_)
 {
-  ConfigPath path(ConfigPath::ConfigNetmaskPath);
+  ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
   return (this->_data->PutValue(path, mode_));
 }
 

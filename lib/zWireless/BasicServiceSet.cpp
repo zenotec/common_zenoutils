@@ -173,13 +173,14 @@ BasicServiceSet::Create()
 
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
+  this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
+  this->SetChannel(1);
   this->Commit();
 
   uint8_t buf[512] = { 0 };
   size_t blen = sizeof(buf);
   if (this->_beacon->Assemble(buf, blen) != NULL)
   {
-    this->SetAdminState(zInterface::ConfigData::STATE_UP);
     StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
     cmd->BeaconHead.PutBuffer(this->_beacon->Head(), this->_beacon->HeadSize());
     cmd->BeaconTail.PutBuffer(this->_beacon->Tail(), this->_beacon->TailSize());
@@ -207,6 +208,8 @@ BasicServiceSet::Destroy()
 
   if (this->GetAdminState() == zInterface::ConfigData::STATE_UP)
   {
+    this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_DISABLED);
+    this->SetAdminState(zWireless::ConfigData::STATE_DOWN);
     StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
     this->addCommand(cmd);
   }

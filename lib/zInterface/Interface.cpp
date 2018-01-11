@@ -135,7 +135,8 @@ Interface::SetConfig(zInterface::ConfigData config_)
   status &= this->SetMtu(config_.GetMtu(this->workingConfig.GetMtu()));
   status &= this->SetIpAddress(config_.GetIpAddress(this->workingConfig.GetIpAddress()));
   status &= this->SetNetmask(config_.GetNetmask(this->workingConfig.GetNetmask()));
-  status &= this->SetAdminState(config_.GetAdminState(this->workingConfig.GetAdminState())); // must be last
+  status &= this->SetPromiscuousMode(config_.GetPromiscuousMode(this->workingConfig.GetPromiscuousMode()));
+  status &= this->SetAdminState(config_.GetAdminState(this->workingConfig.GetAdminState()));
   return (status);
 }
 
@@ -421,6 +422,13 @@ Interface::Commit()
   {
     status = true; // Innocent until proven guilty
 
+    // Always make this command first to ensure all commands are executed while the interface is down
+    if (zInterface::ConfigData::STATE_DOWN != this->workingConfig.GetAdminState())
+    {
+      this->workingConfig.SetAdminState(zInterface::ConfigData::STATE_DOWN);
+      status &= this->setAdminState(zInterface::ConfigData::STATE_DOWN);
+    }
+
     if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
     {
       status &= this->setIfName(this->stagingConfig.GetIfName());
@@ -451,15 +459,15 @@ Interface::Commit()
       status &= this->setNetmask(this->stagingConfig.GetNetmask());
     }
 
-    if (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode())
-    {
-      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
-    }
-
-    // Always make this command last to ensure all commands are executed while the interface is down
+    // Always make this command last to ensure all above commands are executed while the interface is down
     if (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState())
     {
       status &= this->setAdminState(this->stagingConfig.GetAdminState());
+    }
+
+    if (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode())
+    {
+      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
     }
 
     status &= this->execCommands();
@@ -503,6 +511,7 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "MAC:    \t" << this->GetHwAddress() << std::endl;
   std::cout << prefix_ << "MTU:    \t" << this->GetMtu() << std::endl;
   std::cout << prefix_ << "State:  \t" << _state2str(this->GetAdminState()) << std::endl;
+  std::cout << prefix_ << "ProMode:\t" << int(this->GetPromiscuousMode()) << std::endl;
 }
 
 size_t

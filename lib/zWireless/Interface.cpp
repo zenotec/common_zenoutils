@@ -534,6 +534,11 @@ Interface::Commit()
       status &= this->setAdminState(this->stagingConfig.GetAdminState());
     }
 
+    if (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode())
+    {
+      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
+    }
+
     if (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel())
     {
       status &= this->_setChannel(this->stagingConfig.GetChannel());
