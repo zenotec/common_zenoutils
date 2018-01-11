@@ -26,6 +26,7 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zUtils.h>
 #include <zutils/zInterface.h>
 
 namespace zUtils
@@ -165,6 +166,7 @@ const std::string ConfigPath::ConfigIpAddressPath("IpAddress");
 const std::string ConfigPath::ConfigBroadcastPath("Broadcast");
 const std::string ConfigPath::ConfigNetmaskPath("Netmask");
 const std::string ConfigPath::ConfigAdminStatePath("AdminState");
+const std::string ConfigPath::ConfigPromiscuousModePath("PromiscuousMode");
 
 ConfigPath::ConfigPath(const std::string& root_) :
     zConfig::ConfigPath(ConfigRoot)
@@ -217,6 +219,8 @@ const std::string ConfigData::ConfigAdminStateNone("");
 const std::string ConfigData::ConfigAdminStateUp("UP");
 const std::string ConfigData::ConfigAdminStateDown("DOWN");
 const std::string ConfigData::ConfigAdminStateDefault(ConfigData::ConfigAdminStateNone);
+
+const ConfigData::PROMODE ConfigData::ConfigPromiscuousModeDefault(ConfigData::PROMODE_DISABLED);
 
 ConfigData::ConfigData(const std::string& name_) :
     _data(NULL)
@@ -417,6 +421,25 @@ ConfigData::SetAdminState(const ConfigData::STATE state_)
   ConfigPath path(ConfigPath::ConfigAdminStatePath);
   std::string str = _state2str(state_);
   return (this->_data->PutValue(path, str));
+}
+
+ConfigData::PROMODE
+ConfigData::GetPromiscuousMode(const ConfigData::PROMODE mode_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
+  if (!this->_data->GetValue(path, val))
+  {
+    val = mode_;
+  }
+  return (ConfigData::PROMODE(val));
+}
+
+bool
+ConfigData::SetPromiscuousMode(const ConfigData::PROMODE mode_)
+{
+  ConfigPath path(ConfigPath::ConfigNetmaskPath);
+  return (this->_data->PutValue(path, mode_));
 }
 
 }

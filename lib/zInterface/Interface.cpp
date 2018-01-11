@@ -307,6 +307,34 @@ Interface::SetAdminState(const ConfigData::STATE state_)
   return (status);
 }
 
+ConfigData::PROMODE
+Interface::GetPromiscuousMode() const
+{
+  ConfigData::PROMODE mode = ConfigData::PROMODE_ERR;
+  if (this->lock.Lock())
+  {
+    mode = this->getPromiscuousMode();
+    if (mode == ConfigData::PROMODE_ERR)
+    {
+      mode = this->stagingConfig.GetPromiscuousMode();
+    }
+    this->lock.Unlock();
+  }
+  return (mode);
+}
+
+bool
+Interface::SetPromiscuousMode(const ConfigData::PROMODE mode_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetPromiscuousMode(mode_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
 std::string
 Interface::GetIpAddress() const
 {
@@ -421,6 +449,11 @@ Interface::Commit()
     if (this->stagingConfig.GetNetmask() != this->workingConfig.GetNetmask())
     {
       status &= this->setNetmask(this->stagingConfig.GetNetmask());
+    }
+
+    if (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode())
+    {
+      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
     }
 
     // Always make this command last to ensure all commands are executed while the interface is down
@@ -757,6 +790,52 @@ bool
 Interface::setNetmask(const std::string& addr_)
 {
   bool status = true; // TODO
+  return (status);
+}
+
+ConfigData::PROMODE
+Interface::getPromiscuousMode() const
+{
+  ConfigData::PROMODE mode = ConfigData::PROMODE_ERR;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetLinkCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      if ((cmd.Flags() & IFF_PROMISC))
+      {
+        mode = ConfigData::PROMODE_ENABLED;
+      }
+      else
+      {
+        mode = ConfigData::PROMODE_DISABLED;
+      }
+    }
+  }
+  return (mode);
+}
+
+bool
+Interface::setPromiscuousMode(const ConfigData::PROMODE mode_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex())
+  {
+    SetLinkCommand* cmd = new SetLinkCommand(this->workingConfig.GetIfIndex());
+    if (mode_ == ConfigData::PROMODE_ENABLED)
+    {
+      status = cmd->SetFlags(IFF_PROMISC);
+    }
+    else if (mode_ == ConfigData::PROMODE_DISABLED)
+    {
+      status = cmd->ClrFlags(IFF_PROMISC);
+    }
+
+    if (status)
+    {
+      this->addCommand(cmd);
+    }
+  }
   return (status);
 }
 

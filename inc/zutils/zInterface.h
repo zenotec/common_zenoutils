@@ -56,6 +56,7 @@ public:
   static const std::string ConfigBroadcastPath;
   static const std::string ConfigNetmaskPath;
   static const std::string ConfigAdminStatePath;
+  static const std::string ConfigPromiscuousModePath;
 
   ConfigPath(const std::string& root_ = std::string(""));
 
@@ -107,6 +108,14 @@ public:
     STATE_LAST
   };
 
+  enum PROMODE
+  {
+    PROMODE_ERR = -1,
+    PROMODE_DISABLED = 0,
+    PROMODE_ENABLED = 1,
+    PROMODE_LAST
+  };
+
   static const unsigned int ConfigIndexDefault;
 
   static const std::string ConfigNameDefault;
@@ -134,6 +143,8 @@ public:
   static const std::string ConfigAdminStateUp;
   static const std::string ConfigAdminStateDown;
   static const std::string ConfigAdminStateDefault;
+
+  static const ConfigData::PROMODE ConfigPromiscuousModeDefault;
 
   ConfigData(const std::string& name_ = ConfigNameDefault);
 
@@ -198,6 +209,12 @@ public:
 
   bool
   SetAdminState(const ConfigData::STATE state_ = ConfigData::STATE_DEF);
+
+  ConfigData::PROMODE
+  GetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigPromiscuousModeDefault) const;
+
+  bool
+  SetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigPromiscuousModeDefault);
 
 protected:
 
@@ -283,6 +300,12 @@ public:
   bool
   SetAdminState(const ConfigData::STATE state_);
 
+  ConfigData::PROMODE
+  GetPromiscuousMode() const;
+
+  bool
+  SetPromiscuousMode(const ConfigData::PROMODE mode_ );
+
   std::string
   GetIpAddress() const;
 
@@ -361,6 +384,12 @@ protected:
 
   bool
   setAdminState(const ConfigData::STATE state_);
+
+  ConfigData::PROMODE
+  getPromiscuousMode() const;
+
+  bool
+  setPromiscuousMode(const ConfigData::PROMODE mode_ );
 
   std::string
   getIpAddress() const;
