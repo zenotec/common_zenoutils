@@ -57,19 +57,17 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
     this->_beacon->Interval(100);
     this->_beacon->Capabilities(0x0001);
     this->_beacon->Ssid(ssid_);
-    this->_beacon->Rates(0x82);
-    this->_beacon->Rates(0x84);
-    this->_beacon->Rates(0x8b);
-    this->_beacon->Rates(0x96);
+    this->_beacon->Rates(0x82); // 1(B)
+    this->_beacon->Rates(0x84); // 2(B)
+    this->_beacon->Rates(0x8B); // 5.5(B)
+    this->_beacon->Rates(0x96); // 11(B)
     this->_beacon->Rates.AddRateMbsp(6);
     this->_beacon->Rates.AddRateMbsp(9);
     this->_beacon->Rates.AddRateMbsp(12);
     this->_beacon->Rates.AddRateMbsp(18);
-
     this->_beacon->Dsss(1);
 //    this->_beacon->Tim.Period(2);
     this->_beacon->Country("US");
-
     this->_beacon->ExtRates.AddRateMbsp(24);
     this->_beacon->ExtRates.AddRateMbsp(36);
     this->_beacon->ExtRates.AddRateMbsp(48);
