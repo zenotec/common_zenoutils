@@ -1,11 +1,7 @@
 if COND_GCOV
-CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
-
-SUBDIRS = \
-	nl80211 \
-	ieee80211
 
 AM_CPPFLAGS := \
   $(CPPFLAGS_GCOV) \
@@ -19,33 +15,27 @@ AM_CPPFLAGS := \
 
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-zWirelessUnitTest_CPPFLAGS = \
+Nl80211UnitTest_CPPFLAGS = \
   ${AM_CPPFLAGS} \
   ${NL3_CFLAGS} \
   ${NLGENL3_CFLAGS} \
   ${NLRTNL3_CFLAGS}
 
-zWirelessUnitTest_LDFLAGS = \
+Nl80211UnitTest_LDFLAGS = \
   ${AM_LIBS} \
   ${NL3_LIBS} \
   ${NLGENL3_LIBS} \
   ${NLRTNL3_LIBS}
 
-CLEANFILES = \
-	zWirelessTest.zlog
+check_PROGRAMS = Nl80211UnitTest
 
-check_PROGRAMS = zWirelessUnitTest
-
-zWirelessUnitTest_SOURCES = \
+Nl80211UnitTest_SOURCES = \
     $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \
-    zWirelessTest.h \
+    Nl80211Test.h \
     UnitTest.cpp \
-    Defaults.cpp \
-    Configuration.cpp \
-    Interface.cpp \
-    BasicServiceSet.cpp
+    Defaults.cpp
 
-zWirelessUnitTest_LDADD = \
+Nl80211UnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la
 
