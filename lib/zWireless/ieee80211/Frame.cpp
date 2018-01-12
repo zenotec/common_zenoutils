@@ -158,7 +158,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   p_ = this->chklen(p_, sizeof(f->duration), rem_);
-  if (p_)
+  if (!p_)
   {
     ZLOG_ERR("Missing duration field");
     this->DurationId(le16toh(f->duration));
