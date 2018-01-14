@@ -50,7 +50,8 @@ Ieee80211Test_ManagementFrameGetSet(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
 
   // Set non default values
   TEST_TRUE(frame.Version(1));
@@ -68,7 +69,8 @@ Ieee80211Test_ManagementFrameGetSet(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x1234));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
 
   // Verify
   TEST_EQ(frame.Version(), 1);
@@ -86,7 +88,8 @@ Ieee80211Test_ManagementFrameGetSet(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x1234, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
 
   // Return success
   return (0);
@@ -126,7 +129,8 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
 
   // Assemble short frame and verify
   len = 2;
@@ -153,7 +157,8 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x1234));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
 
   // Verify
   TEST_EQ(0, frame.Version());
@@ -171,7 +176,8 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x1234, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
 
   // Assemble and verify
   memset(frm_buf, 0, sizeof(frm_buf));
@@ -221,7 +227,8 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
 
   // Disassemble short frame
   len = sizeof(frm_short);
@@ -249,7 +256,8 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x1234, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
 
   // Return success
   return (0);

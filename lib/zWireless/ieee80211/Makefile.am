@@ -24,6 +24,7 @@ libieee80211_la_SOURCES = \
 	RadioTap.cpp \
 	Frame.h \
 	Frame.cpp \
+	CountryTag.h \
 	ControlFrame.h \
 	ControlFrame.cpp \
 	ManagementFrame.h \

@@ -70,22 +70,25 @@ ManagementFrame::Assemble(uint8_t* frame_, size_t& rem_, bool fcs_)
   }
 
   frame_ = this->chklen(frame_, sizeof(f->ra), rem_);
-  if (!frame_ || this->Address(ADDRESS_1).empty() || !this->str2mac(this->Address(ADDRESS_1), f->ra))
+  if (!frame_)
   {
     return (NULL);
   }
+  this->str2mac(this->Address(ADDRESS_1), f->ra);
 
   frame_ = this->chklen(frame_, sizeof(f->ta), rem_);
-  if (!frame_ || this->Address(ADDRESS_2).empty() || !this->str2mac(this->Address(ADDRESS_2), f->ta))
+  if (!frame_)
   {
     return (NULL);
   }
+  this->str2mac(this->Address(ADDRESS_2), f->ta);
 
   frame_ = this->chklen(frame_, sizeof(f->bssid), rem_);
-  if (!frame_ || this->Address(ADDRESS_3).empty() || !this->str2mac(this->Address(ADDRESS_3), f->bssid))
+  if (!frame_)
   {
     return (NULL);
   }
+  this->str2mac(this->Address(ADDRESS_3), f->bssid);
 
   frame_ = this->chklen(frame_, sizeof(f->seqcntl), rem_);
   if (frame_)
@@ -216,7 +219,8 @@ ManagementFrame::Display() const
   std::cout << "\tTA:       \t" << this->TransmitterAddress() << std::endl;
   std::cout << "\tSA:       \t" << this->SourceAddress() << std::endl;
   std::cout << "\tBSSID:    \t" << this->Bssid() << std::endl;
-  std::cout << "\tSeq:      \t" << (int) this->SequenceControl() << std::endl;
+  std::cout << "\tFrag:     \t" << (int) this->FragmentNum() << std::endl;
+  std::cout << "\tSeq:      \t" << (int) this->SequenceNum() << std::endl;
 }
 
 }

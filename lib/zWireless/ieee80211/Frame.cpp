@@ -461,6 +461,34 @@ Frame::Address(const ADDRESS_ID id_, const uint8_t* address_)
   return (status);
 }
 
+uint8_t
+Frame::FragmentNum() const
+{
+  return ((this->_seqcntl & 0x000f));
+}
+
+bool
+Frame::FragmentNum(const uint8_t num_)
+{
+  this->_seqcntl &= 0xfff0;
+  this->_seqcntl |= (num_ & 0x000f);
+  return (true);
+}
+
+uint16_t
+Frame::SequenceNum() const
+{
+  return ((this->_seqcntl >> 4));
+}
+
+bool
+Frame::SequenceNum(const uint16_t num_)
+{
+  this->_seqcntl &= 0x000f;
+  this->_seqcntl |= ((num_ << 4) & 0xfff0);
+  return (true);
+}
+
 uint16_t
 Frame::SequenceControl() const
 {

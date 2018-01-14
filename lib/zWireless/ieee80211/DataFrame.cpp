@@ -138,51 +138,68 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->addr1), rem_);
-  if (!p_ || this->Address(ADDRESS_1).empty() || !this->str2mac(this->Address(ADDRESS_1), f->addr1))
+  if (!(p_ = this->chklen(p_, sizeof(f->addr1), rem_)))
   {
-    ZLOG_ERR("Missing or invalid address field: 1");
+    ZLOG_ERR("Buffer overrun");
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->addr2), rem_);
-  if (!p_ || this->Address(ADDRESS_2).empty() || !this->str2mac(this->Address(ADDRESS_2), f->addr2))
+  if (!this->str2mac(this->Address(ADDRESS_1), f->addr1))
   {
-    ZLOG_ERR("Missing or invalid address field: 2");
+    ZLOG_WARN("Missing or invalid address field: 1");
+  }
+
+  if (!(p_ = this->chklen(p_, sizeof(f->addr2), rem_)))
+  {
+    ZLOG_ERR("Buffer overrun");
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->addr3), rem_);
-  if (!p_ || this->Address(ADDRESS_3).empty() || !this->str2mac(this->Address(ADDRESS_3), f->addr3))
+  if (!this->str2mac(this->Address(ADDRESS_2), f->addr2))
   {
-    ZLOG_ERR("Missing or invalid address field: 3");
+    ZLOG_WARN("Missing or invalid address field: 2");
+  }
+
+  if (!(p_ = this->chklen(p_, sizeof(f->addr3), rem_)))
+  {
+    ZLOG_ERR("Buffer overrun");
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
-  if (p_)
+  if (!this->str2mac(this->Address(ADDRESS_3), f->addr3))
   {
-    ZLOG_ERR("Missing sequence control field");
-    f->seqcntl = htole16(this->SequenceControl());
+    ZLOG_WARN("Missing or invalid address field: 3");
   }
+
+  if (!(p_ = this->chklen(p_, sizeof(f->seqcntl), rem_)))
+  {
+    ZLOG_ERR("Buffer overrun");
+    return (NULL);
+  }
+  f->seqcntl = htole16(this->SequenceNum());
 
   if (this->Subtype() & Frame::SUBTYPE_DATAQOS)
   {
-    p_ = this->chklen(p_, sizeof(f->u.qosdata.qoscntl), rem_);
-    if (p_)
+    if (!(p_ = this->chklen(p_, sizeof(f->u.qosdata.qoscntl), rem_)))
     {
-      f->u.qosdata.qoscntl = htole16(this->QosControl());
+      ZLOG_ERR("Buffer overrun");
+      return (NULL);
     }
+    f->u.qosdata.qoscntl = htole16(this->QosControl());
   }
 
   uint8_t* pay = p_;
   size_t len = this->GetPayloadLength();
-  p_ = this->chklen(pay, len, rem_);
-  if (!p_ || (this->GetPayload(pay, len) != len))
+
+  if (!(p_ = this->chklen(pay, len, rem_)))
   {
+    ZLOG_ERR("Buffer overrun");
     return (NULL);
   }
-
+  if (this->GetPayload(pay, len) != len)
+  {
+    ZLOG_WARN("Missing or invalid payload");
+  }
   return (p_);
 }
 
@@ -331,7 +348,8 @@ DataFrame::Display() const
   std::cout << "\tTA:       \t" << this->TransmitterAddress() << std::endl;
   std::cout << "\tSA:       \t" << this->SourceAddress() << std::endl;
   std::cout << "\tBSSID:    \t" << this->Bssid() << std::endl;
-  std::cout << "\tSeq:      \t" << (int) this->SequenceControl() << std::endl;
+  std::cout << "\tFrag:     \t" << (int) this->FragmentNum() << std::endl;
+  std::cout << "\tSeq:      \t" << (int) this->SequenceNum() << std::endl;
 }
 
 }

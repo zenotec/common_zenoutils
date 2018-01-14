@@ -205,6 +205,18 @@ public:
   bool
   Address(const ADDRESS_ID id_, const uint8_t* address_);
 
+  uint8_t
+  FragmentNum() const;
+
+  bool
+  FragmentNum(const uint8_t num_);
+
+  uint16_t
+  SequenceNum() const;
+
+  bool
+  SequenceNum(const uint16_t num_);
+
   uint16_t
   SequenceControl() const;
 

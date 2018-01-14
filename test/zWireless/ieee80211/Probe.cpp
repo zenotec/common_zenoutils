@@ -52,7 +52,8 @@ Ieee80211Test_ProbeRequestGetSet(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
 
@@ -72,7 +73,8 @@ Ieee80211Test_ProbeRequestGetSet(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Ssid("TestSSID"));
   TEST_TRUE(frame.Rates(1));
   TEST_TRUE(frame.Rates(2));
@@ -95,7 +97,8 @@ Ieee80211Test_ProbeRequestGetSet(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(std::string("TestSSID"), frame.Ssid());
   TEST_EQ(4, frame.Rates().size());
   TEST_EQ(1, frame.Rates()[0]);
@@ -121,7 +124,7 @@ Ieee80211Test_ProbeRequestAssemble(void* arg_)
   {
       0x40, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x23, 0x01,
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12,
       0x00, 0x08, 0x54, 0x65, 0x73, 0x74, 0x53, 0x53,
       0x49, 0x44, 0x01, 0x04, 0x01, 0x02, 0x04, 0x08
   };
@@ -144,7 +147,8 @@ Ieee80211Test_ProbeRequestAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
 
@@ -173,7 +177,8 @@ Ieee80211Test_ProbeRequestAssemble(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Ssid("TestSSID"));
   TEST_TRUE(frame.Rates(1));
   TEST_TRUE(frame.Rates(2));
@@ -196,7 +201,8 @@ Ieee80211Test_ProbeRequestAssemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(std::string("TestSSID"), frame.Ssid());
   TEST_EQ(4, frame.Rates().size());
   TEST_EQ(1, frame.Rates()[0]);
@@ -263,7 +269,8 @@ Ieee80211Test_ProbeRequestDisassemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
 
@@ -286,7 +293,8 @@ Ieee80211Test_ProbeRequestDisassemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.Bssid());
-  TEST_EQ(0xbad0, frame.SequenceControl());
+  TEST_EQ(0x00, frame.FragmentNum());
+  TEST_EQ(0x0bad, frame.SequenceNum());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_EQ(8, frame.Rates().size());
   TEST_EQ(0x02, frame.Rates()[0]); /* 1 */
@@ -328,7 +336,8 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Timestamp());
   TEST_IS_ZERO(frame.Interval());
   TEST_IS_ZERO(frame.Capabilities());
@@ -351,7 +360,8 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Timestamp(0x01234567));
   TEST_TRUE(frame.Interval(100));
   TEST_TRUE(frame.Capabilities(0x1234));
@@ -377,7 +387,8 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(0x01234567, frame.Timestamp());
   TEST_EQ(100, frame.Interval());
   TEST_EQ(0x1234, frame.Capabilities());
@@ -406,7 +417,7 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   {
       0x50, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x23, 0x01,
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12,
       0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
       0x64, 0x00, 0x34, 0x12, 0x00, 0x08, 0x54, 0x65,
       0x73, 0x74, 0x53, 0x53, 0x49, 0x44, 0x01, 0x04,
@@ -430,7 +441,8 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Timestamp());
   TEST_IS_ZERO(frame.Interval());
   TEST_IS_ZERO(frame.Capabilities());
@@ -462,7 +474,8 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Timestamp(0x0011223344556677));
   TEST_TRUE(frame.Interval(100));
   TEST_TRUE(frame.Capabilities(0x1234));
@@ -488,7 +501,8 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(0x0011223344556677, frame.Timestamp());
   TEST_EQ(100, frame.Interval());
   TEST_EQ(0x1234, frame.Capabilities());
@@ -559,7 +573,8 @@ Ieee80211Test_ProbeResponseDisassemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Timestamp());
   TEST_IS_ZERO(frame.Interval());
   TEST_IS_ZERO(frame.Capabilities());
@@ -585,7 +600,8 @@ Ieee80211Test_ProbeResponseDisassemble(void* arg_)
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.ReceiverAddress());
   TEST_EQ(std::string("01:12:23:34:45:56"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x3fa0, frame.SequenceControl());
+  TEST_EQ(0x00, frame.FragmentNum());
+  TEST_EQ(0x03fa, frame.SequenceNum());
   TEST_EQ((uint64_t)0x000988c3669830, frame.Timestamp());
   TEST_EQ(100, frame.Interval());
   TEST_EQ(0x1411, frame.Capabilities());

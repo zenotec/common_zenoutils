@@ -91,7 +91,7 @@ public:
   Algorithm(const uint16_t authAlgorithm_);
 
   uint16_t
-  SequenceNumber() const;
+  AuthSequenceNumber() const;
 
   bool
   SequenceNumber(const uint16_t authSeq_);

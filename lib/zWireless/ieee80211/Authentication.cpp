@@ -29,7 +29,6 @@ using namespace zUtils;
 
 // local includes
 #include "Authentication.h"
-using namespace zWireless::ieee80211;
 
 namespace zUtils
 {
@@ -76,7 +75,7 @@ Authentication::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   {
     return (NULL);
   }
-  f->seqNumber = htole16(this->SequenceNumber());
+  f->seqNumber = htole16(this->AuthSequenceNumber());
 
   p_ = this->chklen(p_, sizeof(f->statusCode), rem_);
   if (!p_)
@@ -150,7 +149,7 @@ Authentication::Algorithm(const uint16_t algorithm_)
 }
 
 uint16_t
-Authentication::SequenceNumber() const
+Authentication::AuthSequenceNumber() const
 {
   return(this->_sequenceNumber);
 }

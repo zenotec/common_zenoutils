@@ -156,7 +156,8 @@ Ieee80211Test_BeaconDefaults(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Timestamp());
   TEST_IS_ZERO(frame.Interval());
   TEST_IS_ZERO(frame.Capabilities());
@@ -189,7 +190,8 @@ Ieee80211Test_ProbeRequestDefaults(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
 
   // Return success
   return (0);
@@ -219,7 +221,8 @@ Ieee80211Test_ProbeResponseDefaults(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Timestamp());
   TEST_IS_ZERO(frame.Interval());
   TEST_IS_ZERO(frame.Capabilities());
@@ -252,7 +255,8 @@ Ieee80211Test_AssociationRequestDefaults(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Capabilities());
   TEST_IS_ZERO(frame.Interval());
 
@@ -284,7 +288,8 @@ Ieee80211Test_AssociationResponseDefaults(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Capabilities());
   TEST_IS_ZERO(frame.Status());
 
@@ -316,9 +321,10 @@ Ieee80211Test_AuthenticationDefaults(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.SequenceNumber());
+  TEST_IS_ZERO(frame.AuthSequenceNumber());
   TEST_IS_ZERO(frame.StatusCode());
 
   // Return success

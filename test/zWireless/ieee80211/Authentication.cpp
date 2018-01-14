@@ -52,9 +52,10 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.SequenceNumber());
+  TEST_IS_ZERO(frame.AuthSequenceNumber());
   TEST_IS_ZERO(frame.StatusCode());
 
   // Set non default values
@@ -73,7 +74,8 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
   TEST_TRUE(frame.SequenceNumber(23));
   TEST_TRUE(frame.StatusCode(10));
@@ -94,9 +96,10 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(uint16_t(Authentication::TYPE_SHARED_KEY), frame.Algorithm());
-  TEST_EQ(23, frame.SequenceNumber());
+  TEST_EQ(23, frame.AuthSequenceNumber());
   TEST_EQ(10, frame.StatusCode());
 
   // Return success
@@ -117,7 +120,7 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   {
       0xb0, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x23, 0x01,
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12,
       0x01, 0x00, 0x17, 0x00, 0x0a, 0x00
   };
 
@@ -138,9 +141,10 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.SequenceNumber());
+  TEST_IS_ZERO(frame.AuthSequenceNumber());
   TEST_IS_ZERO(frame.StatusCode());
 
   // Assemble short frame and verify
@@ -168,7 +172,8 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
   TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
-  TEST_TRUE(frame.SequenceControl(0x0123));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
   TEST_TRUE(frame.SequenceNumber(23));
   TEST_TRUE(frame.StatusCode(10));
@@ -189,9 +194,10 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
-  TEST_EQ(0x0123, frame.SequenceControl());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
   TEST_EQ(uint16_t(Authentication::TYPE_SHARED_KEY), frame.Algorithm());
-  TEST_EQ(23, frame.SequenceNumber());
+  TEST_EQ(23, frame.AuthSequenceNumber());
   TEST_EQ(10, frame.StatusCode());
 
   // Assemble and verify
@@ -251,9 +257,10 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   TEST_EQ(std::string(""), frame.ReceiverAddress());
   TEST_EQ(std::string(""), frame.TransmitterAddress());
   TEST_EQ(std::string(""), frame.Bssid());
-  TEST_IS_ZERO(frame.SequenceControl());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
   TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.SequenceNumber());
+  TEST_IS_ZERO(frame.AuthSequenceNumber());
   TEST_IS_ZERO(frame.StatusCode());
 
   // Disassemble association request
@@ -276,7 +283,7 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   TEST_EQ(std::string("4c:66:41:52:22:a5"), frame.TransmitterAddress());
   TEST_EQ(std::string("04:f0:21:37:ec:b2"), frame.Bssid());
   TEST_EQ(int(Authentication::TYPE_OPEN_SYSTEM), frame.Algorithm());
-  TEST_EQ(1, frame.SequenceNumber());
+  TEST_EQ(1, frame.AuthSequenceNumber());
   TEST_EQ(0, frame.StatusCode());
 
 
