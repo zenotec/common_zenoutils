@@ -47,6 +47,8 @@ using namespace netlink;
 
 #include "SetBssCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace nl80211
 {
 

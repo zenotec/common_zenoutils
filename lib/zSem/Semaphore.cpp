@@ -18,7 +18,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <zutils/zLog.h>
 #include <zutils/zSem.h>
 
 namespace zUtils
@@ -33,9 +32,6 @@ namespace zSem
 Semaphore::Semaphore(const uint32_t value_) :
     _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
 {
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
   if (this->_cnt != 0)
   {
     this->_empty.Unlock();
@@ -45,17 +41,12 @@ Semaphore::Semaphore(const uint32_t value_) :
 
 Semaphore::~Semaphore()
 {
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
 }
 
 bool
 Semaphore::Post()
 {
   bool status = false;
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
 
   if (this->_lock.Lock())
   {
@@ -79,9 +70,6 @@ bool
 Semaphore::Wait()
 {
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
   bool status = this->TryWait();
 
   if (!status)
@@ -101,9 +89,6 @@ Semaphore::TryWait()
 {
   bool status = false;
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
   if (this->_lock.Lock())
   {
     if (this->_cnt != 0)
@@ -118,16 +103,12 @@ Semaphore::TryWait()
     this->_lock.Unlock();
   }
 
-  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
 bool
 Semaphore::TimedWait(uint32_t msec_)
 {
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): Count" +
-      ZLOG_UINT(this->_cnt) + "; Time: " + ZLOG_UINT(msec_));
 
   bool status = this->TryWait();
 
@@ -148,9 +129,6 @@ Semaphore::Reset()
 {
   bool status = false;
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
   if (this->_lock.Lock())
   {
     if (this->_cnt != 0)
@@ -158,8 +136,7 @@ Semaphore::Reset()
       this->_cnt = 0;
       this->_empty.Lock();
     }
-    status = true;
-    this->_lock.Unlock();
+    status = this->_lock.Unlock();
   }
 
   return (status);

@@ -47,6 +47,8 @@ using namespace netlink;
 #include "IfIndexAttribute.h"
 #include "ListStationsCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace nl80211
 {
 

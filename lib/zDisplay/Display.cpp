@@ -34,6 +34,8 @@
 
 #include <zutils/zDisplay.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_DISPLAY);
+
 namespace zUtils
 {
 namespace zDisplay

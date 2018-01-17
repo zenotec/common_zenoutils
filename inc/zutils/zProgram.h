@@ -327,7 +327,7 @@ public:
   std::string
   LogFile();
 
-  zLog::LogLevel
+  zLog::Log::LEVEL
   LogLevel();
 
   int

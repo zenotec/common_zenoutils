@@ -46,6 +46,8 @@ using namespace netlink;
 
 #include "StartApCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace nl80211
 {
 

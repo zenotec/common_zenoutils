@@ -17,6 +17,8 @@
 #include <zutils/zLog.h>
 #include <zutils/zData.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_DATA);
+
 namespace pt = boost::property_tree;
 
 namespace zUtils

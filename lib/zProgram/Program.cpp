@@ -31,7 +31,7 @@ namespace zProgram
 //**********************************************************************
 
 Program::Program() :
-    _main_thread(this, this)
+    _main_thread(this, this), _exit_status(0)
 {
 
   // Setup command line options
@@ -233,10 +233,10 @@ Program::LogFile()
   return(this->GetOption(ProgramLogFileOption::OptStr).GetArguments()[0]);
 }
 
-zLog::LogLevel
+zLog::Log::LEVEL
 Program::LogLevel()
 {
-  return((zLog::LogLevel)zToInt(this->GetOption(ProgramLogLevelOption::OptStr).GetArguments()[0]));
+  return((zLog::Log::LEVEL)zToInt(this->GetOption(ProgramLogLevelOption::OptStr).GetArguments()[0]));
 }
 
 bool

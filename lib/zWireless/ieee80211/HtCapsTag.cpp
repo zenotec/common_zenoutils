@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
+#include <zutils/zLog.h>
+
 #include "HtCapsTag.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

@@ -18,7 +18,7 @@
 #define _ZLOGTEST_H_
 
 #include "UnitTest.h"
-#include "zutils/zLog.h"
+#include <zutils/zLog.h>
 
 int
 zLogTest_Defaults(void* arg_);

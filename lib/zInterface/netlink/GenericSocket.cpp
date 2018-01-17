@@ -41,6 +41,8 @@ using namespace zUtils;
 #include "Socket.h"
 #include "GenericSocket.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

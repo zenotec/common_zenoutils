@@ -50,6 +50,8 @@ using namespace netlink;
 #include "IfTypeAttribute.h"
 #include "ListInterfacesCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace nl80211
 {
 

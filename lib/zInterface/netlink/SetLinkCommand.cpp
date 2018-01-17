@@ -40,6 +40,8 @@ using namespace netlink;
 #include "GetLinkCommand.h"
 #include "SetLinkCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

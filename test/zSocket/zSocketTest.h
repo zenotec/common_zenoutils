@@ -17,6 +17,8 @@
 #ifndef _ZSOCKETTEST_H_
 #define _ZSOCKETTEST_H_
 
+#include <zutils/zLoopSocket.h>
+
 #include "UnitTest.h"
 
 int

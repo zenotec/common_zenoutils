@@ -20,7 +20,6 @@
 #include <string>
 
 #include <zutils/zCompatibility.h>
-#include <zutils/zLog.h>
 #include <zutils/zSem.h>
 #include <zutils/zData.h>
 #include <zutils/zEvent.h>
@@ -252,8 +251,7 @@ public:
   bool
   operator !=(const Configuration &other_) const;
 
-  UNIQUE_PTR(Configuration)
-  operator [](const std::string &key_);
+  UNIQUE_PTR(Configuration)operator [](const std::string &key_);
 
   ConfigPath&
   GetConfigPath()
@@ -292,24 +290,22 @@ public:
   Get(ConfigPath& src_, ConfigPath& dst_, ConfigData& child_) const;
 
   template<typename T>
-    bool
-    Get(ConfigPath path_, T& val_) const
-        {
-      bool status = false;
+  bool
+  Get(ConfigPath path_, T& val_) const
+  {
+    bool status = false;
 
-      ZLOG_DEBUG(std::string("Getting configuration: ") + path_.Path());
-
-      // Begin critical section
-      if (this->_lock.Lock())
-      {
-        status = this->_working.GetValue<T>(path_.GetDataPath(), val_);
-        // End critical section
-        this->_lock.Unlock();
-      }
-
-      // Return status
-      return (status);
+    // Begin critical section
+    if (this->_lock.Lock())
+    {
+      status = this->_working.GetValue<T>(path_.GetDataPath(), val_);
+      // End critical section
+      this->_lock.Unlock();
     }
+
+    // Return status
+    return (status);
+  }
 
   bool
   Put(const ConfigData& child_);
@@ -321,28 +317,26 @@ public:
   Put(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_);
 
   template<typename T>
-    bool
-    Put(const ConfigPath& path_, T &value_)
+  bool
+  Put(const ConfigPath& path_, T &value_)
+  {
+    bool status = false;
+
+    // Begin critical section
+    if (this->_lock.Lock())
     {
-      bool status = false;
-
-      ZLOG_DEBUG(std::string("Putting configuration: ") + path_.Path());
-
-      // Begin critical section
-      if (this->_lock.Lock())
+      if (this->_staging.PutValue<T>(path_.GetDataPath(), value_))
       {
-        if (this->_staging.PutValue<T>(path_.GetDataPath(), value_))
-        {
-          this->_modified = true;
-          status = true;
-        }
-        // End critical section
-        this->_lock.Unlock();
+        this->_modified = true;
+        status = true;
       }
-
-      // Return status
-      return (status);
+      // End critical section
+      this->_lock.Unlock();
     }
+
+    // Return status
+    return (status);
+  }
 
   bool
   Add(const ConfigData& child_);
@@ -354,28 +348,26 @@ public:
   Add(const ConfigPath& dst_, const ConfigPath& src_, const ConfigData& child_);
 
   template<typename T>
-    bool
-    Add(const ConfigPath& path_, T &value_)
+  bool
+  Add(const ConfigPath& path_, T &value_)
+  {
+    bool status = false;
+
+    // Begin critical section
+    if (this->_lock.Lock())
     {
-      bool status = false;
-
-      ZLOG_DEBUG(std::string("Adding configuration: ") + path_.Path());
-
-      // Begin critical section
-      if (this->_lock.Lock())
+      if (this->_staging.AddValue<T>(path_.GetDataPath(), value_))
       {
-        if (this->_staging.AddValue<T>(path_.GetDataPath(), value_))
-        {
-          this->_modified = true;
-          status = true;
-        }
-        // End critical section
-        this->_lock.Unlock();
+        this->_modified = true;
+        status = true;
       }
-
-      // Return status
-      return (status);
+      // End critical section
+      this->_lock.Unlock();
     }
+
+    // Return status
+    return (status);
+  }
 
   void
   Display(const std::string& prefix_ = std::string("")) const;

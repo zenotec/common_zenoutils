@@ -39,6 +39,8 @@ using namespace zUtils;
 #include "Message.h"
 #include "GenericMessage.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

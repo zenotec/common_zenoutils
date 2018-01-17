@@ -15,6 +15,8 @@
  */
 
 #include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "zEventTest.h"
 
@@ -25,15 +27,11 @@ main(int argc, const char **argv)
   UTEST_INIT();
 
     // Setup logging for testing
-    zUtils::zLog::FileConnector conn("zEventTest.zlog");
-    zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
-    zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
-    zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
-    zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
-    zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-    zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
+    zLog::FileConnector conn("UnitTest.zlog");
+    zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL, &conn);
+//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
 
-    // Test all classes
+// Test all classes
     UTEST_TEST(zEventTest_EventDefaults, 0);
     UTEST_TEST(zEventTest_EventNotificationDefaults, 0);
     UTEST_TEST(zEventTest_EventHandlerDefaults, 0);
@@ -42,11 +40,7 @@ main(int argc, const char **argv)
     UTEST_TEST(zEventTest_EventHandlerTest, 0);
 //  UTEST_TEST(zEventTest_EventManagerTest, 0);
 
-    zUtils::zLog::Log::Instance().UnregisterConnector(zUtils::zLog::CRIT);
-    zUtils::zLog::Log::Instance().UnregisterConnector(zUtils::zLog::ERROR);
-    zUtils::zLog::Log::Instance().UnregisterConnector(zUtils::zLog::WARN);
-    zUtils::zLog::Log::Instance().UnregisterConnector(zUtils::zLog::INFO);
-    zUtils::zLog::Log::Instance().UnregisterConnector(zUtils::zLog::DBG);
+    zLog::Manager::Instance().UnregisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL);
 
     UTEST_FINI();
 

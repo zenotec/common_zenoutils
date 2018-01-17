@@ -45,6 +45,13 @@ AC_ARG_ENABLE([gcov],
     [enable_gcov=no])
 AM_CONDITIONAL([COND_GCOV],[test '!' "$enable_gcov" = no])
 
+AC_ARG_ENABLE([debug],
+  [AS_HELP_STRING([--enable-debug],
+    [enable more verbose debug support])],
+    [],
+    [enable_debug=no])
+AM_CONDITIONAL([COND_DEBUG],[test '!' "$enable_debug" = no])
+
 #########################################################################################
 
 #########################################################################################
@@ -218,43 +225,12 @@ AM_CONDITIONAL([COND_ZDATA],[test "$enable_zdata" = yes])
 
 #########################################################################################
 
-AC_ARG_ENABLE([zqueue],
-  [AS_HELP_STRING([--disable-zqueue],
-    [disable building zQueue subsystem])],
-    [],
-    [enable_zqueue=yes])
-AM_CONDITIONAL([COND_ZQUEUE],[test "$enable_zqueue" = yes])
-
-#########################################################################################
-
 AC_ARG_ENABLE([zuuid],
   [AS_HELP_STRING([--disable-zuuid],
     [disable building zUuid subsystem])],
     [],
     [enable_zuuid=yes])
 AM_CONDITIONAL([COND_ZUUID],[test "$enable_zuuid" = yes])
-
-#########################################################################################
-
-AC_ARG_ENABLE([zsem],
-  [AS_HELP_STRING([--disable-zsem],
-    [disable building zSem subsystem])],
-    [],
-    [enable_zsem=yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zmessage" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsocket" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zinterface" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zserial" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zled" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zgpio" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zprogram" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_ztimer" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zthread" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zevent" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zconfig" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zdata" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zqueue" = yes])
-AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsem" = yes])
 
 #########################################################################################
 
@@ -271,16 +247,43 @@ AM_CONDITIONAL([COND_ZLOG],[test "$enable_zserial" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zled" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zgpio" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zprogram" = yes])
-AM_CONDITIONAL([COND_ZLOG],[test "$enable_ztimer" = yes])
-AM_CONDITIONAL([COND_ZLOG],[test "$enable_zthread" = yes])
-AM_CONDITIONAL([COND_ZLOG],[test "$enable_zsignal" = yes])
-AM_CONDITIONAL([COND_ZLOG],[test "$enable_zevent" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zmath" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zconfig" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zdata" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zqueue" = yes])
-AM_CONDITIONAL([COND_ZLOG],[test "$enable_zsem" = yes])
 AM_CONDITIONAL([COND_ZLOG],[test "$enable_zlog" = yes])
+
+#########################################################################################
+
+AC_ARG_ENABLE([zsem],
+  [AS_HELP_STRING([--disable-zsem],
+    [disable building zSem subsystem])],
+    [],
+    [enable_zsem=yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zmessage" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsocket" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zinterface" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zserial" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zled" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zlog" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zgpio" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zprogram" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_ztimer" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zthread" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zevent" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zconfig" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zdata" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zqueue" = yes])
+AM_CONDITIONAL([COND_ZSEM],[test "$enable_zsem" = yes])
+
+#########################################################################################
+
+AC_ARG_ENABLE([zqueue],
+  [AS_HELP_STRING([--disable-zqueue],
+    [disable building zQueue subsystem])],
+    [],
+    [enable_zqueue=yes])
+AM_CONDITIONAL([COND_ZQUEUE],[test "$enable_zqueue" = yes])
 
 #########################################################################################
 #########################################################################################

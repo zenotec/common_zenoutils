@@ -38,6 +38,8 @@ using namespace zUtils;
 #include "Socket.h"
 #include "RouteSocket.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

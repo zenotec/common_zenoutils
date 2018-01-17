@@ -48,6 +48,7 @@ using namespace netlink;
 #include "IfNameAttribute.h"
 #include "DelInterfaceCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace nl80211
 {

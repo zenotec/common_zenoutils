@@ -21,7 +21,6 @@
 #include <list>
 #include <map>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 
 #include <zutils/zSignal.h>
@@ -103,7 +102,6 @@ static void
 _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 {
   Signal::ID id = _sig2id(sig_);
-  ZLOG_DEBUG("Notifying signal observer: " + ZLOG_INT(id));
   SignalManager::Instance().Notify(id, info_);
 }
 
@@ -144,7 +142,6 @@ Signal::Notify(siginfo_t *info_)
   SignalNotification notification(this);
   notification.id(this->_id);
   notification.siginfo(info_);
-  ZLOG_DEBUG("Notifying signal observer: " + ZLOG_INT(this->_id));
   zEvent::Event::Notify(&notification);
   return true;
 }

@@ -29,6 +29,8 @@ using namespace zUtils;
 // local includes
 #include "ManagementFrame.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace zUtils
 {
 namespace zWireless

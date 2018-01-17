@@ -199,11 +199,11 @@ ProgramLogLevelOption::ProgramLogLevelOption()
   this->SetShortName(OptStr[0]);
   this->SetLongName(OptStr);
   std::string desc = std::string("Specify the debug level:\n");
-  desc += std::string("\t\t\t\t  Crit: \t") + zToStr((int) zLog::CRIT) + std::string("\n");
-  desc += std::string("\t\t\t\t  Error:\t") + zToStr((int) zLog::ERROR) + std::string("\n");
-  desc += std::string("\t\t\t\t  Warn: \t") + zToStr((int) zLog::WARN) + std::string("\n");
-  desc += std::string("\t\t\t\t  Info: \t") + zToStr((int) zLog::INFO) + std::string("\n");
-  desc += std::string("\t\t\t\t  Debug:\t") + zToStr((int) zLog::DBG) + std::string("\n");
+  desc += std::string("\t\t\t\t  Crit: \t") + zToStr((int) zLog::Log::LEVEL_CRIT) + std::string("\n");
+  desc += std::string("\t\t\t\t  Error:\t") + zToStr((int) zLog::Log::LEVEL_ERROR) + std::string("\n");
+  desc += std::string("\t\t\t\t  Warn: \t") + zToStr((int) zLog::Log::LEVEL_WARN) + std::string("\n");
+  desc += std::string("\t\t\t\t  Info: \t") + zToStr((int) zLog::Log::LEVEL_INFO) + std::string("\n");
+  desc += std::string("\t\t\t\t  Debug:\t") + zToStr((int) zLog::Log::LEVEL_DEBUG) + std::string("\n");
   this->SetDescription(desc);
 }
 

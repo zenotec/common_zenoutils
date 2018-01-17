@@ -26,6 +26,8 @@
 // local includes
 #include "Command.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

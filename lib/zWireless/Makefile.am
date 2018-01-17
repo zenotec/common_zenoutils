@@ -9,8 +9,15 @@ CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
+if COND_DEBUG
+CPPFLAGS_DEBUG = -DDEBUG
+endif
+
+AM_CPPFLAGS := $(com_incdir) $(BOOST_CPPFLAGS) $(CPPFLAGS_GCOV)
+
 AM_CPPFLAGS := \
   $(CPPFLAGS_GCOV) \
+  $(CPPFLAGS_DEBUG) \
   $(com_incdir) \
   $(BOOST_CPPFLAGS) \
   -I$(srcdir) \

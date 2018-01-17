@@ -22,11 +22,14 @@
 #include <string>
 
 #include <zutils/zUtils.h>
+#include <zutils/zLog.h>
 #include <zutils/zSocket.h>
 using namespace zUtils;
 
 #include "RadioTapField.h"
 #include "RadioTap.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

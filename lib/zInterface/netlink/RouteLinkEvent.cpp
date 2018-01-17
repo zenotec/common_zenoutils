@@ -33,6 +33,8 @@ using namespace zUtils;
 #include "RouteMessage.h"
 #include "RouteLinkEvent.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

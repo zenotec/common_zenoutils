@@ -18,7 +18,8 @@
 #include <mutex>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "zThreadTest.h"
 

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include "zMathTest.h"
 
 int
@@ -22,6 +26,11 @@ main(int argc, const char **argv)
 
   // Test all classes
   UTEST_INIT();
+
+  // Setup logging for testing
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL, &conn);
+//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
 
   UTEST_TEST( zMathTest_Min, 0);
   UTEST_TEST( zMathTest_Max, 0);

@@ -27,7 +27,10 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zUtils.h>
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace zUtils
 {

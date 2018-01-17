@@ -35,12 +35,9 @@
 #include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-#include <zutils/zSocket.h>
-#include <zutils/zLoopSocket.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zInetSocket.h>
 
 #include "zSocketTest.h"
@@ -272,8 +269,8 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   delete (MySock1);
   delete (MyHandler1);
 
-  MyHandler1->UnregisterEvent(MySock2);
-  MyHandler1->UnregisterObserver(MyObserver2);
+  MyHandler2->UnregisterEvent(MySock2);
+  MyHandler2->UnregisterObserver(MyObserver2);
   delete (MyObserver2);
   MySock2->Close();
   delete (MySock2);

@@ -27,7 +27,6 @@
 #include <list>
 #include <map>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSignal.h>
 #include <zutils/zTimer.h>
@@ -83,8 +82,6 @@ TimerThreadFunction::Run(zThread::ThreadArg *arg_)
     return;
   }
 
-//  ZLOG_DEBUG("Running...");
-
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = timer->_fd;
@@ -92,15 +89,12 @@ TimerThreadFunction::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-//    ZLOG_DEBUG("Polling...");
     int ret = poll(fds, 1, 100);
     if (ret > 0 && (fds[0].revents == POLLIN))
     {
-//      ZLOG_DEBUG("Reading...");
       ret = read(fds[0].fd, &ticks, sizeof(ticks));
       if (ret > 0)
       {
-//        ZLOG_DEBUG("Notifying...");
         this->_ticks += ticks;
         timer->Notify(this->_ticks);
       }
@@ -124,7 +118,6 @@ Timer::Timer() :
   this->_fd = timerfd_create(CLOCK_REALTIME, O_NONBLOCK);
   if (this->_fd <= 0)
   {
-    ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
     this->_fd = 0;
     return;
   } // end if
@@ -162,7 +155,6 @@ Timer::~Timer()
 void
 Timer::Start(uint32_t usec_)
 {
-  ZLOG_DEBUG("Starting interval timer");
   if (this->_fd && this->_lock.Lock())
   {
     this->_interval = usec_;
@@ -174,7 +166,6 @@ Timer::Start(uint32_t usec_)
 void
 Timer::Stop(void)
 {
-  ZLOG_DEBUG("Stopping interval timer");
   if (this->_fd && this->_lock.Lock())
   {
     this->_stop();
@@ -185,7 +176,6 @@ Timer::Stop(void)
 void
 Timer::Notify(uint64_t ticks_)
 {
-  ZLOG_DEBUG("Notifying: " + ZLOG_ULONG(ticks_));
   TimerNotification notification(this);
   notification.tick(ticks_);
   zEvent::Event::Notify(&notification);
@@ -195,7 +185,6 @@ Timer::Notify(uint64_t ticks_)
 void
 Timer::_start()
 {
-  int stat = 0;
 
   // Compute time
   struct itimerspec its = { 0 };
@@ -203,11 +192,10 @@ Timer::_start()
   _add_time(&its.it_interval, this->_interval);
 
   // Start timer
-  stat = timerfd_settime(this->_fd, 0, &its, NULL);
-  if (stat != 0)
+  if (this->_fd)
   {
-    ZLOG_ERR("Cannot start timer: " + std::string(strerror(errno)));
-  } // end if
+    timerfd_settime(this->_fd, 0, &its, NULL);
+  }
 
   return;
 
@@ -216,19 +204,12 @@ Timer::_start()
 void
 Timer::_stop()
 {
-  int stat = 0;
   struct itimerspec its = { 0 };
 
+  // Stop timer
   if (this->_fd)
   {
-
-    // Stop timer
-    stat = timerfd_settime(this->_fd, 0, &its, NULL);
-    if (stat != 0)
-    {
-      ZLOG_ERR("Cannot stop timer: " + std::string(strerror(errno)));
-    } // end if
-
+    timerfd_settime(this->_fd, 0, &its, NULL);
   } // end if
 
 }

@@ -54,6 +54,8 @@
 
 using namespace nl80211;
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace zUtils
 {
 namespace zWireless

@@ -34,6 +34,8 @@ using namespace zUtils;
 // local includes
 #include "RouteLink.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 namespace netlink
 {
 

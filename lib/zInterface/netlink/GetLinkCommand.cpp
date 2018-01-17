@@ -27,6 +27,8 @@
 #include <zutils/zLog.h>
 using namespace zUtils;
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
+
 // local includes
 #include "Attribute.h"
 #include "Command.h"

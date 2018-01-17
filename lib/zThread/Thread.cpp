@@ -21,7 +21,6 @@
 #include <map>
 
 #include <zutils/zSem.h>
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSignal.h>
 
@@ -127,7 +126,6 @@ Thread::Start()
   bool status = false;
   if (this->_func && this->_func->setThread(this) && this->_func->Exit(false))
   {
-    ZLOG_DEBUG("Starting thread: " + ZLOG_P(this));
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
     status = true;
   }
@@ -140,7 +138,6 @@ Thread::Join()
   bool status = false;
   if (this->_func && this->_thread && this->_thread->joinable())
   {
-    ZLOG_DEBUG("Joining thread: " + ZLOG_P(this));
     this->_thread->join();
     delete (this->_thread);
     this->_thread = NULL;
@@ -155,7 +152,6 @@ Thread::Stop()
   bool status = false;
   if (this->_func && this->_thread)
   {
-    ZLOG_DEBUG("Stopping thread: " + ZLOG_P(this));
     if (this->_func->Exit(true))
     {
       status = this->Join();

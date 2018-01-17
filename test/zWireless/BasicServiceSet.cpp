@@ -23,6 +23,9 @@
 #include "zWirelessTest.h"
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zWireless.h>
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>

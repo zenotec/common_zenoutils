@@ -36,6 +36,8 @@ using namespace nl80211;
 #include "Beacon.h"
 using namespace zUtils::zWireless::ieee80211;
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+
 namespace zUtils
 {
 namespace zWireless

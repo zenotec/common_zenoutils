@@ -20,9 +20,9 @@
 #include <map>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zThermo.h>
 
 #include "UnitTest.h"
@@ -33,13 +33,9 @@ main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zThermoTest.zlog");
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::INFO);
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL, &conn);
+//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();

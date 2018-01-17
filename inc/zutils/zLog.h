@@ -26,17 +26,24 @@
 #include <time.h>
 
 #include <string>
+#include <istream>
+#include <ostream>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <vector>
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zSem.h>
+#include <zutils/zThread.h>
+#include <zutils/zQueue.h>
 
 namespace zUtils
 {
 namespace zLog
 {
+
+#define ZLOG_MODULE_INIT(x) static zUtils::zLog::Log _zlogger(x)
 
 #define ZLOG_BOOL(b_)   ((b_) ? std::string("true") : std::string("false"))
 #define ZLOG_CHAR(n_)   zUtils::zLog::CharStr((n_))
@@ -48,30 +55,19 @@ namespace zLog
 #define ZLOG_HEX(x_)    zUtils::zLog::HexStr<typeof(x_)>((x_))
 #define ZLOG_P(p_)      zUtils::zLog::PointerStr((void*)p_)
 
-#define ZLOG_LOGGER(l_,m_)  \
+#define ZLOG_LOGGER(l_,m_) \
   do { \
-    zUtils::zLog::Message msg((l_), __FILE__, __LINE__); \
-    msg.AddStr(std::string(__func__)); \
-    msg.AddStr(std::string(": ")); \
-    msg.AddStr((m_)); \
-    zUtils::zLog::Log::Instance().LogMsg(msg); \
+	  SHARED_PTR(zUtils::zLog::Message) msg = _zlogger.CreateMessage(l_); \
   } while(false);
 
-#define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::CRIT,(x))
-#define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::ERROR,(x))
-#define ZLOG_WARN(x)    ZLOG_LOGGER(zUtils::zLog::WARN,(x))
-#define ZLOG_INFO(x)    ZLOG_LOGGER(zUtils::zLog::INFO,(x))
-#define ZLOG_DEBUG(x)   ZLOG_LOGGER(zUtils::zLog::DBG,(x))
-
-enum LogLevel
-{
-  CRIT = 0,
-  ERROR,
-  WARN,
-  INFO,
-  DBG,
-  LAST
-};
+#define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_CRIT,(x))
+#define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_ERROR,(x))
+#define ZLOG_WARN(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_WARN,(x))
+#define ZLOG_INFO(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_INFO,(x))
+#define ZLOG_DEBUG(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG,(x))
+#define ZLOG_DEBUG1(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG1,(x))
+#define ZLOG_DEBUG2(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG2,(x))
+#define ZLOG_DEBUG3(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG3,(x))
 
 inline std::string
 CharStr(char n_)
@@ -142,14 +138,13 @@ template<typename T>
   }
 
 //*****************************************************************************
-// Connector Class
+// Class: Connector
 //*****************************************************************************
+
 class Connector
 {
+
 public:
-  Connector();
-  virtual
-  ~Connector();
 
   virtual void
   Logger(std::string msg_) = 0;
@@ -161,7 +156,7 @@ private:
 };
 
 //*****************************************************************************
-// FileConnector Class
+// Class: FileConnector
 //*****************************************************************************
 class FileConnector : public Connector
 {
@@ -185,12 +180,15 @@ private:
 };
 
 //*****************************************************************************
-// ConsoleConnector Class
+// Class: ConsoleConnector
 //*****************************************************************************
+
 class ConsoleConnector : public Connector
 {
 public:
+
   ConsoleConnector();
+
   virtual
   ~ConsoleConnector();
 
@@ -204,89 +202,192 @@ private:
 };
 
 //*****************************************************************************
-// Message Class
+// Class: Log
 //*****************************************************************************
-class Message
-{
-public:
-  Message(zLog::LogLevel level_, const char *name_, int line_);
-  virtual
-  ~Message();
 
-  zLog::LogLevel
-  GetLevel() const;
+class Message;
 
-  std::string
-  GetStr() const;
-
-  void
-  AddStr(const std::string &str);
-
-protected:
-
-private:
-  std::string
-  _getProcId() const;
-  std::string
-  _getThreadId() const;
-  std::string
-  _getTimestamp() const;
-
-  zLog::LogLevel _level;
-  std::string _file;
-  std::string _line;
-  std::string _msg;
-
-};
-
-//*****************************************************************************
-// Log Class
-//*****************************************************************************
 class Log
 {
+
 public:
+
+  enum LEVEL
+  {
+    LEVEL_ALL = -1,
+    LEVEL_CRIT = 0,
+    LEVEL_ERROR = 1,
+    LEVEL_WARN = 2,
+    LEVEL_INFO = 3,
+    LEVEL_DEF = LEVEL_INFO,
+    LEVEL_DEBUG = 4,
+    LEVEL_DEBUG1 = 5,
+    LEVEL_DEBUG2 = 6,
+    LEVEL_DEBUG3 = 7,
+    LEVEL_LAST
+  };
+
+  enum MODULE
+  {
+    MODULE_ALL = -1,
+    MODULE_COMMAND,
+    MODULE_CONFIG,
+    MODULE_DATA,
+    MODULE_DISPLAY,
+    MODULE_EXCEPTION,
+    MODULE_GPIO,
+    MODULE_INTERFACE,
+    MODULE_LED,
+    MODULE_MATH,
+    MODULE_MESSAGE,
+    MODULE_NODE,
+    MODULE_PROGRAM,
+    MODULE_SERIAL,
+    MODULE_SOCKET,
+    MODULE_SWITCH,
+    MODULE_THERMO,
+    MODULE_WIRELESS,
+    MODULE_TEST,
+    MODULE_USER1,
+    MODULE_USER2,
+    MODULE_USER3,
+    MODULE_USER4,
+    MODULE_LAST
+  };
+
+  Log(const Log::MODULE module_);
 
   virtual
   ~Log();
 
-  static Log &
-  Instance()
-  {
-    static Log instance;
-    return (instance);
-  }
-
-  zLog::LogLevel
+  Log::LEVEL
   GetMaxLevel();
 
   void
-  SetMaxLevel(zLog::LogLevel level_);
+  SetMaxLevel(Log::LEVEL level_);
+
+  SHARED_PTR(Message)
+  CreateMessage(Log::LEVEL level_);
 
   void
-  RegisterConnector(zLog::LogLevel level_, Connector *conn_);
-
-  void
-  UnregisterConnector(zLog::LogLevel level_);
-
-  void
-  LogMsg(const Message &msg_);
+  LogMessage(const SHARED_PTR(Message)& message_);
 
 protected:
 
 private:
 
-  Log();
+  Log::MODULE _module;
+  Log::LEVEL _level;
 
-  Log(Log const&);
+};
+
+//*****************************************************************************
+// Message Class
+//*****************************************************************************
+
+class Message
+{
+
+public:
+
+  Message(Log::MODULE module_, Log::LEVEL level_);
+
+  ~Message();
+
+  Log::MODULE
+  GetModule() const;
+
+  Log::LEVEL
+  GetLevel() const;
+
+  const std::string&
+  GetProcessId() const;
+
+  const std::string&
+  GetThreadId() const;
+
+  const std::string&
+  GetTimestamp() const;
+
+  const std::string&
+  GetFile() const;
 
   void
-  operator=(Log const&);
+  SetFile(const std::string& file_);
 
-  MUTEX _log_lock;
+  const std::string&
+  GetLine() const;
 
-  zLog::LogLevel _maxLevel;
-  ConsoleConnector _defConn;
-  std::vector<Connector *> _connTable;
+  void
+  SetLine(const unsigned int line_);
+
+  void
+  SetLine(const std::string& line_);
+
+  const std::string&
+  GetMessage() const;
+
+  void
+  AddMessage(const std::string &str);
+
+protected:
+
+private:
+
+  Log::MODULE _module;
+  Log::LEVEL _level;
+  std::string _proc;
+  std::string _thread;
+  std::string _time;
+  std::string _file;
+  std::string _line;
+  std::string _message;
+
+};
+
+//*****************************************************************************
+// Class::Manager
+//*****************************************************************************
+
+class Manager : public zThread::ThreadArg, public zThread::ThreadFunction
+{
+
+  friend Log;
+
+public:
+
+  virtual
+  ~Manager();
+
+  static Manager&
+  Instance()
+  {
+    static Manager instance;
+    return (instance);
+  }
+
+  bool
+  RegisterConnector(Log::MODULE module_, Log::LEVEL level_, Connector* conn_);
+
+  bool
+  UnregisterConnector(Log::MODULE module_, Log::LEVEL level_);
+
+protected:
+
+  void
+  LogMessage(const SHARED_PTR(zLog::Message)& message_);
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+  zSem::Mutex _lock;
+  zThread::Thread _thread;
+  zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
+  std::vector<std::vector<Connector*> > _conn;
+
+  Manager();
 
 };
 

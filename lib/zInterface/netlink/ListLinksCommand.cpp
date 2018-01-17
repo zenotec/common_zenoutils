@@ -39,6 +39,7 @@ using namespace netlink;
 
 #include "ListLinksCommand.h"
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {

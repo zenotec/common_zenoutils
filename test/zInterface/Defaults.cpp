@@ -21,6 +21,11 @@
 #include "zInterfaceTest.h"
 
 #include <zutils/zCompatibility.h>
+
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zInterface.h>
 
 using namespace Test;

@@ -38,6 +38,8 @@
 #include <zutils/zSocket.h>
 #include <zutils/zEthSocket.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+
 namespace zUtils
 {
 namespace zSocket

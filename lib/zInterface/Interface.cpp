@@ -41,8 +41,10 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
-
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 // local includes
 

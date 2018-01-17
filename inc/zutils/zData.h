@@ -19,7 +19,6 @@
 
 #include <string>
 #include <list>
-#include <mutex>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -27,7 +26,6 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zSem.h>
-#include <zutils/zLog.h>
 
 namespace zUtils
 {
@@ -331,7 +329,6 @@ private:
       bool status = false;
       if (!path_.empty())
       {
-        ZLOG_DEBUG("getting value: " + path_);
         try
         {
           value_ = this->_pt.get<T>(path_);
@@ -356,7 +353,6 @@ private:
       bool status = false;
       if (!path_.empty())
       {
-        ZLOG_DEBUG("putting value: " + path_);
         try
         {
           this->_pt.put<T>(path_, value_);
@@ -381,7 +377,6 @@ private:
       bool status = false;
       if (!path_.empty())
       {
-        ZLOG_DEBUG("adding value: " + path_);
         try
         {
           pt::ptree parent;
