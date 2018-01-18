@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
+
 #include <fstream>
 
 #include "zLogTest.h"
@@ -34,41 +36,42 @@ GetFileSize(std::ifstream &is)
 int
 zLogTest_FileConnector(void* arg_)
 {
-//
-//  // Log file names
-//  const char *logName = "/tmp/fconn-utest.log";
-//
-//  // Log file streams
-//  std::ifstream logFile;
-//
-//  // Clean up from previous runs
-//  remove(logName);
-//  logFile.open(logName);
-//  TEST_FALSE(logFile.is_open());
-//
-//  // Test log defaults
-//  TEST_EQ(zLog::Log::LEVEL_WARN, zLog::Manager::Instance().GetMaxLevel());
-//
-//  // Create file connector and register
-//  zLog::FileConnector fileConn(logName);
-//  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_CRIT, &fileConn);
-//
-//  // Log message and validate
-//  logFile.open(logName);
-//  TEST_TRUE(logFile.is_open());
-//  int logSize = GetFileSize(logFile);
-//  TEST_ISNOT_ZERO(logSize);
-//  ZLOG_CRIT("CRIT");
-//  TEST_NEQ(logSize, GetFileSize(logFile));
-//  logFile.close();
-//
-//  // Cleanup
-//  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_CRIT);
-//
-//  // Clean up log files from /tmp
-//  remove(logName);
-//  logFile.open(logName);
-//  TEST_FALSE(logFile.is_open());
+
+  // Log file names
+  const char *logName = "/tmp/fconn-utest.log";
+
+  // Log file streams
+  std::ifstream logFile;
+
+  // Clean up from previous runs
+  remove(logName);
+  logFile.open(logName);
+  TEST_FALSE(logFile.is_open());
+
+  // Test log defaults
+  TEST_EQ(zLog::Log::LEVEL_DEF, zLog::Manager::Instance().GetMaxLevel(zLog::Log::MODULE_TEST));
+
+  // Create file connector and register
+  zLog::FileConnector fileConn(logName);
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_CRIT, &fileConn);
+
+  // Log message and validate
+  logFile.open(logName);
+  TEST_TRUE(logFile.is_open());
+  int logSize = GetFileSize(logFile);
+  TEST_ISNOT_ZERO(logSize);
+  ZLOG_CRIT("CRIT");
+  usleep(10000);
+  TEST_NEQ(logSize, GetFileSize(logFile));
+  logFile.close();
+
+  // Cleanup
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_CRIT);
+
+  // Clean up log files from /tmp
+  remove(logName);
+  logFile.open(logName);
+  TEST_FALSE(logFile.is_open());
 
   // Return success
   return (0);

@@ -131,18 +131,5 @@ Message::AddMessage(const std::string &message_)
   this->_message += message_;
 }
 
-//std::string
-//Message::GetMessage() const
-//{
-//  std::string str;
-//  str += this->GetTimestamp() + "\t";
-//  str += this->GetProcessId() + "\t";
-//  str += this->GetThreadId() + "\t";
-//  str += std::string(levelStr[this->_level]) + "\t";
-//  str += this->_file + "[" + this->_line + "]\t";
-//  str += this->_msg + "\n";
-//  return (str);
-//}
-
 }
 }

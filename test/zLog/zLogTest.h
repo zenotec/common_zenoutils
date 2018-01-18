@@ -18,6 +18,8 @@
 #define _ZLOGTEST_H_
 
 #include "UnitTest.h"
+#include <zutils/zSem.h>
+#include <zutils/zQueue.h>
 #include <zutils/zLog.h>
 
 int
@@ -31,12 +33,13 @@ class TestConnector : public zLog::Connector
 {
 public:
 
+  zQueue<std::string> MsgQueue;
+
   virtual void
   Logger(std::string msg_)
   {
-    this->logMsg += msg_;
+    this->MsgQueue.Push(msg_);
   }
-  std::string logMsg;
 };
 
 #endif /* _ZLOGTEST_H_ */

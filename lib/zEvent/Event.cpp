@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <iostream>
 
 #include <zutils/zEvent.h>
 
@@ -39,19 +40,14 @@ Event::~Event()
 Event::TYPE
 Event::Type() const
 {
-  Event::TYPE type = Event::TYPE_ERR;
-  if (this->_event_lock.Lock())
-  {
-    type = Event::_type;
-    this->_event_lock.Unlock();
-  }
-  return (type);
+  // Read only, no need for locking
+  return (this->_type);
 }
 
 void
 Event::Notify(zEvent::EventNotification* notification_)
 {
-  if (this->_event_lock.Lock())
+  if (this->_event_lock.TimedLock(100))
   {
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
@@ -59,6 +55,10 @@ Event::Notify(zEvent::EventNotification* notification_)
       handler->notify(notification_);
     }
     this->_event_lock.Unlock();
+  }
+  else
+  {
+    std::cerr << "Timed out waiting for event lock!!" << std::endl;
   }
   return;
 }

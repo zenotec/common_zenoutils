@@ -59,6 +59,12 @@ namespace zLog
 #define ZLOG_LOGGER(l_,m_) \
   do { \
 	  SHARED_PTR(zUtils::zLog::Message) msg = _zlogger.CreateMessage(l_); \
+	  if (msg) { \
+	    msg->SetFile(__FILE__); \
+	    msg->SetLine(__LINE__); \
+	    msg->AddMessage(m_); \
+	    _zlogger.LogMessage(msg); \
+	  } \
   } while(false);
 
 #define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_CRIT,(x))

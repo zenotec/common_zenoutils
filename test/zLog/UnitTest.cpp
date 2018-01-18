@@ -26,8 +26,6 @@ main(int argc, const char **argv)
   UTEST_TEST( zLogTest_Defaults, 0);
   UTEST_TEST( zLogTest_FileConnector, 0);
 
-  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
-
   UTEST_FINI();
 
 }
