@@ -33,8 +33,8 @@ main(int argc, const char **argv)
 
   // Setup logging for testing
   zLog::FileConnector conn("UnitTest.zlog");
-  zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL, &conn);
-//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -62,6 +62,8 @@ main(int argc, const char **argv)
   {
     rmdir(TESTDIR.c_str());
   }
+
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
   UTEST_FINI();
 

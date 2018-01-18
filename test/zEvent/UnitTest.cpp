@@ -24,24 +24,24 @@ int
 main(int argc, const char **argv)
 {
 
+  // Setup logging for testing
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
+
   UTEST_INIT();
 
-    // Setup logging for testing
-    zLog::FileConnector conn("UnitTest.zlog");
-    zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL, &conn);
-//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
-
-// Test all classes
-    UTEST_TEST(zEventTest_EventDefaults, 0);
-    UTEST_TEST(zEventTest_EventNotificationDefaults, 0);
-    UTEST_TEST(zEventTest_EventHandlerDefaults, 0);
-    UTEST_TEST(zEventTest_EventManagerDefaults, 0);
-    UTEST_TEST(zEventTest_EventTest, 0);
-    UTEST_TEST(zEventTest_EventHandlerTest, 0);
+  // Test all classes
+  UTEST_TEST(zEventTest_EventDefaults, 0);
+  UTEST_TEST(zEventTest_EventNotificationDefaults, 0);
+  UTEST_TEST(zEventTest_EventHandlerDefaults, 0);
+  UTEST_TEST(zEventTest_EventManagerDefaults, 0);
+  UTEST_TEST(zEventTest_EventTest, 0);
+  UTEST_TEST(zEventTest_EventHandlerTest, 0);
 //  UTEST_TEST(zEventTest_EventManagerTest, 0);
 
-    zLog::Manager::Instance().UnregisterConnector(zLog::Log::MODULE_ALL, zLog::Log::LEVEL_ALL);
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
-    UTEST_FINI();
+  UTEST_FINI();
 
-  }
+}

@@ -213,21 +213,6 @@ class Log
 
 public:
 
-  enum LEVEL
-  {
-    LEVEL_ALL = -1,
-    LEVEL_CRIT = 0,
-    LEVEL_ERROR = 1,
-    LEVEL_WARN = 2,
-    LEVEL_DEF = LEVEL_WARN,
-    LEVEL_INFO = 3,
-    LEVEL_DEBUG = 4,
-    LEVEL_DEBUG1 = 5,
-    LEVEL_DEBUG2 = 6,
-    LEVEL_DEBUG3 = 7,
-    LEVEL_LAST
-  };
-
   enum MODULE
   {
     MODULE_ALL = -1,
@@ -235,7 +220,6 @@ public:
     MODULE_CONFIG,
     MODULE_DATA,
     MODULE_DISPLAY,
-    MODULE_EXCEPTION,
     MODULE_GPIO,
     MODULE_INTERFACE,
     MODULE_LED,
@@ -251,6 +235,51 @@ public:
     MODULE_TEST,
     MODULE_LAST
   };
+
+  static const std::string LogModuleAll;
+  static const std::string LogModuleCommand;
+  static const std::string LogModuleConfig;
+  static const std::string LogModuleData;
+  static const std::string LogModuleDisplay;
+  static const std::string LogModuleGpio;
+  static const std::string LogModuleInterface;
+  static const std::string LogModuleLed;
+  static const std::string LogModuleMath;
+  static const std::string LogModuleMessage;
+  static const std::string LogModuleNode;
+  static const std::string LogModuleProgram;
+  static const std::string LogModuleSerial;
+  static const std::string LogModuleSocket;
+  static const std::string LogModuleSwitch;
+  static const std::string LogModuleThermo;
+  static const std::string LogModuleWireless;
+  static const std::string LogModuleTest;
+
+  enum LEVEL
+  {
+    LEVEL_ALL = -1,
+    LEVEL_CRIT = 0,
+    LEVEL_ERROR = 1,
+    LEVEL_WARN = 2,
+    LEVEL_DEF = LEVEL_WARN,
+    LEVEL_INFO = 3,
+    LEVEL_DEBUG = 4,
+    LEVEL_DEBUG1 = 5,
+    LEVEL_DEBUG2 = 6,
+    LEVEL_DEBUG3 = 7,
+    LEVEL_LAST
+  };
+
+  static const std::string LogLevelAll;
+  static const std::string LogLevelCritical;
+  static const std::string LogLevelError;
+  static const std::string LogLevelWarning;
+  static const std::string LogLevelInfo;
+  static const std::string LogLevelDebug;
+  static const std::string LogLevelDebug1;
+  static const std::string LogLevelDebug2;
+  static const std::string LogLevelDebug3;
+  static const std::string LogLevelDefault;
 
   Log(const Log::MODULE module_);
 
@@ -270,6 +299,12 @@ public:
 
   void
   LogMessage(const SHARED_PTR(Message)& message_);
+
+  static std::string
+  ToString(const Log::MODULE module_);
+
+  static std::string
+  ToString(const Log::LEVEL level_);
 
 protected:
 
@@ -368,21 +403,33 @@ public:
   RegisterModule(const std::string& module_);
 
   bool
+  RegisterModule(const Log::MODULE module_);
+
+  bool
   UnregisterModule(const std::string& module_);
 
   bool
-  RegisterConnector(const std::string& module_, const Log::LEVEL level_, Connector* conn_);
+  UnregisterModule(const Log::MODULE module_);
 
   bool
-  UnregisterConnector(const std::string& module_, const Log::LEVEL level_);
+  RegisterConnector(const Log::LEVEL level_, Connector* conn_);
 
-protected:
+  bool
+  UnregisterConnector(const Log::LEVEL level_);
 
   Log::LEVEL
-  getMaxLevel(const std::string& module_);
+  GetMaxLevel(const std::string& module_);
+
+  Log::LEVEL
+  GetMaxLevel(const Log::MODULE module_);
 
   void
-  setMaxLevel(const std::string& module_, const Log::LEVEL level_);
+  SetMaxLevel(const std::string& module_, const Log::LEVEL level_);
+
+  void
+  SetMaxLevel(const Log::MODULE module_, const Log::LEVEL level_);
+
+protected:
 
   void
   logMessage(const SHARED_PTR(zLog::Message)& message_);
@@ -396,7 +443,7 @@ private:
   zThread::Thread _thread;
   zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
   std::map<std::string, Log::LEVEL> _max_level;
-  std::map<std::string, std::vector<Connector*> > _conn;
+  std::vector<Connector*> _conn;
 
   Manager();
 

@@ -36,12 +36,15 @@ namespace zLog
 Manager::Manager() :
     _thread(this, this)
 {
+  this->_conn.resize(Log::LEVEL_LAST, NULL);
   this->_lock.Unlock();
+  this->_thread.Start();
 }
 
 Manager::~Manager()
 {
   this->_conn.clear();
+  this->_thread.Stop();
   this->_lock.Lock();
 }
 
@@ -52,10 +55,15 @@ Manager::RegisterModule(const std::string& module_)
   if (this->_lock.Lock())
   {
     this->_max_level[module_] = Log::LEVEL_DEF;
-    this->_conn[module_].resize(Log::LEVEL_LAST, NULL);
     status = this->_lock.Unlock();
   }
   return (status);
+}
+
+bool
+Manager::RegisterModule(const Log::MODULE module_)
+{
+  return (this->RegisterModule(Log::ToString(module_)));
 }
 
 bool
@@ -65,17 +73,22 @@ Manager::UnregisterModule(const std::string& module_)
   if (this->_max_level.count(module_) && this->_lock.Lock())
   {
     this->_max_level.erase(module_);
-    this->_conn.erase(module_);
     status = this->_lock.Unlock();
   }
   return (status);
 }
 
 bool
-Manager::RegisterConnector(const std::string& module_, Log::LEVEL level_, Connector* conn_)
+Manager::UnregisterModule(const Log::MODULE module_)
+{
+  return (this->UnregisterModule(Log::ToString(module_)));
+}
+
+bool
+Manager::RegisterConnector(Log::LEVEL level_, Connector* conn_)
 {
   bool status = false;
-  if (this->_conn.count(module_) && (level_ >= Log::LEVEL_ALL)
+  if ((level_ >= Log::LEVEL_ALL)
       && (level_ < Log::LEVEL_LAST) && conn_ && this->_lock.Lock())
   {
     int lfirst = level_;
@@ -89,7 +102,7 @@ Manager::RegisterConnector(const std::string& module_, Log::LEVEL level_, Connec
 
     for (int l = lfirst; l < llast; l++)
     {
-      this->_conn[module_][l] = conn_;
+      this->_conn[l] = conn_;
     }
     status = this->_lock.Unlock();
   }
@@ -97,10 +110,10 @@ Manager::RegisterConnector(const std::string& module_, Log::LEVEL level_, Connec
 }
 
 bool
-Manager::UnregisterConnector(const std::string& module_, Log::LEVEL level_)
+Manager::UnregisterConnector(Log::LEVEL level_)
 {
   bool status = false;
-  if (this->_max_level.count(module_) && (level_ >= Log::LEVEL_ALL)
+  if ((level_ >= Log::LEVEL_ALL)
       && (level_ < Log::LEVEL_LAST) && this->_lock.Lock())
   {
     int lfirst = level_;
@@ -114,7 +127,7 @@ Manager::UnregisterConnector(const std::string& module_, Log::LEVEL level_)
 
     for (int l = lfirst; l < llast; l++)
     {
-      this->_conn[module_][l] = NULL;
+      this->_conn[l] = NULL;
     }
     status = this->_lock.Unlock();
   }
@@ -154,10 +167,10 @@ Manager::Run(zThread::ThreadArg *arg_)
     if (!(this->_max_level.count(module)) || !(level < this->_max_level[module]))
       continue;
 
-    if (this->_conn[module][level])
+    if (this->_conn[level])
     {
       std::stringstream ss;
-      this->_conn[module][level]->Logger(ss.str());
+      this->_conn[level]->Logger(ss.str());
     }
 
   }
@@ -166,7 +179,7 @@ Manager::Run(zThread::ThreadArg *arg_)
 }
 
 Log::LEVEL
-Manager::getMaxLevel(const std::string& module_)
+Manager::GetMaxLevel(const std::string& module_)
 {
   Log::LEVEL level = Log::LEVEL_DEF;
   if (this->_max_level.count(module_))
@@ -176,14 +189,26 @@ Manager::getMaxLevel(const std::string& module_)
   return (level);
 }
 
+Log::LEVEL
+Manager::GetMaxLevel(const Log::MODULE module_)
+{
+  return (this->GetMaxLevel(Log::ToString(module_)));
+}
+
 void
-Manager::setMaxLevel(const std::string& module_, const Log::LEVEL level_)
+Manager::SetMaxLevel(const std::string& module_, const Log::LEVEL level_)
 {
   if (this->_max_level.count(module_) && (level_ > Log::LEVEL_ALL) &&
       (level_ < Log::LEVEL_LAST))
   {
     this->_max_level[module_] = level_;
   }
+}
+
+void
+Manager::SetMaxLevel(const Log::MODULE module_, const Log::LEVEL level_)
+{
+  this->SetMaxLevel(Log::ToString(module_), level_);
 }
 
 }

@@ -18,7 +18,7 @@
 
 using namespace zUtils;
 
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+ZLOG_MODULE_INIT(std::string("TEST"));
 
 int
 zLogTest_Defaults(void* arg_)
@@ -32,7 +32,7 @@ zLogTest_Defaults(void* arg_)
   TEST_IS_ZERO(conn.logMsg.size());
 
   // Register test connector
-  zLog::Manager::Instance().RegisterConnector(std::string("TEST"), zLog::Log::LEVEL_DEBUG, &conn);
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_DEBUG, &conn);
 
   // Log and validate (nothing should be log due to the max level being less than 'DEBUG'
   ZLOG_CRIT("CRIT");
@@ -45,27 +45,27 @@ zLogTest_Defaults(void* arg_)
   TEST_IS_ZERO(conn.logMsg.size());
   ZLOG_DEBUG("DEBUG");
   TEST_IS_ZERO(conn.logMsg.size());
-//
-//  // Update max log level
-//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_DEBUG);
-//  TEST_EQ(zLog::Log::LEVEL_DEBUG, zLog::Manager::Instance().GetMaxLevel());
-//
-//  // Log and validate (only the debug message should be logged
-//  ZLOG_CRIT("CRIT");
-//  TEST_IS_ZERO(conn.logMsg.size());
-//  ZLOG_ERR("ERROR");
-//  TEST_IS_ZERO(conn.logMsg.size());
-//  ZLOG_WARN("WARN");
-//  TEST_IS_ZERO(conn.logMsg.size());
-//  ZLOG_INFO("INFO");
-//  TEST_IS_ZERO(conn.logMsg.size());
-//  ZLOG_DEBUG("DEBUG");
-//  TEST_ISNOT_ZERO(conn.logMsg.size());
-//
-//  // Cleanup
-//  zLog::Manager::Instance().SetMaxLevel(zLog::Log::LEVEL_WARN);
-//  TEST_EQ(zLog::Log::LEVEL_WARN, zLog::Manager::Instance().GetMaxLevel());
-//  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_DEBUG);
+
+  // Update max log level
+  zLog::Manager::Instance().SetMaxLevel(std::string("TEST"), zLog::Log::LEVEL_DEBUG);
+  TEST_EQ(zLog::Log::LEVEL_DEBUG, zLog::Manager::Instance().GetMaxLevel(std::string("TEST")));
+
+  // Log and validate (only the debug message should be logged
+  ZLOG_CRIT("CRIT");
+  TEST_IS_ZERO(conn.logMsg.size());
+  ZLOG_ERR("ERROR");
+  TEST_IS_ZERO(conn.logMsg.size());
+  ZLOG_WARN("WARN");
+  TEST_IS_ZERO(conn.logMsg.size());
+  ZLOG_INFO("INFO");
+  TEST_IS_ZERO(conn.logMsg.size());
+  ZLOG_DEBUG("DEBUG");
+  TEST_ISNOT_ZERO(conn.logMsg.size());
+
+  // Cleanup
+  zLog::Manager::Instance().SetMaxLevel(std::string("TEST"), zLog::Log::LEVEL_WARN);
+  TEST_EQ(zLog::Log::LEVEL_WARN, zLog::Manager::Instance().GetMaxLevel(std::string("TEST")));
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_DEBUG);
 
   // Return success
   return (0);
