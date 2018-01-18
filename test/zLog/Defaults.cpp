@@ -32,7 +32,7 @@ zLogTest_Defaults(void* arg_)
   TEST_IS_ZERO(conn.logMsg.size());
 
   // Register test connector
-  zLog::Manager::Instance().RegisterConnector(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG, &conn);
+  zLog::Manager::Instance().RegisterConnector(std::string("TEST"), zLog::Log::LEVEL_DEBUG, &conn);
 
   // Log and validate (nothing should be log due to the max level being less than 'DEBUG'
   ZLOG_CRIT("CRIT");

@@ -55,6 +55,7 @@ static const char* moduleStr[] = {
     "SWITCH",
     "THERMO",
     "WIRELESS",
+    "TEST",
     "LAST"
 };
 
@@ -63,27 +64,31 @@ static const char* moduleStr[] = {
 //*****************************************************************************
 
 Log::Log(const Log::MODULE module_) :
-    _module(module_), _level(zLog::Log::LEVEL_DEF)
+    _module(std::string(moduleStr[module_]))
 {
+  zLog::Manager::Instance().RegisterModule(this->_module);
+}
+
+Log::Log(const std::string& module_) :
+    _module(module_)
+{
+  zLog::Manager::Instance().RegisterModule(this->_module);
 }
 
 Log::~Log()
 {
 }
 
-zLog::Log::LEVEL
+Log::LEVEL
 Log::GetMaxLevel()
 {
-  return (this->_level);
+  return (zLog::Manager::Instance().getMaxLevel(this->_module));
 }
 
 void
-Log::SetMaxLevel(zLog::Log::LEVEL level_)
+Log::SetMaxLevel(Log::LEVEL level_)
 {
-  if ((level_ > Log::LEVEL_ALL) && (level_ < zLog::Log::LEVEL_LAST))
-  {
-    this->_level = level_;
-  } // end if
+  zLog::Manager::Instance().setMaxLevel(this->_module, level_);
   return;
 }
 
@@ -91,7 +96,7 @@ SHARED_PTR(Message)
 Log::CreateMessage(Log::LEVEL level_)
 {
   SHARED_PTR(Message) msg;
-  if (level_ <= this->_level)
+  if (level_ <= this->GetMaxLevel())
   {
     msg = SHARED_PTR(Message)(new Message(this->_module, level_));
   }
@@ -101,7 +106,7 @@ Log::CreateMessage(Log::LEVEL level_)
 void
 Log::LogMessage(const SHARED_PTR(Message)& message_)
 {
-  zLog::Manager::Instance().LogMessage(message_);
+  zLog::Manager::Instance().logMessage(message_);
 }
 
 //void

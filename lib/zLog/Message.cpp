@@ -33,8 +33,7 @@ namespace zLog
 // Class: Message
 //*****************************************************************************
 
-
-Message::Message(Log::MODULE module_, Log::LEVEL level_) :
+Message::Message(const std::string& module_, const Log::LEVEL level_) :
     _module(module_), _level(level_)
 {
 
@@ -50,8 +49,8 @@ Message::Message(Log::MODULE module_, Log::LEVEL level_) :
   struct timespec ts;
   std::stringstream timestamp;
   clock_gettime(CLOCK_REALTIME, &ts);
-  timestamp << std::setprecision(20) << ((double) ts.tv_sec +
-      (double) ts.tv_nsec / (double) (1000000000));
+  timestamp << std::setprecision(20)
+      << ((double) ts.tv_sec + (double) ts.tv_nsec / (double) (1000000000));
   this->_time = timestamp.str();
 
 }
@@ -60,13 +59,13 @@ Message::~Message()
 {
 }
 
-Log::MODULE
+const std::string&
 Message::GetModule() const
 {
   return (this->_module);
 }
 
-Log::LEVEL
+const Log::LEVEL
 Message::GetLevel() const
 {
   return (this->_level);

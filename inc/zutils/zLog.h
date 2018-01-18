@@ -32,6 +32,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <map>
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zSem.h>
@@ -218,8 +219,8 @@ public:
     LEVEL_CRIT = 0,
     LEVEL_ERROR = 1,
     LEVEL_WARN = 2,
+    LEVEL_DEF = LEVEL_WARN,
     LEVEL_INFO = 3,
-    LEVEL_DEF = LEVEL_INFO,
     LEVEL_DEBUG = 4,
     LEVEL_DEBUG1 = 5,
     LEVEL_DEBUG2 = 6,
@@ -248,14 +249,12 @@ public:
     MODULE_THERMO,
     MODULE_WIRELESS,
     MODULE_TEST,
-    MODULE_USER1,
-    MODULE_USER2,
-    MODULE_USER3,
-    MODULE_USER4,
     MODULE_LAST
   };
 
   Log(const Log::MODULE module_);
+
+  Log(const std::string& module_);
 
   virtual
   ~Log();
@@ -276,8 +275,7 @@ protected:
 
 private:
 
-  Log::MODULE _module;
-  Log::LEVEL _level;
+  std::string _module;
 
 };
 
@@ -290,14 +288,14 @@ class Message
 
 public:
 
-  Message(Log::MODULE module_, Log::LEVEL level_);
+  Message(const std::string& module_, const Log::LEVEL level_);
 
   ~Message();
 
-  Log::MODULE
+  const std::string&
   GetModule() const;
 
-  Log::LEVEL
+  const Log::LEVEL
   GetLevel() const;
 
   const std::string&
@@ -334,7 +332,7 @@ protected:
 
 private:
 
-  Log::MODULE _module;
+  std::string _module;
   Log::LEVEL _level;
   std::string _proc;
   std::string _thread;
@@ -367,15 +365,27 @@ public:
   }
 
   bool
-  RegisterConnector(Log::MODULE module_, Log::LEVEL level_, Connector* conn_);
+  RegisterModule(const std::string& module_);
 
   bool
-  UnregisterConnector(Log::MODULE module_, Log::LEVEL level_);
+  UnregisterModule(const std::string& module_);
+
+  bool
+  RegisterConnector(const std::string& module_, const Log::LEVEL level_, Connector* conn_);
+
+  bool
+  UnregisterConnector(const std::string& module_, const Log::LEVEL level_);
 
 protected:
 
+  Log::LEVEL
+  getMaxLevel(const std::string& module_);
+
   void
-  LogMessage(const SHARED_PTR(zLog::Message)& message_);
+  setMaxLevel(const std::string& module_, const Log::LEVEL level_);
+
+  void
+  logMessage(const SHARED_PTR(zLog::Message)& message_);
 
   virtual void
   Run(zThread::ThreadArg *arg_);
@@ -385,7 +395,8 @@ private:
   zSem::Mutex _lock;
   zThread::Thread _thread;
   zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
-  std::vector<std::vector<Connector*> > _conn;
+  std::map<std::string, Log::LEVEL> _max_level;
+  std::map<std::string, std::vector<Connector*> > _conn;
 
   Manager();
 
