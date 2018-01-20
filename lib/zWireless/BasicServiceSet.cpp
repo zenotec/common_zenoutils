@@ -20,6 +20,7 @@
 // libc includes
 
 // libzutils includes
+#include <zutils/zLog.h>
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>
 

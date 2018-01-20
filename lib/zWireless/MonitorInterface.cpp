@@ -41,6 +41,7 @@
 
 // libzutils includes
 
+#include <zutils/zLog.h>
 #include <zutils/zMonitorInterface.h>
 
 // local includes

@@ -37,6 +37,7 @@
 #include <map>
 
 // libzutils includes
+#include <zutils/zLog.h>
 #include <zutils/zAccessPointInterface.h>
 
 #include "GetInterfaceCommand.h"

@@ -71,35 +71,41 @@ Signal::ID
 _sig2id(int sig_)
 {
   Signal::ID id = Signal::ID_ERR;
-  switch (sig_)
+
+  // Some signals are not constants so we need to use an if
+  if (sig_ == SIGRTMIN)
   {
-  case SIGINT:
-    id = Signal::ID_SIGINT;
-    break;
-  case SIGTERM:
-    id = Signal::ID_SIGTERM;
-    break;
-  case SIGABRT:
-    id = Signal::ID_SIGABRT;
-    break;
-  case SIGALRM:
-    id = Signal::ID_SIGALRM;
-    break;
-  case SIGCHLD:
-    id = Signal::ID_SIGCHLD;
-    break;
-  case SIGUSR1:
-    id = Signal::ID_SIGUSR1;
-    break;
-  case SIGUSR2:
-    id = Signal::ID_SIGUSR2;
-    break;
-  case SIGRTMIN:
     id = Signal::ID_SIGTIMER;
-    break;
-  default:
-    id = Signal::ID_ERR;
-    break;
+  }
+  else
+  {
+    switch (sig_)
+    {
+    case SIGINT:
+      id = Signal::ID_SIGINT;
+      break;
+    case SIGTERM:
+      id = Signal::ID_SIGTERM;
+      break;
+    case SIGABRT:
+      id = Signal::ID_SIGABRT;
+      break;
+    case SIGALRM:
+      id = Signal::ID_SIGALRM;
+      break;
+    case SIGCHLD:
+      id = Signal::ID_SIGCHLD;
+      break;
+    case SIGUSR1:
+      id = Signal::ID_SIGUSR1;
+      break;
+    case SIGUSR2:
+      id = Signal::ID_SIGUSR2;
+      break;
+    default:
+      id = Signal::ID_ERR;
+      break;
+    }
   }
   return (id);
 }

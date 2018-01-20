@@ -26,6 +26,7 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
 #include <zutils/zWireless.h>
 
