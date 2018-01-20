@@ -57,6 +57,9 @@ _id2sig(Signal::ID id_)
   case Signal::ID_SIGUSR2:
     sig = SIGUSR2;
     break;
+  case Signal::ID_SIGTIMER:
+    sig = SIGRTMIN;
+    break;
   default:
     sig = -1;
     break;
@@ -91,6 +94,9 @@ _sig2id(int sig_)
   case SIGUSR2:
     id = Signal::ID_SIGUSR2;
     break;
+  case SIGRTMIN:
+    id = Signal::ID_SIGTIMER;
+    break;
   default:
     id = Signal::ID_ERR;
     break;
@@ -110,8 +116,9 @@ _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 //**********************************************************************
 
 Signal::Signal(const Signal::ID id_) :
-    _id(id_), zEvent::Event(zEvent::Event::TYPE_SIGNAL)
+    zEvent::Event(zEvent::Event::TYPE_SIGNAL), _id(id_), _count(0)
 {
+  this->RegisterEvent(this);
   memset(&this->_act, 0, sizeof(this->_act));
   memset(&this->_oldact, 0, sizeof(this->_oldact));
   this->_act.sa_sigaction = _sigaction_func;
@@ -126,6 +133,7 @@ Signal::Signal(const Signal::ID id_) :
 
 Signal::~Signal()
 {
+  this->UnregisterEvent(this);
   int sig = _id2sig(this->_id);
   sigaction(sig, &this->_oldact, NULL);
 }
@@ -136,13 +144,20 @@ Signal::Id() const
   return (this->_id);
 }
 
+uint64_t
+Signal::Count() const
+{
+  return (this->_count);
+}
+
 bool
 Signal::Notify(siginfo_t *info_)
 {
-  SignalNotification notification(this);
-  notification.id(this->_id);
-  notification.siginfo(info_);
-  zEvent::Event::Notify(&notification);
+  this->_count++;
+  SignalNotification* notification = new SignalNotification(this);
+  notification->siginfo(info_);
+  zEvent::Event::Notify(notification);
+  delete (notification);
   return true;
 }
 

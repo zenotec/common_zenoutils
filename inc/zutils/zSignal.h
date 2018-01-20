@@ -19,7 +19,7 @@
 
 #include <signal.h>
 
-#include <map>
+#include <vector>
 
 #include <zutils/zEvent.h>
 
@@ -28,32 +28,34 @@ namespace zUtils
 namespace zSignal
 {
 
+class SignalHandler;
+
 //**********************************************************************
 // Class: Signal
 //**********************************************************************
 
-class Signal : public zEvent::Event
+class Signal : public zEvent::EventHandler, public zEvent::Event
 {
+
+  friend SignalHandler;
 
 public:
 
   enum ID
   {
     ID_ERR = -1,
-    ID_NONE = 0,
-    ID_SIGCHLD = 1,
-    ID_SIGTERM = 2,
-    ID_SIGSEGV = 3,
-    ID_SIGINT = 4,
-    ID_SIGILL = 5,
-    ID_SIGABRT = 6,
-    ID_SIGALRM = 7,
-    ID_SIGUSR1 = 8,
-    ID_SIGUSR2 = 9,
+    ID_SIGCHLD = 0,
+    ID_SIGTERM = 1,
+    ID_SIGSEGV = 2,
+    ID_SIGINT = 3,
+    ID_SIGILL = 4,
+    ID_SIGABRT = 5,
+    ID_SIGALRM = 6,
+    ID_SIGUSR1 = 7,
+    ID_SIGUSR2 = 8,
+    ID_SIGTIMER = 9,
     ID_LAST
   };
-
-  Signal(const Signal::ID id_);
 
   virtual
   ~Signal();
@@ -61,16 +63,22 @@ public:
   Signal::ID
   Id() const;
 
-  bool
-  Notify(siginfo_t *info_);
+  uint64_t
+  Count() const;
 
 protected:
+
+  Signal(const Signal::ID id_);
+
+  bool
+  Notify(siginfo_t *info_);
 
 private:
 
   Signal::ID _id;
   struct sigaction _act;
   struct sigaction _oldact;
+  uint64_t _count;
 
 };
 
@@ -96,10 +104,10 @@ public:
   const siginfo_t*
   SigInfo() const;
 
-protected:
+  uint64_t
+  Count() const;
 
-  void
-  id(Signal::ID);
+protected:
 
   void
   siginfo(const siginfo_t *info_);
@@ -107,7 +115,8 @@ protected:
 private:
 
   Signal::ID _id;
-  const siginfo_t *_info;
+  const siginfo_t* _info;
+  uint64_t _cnt;
 
 };
 
@@ -136,8 +145,7 @@ protected:
 
 private:
 
-  std::map<Signal::ID, zEvent::EventHandler> _sig_handlers;
-  std::map<Signal::ID, Signal*> _sigs;
+  Signal* _sigs[Signal::ID_LAST];
 
 };
 

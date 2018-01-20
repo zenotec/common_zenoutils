@@ -36,44 +36,50 @@ namespace zSignal
 
 SignalHandler::SignalHandler()
 {
+  for (int i = 0; i < Signal::ID_LAST; i++)
+  {
+    this->_sigs[i] = new Signal(Signal::ID(i));
+  }
 }
 
 SignalHandler::~SignalHandler()
 {
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.begin();
-  std::map<Signal::ID, Signal*>::iterator end = this->_sigs.end();
-  for (; it != end; ++it)
+  for (int i = 0; i < Signal::ID_LAST; i++)
   {
-    delete(it->second);
+    if (this->_sigs[i])
+    {
+      delete (this->_sigs[i]);
+    }
   }
-  this->_sig_handlers.clear();
-  this->_sigs.clear();
 }
 
 bool
 SignalHandler::RegisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
 {
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.find(id_);
-  if (it == this->_sigs.end())
+  bool status = false;
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
   {
-    this->_sigs[id_] = new Signal(id_);
-    this->_sig_handlers[id_].RegisterEvent(this->_sigs[id_]);
+    status = this->_sigs[id_]->RegisterObserver(obs_);
   }
-  return (this->_sig_handlers[id_].RegisterObserver(obs_));
+  return (status);
 }
 
 bool
 SignalHandler::UnregisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
 {
-  return (this->_sig_handlers[id_].UnregisterObserver(obs_));
+  bool status = false;
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
+  {
+    status = this->_sigs[id_]->UnregisterObserver(obs_);
+  }
+  return (status);
 }
 
 bool
 SignalHandler::Notify(Signal::ID id_, siginfo_t *info_)
 {
   bool status = false;
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.find(id_);
-  if (it != this->_sigs.end())
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
   {
     status = this->_sigs[id_]->Notify(info_);
   }
