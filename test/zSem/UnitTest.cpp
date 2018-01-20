@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-#include <zutils/zLog.h>
-using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 #include "zSemTest.h"
 
 int
 main(int argc, const char **argv)
 {
-
-  // Setup logging for testing
-  zLog::FileConnector conn("UnitTest.zlog");
-  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
-  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -35,9 +26,6 @@ main(int argc, const char **argv)
   UTEST_TEST(zSemTest_SemaphoreDefaults, 0);
   UTEST_TEST(zSemTest_Mutex, 0);
   UTEST_TEST(zSemTest_Semaphore, 0);
-
-  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
-
   UTEST_FINI();
 
 }

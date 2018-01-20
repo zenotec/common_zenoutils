@@ -22,5 +22,6 @@ zEventUnitTest_SOURCES = \
     Manager.cpp
 
 zEventUnitTest_LDADD = \
-    ${top_builddir}/lib/libzutils.la
+    ${top_builddir}/lib/zEvent/libzEvent.la \
+    ${top_builddir}/lib/zSem/libzSem.la
 

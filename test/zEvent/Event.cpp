@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#include <zutils/zLog.h>
-using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 #include "zEventTest.h"
 
 int
@@ -25,10 +21,6 @@ zEventTest_EventTest(void* arg_)
 {
 
   bool status = false;
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zEventTest_EventTest()");
-  ZLOG_DEBUG("#############################################################");
 
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;

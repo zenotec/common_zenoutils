@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#include <zutils/zLog.h>
-using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 #include "zEventTest.h"
 
 int

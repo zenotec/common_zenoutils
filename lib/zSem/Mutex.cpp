@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <iostream>
+#include <thread>
+
 #include <zutils/zSem.h>
 
 namespace zUtils
@@ -25,11 +28,14 @@ namespace zSem
 // zMutex Class
 //*****************************************************************************
 
-Mutex::Mutex(Mutex::STATE state_)
+Mutex::Mutex(Mutex::STATE state_) :
+    _owner(std::thread::id(0)), _cnt(0)
 {
   if (state_ == Mutex::LOCKED)
   {
     this->_lock.lock();
+    this->_owner = std::this_thread::get_id();
+    this->_cnt++;
   }
 }
 
@@ -40,28 +46,67 @@ Mutex::~Mutex()
 bool
 Mutex::Lock()
 {
-  this->_lock.lock();
+  std::thread::id tid = std::this_thread::get_id();
+  if (this->_owner != tid)
+  {
+    this->_lock.lock();
+    this->_owner = std::this_thread::get_id();
+  }
+  else
+  {
+    // TODO: Debug code to be removed later
+    std::cerr << "BUG: Deadlock avoided" << std::endl;
+  }
+  this->_cnt++;
   return (true);
 }
 
 bool
 Mutex::TryLock()
 {
-  return (this->_lock.try_lock());
+  bool status = this->_lock.try_lock();
+  if (status)
+  {
+    this->_owner = std::this_thread::get_id();
+    this->_cnt++;
+  }
+  return (status);
 }
 
 bool
 Mutex::TimedLock(uint32_t msec_)
 {
-  return (TIMED_LOCK(this->_lock, msec_));
-}
+  bool status = TIMED_LOCK(this->_lock, msec_);
+  if (status)
+  {
+    this->_owner = std::this_thread::get_id();
+    this->_cnt++;
+  }
+  return (status);}
 
 bool
 Mutex::Unlock()
 {
-  this->_lock.unlock();
-  return (true);
+  bool status = false;
+  std::thread::id tid = std::this_thread::get_id();
+  if (this->_owner == tid)
+  {
+    if (this->_cnt-- == 1)
+    {
+      this->_owner = std::thread::id(0);
+      this->_lock.unlock();
+    }
+    status = true;
+  }
+  return (status);
 }
+
+Mutex::STATE
+Mutex::State() const
+{
+  return ((this->_cnt > 0) ? Mutex::LOCKED : Mutex::UNLOCKED);
+}
+
 
 }
 }

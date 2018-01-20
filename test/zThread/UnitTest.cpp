@@ -17,10 +17,6 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 #include "zThreadTest.h"
 #include "UnitTest.h"
 
@@ -28,20 +24,12 @@ int
 main(int argc, const char **argv)
 {
 
-  // Setup logging for testing
-  zLog::FileConnector conn("UnitTest.zlog");
-  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
-  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
-
   // Test all classes
   UTEST_INIT();
   UTEST_TEST(zThreadTest_Defaults, 0);
   UTEST_TEST(zThreadTest_RunOnce, 0);
   UTEST_TEST(zThreadTest_RunMultiple, 0);
   UTEST_TEST(zThreadTest_Synchronize, 0);
-
-  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
-
   UTEST_FINI();
 
 }

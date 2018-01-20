@@ -32,7 +32,7 @@ namespace zSem
 Semaphore::Semaphore(const uint32_t value_) :
     _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
 {
-  if (this->_cnt != 0)
+  if (this->_cnt > 0)
   {
     this->_empty.Unlock();
   }

@@ -91,7 +91,6 @@ public:
   virtual bool
   EventHandler(zEvent::EventNotification* notification_)
   {
-    ZLOG_DEBUG("Handling event");
     this->Push(notification_);
     return (true);
   }

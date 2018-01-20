@@ -16,6 +16,7 @@
 
 #include <stdint.h>
 
+#include <iostream>
 #include <mutex>
 #include <list>
 #include <queue>
@@ -46,7 +47,7 @@ bool
 EventHandler::RegisterEvent(Event *event_)
 {
   bool status = false;
-  if (event_ && this->_event_lock.Lock())
+  if (event_ && this->_event_lock.TimedLock(1000))
   {
     // Remove any possible duplicates
     this->_event_list.remove(event_);
@@ -57,6 +58,10 @@ EventHandler::RegisterEvent(Event *event_)
     status = event_->registerHandler(this);
     status &= this->_event_lock.Unlock();
   }
+  else
+  {
+    std::cerr << "Timed out waiting for event handler lock!!" << std::endl;
+  }
   return (status);
 }
 
@@ -64,11 +69,15 @@ bool
 EventHandler::UnregisterEvent(Event *event_)
 {
   bool status = false;
-  if (event_ && this->_event_lock.Lock())
+  if (event_ && this->_event_lock.TimedLock(1000))
   {
     this->_event_list.remove(event_);
     status = event_->unregisterHandler(this);
     status &= this->_event_lock.Unlock();
+  }
+  else
+  {
+    std::cerr << "Timed out waiting for event handler lock!!" << std::endl;
   }
   return (status);
 }
@@ -77,7 +86,7 @@ bool
 EventHandler::RegisterObserver(EventObserver *obs_)
 {
   bool status = false;
-  if (obs_ && this->_event_lock.Lock())
+  if (obs_ && this->_event_lock.TimedLock(1000))
   {
     // Remove any duplicates
     this->_obs_list.remove(obs_);
@@ -86,6 +95,10 @@ EventHandler::RegisterObserver(EventObserver *obs_)
     this->_obs_list.push_back(obs_);
     status = this->_event_lock.Unlock();
   }
+  else
+  {
+    std::cerr << "Timed out waiting for event handler lock!!" << std::endl;
+  }
   return (status);
 }
 
@@ -93,11 +106,15 @@ bool
 EventHandler::UnregisterObserver(EventObserver *obs_)
 {
   bool status = false;
-  if (obs_ && this->_event_lock.Lock())
+  if (obs_ && this->_event_lock.TimedLock(1000))
   {
     // Unregister observer
     EventHandler::_obs_list.remove(obs_);
     status = this->_event_lock.Unlock();
+  }
+  else
+  {
+    std::cerr << "Timed out waiting for event handler lock!!" << std::endl;
   }
   return (status);
 }
@@ -109,13 +126,17 @@ EventHandler::notify(EventNotification* notification_)
   // Note: never call this routine directly; Only should be called by the event class
 
   // Start critical section
-  if (this->_event_lock.Lock())
+  if (this->_event_lock.TimedLock(1000))
   {
     FOREACH (auto& obs, this->_obs_list)
     {
       obs->EventHandler(notification_);
     }
     this->_event_lock.Unlock();
+  }
+  else
+  {
+    std::cerr << "Timed out waiting for event handler lock!!" << std::endl;
   }
 
   return;

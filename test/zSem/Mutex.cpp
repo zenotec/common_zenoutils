@@ -14,34 +14,55 @@
  * limitations under the License.
  */
 
-#include <zutils/zLog.h>
 #include "zSemTest.h"
 
 using namespace Test;
 using namespace zUtils;
 
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 int
 zSemTest_Mutex(void* arg_)
 {
 
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSemTest_Mutex()");
-  ZLOG_DEBUG("#############################################################");
-
   // Create new mutex with defaults and validate
   zSem::Mutex MyMutex;
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
   TEST_FALSE(MyMutex.TryLock());
 
   // Unlock and relock
   TEST_TRUE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
+  TEST_TRUE(MyMutex.Lock());
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+
+  // Double lock (deadlock)
+  TEST_TRUE(MyMutex.Lock());
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+  TEST_TRUE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+  TEST_TRUE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
+  TEST_FALSE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
+
+  // Try lock
   TEST_TRUE(MyMutex.TryLock());
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+  TEST_FALSE(MyMutex.TryLock());
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+  TEST_TRUE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
+  TEST_FALSE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
 
   // Timed lock
-  TEST_FALSE(MyMutex.TimedLock(100));
+  TEST_TRUE(MyMutex.TimedLock(50));
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
+  TEST_FALSE(MyMutex.TimedLock(50));
+  TEST_EQ(zSem::Mutex::LOCKED, MyMutex.State());
   TEST_TRUE(MyMutex.Unlock());
-  TEST_TRUE(MyMutex.TimedLock(100));
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
+  TEST_FALSE(MyMutex.Unlock());
+  TEST_EQ(zSem::Mutex::UNLOCKED, MyMutex.State());
 
   // Return success
   return (0);

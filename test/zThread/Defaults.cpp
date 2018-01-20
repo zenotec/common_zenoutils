@@ -17,10 +17,6 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 #include "zThreadTest.h"
 
 using namespace Test;
@@ -29,10 +25,6 @@ using namespace zUtils;
 int
 zThreadTest_Defaults(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zThreadTest_Defaults()");
-  ZLOG_DEBUG("#############################################################");
 
   // Create test thread and validate
   TestThread *myThread = new TestThread("Defaults", 0);
