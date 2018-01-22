@@ -30,13 +30,13 @@ namespace zSem
 //*****************************************************************************
 
 Semaphore::Semaphore(const uint32_t value_) :
-    _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
+    _sem_lock(Mutex::LOCKED), _sem_cnt(value_)
 {
-  if (this->_cnt > 0)
+  if (this->_sem_cnt == 0)
   {
-    this->_empty.Unlock();
+    this->_empty_lock.lock();
   }
-  this->_lock.Unlock();
+  this->_sem_lock.Unlock();
 }
 
 Semaphore::~Semaphore()
@@ -48,19 +48,19 @@ Semaphore::Post()
 {
   bool status = false;
 
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
     // Test for overflow
-    if ((this->_cnt + 1) > this->_cnt)
+    if ((this->_sem_cnt + 1) > this->_sem_cnt)
     {
-      if (this->_cnt == 0)
+      if (this->_sem_cnt == 0)
       {
-        this->_empty.Unlock();
+        this->_empty_lock.unlock();
       }
-      this->_cnt++;
+      this->_sem_cnt++;
     }
     status = true;
-    this->_lock.Unlock();
+    this->_sem_lock.Unlock();
   }
 
   return (status);
@@ -74,11 +74,9 @@ Semaphore::Wait()
 
   if (!status)
   {
-    if (this->_empty.Lock())
-    {
-      this->_empty.Unlock();
-      status = this->TryWait();
-    }
+    this->_empty_lock.lock();
+    this->_empty_lock.unlock();
+    status = this->TryWait();
   }
 
   return (status);
@@ -88,39 +86,33 @@ bool
 Semaphore::TryWait()
 {
   bool status = false;
-
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
-    if (this->_cnt != 0)
+    if (this->_sem_cnt > 0)
     {
-      this->_cnt--;
-      if (this->_cnt == 0)
+      if (this->_sem_cnt-- == 1)
       {
-        this->_empty.Lock();
+        this->_empty_lock.lock();
       }
       status = true;
     }
-    this->_lock.Unlock();
+    this->_sem_lock.Unlock();
   }
-
   return (status);
 }
 
 bool
 Semaphore::TimedWait(uint32_t msec_)
 {
-
   bool status = this->TryWait();
-
   if (!status)
   {
-    if (this->_empty.TimedLock(msec_))
+    if (TIMED_LOCK(this->_empty_lock, msec_))
     {
-      this->_empty.Unlock();
+      this->_empty_lock.unlock();
       status = this->TryWait();
     }
   }
-
   return (status);
 }
 
@@ -129,14 +121,14 @@ Semaphore::Reset()
 {
   bool status = false;
 
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
-    if (this->_cnt != 0)
+    if (this->_sem_cnt != 0)
     {
-      this->_cnt = 0;
-      this->_empty.Lock();
+      this->_sem_cnt = 0;
+      this->_empty_lock.lock();
     }
-    status = this->_lock.Unlock();
+    status = this->_sem_lock.Unlock();
   }
 
   return (status);

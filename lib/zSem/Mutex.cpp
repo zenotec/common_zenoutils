@@ -29,13 +29,13 @@ namespace zSem
 //*****************************************************************************
 
 Mutex::Mutex(Mutex::STATE state_) :
-    _owner(std::thread::id(0)), _cnt(0)
+    _mutex_owner(std::thread::id(0)), _refcnt(0)
 {
   if (state_ == Mutex::LOCKED)
   {
-    this->_lock.lock();
-    this->_owner = std::this_thread::get_id();
-    this->_cnt++;
+    this->_mutex_lock.lock();
+    this->_set_owner(std::this_thread::get_id());
+    this->_refcnt++;
   }
 }
 
@@ -47,28 +47,28 @@ bool
 Mutex::Lock()
 {
   std::thread::id tid = std::this_thread::get_id();
-  if (this->_owner != tid)
+  if (this->_mutex_owner != tid)
   {
-    this->_lock.lock();
-    this->_owner = std::this_thread::get_id();
+    this->_mutex_lock.lock();
+    this->_set_owner(tid);
   }
   else
   {
     // TODO: Debug code to be removed later
-    std::cerr << "BUG: Deadlock avoided" << std::endl;
+    fprintf(stderr, "(%p) BUG: Deadlock avoided: %p\n", this, tid);
   }
-  this->_cnt++;
+  this->_refcnt++;
   return (true);
 }
 
 bool
 Mutex::TryLock()
 {
-  bool status = this->_lock.try_lock();
+  bool status = this->_mutex_lock.try_lock();
   if (status)
   {
-    this->_owner = std::this_thread::get_id();
-    this->_cnt++;
+    this->_set_owner(std::this_thread::get_id());
+    this->_refcnt++;
   }
   return (status);
 }
@@ -76,11 +76,12 @@ Mutex::TryLock()
 bool
 Mutex::TimedLock(uint32_t msec_)
 {
-  bool status = TIMED_LOCK(this->_lock, msec_);
+  std::thread::id tid = std::this_thread::get_id();
+  bool status = TIMED_LOCK(this->_mutex_lock, msec_);
   if (status)
   {
-    this->_owner = std::this_thread::get_id();
-    this->_cnt++;
+    this->_set_owner(tid);
+    this->_refcnt++;
   }
   return (status);}
 
@@ -89,14 +90,19 @@ Mutex::Unlock()
 {
   bool status = false;
   std::thread::id tid = std::this_thread::get_id();
-  if (this->_owner == tid)
+  if (this->_mutex_owner == tid)
   {
-    if (this->_cnt-- == 1)
+    if (this->_refcnt-- == 1)
     {
-      this->_owner = std::thread::id(0);
-      this->_lock.unlock();
+      this->_set_owner(std::thread::id(0));
+      this->_mutex_lock.unlock();
     }
     status = true;
+  }
+  else if (this->_mutex_owner != std::thread::id(0))
+  {
+    // TODO: Debug code to be removed later
+    fprintf(stderr, "(%p) BUG: Unlock not by owner: %p\n", this, tid);
   }
   return (status);
 }
@@ -104,9 +110,14 @@ Mutex::Unlock()
 Mutex::STATE
 Mutex::State() const
 {
-  return ((this->_cnt > 0) ? Mutex::LOCKED : Mutex::UNLOCKED);
+  return ((this->_refcnt > 0) ? Mutex::LOCKED : Mutex::UNLOCKED);
 }
 
+void
+Mutex::_set_owner(const std::thread::id tid_)
+{
+  this->_mutex_owner = tid_;
+}
 
 }
 }

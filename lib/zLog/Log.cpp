@@ -33,36 +33,6 @@ namespace zLog
 // Class: Log
 //*****************************************************************************
 
-const std::string Log::LogModuleAll("ALL");
-const std::string Log::LogModuleCommand("COMMAND");
-const std::string Log::LogModuleConfig("CONFIG");
-const std::string Log::LogModuleData("DATA");
-const std::string Log::LogModuleDisplay("DISPLAY");
-const std::string Log::LogModuleGpio("GPIO");
-const std::string Log::LogModuleInterface("INTERFACE");
-const std::string Log::LogModuleLed("LED");
-const std::string Log::LogModuleMath("MATH");
-const std::string Log::LogModuleMessage("MESSAGE");
-const std::string Log::LogModuleNode("NODE");
-const std::string Log::LogModuleProgram("PROGRAM");
-const std::string Log::LogModuleSerial("SERIAL");
-const std::string Log::LogModuleSocket("SOCKET");
-const std::string Log::LogModuleSwitch("SWITCH");
-const std::string Log::LogModuleThermo("THERMO");
-const std::string Log::LogModuleWireless("WIRELESS");
-const std::string Log::LogModuleTest("TEST");
-
-const std::string Log::LogLevelAll("ALL");
-const std::string Log::LogLevelCritical("CRIT");
-const std::string Log::LogLevelError("ERROR");
-const std::string Log::LogLevelWarning("WARN");
-const std::string Log::LogLevelInfo("INFO");
-const std::string Log::LogLevelDebug("DEBUG");
-const std::string Log::LogLevelDebug1("DEBUG1");
-const std::string Log::LogLevelDebug2("DEBUG2");
-const std::string Log::LogLevelDebug3("DEBUG3");
-const std::string Log::LogLevelDefault(Log::LogLevelWarning);
-
 Log::Log(const Log::MODULE module_) :
     _module(Log::ToString(module_))
 {
@@ -77,6 +47,7 @@ Log::Log(const std::string& module_) :
 
 Log::~Log()
 {
+  zLog::Manager::Instance().UnregisterModule(this->_module);
 }
 
 Log::LEVEL
@@ -116,58 +87,58 @@ Log::ToString(const Log::MODULE module_)
   switch (module_)
   {
   case  MODULE_ALL:
-    str = Log::LogModuleAll;
+    str = "ALL";
     break;
   case  MODULE_COMMAND:
-    str = Log::LogModuleCommand;
+    str = "COMMAND";
     break;
   case  MODULE_CONFIG:
-    str = Log::LogModuleConfig;
+    str = "CONFIG";
     break;
   case  MODULE_DATA:
-    str = Log::LogModuleData;
+    str = "DATA";
     break;
   case  MODULE_DISPLAY:
-    str = Log::LogModuleDisplay;
+    str = "DISPLAY";
     break;
   case  MODULE_GPIO:
-    str = Log::LogModuleGpio;
+    str = "GPIO";
     break;
   case  MODULE_INTERFACE:
-    str = Log::LogModuleInterface;
+    str = "INTERFACE";
     break;
   case  MODULE_LED:
-    str = Log::LogModuleLed;
+    str = "LED";
     break;
   case  MODULE_MATH:
-    str = Log::LogModuleMath;
+    str = "MATH";
     break;
   case  MODULE_MESSAGE:
-    str = Log::LogModuleMessage;
+    str = "MESSAGE";
     break;
   case  MODULE_NODE:
-    str = Log::LogModuleNode;
+    str = "NODE";
     break;
   case  MODULE_PROGRAM:
-    str = Log::LogModuleProgram;
+    str = "PROGRAM";
     break;
   case  MODULE_SERIAL:
-    str = Log::LogModuleSerial;
+    str = "SERIAL";
     break;
   case  MODULE_SOCKET:
-    str = Log::LogModuleSocket;
+    str = "SOCKET";
     break;
   case  MODULE_SWITCH:
-    str = Log::LogModuleSwitch;
+    str = "SWITCH";
     break;
   case  MODULE_THERMO:
-    str = Log::LogModuleThermo;
+    str = "THERMO";
     break;
   case  MODULE_WIRELESS:
-    str = Log::LogModuleWireless;
+    str = "WIRELESS";
     break;
   case  MODULE_TEST:
-    str = Log::LogModuleTest;
+    str = "TEST";
     break;
   default:
     str = "UNKNOWN";
@@ -184,31 +155,31 @@ Log::ToString(const Log::LEVEL level_)
   switch (level_)
   {
   case  LEVEL_ALL:
-    str = Log::LogLevelAll;
+    str = "ALL";
     break;
   case  LEVEL_CRIT:
-    str = Log::LogLevelCritical;
+    str = "CRIT";
     break;
   case LEVEL_ERROR:
-    str = Log::LogLevelError;
+    str = "ERROR";
     break;
   case LEVEL_WARN:
-    str = Log::LogLevelWarning;
+    str = "WARN";
     break;
   case LEVEL_INFO:
-    str = Log::LogLevelInfo;
+    str = "INFO";
     break;
   case LEVEL_DEBUG:
-    str = Log::LogLevelDebug;
+    str = "DEBUG";
     break;
   case LEVEL_DEBUG1:
-    str = Log::LogLevelDebug1;
+    str = "DEBUG1";
     break;
   case LEVEL_DEBUG2:
-    str = Log::LogLevelDebug2;
+    str = "DEBUG2";
     break;
   case LEVEL_DEBUG3:
-    str = Log::LogLevelDebug3;
+    str = "DEBUG3";
     break;
   default:
     str = "UNKNOWN";
@@ -216,40 +187,6 @@ Log::ToString(const Log::LEVEL level_)
   }
   return (str);
 }
-
-//void
-//LogMsg(const Message& msg_)
-//{
-////  std::cout << "+" << std::endl;
-////  std::cout.flush();
-//  try
-//  {
-//    this->_log_lock.lock();
-////    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log lock(" << &this->_log_lock << ")"
-////        << std::endl;
-////    std::cout.flush();
-//    if (msg_.GetLevel() <= this->_maxLevel)
-//    {
-//      if (this->_connTable[msg_.GetLevel()] != NULL)
-//      {
-////        std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
-//        this->_connTable[msg_.GetLevel()]->Logger(msg_.GetMessage());
-//      }
-//    }
-////    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": log unlock(" << &this->_log_lock << ")"
-////        << std::endl;
-////    std::cout.flush();
-//    this->_log_lock.unlock();
-//  }
-//  catch (const std::system_error& e)
-//  {
-////    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << "Caught system error: " << e.what() << std::endl;
-////    std::cout << ZLOG_HEX((uint32_t )pthread_self()) << ": " << msg_.GetStr();
-////    std::cout.flush();
-//  }
-////  std::cout << "-" << std::endl;
-////  std::cout.flush();
-//}
 
 }
 }

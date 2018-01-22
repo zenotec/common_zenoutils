@@ -22,8 +22,6 @@
 
 using namespace zUtils;
 
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 int
 GetFileSize(std::ifstream &is)
 {
@@ -37,6 +35,8 @@ int
 zLogTest_FileConnector(void* arg_)
 {
 
+  zUtils::zLog::Log _zlogger(zLog::Log::MODULE_TEST);
+
   // Log file names
   const char *logName = "/tmp/fconn-utest.log";
 
@@ -47,9 +47,6 @@ zLogTest_FileConnector(void* arg_)
   remove(logName);
   logFile.open(logName);
   TEST_FALSE(logFile.is_open());
-
-  // Test log defaults
-  TEST_EQ(zLog::Log::LEVEL_DEF, zLog::Manager::Instance().GetMaxLevel(zLog::Log::MODULE_TEST));
 
   // Create file connector and register
   zLog::FileConnector fileConn(logName);

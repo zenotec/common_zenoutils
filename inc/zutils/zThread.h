@@ -64,6 +64,12 @@ public:
   Run(zThread::ThreadArg *arg_) = 0;
 
   bool
+  Yield();
+
+  bool
+  Yield(bool flag_);
+
+  bool
   Exit();
 
   bool
@@ -74,10 +80,14 @@ protected:
   bool
   setThread(Thread* thread_);
 
+  void
+  yield() const;
+
 private:
 
   zSem::Mutex _thread_lock;
   Thread *_thread;
+  bool _yield;
   bool _exit;
 
 };

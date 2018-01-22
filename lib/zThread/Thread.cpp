@@ -36,7 +36,7 @@ namespace zThread
 //**********************************************************************
 
 ThreadFunction::ThreadFunction() :
-    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _exit(false)
+    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _yield(false), _exit(false)
 {
   this->_thread_lock.Unlock();
 }
@@ -44,6 +44,31 @@ ThreadFunction::ThreadFunction() :
 ThreadFunction::~ThreadFunction()
 {
   this->_thread_lock.Lock();
+}
+
+bool
+ThreadFunction::Yield()
+{
+  bool flag = false;
+  if (this->_thread_lock.Lock())
+  {
+    flag = this->_yield;
+    this->_thread_lock.Unlock();
+  }
+  return (flag);
+}
+
+bool
+ThreadFunction::Yield(bool flag_)
+{
+  bool status = false;
+  if (this->_thread_lock.Lock())
+  {
+    this->_yield = flag_;
+    status = true;
+    this->_thread_lock.Unlock();
+  }
+  return (status);
 }
 
 bool
@@ -81,6 +106,12 @@ ThreadFunction::setThread(Thread* thread_)
     status = true;
   }
   return(status);
+}
+
+void
+ThreadFunction::yield() const
+{
+  std::this_thread::yield();
 }
 
 //*****************************************************************************
@@ -124,10 +155,12 @@ bool
 Thread::Start()
 {
   bool status = false;
-  if (this->_func && this->_func->setThread(this) && this->_func->Exit(false))
+  if (!this->_thread && this->_func && this->_func->setThread(this))
   {
+    this->_func->Exit(false);
+    this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
-    status = true;
+    status = !!this->_thread;
   }
   return (status);
 }

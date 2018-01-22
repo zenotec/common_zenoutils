@@ -35,6 +35,15 @@ public:
 
   zQueue<std::string> MsgQueue;
 
+  TestConnector()
+  {
+  }
+
+  virtual
+  ~TestConnector()
+  {
+  }
+
   virtual void
   Logger(std::string msg_)
   {

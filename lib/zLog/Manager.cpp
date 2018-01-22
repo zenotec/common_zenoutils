@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-
-#include <iostream>
-#include <iomanip>
-#include <system_error>
+#include <string.h>
 
 #include <zutils/zLog.h>
 
@@ -36,26 +30,30 @@ namespace zLog
 Manager::Manager() :
     _thread(this, this)
 {
-  this->_conn.resize(Log::LEVEL_LAST, NULL);
-  this->_lock.Unlock();
-  this->_thread.Start();
+  memset(this->_conn, 0, sizeof(this->_conn));
+  this->_log_lock.Unlock();
 }
 
 Manager::~Manager()
 {
-  this->_conn.clear();
   this->_thread.Stop();
-  this->_lock.Lock();
+  this->_log_lock.Lock();
+  memset(this->_conn, 0, sizeof(this->_conn));
 }
 
 bool
 Manager::RegisterModule(const std::string& module_)
 {
   bool status = false;
-  if (this->_lock.Lock())
+  if (this->_log_lock.Lock())
   {
+    this->_mod_refcnt[module_]++;
     this->_max_level[module_] = Log::LEVEL_DEF;
-    status = this->_lock.Unlock();
+    if (this->_mod_refcnt.size() == 1)
+    {
+      this->_thread.Start();
+    }
+    status = this->_log_lock.Unlock();
   }
   return (status);
 }
@@ -70,10 +68,18 @@ bool
 Manager::UnregisterModule(const std::string& module_)
 {
   bool status = false;
-  if (this->_max_level.count(module_) && this->_lock.Lock())
+  if (this->_mod_refcnt.count(module_) && this->_log_lock.Lock())
   {
-    this->_max_level.erase(module_);
-    status = this->_lock.Unlock();
+    if (this->_mod_refcnt[module_]-- == 1)
+    {
+      this->_mod_refcnt.erase(module_);
+      this->_max_level.erase(module_);
+    }
+    if (this->_mod_refcnt.empty())
+    {
+      this->_thread.Stop();
+    }
+    status = this->_log_lock.Unlock();
   }
   return (status);
 }
@@ -89,7 +95,7 @@ Manager::RegisterConnector(Log::LEVEL level_, Connector* conn_)
 {
   bool status = false;
   if ((level_ >= Log::LEVEL_ALL)
-      && (level_ < Log::LEVEL_LAST) && conn_ && this->_lock.Lock())
+      && (level_ < Log::LEVEL_LAST) && conn_ && this->_log_lock.Lock())
   {
     int lfirst = level_;
     int llast = level_;
@@ -104,7 +110,7 @@ Manager::RegisterConnector(Log::LEVEL level_, Connector* conn_)
     {
       this->_conn[l] = conn_;
     }
-    status = this->_lock.Unlock();
+    status = this->_log_lock.Unlock();
   }
   return (status);
 }
@@ -114,7 +120,7 @@ Manager::UnregisterConnector(Log::LEVEL level_)
 {
   bool status = false;
   if ((level_ >= Log::LEVEL_ALL)
-      && (level_ < Log::LEVEL_LAST) && this->_lock.Lock())
+      && (level_ < Log::LEVEL_LAST) && this->_log_lock.Lock())
   {
     int lfirst = level_;
     int llast = level_;
@@ -129,7 +135,7 @@ Manager::UnregisterConnector(Log::LEVEL level_)
     {
       this->_conn[l] = NULL;
     }
-    status = this->_lock.Unlock();
+    status = this->_log_lock.Unlock();
   }
   return (status);
 }
@@ -149,13 +155,13 @@ Manager::Run(zThread::ThreadArg *arg_)
   while (!this->Exit())
   {
 
-    if (this->_msg_queue.TimedWait(100) && this->_lock.Lock())
+    if (this->_msg_queue.TimedWait(101))
     {
 
       SHARED_PTR(Message)msg = this->_msg_queue.Front();
       this->_msg_queue.Pop();
 
-      if (msg)
+      if (msg && this->_log_lock.TimedLock(102))
       {
         const std::string& module = msg->GetModule();
         Log::LEVEL level = msg->GetLevel();
@@ -175,9 +181,9 @@ Manager::Run(zThread::ThreadArg *arg_)
             this->_conn[level]->Logger(ss.str());
           }
         }
+        this->_log_lock.Unlock();
       }
 
-      this->_lock.Unlock();
     }
 
   }
@@ -188,10 +194,20 @@ Manager::Run(zThread::ThreadArg *arg_)
 Log::LEVEL
 Manager::GetMaxLevel(const std::string& module_)
 {
-  Log::LEVEL level = Log::LEVEL_DEF;
-  if (this->_max_level.count(module_))
+  Log::LEVEL level = Log::LEVEL_ALL;
+  if (this->_log_lock.Lock())
   {
-    level = this->_max_level[module_];
+    if (this->_max_level.count(module_))
+    {
+      for (int i = 0; i <= int(this->_max_level[module_]); i++)
+      {
+        if (this->_conn[i])
+        {
+          level = Log::LEVEL(i);
+        }
+      }
+    }
+    this->_log_lock.Unlock();
   }
   return (level);
 }

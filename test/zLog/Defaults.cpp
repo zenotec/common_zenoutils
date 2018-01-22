@@ -18,16 +18,14 @@
 
 using namespace zUtils;
 
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
-
 int
 zLogTest_Defaults(void* arg_)
 {
 
   pthread_t tid = pthread_self();
 
-  // Test log defaults
-  TEST_EQ(zLog::Log::LEVEL_DEF, _zlogger.GetMaxLevel());
+  // Create local logger on the stack
+  zUtils::zLog::Log _zlogger(zLog::Log::MODULE_TEST);
 
   // Setup test connector
   TestConnector conn;
@@ -58,27 +56,31 @@ zLogTest_Defaults(void* arg_)
   TEST_EQ(zLog::Log::LEVEL_DEBUG, zLog::Manager::Instance().GetMaxLevel(zLog::Log::MODULE_TEST));
 
   // Log and validate (only the debug message should be logged
+
   ZLOG_CRIT("CRIT");
   TEST_FALSE(conn.MsgQueue.TimedWait(10));
   TEST_IS_ZERO(conn.MsgQueue.Size());
+
   ZLOG_ERR("ERROR");
   TEST_FALSE(conn.MsgQueue.TimedWait(10));
   TEST_IS_ZERO(conn.MsgQueue.Size());
+
   ZLOG_WARN("WARN");
   TEST_FALSE(conn.MsgQueue.TimedWait(10));
   TEST_IS_ZERO(conn.MsgQueue.Size());
+
   ZLOG_INFO("INFO");
   TEST_FALSE(conn.MsgQueue.TimedWait(10));
   TEST_IS_ZERO(conn.MsgQueue.Size());
+
   ZLOG_DEBUG("DEBUG");
   TEST_TRUE(conn.MsgQueue.TimedWait(10));
-  TEST_ISNOT_ZERO(conn.MsgQueue.Size());
+  TEST_EQ(1, conn.MsgQueue.Size());
   TEST_TRUE(conn.MsgQueue.Pop());
   TEST_IS_ZERO(conn.MsgQueue.Size());
 
   // Cleanup
-  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_WARN);
-  TEST_EQ(zLog::Log::LEVEL_WARN, zLog::Manager::Instance().GetMaxLevel(zLog::Log::MODULE_TEST));
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEF);
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_DEBUG);
 
   // Return success

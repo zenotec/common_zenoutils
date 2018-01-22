@@ -242,25 +242,6 @@ public:
     MODULE_LAST
   };
 
-  static const std::string LogModuleAll;
-  static const std::string LogModuleCommand;
-  static const std::string LogModuleConfig;
-  static const std::string LogModuleData;
-  static const std::string LogModuleDisplay;
-  static const std::string LogModuleGpio;
-  static const std::string LogModuleInterface;
-  static const std::string LogModuleLed;
-  static const std::string LogModuleMath;
-  static const std::string LogModuleMessage;
-  static const std::string LogModuleNode;
-  static const std::string LogModuleProgram;
-  static const std::string LogModuleSerial;
-  static const std::string LogModuleSocket;
-  static const std::string LogModuleSwitch;
-  static const std::string LogModuleThermo;
-  static const std::string LogModuleWireless;
-  static const std::string LogModuleTest;
-
   enum LEVEL
   {
     LEVEL_ALL = -1,
@@ -275,17 +256,6 @@ public:
     LEVEL_DEBUG3 = 7,
     LEVEL_LAST
   };
-
-  static const std::string LogLevelAll;
-  static const std::string LogLevelCritical;
-  static const std::string LogLevelError;
-  static const std::string LogLevelWarning;
-  static const std::string LogLevelInfo;
-  static const std::string LogLevelDebug;
-  static const std::string LogLevelDebug1;
-  static const std::string LogLevelDebug2;
-  static const std::string LogLevelDebug3;
-  static const std::string LogLevelDefault;
 
   Log(const Log::MODULE module_);
 
@@ -445,11 +415,12 @@ protected:
 
 private:
 
-  zSem::Mutex _lock;
+  zSem::Mutex _log_lock;
   zThread::Thread _thread;
   zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
   std::map<std::string, Log::LEVEL> _max_level;
-  std::vector<Connector*> _conn;
+  std::map<std::string, int> _mod_refcnt;
+  Connector* _conn[Log::LEVEL_LAST];
 
   Manager();
 
