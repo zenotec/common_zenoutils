@@ -420,7 +420,7 @@ private:
   zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
   std::map<std::string, Log::LEVEL> _max_level;
   std::map<std::string, int> _mod_refcnt;
-  Connector* _conn[Log::LEVEL_LAST];
+  std::map<Log::LEVEL, Connector*> _conn;
 
   Manager();
 

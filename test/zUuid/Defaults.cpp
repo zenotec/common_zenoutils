@@ -17,14 +17,10 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-
 #include "zUuidTest.h"
 
 using namespace Test;
 using namespace zUtils;
-
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 int
 zUuidTest_Defaults(void* arg_)

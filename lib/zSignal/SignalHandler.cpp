@@ -49,6 +49,7 @@ SignalHandler::~SignalHandler()
     if (this->_sigs[i])
     {
       delete (this->_sigs[i]);
+      this->_sigs[i] = NULL;
     }
   }
 }
@@ -57,7 +58,7 @@ bool
 SignalHandler::RegisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
 {
   bool status = false;
-  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
   {
     status = this->_sigs[id_]->RegisterObserver(obs_);
   }
@@ -68,7 +69,7 @@ bool
 SignalHandler::UnregisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
 {
   bool status = false;
-  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
   {
     status = this->_sigs[id_]->UnregisterObserver(obs_);
   }
@@ -79,7 +80,7 @@ bool
 SignalHandler::Notify(Signal::ID id_, siginfo_t *info_)
 {
   bool status = false;
-  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST))
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
   {
     status = this->_sigs[id_]->Notify(info_);
   }

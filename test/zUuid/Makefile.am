@@ -17,7 +17,3 @@ zUuidUnitTest_SOURCES = \
     zUuidTest.h \
     UnitTest.cpp \
     Defaults.cpp
-
-zUuidUnitTest_LDADD = \
-    ${top_builddir}/lib/libzutils.la
-

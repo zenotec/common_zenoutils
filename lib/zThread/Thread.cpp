@@ -120,14 +120,10 @@ ThreadFunction::yield() const
 Thread::Thread(ThreadFunction *func_, ThreadArg *arg_) :
     _thread(NULL), _func(func_), _arg(arg_)
 {
-  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
-  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
 }
 
 Thread::~Thread()
 {
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
   // Terminate listener thread
   this->Stop();
 }
@@ -157,6 +153,8 @@ Thread::Start()
   bool status = false;
   if (!this->_thread && this->_func && this->_func->setThread(this))
   {
+    zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
     this->_func->Exit(false);
     this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
@@ -174,6 +172,8 @@ Thread::Join()
     this->_thread->join();
     delete (this->_thread);
     this->_thread = NULL;
+    zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
     status = true;
   }
   return (status);

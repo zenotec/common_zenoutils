@@ -47,7 +47,7 @@ Event::Type() const
 void
 Event::Notify(zEvent::EventNotification* notification_)
 {
-  if (this->_event_lock.TimedLock(1000))
+  if (this->_event_lock.Lock())
   {
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
@@ -56,10 +56,6 @@ Event::Notify(zEvent::EventNotification* notification_)
     }
     this->_event_lock.Unlock();
   }
-  else
-  {
-    std::cerr << "Timed out waiting for event lock!!" << std::endl;
-  }
   return;
 }
 
@@ -67,14 +63,10 @@ bool
 Event::registerHandler(EventHandler *handler_)
 {
   bool status = false;
-  if (handler_ && this->_event_lock.TimedLock(1000))
+  if (handler_ && this->_event_lock.Lock())
   {
     this->_handler_list.push_front(handler_);
     status = this->_event_lock.Unlock();
-  }
-  else
-  {
-    std::cerr << "Timed out waiting for event lock!!" << std::endl;
   }
   return (status);
 }
@@ -84,14 +76,10 @@ Event::unregisterHandler(EventHandler *handler_)
 {
   bool status = false;
   // Remove handler from list
-  if (handler_ && this->_event_lock.TimedLock(1000))
+  if (handler_ && this->_event_lock.Lock())
   {
     this->_handler_list.remove(handler_);
     status = this->_event_lock.Unlock();
-  }
-  else
-  {
-    std::cerr << "Timed out waiting for event lock!!" << std::endl;
   }
   return (status);
 }

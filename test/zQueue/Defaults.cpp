@@ -17,8 +17,6 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-
 #include "zQueueTest.h"
 
 using namespace Test;
