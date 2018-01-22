@@ -9,6 +9,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libieee80211.la
 
 libieee80211_la_SOURCES = \
+	ieee80211.h \
 	RadioTapField.h \
 	RadioTapField.cpp \
 	RadioTapFieldTsft.cpp \
@@ -22,9 +23,21 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldTxFlags.cpp \
 	RadioTap.h \
 	RadioTap.cpp \
+	Tag.h \
+	ChannelsTag.h \
+	CountryTag.h \
+	DsssTag.h \
+	ExtRatesTag.h \
+	HtCapsTag.h \
+	HtCapsTag.cpp \
+	PowerCapsTag.h \
+	RatesTag.h \
+	SsidTag.h \
+	TimTag.h \
+	VendorSpecificTag.h \
+	WmmWmeTag.h \
 	Frame.h \
 	Frame.cpp \
-	CountryTag.h \
 	ControlFrame.h \
 	ControlFrame.cpp \
 	ManagementFrame.h \
@@ -33,8 +46,6 @@ libieee80211_la_SOURCES = \
 	Beacon.cpp \
 	Probe.h \
 	Probe.cpp \
-	HtCapsTag.h \
-	HtCapsTag.cpp \
 	Authentication.h \
 	Authentication.cpp \
 	Association.h \

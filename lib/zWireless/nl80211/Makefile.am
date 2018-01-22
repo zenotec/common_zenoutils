@@ -39,6 +39,8 @@ libnl80211_la_SOURCES = \
 	PhyIndexAttribute.h \
 	PhyNameAttribute.h \
 	SsidAttribute.h \
+	TxPowerLevelAttribute.h \
+	TxPowerModeAttribute.h \
 	ListPhysCommand.h \
 	ListPhysCommand.cpp \
 	GetPhyCommand.h \
