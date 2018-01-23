@@ -46,12 +46,12 @@ namespace zGpio
 GpioNotification::GpioNotification(zGpio::GpioPort::STATE state_, zGpio::GpioPort* port_) :
     _state(state_), _port(port_)
 {
-  this->type(zEvent::Event::TYPE_GPIO);
+  this->setType(zEvent::Event::TYPE_GPIO);
 }
 
 GpioNotification::~GpioNotification()
 {
-  this->type(zEvent::Event::TYPE_ERR);
+  this->setType(zEvent::Event::TYPE_ERR);
   this->_state = GpioPort::STATE_ERR;
 }
 

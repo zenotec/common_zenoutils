@@ -85,7 +85,7 @@ SerialPort::rxchar(const char c_)
   SerialNotification notification(this);
   notification.id(SerialNotification::ID_CHAR_RCVD);
   notification.data(c_);
-  this->Notify(&notification);
+  this->NotifyHandlers(&notification);
 
   ZLOG_DEBUG(std::string("Processing complete '") + c_ + "'");
 
@@ -105,7 +105,7 @@ SerialPort::txchar(char *c_, size_t timeout_)
     SerialNotification notification(this);
     notification.id(SerialNotification::ID_CHAR_SENT);
     notification.data(*c_);
-    this->Notify(&notification);
+    this->NotifyHandlers(&notification);
     status = true;
   }
   return (status);

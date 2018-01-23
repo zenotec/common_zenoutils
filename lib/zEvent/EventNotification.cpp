@@ -19,7 +19,6 @@
 #include <mutex>
 #include <list>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils
@@ -31,41 +30,25 @@ namespace zEvent
 // Class: EventNotification
 //**********************************************************************
 
-EventNotification::EventNotification(zEvent::Event::TYPE type_) :
-    _type(type_), _event(NULL)
-{
-}
-
-EventNotification::EventNotification(zEvent::Event* event_) :
+Notification::Notification(Event& event_) :
     _event(event_)
 {
-  if (event_)
-  {
-    EventNotification::type(event_->Type());
-  }
 }
 
-EventNotification::~EventNotification()
+Notification::~Notification()
 {
 }
 
 zEvent::Event::TYPE
-EventNotification::Type() const
+Notification::GetType() const
 {
-  return (EventNotification::_type);
+  return (this->_event.GetType());
 }
 
-void
-EventNotification::type(zEvent::Event::TYPE type_)
+zEvent::Event&
+Notification::GetEvent() const
 {
-  EventNotification::_type = type_;
-  return;
-}
-
-zEvent::Event*
-EventNotification::GetEvent() const
-{
-  return (EventNotification::_event);
+  return (this->_event);
 }
 
 }

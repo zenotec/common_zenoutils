@@ -83,11 +83,11 @@ AckObserver::WaitForAck(const std::string& msg_id_, AckMessage& ack_, uint32_t m
 }
 
 bool
-AckObserver::EventHandler(zEvent::EventNotification* notification_)
+AckObserver::EventHandler(zEvent::Notification* notification_)
 {
 
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_MSG))
   {
     status = this->EventHandler(static_cast<zMessage::MessageNotification *>(notification_));
   }

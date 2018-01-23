@@ -167,7 +167,7 @@ private:
 
 };
 
-class TestObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::Observer
 {
 public:
   TestObserver()
@@ -186,10 +186,10 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  EventHandler(zEvent::Notification* notification_)
   {
     bool status = false;
-    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_GPIO))
+    if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_GPIO))
     {
       zGpio::GpioNotification *n = (zGpio::GpioNotification *) notification_;
       if (n->State() == zGpio::GpioPort::STATE_ACTIVE)

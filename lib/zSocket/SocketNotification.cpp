@@ -42,8 +42,8 @@ namespace zSocket
 // zSocket::SocketNotification Class
 //*****************************************************************************
 
-SocketNotification::SocketNotification(Socket* sock_) :
-    _id(SocketNotification::ID_NONE), zEvent::EventNotification(sock_)
+SocketNotification::SocketNotification(Socket& sock_) :
+    zEvent::Notification(sock_), _id(SocketNotification::ID_NONE)
 {
 }
 
@@ -64,10 +64,10 @@ SocketNotification::id(SocketNotification::ID id_)
   return;
 }
 
-zSocket::Socket*
+zSocket::Socket&
 SocketNotification::Sock()
 {
-  return (static_cast<zSocket::Socket*>(this->GetEvent()));
+  return (static_cast<zSocket::Socket&>(this->GetEvent()));
 }
 
 SocketAddressBufferPair

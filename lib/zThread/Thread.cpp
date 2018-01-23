@@ -23,7 +23,6 @@
 #include <zutils/zSem.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSignal.h>
-
 #include <zutils/zThread.h>
 
 namespace zUtils
@@ -194,14 +193,14 @@ Thread::Stop()
 }
 
 bool
-Thread::EventHandler(zEvent::EventNotification* notification_)
+Thread::Notify(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
-  zSignal::SignalNotification *n = NULL;
+  SHARED_PTR(zSignal::SignalNotification) n = NULL;
 
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SIGNAL))
+  if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SIGNAL))
   {
-    n = static_cast<zSignal::SignalNotification*>(notification_);
+    n = STATIC_CAST(zSignal::SignalNotification)(noti_);
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:

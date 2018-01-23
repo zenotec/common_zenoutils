@@ -175,7 +175,7 @@ BasicServiceSet::Create()
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
-  this->SetChannel(1);
+//  this->SetChannel(1);
   this->Commit();
 
   uint8_t buf[512] = { 0 };

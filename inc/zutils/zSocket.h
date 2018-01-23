@@ -306,7 +306,7 @@ private:
 // Class: zSocket::SocketNotification
 //**********************************************************************
 
-class SocketNotification : public zEvent::EventNotification
+class SocketNotification : public zEvent::Notification
 {
 
   friend Socket;
@@ -323,7 +323,7 @@ public:
     ID_LAST
   };
 
-  SocketNotification(Socket* sock_);
+  SocketNotification(Socket& sock_);
 
   virtual
   ~SocketNotification();
@@ -331,7 +331,7 @@ public:
   SocketNotification::ID
   Id() const;
 
-  Socket*
+  Socket&
   Sock();
 
   SocketAddressBufferPair
@@ -356,7 +356,7 @@ private:
 // Class: zSocket::SocketManager
 //**********************************************************************
 
-class SocketManager : public zEvent::EventHandler
+class SocketManager : public zEvent::Handler
 {
 public:
 

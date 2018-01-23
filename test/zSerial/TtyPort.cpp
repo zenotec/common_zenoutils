@@ -107,7 +107,7 @@ zSerialTest_TtyPortSendRecvChar(void *arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
+  zEvent::Handler *MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Register observer
@@ -181,7 +181,7 @@ zSerialTest_TtyPortSendRecvBuf(void *arg_)
   TEST_FALSE(MyObserver->ErrSem.TryWait());
 
   // Create new handler and validate
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
+  zEvent::Handler *MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Register observer

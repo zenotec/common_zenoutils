@@ -38,21 +38,20 @@ Event::~Event()
 }
 
 Event::TYPE
-Event::Type() const
+Event::GetType() const
 {
-  // Read only, no need for locking
-  return (this->_type);
+  return (this->_type); // since type is readonly, no need to lock
 }
 
 void
-Event::Notify(zEvent::EventNotification* notification_)
+Event::NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
 {
   if (this->_event_lock.Lock())
   {
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
     {
-      handler->notify(notification_);
+      handler->notifyObservers(noti_);
     }
     this->_event_lock.Unlock();
   }
@@ -60,7 +59,7 @@ Event::Notify(zEvent::EventNotification* notification_)
 }
 
 bool
-Event::registerHandler(EventHandler *handler_)
+Event::registerHandler(Handler *handler_)
 {
   bool status = false;
   if (handler_ && this->_event_lock.Lock())
@@ -72,7 +71,7 @@ Event::registerHandler(EventHandler *handler_)
 }
 
 bool
-Event::unregisterHandler(EventHandler *handler_)
+Event::unregisterHandler(Handler *handler_)
 {
   bool status = false;
   // Remove handler from list

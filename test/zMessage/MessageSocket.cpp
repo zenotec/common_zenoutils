@@ -44,7 +44,7 @@ zMessageTest_MessageLoopSocket(void* arg_)
   TEST_ISNOT_NULL(MsgSock);
 
   // Create new socket hander and validate
-  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
+  zEvent::Handler* MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Register socket with handler and validate
@@ -161,7 +161,7 @@ zMessageTest_MessageUnixSocket(void* arg_)
   TEST_ISNOT_NULL(MsgServer);
 
   // Create new socket hander and validate
-  zEvent::EventHandler* ServerMsgHandler = new zEvent::EventHandler;
+  zEvent::Handler* ServerMsgHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(ServerMsgHandler);
 
   // Register socket with handler and validate

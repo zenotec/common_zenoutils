@@ -32,9 +32,9 @@ namespace zSignal
 //**********************************************************************
 // Class: SignalNotification
 //**********************************************************************
-SignalNotification::SignalNotification(Signal* signal_) :
-    zEvent::EventNotification(signal_), _id(signal_->Id()), _info(NULL),
-    _cnt(signal_->Count())
+SignalNotification::SignalNotification(Signal& signal_) :
+    zEvent::Notification(signal_), _id(signal_.Id()), _info(NULL),
+    _cnt(signal_.Count())
 {
 }
 

@@ -303,7 +303,7 @@ private:
 // Class: GpioHandler
 //**********************************************************************
 
-class GpioHandler : public zEvent::EventHandler
+class GpioHandler : public zEvent::Handler
 {
 
 public:
@@ -337,7 +337,7 @@ private:
 // Class: GpioNotification
 //**********************************************************************
 
-class GpioNotification : public zEvent::EventNotification
+class GpioNotification : public zEvent::Notification
 {
 
 public:

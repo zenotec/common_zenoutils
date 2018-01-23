@@ -125,7 +125,7 @@ private:
 
 };
 
-class TestObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::Observer
 {
 
 public:

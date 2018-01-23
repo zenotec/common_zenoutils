@@ -186,13 +186,13 @@ MessageSocket::Send(zMessage::Message &msg_)
 }
 
 bool
-MessageSocket::EventHandler(zEvent::EventNotification* notification_)
+MessageSocket::EventHandler(zEvent::Notification* notification_)
 {
 
   ZLOG_DEBUG("Handling socket event");
 
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_SOCKET))
   {
     status = this->EventHandler((zSocket::SocketNotification *) notification_);
   }
@@ -218,7 +218,7 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
       notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
       notification.type(msg->GetType());
       notification.message(msg);
-      this->Notify(&notification);
+      this->NotifyHandlers(&notification);
       delete (msg);
       status = true;
     }
@@ -234,7 +234,7 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
       notification.id(zMessage::MessageNotification::ID_MSG_SENT);
       notification.type(msg->GetType());
       notification.message(msg);
-      this->Notify(&notification);
+      this->NotifyHandlers(&notification);
       delete (msg);
       status = true;
     }

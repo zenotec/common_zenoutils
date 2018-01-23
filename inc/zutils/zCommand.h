@@ -188,7 +188,7 @@ private:
 // Class: CommandNotification
 //**********************************************************************
 
-class CommandNotification : public zEvent::EventNotification
+class CommandNotification : public zEvent::Notification
 {
 public:
 
@@ -223,7 +223,7 @@ private:
 // Class: Command
 //**********************************************************************
 
-class Command : public CommandData, public zEvent::EventObserver
+class Command : public CommandData, public zEvent::Observer
 {
 
 public:
@@ -241,7 +241,7 @@ public:
 protected:
 
   bool
-  EventHandler(zEvent::EventNotification* notification_);
+  EventHandler(zEvent::Notification* notification_);
 
 private:
 
@@ -257,7 +257,7 @@ private:
 // Class: CommandManager
 //**********************************************************************
 
-class CommandManager : public zEvent::EventHandler
+class CommandManager : public zEvent::Handler
 {
 
 public:

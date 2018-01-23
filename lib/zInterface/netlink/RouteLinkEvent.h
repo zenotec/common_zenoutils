@@ -97,14 +97,14 @@ private:
 // Class: RouteLinkNotification
 //*****************************************************************************
 
-class RouteLinkNotification : public zEvent::EventNotification
+class RouteLinkNotification : public zEvent::Notification
 {
 
 public:
 
   RouteLink Link;
 
-  RouteLinkNotification(RouteLinkEvent::EVENTID id_, uint32_t index_);
+  RouteLinkNotification(RouteLinkEvent& rlevent_, RouteLinkEvent::EVENTID id_);
 
   virtual
   ~RouteLinkNotification();

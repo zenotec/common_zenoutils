@@ -112,7 +112,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_TRUE(MyDstSock->Bind(*DstAddr));
 
   // Create new socket handler and validate
-  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
+  zEvent::Handler* MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler

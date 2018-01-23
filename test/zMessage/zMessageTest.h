@@ -79,7 +79,7 @@ zMessageTest_MessageHandler(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TestSocketObserver : public zEvent::EventObserver
+class TestSocketObserver : public zEvent::Observer
 {
 public:
   TestSocketObserver()
@@ -99,13 +99,13 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  EventHandler(zEvent::Notification* notification_)
   {
     zMessage::MessageNotification *n = NULL;
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
+    if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_MSG))
     {
       n = (zMessage::MessageNotification *) notification_;
       switch (n->Id())

@@ -20,14 +20,15 @@
 #include <list>
 
 #include <zutils/zSem.h>
+#include <zutils/zQueue.h>
 
 namespace zUtils
 {
 namespace zEvent
 {
 
-class EventNotification;
-class EventHandler;
+class Notification;
+class Handler;
 
 //**********************************************************************
 // Class: Event
@@ -36,7 +37,7 @@ class EventHandler;
 class Event
 {
 
-  friend class EventHandler;
+  friend class Handler;
 
 public:
 
@@ -64,24 +65,24 @@ public:
   ~Event();
 
   Event::TYPE
-  Type() const;
+  GetType() const;
 
   void
-  Notify(EventNotification* notification_);
+  NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
 
 protected:
 
   bool
-  registerHandler(EventHandler *list_);
+  registerHandler(Handler *handler_);
 
   bool
-  unregisterHandler(EventHandler *list_);
+  unregisterHandler(Handler *handler_);
 
 private:
 
   mutable zSem::Mutex _event_lock;
-  std::list<EventHandler *> _handler_list;
   Event::TYPE _type;
+  std::list<Handler *> _handler_list;
 
   Event(Event &other_);
 
@@ -90,74 +91,58 @@ private:
 };
 
 //**********************************************************************
-// Class: EventNotification
+// Class: Notification
 //**********************************************************************
 
-class EventNotification
+class Notification
 {
 
   friend Event;
 
 public:
 
-  EventNotification(zEvent::Event::TYPE type_ = zEvent::Event::TYPE_NONE);
-
-  EventNotification(zEvent::Event* event_);
+  Notification(Event& event_);
 
   virtual
-  ~EventNotification();
+  ~Notification();
 
   zEvent::Event::TYPE
-  Type() const;
+  GetType() const;
 
-  zEvent::Event*
+  zEvent::Event&
   GetEvent() const;
 
 protected:
 
-  void
-  type(zEvent::Event::TYPE type_);
-
 private:
 
-  zEvent::Event::TYPE _type;
-  zEvent::Event *_event;
+  zEvent::Event& _event;
 
 };
 
 //**********************************************************************
-// Class: EventObserver
+// Class: Observer
 //**********************************************************************
-class EventObserver
+class Observer
 {
 public:
-
-  EventObserver()
-  {
-  }
-
-  virtual
-  ~EventObserver()
-  {
-  };
-
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_) = 0;
+  Notify(SHARED_PTR(zEvent::Notification) noti_) = 0;
 };
 
 //**********************************************************************
-// Class: EventHandler
+// Class: Handler
 //**********************************************************************
-class EventHandler
+class Handler
 {
 
   friend class Event;
 
 public:
-  EventHandler();
+  Handler();
 
   virtual
-  ~EventHandler();
+  ~Handler();
 
   bool
   RegisterEvent(Event* event_);
@@ -166,41 +151,42 @@ public:
   UnregisterEvent(Event* event_);
 
   bool
-  RegisterObserver(EventObserver* obs_);
+  RegisterObserver(Observer* obs_);
 
   bool
-  UnregisterObserver(EventObserver* obs_);
+  UnregisterObserver(Observer* obs_);
 
 protected:
 
   void
-  notify(EventNotification* notification_);
+  notifyObservers(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 
   zSem::Mutex _event_lock;
   std::list<Event *> _event_list;
-  std::list<EventObserver*> _obs_list;
+  std::list<Observer*> _obs_list;
+  zQueue<SHARED_PTR(Notification)> _noti_queue;
 
-  EventHandler(EventHandler const &);
+  Handler(Handler const &);
 
   void
-  operator=(EventHandler const &);
+  operator=(Handler const &);
 
 };
 
 //**********************************************************************
-// Class: EventManager
+// Class: Manager
 //**********************************************************************
 
-class EventManager : public EventHandler
+class Manager : public Handler
 {
 public:
 
-  static EventManager&
+  static Manager&
   Instance()
   {
-    static EventManager instance;
+    static Manager instance;
     return instance;
   }
 
@@ -208,14 +194,14 @@ protected:
 
 private:
 
-  EventManager()
+  Manager()
   {
   }
 
-  EventManager(EventManager const&);
+  Manager(Manager const&);
 
   void
-  operator=(EventManager const&);
+  operator=(Manager const&);
 
 };
 

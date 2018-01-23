@@ -25,7 +25,7 @@ zEventTest_EventTest(void* arg_)
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
 
   // Cleanup
   delete (MyEvent);

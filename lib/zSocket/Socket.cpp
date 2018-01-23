@@ -120,10 +120,10 @@ Socket::Send(const SocketAddress &addr_, const std::string &str_)
 bool
 Socket::rxbuf(SocketAddressBufferPair &pair_)
 {
-  SocketNotification notification(this);
-  notification.id(SocketNotification::ID_PKT_RCVD);
-  notification.pkt(pair_);
-  this->Notify(&notification);
+  SHARED_PTR(SocketNotification) n(new SocketNotification(*this));
+  n->id(SocketNotification::ID_PKT_RCVD);
+  n->pkt(pair_);
+  this->NotifyHandlers(n);
   return (true);
 }
 
@@ -135,10 +135,10 @@ Socket::txbuf(SocketAddressBufferPair &pair_, size_t timeout_)
   {
     pair_ = this->_txq.Front();
     this->_txq.Pop();
-    SocketNotification notification(this);
-    notification.id(SocketNotification::ID_PKT_SENT);
-    notification.pkt(pair_);
-    this->Notify(&notification);
+    SHARED_PTR(SocketNotification) n(new SocketNotification(*this));
+    n->id(SocketNotification::ID_PKT_SENT);
+    n->pkt(pair_);
+    this->NotifyHandlers(n);
     status = true;
   }
   return (status);

@@ -128,7 +128,9 @@ private:
 // zSocket::EthSocket Class
 //**********************************************************************
 
-class EthSocket : public Socket, public zThread::ThreadArg, zEvent::EventObserver
+class EthSocket :
+    public Socket,
+    public zThread::ThreadArg
 {
 
   friend EthSocketRecv;
@@ -180,13 +182,10 @@ protected:
   virtual ssize_t
   _send(const int fd_, const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
 
-  virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
-
 private:
 
   zInterface::Interface* _iface;
-  zEvent::EventHandler _iface_handler;
+  zEvent::Handler _iface_handler;
 
   zThread::Thread _rx_thread;
   EthSocketRecv _rx_func;

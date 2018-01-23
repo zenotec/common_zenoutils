@@ -160,11 +160,10 @@ bool
 Signal::Notify(siginfo_t *info_)
 {
   this->_count++;
-  SignalNotification* notification = new SignalNotification(this);
+  SHARED_PTR(SignalNotification) notification(new SignalNotification(*this));
   notification->siginfo(info_);
-  zEvent::Event::Notify(notification);
-  delete (notification);
-  return true;
+  zEvent::Event::NotifyHandlers(notification);
+  return (true);
 }
 
 }

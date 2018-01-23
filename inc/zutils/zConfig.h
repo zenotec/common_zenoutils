@@ -29,13 +29,14 @@ namespace zUtils
 namespace zConfig
 {
 
+class Configuration;
 class ConfigConnector;
 
 //**********************************************************************
 // Class: ConfigNotification
 //**********************************************************************
 
-class ConfigNotification : public zEvent::EventNotification
+class ConfigNotification : public zEvent::Notification
 {
 public:
 
@@ -55,7 +56,7 @@ public:
     ID_LAST
   };
 
-  ConfigNotification(ConfigNotification::ID id_);
+  ConfigNotification(Configuration& config_, const ConfigNotification::ID id_);
 
   virtual
   ~ConfigNotification();
@@ -392,7 +393,7 @@ private:
 // Class: ConfigurationManager
 //**********************************************************************
 
-class ConfigurationManager : public zEvent::EventHandler, public Configuration
+class ConfigurationManager : public zEvent::Handler, public Configuration
 {
 public:
 

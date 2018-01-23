@@ -88,7 +88,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_TRUE(MySock->Bind(*MyAddr));
 
   // Create new socket handler and validate
-  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
+  zEvent::Handler* MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler

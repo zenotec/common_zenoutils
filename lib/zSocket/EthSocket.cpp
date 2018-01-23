@@ -548,11 +548,5 @@ EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Socke
 
 }
 
-bool
-EthSocket::EventHandler(zEvent::EventNotification* notification_)
-{
-  return (false);
-}
-
 }
 }

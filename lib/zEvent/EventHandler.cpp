@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-#include <stdint.h>
-
-#include <iostream>
-#include <mutex>
-#include <list>
-#include <queue>
-#include <vector>
-
+#include <zutils/zCompatibility.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils
@@ -33,18 +26,18 @@ namespace zEvent
 // Class: EventHandler
 //**********************************************************************
 
-EventHandler::EventHandler()
+Handler::Handler()
 {
   this->_event_lock.Unlock();
 }
 
-EventHandler::~EventHandler()
+Handler::~Handler()
 {
   this->_event_lock.Lock();
 }
 
 bool
-EventHandler::RegisterEvent(Event *event_)
+Handler::RegisterEvent(Event *event_)
 {
   bool status = false;
   if (event_ && this->_event_lock.Lock())
@@ -62,7 +55,7 @@ EventHandler::RegisterEvent(Event *event_)
 }
 
 bool
-EventHandler::UnregisterEvent(Event *event_)
+Handler::UnregisterEvent(Event *event_)
 {
   bool status = false;
   if (event_ && this->_event_lock.Lock())
@@ -75,7 +68,7 @@ EventHandler::UnregisterEvent(Event *event_)
 }
 
 bool
-EventHandler::RegisterObserver(EventObserver *obs_)
+Handler::RegisterObserver(Observer *obs_)
 {
   bool status = false;
   if (obs_ && this->_event_lock.Lock())
@@ -91,20 +84,20 @@ EventHandler::RegisterObserver(EventObserver *obs_)
 }
 
 bool
-EventHandler::UnregisterObserver(EventObserver *obs_)
+Handler::UnregisterObserver(Observer *obs_)
 {
   bool status = false;
   if (obs_ && this->_event_lock.Lock())
   {
     // Unregister observer
-    EventHandler::_obs_list.remove(obs_);
+    this->_obs_list.remove(obs_);
     status = this->_event_lock.Unlock();
   }
   return (status);
 }
 
 void
-EventHandler::notify(EventNotification* notification_)
+Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 {
 
   // Note: never call this routine directly; Only should be called by the event class
@@ -114,7 +107,7 @@ EventHandler::notify(EventNotification* notification_)
   {
     FOREACH (auto& obs, this->_obs_list)
     {
-      obs->EventHandler(notification_);
+      obs->Notify(noti_);
     }
     this->_event_lock.Unlock();
   }

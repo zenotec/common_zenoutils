@@ -96,7 +96,7 @@ private:
 // Class: Thread
 //**********************************************************************
 
-class Thread : public zEvent::EventObserver
+class Thread : public zEvent::Observer
 {
 public:
 
@@ -126,13 +126,13 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
+  Notify(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 
   std::thread *_thread;
 
-  zEvent::EventHandler _sighandler;
+  zEvent::Handler _sighandler;
 
   std::string _name;
   ThreadFunction *_func;

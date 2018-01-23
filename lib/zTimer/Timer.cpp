@@ -56,63 +56,12 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 }
 
 //**********************************************************************
-// Class: TimerThreadFunction
-//**********************************************************************
-
-TimerThreadFunction::TimerThreadFunction() :
-    _ticks(0)
-{
-
-}
-
-TimerThreadFunction::~TimerThreadFunction()
-{
-
-}
-
-void
-TimerThreadFunction::Run(zThread::ThreadArg *arg_)
-{
-
-  uint64_t ticks = 0;
-  Timer *timer = (Timer *) arg_;
-
-  if (!arg_)
-  {
-    return;
-  }
-
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = timer->_fd;
-  fds[0].events = (POLLIN | POLLERR);
-
-  while (!this->Exit())
-  {
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLIN))
-    {
-      ret = read(fds[0].fd, &ticks, sizeof(ticks));
-      if (ret > 0)
-      {
-        this->_ticks += ticks;
-        timer->Notify(this->_ticks);
-      }
-    }
-  }
-
-}
-
-//**********************************************************************
 // Class: Timer
 //**********************************************************************
 
 Timer::Timer() :
-    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _thread(&this->_timer_func, this),
-        _interval(0)
+    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0), _ticks(0)
 {
-
-  this->RegisterEvent(this);
 
   // Create timer
   this->_fd = timerfd_create(CLOCK_REALTIME, O_NONBLOCK);
@@ -122,96 +71,85 @@ Timer::Timer() :
     return;
   } // end if
 
-  // Start timer monitor thread
-  this->_thread.Start();
-
   this->_lock.Unlock();
 }
 
 Timer::~Timer()
 {
-  int stat = 0;
-  struct itimerspec its = { 0 };
-
-  // Stop timer
+  // Make sure the timer is stopped
   this->Stop();
 
-  // Kill timer monitor thread
-  this->_thread.Stop();
+  this->_lock.Lock();
 
   // Delete timer
   if (this->_fd)
   {
     close(this->_fd);
   } // end if
-
-  // Unregister event
-  this->UnregisterEvent(this);
-
-  // Wait for lock to be available or timeout
-  this->_lock.TimedLock(100);
 }
 
-void
+bool
 Timer::Start(uint32_t usec_)
 {
-  if (this->_fd && this->_lock.Lock())
+  bool status = false;
+  if (this->_lock.Lock())
   {
     this->_interval = usec_;
-    this->_start();
+    status = this->_start();
     this->_lock.Unlock();
   } // end if
+  return (status);
 }
 
-void
+bool
 Timer::Stop(void)
 {
-  if (this->_fd && this->_lock.Lock())
+  bool status  = false;
+  if (this->_lock.Lock())
   {
-    this->_stop();
+    status = this->_stop();
     this->_lock.Unlock();
   } // end if
+  return (status);
 }
 
-void
-Timer::Notify(uint64_t ticks_)
+uint64_t
+Timer::GetTicks()
 {
-  TimerNotification notification(this);
-  notification.tick(ticks_);
-  zEvent::Event::Notify(&notification);
-  return;
+  uint64_t ticks = 0;
+  if (this->_lock.Lock())
+  {
+    ticks = this->_ticks;
+    this->_lock.Unlock();
+  } // end if
+  return (ticks);
 }
 
-void
+bool
 Timer::_start()
 {
-
-  // Compute time
-  struct itimerspec its = { 0 };
-  _add_time(&its.it_value, this->_interval);
-  _add_time(&its.it_interval, this->_interval);
-
-  // Start timer
+  bool status  = false;
   if (this->_fd)
   {
-    timerfd_settime(this->_fd, 0, &its, NULL);
+    // Compute time and set interval time
+    struct itimerspec its = { 0 };
+    _add_time(&its.it_value, this->_interval);
+    _add_time(&its.it_interval, this->_interval);
+    status = (timerfd_settime(this->_fd, 0, &its, NULL) == 0);
   }
-
-  return;
-
+  return (status);
 }
 
-void
+bool
 Timer::_stop()
 {
-  struct itimerspec its = { 0 };
-
-  // Stop timer
+  bool status  = false;
   if (this->_fd)
   {
-    timerfd_settime(this->_fd, 0, &its, NULL);
-  } // end if
-
+    struct itimerspec its = { 0 };
+    status = (timerfd_settime(this->_fd, 0, &its, NULL) == 0);
+  }
+  return (status);
 }
 
 }

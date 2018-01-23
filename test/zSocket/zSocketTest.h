@@ -115,7 +115,7 @@ protected:
 
 };
 
-class TestObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::Observer
 {
 public:
   TestObserver()
@@ -134,14 +134,14 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  Notify(SHARED_PTR(zEvent::Notification) noti_)
   {
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
+    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
-      SocketNotification *n = (SocketNotification *) notification_;
+      SHARED_PTR(SocketNotification) n = STATIC_CAST(SocketNotification)(noti_);
       switch (n->Id())
       {
       case SocketNotification::ID_PKT_RCVD:

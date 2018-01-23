@@ -47,36 +47,33 @@ zEventTest_EventManagerTest(void* arg_);
 
 using namespace zUtils;
 using namespace Test;
+using namespace zEvent;
 
-class TestEventNotification : public zEvent::EventNotification
+class TestNotification : public Notification
 {
 public:
-  TestEventNotification(zEvent::Event* event_) :
-      zEvent::EventNotification(event_)
+  TestNotification(Event& event_) :
+      Notification(event_)
   {
-
   }
-  ~TestEventNotification()
+  ~TestNotification()
   {
-
   }
 };
 
-class TestEvent : public zEvent::Event
+class TestEvent : public Event
 {
 public:
   TestEvent() :
-      zEvent::Event(zEvent::Event::TYPE_TEST)
+      Event(zEvent::Event::TYPE_TEST)
   {
-
   }
   ~TestEvent()
   {
-
   }
 };
 
-class TestObserver : public zEvent::EventObserver, public zQueue<const zEvent::EventNotification*>
+class TestObserver : public Observer, public zQueue<SHARED_PTR(zEvent::Notification)>
 {
 public:
   TestObserver()
@@ -89,10 +86,9 @@ public:
   }
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  Notify(SHARED_PTR(zEvent::Notification) noti_)
   {
-    this->Push(notification_);
-    return (true);
+    return (this->Push(noti_));
   }
 };
 

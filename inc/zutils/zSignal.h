@@ -34,7 +34,7 @@ class SignalHandler;
 // Class: Signal
 //**********************************************************************
 
-class Signal : public zEvent::EventHandler, public zEvent::Event
+class Signal : public zEvent::Handler, public zEvent::Event
 {
 
   friend SignalHandler;
@@ -86,14 +86,14 @@ private:
 // Class: SignalNotification
 //**********************************************************************
 
-class SignalNotification : public zEvent::EventNotification
+class SignalNotification : public zEvent::Notification
 {
 
   friend Signal;
 
 public:
 
-  SignalNotification(Signal* signal_);
+  SignalNotification(Signal& signal_);
 
   virtual
   ~SignalNotification();
@@ -133,10 +133,10 @@ public:
   ~SignalHandler();
 
   bool
-  RegisterObserver (Signal::ID id_, zEvent::EventObserver *obs_);
+  RegisterObserver (Signal::ID id_, zEvent::Observer *obs_);
 
   bool
-  UnregisterObserver (Signal::ID id_, zEvent::EventObserver *obs_);
+  UnregisterObserver (Signal::ID id_, zEvent::Observer *obs_);
 
   bool
   Notify(Signal::ID id_, siginfo_t *info_);

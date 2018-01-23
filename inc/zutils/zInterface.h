@@ -228,7 +228,7 @@ private:
 // Class: InterfaceNotification
 // ****************************************************************************
 
-class InterfaceNotification : public zEvent::EventNotification
+class InterfaceNotification : public zEvent::Notification
 {
 
 public:
@@ -437,7 +437,7 @@ private:
 // Class: InterfaceManager
 //**********************************************************************
 
-class InterfaceManager : public zEvent::EventHandler
+class InterfaceManager : public zEvent::Handler
 {
 
 public:

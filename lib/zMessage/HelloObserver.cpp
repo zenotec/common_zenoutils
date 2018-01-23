@@ -54,11 +54,11 @@ HelloObserver::~HelloObserver()
 }
 
 bool
-HelloObserver::EventHandler(zEvent::EventNotification* notification_)
+HelloObserver::EventHandler(zEvent::Notification* notification_)
 {
 
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_MSG))
   {
     status = this->EventHandler(static_cast<zMessage::MessageNotification *>(notification_));
   }

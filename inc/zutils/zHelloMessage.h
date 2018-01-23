@@ -59,7 +59,7 @@ private:
 // Class: HelloObserver
 //**********************************************************************
 
-class HelloObserver : public zEvent::EventObserver
+class HelloObserver : public zEvent::Observer
 {
 
 public:
@@ -72,7 +72,7 @@ public:
 protected:
 
   bool
-  EventHandler(zEvent::EventNotification* notification_);
+  EventHandler(zEvent::Notification* notification_);
 
 private:
 
