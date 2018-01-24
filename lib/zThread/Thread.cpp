@@ -193,7 +193,7 @@ Thread::Stop()
 }
 
 bool
-Thread::Notify(SHARED_PTR(zEvent::Notification) noti_)
+Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
   SHARED_PTR(zSignal::Notification) n = NULL;

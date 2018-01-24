@@ -43,7 +43,7 @@ public:
   }
 
   virtual bool
-  Notify(SHARED_PTR(zEvent::Notification) noti_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
   {
     this->_cnt++;
   }

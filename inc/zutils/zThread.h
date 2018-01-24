@@ -96,7 +96,8 @@ private:
 // Class: Thread
 //**********************************************************************
 
-class Thread : public zEvent::Observer
+class Thread :
+    public zEvent::Observer
 {
 public:
 
@@ -126,7 +127,7 @@ public:
 protected:
 
   virtual bool
-  Notify(SHARED_PTR(zEvent::Notification) noti_);
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 

@@ -134,7 +134,7 @@ public:
 protected:
 
   virtual bool
-  Notify(SHARED_PTR(zEvent::Notification) noti_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
   {
     ZLOG_DEBUG("Handling socket event");
 
