@@ -91,12 +91,12 @@ using namespace Test;
 using namespace zUtils;
 using namespace zSocket;
 
-class TestAddress : public zSocket::SocketAddress
+class TestAddress : public zSocket::Address
 {
 public:
 
   TestAddress() :
-    zSocket::SocketAddress(SocketType::TYPE_TEST)
+    zSocket::Address(SocketType::TYPE_TEST)
   {
   }
 
@@ -127,9 +127,9 @@ public:
   {
   }
 
-  zQueue<SocketAddressBufferPair> RxSem;
-  zQueue<SocketAddressBufferPair> TxSem;
-  zQueue<SocketAddressBufferPair> ErrSem;
+  zQueue<AddressBufferPair> RxSem;
+  zQueue<AddressBufferPair> TxSem;
+  zQueue<AddressBufferPair> ErrSem;
 
 protected:
 
@@ -141,14 +141,14 @@ protected:
     bool status = false;
     if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
-      SHARED_PTR(SocketNotification) n = STATIC_CAST(SocketNotification)(noti_);
+      SHARED_PTR(Notification) n = STATIC_CAST(Notification)(noti_);
       switch (n->Id())
       {
-      case SocketNotification::ID_PKT_RCVD:
+      case Notification::ID_PKT_RCVD:
         this->RxSem.Push(n->Pkt());
         status = true;
         break;
-      case SocketNotification::ID_PKT_SENT:
+      case Notification::ID_PKT_SENT:
         this->TxSem.Push(n->Pkt());
         this->TxSem.Post();
         status = true;

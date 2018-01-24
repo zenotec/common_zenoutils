@@ -26,35 +26,35 @@ namespace zUtils
 namespace zSocket
 {
 
-SocketAddress *
-SocketFactory::Create(const SocketAddress::TYPE &type_)
+Address *
+SocketFactory::Create(const Address::TYPE &type_)
 {
-  SocketAddress *addr = NULL;
+  Address *addr = NULL;
   switch (type_)
   {
-  case SocketAddress::TYPE_INET:
+  case Address::TYPE_INET:
     addr = new InetAddress;
     break;
-  case SocketAddress::TYPE_ETH:
+  case Address::TYPE_ETH:
     addr = new EthAddress;
     break;
-  case SocketAddress::TYPE_LOOP:
+  case Address::TYPE_LOOP:
     default:
     break;
   }
   return (addr);
 }
 
-zSocket::SocketAddress *
-SocketFactory::Create(const zSocket::SocketAddress::TYPE &type_, const std::string &ifname_)
+zSocket::Address *
+SocketFactory::Create(const zSocket::Address::TYPE &type_, const std::string &ifname_)
 {
-  zSocket::SocketAddress *addr = NULL;
+  zSocket::Address *addr = NULL;
   switch (type_)
   {
-  case SocketAddress::TYPE_INET:
+  case Address::TYPE_INET:
     addr = new zSocket::InetAddress(ifname_);
     break;
-  case SocketAddress::TYPE_LOOP:
+  case Address::TYPE_LOOP:
     default:
     break;
   }
@@ -62,7 +62,7 @@ SocketFactory::Create(const zSocket::SocketAddress::TYPE &type_, const std::stri
 }
 
 zSocket::Socket *
-SocketFactory::Create(const zSocket::Socket::TYPE &type_, const zSocket::SocketAddress *addr_)
+SocketFactory::Create(const zSocket::Socket::TYPE &type_, const zSocket::Address *addr_)
 {
   return (NULL);
 }

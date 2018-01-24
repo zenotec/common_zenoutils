@@ -114,7 +114,7 @@ static void
 _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 {
   Signal::ID id = _sig2id(sig_);
-  SignalManager::Instance().Notify(id, info_);
+  Manager::Instance().Notify(id, info_);
 }
 
 //**********************************************************************
@@ -160,7 +160,7 @@ bool
 Signal::Notify(siginfo_t *info_)
 {
   this->_count++;
-  SHARED_PTR(SignalNotification) notification(new SignalNotification(*this));
+  SHARED_PTR(Notification) notification(new Notification(*this));
   notification->siginfo(info_);
   zEvent::Event::NotifyHandlers(notification);
   return (true);

@@ -40,36 +40,36 @@ typedef enum SocketType
 } SocketType;
 
 //**********************************************************************
-// Class: zSocket::SocketBuffer
+// Class: zSocket::Buffer
 //**********************************************************************
 
-class SocketBuffer
+class Buffer
 {
 
 public:
 
-  SocketBuffer(const size_t size_ = 1500);
+  Buffer(const size_t size_ = 1500);
 
-  SocketBuffer(const std::string &str_);
+  Buffer(const std::string &str_);
 
-  SocketBuffer(SocketBuffer &other_);
+  Buffer(Buffer &other_);
 
-  SocketBuffer(const SocketBuffer &other_);
+  Buffer(const Buffer &other_);
 
   virtual
-  ~SocketBuffer();
+  ~Buffer();
 
-  SocketBuffer &
-  operator=(SocketBuffer &other_);
+  Buffer &
+  operator=(Buffer &other_);
 
-  SocketBuffer &
-  operator=(const SocketBuffer &other_);
-
-  bool
-  operator==(SocketBuffer &other_);
+  Buffer &
+  operator=(const Buffer &other_);
 
   bool
-  operator!=(SocketBuffer &other_);
+  operator==(Buffer &other_);
+
+  bool
+  operator!=(Buffer &other_);
 
   uint8_t *
   Head();
@@ -119,50 +119,50 @@ private:
 };
 
 //**********************************************************************
-// Class: zSocket::SocketAddress
+// Class: zSocket::Address
 //**********************************************************************
 
-class SocketAddress
+class Address
 {
 
 public:
 
-  SocketAddress(const SocketType type = SocketType::TYPE_NONE,
+  Address(const SocketType type = SocketType::TYPE_NONE,
       const std::string &addr_ = std::string(""));
 
-  SocketAddress(SocketAddress &other_);
+  Address(Address &other_);
 
-  SocketAddress(const SocketAddress &other_);
+  Address(const Address &other_);
 
   virtual
-  ~SocketAddress();
+  ~Address();
 
-  SocketAddress &
-  operator=(SocketAddress &other_);
+  Address &
+  operator=(Address &other_);
 
-  SocketAddress &
-  operator=(const SocketAddress &other_);
+  Address &
+  operator=(const Address &other_);
 
   bool
-  operator ==(const SocketAddress &other_) const;
+  operator ==(const Address &other_) const;
   bool
-  operator !=(const SocketAddress &other_) const;
+  operator !=(const Address &other_) const;
   bool
-  operator <(const SocketAddress &other_) const;
+  operator <(const Address &other_) const;
   bool
-  operator >(const SocketAddress &other_) const;
+  operator >(const Address &other_) const;
 
   const SocketType
-  Type() const;
+  GetType() const;
 
   bool
-  Type(const SocketType type_);
+  SetType(const SocketType type_);
 
   std::string
-  Address() const;
+  GetAddress() const;
 
   bool
-  Address(const std::string &addr_);
+  SetAddress(const std::string &addr_);
 
   virtual void
   Display() const;
@@ -188,13 +188,13 @@ class SocketAddressFactory
 {
 public:
 
-  static SocketAddress*
+  static Address*
   Create(const SocketType type_, const std::string& addr_ = "");
 
-  static SocketAddress*
-  Create(const SocketAddress& addr_);
+  static Address*
+  Create(const Address& addr_);
 
-  static SocketAddress*
+  static Address*
   Create(const std::string& addr_);
 
 private:
@@ -205,13 +205,13 @@ private:
 // Typedef: zSocket::SocketAddressBufferPair
 //**********************************************************************
 
-typedef std::pair<SHARED_PTR(const SocketAddress), SHARED_PTR(SocketBuffer)> SocketAddressBufferPair;
+typedef std::pair<SHARED_PTR(const Address), SHARED_PTR(Buffer)> AddressBufferPair;
 
 //**********************************************************************
 // Typedef: zSocket::SocketAddressBufferQueue
 //**********************************************************************
 
-typedef zQueue<SocketAddressBufferPair> SocketAddressBufferQueue;
+typedef zQueue<AddressBufferPair> AddressBufferQueue;
 
 //**********************************************************************
 // Class: zSocket::Socket
@@ -241,10 +241,10 @@ public:
   ~Socket();
 
   const SocketType
-  Type() const;
+  GetType() const;
 
-  const SocketAddress&
-  Address() const;
+  const Address&
+  GetAddress() const;
 
   virtual bool
   Open() = 0;
@@ -259,36 +259,36 @@ public:
   Setopt(Socket::OPTIONS opt_);
 
   bool
-  Bind(const SocketAddress& addr_);
+  Bind(const Address& addr_);
 
   ssize_t
-  Send(SocketAddressBufferPair& pair_);
+  Send(AddressBufferPair& pair_);
 
   ssize_t
-  Send(const SocketAddress& to_, SocketBuffer& sb_);
+  Send(const Address& to_, Buffer& sb_);
 
   ssize_t
-  Send(const SocketAddress& to_, const std::string& str_);
+  Send(const Address& to_, const std::string& str_);
 
 protected:
 
-  SocketAddress* _addr;
+  Address* _addr;
 
   virtual bool
   _bind() = 0;
 
   // Called by derived class to process a received packet
   bool
-  rxbuf(SocketAddressBufferPair& pair_);
+  rxbuf(AddressBufferPair& pair_);
 
   // Called by derived class to get packet to send
   bool
-  txbuf(SocketAddressBufferPair& pair_, size_t timeout_ = 1000000 /* usec */);
+  txbuf(AddressBufferPair& pair_, size_t timeout_ = 1000000 /* usec */);
 
 private:
 
   const SocketType _type;
-  SocketAddressBufferQueue _txq;
+  AddressBufferQueue _txq;
 
   Socket(Socket &other_);
 
@@ -303,10 +303,10 @@ private:
 };
 
 //**********************************************************************
-// Class: zSocket::SocketNotification
+// Class: zSocket::Notification
 //**********************************************************************
 
-class SocketNotification : public zEvent::Notification
+class Notification : public zEvent::Notification
 {
 
   friend Socket;
@@ -323,47 +323,47 @@ public:
     ID_LAST
   };
 
-  SocketNotification(Socket& sock_);
+  Notification(Socket& sock_);
 
   virtual
-  ~SocketNotification();
+  ~Notification();
 
-  SocketNotification::ID
+  Notification::ID
   Id() const;
 
   Socket&
   Sock();
 
-  SocketAddressBufferPair
+  AddressBufferPair
   Pkt() const;
 
 protected:
 
   void
-  id(SocketNotification::ID id_);
+  id(Notification::ID id_);
 
   void
-  pkt(SocketAddressBufferPair &pkt_);
+  pkt(AddressBufferPair &pkt_);
 
 private:
 
-  SocketNotification::ID _id;
-  SocketAddressBufferPair _pkt;
+  Notification::ID _id;
+  AddressBufferPair _pkt;
 
 };
 
 //**********************************************************************
-// Class: zSocket::SocketManager
+// Class: zSocket::Manager
 //**********************************************************************
 
-class SocketManager : public zEvent::Handler
+class Manager : public zEvent::Handler
 {
 public:
 
-  static SocketManager&
+  static Manager&
   Instance()
   {
-    static SocketManager instance;
+    static Manager instance;
     return instance;
   }
 
@@ -371,14 +371,14 @@ protected:
 
 private:
 
-  SocketManager()
+  Manager()
   {
   }
 
-  SocketManager(SocketManager const&);
+  Manager(Manager const&);
 
   void
-  operator=(SocketManager const&);
+  operator=(Manager const&);
 
 };
 

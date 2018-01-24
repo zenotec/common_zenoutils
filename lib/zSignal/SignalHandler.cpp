@@ -31,10 +31,10 @@ namespace zSignal
 {
 
 //**********************************************************************
-// Class: SignalHandler
+// Class: Handler
 //**********************************************************************
 
-SignalHandler::SignalHandler()
+Handler::Handler()
 {
   for (int i = 0; i < Signal::ID_LAST; i++)
   {
@@ -42,7 +42,7 @@ SignalHandler::SignalHandler()
   }
 }
 
-SignalHandler::~SignalHandler()
+Handler::~Handler()
 {
   for (int i = 0; i < Signal::ID_LAST; i++)
   {
@@ -55,7 +55,7 @@ SignalHandler::~SignalHandler()
 }
 
 bool
-SignalHandler::RegisterObserver(Signal::ID id_, zEvent::Observer *obs_)
+Handler::RegisterObserver(Signal::ID id_, zEvent::Observer *obs_)
 {
   bool status = false;
   if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
@@ -66,7 +66,7 @@ SignalHandler::RegisterObserver(Signal::ID id_, zEvent::Observer *obs_)
 }
 
 bool
-SignalHandler::UnregisterObserver(Signal::ID id_, zEvent::Observer *obs_)
+Handler::UnregisterObserver(Signal::ID id_, zEvent::Observer *obs_)
 {
   bool status = false;
   if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
@@ -77,7 +77,7 @@ SignalHandler::UnregisterObserver(Signal::ID id_, zEvent::Observer *obs_)
 }
 
 bool
-SignalHandler::Notify(Signal::ID id_, siginfo_t *info_)
+Handler::Notify(Signal::ID id_, siginfo_t *info_)
 {
   bool status = false;
   if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])

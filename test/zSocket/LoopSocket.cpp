@@ -78,8 +78,8 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::LoopAddress *MyAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, MyAddr->Type());
-  TEST_EQ(std::string(""), MyAddr->Address());
+  TEST_EQ(SocketType::TYPE_LOOP, MyAddr->GetType());
+  TEST_EQ(std::string(""), MyAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
@@ -108,7 +108,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
+  zSocket::AddressBufferPair txp = MyObserver->TxSem.Front();
   MyObserver->TxSem.Pop();
 
   // Verify no errors
@@ -118,7 +118,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
+  zSocket::AddressBufferPair rxp = MyObserver->RxSem.Front();
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -126,7 +126,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), rxp.first->Address());
+  TEST_EQ(txp.first->GetAddress(), rxp.first->GetAddress());
   TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Unregister observer with socket handler

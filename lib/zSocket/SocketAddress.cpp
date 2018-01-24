@@ -43,38 +43,38 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::SocketAddress
+// Class: zSocket::Address
 //**********************************************************************
 
-SocketAddress::SocketAddress(const SocketType type_, const std::string &addr_) :
+Address::Address(const SocketType type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
 {
 }
 
-SocketAddress::SocketAddress(SocketAddress &other_) :
+Address::Address(Address &other_) :
     _type(other_._type), _addr(other_._addr)
 {
 }
 
-SocketAddress::SocketAddress(const SocketAddress &other_) :
+Address::Address(const Address &other_) :
     _type(other_._type), _addr(other_._addr)
 {
 }
 
-SocketAddress::~SocketAddress()
+Address::~Address()
 {
 }
 
-SocketAddress &
-SocketAddress::operator=(SocketAddress &other_)
+Address &
+Address::operator=(Address &other_)
 {
   this->_type = other_._type;
   this->_addr = other_._addr;
   return (*this);
 }
 
-SocketAddress &
-SocketAddress::operator=(const SocketAddress &other_)
+Address &
+Address::operator=(const Address &other_)
 {
   this->_type = other_._type;
   this->_addr = other_._addr;
@@ -82,37 +82,37 @@ SocketAddress::operator=(const SocketAddress &other_)
 }
 
 bool
-SocketAddress::operator ==(const SocketAddress &other_) const
+Address::operator ==(const Address &other_) const
 {
   return ((this->_type == other_._type) && (this->_addr == other_._addr));
 }
 
 bool
-SocketAddress::operator !=(const SocketAddress &other_) const
+Address::operator !=(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr != other_._addr));
 }
 
 bool
-SocketAddress::operator <(const SocketAddress &other_) const
+Address::operator <(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr < other_._addr));
 }
 
 bool
-SocketAddress::operator >(const SocketAddress &other_) const
+Address::operator >(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
 const SocketType
-SocketAddress::Type() const
+Address::GetType() const
 {
   return (this->_type);
 }
 
 bool
-SocketAddress::Type(const SocketType type_)
+Address::SetType(const SocketType type_)
 {
   bool status = false;
   switch (type_)
@@ -137,14 +137,14 @@ SocketAddress::Type(const SocketType type_)
 }
 
 std::string
-SocketAddress::Address() const
+Address::GetAddress() const
 {
   ZLOG_DEBUG("getting socket address: " + this->_addr);
   return (this->_addr);
 }
 
 bool
-SocketAddress::Address(const std::string &addr_)
+Address::SetAddress(const std::string &addr_)
 {
   bool status = false;
   ZLOG_DEBUG("setting socket address: " + addr_);
@@ -157,13 +157,13 @@ SocketAddress::Address(const std::string &addr_)
 }
 
 void
-SocketAddress::Display() const
+Address::Display() const
 {
-  std::cout << "SocketAddress: [" << (int)this->Type() << "]: " << this->Address() << std::endl;
+  std::cout << "SocketAddress: [" << (int)this->GetType() << "]: " << this->GetAddress() << std::endl;
 }
 
 bool
-SocketAddress::verify(const SocketType type_, const std::string &addr_)
+Address::verify(const SocketType type_, const std::string &addr_)
 {
   return (false);
 }
@@ -172,10 +172,10 @@ SocketAddress::verify(const SocketType type_, const std::string &addr_)
 // Class: zSocket::SocketAddressFactory
 //**********************************************************************
 
-SocketAddress*
+Address*
 SocketAddressFactory::Create(const SocketType type_, const std::string& addr_)
 {
-  SocketAddress* addr = NULL;
+  Address* addr = NULL;
   switch (type_)
   {
   case SocketType::TYPE_LOOP:
@@ -196,22 +196,22 @@ SocketAddressFactory::Create(const SocketType type_, const std::string& addr_)
   return(addr);
 }
 
-SocketAddress*
-SocketAddressFactory::Create(const SocketAddress& addr_)
+Address*
+SocketAddressFactory::Create(const Address& addr_)
 {
-  return(SocketAddressFactory::Create(addr_.Type(), addr_.Address()));
+  return(SocketAddressFactory::Create(addr_.GetType(), addr_.GetAddress()));
 }
 
-SocketAddress*
+Address*
 SocketAddressFactory::Create(const std::string& addr_)
 {
-  SocketAddress* addr = NULL;
+  Address* addr = NULL;
 
   // First try to create an INET address
   addr = new InetAddress;
   if (addr)
   {
-    if (!addr->Address(addr_))
+    if (!addr->SetAddress(addr_))
     {
       delete(addr);
       addr = NULL;
@@ -224,7 +224,7 @@ SocketAddressFactory::Create(const std::string& addr_)
     addr = new EthAddress;
     if (addr)
     {
-      if (!addr->Address(addr_))
+      if (!addr->SetAddress(addr_))
       {
         delete(addr);
         addr = NULL;
@@ -238,7 +238,7 @@ SocketAddressFactory::Create(const std::string& addr_)
     addr = new UnixAddress;
     if (addr)
     {
-      if (!addr->Address(addr_))
+      if (!addr->SetAddress(addr_))
       {
         delete(addr);
         addr = NULL;
@@ -252,7 +252,7 @@ SocketAddressFactory::Create(const std::string& addr_)
     addr = new LoopAddress;
     if (addr)
     {
-      if (!addr->Address(addr_))
+      if (!addr->SetAddress(addr_))
       {
         delete(addr);
         addr = NULL;

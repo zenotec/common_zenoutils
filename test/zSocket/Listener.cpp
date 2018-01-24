@@ -43,7 +43,7 @@ zSocketTest_SocketListener(void* arg_)
   zSocket::Handler SenderSock(SenderAddr);
 
   // Create packet for sending
-  zSocket::SocketBuffer sb_exp(88), *sb_obs;
+  zSocket::Buffer sb_exp(88), *sb_obs;
   memset(sb_exp.Data(), 0xed, 88);
   sb_exp.Put(88);
 

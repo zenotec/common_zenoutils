@@ -31,16 +31,16 @@ namespace zSocket
 // UnixAddress Class
 //**********************************************************************
 
-class UnixAddress : public SocketAddress
+class UnixAddress : public Address
 {
 
 public:
 
   UnixAddress(const std::string &addr_ = std::string(""));
 
-  UnixAddress(SocketAddress &addr_);
+  UnixAddress(Address &addr_);
 
-  UnixAddress(const SocketAddress &addr_);
+  UnixAddress(const Address &addr_);
 
   virtual
   ~UnixAddress();
@@ -138,10 +138,10 @@ protected:
   _bind();
 
   virtual ssize_t
-  _recv(zSocket::UnixAddress &src_, zSocket::SocketBuffer &sb_);
+  _recv(zSocket::UnixAddress &src_, zSocket::Buffer &sb_);
 
   virtual ssize_t
-  _send(const zSocket::UnixAddress &dst_, zSocket::SocketBuffer &sb_);
+  _send(const zSocket::UnixAddress &dst_, zSocket::Buffer &sb_);
 
 private:
 

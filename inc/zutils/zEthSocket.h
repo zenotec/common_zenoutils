@@ -41,16 +41,16 @@ struct hwaddr
 // EthAddress Class
 //**********************************************************************
 
-class EthAddress : public SocketAddress
+class EthAddress : public Address
 {
 
 public:
 
   EthAddress(const std::string &addr_= std::string("00:00:00:00:00:00"));
 
-  EthAddress(SocketAddress &addr_);
+  EthAddress(Address &addr_);
 
-  EthAddress(const SocketAddress &addr_);
+  EthAddress(const Address &addr_);
 
   virtual
   ~EthAddress();
@@ -177,10 +177,10 @@ protected:
   _bind();
 
   virtual ssize_t
-  _recv(const int fd_, zSocket::EthAddress &src_, zSocket::SocketBuffer &sb_);
+  _recv(const int fd_, zSocket::EthAddress &src_, zSocket::Buffer &sb_);
 
   virtual ssize_t
-  _send(const int fd_, const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
+  _send(const int fd_, const zSocket::EthAddress &dst_, zSocket::Buffer &sb_);
 
 private:
 

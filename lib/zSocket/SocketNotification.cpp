@@ -42,42 +42,42 @@ namespace zSocket
 // zSocket::SocketNotification Class
 //*****************************************************************************
 
-SocketNotification::SocketNotification(Socket& sock_) :
-    zEvent::Notification(sock_), _id(SocketNotification::ID_NONE)
+Notification::Notification(Socket& sock_) :
+    zEvent::Notification(sock_), _id(Notification::ID_NONE)
 {
 }
 
-SocketNotification::~SocketNotification()
+Notification::~Notification()
 {
 }
 
-SocketNotification::ID
-SocketNotification::Id() const
+Notification::ID
+Notification::Id() const
 {
   return (this->_id);
 }
 
 void
-SocketNotification::id(SocketNotification::ID id_)
+Notification::id(Notification::ID id_)
 {
   this->_id = id_;
   return;
 }
 
 zSocket::Socket&
-SocketNotification::Sock()
+Notification::Sock()
 {
   return (static_cast<zSocket::Socket&>(this->GetEvent()));
 }
 
-SocketAddressBufferPair
-SocketNotification::Pkt() const
+AddressBufferPair
+Notification::Pkt() const
 {
   return (this->_pkt);
 }
 
 void
-SocketNotification::pkt(SocketAddressBufferPair &pkt_)
+Notification::pkt(AddressBufferPair &pkt_)
 {
   this->_pkt = pkt_;
   return;

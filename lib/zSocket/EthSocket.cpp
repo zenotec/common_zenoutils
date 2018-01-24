@@ -73,17 +73,17 @@ _mac2str(const struct hwaddr& hwaddr_, std::string& addr_)
 //**********************************************************************
 
 EthAddress::EthAddress(const std::string &addr_) :
-    SocketAddress(SocketType::TYPE_ETH, addr_)
+    Address(SocketType::TYPE_ETH, addr_)
 {
 }
 
-EthAddress::EthAddress(SocketAddress &addr_) :
-    SocketAddress(addr_)
+EthAddress::EthAddress(Address &addr_) :
+    Address(addr_)
 {
 }
 
-EthAddress::EthAddress(const SocketAddress &addr_) :
-    SocketAddress(addr_)
+EthAddress::EthAddress(const Address &addr_) :
+    Address(addr_)
 {
 }
 
@@ -170,12 +170,12 @@ EthSocketRecv::Run(zThread::ThreadArg *arg_)
       if (fds[i].revents == POLLIN)
       {
         SHARED_PTR(EthAddress)addr(new EthAddress);
-        SHARED_PTR(SocketBuffer)sb(new SocketBuffer);
+        SHARED_PTR(Buffer)sb(new Buffer);
         bytes = sock->_recv(fds[i].fd, *addr, *sb);
         if (bytes > 0)
         {
           ZLOG_INFO("Received packet on socket: " + ZLOG_INT(fds[i].fd));
-          SocketAddressBufferPair p(addr, sb);
+          AddressBufferPair p(addr, sb);
           sock->rxbuf(p);
         }
       }
@@ -203,7 +203,7 @@ void
 EthSocketSend::Run(zThread::ThreadArg *arg_)
 {
   EthSocket *sock = (EthSocket *) arg_;
-  SocketAddressBufferPair p;
+  AddressBufferPair p;
 
   if (sock->_sockfd.empty())
   {
@@ -228,7 +228,7 @@ EthSocketSend::Run(zThread::ThreadArg *arg_)
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
       {
-        ZLOG_DEBUG("Sending packet: " + p.first->Address() + "(" + ZLOG_INT(p.second->Size()) + ")");
+        ZLOG_DEBUG("Sending packet: " + p.first->GetAddress() + "(" + ZLOG_INT(p.second->Size()) + ")");
         if (sock->_send(fds[0].fd, *p.first, *p.second) != p.second->Size())
         {
           ZLOG_ERR("Error sending packet");
@@ -388,7 +388,7 @@ EthSocket::_bind()
 }
 
 ssize_t
-EthSocket::_recv(const int fd_, zSocket::EthAddress & addr_, zSocket::SocketBuffer & sb_)
+EthSocket::_recv(const int fd_, zSocket::EthAddress & addr_, zSocket::Buffer & sb_)
 {
 
   ssize_t n = -1;
@@ -408,13 +408,13 @@ EthSocket::_recv(const int fd_, zSocket::EthAddress & addr_, zSocket::SocketBuff
     sb_.Put(n);
     std::string addr;
     _mac2str(*(struct hwaddr*)&src.sll_addr, addr);
-    addr_.Address(addr);
+    addr_.SetAddress(addr);
 
     uint8_t* p = sb_.Head();
     std::string logstr;
     logstr += "Receiving on socket:\t";
-    logstr += "To:     " + this->Address().Address() + ";\t";
-    logstr += "From:   " + addr_.Address() + ";\t";
+    logstr += "To:     " + this->GetAddress().GetAddress() + ";\t";
+    logstr += "From:   " + addr_.GetAddress() + ";\t";
     logstr += "Size:   " + ZLOG_INT(n) + ";\t";
     logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
     logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
@@ -488,7 +488,7 @@ EthSocket::_recv(const int fd_, zSocket::EthAddress & addr_, zSocket::SocketBuff
 }
 
 ssize_t
-EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::SocketBuffer &sb_)
+EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Buffer &sb_)
 {
 
   ssize_t n = -1;
@@ -508,7 +508,7 @@ EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Socke
   uint8_t* p = sb_.Head();
   logstr += "Sending on socket:\t";
   logstr += "Iface: [" + ZLOG_INT(this->_iface->GetIfIndex()) + "] " + this->_iface->GetIfName() + ";\t";
-  logstr += "To: " + addr_.Address() + ";\t";
+  logstr += "To: " + addr_.GetAddress() + ";\t";
 //  logstr += "From: " + src->Address() + ";\t";
   logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";\t";
   logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";

@@ -40,7 +40,7 @@ namespace zSocket
 //**********************************************************************
 
 LoopAddress::LoopAddress() :
-    SocketAddress(SocketType::TYPE_LOOP)
+    Address(SocketType::TYPE_LOOP)
 {
 }
 
@@ -102,7 +102,7 @@ LoopSocket::_bind()
 {
   bool status = false;
 
-  if (this->Address().Type() != SocketType::TYPE_LOOP)
+  if (this->GetAddress().GetType() != SocketType::TYPE_LOOP)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -163,14 +163,14 @@ void
 LoopSocket::Run(zThread::ThreadArg *arg_)
 {
 
-  SocketAddressBufferPair p;
+  AddressBufferPair p;
 
   while (!this->Exit())
   {
 
     if (this->txbuf(p, 100))
     {
-      ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+      ZLOG_DEBUG("Sending packet: " + p.first->GetAddress() +
           "(" + zLog::IntStr(p.second->Size()) + ")");
       if (!this->rxbuf(p))
       {

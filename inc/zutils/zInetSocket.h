@@ -31,16 +31,16 @@ namespace zSocket
 // InetAddress Class
 //**********************************************************************
 
-class InetAddress : public SocketAddress
+class InetAddress : public Address
 {
 
 public:
 
   InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
 
-  InetAddress(SocketAddress &addr_);
+  InetAddress(Address &addr_);
 
-  InetAddress(const SocketAddress &addr_);
+  InetAddress(const Address &addr_);
 
   virtual
   ~InetAddress();
@@ -145,10 +145,10 @@ protected:
   _bind();
 
   virtual ssize_t
-  _recv(zSocket::InetAddress &src_, zSocket::SocketBuffer &sb_);
+  _recv(zSocket::InetAddress &src_, zSocket::Buffer &sb_);
 
   virtual ssize_t
-  _send(const zSocket::InetAddress &dst_, zSocket::SocketBuffer &sb_);
+  _send(const zSocket::InetAddress &dst_, zSocket::Buffer &sb_);
 
 private:
 

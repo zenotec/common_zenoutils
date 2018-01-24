@@ -50,10 +50,10 @@ public:
   Listen(zSocket::Socket *sock_);
 
   bool
-  Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *sock_);
+  Connect(const zSocket::Address& addr_, zSocket::Socket *sock_);
 
   bool
-  Disconnect(const zSocket::SocketAddress& addr_);
+  Disconnect(const zSocket::Address& addr_);
 
   bool
   RegisterForAck(const std::string& msg_id_);
@@ -75,7 +75,7 @@ protected:
 private:
 
   bool
-  EventHandler(zSocket::SocketNotification* notification_);
+  EventHandler(zSocket::Notification* notification_);
 
   std::map<std::string, zSocket::Socket*> _sock;
   zEvent::Handler _sock_handler;

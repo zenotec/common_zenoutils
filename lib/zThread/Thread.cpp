@@ -152,8 +152,8 @@ Thread::Start()
   bool status = false;
   if (!this->_thread && this->_func && this->_func->setThread(this))
   {
-    zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
-    zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
+    zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
     this->_func->Exit(false);
     this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
@@ -171,8 +171,8 @@ Thread::Join()
     this->_thread->join();
     delete (this->_thread);
     this->_thread = NULL;
-    zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
-    zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
+    zSignal::Manager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::Manager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
     status = true;
   }
   return (status);
@@ -196,11 +196,11 @@ bool
 Thread::Notify(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
-  SHARED_PTR(zSignal::SignalNotification) n = NULL;
+  SHARED_PTR(zSignal::Notification) n = NULL;
 
   if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SIGNAL))
   {
-    n = STATIC_CAST(zSignal::SignalNotification)(noti_);
+    n = STATIC_CAST(zSignal::Notification)(noti_);
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:

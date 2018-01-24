@@ -71,17 +71,17 @@ _sock2addr(struct sockaddr_un &sockaddr_, std::string &addr_)
 //**********************************************************************
 
 UnixAddress::UnixAddress(const std::string &addr_) :
-    SocketAddress(SocketType::TYPE_UNIX, addr_)
+    Address(SocketType::TYPE_UNIX, addr_)
 {
 }
 
-UnixAddress::UnixAddress(SocketAddress &addr_) :
-    SocketAddress(addr_)
+UnixAddress::UnixAddress(Address &addr_) :
+    Address(addr_)
 {
 }
 
-UnixAddress::UnixAddress(const SocketAddress &addr_) :
-    SocketAddress(addr_)
+UnixAddress::UnixAddress(const Address &addr_) :
+    Address(addr_)
 {
 }
 
@@ -130,11 +130,11 @@ UnixSocketRecv::Run(zThread::ThreadArg *arg_)
       ioctl(sock->_sock, FIONREAD, &size);
       ZLOG_INFO("Received packet on socket: " + ZLOG_INT(sock->_sock));
       SHARED_PTR(UnixAddress) addr(new UnixAddress);
-      SHARED_PTR(SocketBuffer) sb(new SocketBuffer(size));
+      SHARED_PTR(Buffer) sb(new Buffer(size));
       bytes = sock->_recv(*addr, *sb);
       if (bytes > 0)
       {
-        SocketAddressBufferPair p(addr, sb);
+        AddressBufferPair p(addr, sb);
         sock->rxbuf(p);
       }
     } // end if
@@ -159,7 +159,7 @@ UnixSocketSend::Run(zThread::ThreadArg *arg_)
 {
 
   UnixSocket *sock = (UnixSocket *) arg_;
-  SocketAddressBufferPair p;
+  AddressBufferPair p;
 
   if (!sock || !sock->_sock)
   {
@@ -183,7 +183,7 @@ UnixSocketSend::Run(zThread::ThreadArg *arg_)
       int ret = poll(fds, 1, 100);
       if (ret > 0 && (fds[0].revents == POLLOUT))
       {
-        ZLOG_DEBUG("Sending packet: " + p.first->Address() +
+        ZLOG_DEBUG("Sending packet: " + p.first->GetAddress() +
             "(" + ZLOG_INT(p.second->Size()) + ")");
         if (sock->_send(*p.first, *p.second) != p.second->Size())
         {
@@ -247,7 +247,7 @@ UnixSocket::Close()
   {
     // Convert string notation address to sockaddr_un
     struct sockaddr_un addr = { 0 };
-    if (!_addr2sock(this->Address().Address(), addr))
+    if (!_addr2sock(this->GetAddress().GetAddress(), addr))
     {
       ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
       return;
@@ -277,7 +277,7 @@ UnixSocket::_bind()
     return (false);
   }
 
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
+  if (this->GetAddress().GetType() != SocketType::TYPE_UNIX)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -285,7 +285,7 @@ UnixSocket::_bind()
 
   // Convert string notation address to sockaddr_un
   struct sockaddr_un addr = { 0 };
-  if (!_addr2sock(this->Address().Address(), addr))
+  if (!_addr2sock(this->GetAddress().GetAddress(), addr))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (false);
@@ -295,7 +295,7 @@ UnixSocket::_bind()
   int ret = bind(this->_sock, (struct sockaddr*) &addr, sizeof(addr));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->Address().Address() +
+    ZLOG_CRIT("Cannot bind socket: " + this->GetAddress().GetAddress() +
         ": " + std::string(strerror(errno)));
     return (false);
   } // end if
@@ -312,7 +312,7 @@ UnixSocket::_bind()
 }
 
 ssize_t
-UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
+UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::Buffer &sb_)
 {
 
   ssize_t n = -1;
@@ -323,7 +323,7 @@ UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
     return (-1);
   }
 
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
+  if (this->GetAddress().GetType() != SocketType::TYPE_UNIX)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (-1);
@@ -339,7 +339,7 @@ UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
     std::string addr;
     if (_sock2addr(src, addr))
     {
-      if (!addr_.Type(SocketType::TYPE_UNIX) || !addr_.Address(addr))
+      if (!addr_.SetType(SocketType::TYPE_UNIX) || !addr_.SetAddress(addr))
       {
         ZLOG_WARN("Error occurred setting source address");
       }
@@ -347,8 +347,8 @@ UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
 
     std::string logstr;
     logstr += "Receiving on socket:\t";
-    logstr += "To: " + this->Address().Address() + ";\t";
-    logstr += "From: " + addr_.Address() + ";\t";
+    logstr += "To: " + this->GetAddress().GetAddress() + ";\t";
+    logstr += "From: " + addr_.GetAddress() + ";\t";
     logstr += "Size: " + ZLOG_INT(n) + ";";
     ZLOG_INFO(logstr);
 
@@ -358,7 +358,7 @@ UnixSocket::_recv(zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
 }
 
 ssize_t
-UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
+UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::Buffer &sb_)
 {
 
   ssize_t n = -1;
@@ -369,13 +369,13 @@ UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
     return (-1);
   }
 
-  if (this->Address().Type() != SocketType::TYPE_UNIX)
+  if (this->GetAddress().GetType() != SocketType::TYPE_UNIX)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (-1);
   }
 
-  if (addr_.Type() != SocketType::TYPE_UNIX)
+  if (addr_.GetType() != SocketType::TYPE_UNIX)
   {
     ZLOG_CRIT(std::string("Invalid destination address type"));
     return (-1);
@@ -384,13 +384,13 @@ UnixSocket::_send(const zSocket::UnixAddress &addr_, zSocket::SocketBuffer &sb_)
   // Log info message about message being sent
   std::string logstr;
   logstr += "Sending on socket:\t";
-  logstr += "To: " + addr_.Address() + ";\t";
-  logstr += "From: " + this->Address().Address() + ";\t";
+  logstr += "To: " + addr_.GetAddress() + ";\t";
+  logstr += "From: " + this->GetAddress().GetAddress() + ";\t";
   logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";";
   ZLOG_INFO(logstr);
 
   struct sockaddr_un dst = { 0 };
-  if (!_addr2sock(addr_.Address(), dst))
+  if (!_addr2sock(addr_.GetAddress(), dst))
   {
     ZLOG_CRIT("Cannot convert socket address: " + std::string(strerror(errno)));
     return (-1);

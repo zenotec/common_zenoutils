@@ -67,8 +67,8 @@ zMessageTest_MessageLoopSocket(void* arg_)
   zMessage::Message *helloMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_HELLO);
   TEST_ISNOT_NULL(helloMsg);
   TEST_TRUE(helloMsg->SetId("helloMsg"));
-  TEST_TRUE(helloMsg->SetDst(MyAddr.Address()));
-  TEST_TRUE(helloMsg->SetSrc(MyAddr.Address()));
+  TEST_TRUE(helloMsg->SetDst(MyAddr.GetAddress()));
+  TEST_TRUE(helloMsg->SetSrc(MyAddr.GetAddress()));
   ZLOG_DEBUG(helloMsg->GetJson());
   TEST_TRUE(MsgSock->Send(*helloMsg));
   delete (helloMsg);
@@ -98,8 +98,8 @@ zMessageTest_MessageLoopSocket(void* arg_)
   zMessage::Message *byeMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_BYE);
   TEST_ISNOT_NULL(byeMsg);
   TEST_TRUE(byeMsg->SetId("byeMsg"));
-  TEST_TRUE(byeMsg->SetDst(MyAddr.Address()));
-  TEST_TRUE(byeMsg->SetSrc(MyAddr.Address()));
+  TEST_TRUE(byeMsg->SetDst(MyAddr.GetAddress()));
+  TEST_TRUE(byeMsg->SetSrc(MyAddr.GetAddress()));
   ZLOG_DEBUG(byeMsg->GetJson());
   TEST_TRUE(MsgSock->Send(*byeMsg));
   delete (byeMsg);
@@ -203,7 +203,7 @@ zMessageTest_MessageUnixSocket(void* arg_)
   // Send hello message to self
   zMessage::Message *DataMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_DATA);
   TEST_ISNOT_NULL(DataMsg);
-  TEST_TRUE(DataMsg->SetDst(ServerAddr.Address()));
+  TEST_TRUE(DataMsg->SetDst(ServerAddr.GetAddress()));
   TEST_TRUE(MsgClient->RegisterForAck(DataMsg->GetId()));
   TEST_TRUE(MsgClient->Send(*DataMsg));
 
@@ -220,8 +220,8 @@ zMessageTest_MessageUnixSocket(void* arg_)
   zMessage::Message *ackMsg = zMessage::MessageFactory::Create(zMessage::Message::TYPE_ACK);
   TEST_ISNOT_NULL(ackMsg);
   TEST_TRUE(ackMsg->SetId(DataMsg->GetId()));
-  TEST_TRUE(ackMsg->SetDst(ClientAddr.Address()));
-  TEST_TRUE(ackMsg->SetSrc(ServerAddr.Address()));
+  TEST_TRUE(ackMsg->SetDst(ClientAddr.GetAddress()));
+  TEST_TRUE(ackMsg->SetSrc(ServerAddr.GetAddress()));
   TEST_TRUE(MsgServer->Send(*ackMsg));
   delete (ackMsg);
 

@@ -31,7 +31,7 @@ namespace zSocket
 // LoopAddress Class
 //**********************************************************************
 
-class LoopAddress : public SocketAddress
+class LoopAddress : public Address
 {
 
 public:

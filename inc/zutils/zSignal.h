@@ -28,16 +28,18 @@ namespace zUtils
 namespace zSignal
 {
 
-class SignalHandler;
+class Handler;
 
 //**********************************************************************
 // Class: Signal
 //**********************************************************************
 
-class Signal : public zEvent::Handler, public zEvent::Event
+class Signal :
+    public zEvent::Handler,
+    public zEvent::Event
 {
 
-  friend SignalHandler;
+  friend zSignal::Handler;
 
 public:
 
@@ -83,20 +85,20 @@ private:
 };
 
 //**********************************************************************
-// Class: SignalNotification
+// Class: Notification
 //**********************************************************************
 
-class SignalNotification : public zEvent::Notification
+class Notification : public zEvent::Notification
 {
 
   friend Signal;
 
 public:
 
-  SignalNotification(Signal& signal_);
+  Notification(Signal& signal_);
 
   virtual
-  ~SignalNotification();
+  ~Notification();
 
   Signal::ID
   Id() const;
@@ -121,16 +123,16 @@ private:
 };
 
 //**********************************************************************
-// Class: SignalHandler
+// Class: Handler
 //**********************************************************************
 
-class SignalHandler
+class Handler
 {
 public:
 
-  SignalHandler();
+  Handler();
 
-  ~SignalHandler();
+  ~Handler();
 
   bool
   RegisterObserver (Signal::ID id_, zEvent::Observer *obs_);
@@ -150,17 +152,17 @@ private:
 };
 
 //**********************************************************************
-// Class: SignalManager
+// Class: Manager
 //**********************************************************************
 
-class SignalManager : public SignalHandler
+class Manager : public Handler
 {
 public:
 
-  static SignalManager&
+  static Manager&
   Instance()
   {
-    static SignalManager instance;
+    static Manager instance;
     return instance;
   }
 
@@ -168,14 +170,14 @@ protected:
 
 private:
 
-  SignalManager()
+  Manager()
   {
   }
 
-  SignalManager(SignalManager const&);
+  Manager(Manager const&);
 
   void
-  operator=(SignalManager const&);
+  operator=(Manager const&);
 
 
 };

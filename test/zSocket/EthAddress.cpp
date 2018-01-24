@@ -55,16 +55,16 @@ zSocketTest_EthAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   EthAddress myAddr;
-  TEST_EQ(SocketType::TYPE_ETH, myAddr.Type());
-  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr.Address());
+  TEST_EQ(SocketType::TYPE_ETH, myAddr.GetType());
+  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr.GetAddress());
 
   // Set socket address using string notation (bad address)
-  TEST_FALSE(myAddr.Address(std::string("1:a")));
-  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr.Address());
+  TEST_FALSE(myAddr.SetAddress(std::string("1:a")));
+  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr.GetAddress());
 
   // Set socket address using string notation (good address)
-  TEST_TRUE(myAddr.Address(std::string("00:11:22:33:44:55")));
-  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr.Address());
+  TEST_TRUE(myAddr.SetAddress(std::string("00:11:22:33:44:55")));
+  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr.GetAddress());
 
   // Return success
   return (0);
@@ -81,37 +81,37 @@ zSocketTest_EthAddressCompare(void* arg_)
 
   // Create new socket address and validate
   EthAddress myAddr1;
-  TEST_EQ(SocketType::TYPE_ETH, myAddr1.Type());
-  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr1.Address());
+  TEST_EQ(SocketType::TYPE_ETH, myAddr1.GetType());
+  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr1.GetAddress());
 
   // Create second socket address and validate
   EthAddress myAddr2;
-  TEST_EQ(SocketType::TYPE_ETH, myAddr2.Type());
-  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr2.Address());
+  TEST_EQ(SocketType::TYPE_ETH, myAddr2.GetType());
+  TEST_EQ(std::string("00:00:00:00:00:00"), myAddr2.GetAddress());
 
   // Compare address (match)
   TEST_TRUE(myAddr1 == myAddr2);
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address using string notation
-  myAddr1.Address("00:11:22:33:44:55");
-  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr1.Address());
+  myAddr1.SetAddress("00:11:22:33:44:55");
+  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr1.GetAddress());
 
   // Compare address (no match)
   TEST_FALSE(myAddr1 == myAddr2);
   TEST_TRUE(myAddr1 != myAddr2);
 
   // Set socket address using string notation
-  myAddr2.Address("00:11:22:33:44:55");
-  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr2.Address());
+  myAddr2.SetAddress("00:11:22:33:44:55");
+  TEST_EQ(std::string("00:11:22:33:44:55"), myAddr2.GetAddress());
 
   // Compare address (match)
   TEST_TRUE(myAddr1 == myAddr2);
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address using string notation
-  myAddr1.Address("AA:11:22:33:44:55");
-  TEST_EQ(std::string("AA:11:22:33:44:55"), myAddr1.Address());
+  myAddr1.SetAddress("AA:11:22:33:44:55");
+  TEST_EQ(std::string("AA:11:22:33:44:55"), myAddr1.GetAddress());
 
   // Compare address (no match)
   TEST_FALSE(myAddr1 == myAddr2);

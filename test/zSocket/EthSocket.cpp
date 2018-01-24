@@ -55,7 +55,7 @@ zSocketTest_EthSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::EthAddress MyAddr;
-  TEST_EQ(std::string("00:00:00:00:00:00"), MyAddr.Address());
+  TEST_EQ(std::string("00:00:00:00:00:00"), MyAddr.GetAddress());
 
   // Create new socket and validate
   zSocket::EthSocket *MySock = new zSocket::EthSocket;
@@ -83,14 +83,14 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   // Create new socket address and validate
   zSocket::EthAddress *SrcAddr = new zSocket::EthAddress;
   TEST_ISNOT_NULL(SrcAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), SrcAddr->Address());
+  TEST_EQ(std::string("00:00:00:00:00:00"), SrcAddr->GetAddress());
 //  TEST_TRUE(SrcAddr->Address("00:01:00:AA:AA:AA"));
 //  TEST_EQ(std::string("00:01:00:AA:AA:AA"), SrcAddr->Address());
 
   // Create new socket address and validate
   zSocket::EthAddress *DstAddr = new zSocket::EthAddress;
   TEST_ISNOT_NULL(DstAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), DstAddr->Address());
+  TEST_EQ(std::string("00:00:00:00:00:00"), DstAddr->GetAddress());
 //  TEST_TRUE(DstAddr->Address("00:01:00:BB:BB:BB"));
 //  TEST_EQ(std::string("00:01:00:BB:BB:BB"), DstAddr->Address());
 

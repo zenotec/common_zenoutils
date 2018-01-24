@@ -55,11 +55,11 @@ zSocketTest_InetSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::InetAddress MyAddr(std::string("127.0.0.1:0"));
-  TEST_EQ(std::string("127.0.0.1:0"), MyAddr.Address());
+  TEST_EQ(std::string("127.0.0.1:0"), MyAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(MyAddr.Address(std::string("127.0.0.1:9876")));
-  TEST_EQ(std::string("127.0.0.1:9876"), MyAddr.Address());
+  TEST_TRUE(MyAddr.SetAddress(std::string("127.0.0.1:9876")));
+  TEST_EQ(std::string("127.0.0.1:9876"), MyAddr.GetAddress());
 
   // Create new socket and validate
   zSocket::InetSocket *MySock = new zSocket::InetSocket;
@@ -86,15 +86,15 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
 
   // Create new socket address and validate
   zSocket::InetAddress *SrcAddr = new zSocket::InetAddress;
-  TEST_EQ(std::string("0.0.0.0:0"), SrcAddr->Address());
-  TEST_TRUE(SrcAddr->Address("127.0.0.1:9800"));
-  TEST_EQ(std::string("127.0.0.1:9800"), SrcAddr->Address());
+  TEST_EQ(std::string("0.0.0.0:0"), SrcAddr->GetAddress());
+  TEST_TRUE(SrcAddr->SetAddress("127.0.0.1:9800"));
+  TEST_EQ(std::string("127.0.0.1:9800"), SrcAddr->GetAddress());
 
   // Create new socket address and validate
   zSocket::InetAddress *DstAddr = new zSocket::InetAddress;
-  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->Address());
-  TEST_TRUE(DstAddr->Address("127.0.0.1:9800"));
-  TEST_EQ(std::string("127.0.0.1:9800"), DstAddr->Address());
+  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->GetAddress());
+  TEST_TRUE(DstAddr->SetAddress("127.0.0.1:9800"));
+  TEST_EQ(std::string("127.0.0.1:9800"), DstAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::InetSocket *MySock = new zSocket::InetSocket;
@@ -123,7 +123,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
+  zSocket::AddressBufferPair txp = MyObserver->TxSem.Front();
   MyObserver->TxSem.Pop();
 
   // Verify no errors
@@ -133,7 +133,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
+  zSocket::AddressBufferPair rxp = MyObserver->RxSem.Front();
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -141,7 +141,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), rxp.first->Address());
+  TEST_EQ(txp.first->GetAddress(), rxp.first->GetAddress());
   TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Unregister observer with socket handler
@@ -171,19 +171,19 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
 
   // Create new socket address and validate
   zSocket::InetAddress *SrcAddr = new zSocket::InetAddress;
-  TEST_EQ(std::string("0.0.0.0:0"), SrcAddr->Address());
+  TEST_EQ(std::string("0.0.0.0:0"), SrcAddr->GetAddress());
 
   // Create new socket address and validate
   zSocket::InetAddress *DstAddr = new zSocket::InetAddress;
-  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->Address());
+  TEST_EQ(std::string("0.0.0.0:0"), DstAddr->GetAddress());
 
   // Set socket address
-  TEST_TRUE(SrcAddr->Address("127.0.0.1:9800"));
-  TEST_EQ(std::string("127.0.0.1:9800"), SrcAddr->Address());
+  TEST_TRUE(SrcAddr->SetAddress("127.0.0.1:9800"));
+  TEST_EQ(std::string("127.0.0.1:9800"), SrcAddr->GetAddress());
 
   // Set socket address
-  TEST_TRUE(DstAddr->Address("127.0.0.1:9900"));
-  TEST_EQ(std::string("127.0.0.1:9900"), DstAddr->Address());
+  TEST_TRUE(DstAddr->SetAddress("127.0.0.1:9900"));
+  TEST_EQ(std::string("127.0.0.1:9900"), DstAddr->GetAddress());
 
   // Verify addresses are different
   TEST_TRUE(SrcAddr != DstAddr);
@@ -237,7 +237,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(status);
   status = MyObserver2->TxSem.TryWait();
   TEST_FALSE(status);
-  zSocket::SocketAddressBufferPair txp = MyObserver1->TxSem.Front();
+  zSocket::AddressBufferPair txp = MyObserver1->TxSem.Front();
   MyObserver1->TxSem.Pop();
 
   // Verify no errors
@@ -249,7 +249,7 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(status);
   status = MyObserver1->RxSem.TryWait();
   TEST_FALSE(status);
-  zSocket::SocketAddressBufferPair rxp = MyObserver2->RxSem.Front();
+  zSocket::AddressBufferPair rxp = MyObserver2->RxSem.Front();
   MyObserver2->RxSem.Pop();
 
   // Verify no errors
@@ -257,8 +257,8 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), DstAddr->Address());
-  TEST_EQ(rxp.first->Address(), SrcAddr->Address());
+  TEST_EQ(txp.first->GetAddress(), DstAddr->GetAddress());
+  TEST_EQ(rxp.first->GetAddress(), SrcAddr->GetAddress());
   TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Cleanup

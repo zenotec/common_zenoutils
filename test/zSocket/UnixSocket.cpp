@@ -55,12 +55,12 @@ zSocketTest_UnixSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress MyAddr;
-  TEST_EQ(SocketType::TYPE_UNIX, MyAddr.Type());
-  TEST_EQ(std::string(""), MyAddr.Address());
+  TEST_EQ(SocketType::TYPE_UNIX, MyAddr.GetType());
+  TEST_EQ(std::string(""), MyAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(MyAddr.Address(std::string("/tmp/UnixTestSock")));
-  TEST_EQ(std::string("/tmp/UnixTestSock"), MyAddr.Address());
+  TEST_TRUE(MyAddr.SetAddress(std::string("/tmp/UnixTestSock")));
+  TEST_EQ(std::string("/tmp/UnixTestSock"), MyAddr.GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MySock = new zSocket::UnixSocket;
@@ -87,10 +87,10 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress *SrcAddr = new zSocket::UnixAddress;
-  TEST_EQ(SocketType::TYPE_UNIX, SrcAddr->Type());
-  TEST_EQ(std::string(""), SrcAddr->Address());
-  TEST_TRUE(SrcAddr->Address(std::string("/tmp/UnixSrcSock")));
-  TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->Address());
+  TEST_EQ(SocketType::TYPE_UNIX, SrcAddr->GetType());
+  TEST_EQ(std::string(""), SrcAddr->GetAddress());
+  TEST_TRUE(SrcAddr->SetAddress(std::string("/tmp/UnixSrcSock")));
+  TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MySrcSock = new zSocket::UnixSocket;
@@ -100,10 +100,10 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress *DstAddr = new zSocket::UnixAddress;
-  TEST_EQ(SocketType::TYPE_UNIX, DstAddr->Type());
-  TEST_EQ(std::string(""), DstAddr->Address());
-  TEST_TRUE(DstAddr->Address(std::string("/tmp/UnixDstSock")));
-  TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->Address());
+  TEST_EQ(SocketType::TYPE_UNIX, DstAddr->GetType());
+  TEST_EQ(std::string(""), DstAddr->GetAddress());
+  TEST_TRUE(DstAddr->SetAddress(std::string("/tmp/UnixDstSock")));
+  TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MyDstSock = new zSocket::UnixSocket;
@@ -133,7 +133,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100000);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
+  zSocket::AddressBufferPair txp = MyObserver->TxSem.Front();
   MyObserver->TxSem.Pop();
 
   // Verify no errors
@@ -143,7 +143,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100000);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
+  zSocket::AddressBufferPair rxp = MyObserver->RxSem.Front();
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -151,8 +151,8 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), DstAddr->Address());
-  TEST_EQ(rxp.first->Address(), SrcAddr->Address());
+  TEST_EQ(txp.first->GetAddress(), DstAddr->GetAddress());
+  TEST_EQ(rxp.first->GetAddress(), SrcAddr->GetAddress());
   TEST_EQ(txp.second->Str(), rxp.second->Str());
 
   // Unregister observer with socket handler

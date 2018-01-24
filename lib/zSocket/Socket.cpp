@@ -57,13 +57,13 @@ Socket::~Socket()
 }
 
 const SocketType
-Socket::Type() const
+Socket::GetType() const
 {
   return (this->_type);
 }
 
-const zSocket::SocketAddress&
-Socket::Address() const
+const zSocket::Address&
+Socket::GetAddress() const
 {
   return (*this->_addr);
 }
@@ -81,7 +81,7 @@ Socket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
-Socket::Bind(const SocketAddress& addr_)
+Socket::Bind(const Address& addr_)
 {
   bool status = false;
   this->_addr = zSocket::SocketAddressFactory::Create(addr_);
@@ -93,50 +93,50 @@ Socket::Bind(const SocketAddress& addr_)
 }
 
 ssize_t
-Socket::Send(SocketAddressBufferPair& pair_)
+Socket::Send(AddressBufferPair& pair_)
 {
-  ZLOG_DEBUG("Sending packet: " + pair_.first->Address() +
+  ZLOG_DEBUG("Sending packet: " + pair_.first->GetAddress() +
       "(" + zLog::IntStr(pair_.second->Size()) + ")");
   this->_txq.Push(pair_);
   return (pair_.second->Size());
 }
 
 ssize_t
-Socket::Send(const SocketAddress& addr_, SocketBuffer& sb_)
+Socket::Send(const Address& addr_, Buffer& sb_)
 {
-  SHARED_PTR(SocketAddress)addr(zSocket::SocketAddressFactory::Create(addr_));
-  SHARED_PTR(SocketBuffer) sb(new SocketBuffer(sb_));
-  SocketAddressBufferPair p(addr, sb);
+  SHARED_PTR(Address)addr(zSocket::SocketAddressFactory::Create(addr_));
+  SHARED_PTR(Buffer) sb(new Buffer(sb_));
+  AddressBufferPair p(addr, sb);
   return (this->Send(p));
 }
 
 ssize_t
-Socket::Send(const SocketAddress &addr_, const std::string &str_)
+Socket::Send(const Address &addr_, const std::string &str_)
 {
-  SocketBuffer sb(str_);
+  Buffer sb(str_);
   return (this->Send(addr_, sb));
 }
 
 bool
-Socket::rxbuf(SocketAddressBufferPair &pair_)
+Socket::rxbuf(AddressBufferPair &pair_)
 {
-  SHARED_PTR(SocketNotification) n(new SocketNotification(*this));
-  n->id(SocketNotification::ID_PKT_RCVD);
+  SHARED_PTR(Notification) n(new Notification(*this));
+  n->id(Notification::ID_PKT_RCVD);
   n->pkt(pair_);
   this->NotifyHandlers(n);
   return (true);
 }
 
 bool
-Socket::txbuf(SocketAddressBufferPair &pair_, size_t timeout_)
+Socket::txbuf(AddressBufferPair &pair_, size_t timeout_)
 {
   bool status = false;
   if (this->_txq.TimedWait(timeout_))
   {
     pair_ = this->_txq.Front();
     this->_txq.Pop();
-    SHARED_PTR(SocketNotification) n(new SocketNotification(*this));
-    n->id(SocketNotification::ID_PKT_SENT);
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->id(Notification::ID_PKT_SENT);
     n->pkt(pair_);
     this->NotifyHandlers(n);
     status = true;
