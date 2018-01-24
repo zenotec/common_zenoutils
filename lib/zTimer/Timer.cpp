@@ -113,8 +113,20 @@ Timer::Stop(void)
   return (status);
 }
 
+uint32_t
+Timer::GetId() const
+{
+  uint32_t id = 0;
+  if (this->_lock.Lock())
+  {
+    id = uint32_t(this->_fd);
+    this->_lock.Unlock();
+  } // end if
+  return (id);
+}
+
 uint64_t
-Timer::GetTicks()
+Timer::GetTicks() const
 {
   uint64_t ticks = 0;
   if (this->_lock.Lock())

@@ -54,8 +54,11 @@ public:
   bool
   Stop(void);
 
+  uint32_t
+  GetId() const;
+
   uint64_t
-  GetTicks();
+  GetTicks() const;
 
 protected:
 
@@ -63,7 +66,7 @@ protected:
 
 private:
 
-  zSem::Mutex _lock;
+  mutable zSem::Mutex _lock;
   uint32_t _interval; // micro-seconds
   uint64_t _ticks;
 
@@ -90,13 +93,17 @@ public:
   virtual
   ~Notification();
 
+  uint32_t
+  GetId() const;
+
   uint64_t
-  GetTicks();
+  GetTicks() const;
 
 protected:
 
 private:
 
+  uint32_t _id;
   uint64_t _tick;
 
 };

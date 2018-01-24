@@ -26,7 +26,7 @@ namespace zTimer
 //**********************************************************************
 
 Notification::Notification(Timer& timer_) :
-    zEvent::Notification(timer_), _tick(timer_.GetTicks())
+    zEvent::Notification(timer_), _id(timer_.GetId()), _tick(timer_.GetTicks())
 {
 }
 
@@ -34,8 +34,14 @@ Notification::~Notification()
 {
 }
 
+uint32_t
+Notification::GetId() const
+{
+  return(this->_id);
+}
+
 uint64_t
-Notification::GetTicks()
+Notification::GetTicks() const
 {
   return (this->_tick);
 }
