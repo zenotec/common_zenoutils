@@ -20,6 +20,7 @@
 // libc includes
 
 // libc++ includes
+#include <iostream>
 
 // libzutils includes
 
