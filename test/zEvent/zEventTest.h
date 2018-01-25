@@ -49,21 +49,39 @@ using namespace zUtils;
 using namespace Test;
 using namespace zEvent;
 
-class TestNotification : public Notification
+class TestNotification :
+    public Notification
 {
+
 public:
-  TestNotification(Event& event_) :
-      Notification(event_)
+
+  TestNotification(Event& event_, int value_) :
+      Notification(event_), _value(value_)
   {
   }
+
   ~TestNotification()
   {
   }
+
+  int
+  GetValue() const
+  {
+    return (this->_value);
+  }
+
+private:
+
+  int _value;
+
 };
 
-class TestEvent : public Event
+class TestEvent :
+    public Event
 {
+
 public:
+
   TestEvent() :
       Event(zEvent::Event::TYPE_TEST)
   {
@@ -71,11 +89,24 @@ public:
   ~TestEvent()
   {
   }
+
+  bool
+  Notify(int val_)
+  {
+    SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
+    this->NotifyHandlers(n);
+    return (true);
+  }
+
 };
 
-class TestObserver : public Observer, public zQueue<SHARED_PTR(zEvent::Notification)>
+class TestObserver :
+    public Observer,
+    public zQueue<SHARED_PTR(zEvent::Notification)>
 {
+
 public:
+
   TestObserver()
   {
   }

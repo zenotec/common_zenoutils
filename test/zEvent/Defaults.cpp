@@ -28,7 +28,7 @@ zEventTest_EventDefaults(void * arg_)
   delete (MyEvent);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 }
 
 int
@@ -40,15 +40,17 @@ zEventTest_EventNotificationDefaults(void * arg_)
   TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
 
   // Create new event notification and validate
-  SHARED_PTR(TestNotification) MyNotification(new TestNotification(*MyEvent));
-  TEST_ISNOT_NULL(MyNotification.get());
+  TestNotification* MyNotification = new TestNotification(*MyEvent, 88);
+  TEST_ISNOT_NULL(MyNotification);
   TEST_EQ(Event::TYPE_TEST, MyNotification->GetType());
+  TEST_EQ(88, MyNotification->GetValue());
 
   // Cleanup
+  delete (MyNotification);
   delete (MyEvent);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 }
 
 int

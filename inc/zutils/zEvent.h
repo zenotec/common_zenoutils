@@ -67,9 +67,6 @@ public:
   Event::TYPE
   GetType() const;
 
-  void
-  NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
-
 protected:
 
   bool
@@ -77,6 +74,9 @@ protected:
 
   bool
   unregisterHandler(Handler *handler_);
+
+  void
+  NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 
@@ -101,8 +101,6 @@ class Notification
 
 public:
 
-  Notification(Event& event_);
-
   virtual
   ~Notification();
 
@@ -113,6 +111,8 @@ public:
   GetEvent() const;
 
 protected:
+
+  Notification(Event& event_);
 
 private:
 
@@ -139,6 +139,7 @@ class Handler
   friend class Event;
 
 public:
+
   Handler();
 
   virtual

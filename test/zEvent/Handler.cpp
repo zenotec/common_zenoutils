@@ -25,11 +25,6 @@ zEventTest_EventHandlerTest(void* arg_)
   TEST_ISNOT_NULL(MyEvent);
   TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
 
-  // Create new event notification and validate
-  SHARED_PTR(TestNotification) MyNotification(new TestNotification(*MyEvent));
-  TEST_ISNOT_NULL(MyNotification.get());
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyNotification->GetType());
-
   // Create new event handler and validate
   zEvent::Handler *MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
@@ -51,7 +46,7 @@ zEventTest_EventHandlerTest(void* arg_)
   TEST_TRUE(MyObserver->Empty());
 
   // Notify
-  MyEvent->NotifyHandlers(MyNotification);
+  MyEvent->Notify(8);
   TEST_TRUE(MyObserver->TryWait());
   TEST_EQ(MyObserver->Size(), 1);
   TEST_FALSE(MyObserver->Empty());

@@ -22,7 +22,7 @@ zEventTest_EventManagerTest(void* arg_)
   bool status = false;
 
   // Create new event and validate
-  zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
+  TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
   TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
 
@@ -38,7 +38,7 @@ zEventTest_EventManagerTest(void* arg_)
   TEST_FALSE(MyObserver->TimedWait(1));
 
   // Notify
-  MyEvent->NotifyHandlers(NULL);
+  MyEvent->Notify(0);
   TEST_TRUE(MyObserver->TimedWait(100));
 
   // Unregister observer with handler
