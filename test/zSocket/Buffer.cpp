@@ -38,10 +38,32 @@ using namespace Test;
 using namespace zUtils;
 
 int
+zSocketTest_BufferString(void* arg_)
+{
+
+  std::string expStr = "Test Buffer String";
+
+  // Create new packet and validate
+  zSocket::Buffer myBuffer(expStr);
+  TEST_ISNOT_NULL(myBuffer.Head());
+  TEST_EQ(myBuffer.Head(), myBuffer.Data());
+  TEST_NEQ(myBuffer.Head(), myBuffer.Tail());
+  TEST_ISNOT_NULL(myBuffer.Data());
+  TEST_EQ(int(expStr.size()), myBuffer.Length());
+  TEST_EQ(int(expStr.size()), myBuffer.Size());
+  TEST_EQ(int(expStr.size()), myBuffer.TotalSize());
+  TEST_EQ(expStr, myBuffer.Str());
+
+  // Return success
+  UTEST_RETURN;
+
+}
+
+int
 zSocketTest_BufferCompare(void* arg_)
 {
 
-  // Create new packet and validate
+  // Create new buffer and validate
   zSocket::Buffer mySb1;
   TEST_ISNOT_NULL(mySb1.Head());
   TEST_EQ(mySb1.Head(), mySb1.Data());
@@ -52,7 +74,7 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_EQ(mySb1.TotalSize(), 1500);
   TEST_EQ(std::string(""), mySb1.Str());
 
-  // Create new packet of set size and validate
+  // Create new buffer of set size and validate
   zSocket::Buffer mySb2;
   TEST_ISNOT_NULL(mySb2.Head());
   TEST_EQ(mySb2.Head(), mySb2.Data());
@@ -67,50 +89,60 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_TRUE((mySb1 == mySb2));
   TEST_EQ(mySb1.Str(), mySb2.Str());
 
-  // Write to first packet and validate
-  memset(mySb1.Data(), 0xed, 100);
-  mySb1.Put(100);
+  // Write to first buffer and validate
+  TEST_TRUE(mySb1.Data() == memset(mySb1.Data(), 0xed, 100));
+  TEST_TRUE(mySb1.Put(100));
   TEST_TRUE((mySb1 != mySb2));
   TEST_NEQ(mySb1.Str(), mySb2.Str());
 
-  // Write to second packet and validate
-  memset(mySb2.Data(), 0xde, 100);
-  mySb2.Put(100);
+  // Write to second buffer and validate
+  TEST_TRUE(mySb2.Data() == memset(mySb2.Data(), 0xde, 100));
+  TEST_TRUE(mySb2.Put(100));
   TEST_TRUE((mySb1 != mySb2));
   TEST_NEQ(mySb1.Str(), mySb2.Str());
 
-  // Write to second packet and validate
-  memset(mySb2.Data(), 0xed, 100);
+  // Write to second buffer and validate
+  TEST_TRUE(mySb2.Data() == memset(mySb2.Data(), 0xed, 100));
   TEST_TRUE((mySb1 == mySb2));
   TEST_EQ(mySb1.Str(), mySb2.Str());
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 
 }
 
 int
-zSocketTest_BufferString(void* arg_)
+zSocketTest_BufferCopy(void* arg_)
 {
 
-  // Create new packet and validate
-  zSocket::Buffer myBuffer;
-  TEST_ISNOT_NULL(myBuffer.Head());
-  TEST_EQ(myBuffer.Head(), myBuffer.Data());
-  TEST_EQ(myBuffer.Head(), myBuffer.Tail());
-  TEST_ISNOT_NULL(myBuffer.Data());
-  TEST_IS_ZERO(myBuffer.Length());
-  TEST_IS_ZERO(myBuffer.Size());
-  TEST_EQ(myBuffer.TotalSize(), 1500);
-  TEST_EQ(std::string(""), myBuffer.Str());
+  // Create new buffer and validate
+  zSocket::Buffer mySb1;
+  TEST_ISNOT_NULL(mySb1.Head());
+  TEST_TRUE(mySb1.Head() == mySb1.Data());
+  TEST_TRUE(mySb1.Head() == mySb1.Tail());
+  TEST_ISNOT_NULL(mySb1.Data());
+  TEST_IS_ZERO(mySb1.Length());
+  TEST_IS_ZERO(mySb1.Size());
+  TEST_EQ(1500, mySb1.TotalSize());
+  TEST_EQ(std::string(""), mySb1.Str());
 
-  // Copy string to buffer
-  std::string expStr = "Test Buffer String";
-  TEST_TRUE(myBuffer.Str(expStr));
-  TEST_EQ(expStr, myBuffer.Str());
-  TEST_EQ((int )expStr.size(), (int )myBuffer.Size());
+  // Write to first buffer and validate
+  TEST_TRUE(mySb1.Data() == memset(mySb1.Data(), 0xed, 100));
+  TEST_TRUE(mySb1.Put(100));
+  TEST_EQ(mySb1.Head(), mySb1.Data());
+  TEST_NEQ(mySb1.Head(), mySb1.Tail());
+
+  // Create new buffer from first buffer and validate
+  zSocket::Buffer mySb2(mySb1);
+  TEST_TRUE(mySb1.Head() == mySb2.Head());
+  TEST_TRUE(mySb2.Head() == mySb2.Data());
+  TEST_TRUE(mySb2.Head() == mySb2.Tail());
+  TEST_ISNOT_NULL(mySb2.Data());
+  TEST_IS_ZERO(mySb2.Length());
+  TEST_IS_ZERO(mySb2.Size());
+  TEST_EQ(mySb2.TotalSize(), 1500);
+  TEST_EQ(std::string(""), mySb2.Str());
 
   // Return success
-  return (0);
-
+  UTEST_RETURN;
 }

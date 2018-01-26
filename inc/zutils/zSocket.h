@@ -17,6 +17,8 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
+#include <time.h>
+
 #include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
@@ -43,6 +45,8 @@ typedef enum SocketType
 // Class: zSocket::Buffer
 //**********************************************************************
 
+struct skbmem;
+
 class Buffer
 {
 
@@ -52,15 +56,10 @@ public:
 
   Buffer(const std::string &str_);
 
-  Buffer(Buffer &other_);
-
   Buffer(const Buffer &other_);
 
   virtual
   ~Buffer();
-
-  Buffer &
-  operator=(Buffer &other_);
 
   Buffer &
   operator=(const Buffer &other_);
@@ -110,10 +109,15 @@ public:
   bool
   Str(const std::string &str_);
 
+  void
+  Display() const;
+
 protected:
 
 private:
 
+  struct timespec _ts;
+  struct skbmem* _skbmem;
   uint8_t *_head;
   size_t _data;
   size_t _tail;

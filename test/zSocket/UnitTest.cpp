@@ -49,8 +49,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_ObserverDefaults, 0);
   UTEST_TEST(zSocketTest_SocketDefaults, 0);
 
-  UTEST_TEST(zSocketTest_BufferCompare, 0);
   UTEST_TEST(zSocketTest_BufferString, 0);
+  UTEST_TEST(zSocketTest_BufferCompare, 0);
+  UTEST_TEST(zSocketTest_BufferCopy, 0);
 
   UTEST_TEST(zSocketTest_AddressGetSet, 0);
   UTEST_TEST(zSocketTest_AddressCompare, 0);

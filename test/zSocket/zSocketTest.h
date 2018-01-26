@@ -31,9 +31,11 @@ int
 zSocketTest_SocketDefaults(void* arg_);
 
 int
+zSocketTest_BufferString(void* arg_);
+int
 zSocketTest_BufferCompare(void* arg_);
 int
-zSocketTest_BufferString(void* arg_);
+zSocketTest_BufferCopy(void* arg_);
 
 int
 zSocketTest_AddressGetSet(void* arg_);
