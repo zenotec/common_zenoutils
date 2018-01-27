@@ -83,6 +83,9 @@ public:
   bool
   Pull(off_t off_);
 
+  bool
+  Reset();
+
   uint8_t *
   Data(off_t off_ = 0);
 
