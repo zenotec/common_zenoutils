@@ -48,24 +48,32 @@ bool
 Handler::RegisterSocket(Socket* sock_)
 {
   bool status = false;
-  bool empty = true;
+  int nsock = 0;
 
   if (sock_ && sock_->_get_fd() && this->_lock.Lock())
   {
     if (this->_sock_list.size() < NSOCK_MAX)
     {
+      ZLOG_INFO("Registering socket: " + ZLOG_P(sock_));
       status = this->RegisterEvent(sock_);
       this->_sock_list[sock_->_get_fd()] = sock_;
-      empty = this->_sock_list.empty();
+      nsock = this->_sock_list.size();
     }
     this->_lock.Unlock();
   }
 
   // Conditionally start handler thread
   // Note: this needs to be done outside critical section
-  if (!empty)
+  switch (nsock)
   {
+  case 2:
+    this->_thread.Stop();
+    // no break
+  case 1:
     this->_thread.Start();
+    break;
+  default:
+    break;
   }
 
   return (status);
@@ -81,6 +89,7 @@ Handler::UnregisterSocket(Socket* sock_)
   {
     if (this->_sock_list.count(sock_->_get_fd()))
     {
+      ZLOG_INFO("Unregistering socket: " + ZLOG_P(sock_));
       status = this->UnregisterEvent(sock_);
       this->_sock_list.erase(sock_->_get_fd());
     }
@@ -102,28 +111,27 @@ void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
+  int fd_cnt = 0;
   struct pollfd fds[NSOCK_MAX] = { 0 };
+
+  // Setup for poll loop
+  if (this->_lock.Lock())
+  {
+    FOREACH (auto& t, this->_sock_list)
+    {
+      fds[fd_cnt].fd = t.first;
+      fds[fd_cnt].events = (POLLIN | POLLERR);
+      fd_cnt++;
+    }
+    this->_lock.Unlock();
+  }
 
   while (!this->Exit())
   {
 
-    int fd_cnt = 0;
-
-    // Setup for poll loop
-    if (this->_lock.Lock())
-    {
-      FOREACH (auto& t, this->_sock_list)
-      {
-        fds[fd_cnt].fd = t.first;
-        fds[fd_cnt].events = (POLLIN | POLLERR);
-        fd_cnt++;
-      }
-      this->_lock.Unlock();
-    }
-
     // Wait on file descriptor set
     // Note: returns immediately if a signal is received
-    int ret = poll(fds, fd_cnt, 1000);
+    int ret = poll(fds, fd_cnt, 100);
 
     switch (ret)
     {

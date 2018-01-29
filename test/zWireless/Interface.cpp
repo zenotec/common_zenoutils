@@ -165,6 +165,7 @@ zWirelessTest_MonitorInterface(void* arg)
   uid_t uid = getuid(), euid = geteuid();
   if (uid != 0 || uid != euid)
   {
+    ZLOG_DEBUG("Test bypassed");
     UTEST_BYPASS;
   }
 
@@ -174,6 +175,7 @@ zWirelessTest_MonitorInterface(void* arg)
   std::map<int, std::string> phys = physcmd();
   if (phys.empty())
   {
+    ZLOG_DEBUG("Test bypassed");
     UTEST_BYPASS;
   }
 
@@ -278,6 +280,7 @@ zWirelessTest_AccessPointInterface(void* arg)
   uid_t uid = getuid(), euid = geteuid();
   if (uid != 0 || uid != euid)
   {
+    ZLOG_DEBUG("Test bypassed");
     UTEST_BYPASS;
   }
 
@@ -287,6 +290,7 @@ zWirelessTest_AccessPointInterface(void* arg)
   std::map<int, std::string> phys = physcmd();
   if (phys.empty())
   {
+    ZLOG_DEBUG("Test bypassed");
     UTEST_BYPASS;
   }
 

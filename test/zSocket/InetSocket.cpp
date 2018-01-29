@@ -66,7 +66,6 @@ zSocketTest_InetSocketDefault(void* arg_)
   TEST_ISNOT_NULL(MySock);
 
   // Cleanup
-  MySock->Close();
   delete (MySock);
 
   // Return success
@@ -99,15 +98,14 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Create new socket and validate
   zSocket::InetSocket *MySock = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind(*SrcAddr));
 
   // Create new socket handler and validate
-  zEvent::Handler* MyHandler = new zEvent::Handler;
+  zSocket::Handler* MyHandler = new zSocket::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterEvent(MySock);
+  MyHandler->RegisterSocket(MySock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -123,7 +121,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::AddressBufferPair txp = MyObserver->TxSem.Front();
+  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
   MyObserver->TxSem.Pop();
 
   // Verify no errors
@@ -133,7 +131,7 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::AddressBufferPair rxp = MyObserver->RxSem.Front();
+  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -141,11 +139,16 @@ zSocketTest_InetSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->GetAddress(), rxp.first->GetAddress());
-  TEST_EQ(txp.second->Str(), rxp.second->Str());
+  TEST_TRUE_MSG((txp->GetSrcAddress() == *SrcAddr), txp->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((txp->GetDstAddress() == *DstAddr), txp->GetDstAddress().GetAddress());
+
+  TEST_TRUE_MSG((rxp->GetSrcAddress() == *SrcAddr), rxp->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxp->GetDstAddress() == *DstAddr), rxp->GetDstAddress().GetAddress());
+
+  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterEvent(MySock);
+  MyHandler->UnregisterSocket(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
@@ -188,99 +191,81 @@ zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_)
   // Verify addresses are different
   TEST_TRUE(SrcAddr != DstAddr);
 
+  // Create new socket handler and validate
+  zSocket::Handler* MyHandler = new zSocket::Handler;
+  TEST_ISNOT_NULL(MyHandler);
+
+  // Create new observer and validate
+  TestObserver *MyObserver = new TestObserver;
+  TEST_ISNOT_NULL(MyObserver);
+
+  // Register observer
+  MyHandler->RegisterObserver(MyObserver);
+
   // Create new socket and validate
   zSocket::InetSocket *MySock1 = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock1);
-  TEST_TRUE(MySock1->Open());
   TEST_TRUE(MySock1->Bind(*SrcAddr));
 
-  // Create new socket handler and validate
-  zEvent::Handler* MyHandler1 = new zEvent::Handler;
-  TEST_ISNOT_NULL(MyHandler1);
-
-  // Create new socket handler and validate
-  zEvent::Handler* MyHandler2 = new zEvent::Handler;
-  TEST_ISNOT_NULL(MyHandler2);
-
   // Register socket with handler
-  MyHandler1->RegisterEvent(MySock1);
-
-  // Create new observer and validate
-  TestObserver *MyObserver1 = new TestObserver;
-  TEST_ISNOT_NULL(MyObserver1);
-
-  // Register observer
-  MyHandler1->RegisterObserver(MyObserver1);
+  MyHandler->RegisterSocket(MySock1);
 
   // Create new socket and validate
   zSocket::InetSocket *MySock2 = new zSocket::InetSocket;
   TEST_ISNOT_NULL(MySock2);
-  TEST_TRUE(MySock2->Open());
   TEST_TRUE(MySock2->Bind(*DstAddr));
 
   // Register socket with handler
-  MyHandler2->RegisterEvent(MySock2);
-
-  // Create new observer and validate
-  TestObserver *MyObserver2 = new TestObserver;
-  TEST_ISNOT_NULL(MyObserver2);
-
-  // Register observer
-  MyHandler2->RegisterObserver(MyObserver2);
+  MyHandler->RegisterSocket(MySock2);
 
   // Send string and validate
   std::string expStr = "Hello Universe";
   TEST_EQ((int )MySock1->Send(*DstAddr, expStr), (int )expStr.size());
 
   // Wait for packet to be sent
-  status = MyObserver1->TxSem.TimedWait(100);
+  status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
-  status = MyObserver2->TxSem.TryWait();
-  TEST_FALSE(status);
-  zSocket::AddressBufferPair txp = MyObserver1->TxSem.Front();
-  MyObserver1->TxSem.Pop();
+  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
+  MyObserver->TxSem.Pop();
 
   // Verify no errors
-  status = MyObserver1->ErrSem.TryWait();
+  status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
 
   // Wait for packet to be received
-  status = MyObserver2->RxSem.TimedWait(100);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  status = MyObserver1->RxSem.TryWait();
-  TEST_FALSE(status);
-  zSocket::AddressBufferPair rxp = MyObserver2->RxSem.Front();
-  MyObserver2->RxSem.Pop();
+  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
+  MyObserver->RxSem.Pop();
 
   // Verify no errors
-  status = MyObserver2->ErrSem.TryWait();
+  status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->GetAddress(), DstAddr->GetAddress());
-  TEST_EQ(rxp.first->GetAddress(), SrcAddr->GetAddress());
-  TEST_EQ(txp.second->Str(), rxp.second->Str());
+  TEST_TRUE_MSG((txp->GetSrcAddress() == *SrcAddr), txp->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((txp->GetDstAddress() == *DstAddr), txp->GetDstAddress().GetAddress());
+
+  TEST_TRUE_MSG((rxp->GetSrcAddress() == *SrcAddr), rxp->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxp->GetDstAddress() == *DstAddr), rxp->GetDstAddress().GetAddress());
+
+  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
+
+  // Unregister observer with socket handler
+  MyHandler->UnregisterSocket(MySock1);
+  MyHandler->UnregisterSocket(MySock2);
+  MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
-  MyHandler1->UnregisterEvent(MySock1);
-  MyHandler1->UnregisterObserver(MyObserver1);
-  delete (MyObserver1);
-  MySock1->Close();
   delete (MySock1);
-  delete (MyHandler1);
-
-  MyHandler2->UnregisterEvent(MySock2);
-  MyHandler2->UnregisterObserver(MyObserver2);
-  delete (MyObserver2);
-  MySock2->Close();
   delete (MySock2);
-  delete (MyHandler2);
-
   delete (DstAddr);
   delete (SrcAddr);
+  delete (MyObserver);
+  delete (MyHandler);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 
 }
 

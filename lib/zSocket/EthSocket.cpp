@@ -13,36 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <stdint.h>
-//#include <string.h>
-//#include <unistd.h>
-//#include <errno.h>
-//#include <sys/time.h>
-//#include <sys/types.h>
-//#include <poll.h>
-//#include <sys/ioctl.h>
-//#include <sys/socket.h>
-//#include <ifaddrs.h>
-//#include <linux/ip.h>
-//#include <linux/udp.h>
-//#include <net/if.h>
-//#include <netinet/in.h>
-////#include <netinet/ether.h>
-//
-//#include <zutils/zLog.h>
-//#include <zutils/zSocket.h>
-//#include <zutils/zEthSocket.h>
-//
-//ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
-//
-//namespace zUtils
-//{
-//namespace zSocket
-//{
-//
 
 #include <unistd.h>
 #include <errno.h>
@@ -52,6 +22,7 @@
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
 #include <netinet/in.h>
+#include <net/if.h>
 #include <poll.h>
 
 #include <zutils/zUtils.h>
@@ -91,33 +62,56 @@ _mac2str(const uint8_t* mac_, std::string& addr_)
 static bool
 _addr2ifindex(const std::string& addr_, int& index_)
 {
-  // TODO: Address is the interface index
-  return (sscanf(addr_.c_str(), "%d", &index_) == 1);
+  char c = 0;
+  if (sscanf(addr_.c_str(), "%d%c", &index_, &c) != 1)
+  {
+    index_ = if_nametoindex(addr_.c_str());
+  }
+  return (!!index_);
 }
 
 static bool
 _addr2mac(const std::string& addr_, uint8_t* mac_)
 {
-  // TODO: NOP
-  return (true);
+  uint8_t mac[ETH_ALEN] = { 0 };
+  bool status = _str2mac(addr_, mac);
+  if (status)
+  {
+    memcpy(mac_, mac, ETH_ALEN);
+  }
+  return (status);
 }
 
 static bool
 _addr2sa(const std::string &addr_, struct sockaddr_ll &sa_)
 {
-  bool status = true;
+  bool status = false;
+
+  // Initialize socket address
+  memset(&sa_, 0, sizeof(sa_));
   sa_.sll_family = AF_PACKET;
-  status &= _addr2ifindex(addr_, sa_.sll_ifindex);
-  sa_.sll_halen = ETH_ALEN;
-  status &= _addr2mac(addr_, sa_.sll_addr);
   sa_.sll_pkttype = PACKET_HOST;
+  sa_.sll_halen = ETH_ALEN;
+
+  if (!(status = _addr2mac(addr_, sa_.sll_addr)))
+  {
+    status = _addr2ifindex(addr_, sa_.sll_ifindex);
+  }
   return (status);
 }
 
 static bool
 _sa2addr(const struct sockaddr_ll &sa_, std::string &addr_)
 {
-  addr_ = zToStr(sa_.sll_ifindex);
+  char str[256] = { 0 };
+  if ((sa_.sll_ifindex) && if_indextoname(sa_.sll_ifindex, str))
+  {
+    addr_ = std::string(str);
+  }
+  else
+  {
+    _mac2str(sa_.sll_addr, addr_);
+  }
   return (!addr_.empty());
 }
 
@@ -265,7 +259,7 @@ EthSocket::_bind()
     return (false);
   }
 
-  if (this->GetAddress().GetType() != SOCKET_TYPE::TYPE_UNIX)
+  if (this->GetAddress().GetType() != SOCKET_TYPE::TYPE_ETH)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -300,14 +294,15 @@ EthSocket::_recv()
     ioctl(this->_sock, FIONREAD, &nbytes);
     if (nbytes)
     {
-      EthAddress addr;
-      socklen_t len = sizeof(addr.sa);
+      struct sockaddr_ll src;
+      socklen_t len = sizeof(src);
       Buffer sb(nbytes);
-      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &addr.sa, &len);
-      if (sb.Put(nbytes))
+      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
+      if ((nbytes > 0) && sb.Put(nbytes))
       {
-        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ")" + "Sent " + ZLOG_INT(nbytes) +
-            "bytes to: " + addr.GetAddress());
+        EthAddress addr(src);
+        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Received " + ZLOG_INT(nbytes) +
+            " bytes from: " + addr.GetAddress());
         if (!this->rxNotify(addr, sb))
         {
           nbytes = -1;
@@ -338,8 +333,8 @@ EthSocket::_send(const Address& to_, const Buffer& sb_)
     nbytes = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ")" + "Sent " + ZLOG_INT(sb_.Length()) +
-          "bytes to: " + addr.GetAddress());
+      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+          " bytes to: " + addr.GetAddress());
       if (!this->txNotify(to_, sb_))
       {
         nbytes = -1;
@@ -352,7 +347,6 @@ EthSocket::_send(const Address& to_, const Buffer& sb_)
   }
   return (nbytes);
 }
-
 
 //
 //bool

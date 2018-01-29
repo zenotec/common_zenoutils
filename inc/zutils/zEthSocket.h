@@ -17,12 +17,13 @@
 #ifndef __ZETHSOCKET_H__
 #define __ZETHSOCKET_H__
 
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
+
 #include <string>
 
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
-
-struct sockaddr_ll;
 
 namespace zUtils
 {
@@ -87,7 +88,7 @@ public:
     PROTO_LAST
   };
 
-  EthSocket(const EthSocket::PROTO proto_);
+  EthSocket(const EthSocket::PROTO proto_ = PROTO_ALL);
 
   virtual
   ~EthSocket();

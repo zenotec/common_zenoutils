@@ -103,20 +103,21 @@ _str2port(const std::string& addr_)
 }
 
 static bool
-_addr2sa(const std::string& addr_, struct sockaddr_in& sockaddr_)
+_addr2sa(const std::string& addr_, struct sockaddr_in& sa_)
 {
 
   bool status = false;
+  struct sockaddr_in sa = { 0 };
   uint32_t port = 0;
-  memset((void *) &sockaddr_, 0, sizeof(struct sockaddr_in));
 
-  sockaddr_.sin_family = AF_INET;
-  int ret = inet_pton( AF_INET, _str2ip(addr_).c_str(), &sockaddr_.sin_addr);
+  sa.sin_family = AF_INET;
+  int ret = inet_pton( AF_INET, _str2ip(addr_).c_str(), &sa.sin_addr);
   if (ret == 1)
   {
     if ((sscanf(_str2port(addr_).c_str(), "%u", &port) == 1) && (port < 0xffff))
     {
-      sockaddr_.sin_port = htons(port);
+      sa.sin_port = htons(port);
+      sa_ = sa;
       status = true;
     }
   }
@@ -125,11 +126,11 @@ _addr2sa(const std::string& addr_, struct sockaddr_in& sockaddr_)
 }
 
 static bool
-_sa2addr(const struct sockaddr_in& sockaddr_, std::string& addr_)
+_sa2addr(const struct sockaddr_in& sa_, std::string& addr_)
 {
   bool status = false;
   struct sockaddr_in sockaddr;
-  std::string addr = _sa2ip(sockaddr_) + ":" + _sa2portstr(sockaddr_);
+  std::string addr = _sa2ip(sa_) + ":" + _sa2portstr(sa_);
   if (_addr2sa(addr, sockaddr))
   {
     addr_ = addr;
@@ -368,7 +369,7 @@ InetSocket::_bind()
     return (false);
   }
 
-  if (this->GetAddress().GetType() != SOCKET_TYPE::TYPE_UNIX)
+  if (this->GetAddress().GetType() != SOCKET_TYPE::TYPE_INET4)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -403,14 +404,15 @@ InetSocket::_recv()
     ioctl(this->_sock, FIONREAD, &nbytes);
     if (nbytes)
     {
-      InetAddress addr;
-      socklen_t len = sizeof(addr.sa);
+      struct sockaddr_in src;
+      socklen_t len = sizeof(src);
       Buffer sb(nbytes);
-      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &addr.sa, &len);
-      if (sb.Put(nbytes))
+      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
+      if ((nbytes > 0) && sb.Put(nbytes))
       {
-        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ")" + "Sent " + ZLOG_INT(nbytes) +
-            "bytes to: " + addr.GetAddress());
+        InetAddress addr(src);
+        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Received " + ZLOG_INT(nbytes) +
+            " bytes from: " + addr.GetAddress());
         if (!this->rxNotify(addr, sb))
         {
           nbytes = -1;
@@ -441,8 +443,8 @@ InetSocket::_send(const Address& to_, const Buffer& sb_)
     nbytes = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ")" + "Sent " + ZLOG_INT(sb_.Length()) +
-          "bytes to: " + addr.GetAddress());
+      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+          " bytes to: " + addr.GetAddress());
       if (!this->txNotify(to_, sb_))
       {
         nbytes = -1;

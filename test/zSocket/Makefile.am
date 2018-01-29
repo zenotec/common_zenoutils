@@ -27,7 +27,11 @@ zSocketUnitTest_SOURCES = \
     LoopAddress.cpp \
     LoopSocket.cpp \
     UnixAddress.cpp \
-    UnixSocket.cpp
+    UnixSocket.cpp \
+	EthAddress.cpp \
+	EthSocket.cpp \
+    InetAddress.cpp \
+    InetSocket.cpp
 
 zSocketUnitTest_LDADD = \
     ${top_builddir}/lib/zSocket/libzSocket.la \

@@ -162,14 +162,14 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
-  delete (MyHandler);
   delete (MyObserver);
+  delete (MyHandler);
   delete (MySrcSock);
   delete (MyDstSock);
   delete (DstAddr);
   delete (SrcAddr);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 
 }
