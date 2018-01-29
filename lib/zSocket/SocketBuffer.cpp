@@ -218,6 +218,14 @@ Buffer::Pull(off_t off_)
   return (ret);
 }
 
+bool
+Buffer::Reset()
+{
+  this->_data = 0;
+  this->_tail = 0;
+  return true;
+}
+
 uint8_t *
 Buffer::Data(off_t off_)
 {

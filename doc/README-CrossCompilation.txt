@@ -19,7 +19,7 @@ Eclipse Settings:
 	CXXFLAGS="-I$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include -I$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include -std=gnu++11 -g" 
 	LDFLAGS="-L$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/lib" 
 	STAGING_DIR="$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi" 
-	PATH="$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/bin:$PATH"
+	PATH="$STAGING_DIR/bin:$PATH"
 
 	Advanced -> Additional command-line options:
 	--with-boost=$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include
@@ -29,5 +29,5 @@ Manual build:
 cd $ZENO_ROOT
 ./autogen.sh
 cd build-<build configuration name>
-../configure --host=arm-openwrt-linux --target=arm-openwrt-linux CXXFLAGS="-I$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include -I$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include -std=gnu++11 -g" LDFLAGS="-L$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/lib" STAGING_DIR="$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi" PATH="$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/bin:$PATH" --with-boost=$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include
+../configure --host=arm-openwrt-linux --target=arm-openwrt-linux CXXFLAGS="-I$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include -I$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include -std=gnu++11 -g" LDFLAGS="-L$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/lib" STAGING_DIR="$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi" PATH="$STAGING_DIR/bin:$PATH" --with-boost=$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include
 make
