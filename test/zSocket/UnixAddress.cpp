@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-
-#include <sstream>
-#include <string>
-#include <list>
-#include <mutex>
-#include <memory>
-
 #include <zutils/zLog.h>
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
@@ -47,7 +35,7 @@ zSocketTest_UnixAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   UnixAddress myAddr;
-  TEST_EQ(SocketType::TYPE_UNIX, myAddr.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Set socket address
@@ -69,12 +57,12 @@ zSocketTest_UnixAddressCompare(void* arg_)
 
   // Create new socket address and validate
   UnixAddress myAddr1;
-  TEST_EQ(SocketType::TYPE_UNIX, myAddr1.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create second socket address and validate
   UnixAddress myAddr2;
-  TEST_EQ(SocketType::TYPE_UNIX, myAddr2.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr2.GetType());
   TEST_EQ(std::string(""), myAddr2.GetAddress());
 
   // Compare address (match)
@@ -82,7 +70,7 @@ zSocketTest_UnixAddressCompare(void* arg_)
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address
-  myAddr1.SetAddress("unix");
+  TEST_TRUE(myAddr1.SetAddress("unix"));
   TEST_EQ(std::string("unix"), myAddr1.GetAddress());
 
   // Compare address (no match)
@@ -90,7 +78,7 @@ zSocketTest_UnixAddressCompare(void* arg_)
   TEST_TRUE(myAddr1 != myAddr2);
 
   // Set socket address
-  myAddr2.SetAddress("unix");
+  TEST_TRUE(myAddr2.SetAddress("unix"));
   TEST_EQ(std::string("unix"), myAddr2.GetAddress());
 
   // Compare address (match)
@@ -98,15 +86,15 @@ zSocketTest_UnixAddressCompare(void* arg_)
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address
-  myAddr1.SetAddress("");
-  TEST_EQ(std::string(""), myAddr1.GetAddress());
+  TEST_FALSE(myAddr1.SetAddress(""));
+  TEST_EQ(std::string("unix"), myAddr1.GetAddress());
 
-  // Compare address (no match)
-  TEST_FALSE(myAddr1 == myAddr2);
-  TEST_TRUE(myAddr1 != myAddr2);
+  // Compare address (match)
+  TEST_TRUE(myAddr1 == myAddr2);
+  TEST_FALSE(myAddr1 != myAddr2);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 
 }
 

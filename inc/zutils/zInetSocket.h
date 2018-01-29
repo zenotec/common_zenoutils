@@ -22,87 +22,44 @@
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
+struct sockaddr_in;
+
 namespace zUtils
 {
 namespace zSocket
 {
 
+class InetSocket;
+
 //**********************************************************************
-// InetAddress Class
+// Class: zSocket::InetAddress
 //**********************************************************************
 
 class InetAddress : public Address
 {
 
+  friend InetSocket;
+
 public:
 
   InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
 
-  InetAddress(Address &addr_);
+  InetAddress(const Address& addr_);
 
-  InetAddress(const Address &addr_);
+  InetAddress(const struct sockaddr_in& sa_);
 
   virtual
   ~InetAddress();
 
-protected:
-
-private:
+  virtual std::string
+  GetAddress() const;
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-};
-
-//**********************************************************************
-// zSocket::InetSocketRecv Class
-//**********************************************************************
-
-class InetSocketRecv : public zThread::ThreadFunction
-{
-
-public:
-
-  InetSocketRecv()
-  {
-  }
-
-  virtual
-  ~InetSocketRecv()
-  {
-  }
-
-  virtual void
-  Run(zThread::ThreadArg *arg_);
+  SetAddress(const std::string &addr_);
 
 protected:
 
-private:
-
-};
-
-//**********************************************************************
-// zSocket::InetSocketSend Class
-//**********************************************************************
-
-class InetSocketSend : public zThread::ThreadFunction
-{
-
-public:
-
-  InetSocketSend()
-  {
-  }
-
-  virtual
-  ~InetSocketSend()
-  {
-  }
-
-  virtual void
-  Run(zThread::ThreadArg *arg_);
-
-protected:
+  struct sockaddr_in sa;
 
 private:
 
@@ -115,21 +72,12 @@ private:
 class InetSocket : public Socket, public zThread::ThreadArg
 {
 
-  friend InetSocketRecv;
-  friend InetSocketSend;
-
 public:
 
   InetSocket();
 
   virtual
   ~InetSocket();
-
-  virtual bool
-  Open();
-
-  virtual void
-  Close();
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -139,23 +87,22 @@ public:
 
 protected:
 
-  int _sock;
+  virtual int
+  _get_fd();
 
   virtual bool
   _bind();
 
   virtual ssize_t
-  _recv(zSocket::InetAddress &src_, zSocket::Buffer &sb_);
+  _recv();
 
   virtual ssize_t
-  _send(const zSocket::InetAddress &dst_, zSocket::Buffer &sb_);
+  _send(const Address& to_, const Buffer& sb_);
 
 private:
 
-  zThread::Thread _rx_thread;
-  InetSocketRecv _rx_func;
-  zThread::Thread _tx_thread;
-  InetSocketSend _tx_func;
+  int _sock;
+  InetAddress _sa;
 
 };
 

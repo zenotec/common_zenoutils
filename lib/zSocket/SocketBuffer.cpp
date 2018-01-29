@@ -34,7 +34,7 @@ namespace zSocket
 struct skbmem
 {
   zSem::Mutex lock;
-  uint32_t refcnt;
+  struct timespec ts;
   uint8_t data[8192];
 };
 
@@ -51,96 +51,43 @@ _get_ts()
 //*****************************************************************************
 
 Buffer::Buffer(size_t size_) :
-    _ts(_get_ts()), _skbmem(new skbmem), _head(NULL), _data(0), _tail(0), _end(size_)
+    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
-  if (!this->_skbmem)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  this->_skbmem->refcnt = 1;
-  this->_head = &this->_skbmem->data[1024];
-  memset(this->_head, 0, this->_end);
+  this->_init(size_);
   this->_skbmem->lock.Unlock();
 }
 
 Buffer::Buffer(const std::string &str_) :
-    _ts(_get_ts()), _skbmem(new skbmem), _head(NULL), _data(0), _tail(0), _end(str_.size())
+    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
-  if (!this->_skbmem)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  this->_skbmem->refcnt = 1;
-  this->_head = &this->_skbmem->data[1024];
-  memset(this->_head, 0, this->_end);
-  this->_skbmem->lock.Unlock();
+  this->_init(str_.size());
   this->Str(str_);
 }
 
 Buffer::Buffer(const Buffer &other_) :
-    _ts(_get_ts()), _skbmem(other_._skbmem), _head(other_._head), _data(other_._data),
-    _tail(other_._tail), _end(other_._end)
+    _ts(_get_ts()), _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
-  if (this->_skbmem && this->_skbmem->lock.Lock())
-  {
-    this->_skbmem->refcnt++;
-    this->_skbmem->lock.Unlock();
-  }
+  this->_copy(other_);
 }
 
 Buffer::~Buffer()
 {
-  if (this->_skbmem && this->_skbmem->lock.Lock())
-  {
-    if (this->_skbmem->refcnt-- == 1)
-    {
-      delete (this->_skbmem);
-    }
-    else
-    {
-      this->_skbmem->lock.Unlock();
-    }
-    this->_skbmem = NULL;
-    this->_head = NULL;
-    this->_data = 0;
-    this->_tail = 0;
-    this->_end = 0;
-  }
+  this->_skbmem = NULL;
+  this->_head = NULL;
+  this->_data = 0;
+  this->_tail = 0;
+  this->_end = 0;
 }
 
 Buffer &
-Buffer::operator=(const Buffer &other_)
+Buffer::operator=(const Buffer& other_)
 {
-  if (this->_skbmem && this->_skbmem->lock.Lock())
-  {
-    if (this->_skbmem->refcnt-- == 1)
-    {
-      delete (this->_skbmem);
-    }
-    else
-    {
-      this->_skbmem->lock.Unlock();
-    }
-  }
-  this->_skbmem = other_._skbmem;
-  this->_head = other_._head;
-  this->_data = other_._data;
-  this->_tail = other_._tail;
-  this->_end = other_._end;
-  if (this->_skbmem && this->_skbmem->lock.Lock())
-  {
-    this->_skbmem->refcnt++;
-    this->_skbmem->lock.Unlock();
-  }
+  this->_copy(other_);
   return (*this);
 }
 
 bool
-Buffer::operator ==(Buffer &other_)
+Buffer::operator ==(const Buffer &other_) const
 {
   bool stat = false;
   if (this->Size() == other_.Size())
@@ -151,18 +98,13 @@ Buffer::operator ==(Buffer &other_)
 }
 
 bool
-Buffer::operator !=(Buffer &other_)
+Buffer::operator !=(const Buffer &other_) const
 {
-  bool stat = false;
-  if (this->Size() == other_.Size())
-  {
-    stat = (memcmp(this->_head, other_._head, this->Size()) == 0);
-  } // end if
-  return (!stat);
+  return (!(this->operator ==(other_)));
 }
 
 uint8_t *
-Buffer::Head()
+Buffer::Head() const
 {
   return (this->_head);
 }
@@ -212,49 +154,44 @@ Buffer::Reset()
 }
 
 uint8_t *
-Buffer::Data(off_t off_)
+Buffer::Data() const
 {
-  uint8_t *data = 0;
-  if ((this->_data + off_) <= this->_tail)
-  {
-    data = (this->_head + this->_data);
-    this->_data += off_;
-  } // end if
-  return (data);
+  return (this->_head + this->_data);
 }
 
 uint8_t *
-Buffer::Tail()
+Buffer::Tail() const
 {
   return (this->_head + this->_tail);
 }
 
 uint8_t *
-Buffer::End()
+Buffer::End() const
 {
   return (this->_head + this->_end);
 }
 
+
 size_t
-Buffer::Length()
+Buffer::Length() const
 {
   return (this->_tail - this->_data);
 }
 
 size_t
-Buffer::Size()
+Buffer::Size() const
 {
   return (this->_tail);
 }
 
 size_t
-Buffer::TotalSize()
+Buffer::TotalSize() const
 {
   return (this->_end);
 }
 
 std::string
-Buffer::Str()
+Buffer::Str() const
 {
   return (std::string((const char *) this->Head(), this->Size()));
 }
@@ -275,6 +212,33 @@ void
 Buffer::Display() const
 {
   printf("zSocket::Buffer(): %p\n", this);
+}
+
+void
+Buffer::_init(const size_t size_)
+{
+  this->_skbmem = SHARED_PTR(struct skbmem)(new skbmem);
+  if (!this->_skbmem.get())
+  {
+    std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
+    throw errMsg;
+  }
+  this->_ts = _get_ts();
+  this->_skbmem->ts = this->_ts;
+  this->_head = &this->_skbmem->data[1024];
+  this->_end = size_;
+  memset(this->_head, 0, this->_end);
+}
+
+void
+Buffer::_copy (const Buffer& other_)
+{
+  this->_skbmem = other_._skbmem;
+  this->_head = other_._head;
+  this->_data = other_._data;
+  this->_tail = other_._tail;
+  this->_end = other_._end;
 }
 
 }

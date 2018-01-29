@@ -40,6 +40,7 @@ main(int argc, const char **argv)
   zLog::FileConnector conn("UnitTest.zlog");
   zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
   zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_SOCKET, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -68,19 +69,19 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_UnixSocketDefault, 0);
   UTEST_TEST(zSocketTest_UnixSocketSendReceive, 0);
 
-  UTEST_TEST(zSocketTest_EthAddressGetSet, 0);
-  UTEST_TEST(zSocketTest_EthAddressCompare, 0);
-
-  UTEST_TEST(zSocketTest_EthSocketDefault, 0);
-  UTEST_TEST(zSocketTest_EthSocketSendReceiveLoop, 0);
-  UTEST_TEST(zSocketTest_EthSocketSendReceiveSock2Sock, 0);
-
-  UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
-  UTEST_TEST(zSocketTest_InetAddressCompare, 0);
-
-  UTEST_TEST(zSocketTest_InetSocketDefault, 0);
-  UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
-  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
+//  UTEST_TEST(zSocketTest_EthAddressGetSet, 0);
+//  UTEST_TEST(zSocketTest_EthAddressCompare, 0);
+//
+//  UTEST_TEST(zSocketTest_EthSocketDefault, 0);
+//  UTEST_TEST(zSocketTest_EthSocketSendReceiveLoop, 0);
+//  UTEST_TEST(zSocketTest_EthSocketSendReceiveSock2Sock, 0);
+//
+//  UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
+//  UTEST_TEST(zSocketTest_InetAddressCompare, 0);
+//
+//  UTEST_TEST(zSocketTest_InetSocketDefault, 0);
+//  UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
+//  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

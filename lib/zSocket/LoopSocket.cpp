@@ -14,18 +14,14 @@
  * limitations under the License.
  */
 
-#include <string>
-#include <list>
-#include <mutex>
-#include <memory>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
-
 #include <zutils/zLoopSocket.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
@@ -36,152 +32,67 @@ namespace zSocket
 {
 
 //**********************************************************************
-// LoopAddress Class
-//**********************************************************************
-
-LoopAddress::LoopAddress() :
-    Address(SocketType::TYPE_LOOP)
-{
-}
-
-LoopAddress::~LoopAddress()
-{
-}
-
-bool
-LoopAddress::verify(const SocketType type_, const std::string &addr_)
-{
-  return ((type_ == SocketType::TYPE_LOOP) && addr_.empty());
-}
-
-//**********************************************************************
-// zSocket::LoopSocket Class
+// Class: zSocket::LoopSocket
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SocketType::TYPE_LOOP), _thread(this, NULL),
-        _opened(false), _bound(false), _connected(false)
+    Socket(SOCKET_TYPE::TYPE_LOOP), _sock(0), _bound(false)
 {
-  return;
+  // Create a AF_INET socket
+  this->_sock = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+  if (this->_sock > 0)
+  {
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_sock));
+  }
+  else
+  {
+    this->_sock = 0;
+    ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
+  }
 }
 
 LoopSocket::~LoopSocket()
 {
-  this->Close();
-  return;
-}
-
-bool
-LoopSocket::Open()
-{
-  bool status = false;
-
-  if (!this->_opened)
-  {
-    this->_opened = true;
-    status = true;
-  }
-  return (status);
-}
-
-void
-LoopSocket::Close()
-{
+  ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
   // Close socket
-  if (this->_thread.Stop())
+  if (this->_sock)
   {
-    this->_opened = false;
-    ZLOG_DEBUG("Socket Closed");
-  } // end if
+    close(this->_sock);
+    this->_sock = 0;
+  }
+}
 
-  return;
+int
+LoopSocket::_get_fd()
+{
+  return (this->_sock);
 }
 
 bool
 LoopSocket::_bind()
 {
-  bool status = false;
-
-  if (this->GetAddress().GetType() != SocketType::TYPE_LOOP)
-  {
-    ZLOG_CRIT(std::string("Invalid socket address"));
-    return (false);
-  }
-
-  if (this->_opened && !this->_bound && !this->_connected)
-  {
-    // Start listener threads
-    if (this->_thread.Start())
-    {
-      this->_bound = true;
-      status = true;
-    }
-    else
-    {
-      ZLOG_ERR("Error starting listening threads");
-    }
-  }
-
-  return (status);
+  this->_bound = true;
+  return (this->_bound);
 }
 
-//bool
-//LoopSocket::Connect(const SocketAddress& addr_)
-//{
-//  bool status = false;
-//
-//  if (this->Address().Type() != SocketType::TYPE_LOOP)
-//  {
-//    ZLOG_CRIT(std::string("Invalid socket address"));
-//    return (false);
-//  }
-//
-//  if (addr_.Type() != SocketType::TYPE_LOOP)
-//  {
-//    ZLOG_ERR(std::string("Invalid socket address type"));
-//    return (false);
-//  }
-//
-//  if (this->_opened && !this->_bound && !this->_connected)
-//  {
-//    // Start listener threads
-//    if (this->_thread.Start())
-//    {
-//      this->_connected = true;
-//      status = true;
-//    }
-//    else
-//    {
-//      ZLOG_ERR("Error starting listening threads");
-//    }
-//  }
-//
-//  return (status);
-//}
-
-void
-LoopSocket::Run(zThread::ThreadArg *arg_)
+ssize_t
+LoopSocket::_recv()
 {
+  return (this->_bound);
+}
 
-  AddressBufferPair p;
-
-  while (!this->Exit())
+ssize_t
+LoopSocket::_send(const Address& to_, const Buffer& sb_)
+{
+  ssize_t nbytes = -1;
+  if (this->_bound && (to_ == this->GetAddress()) && this->txNotify(to_, sb_))
   {
-
-    if (this->txbuf(p, 100))
+    if (this->rxNotify(to_, sb_))
     {
-      ZLOG_DEBUG("Sending packet: " + p.first->GetAddress() +
-          "(" + zLog::IntStr(p.second->Size()) + ")");
-      if (!this->rxbuf(p))
-      {
-        ZLOG_ERR("Error sending packet");
-      }
+      nbytes = sb_.Size();
     }
-
   }
-
-  return;
-
+  return (nbytes);
 }
 
 }

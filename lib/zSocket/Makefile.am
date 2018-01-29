@@ -17,6 +17,8 @@ libzSocket_la_SOURCES = \
     SocketAddress.cpp \
     SocketNotification.cpp \
     Socket.cpp \
+    Tap.cpp \
+    Handler.cpp \
     LoopSocket.cpp \
     UnixSocket.cpp \
     EthSocket.cpp \

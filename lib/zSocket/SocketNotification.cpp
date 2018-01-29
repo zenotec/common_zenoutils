@@ -43,7 +43,8 @@ namespace zSocket
 //*****************************************************************************
 
 Notification::Notification(Socket& sock_) :
-    zEvent::Notification(sock_), _id(Notification::ID_NONE)
+    zEvent::Notification(sock_), _id(Notification::ID_NONE), _sa(sock_.GetType()),
+    _da(sock_.GetType())
 {
 }
 
@@ -51,36 +52,58 @@ Notification::~Notification()
 {
 }
 
+Socket&
+Notification::GetSocket()
+{
+  return (static_cast<Socket&>(this->GetEvent()));
+}
+
 Notification::ID
-Notification::Id() const
+Notification::GetId() const
 {
   return (this->_id);
 }
 
+const Address&
+Notification::GetSrcAddress() const
+{
+  return (this->_sa);
+}
+
+const Address&
+Notification::GetDstAddress() const
+{
+  return (this->_da);
+}
+
+const Buffer&
+Notification::GetBuffer() const
+{
+  return (this->_sb);
+}
+
 void
-Notification::id(Notification::ID id_)
+Notification::setId(Notification::ID id_)
 {
   this->_id = id_;
-  return;
-}
-
-zSocket::Socket&
-Notification::Sock()
-{
-  return (static_cast<zSocket::Socket&>(this->GetEvent()));
-}
-
-AddressBufferPair
-Notification::Pkt() const
-{
-  return (this->_pkt);
 }
 
 void
-Notification::pkt(AddressBufferPair &pkt_)
+Notification::setSrcAddress(const Address& sa_)
 {
-  this->_pkt = pkt_;
-  return;
+  this->_sa = sa_;
+}
+
+void
+Notification::setDstAddress(const Address& da_)
+{
+  this->_da = da_;
+}
+
+void
+Notification::setBuffer(const Buffer& sb_)
+{
+  this->_sb = sb_;
 }
 
 }

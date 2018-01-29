@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 #ifndef __ZUNIXSOCKET_H__
 #define __ZUNIXSOCKET_H__
 
+#include <sys/un.h>
+
 #include <string>
 
 #include <zutils/zThread.h>
@@ -27,95 +29,53 @@ namespace zUtils
 namespace zSocket
 {
 
+class UnixSocket;
+
 //**********************************************************************
-// UnixAddress Class
+// Class: zSocket::UnixAddress
 //**********************************************************************
 
-class UnixAddress : public Address
+class UnixAddress :
+    public Address
 {
+
+  friend UnixSocket;
 
 public:
 
-  UnixAddress(const std::string &addr_ = std::string(""));
+  UnixAddress(const std::string &addr_ = "");
 
-  UnixAddress(Address &addr_);
+  UnixAddress(const Address& addr_);
 
-  UnixAddress(const Address &addr_);
+  UnixAddress(const struct sockaddr_un& sa_);
 
   virtual
   ~UnixAddress();
 
-protected:
+  virtual std::string
+  GetAddress() const;
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-private:
-
-};
-
-//**********************************************************************
-// zSocket::UnixSocketRecv Class
-//**********************************************************************
-
-class UnixSocketRecv : public zThread::ThreadFunction
-{
-public:
-
-  UnixSocketRecv()
-  {
-  }
-
-  virtual
-  ~UnixSocketRecv()
-  {
-  }
+  SetAddress(const std::string &addr_);
 
   virtual void
-  Run(zThread::ThreadArg *arg_);
+  Display() const;
 
 protected:
 
-private:
-
-};
-
-//**********************************************************************
-// zSocket::UnixSocketSend Class
-//**********************************************************************
-
-class UnixSocketSend : public zThread::ThreadFunction
-{
-public:
-
-  UnixSocketSend()
-  {
-  }
-
-  virtual
-  ~UnixSocketSend()
-  {
-
-  }
-
-  virtual void
-  Run(zThread::ThreadArg *arg_);
-
-protected:
+  struct sockaddr_un sa;
 
 private:
 
 };
 
 //**********************************************************************
-// zSocket::UnixSocket Class
+// Class: zSocket::UnixSocket
 //**********************************************************************
 
-class UnixSocket : public Socket, public zThread::ThreadArg
+class UnixSocket :
+    public Socket
 {
-
-  friend UnixSocketRecv;
-  friend UnixSocketSend;
 
 public:
 
@@ -124,31 +84,24 @@ public:
   virtual
   ~UnixSocket();
 
-  virtual bool
-  Open();
-
-  virtual void
-  Close();
-
 protected:
 
-  int _sock;
+  virtual int
+  _get_fd();
 
   virtual bool
   _bind();
 
   virtual ssize_t
-  _recv(zSocket::UnixAddress &src_, zSocket::Buffer &sb_);
+  _recv();
 
   virtual ssize_t
-  _send(const zSocket::UnixAddress &dst_, zSocket::Buffer &sb_);
+  _send(const Address& to_, const Buffer& sb_);
 
 private:
 
-  zThread::Thread _rx_thread;
-  UnixSocketRecv _rx_func;
-  zThread::Thread _tx_thread;
-  UnixSocketSend _tx_func;
+  int _sock;
+  UnixAddress _sa;
 
 };
 

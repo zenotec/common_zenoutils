@@ -47,12 +47,12 @@ zSocketTest_LoopAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   LoopAddress myAddr;
-  TEST_EQ(SocketType::TYPE_LOOP, myAddr.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Set socket address
-  TEST_FALSE(myAddr.SetAddress(std::string("loop")));
-  TEST_EQ(std::string(""), myAddr.GetAddress());
+  TEST_TRUE(myAddr.SetAddress(std::string("loop")));
+  TEST_EQ(std::string("loop"), myAddr.GetAddress());
 
   // Return success
   return (0);
@@ -69,12 +69,12 @@ zSocketTest_LoopAddressCompare(void* arg_)
 
   // Create new socket address and validate
   LoopAddress myAddr1;
-  TEST_EQ(SocketType::TYPE_LOOP, myAddr1.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create second socket address and validate
   LoopAddress myAddr2;
-  TEST_EQ(SocketType::TYPE_LOOP, myAddr2.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr2.GetType());
   TEST_EQ(std::string(""), myAddr2.GetAddress());
 
   // Compare address (match)
@@ -82,16 +82,16 @@ zSocketTest_LoopAddressCompare(void* arg_)
   TEST_FALSE(myAddr1 != myAddr2);
 
   // Set socket address
-  TEST_FALSE(myAddr1.SetAddress("loop"));
-  TEST_EQ(std::string(""), myAddr1.GetAddress());
+  TEST_TRUE(myAddr1.SetAddress("loop"));
+  TEST_EQ(std::string("loop"), myAddr1.GetAddress());
 
-  // Compare address (match)
-  TEST_TRUE(myAddr1 == myAddr2);
-  TEST_FALSE(myAddr1 != myAddr2);
+  // Compare address (no match)
+  TEST_FALSE(myAddr1 == myAddr2);
+  TEST_TRUE(myAddr1 != myAddr2);
 
   // Set socket address
-  TEST_FALSE(myAddr2.SetAddress("loop"));
-  TEST_EQ(std::string(""), myAddr2.GetAddress());
+  TEST_TRUE(myAddr2.SetAddress("loop"));
+  TEST_EQ(std::string("loop"), myAddr2.GetAddress());
 
   // Compare address (match)
   TEST_TRUE(myAddr1 == myAddr2);

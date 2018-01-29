@@ -29,6 +29,7 @@
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
+#include <zutils/zUtils.h>
 #include <zutils/zSocket.h>
 #include <zutils/zLoopSocket.h>
 
@@ -115,6 +116,8 @@ int
 zSocketTest_BufferCopy(void* arg_)
 {
 
+  uint8_t* p = NULL;
+
   // Create new buffer and validate
   zSocket::Buffer mySb1;
   TEST_ISNOT_NULL(mySb1.Head());
@@ -129,19 +132,29 @@ zSocketTest_BufferCopy(void* arg_)
   // Write to first buffer and validate
   TEST_TRUE(mySb1.Data() == memset(mySb1.Data(), 0xed, 100));
   TEST_TRUE(mySb1.Put(100));
-  TEST_EQ(mySb1.Head(), mySb1.Data());
-  TEST_NEQ(mySb1.Head(), mySb1.Tail());
+  TEST_TRUE(mySb1.Head() == mySb1.Data());
+  TEST_TRUE(mySb1.Head() != mySb1.Tail());
+  TEST_EQ(100, mySb1.Length());
+  p = mySb1.Data();
+  for (int i = 0; i < 100; i++)
+  {
+    TEST_EQ_MSG(0xed, *p++, zToStr(i));
+  }
 
   // Create new buffer from first buffer and validate
   zSocket::Buffer mySb2(mySb1);
+  TEST_ISNOT_NULL(mySb2.Head());
   TEST_TRUE(mySb1.Head() == mySb2.Head());
-  TEST_TRUE(mySb2.Head() == mySb2.Data());
-  TEST_TRUE(mySb2.Head() == mySb2.Tail());
-  TEST_ISNOT_NULL(mySb2.Data());
-  TEST_IS_ZERO(mySb2.Length());
-  TEST_IS_ZERO(mySb2.Size());
-  TEST_EQ(mySb2.TotalSize(), 1500);
-  TEST_EQ(std::string(""), mySb2.Str());
+  TEST_TRUE(mySb1.Data() == mySb2.Data());
+  TEST_TRUE(mySb1.Tail() == mySb2.Tail());
+  TEST_EQ(100, mySb2.Length());
+  TEST_EQ(100, mySb2.Size());
+  TEST_EQ(1500, mySb2.TotalSize());
+  p = mySb2.Data();
+  for (int i = 0; i < 100; i++)
+  {
+    TEST_EQ_MSG(0xed, *p++, zToStr(i));
+  }
 
   // Return success
   UTEST_RETURN;

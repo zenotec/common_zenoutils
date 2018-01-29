@@ -19,16 +19,26 @@
 
 #include <time.h>
 
+#include <map>
+
 #include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
+#include <zutils/zThread.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-typedef enum SocketType
+class Buffer;
+class Address;
+class Socket;
+class Tap;
+class Handler;
+
+
+enum SOCKET_TYPE
 {
   TYPE_ERR = -1,
   TYPE_NONE = 0,
@@ -36,10 +46,10 @@ typedef enum SocketType
   TYPE_LOOP = 2,
   TYPE_UNIX = 3,
   TYPE_ETH = 4,
-  TYPE_INET = 5,
+  TYPE_INET4 = 5,
   TYPE_INET6 = 6,
   TYPE_LAST
-} SocketType;
+};
 
 //**********************************************************************
 // Class: zSocket::Buffer
@@ -65,13 +75,13 @@ public:
   operator=(const Buffer &other_);
 
   bool
-  operator==(Buffer &other_);
+  operator==(const Buffer &other_) const;
 
   bool
-  operator!=(Buffer &other_);
+  operator!=(const Buffer &other_) const;
 
   uint8_t *
-  Head();
+  Head() const;
 
   bool
   Put(off_t off_);
@@ -86,25 +96,25 @@ public:
   Reset();
 
   uint8_t *
-  Data(off_t off_ = 0);
+  Data() const;
 
   uint8_t *
-  Tail();
+  Tail() const;
 
   uint8_t *
-  End();
+  End() const;
 
   size_t
-  Length();
+  Length() const;
 
   size_t
-  Size();
+  Size() const;
 
   size_t
-  TotalSize();
+  TotalSize() const;
 
   std::string
-  Str();
+  Str() const;
 
   bool
   Str(const std::string &str_);
@@ -117,11 +127,17 @@ protected:
 private:
 
   struct timespec _ts;
-  struct skbmem* _skbmem;
+  SHARED_PTR(struct skbmem) _skbmem;
   uint8_t *_head;
   size_t _data;
   size_t _tail;
   size_t _end;
+
+  void
+  _init(const size_t size_);
+
+  void
+  _copy (const Buffer& other_);
 
 };
 
@@ -134,10 +150,7 @@ class Address
 
 public:
 
-  Address(const SocketType type = SocketType::TYPE_NONE,
-      const std::string &addr_ = std::string(""));
-
-  Address(Address &other_);
+  Address(const SOCKET_TYPE type, const std::string& addr_ = std::string(""));
 
   Address(const Address &other_);
 
@@ -145,30 +158,30 @@ public:
   ~Address();
 
   Address &
-  operator=(Address &other_);
-
-  Address &
   operator=(const Address &other_);
 
   bool
   operator ==(const Address &other_) const;
+
   bool
   operator !=(const Address &other_) const;
+
   bool
   operator <(const Address &other_) const;
+
   bool
   operator >(const Address &other_) const;
 
-  const SocketType
+  SOCKET_TYPE
   GetType() const;
 
   bool
-  SetType(const SocketType type_);
+  SetType(const SOCKET_TYPE type_);
 
-  std::string
+  virtual std::string
   GetAddress() const;
 
-  bool
+  virtual bool
   SetAddress(const std::string &addr_);
 
   virtual void
@@ -176,56 +189,23 @@ public:
 
 protected:
 
+private:
+
+  SOCKET_TYPE _type;
   std::string _addr;
 
-  virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-private:
-
-  SocketType _type;
-
 };
-
-//**********************************************************************
-// Class: zSocket::SocketAddressFactory
-//**********************************************************************
-
-class SocketAddressFactory
-{
-public:
-
-  static Address*
-  Create(const SocketType type_, const std::string& addr_ = "");
-
-  static Address*
-  Create(const Address& addr_);
-
-  static Address*
-  Create(const std::string& addr_);
-
-private:
-
-};
-
-//**********************************************************************
-// Typedef: zSocket::SocketAddressBufferPair
-//**********************************************************************
-
-typedef std::pair<SHARED_PTR(const Address), SHARED_PTR(Buffer)> AddressBufferPair;
-
-//**********************************************************************
-// Typedef: zSocket::SocketAddressBufferQueue
-//**********************************************************************
-
-typedef zQueue<AddressBufferPair> AddressBufferQueue;
 
 //**********************************************************************
 // Class: zSocket::Socket
 //**********************************************************************
 
-class Socket : public zEvent::Event
+class Socket :
+    public zEvent::Event
 {
+
+  friend Tap;
+  friend Handler;
 
 public:
 
@@ -233,31 +213,26 @@ public:
   {
     OPTIONS_ERR = -1,
     OPTIONS_NONE = 0,
-    OPTIONS_ALLOW_BCAST = 1,
-    OPTIONS_NONBLOCK = 2,
-    OPTIONS_TOS_LP = 3,
-    OPTIONS_TOS_NP = 4,
-    OPTIONS_TOS_HP = 5,
-    OPTIONS_TOS_UHP = 6,
+    OPTIONS_ALLOW_BCAST, // Allow sending of broadcast packets
+    OPTIONS_NONBLOCK, // Do not block
+    OPTIONS_ALLOW_REUSE, // Allow multiple socket to use address
+    OPTIONS_TOS_LP, // Low priority
+    OPTIONS_TOS_NP, // Normal priority
+    OPTIONS_TOS_HP, // High priority
+    OPTIONS_TOS_UHP, // Ultra-high priority
     OPTIONS_LAST
   };
 
-  Socket(SocketType type_ = SocketType::TYPE_NONE);
+  Socket(const SOCKET_TYPE type_);
 
   virtual
   ~Socket();
 
-  const SocketType
+  const SOCKET_TYPE
   GetType() const;
 
   const Address&
   GetAddress() const;
-
-  virtual bool
-  Open() = 0;
-
-  virtual void
-  Close() = 0;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -269,9 +244,6 @@ public:
   Bind(const Address& addr_);
 
   ssize_t
-  Send(AddressBufferPair& pair_);
-
-  ssize_t
   Send(const Address& to_, Buffer& sb_);
 
   ssize_t
@@ -279,23 +251,18 @@ public:
 
 protected:
 
-  Address* _addr;
-
-  virtual bool
-  _bind() = 0;
-
-  // Called by derived class to process a received packet
+  // Called by derived class after packet is received
   bool
-  rxbuf(AddressBufferPair& pair_);
+  rxNotify(const Address& to_, const Buffer& sb_);
 
-  // Called by derived class to get packet to send
+  // Called by derived class after packet is sent
   bool
-  txbuf(AddressBufferPair& pair_, size_t timeout_ = 1000000 /* usec */);
+  txNotify(const Address& to_, const Buffer& sb_);
 
 private:
 
-  const SocketType _type;
-  AddressBufferQueue _txq;
+  const SOCKET_TYPE _type;
+  Address _addr;
 
   Socket(Socket &other_);
 
@@ -307,13 +274,54 @@ private:
   Socket &
   operator=(const Socket &other_);
 
+  virtual int
+  _get_fd() = 0;
+
+  virtual bool
+  _bind() = 0;
+
+  virtual ssize_t
+  _recv() = 0;
+
+  virtual ssize_t
+  _send(const Address& to_, const Buffer& sb_) = 0;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Tap
+//**********************************************************************
+
+class Tap
+{
+
+public:
+
+  Tap(Socket& sock_);
+
+  virtual
+  ~Tap();
+
+  bool
+  Recv(const Address& to_, Buffer& sb_);
+
+  bool
+  Send(const Address& to_, Buffer& sb_);
+
+protected:
+
+private:
+
+  Socket& _sock;
+
 };
 
 //**********************************************************************
 // Class: zSocket::Notification
 //**********************************************************************
 
-class Notification : public zEvent::Notification
+class Notification :
+    public zEvent::Notification
 {
 
   friend Socket;
@@ -335,27 +343,100 @@ public:
   virtual
   ~Notification();
 
-  Notification::ID
-  Id() const;
-
   Socket&
-  Sock();
+  GetSocket();
 
-  AddressBufferPair
-  Pkt() const;
+  Notification::ID
+  GetId() const;
+
+  const Address&
+  GetSrcAddress() const;
+
+  const Address&
+  GetDstAddress() const;
+
+  const Buffer&
+  GetBuffer() const;
 
 protected:
 
   void
-  id(Notification::ID id_);
+  setId(Notification::ID id_);
 
   void
-  pkt(AddressBufferPair &pkt_);
+  setSrcAddress(const Address& sa_);
+
+  void
+  setDstAddress(const Address& da_);
+
+  void
+  setBuffer(const Buffer& sb_);
 
 private:
 
   Notification::ID _id;
-  AddressBufferPair _pkt;
+  Address _sa;
+  Address _da;
+  Buffer _sb;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Queue
+//**********************************************************************
+
+class Queue :
+    zThread::ThreadFunction
+{
+
+public:
+
+  Queue();
+
+  virtual
+  ~Queue();
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+
+};
+
+//**********************************************************************
+// Class: zSocket::Handler
+//**********************************************************************
+
+class Handler :
+    public zEvent::Handler,
+    public zThread::ThreadFunction
+{
+public:
+
+  Handler();
+
+  virtual
+  ~Handler();
+
+  bool
+  RegisterSocket(Socket* socket_);
+
+  bool
+  UnregisterSocket(Socket* socket_);
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+  zSem::Mutex _lock;
+  std::map<int, Socket*> _sock_list;
+  zThread::Thread _thread;
 
 };
 
@@ -363,7 +444,7 @@ private:
 // Class: zSocket::Manager
 //**********************************************************************
 
-class Manager : public zEvent::Handler
+class Manager : public Handler
 {
 public:
 

@@ -95,10 +95,11 @@ using namespace zSocket;
 
 class TestAddress : public zSocket::Address
 {
+
 public:
 
   TestAddress() :
-    zSocket::Address(SocketType::TYPE_TEST)
+    zSocket::Address(SOCKET_TYPE::TYPE_TEST)
   {
   }
 
@@ -109,17 +110,13 @@ public:
 
 protected:
 
-  virtual bool
-  verify(const SocketType type_, const std::string &addr_)
-  {
-    return (type_ == SocketType::TYPE_TEST);
-  }
-
 };
 
 class TestObserver : public zEvent::Observer
 {
+
 public:
+
   TestObserver()
   {
   }
@@ -129,9 +126,9 @@ public:
   {
   }
 
-  zQueue<AddressBufferPair> RxSem;
-  zQueue<AddressBufferPair> TxSem;
-  zQueue<AddressBufferPair> ErrSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> RxSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> TxSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> ErrSem;
 
 protected:
 
@@ -144,19 +141,19 @@ protected:
     if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
       SHARED_PTR(Notification) n = STATIC_CAST(Notification)(noti_);
-      switch (n->Id())
+      switch (n->GetId())
       {
       case Notification::ID_PKT_RCVD:
-        this->RxSem.Push(n->Pkt());
+        this->RxSem.Push(n);
         status = true;
         break;
       case Notification::ID_PKT_SENT:
-        this->TxSem.Push(n->Pkt());
+        this->TxSem.Push(n);
         this->TxSem.Post();
         status = true;
         break;
       default:
-        this->ErrSem.Push(n->Pkt());
+        this->ErrSem.Push(n);
         status = false;
         break;
       }
@@ -168,9 +165,12 @@ private:
 
 };
 
-class TestSocket : public LoopSocket
+class TestSocket :
+    public LoopSocket
 {
+
 public:
+
   TestSocket()
   {
   }

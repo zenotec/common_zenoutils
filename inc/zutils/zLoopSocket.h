@@ -19,7 +19,6 @@
 
 #include <string>
 
-#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -28,7 +27,7 @@ namespace zSocket
 {
 
 //**********************************************************************
-// LoopAddress Class
+// Class zSocket::LoopAddress
 //**********************************************************************
 
 class LoopAddress : public Address
@@ -36,25 +35,28 @@ class LoopAddress : public Address
 
 public:
 
-  LoopAddress();
+  LoopAddress(const std::string& addr_ = "") :
+    Address(SOCKET_TYPE::TYPE_LOOP, addr_)
+  {
+  }
 
   virtual
-  ~LoopAddress();
+  ~LoopAddress()
+  {
+  }
 
 protected:
-
-  virtual bool
-  verify(const SocketType type_, const std::string &addr_);
 
 private:
 
 };
 
 //**********************************************************************
-// zSocket::LoopSocket Class
+// Class: zSocket::LoopSocket
 //**********************************************************************
 
-class LoopSocket : public Socket, public zThread::ThreadFunction
+class LoopSocket :
+    public Socket
 {
 
 public:
@@ -64,29 +66,24 @@ public:
   virtual
   ~LoopSocket();
 
-  virtual bool
-  Open();
-
-  virtual void
-  Close();
-
-//  virtual bool
-//  Connect(const SocketAddress& addr_);
-
 protected:
 
-  virtual void
-  Run(zThread::ThreadArg *arg_);
+  virtual int
+  _get_fd();
 
   virtual bool
   _bind();
 
+  virtual ssize_t
+  _recv();
+
+  virtual ssize_t
+  _send(const Address& to_, const Buffer& sb_);
+
 private:
 
-  zThread::Thread _thread;
-  bool _opened;
+  int _sock;
   bool _bound;
-  bool _connected;
 
 };
 

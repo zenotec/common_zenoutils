@@ -46,7 +46,7 @@ zSocketTest_AddressGetSet(void* arg_)
 
   // Create new socket address and validate
   TestAddress myAddr;
-  TEST_EQ(SocketType::TYPE_TEST, myAddr.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_TEST, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
   TEST_TRUE(myAddr.SetAddress(std::string("some_address")));
   TEST_EQ(std::string("some_address"), myAddr.GetAddress());
@@ -65,12 +65,12 @@ zSocketTest_AddressCompare(void* arg_)
 
   // Create new socket address and validate
   TestAddress myAddr1;
-  TEST_EQ(SocketType::TYPE_TEST, myAddr1.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_TEST, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create another new socket address and validate
   TestAddress myAddr2;
-  TEST_EQ(SocketType::TYPE_TEST, myAddr2.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_TEST, myAddr2.GetType());
   TEST_EQ(std::string(""), myAddr2.GetAddress());
 
   // Compare the addresses

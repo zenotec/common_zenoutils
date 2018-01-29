@@ -203,7 +203,7 @@ bool
 MessageSocket::EventHandler(zSocket::Notification* notification_)
 {
   bool status = false;
-  switch (notification_->Id())
+  switch (notification_->GetId())
   {
   case zSocket::Notification::ID_PKT_RCVD:
   {

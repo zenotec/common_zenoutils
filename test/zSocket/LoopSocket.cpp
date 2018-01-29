@@ -14,26 +14,6 @@
  * limitations under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/poll.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <ifaddrs.h>
-
-#include <sstream>
-
-#include <string>
-#include <list>
-#include <mutex>
-#include <memory>
-
 #include <zutils/zLog.h>
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
@@ -58,7 +38,6 @@ zSocketTest_LoopSocketDefault(void* arg_)
   TEST_ISNOT_NULL(MySock);
 
   // Cleanup
-  MySock->Close();
   delete (MySock);
 
   // Return success
@@ -78,21 +57,20 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::LoopAddress *MyAddr = new zSocket::LoopAddress;
-  TEST_EQ(SocketType::TYPE_LOOP, MyAddr->GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, MyAddr->GetType());
   TEST_EQ(std::string(""), MyAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::LoopSocket *MySock = new zSocket::LoopSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_TRUE(MySock->Open());
   TEST_TRUE(MySock->Bind(*MyAddr));
 
   // Create new socket handler and validate
-  zEvent::Handler* MyHandler = new zEvent::Handler;
+  zSocket::Handler* MyHandler = new zSocket::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterEvent(MySock);
+  MyHandler->RegisterSocket(MySock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -108,7 +86,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   // Wait for packet to be sent
   status = MyObserver->TxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::AddressBufferPair txp = MyObserver->TxSem.Front();
+  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
   MyObserver->TxSem.Pop();
 
   // Verify no errors
@@ -118,7 +96,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::AddressBufferPair rxp = MyObserver->RxSem.Front();
+  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -126,11 +104,12 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->GetAddress(), rxp.first->GetAddress());
-  TEST_EQ(txp.second->Str(), rxp.second->Str());
+  TEST_TRUE(txp->GetSrcAddress() == rxp->GetDstAddress());
+  TEST_TRUE(txp->GetDstAddress() == rxp->GetSrcAddress());
+  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterEvent(MySock);
+  MyHandler->UnregisterSocket(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
