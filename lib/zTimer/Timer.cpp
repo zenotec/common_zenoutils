@@ -60,7 +60,7 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 //**********************************************************************
 
 Timer::Timer() :
-    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0), _ticks(0)
+    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0)
 {
 
   // Create timer
@@ -68,7 +68,6 @@ Timer::Timer() :
   if (this->_fd <= 0)
   {
     this->_fd = 0;
-    return;
   } // end if
 
   this->_lock.Unlock();
@@ -129,9 +128,12 @@ uint64_t
 Timer::GetTicks() const
 {
   uint64_t ticks = 0;
-  if (this->_lock.Lock())
+  if (this->_fd && this->_lock.Lock())
   {
-    ticks = this->_ticks;
+    if (read(this->_fd, &ticks, sizeof(ticks) != sizeof(ticks)))
+    {
+      ticks = 0;
+    }
     this->_lock.Unlock();
   } // end if
   return (ticks);

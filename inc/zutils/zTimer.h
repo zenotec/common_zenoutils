@@ -68,7 +68,6 @@ private:
 
   mutable zSem::Mutex _lock;
   uint32_t _interval; // micro-seconds
-  uint64_t _ticks;
 
   bool
   _start(void);
@@ -93,6 +92,9 @@ public:
   virtual
   ~Notification();
 
+  Timer&
+  GetTimer();
+
   uint32_t
   GetId() const;
 
@@ -116,6 +118,7 @@ class Handler :
     public zEvent::Handler,
     public zThread::ThreadFunction
 {
+
 public:
 
   Handler();

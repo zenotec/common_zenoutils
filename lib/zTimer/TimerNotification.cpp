@@ -34,10 +34,16 @@ Notification::~Notification()
 {
 }
 
+Timer&
+Notification::GetTimer()
+{
+  return (static_cast<Timer&>(this->GetEvent()));
+}
+
 uint32_t
 Notification::GetId() const
 {
-  return(this->_id);
+  return (this->_id);
 }
 
 uint64_t
