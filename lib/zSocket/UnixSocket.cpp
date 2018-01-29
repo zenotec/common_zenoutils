@@ -168,8 +168,7 @@ UnixSocket::_bind()
   int ret = bind(this->_sock, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->GetAddress().GetAddress() + ": " +
-        std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 

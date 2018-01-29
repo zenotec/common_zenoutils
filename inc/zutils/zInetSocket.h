@@ -57,6 +57,9 @@ public:
   virtual bool
   SetAddress(const std::string &addr_);
 
+  virtual void
+  Display() const;
+
 protected:
 
   struct sockaddr_in sa;

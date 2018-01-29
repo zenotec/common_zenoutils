@@ -187,6 +187,16 @@ InetAddress::SetAddress(const std::string& addr_)
   return (status);
 }
 
+void
+InetAddress::Display() const
+{
+  Address::Display();
+  std::cout << "----------------- INET4 Address -----------------" << std::endl;
+  std::cout << "Family: \t" << this->sa.sin_family << std::endl;
+  std::cout << "IP:     \t" << _sa2ip(this->sa) << std::endl;
+  std::cout << "Port:   \t" << _sa2portstr(this->sa) << std::endl;
+}
+
 //**********************************************************************
 // zSocket::InetSocket Class
 //**********************************************************************
@@ -381,8 +391,8 @@ InetSocket::_bind()
   int ret = bind(this->_sock, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->GetAddress().GetAddress() + ": " +
-        std::string(strerror(errno)));
+    this->_sa.Display();
+    ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
