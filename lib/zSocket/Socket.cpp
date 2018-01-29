@@ -88,7 +88,7 @@ Socket::Bind(const Address& addr_)
 }
 
 ssize_t
-Socket::Send(const Address& addr_, Buffer& sb_)
+Socket::Send(const Address& addr_, const Buffer& sb_)
 {
   return (this->_send(addr_, sb_));
 }

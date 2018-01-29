@@ -236,7 +236,7 @@ Buffer::_copy (const Buffer& other_)
 {
   this->_skbmem = other_._skbmem;
   this->_head = other_._head;
-  this->_data = other_._data;
+  this->_data = 0;
   this->_tail = other_._tail;
   this->_end = other_._end;
 }

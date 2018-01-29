@@ -244,7 +244,7 @@ public:
   Bind(const Address& addr_);
 
   ssize_t
-  Send(const Address& to_, Buffer& sb_);
+  Send(const Address& to_, const Buffer& sb_);
 
   ssize_t
   Send(const Address& to_, const std::string& str_);

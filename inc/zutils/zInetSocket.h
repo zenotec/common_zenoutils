@@ -17,12 +17,12 @@
 #ifndef __ZINETSOCKET_H__
 #define __ZINETSOCKET_H__
 
+#include <netinet/in.h>
+
 #include <string>
 
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
-
-struct sockaddr_in;
 
 namespace zUtils
 {
