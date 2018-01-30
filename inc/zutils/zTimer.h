@@ -43,7 +43,7 @@ class Timer : public zEvent::Event
 
 public:
 
-  Timer();
+  Timer(const std::string& name_ = "");
 
   virtual
   ~Timer();
@@ -68,6 +68,7 @@ private:
 
   mutable zSem::Mutex _lock;
   uint32_t _interval; // micro-seconds
+  std::string _name;
 
   bool
   _start(void);

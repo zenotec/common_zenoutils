@@ -59,8 +59,8 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 // Class: Timer
 //**********************************************************************
 
-Timer::Timer() :
-    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0)
+Timer::Timer(const std::string& name_) :
+    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0), _name(name_)
 {
 
   // Create timer
@@ -70,11 +70,16 @@ Timer::Timer() :
     this->_fd = 0;
   } // end if
 
+  fprintf(stderr, "(%d) Creating timer: %s\n", this->_fd, this->_name.c_str());
+
   this->_lock.Unlock();
 }
 
 Timer::~Timer()
 {
+
+  fprintf(stderr, "(%d) Destroying timer: %s\n", this->_fd, this->_name.c_str());
+
   // Make sure the timer is stopped
   this->Stop();
 
@@ -99,6 +104,9 @@ Timer::~Timer()
 bool
 Timer::Start(uint32_t usec_)
 {
+
+  fprintf(stderr, "(%d) Starting timer: %s\n", this->_fd, this->_name.c_str());
+
   bool status = false;
   if (this->_lock.Lock())
   {
@@ -112,6 +120,9 @@ Timer::Start(uint32_t usec_)
 bool
 Timer::Stop(void)
 {
+
+  fprintf(stderr, "(%d) Stopping timer: %s\n", this->_fd, this->_name.c_str());
+
   bool status  = false;
   if (this->_lock.Lock())
   {
