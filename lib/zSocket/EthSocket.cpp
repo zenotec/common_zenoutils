@@ -185,12 +185,20 @@ EthSocket::EthSocket(const EthSocket::PROTO proto_) :
 
 EthSocket::~EthSocket()
 {
-  ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
-  // Close socket
-  if (this->_sock)
+  // Make sure the socket is unregistered from all handlers
+  if (!this->_handler_list.empty())
   {
-    close(this->_sock);
-    this->_sock = 0;
+    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
+  }
+  else
+  {
+    // Close socket
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
+    if (this->_sock)
+    {
+      close(this->_sock);
+      this->_sock = 0;
+    } // end if
   }
 }
 

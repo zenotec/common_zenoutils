@@ -130,13 +130,21 @@ UnixSocket::UnixSocket() :
 
 UnixSocket::~UnixSocket()
 {
-  // Close socket
-  if (this->_sock)
+  // Make sure the socket is unregistered from all handlers
+  if (!this->_handler_list.empty())
   {
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
-    unlink(this->_sa.sa.sun_path);
-    close(this->_sock);
-    this->_sock = 0;
+    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
+  }
+  else
+  {
+    // Close socket
+    if (this->_sock)
+    {
+      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
+      unlink(this->_sa.sa.sun_path);
+      close(this->_sock);
+      this->_sock = 0;
+    } // end if
   }
 }
 

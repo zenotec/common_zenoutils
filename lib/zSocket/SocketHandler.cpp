@@ -62,8 +62,8 @@ Handler::RegisterSocket(Socket* sock_)
     this->_lock.Unlock();
   }
 
-  // Conditionally start handler thread
-  // Note: this needs to be done outside critical section
+  // Conditionally stop/start handler thread so the socket fd gets added
+  // to the poll list Note: this needs to be done outside critical section
   switch (nsock)
   {
   case 2:
@@ -83,7 +83,7 @@ bool
 Handler::UnregisterSocket(Socket* sock_)
 {
   bool status = false;
-  bool empty = false;
+  int nsock = 0;
 
   if (sock_ && this->_lock.Lock())
   {
@@ -93,15 +93,22 @@ Handler::UnregisterSocket(Socket* sock_)
       status = this->UnregisterEvent(sock_);
       this->_sock_list.erase(sock_->_get_fd());
     }
-    empty = this->_sock_list.empty();
+    nsock = this->_sock_list.size();
     this->_lock.Unlock();
   }
 
-  // Conditionally stop handler thread
-  // Note: this needs to be done outside critical section
-  if (empty)
+  // Conditionally stop/start handler thread so the socket fd gets removed
+  // from the poll list Note: this needs to be done outside critical section
+  switch (nsock)
   {
+  case 2:
     this->_thread.Stop();
+    // no break
+  case 1:
+    this->_thread.Start();
+    break;
+  default:
+    break;
   }
 
   return (status);
@@ -147,7 +154,7 @@ Handler::Run(zThread::ThreadArg *arg_)
     {
       if (ret < 0)
       {
-        fprintf(stderr, "Poll encountered an error: %d\n", ret);
+        fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
       }
       else
       {
@@ -166,8 +173,8 @@ Handler::Run(zThread::ThreadArg *arg_)
       break;
     }
     }
-    return;
   }
+  return;
 }
 
 

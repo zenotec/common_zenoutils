@@ -286,6 +286,7 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock1);
+  MyHandler->UnregisterSocket(MySock2);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup

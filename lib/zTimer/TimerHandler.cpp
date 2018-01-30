@@ -20,6 +20,8 @@
 #include <zutils/zEvent.h>
 #include <zutils/zTimer.h>
 
+#define NTIMER_MAX   8
+
 namespace zUtils
 {
 namespace zTimer
@@ -42,47 +44,70 @@ Handler::~Handler()
 }
 
 bool
-Handler::RegisterTimer(Timer* event_)
+Handler::RegisterTimer(Timer* timer_)
 {
   bool status = false;
-  bool empty = true;
-  if (event_ && this->_lock.Lock())
+  int ntimer = 0;
+
+  if (timer_ && timer_->_fd && this->_lock.Lock())
   {
-    status = this->RegisterEvent(event_);
-    this->_timer_list[event_->_fd] = event_;
-    empty = this->_timer_list.empty();
+    if (this->_timer_list.size() < NTIMER_MAX)
+    {
+      status = this->RegisterEvent(timer_);
+      this->_timer_list[timer_->_fd] = timer_;
+      ntimer = this->_timer_list.size();
+    }
     this->_lock.Unlock();
   }
 
-  // Conditionally start handler thread
-  if (!empty)
+  // Conditionally stop/start handler thread so the timer fd gets added
+  // to the poll list Note: this needs to be done outside critical section
+  switch (ntimer)
   {
+  case 2:
+    this->_thread.Stop();
+    // no break
+  case 1:
     this->_thread.Start();
+    break;
+  default:
+    break;
   }
+
   return (status);
 }
 
 bool
-Handler::UnregisterTimer(Timer* event_)
+Handler::UnregisterTimer(Timer* timer_)
 {
   bool status = false;
-  bool empty = false;
-  if (event_ && this->_lock.Lock())
+  int ntimer = 0;
+
+  if (timer_ && this->_lock.Lock())
   {
-    if (this->_timer_list.count(event_->_fd))
+    if (this->_timer_list.count(timer_->_fd))
     {
-      status = this->UnregisterEvent(event_);
-      this->_timer_list.erase(event_->_fd);
+      status = this->UnregisterEvent(timer_);
+      this->_timer_list.erase(timer_->_fd);
     }
-    empty = this->_timer_list.empty();
+    ntimer = this->_timer_list.size();
     this->_lock.Unlock();
   }
 
-  // Conditionally stop handler thread
-  if (empty)
+  // Conditionally stop/start handler thread so the timer fd gets removed
+  // from the poll list Note: this needs to be done outside critical section
+  switch (ntimer)
   {
+  case 2:
     this->_thread.Stop();
+    // no break
+  case 1:
+    this->_thread.Start();
+    break;
+  default:
+    break;
   }
+
   return (status);
 }
 
@@ -90,47 +115,66 @@ void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
-  struct pollfd fds[32] = { 0 };
+  int fd_cnt = 0;
+  struct pollfd fds[NTIMER_MAX] = { 0 };
+
+  if (this->_lock.Lock())
+  {
+    // Setup for poll loop
+    FOREACH (auto& t, this->_timer_list)
+    {
+      fds[fd_cnt].fd = t.first;
+      fds[fd_cnt].events = (POLLIN | POLLERR);
+      fd_cnt++;
+    }
+    this->_lock.Unlock();
+  }
 
   while (!this->Exit())
   {
-    int fd_cnt = 0;
-    if (this->_lock.Lock())
-    {
-      // Setup for poll loop
-      FOREACH (auto& t, this->_timer_list)
-      {
-        fds[fd_cnt].fd = t.first;
-        fds[fd_cnt].events = (POLLIN | POLLERR);
-        fd_cnt++;
-      }
-      this->_lock.Unlock();
-    }
 
+    // Wait on file descriptor set
+    // Note: returns immediately if a signal is received
     int ret = poll(fds, fd_cnt, 100);
-    if (ret <= 0)
-    {
-      continue;
-    }
 
-    for (int i = 0; i < fd_cnt; i++)
+    switch (ret)
     {
-      if (fds[i].revents == POLLIN)
+    case 0:
+      // Poll timed out
+      break;
+    case -EINTR:
+      // A signal interrupted poll; exit flag should be set
+      fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
+      break;
+    default:
+    {
+      if (ret < 0)
       {
-        uint64_t ticks = 0;
-        ret = read(fds[i].fd, &ticks, sizeof(ticks));
-        if (ret > 0 && this->_timer_list.count(fds[i].fd))
+        fprintf(stderr, "Timer handler encountered a poll error: %d\n", ret);
+      }
+      else
+      {
+        for (int i = 0; i < fd_cnt; i++)
         {
-          Timer* t = this->_timer_list[fds[i].fd];
-          SHARED_PTR(Notification) noti(new Notification(*t));
-          t->NotifyHandlers(noti);
+          if (fds[i].revents == POLLIN)
+          {
+            uint64_t ticks = 0;
+            ret = read(fds[i].fd, &ticks, sizeof(ticks));
+            if (ret > 0 && this->_timer_list.count(fds[i].fd))
+            {
+              Timer* t = this->_timer_list[fds[i].fd];
+              SHARED_PTR(Notification) noti(new Notification(*t));
+              t->NotifyHandlers(noti);
+            }
+          }
         }
       }
+      break;
     }
-
+    }
   }
 
-
+  return;
 }
 
 }

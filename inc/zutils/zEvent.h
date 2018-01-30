@@ -69,11 +69,13 @@ public:
 
 protected:
 
-  bool
-  registerHandler(Handler *handler_);
+  std::list<Handler*> _handler_list;
 
   bool
-  unregisterHandler(Handler *handler_);
+  registerHandler(Handler* handler_);
+
+  bool
+  unregisterHandler(Handler* handler_);
 
   void
   NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
@@ -82,7 +84,6 @@ private:
 
   mutable zSem::Mutex _event_lock;
   Event::TYPE _type;
-  std::list<Handler *> _handler_list;
 
   Event(Event &other_);
 

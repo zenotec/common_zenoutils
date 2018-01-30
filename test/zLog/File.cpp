@@ -58,7 +58,7 @@ zLogTest_FileConnector(void* arg_)
   int logSize = GetFileSize(logFile);
   TEST_ISNOT_ZERO(logSize);
   ZLOG_CRIT("CRIT");
-  usleep(10000);
+  usleep(100000);
   TEST_NEQ(logSize, GetFileSize(logFile));
   logFile.close();
 

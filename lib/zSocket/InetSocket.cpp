@@ -219,12 +219,20 @@ InetSocket::InetSocket() :
 
 InetSocket::~InetSocket()
 {
-  ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
-  // Close socket
-  if (this->_sock)
+  // Make sure the socket is unregistered from all handlers
+  if (!this->_handler_list.empty())
   {
-    close(this->_sock);
-    this->_sock = 0;
+    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
+  }
+  else
+  {
+    // Close socket
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
+    if (this->_sock)
+    {
+      close(this->_sock);
+      this->_sock = 0;
+    } // end if
   }
 }
 
@@ -391,7 +399,6 @@ InetSocket::_bind()
   int ret = bind(this->_sock, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
   if (ret < 0)
   {
-    this->_sa.Display();
     ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if

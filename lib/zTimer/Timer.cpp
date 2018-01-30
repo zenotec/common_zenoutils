@@ -80,11 +80,20 @@ Timer::~Timer()
 
   this->_lock.Lock();
 
+  // Make sure the timer is unregistered from all handlers
+  if (!this->_handler_list.empty())
+  {
+    fprintf(stderr, "BUG: Timer registered with handler, not closing FD\n");
+  }
+  else
+  {
   // Delete timer
   if (this->_fd)
   {
     close(this->_fd);
+    this->_fd = 0;
   } // end if
+  }
 }
 
 bool
