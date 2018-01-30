@@ -64,16 +64,12 @@ static const struct rtap_field fieldtbl[] =
 };
 
 static uint8_t*
-_align(const uint8_t* addr_, const size_t align_, size_t& pad_)
+_align(const uint8_t* hdr_, const uint8_t* addr_, const size_t align_, size_t& pad_)
 {
-  unsigned long addr = (unsigned long) addr_;
+  unsigned long offset = (addr_ - hdr_);
   unsigned long mask = (align_ - 1);
-  pad_ = 0;
-  if (addr & mask)
-  {
-    pad_ = (align_ - (addr & mask));
-  }
-  return ((uint8_t*) ((addr + mask) & ~mask));
+  pad_ = (offset & mask);
+  return ((uint8_t*) (addr_ + pad_));
 }
 
 //*****************************************************************************
@@ -91,7 +87,7 @@ RadioTapField::~RadioTapField()
 }
 
 uint8_t*
-RadioTapField::Assemble(uint8_t* frame_, size_t& rem_, size_t& pad_)
+RadioTapField::Assemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_)
 {
 
   // Sanity check the field attributes
@@ -103,7 +99,7 @@ RadioTapField::Assemble(uint8_t* frame_, size_t& rem_, size_t& pad_)
   // Align the field address
   size_t pad = 0;
 //  printf("\nRadioTapField::Assemble(%d): %p\n", this->Id(), frame_);
-  frame_ = _align(frame_, this->Align(), pad);
+  frame_ = _align(hdr_, frame_, this->Align(), pad);
 //  printf("RadioTapField::Assemble(%d): %p\n", this->Id(), frame_);
 //  printf("RadioTapField::Assemble(%d): %zd, %zd, %zd\n",
 //      this->Id(), this->Align(), this->Size(), pad);
@@ -122,7 +118,7 @@ RadioTapField::Assemble(uint8_t* frame_, size_t& rem_, size_t& pad_)
 }
 
 uint8_t*
-RadioTapField::Disassemble(uint8_t* frame_, size_t& rem_, size_t& pad_)
+RadioTapField::Disassemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_)
 {
 
   // Sanity check the field attributes
@@ -134,7 +130,7 @@ RadioTapField::Disassemble(uint8_t* frame_, size_t& rem_, size_t& pad_)
   // Align the field address
   size_t pad = 0;
 //  printf("\nRadioTapField::Disassemble(%d): %p\n", this->Id(), frame_);
-  frame_ = _align(frame_, this->Align(), pad);
+  frame_ = _align(hdr_, frame_, this->Align(), pad);
 //  printf("RadioTapField::Disassemble(%d): %p\n", this->Id(), frame_);
 //  printf("RadioTapField::Disassemble(%d): %zd, %zd, %zd\n",
 //      this->Id(), this->Align(), this->Size(), pad);

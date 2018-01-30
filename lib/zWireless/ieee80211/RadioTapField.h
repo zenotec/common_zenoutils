@@ -75,10 +75,10 @@ public:
   ~RadioTapField();
 
   uint8_t*
-  Assemble(uint8_t* frame_, size_t& rem_, size_t& pad_);
+  Assemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_);
 
   uint8_t*
-  Disassemble(uint8_t* frame_, size_t& rem_, size_t& pad_);
+  Disassemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_);
 
   RadioTapField::ID
   Id() const;
