@@ -41,7 +41,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(const SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(type_)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), fd(0), _type(type_), _addr(type_)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -49,6 +49,12 @@ Socket::Socket(const SOCKET_TYPE type_) :
 Socket::~Socket()
 {
   ZLOG_DEBUG("Destroying socket: '" + ZLOG_P(this) + "'");
+}
+
+int
+Socket::GetId() const
+{
+  return (this->fd);
 }
 
 const SOCKET_TYPE
@@ -107,7 +113,7 @@ Socket::rxNotify(const Address& from_, const Buffer& sb_)
   SHARED_PTR(Notification) n(new Notification(*this));
   if (n.get())
   {
-    n->setId(Notification::ID_PKT_RCVD);
+    n->setSubType(Notification::SUBTYPE_PKT_RCVD);
     n->setSrcAddress(from_);
     n->setDstAddress(this->_addr);
     n->setBuffer(sb_);
@@ -124,7 +130,7 @@ Socket::txNotify(const Address& to_, const Buffer& sb_)
   SHARED_PTR(Notification) n(new Notification(*this));
   if (n.get())
   {
-    n->setId(Notification::ID_PKT_SENT);
+    n->setSubType(Notification::SUBTYPE_PKT_SENT);
     n->setSrcAddress(this->_addr);
     n->setDstAddress(to_);
     n->setBuffer(sb_);

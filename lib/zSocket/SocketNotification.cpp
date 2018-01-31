@@ -43,8 +43,8 @@ namespace zSocket
 //*****************************************************************************
 
 Notification::Notification(Socket& sock_) :
-    zEvent::Notification(sock_), _id(Notification::ID_NONE), _sa(sock_.GetType()),
-    _da(sock_.GetType())
+    zEvent::Notification(sock_), _subtype(Notification::SUBTYPE_NONE),
+    _sa(sock_.GetType()), _da(sock_.GetType())
 {
 }
 
@@ -53,15 +53,21 @@ Notification::~Notification()
 }
 
 Socket&
-Notification::GetSocket()
+Notification::GetSocket() const
 {
   return (static_cast<Socket&>(this->GetEvent()));
 }
 
-Notification::ID
+int
 Notification::GetId() const
 {
-  return (this->_id);
+  return (this->GetSocket().GetId());
+}
+
+Notification::SUBTYPE
+Notification::GetSubType() const
+{
+  return (this->_subtype);
 }
 
 const Address&
@@ -83,9 +89,9 @@ Notification::GetBuffer() const
 }
 
 void
-Notification::setId(Notification::ID id_)
+Notification::setSubType(Notification::SUBTYPE subtype_)
 {
-  this->_id = id_;
+  this->_subtype = subtype_;
 }
 
 void

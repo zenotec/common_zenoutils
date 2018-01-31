@@ -228,6 +228,9 @@ public:
   virtual
   ~Socket();
 
+  int
+  GetId() const;
+
   const SOCKET_TYPE
   GetType() const;
 
@@ -251,6 +254,8 @@ public:
 
 protected:
 
+  int fd;
+
   // Called by derived class after packet is received
   bool
   rxNotify(const Address& to_, const Buffer& sb_);
@@ -273,9 +278,6 @@ private:
 
   Socket &
   operator=(const Socket &other_);
-
-  virtual int
-  _get_fd() = 0;
 
   virtual bool
   _bind() = 0;
@@ -328,14 +330,14 @@ class Notification :
 
 public:
 
-  enum ID
+  enum SUBTYPE
   {
-    ID_ERR = -1,
-    ID_NONE = 0,
-    ID_PKT_RCVD = 1,
-    ID_PKT_SENT = 2,
-    ID_PKT_ERR = 3,
-    ID_LAST
+    SUBTYPE_ERR = -1,
+    SUBTYPE_NONE = 0,
+    SUBTYPE_PKT_RCVD = 1,
+    SUBTYPE_PKT_SENT = 2,
+    SUBTYPE_PKT_ERR = 3,
+    SUBTYPE_LAST
   };
 
   Notification(Socket& sock_);
@@ -344,10 +346,13 @@ public:
   ~Notification();
 
   Socket&
-  GetSocket();
+  GetSocket() const;
 
-  Notification::ID
+  int
   GetId() const;
+
+  Notification::SUBTYPE
+  GetSubType() const;
 
   const Address&
   GetSrcAddress() const;
@@ -361,7 +366,7 @@ public:
 protected:
 
   void
-  setId(Notification::ID id_);
+  setSubType(Notification::SUBTYPE subtype_);
 
   void
   setSrcAddress(const Address& sa_);
@@ -374,7 +379,7 @@ protected:
 
 private:
 
-  Notification::ID _id;
+  Notification::SUBTYPE _subtype;
   Address _sa;
   Address _da;
   Buffer _sb;

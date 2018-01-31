@@ -135,13 +135,7 @@ Timer::Stop(void)
 uint32_t
 Timer::GetId() const
 {
-  uint32_t id = 0;
-  if (this->_lock.Lock())
-  {
-    id = uint32_t(this->_fd);
-    this->_lock.Unlock();
-  } // end if
-  return (id);
+  return (uint32_t(this->_fd)); // read only
 }
 
 uint64_t

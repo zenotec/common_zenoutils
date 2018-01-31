@@ -50,13 +50,13 @@ Handler::RegisterSocket(Socket* sock_)
   bool status = false;
   int nsock = 0;
 
-  if (sock_ && sock_->_get_fd() && this->_lock.Lock())
+  if (sock_ && sock_->GetId() && this->_lock.Lock())
   {
     if (this->_sock_list.size() < NSOCK_MAX)
     {
       ZLOG_INFO("Registering socket: " + ZLOG_P(sock_));
       status = this->RegisterEvent(sock_);
-      this->_sock_list[sock_->_get_fd()] = sock_;
+      this->_sock_list[sock_->GetId()] = sock_;
       nsock = this->_sock_list.size();
     }
     this->_lock.Unlock();
@@ -87,11 +87,11 @@ Handler::UnregisterSocket(Socket* sock_)
 
   if (sock_ && this->_lock.Lock())
   {
-    if (this->_sock_list.count(sock_->_get_fd()))
+    if (this->_sock_list.count(sock_->GetId()))
     {
       ZLOG_INFO("Unregistering socket: " + ZLOG_P(sock_));
       status = this->UnregisterEvent(sock_);
-      this->_sock_list.erase(sock_->_get_fd());
+      this->_sock_list.erase(sock_->GetId());
     }
     nsock = this->_sock_list.size();
     this->_lock.Unlock();

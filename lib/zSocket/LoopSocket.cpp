@@ -36,17 +36,17 @@ namespace zSocket
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SOCKET_TYPE::TYPE_LOOP), _sock(0), _bound(false)
+    Socket(SOCKET_TYPE::TYPE_LOOP), _bound(false)
 {
   // Create a AF_INET socket
-  this->_sock = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
-  if (this->_sock > 0)
+  this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+  if (this->fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_sock));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
   }
   else
   {
-    this->_sock = 0;
+    this->fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
@@ -61,19 +61,13 @@ LoopSocket::~LoopSocket()
   else
   {
     // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
-    if (this->_sock)
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
+    if (this->fd)
     {
-      close(this->_sock);
-      this->_sock = 0;
+      close(this->fd);
+      this->fd = 0;
     } // end if
   }
-}
-
-int
-LoopSocket::_get_fd()
-{
-  return (this->_sock);
 }
 
 bool

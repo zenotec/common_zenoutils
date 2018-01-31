@@ -113,17 +113,17 @@ UnixAddress::Display() const
 //**********************************************************************
 
 UnixSocket::UnixSocket() :
-    Socket(SOCKET_TYPE::TYPE_UNIX), _sock(0)
+    Socket(SOCKET_TYPE::TYPE_UNIX)
 {
   // Create a AF_INET socket
-  this->_sock = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
-  if (this->_sock > 0)
+  this->fd = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
+  if (this->fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_sock));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
   }
   else
   {
-    this->_sock = 0;
+    this->fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
@@ -138,27 +138,21 @@ UnixSocket::~UnixSocket()
   else
   {
     // Close socket
-    if (this->_sock)
+    if (this->fd)
     {
-      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
+      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
       unlink(this->_sa.sa.sun_path);
-      close(this->_sock);
-      this->_sock = 0;
+      close(this->fd);
+      this->fd = 0;
     } // end if
   }
-}
-
-int
-UnixSocket::_get_fd()
-{
-  return (this->_sock);
 }
 
 bool
 UnixSocket::_bind()
 {
 
-  if (!this->_sock)
+  if (!this->fd)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (false);
@@ -173,14 +167,14 @@ UnixSocket::_bind()
   this->_sa = UnixAddress(this->GetAddress());
 
   // Bind address to socket
-  int ret = bind(this->_sock, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
+  int ret = bind(this->fd, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
   if (ret < 0)
   {
     ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_sock));
+  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
 
   return (true);
 
@@ -192,20 +186,20 @@ UnixSocket::_recv()
 
   int nbytes = 0;
 
-  if (this->_sock)
+  if (this->fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
-    ioctl(this->_sock, FIONREAD, &nbytes);
+    ioctl(this->fd, FIONREAD, &nbytes);
     if (nbytes)
     {
       struct sockaddr_un src;
       socklen_t len = sizeof(src);
       Buffer sb(nbytes);
-      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
+      nbytes = recvfrom(this->fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb.Put(nbytes))
       {
         UnixAddress addr(src);
-        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + addr.GetAddress());
         if (!this->rxNotify(addr, sb))
         {
@@ -227,17 +221,17 @@ UnixSocket::_send(const Address& to_, const Buffer& sb_)
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = this->_sock;
+  fds[0].fd = this->fd;
   fds[0].events = (POLLOUT | POLLERR);
 
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
     UnixAddress addr(to_);
-    nbytes = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
+    nbytes = sendto(this->fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+      ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
           " bytes to: " + addr.GetAddress());
       if (!this->txNotify(to_, sb_))
       {

@@ -141,13 +141,13 @@ protected:
     if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
       SHARED_PTR(Notification) n = STATIC_CAST(Notification)(noti_);
-      switch (n->GetId())
+      switch (n->GetSubType())
       {
-      case Notification::ID_PKT_RCVD:
+      case Notification::SUBTYPE_PKT_RCVD:
         this->RxSem.Push(n);
         status = true;
         break;
-      case Notification::ID_PKT_SENT:
+      case Notification::SUBTYPE_PKT_SENT:
         this->TxSem.Push(n);
         this->TxSem.Post();
         status = true;

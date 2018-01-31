@@ -203,9 +203,9 @@ bool
 MessageSocket::EventHandler(zSocket::Notification* notification_)
 {
   bool status = false;
-  switch (notification_->GetId())
+  switch (notification_->GetSubType())
   {
-  case zSocket::Notification::ID_PKT_RCVD:
+  case zSocket::Notification::SUBTYPE_PKT_RCVD:
   {
     zSocket::AddressBufferPair p = notification_->Pkt();
     // Update address / socket mapping
@@ -224,7 +224,7 @@ MessageSocket::EventHandler(zSocket::Notification* notification_)
     }
     break;
   }
-  case zSocket::Notification::ID_PKT_SENT:
+  case zSocket::Notification::SUBTYPE_PKT_SENT:
   {
     zSocket::AddressBufferPair p = notification_->Pkt();
     zMessage::Message *msg = MessageFactory::Create(p.second->Str());

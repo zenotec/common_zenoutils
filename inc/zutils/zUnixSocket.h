@@ -86,9 +86,6 @@ public:
 
 protected:
 
-  virtual int
-  _get_fd();
-
   virtual bool
   _bind();
 
@@ -100,7 +97,6 @@ protected:
 
 private:
 
-  int _sock;
   UnixAddress _sa;
 
 };

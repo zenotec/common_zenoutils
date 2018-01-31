@@ -168,17 +168,17 @@ EthAddress::SetAddress(const std::string& addr_)
 //**********************************************************************
 
 EthSocket::EthSocket(const EthSocket::PROTO proto_) :
-    Socket(SOCKET_TYPE::TYPE_ETH), _sock(0)
+    Socket(SOCKET_TYPE::TYPE_ETH)
 {
   // Create a AF_INET socket
-  this->_sock = socket( PF_PACKET, SOCK_RAW, htons(proto_));
-  if (this->_sock > 0)
+  this->fd = socket( PF_PACKET, SOCK_RAW, htons(proto_));
+  if (this->fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_sock));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
   }
   else
   {
-    this->_sock = 0;
+    this->fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
@@ -193,11 +193,11 @@ EthSocket::~EthSocket()
   else
   {
     // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_sock));
-    if (this->_sock)
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
+    if (this->fd)
     {
-      close(this->_sock);
-      this->_sock = 0;
+      close(this->fd);
+      this->fd = 0;
     } // end if
   }
 }
@@ -212,7 +212,7 @@ EthSocket::Getopt(Socket::OPTIONS opt_)
   {
     int optval = 0;
     socklen_t optlen = sizeof(optval);
-    if (getsockopt(this->_sock, SOL_SOCKET, SO_REUSEADDR, &optval, &optlen) < 0)
+    if (getsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, &optlen) < 0)
     {
       ZLOG_ERR("Cannot get socket option: " + std::string(strerror(errno)));
     }
@@ -239,7 +239,7 @@ EthSocket::Setopt(Socket::OPTIONS opt_)
   {
     // Enable reuse of socket
     int optval = 0;
-    if (setsockopt(this->_sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
     {
       ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
     }
@@ -251,17 +251,11 @@ EthSocket::Setopt(Socket::OPTIONS opt_)
   return (status);
 }
 
-int
-EthSocket::_get_fd()
-{
-  return (this->_sock);
-}
-
 bool
 EthSocket::_bind()
 {
 
-  if (!this->_sock)
+  if (!this->fd)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (false);
@@ -276,14 +270,14 @@ EthSocket::_bind()
   this->_sa = EthAddress(this->GetAddress());
 
   // Bind address to socket
-  int ret = bind(this->_sock, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
+  int ret = bind(this->fd, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
   if (ret < 0)
   {
     ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_sock));
+  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
 
   return (true);
 
@@ -295,20 +289,20 @@ EthSocket::_recv()
 
   int nbytes = 0;
 
-  if (this->_sock)
+  if (this->fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
-    ioctl(this->_sock, FIONREAD, &nbytes);
+    ioctl(this->fd, FIONREAD, &nbytes);
     if (nbytes)
     {
       struct sockaddr_ll src;
       socklen_t len = sizeof(src);
       Buffer sb(nbytes);
-      nbytes = recvfrom(this->_sock, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
+      nbytes = recvfrom(this->fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb.Put(nbytes))
       {
         EthAddress addr(src);
-        ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + addr.GetAddress());
         if (!this->rxNotify(addr, sb))
         {
@@ -330,17 +324,17 @@ EthSocket::_send(const Address& to_, const Buffer& sb_)
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = this->_sock;
+  fds[0].fd = this->fd;
   fds[0].events = (POLLOUT | POLLERR);
 
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
     EthAddress addr(to_);
-    nbytes = sendto(this->_sock, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
+    nbytes = sendto(this->fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_sock) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+      ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
           " bytes to: " + addr.GetAddress());
       if (!this->txNotify(to_, sb_))
       {
@@ -354,207 +348,6 @@ EthSocket::_send(const Address& to_, const Buffer& sb_)
   }
   return (nbytes);
 }
-
-//
-//bool
-//EthSocket::_bind()
-//{
-//
-//  if (!this->_iface)
-//  {
-//    ZLOG_ERR("Cannot directly call 'Bind()'; please specify an interface to bind to");
-//    return (false);
-//  }
-//
-//  struct sockaddr_ll sockaddr = { 0 };
-//
-//  sockaddr.sll_family = AF_PACKET;
-//  sockaddr.sll_ifindex = this->_iface->GetIfIndex();
-//  sockaddr.sll_halen = ETH_ALEN;
-//  memset(sockaddr.sll_addr, 0, ETH_ALEN);
-//  sockaddr.sll_pkttype = PACKET_HOST;
-//
-//  FOREACH(auto& fd, this->_sockfd)
-//  {
-//    sockaddr.sll_protocol = htons(fd.first);
-//    ZLOG_DEBUG("Bind on socket: " + ZLOG_INT(fd.second));
-//    if (_bind(fd.second, (struct sockaddr*) &sockaddr, sizeof(struct sockaddr_ll)))
-//    {
-//      ZLOG_ERR("Cannot bind socket: " + this->_iface->GetIfName() + ": " + std::string(strerror(errno)));
-//    } // end if
-//  }
-//
-//  // Start listener threads
-//  if (!this->_rx_thread.Start() || !this->_tx_thread.Start())
-//  {
-//    ZLOG_ERR("Error starting listening threads");
-//    return (false);
-//  }
-//
-//  return (true);
-//
-//}
-//
-//ssize_t
-//EthSocket::_recv(const int fd_, zSocket::EthAddress & addr_, zSocket::Buffer & sb_)
-//{
-//
-//  ssize_t n = -1;
-//  struct sockaddr_ll src = { 0 };
-//  socklen_t srclen = sizeof(src);
-//  int flags = 0;
-//
-//  if (!fd_)
-//  {
-//    ZLOG_CRIT(std::string("Socket not opened"));
-//    return (-1);
-//  }
-//
-//  n = recvfrom(fd_, sb_.Head(), sb_.TotalSize(), 0, (struct sockaddr *) &src, &srclen);
-//  if (n > 0)
-//  {
-//    sb_.Put(n);
-//    std::string addr;
-//    _mac2str(*(struct hwaddr*)&src.sll_addr, addr);
-//    addr_.SetAddress(addr);
-//
-//    uint8_t* p = sb_.Head();
-//    std::string logstr;
-//    logstr += "Receiving on socket:\t";
-//    logstr += "To:     " + this->GetAddress().GetAddress() + ";\t";
-//    logstr += "From:   " + addr_.GetAddress() + ";\t";
-//    logstr += "Size:   " + ZLOG_INT(n) + ";\t";
-//    logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
-//    logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
-//    int proto = htobe16(src.sll_protocol);
-//    logstr += "Proto:  " + ZLOG_HEX(proto) + ";\t";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x00): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x08): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x10): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x18): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x20): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//    logstr = "Data (0x28): ";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ":";
-//    logstr += ZLOG_HEX(*p++) + ";";
-//    ZLOG_INFO(logstr);
-//
-//  } // end if
-//
-//  return (n);
-//}
-//
-//ssize_t
-//EthSocket::_send(const int fd_, const zSocket::EthAddress &addr_, zSocket::Buffer &sb_)
-//{
-//
-//  ssize_t n = -1;
-//  struct sockaddr_ll src = { 0 };
-//
-//  if (!fd_)
-//  {
-//    ZLOG_ERR(std::string("Socket not opened"));
-//    return (-1);
-//  }
-//
-//  // Set socket address fields
-//  src.sll_ifindex = this->_iface->GetIfIndex();
-//
-//  // Log info message about message being sent
-//  std::string logstr;
-//  uint8_t* p = sb_.Head();
-//  logstr += "Sending on socket:\t";
-//  logstr += "Iface: [" + ZLOG_INT(this->_iface->GetIfIndex()) + "] " + this->_iface->GetIfName() + ";\t";
-//  logstr += "To: " + addr_.GetAddress() + ";\t";
-////  logstr += "From: " + src->Address() + ";\t";
-//  logstr += "Size: " + ZLOG_INT(sb_.Size()) + ";\t";
-//  logstr += "Family: " + ZLOG_INT(src.sll_family) + ";\t";
-//  logstr += "Type:   " + ZLOG_INT(src.sll_pkttype) + ";\t";
-//  int proto = htobe16(src.sll_protocol);
-//  logstr += "Proto:  " + ZLOG_HEX(proto) + ";\t";
-//  ZLOG_INFO(logstr);
-//  logstr = "Data (0x00): ";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ";";
-//  ZLOG_INFO(logstr);
-//  logstr = "Data (0x08): ";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ":";
-//  logstr += ZLOG_HEX(*p++) + ";";
-//  ZLOG_INFO(logstr);
-//
-//  // Send packet
-//  n = sendto(fd_, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &src, sizeof(src));
-//  if (n < 0)
-//  {
-//    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-//  }
-//
-//  return (n);
-//
-//}
 
 }
 }
