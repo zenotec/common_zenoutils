@@ -104,13 +104,12 @@ static bool
 _sa2addr(const struct sockaddr_ll &sa_, std::string &addr_)
 {
   char str[256] = { 0 };
-  if ((sa_.sll_ifindex) && if_indextoname(sa_.sll_ifindex, str))
+  if (!_mac2str(sa_.sll_addr, addr_) || addr_ == std::string(std::string("00:00:00:00:00:00")))
   {
-    addr_ = std::string(str);
-  }
-  else
-  {
-    _mac2str(sa_.sll_addr, addr_);
+    if ((sa_.sll_ifindex) && if_indextoname(sa_.sll_ifindex, str))
+    {
+      addr_ = std::string(str);
+    }
   }
   return (!addr_.empty());
 }
@@ -161,6 +160,18 @@ EthAddress::SetAddress(const std::string& addr_)
     status = Address::SetAddress(addr_);
   }
   return (status);
+}
+
+void
+EthAddress::Display() const
+{
+  std::string mac;
+  _mac2str(this->sa.sll_addr, mac);
+  Address::Display();
+  std::cout << "----------------- Ethernet Address -----------------" << std::endl;
+  std::cout << "Family: \t" << this->sa.sll_family << std::endl;
+  std::cout << "IfIndex:\t" << this->sa.sll_ifindex << std::endl;
+  std::cout << "MAC:    \t" << mac << std::endl;
 }
 
 //**********************************************************************
