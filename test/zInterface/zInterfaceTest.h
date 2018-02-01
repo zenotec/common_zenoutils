@@ -32,6 +32,9 @@ int
 zInterfaceTest_InterfaceLoop (void* arg);
 
 int
+zInterfaceTest_InterfaceMacVlan (void* arg);
+
+int
 zInterfaceTest_InterfaceFactory (void* arg);
 
 #endif /* __ZINTERFACETEST_H__ */

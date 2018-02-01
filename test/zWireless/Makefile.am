@@ -26,7 +26,7 @@ zWirelessUnitTest_CPPFLAGS = \
   ${NLRTNL3_CFLAGS}
 
 zWirelessUnitTest_LDFLAGS = \
-  ${AM_LIBS} \
+  ${AM_LDFLAGS} \
   ${NL3_LIBS} \
   ${NLGENL3_LIBS} \
   ${NLRTNL3_LIBS}

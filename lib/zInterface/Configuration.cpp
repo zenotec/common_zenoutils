@@ -161,7 +161,9 @@ _state2str(const ConfigData::STATE state_)
 
 const std::string ConfigPath::ConfigRoot("zInterface");
 const std::string ConfigPath::ConfigIfIndexPath("IfIndex");
+const std::string ConfigPath::ConfigMasterIfIndexPath("MasterIfIndex");
 const std::string ConfigPath::ConfigIfNamePath("IfName");
+const std::string ConfigPath::ConfigMasterIfNamePath("MasterIfName");
 const std::string ConfigPath::ConfigIfTypePath("IfType");
 const std::string ConfigPath::ConfigHwAddressPath("HwAddress");
 const std::string ConfigPath::ConfigMtuPath("MTU");
@@ -195,9 +197,13 @@ ConfigPath::~ConfigPath()
 // Class: ConfigData
 // ****************************************************************************
 
-const unsigned int ConfigData::ConfigIndexDefault(0);
+const unsigned int ConfigData::ConfigIfIndexDefault(0);
 
-const std::string ConfigData::ConfigNameDefault("");
+const unsigned int ConfigData::ConfigMasterIfIndexDefault(0);
+
+const std::string ConfigData::ConfigIfNameDefault("");
+
+const std::string ConfigData::ConfigMasterIfNameDefault("");
 
 const std::string ConfigData::ConfigTypeNone("");
 const std::string ConfigData::ConfigTypeLoop("LOOP");
@@ -206,6 +212,8 @@ const std::string ConfigData::ConfigTypeWireless("WIRELESS");
 const std::string ConfigData::ConfigTypeOther("OTHER");
 const std::string ConfigData::ConfigTypeBond("BOND");
 const std::string ConfigData::ConfigTypeBridge("BRIDGE");
+const std::string ConfigData::ConfigTypeVlan("VLAN");
+const std::string ConfigData::ConfigTypeMacVlan("MACVLAN");
 const std::string ConfigData::ConfigTypeDefault(ConfigData::ConfigTypeNone);
 
 const std::string ConfigData::ConfigHwAddressDefault("");
@@ -301,6 +309,44 @@ bool
 ConfigData::SetIfName(const std::string& name_)
 {
   ConfigPath path(ConfigPath::ConfigIfNamePath);
+  return (this->_data->PutValue(path, name_));
+}
+
+unsigned int
+ConfigData::GetMasterIfIndex(const unsigned int index_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigMasterIfIndexPath);
+  if (!this->_data->GetValue(path, val))
+  {
+    val = index_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetMasterIfIndex(const unsigned int index_)
+{
+  ConfigPath path(ConfigPath::ConfigMasterIfIndexPath);
+  return (this->_data->PutValue(path, index_));
+}
+
+std::string
+ConfigData::GetMasterIfName(const std::string& name_) const
+{
+  std::string str;
+  ConfigPath path(ConfigPath::ConfigMasterIfNamePath);
+  if (!this->_data->GetValue(path, str))
+  {
+    str = name_;
+  }
+  return (str);
+}
+
+bool
+ConfigData::SetMasterIfName(const std::string& name_)
+{
+  ConfigPath path(ConfigPath::ConfigMasterIfNamePath);
   return (this->_data->PutValue(path, name_));
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_LISTLINKSCOMMAND_H__
-#define __NETLINK_LISTLINKSCOMMAND_H__
+#ifndef __NETLINK_NEWLINKCOMMAND_H__
+#define __NETLINK_NEWLINKCOMMAND_H__
 
 // libc includes
 
 // libc++ includes
 #include <string>
-#include <map>
 
 // libzutils includes
 
@@ -35,25 +34,32 @@ namespace netlink
 {
 
 //*****************************************************************************
-// Class: ListLinksCommand
+// Class: NewLinkCommand
 //*****************************************************************************
 
-class ListLinksCommand : public Command
+class NewLinkCommand : public Command, public RouteLink
 {
 
 public:
 
-  std::map<int, RouteLink> LinkMap;
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_VLAN,
+    TYPE_MACVLAN,
+    TYPE_LAST
+  };
 
-  ListLinksCommand();
+  NewLinkCommand(const TYPE type_, const std::string& ifname_);
 
   virtual
-  ~ListLinksCommand();
+  ~NewLinkCommand();
 
   virtual bool
   Exec();
 
-  void
+  virtual void
   Display() const;
 
 protected:
@@ -61,9 +67,10 @@ protected:
 private:
 
   RouteSocket _sock;
+  TYPE _type;
 
 };
 
 }
 
-#endif /* __NETLINK_LISTLINKSCOMMAND_H__ */
+#endif /* __NETLINK_NEWLINKCOMMAND_H__ */

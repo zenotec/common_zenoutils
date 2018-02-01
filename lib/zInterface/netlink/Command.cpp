@@ -53,7 +53,7 @@ Command::Command(const std::string& ifname_) :
     this->_ifindex = if_nametoindex(ifname_.c_str());
     if (!this->_ifindex)
     {
-      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
+      ZLOG_WARN("Error retrieving interface index for: " + ifname_);
     }
   }
   else

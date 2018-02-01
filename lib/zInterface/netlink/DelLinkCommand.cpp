@@ -37,7 +37,8 @@ using namespace zUtils;
 #include "RouteSocket.h"
 using namespace netlink;
 
-#include "ListLinksCommand.h"
+#include "GetLinkCommand.h"
+#include "DelLinkCommand.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
@@ -51,61 +52,71 @@ __errstr(int code)
 }
 
 //*****************************************************************************
-// Class: ListLinksCommand
+// Class: DelLinkCommand
 //*****************************************************************************
 
-ListLinksCommand::ListLinksCommand() :
-    Command(0)
+
+DelLinkCommand::DelLinkCommand(const unsigned int ifindex_) :
+    Command(ifindex_)
 {
+  this->IfIndex(this->GetIfIndex());
 }
 
-ListLinksCommand::~ListLinksCommand()
+DelLinkCommand::DelLinkCommand(const std::string& ifname_) :
+    Command(ifname_)
+{
+  this->IfIndex(this->GetIfIndex());
+  this->IfName(ifname_);
+}
+
+DelLinkCommand::~DelLinkCommand()
 {
 }
 
 bool
-ListLinksCommand::Exec()
+DelLinkCommand::Exec()
 {
+
+  bool status = false;
   int ret = 0;
-  struct nl_cache* cache = NULL;
-  struct rtnl_link* link = NULL;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error executing DelLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
+    ZLOG_ERR("Valid interface index must be specified");
+    return(false);
+  }
 
   if (!this->_sock.Connect())
   {
+    ZLOG_ERR("Error executing DelLinkCommand: " + ZLOG_INT(this->GetIfIndex()));
     ZLOG_ERR("Error connecting Netlink socket");
-    return(false);
+    return (false);
   }
 
-  ret = rtnl_link_alloc_cache(this->_sock(), AF_UNSPEC, &cache);
+  ret = rtnl_link_delete(this->_sock(), this->operator ()());
   if (ret < 0)
   {
-    ZLOG_ERR("Error allocating link cache");
+    ZLOG_ERR("Error executing DelLinkCommand: " + zLog::IntStr(this->GetIfIndex()));
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return(false);
   }
-
-  for (int i = 1; i < 50; i++)
+  else
   {
-    link = rtnl_link_get(cache, i);
-    if (link != NULL)
-    {
-      RouteLink rlink(link);
-      this->LinkMap[i] = rlink;
-    }
+    status = true;
   }
 
-  nl_cache_put(cache);
   this->_sock.Disconnect();
 
-  return(true);
+  return (status);
 }
 
 void
-ListLinksCommand::Display() const
+DelLinkCommand::Display() const
 {
-  FOREACH(auto& link, this->LinkMap)
-  {
-    link.second.Display();
-  }
+  std::cout << "##################################################" << std::endl;
+  std::cout << "DelLinkCommand: " << std::endl;
+  RouteLink::Display();
+  std::cout << "##################################################" << std::endl;
 }
+
 }

@@ -68,11 +68,23 @@ public:
   bool
   IfIndex (const int index_);
 
+  int
+  MasterIfIndex() const;
+
+  bool
+  MasterIfIndex (const int index_);
+
   std::string
   IfName() const;
 
   bool
   IfName(const std::string& name_);
+
+  std::string
+  MasterIfName() const;
+
+  bool
+  MasterIfName(const std::string& name_);
 
   unsigned int
   ArpType() const;

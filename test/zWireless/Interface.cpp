@@ -55,10 +55,10 @@ zWirelessTest_WirelessInterface(void* arg)
 
   zWireless::Interface *MyInterface = NULL;
 
-  MyInterface = new zWireless::Interface(zInterface::ConfigData::ConfigNameDefault);
+  MyInterface = new zWireless::Interface(zInterface::ConfigData::ConfigIfNameDefault);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-  TEST_EQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+  TEST_EQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+  TEST_EQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
   TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
   TEST_EQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
   TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
@@ -187,10 +187,10 @@ zWirelessTest_MonitorInterface(void* arg)
     MyInterface = new zWireless::MonitorInterface(ifname);
     TEST_ISNOT_NULL(MyInterface);
 
-    if (zInterface::ConfigData::ConfigIndexDefault == MyInterface->GetIfIndex())
+    if (zInterface::ConfigData::ConfigIfIndexDefault == MyInterface->GetIfIndex())
     {
-      TEST_EQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-      TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+      TEST_EQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+      TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
       TEST_EQ(ifname, MyInterface->GetIfName());
       TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
       TEST_EQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -212,8 +212,8 @@ zWirelessTest_MonitorInterface(void* arg)
 
     // Force a refresh to retrieve interface attributes and verify
     TEST_TRUE(MyInterface->Refresh());
-    TEST_NEQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-    TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
     TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -240,8 +240,8 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_TRUE(MyInterface->Commit());
 
     // Verify
-    TEST_NEQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-    TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
     TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -302,10 +302,10 @@ zWirelessTest_AccessPointInterface(void* arg)
     MyInterface = new zWireless::AccessPointInterface(ifname);
     TEST_ISNOT_NULL(MyInterface);
 
-    if (zInterface::ConfigData::ConfigIndexDefault == MyInterface->GetIfIndex())
+    if (zInterface::ConfigData::ConfigIfIndexDefault == MyInterface->GetIfIndex())
     {
-      TEST_EQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-      TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+      TEST_EQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+      TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
       TEST_EQ(ifname, MyInterface->GetIfName());
       TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
       TEST_EQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -326,8 +326,8 @@ zWirelessTest_AccessPointInterface(void* arg)
     }
 
     // Verify
-    TEST_NEQ(zInterface::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-    TEST_NEQ(zInterface::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+    TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
 //    TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE8023, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());

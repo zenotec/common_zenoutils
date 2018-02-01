@@ -48,6 +48,8 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zInterfaceTest_InterfaceLoop, 0);
 
+  UTEST_TEST(zInterfaceTest_InterfaceMacVlan, 0);
+
   UTEST_TEST(zInterfaceTest_InterfaceFactory, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);

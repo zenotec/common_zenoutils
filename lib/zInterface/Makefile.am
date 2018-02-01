@@ -40,7 +40,8 @@ libzInterface_la_LDFLAGS = \
 libzInterface_la_SOURCES = \
     Configuration.cpp \
     Interface.cpp \
-    LoopInterface.cpp
+    LoopInterface.cpp \
+    MacVlanInterface.cpp
 
 libzInterface_la_LIBADD = \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la

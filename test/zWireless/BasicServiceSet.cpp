@@ -79,8 +79,8 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_TRUE(MyBss->Commit());
 
     // Verify
-    TEST_NEQ(zWireless::ConfigData::ConfigIndexDefault, MyBss->GetIfIndex());
-    TEST_NEQ(zWireless::ConfigData::ConfigNameDefault, MyBss->GetIfName());
+    TEST_NEQ(zWireless::ConfigData::ConfigIfIndexDefault, MyBss->GetIfIndex());
+    TEST_NEQ(zWireless::ConfigData::ConfigIfNameDefault, MyBss->GetIfName());
     TEST_EQ(ifname, MyBss->GetIfName());
     TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE8023, MyBss->GetIfType());
     TEST_EQ(std::string("00:08:d0:d0:50:00"), MyBss->GetHwAddress());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,18 +15,9 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_LISTLINKSCOMMAND_H__
-#define __NETLINK_LISTLINKSCOMMAND_H__
+#ifndef __NETLINK_DELLINKCOMMAND_H__
+#define __NETLINK_DELLINKCOMMAND_H__
 
-// libc includes
-
-// libc++ includes
-#include <string>
-#include <map>
-
-// libzutils includes
-
-// local includes
 #include "Command.h"
 #include "RouteLink.h"
 #include "RouteSocket.h"
@@ -35,20 +26,20 @@ namespace netlink
 {
 
 //*****************************************************************************
-// Class: ListLinksCommand
+// Class: DelLinkCommand
 //*****************************************************************************
 
-class ListLinksCommand : public Command
+class DelLinkCommand : public Command, public RouteLink
 {
 
 public:
 
-  std::map<int, RouteLink> LinkMap;
+  DelLinkCommand(const unsigned int ifindex_);
 
-  ListLinksCommand();
+  DelLinkCommand(const std::string& ifname_);
 
   virtual
-  ~ListLinksCommand();
+  ~DelLinkCommand();
 
   virtual bool
   Exec();
@@ -66,4 +57,4 @@ private:
 
 }
 
-#endif /* __NETLINK_LISTLINKSCOMMAND_H__ */
+#endif /* __NETLINK_DELLINKCOMMAND_H__ */

@@ -47,5 +47,9 @@ libnetlink_la_SOURCES = \
 	GetLinkCommand.h \
 	GetLinkCommand.cpp \
 	SetLinkCommand.h \
-	SetLinkCommand.cpp
+	SetLinkCommand.cpp \
+	NewLinkCommand.h \
+	NewLinkCommand.cpp \
+	DelLinkCommand.h \
+	DelLinkCommand.cpp
 	
