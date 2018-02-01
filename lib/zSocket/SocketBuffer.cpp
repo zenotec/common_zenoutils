@@ -31,11 +31,13 @@ namespace zUtils
 namespace zSocket
 {
 
+#define SKBMEM_DATA_LEN     (8 * 1024)
+
 struct skbmem
 {
   zSem::Mutex lock;
   struct timespec ts;
-  uint8_t data[8192];
+  uint8_t data[SKBMEM_DATA_LEN];
 };
 
 struct timespec
@@ -226,8 +228,8 @@ Buffer::_init(const size_t size_)
   }
   this->_ts = _get_ts();
   this->_skbmem->ts = this->_ts;
-  this->_head = &this->_skbmem->data[1024];
-  this->_end = size_;
+  this->_head = &this->_skbmem->data[0];
+  this->_end = ((size_ < SKBMEM_DATA_LEN) ? size_ : SKBMEM_DATA_LEN);
   memset(this->_head, 0, this->_end);
 }
 
