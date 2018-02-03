@@ -156,7 +156,7 @@ RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
   if (!this->_ifindex || (this->_ifindex == msg.LinkIndex()))
   {
     SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_UPDOWN));
-    this->NotifyHandlers(n);
+    this->notifyHandlers(n);
   }
 
   return(NL_OK);
@@ -167,7 +167,7 @@ RouteLinkEvent::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* 
 {
   std::cout << "RouteLinkEvent::err_cb()" << std::endl;
   SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_ERR));
-  this->NotifyHandlers(n);
+  this->notifyHandlers(n);
 
   return(NL_SKIP);
 }

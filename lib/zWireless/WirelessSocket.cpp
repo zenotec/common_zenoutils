@@ -26,8 +26,7 @@
 
 #include <zutils/zLog.h>
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
-#include <zutils/zMonitorInterface.h>
-#include <zutils/zMonitorSocket.h>
+#include <zutils/zWirelessSocket.h>
 
 // local includes
 
@@ -39,7 +38,6 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 #include "ieee80211/DataFrame.h"
 #include "ieee80211/Association.h"
 #include "ieee80211/Authentication.h"
-using namespace ieee80211;
 
 
 namespace zUtils
@@ -48,62 +46,91 @@ namespace zWireless
 {
 
 //*****************************************************************************
-// Class: MonitorSocketNotification
+// Class: zWireless::Notification
 //*****************************************************************************
 
-MonitorSocketNotification::MonitorSocketNotification(MonitorSocket& sock_) :
-    Notification(sock_), _id(MonitorSocketNotification::ID_NONE)
+Notification::Notification(Socket& sock_) :
+    zSocket::Notification(sock_)
 {
 }
 
-MonitorSocketNotification::~MonitorSocketNotification()
+Notification::~Notification()
 {
-}
-
-MonitorSocketNotification::ID
-MonitorSocketNotification::Id() const
-{
-  return(this->_id);
-}
-
-bool
-MonitorSocketNotification::Id(MonitorSocketNotification::ID id_)
-{
-  this->_id = id_;
-  return(true);
 }
 
 SHARED_PTR(ieee80211::RadioTap)
-MonitorSocketNotification::RadiotapHeader()
+Notification::RadiotapHeader()
 {
-  return(this->_rtaphdr);
 }
 
 bool
-MonitorSocketNotification::RadiotapHeader(SHARED_PTR(ieee80211::RadioTap) rtaphdr_)
+Notification::RadiotapHeader(SHARED_PTR(ieee80211::RadioTap)rtaphdr_)
 {
-  this->_rtaphdr = rtaphdr_;
-  return(true);
 }
 
 SHARED_PTR(ieee80211::Frame)
-MonitorSocketNotification::Frame()
+Notification::Frame()
 {
-  return(this->_frame);
 }
 
 bool
-MonitorSocketNotification::Frame(SHARED_PTR(ieee80211::Frame) frame_)
+Notification::Frame(SHARED_PTR(ieee80211::Frame)frame_)
 {
-  this->_frame = frame_;
-  return(true);
+}
+
+//*****************************************************************************
+// Class: zWireless::Socket
+//*****************************************************************************
+
+Socket::Socket(zSocket::Socket& sock_) :
+    zSocket::Socket(sock_.GetType()), _sock(sock_)
+{
+}
+
+Socket::~Socket()
+{
+}
+
+int
+Socket::GetId() const
+{
+}
+
+bool
+Socket::Getopt(Socket::OPTIONS opt_)
+{
+}
+
+bool
+Socket::Setopt(Socket::OPTIONS opt_)
+{
+}
+
+bool
+Socket::Bind(const zSocket::Address& addr_)
+{
+  return (this->_sock.Bind(addr_));
+}
+
+SHARED_PTR(zSocket::Notification)
+Socket::Recv()
+{
+  return (this->_sock.Recv());
+}
+
+SHARED_PTR(zSocket::Notification)
+Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
+{
+  return (this->_sock.Send(to_, sb_));
+}
+
+void
+Socket::Display()
+{
 }
 
 
-//*****************************************************************************
-// Class: MonitorSocket
-//*****************************************************************************
-
+#if 0
 MonitorSocket::MonitorSocket(const int phy_, const std::string& name_, const bool simulateInputs_) :
     zEvent::Event(TYPE_MONSOCK), _iface(name_), _created(false), _injector(NULL), _simulateInputs(simulateInputs_)
 {
@@ -321,7 +348,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       else if ((ieee80211hdr.Subtype() == Frame::SUBTYPE_PROBEREQ))
       {
@@ -333,7 +360,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       else if ((ieee80211hdr.Subtype() == Frame::SUBTYPE_PROBERESP))
       {
@@ -345,7 +372,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       else if ((ieee80211hdr.Subtype() == Frame::SUBTYPE_ASSREQ))
       {
@@ -357,7 +384,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       else if ((ieee80211hdr.Subtype() == Frame::SUBTYPE_ASSRESP))
       {
@@ -369,7 +396,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       else if ((ieee80211hdr.Subtype() == Frame::SUBTYPE_AUTHENTICATE))
       {
@@ -381,7 +408,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
           break;
         }
 //        n->Frame()->Display();
-        this->NotifyHandlers(n);
+        this->notifyHandlers(n);
       }
       status = true;
       break;
@@ -396,7 +423,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
         break;
       }
 //      n->Frame()->Display();
-      this->NotifyHandlers(n);
+      this->notifyHandlers(n);
       break;
     }
     case Frame::TYPE_DATA:
@@ -409,7 +436,7 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
         break;
       }
 //      n->Frame()->Display();
-      this->NotifyHandlers(n);
+      this->notifyHandlers(n);
       break;
     }
     default:
@@ -436,4 +463,58 @@ MonitorSocket::ObserveEvent(SHARED_PTR(zSocket::Notification) notification_)
   return (status);
 }
 
+//*****************************************************************************
+// Class: Notification
+//*****************************************************************************
+
+SocketNotification::SocketNotification(MonitorSocket& sock_) :
+    Notification(sock_), _id(MonitorSocketNotification::ID_NONE)
+{
+}
+
+MonitorSocketNotification::~MonitorSocketNotification()
+{
+}
+
+MonitorSocketNotification::ID
+MonitorSocketNotification::Id() const
+{
+  return(this->_id);
+}
+
+bool
+MonitorSocketNotification::Id(MonitorSocketNotification::ID id_)
+{
+  this->_id = id_;
+  return(true);
+}
+
+SHARED_PTR(ieee80211::RadioTap)
+MonitorSocketNotification::RadiotapHeader()
+{
+  return(this->_rtaphdr);
+}
+
+bool
+MonitorSocketNotification::RadiotapHeader(SHARED_PTR(ieee80211::RadioTap) rtaphdr_)
+{
+  this->_rtaphdr = rtaphdr_;
+  return(true);
+}
+
+SHARED_PTR(ieee80211::Frame)
+MonitorSocketNotification::Frame()
+{
+  return(this->_frame);
+}
+
+bool
+MonitorSocketNotification::Frame(SHARED_PTR(ieee80211::Frame) frame_)
+{
+  this->_frame = frame_;
+  return(true);
+}
+#endif
+
+}
 }

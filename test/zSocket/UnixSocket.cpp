@@ -125,13 +125,9 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  TEST_EQ((int )MySrcSock->Send(*DstAddr, ExpStr), (int )ExpStr.size());
-
-  // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100);
-  TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
-  MyObserver->TxSem.Pop();
+  SHARED_PTR(zSocket::Notification) txn(MySrcSock->Send(*DstAddr, ExpStr));
+  TEST_ISNOT_NULL(txn.get());
+  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
@@ -140,7 +136,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
+  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -148,13 +144,9 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((txp->GetSrcAddress() == *SrcAddr), txp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((txp->GetDstAddress() == *DstAddr), txp->GetDstAddress().GetAddress());
-
-  TEST_TRUE_MSG((rxp->GetSrcAddress() == *SrcAddr), rxp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxp->GetDstAddress() == *DstAddr), rxp->GetDstAddress().GetAddress());
-
-  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
+  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
+  TEST_EQ(ExpStr, rxn->GetBuffer().Str());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySrcSock);

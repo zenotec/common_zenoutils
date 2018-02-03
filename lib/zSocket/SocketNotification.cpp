@@ -89,25 +89,25 @@ Notification::GetBuffer() const
 }
 
 void
-Notification::setSubType(Notification::SUBTYPE subtype_)
+Notification::SetSubType(Notification::SUBTYPE subtype_)
 {
   this->_subtype = subtype_;
 }
 
 void
-Notification::setSrcAddress(const Address& sa_)
+Notification::SetSrcAddress(const Address& sa_)
 {
   this->_sa = sa_;
 }
 
 void
-Notification::setDstAddress(const Address& da_)
+Notification::SetDstAddress(const Address& da_)
 {
   this->_da = da_;
 }
 
 void
-Notification::setBuffer(const Buffer& sb_)
+Notification::SetBuffer(const Buffer& sb_)
 {
   this->_sb = sb_;
 }

@@ -40,8 +40,7 @@ if COND_ZWIRELESS
 ZWIRELESS_SUBDIRS = zWireless
 ZWIRELESS_SOURCE = \
 	$(top_srcdir)/inc/zutils/zWireless.h \
-	$(top_srcdir)/inc/zutils/zMonitorInterface.h \
-	$(top_srcdir)/inc/zutils/zMonitorSocket.h \
+	$(top_srcdir)/inc/zutils/zWirelessSocket.h \
 	$(top_srcdir)/inc/zutils/zAccessPointInterface.h \
 	$(top_srcdir)/inc/zutils/zBasicServiceSet.h
 ZWIRELESS_CPPFLAGS =

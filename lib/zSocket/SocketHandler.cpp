@@ -165,7 +165,7 @@ Handler::Run(zThread::ThreadArg *arg_)
           {
             if (this->_sock_list.count(fd))
             {
-              this->_sock_list[fd]->_recv();
+              this->notifyObservers(this->_sock_list[fd]->Recv());
             }
           }
         }

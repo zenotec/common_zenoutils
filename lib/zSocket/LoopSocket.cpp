@@ -36,17 +36,17 @@ namespace zSocket
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SOCKET_TYPE::TYPE_LOOP), _bound(false)
+    Socket(SOCKET_TYPE::TYPE_LOOP)
 {
   // Create a AF_INET socket
-  this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
-  if (this->fd > 0)
+  this->_fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+  if (this->_fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_fd));
   }
   else
   {
-    this->fd = 0;
+    this->_fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
@@ -61,40 +61,70 @@ LoopSocket::~LoopSocket()
   else
   {
     // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
-    if (this->fd)
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
+    if (this->_fd)
     {
-      close(this->fd);
-      this->fd = 0;
+      close(this->_fd);
+      this->_fd = 0;
     } // end if
   }
 }
 
+int
+LoopSocket::GetId() const
+{
+  return (this->_fd);
+}
+
+const Address&
+LoopSocket::GetAddress() const
+{
+  return (this->_addr);
+}
+
 bool
-LoopSocket::_bind()
+LoopSocket::Bind(const Address& addr_)
 {
-  this->_bound = true;
-  return (this->_bound);
+  this->_addr = LoopAddress(addr_);
+  return (true);
 }
 
-ssize_t
-LoopSocket::_recv()
+SHARED_PTR(zSocket::Notification)
+LoopSocket::Recv()
 {
-  return (this->_bound);
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+
+  // Initialize notification
+  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+  n->SetSrcAddress(this->GetAddress());
+  n->SetDstAddress(this->GetAddress());
+  return (n);
 }
 
-ssize_t
-LoopSocket::_send(const Address& to_, const Buffer& sb_)
+SHARED_PTR(zSocket::Notification)
+LoopSocket::Send(const Address& to_, const Buffer& sb_)
 {
-  ssize_t nbytes = -1;
-  if (this->_bound && (to_ == this->GetAddress()) && this->txNotify(to_, sb_))
+
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+
+  // Initialize notification
+  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+  n->SetSrcAddress(this->GetAddress());
+  n->SetDstAddress(this->GetAddress());
+  n->SetBuffer(sb_);
+
+  if (to_ == this->GetAddress())
   {
-    if (this->rxNotify(to_, sb_))
-    {
-      nbytes = sb_.Size();
-    }
+    n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
+    this->notifyHandlers(n);
+    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
-  return (nbytes);
+  else
+  {
+    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+  }
+
+  return (n);
 }
 
 }

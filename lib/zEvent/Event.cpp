@@ -40,22 +40,28 @@ Event::~Event()
 Event::TYPE
 Event::GetType() const
 {
-  return (this->_type); // since type is readonly, no need to lock
+  return (this->_type); // since type is read only, no need to lock
 }
 
-void
-Event::NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
+bool
+Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
 {
+  bool status = false;
+
   if (this->_event_lock.Lock())
   {
+    status = true;
+
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
     {
-      handler->notifyObservers(noti_);
+      status &= handler->notifyObservers(noti_);
     }
+
     this->_event_lock.Unlock();
+
   }
-  return;
+  return (status);
 }
 
 bool

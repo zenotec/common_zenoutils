@@ -25,28 +25,26 @@ namespace zSocket
 {
 
 //*****************************************************************************
-// Class: zSocket::Injector
+// Class: zSocket::Adapter
 //*****************************************************************************
 
-Tap::Tap(Socket& sock_) :
-    _sock(sock_)
+Adapter::Adapter(Socket& socket_) :
+    zEvent::Adapter(socket_), _socket(socket_)
 {
 }
 
-Tap::~Tap()
+Adapter::~Adapter()
 {
 }
 
-bool
-Tap::Recv(const Address& to_, Buffer& sb_)
+SHARED_PTR(zEvent::Notification)
+Adapter::AdaptEvent(SHARED_PTR(zEvent::Notification) noti_)
 {
-  return (false);
-}
-
-bool
-Tap::Send(const Address& to_, Buffer& sb_)
-{
-  return (false);
+  if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
+  {
+    noti_ = this->AdaptEvent(STATIC_CAST(Notification)(noti_));
+  }
+  return (noti_);
 }
 
 }

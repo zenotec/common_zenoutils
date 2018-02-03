@@ -34,6 +34,7 @@ namespace zSocket
 class Buffer;
 class Address;
 class Socket;
+class Notification;
 class Tap;
 class Handler;
 
@@ -228,14 +229,14 @@ public:
   virtual
   ~Socket();
 
-  int
+  virtual int
   GetId() const;
 
   const SOCKET_TYPE
   GetType() const;
 
-  const Address&
-  GetAddress() const;
+  virtual const Address&
+  GetAddress() const = 0;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -243,31 +244,23 @@ public:
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
-  bool
+  virtual bool
   Bind(const Address& addr_);
 
-  ssize_t
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
+
+  virtual SHARED_PTR(zSocket::Notification)
   Send(const Address& to_, const Buffer& sb_);
 
-  ssize_t
+  virtual SHARED_PTR(zSocket::Notification)
   Send(const Address& to_, const std::string& str_);
 
 protected:
 
-  int fd;
-
-  // Called by derived class after packet is received
-  bool
-  rxNotify(const Address& to_, const Buffer& sb_);
-
-  // Called by derived class after packet is sent
-  bool
-  txNotify(const Address& to_, const Buffer& sb_);
-
 private:
 
   const SOCKET_TYPE _type;
-  Address _addr;
 
   Socket(Socket &other_);
 
@@ -278,43 +271,6 @@ private:
 
   Socket &
   operator=(const Socket &other_);
-
-  virtual bool
-  _bind() = 0;
-
-  virtual ssize_t
-  _recv() = 0;
-
-  virtual ssize_t
-  _send(const Address& to_, const Buffer& sb_) = 0;
-
-};
-
-//**********************************************************************
-// Class: zSocket::Tap
-//**********************************************************************
-
-class Tap
-{
-
-public:
-
-  Tap(Socket& sock_);
-
-  virtual
-  ~Tap();
-
-  bool
-  Recv(const Address& to_, Buffer& sb_);
-
-  bool
-  Send(const Address& to_, Buffer& sb_);
-
-protected:
-
-private:
-
-  Socket& _sock;
 
 };
 
@@ -354,28 +310,28 @@ public:
   Notification::SUBTYPE
   GetSubType() const;
 
+  void
+  SetSubType(Notification::SUBTYPE subtype_);
+
   const Address&
   GetSrcAddress() const;
+
+  void
+  SetSrcAddress(const Address& sa_);
 
   const Address&
   GetDstAddress() const;
 
+  void
+  SetDstAddress(const Address& da_);
+
   const Buffer&
   GetBuffer() const;
 
+  void
+  SetBuffer(const Buffer& sb_);
+
 protected:
-
-  void
-  setSubType(Notification::SUBTYPE subtype_);
-
-  void
-  setSrcAddress(const Address& sa_);
-
-  void
-  setDstAddress(const Address& da_);
-
-  void
-  setBuffer(const Buffer& sb_);
 
 private:
 
@@ -383,6 +339,102 @@ private:
   Address _sa;
   Address _da;
   Buffer _sb;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Tap
+//**********************************************************************
+
+class Tap
+{
+
+public:
+
+  Tap(Socket& sock_);
+
+  virtual
+  ~Tap();
+
+  bool
+  Recv(const Address& to_, Buffer& sb_);
+
+  bool
+  Send(const Address& to_, Buffer& sb_);
+
+protected:
+
+private:
+
+  Socket& _sock;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Observer
+//**********************************************************************
+
+class Observer :
+    public zEvent::Observer
+{
+
+public:
+
+  Observer()
+  {
+  }
+
+  virtual
+  ~Observer()
+  {
+  }
+
+protected:
+
+  virtual bool
+  ObserveEvent(SHARED_PTR(zEvent::Notification)noti_)
+  {
+    bool status = false;
+    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
+    {
+      status = this->ObserveEvent(STATIC_CAST(Notification)(noti_));
+    }
+    return (status);
+  }
+
+  virtual bool
+  ObserveEvent(SHARED_PTR(zSocket::Notification)noti_) = 0;
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::Adapter
+//**********************************************************************
+
+class Adapter :
+    public zEvent::Adapter
+{
+
+public:
+
+  Adapter(Socket& socket_);
+
+  virtual
+  ~Adapter();
+
+protected:
+
+  virtual SHARED_PTR(zEvent::Notification)
+  AdaptEvent(SHARED_PTR(zEvent::Notification) noti_);
+
+  virtual SHARED_PTR(zSocket::Notification)
+  AdaptEvent(SHARED_PTR(zSocket::Notification) noti_) = 0;
+
+private:
+
+  Socket& _socket;
 
 };
 

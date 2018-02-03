@@ -349,6 +349,7 @@ AC_CONFIG_FILES([
 	lib/zWireless/Makefile
 	lib/zWireless/nl80211/Makefile
 	lib/zWireless/ieee80211/Makefile
+	lib/zWireless/ieee8023/Makefile
 	test/zWireless/Makefile
 	test/zWireless/nl80211/Makefile
 	test/zWireless/ieee80211/Makefile

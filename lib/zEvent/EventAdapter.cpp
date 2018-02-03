@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <iostream>
 
-#include <zutils/zLog.h>
-#include <zutils/zSocket.h>
-
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+#include <zutils/zEvent.h>
 
 namespace zUtils
 {
-namespace zSocket
+namespace zEvent
 {
 
-//*****************************************************************************
-// Class: zSocket::Injector
-//*****************************************************************************
+//**********************************************************************
+// Class: Adapter
+//**********************************************************************
 
-Tap::Tap(Socket& sock_) :
-    _sock(sock_)
-{
-}
-
-Tap::~Tap()
+Adapter::Adapter(Event& event_) :
+    Event(event_.GetType()), _event(event_)
 {
 }
 
-bool
-Tap::Recv(const Address& to_, Buffer& sb_)
+Adapter::~Adapter()
 {
-  return (false);
 }
 
 bool
-Tap::Send(const Address& to_, Buffer& sb_)
+Adapter::ObserveEvent(SHARED_PTR(zEvent::Notification)noti_)
 {
-  return (false);
+  return (this->notifyHandlers(this->AdaptEvent(noti_)));
 }
 
 }

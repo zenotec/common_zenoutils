@@ -28,6 +28,7 @@ namespace zEvent
 {
 
 class Notification;
+class Adapter;
 class Handler;
 
 //**********************************************************************
@@ -77,8 +78,8 @@ protected:
   bool
   unregisterHandler(Handler* handler_);
 
-  void
-  NotifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
+  bool
+  notifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 
@@ -134,6 +135,7 @@ public:
 //**********************************************************************
 // Class: Handler
 //**********************************************************************
+
 class Handler
 {
 
@@ -160,7 +162,7 @@ public:
 
 protected:
 
-  void
+  bool
   notifyObservers(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
@@ -174,6 +176,35 @@ private:
 
   void
   operator=(Handler const &);
+
+};
+
+//**********************************************************************
+// Class: Adapter
+//**********************************************************************
+
+class Adapter :
+    public Event
+{
+
+public:
+
+  Adapter(Event& event_);
+
+  virtual
+  ~Adapter();
+
+protected:
+
+  virtual SHARED_PTR(zEvent::Notification)
+  AdaptEvent(SHARED_PTR(zEvent::Notification) noti_) = 0;
+
+private:
+
+  Event& _event;
+
+  virtual bool
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
 
 };
 

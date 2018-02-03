@@ -34,6 +34,11 @@ Handler::Handler()
 Handler::~Handler()
 {
   this->_event_lock.Lock();
+  FOREACH(auto& event, this->_event_list)
+  {
+    event->unregisterHandler(this);
+  }
+  this->_event_list.clear();
 }
 
 bool
@@ -96,23 +101,27 @@ Handler::UnregisterObserver(Observer *obs_)
   return (status);
 }
 
-void
+bool
 Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 {
 
+  bool status = false;
   // Note: never call this routine directly; Only should be called by the event class
 
   // Start critical section
   if (this->_event_lock.Lock())
   {
+    status = true;
+
     FOREACH (auto& obs, this->_obs_list)
     {
-      obs->ObserveEvent(noti_);
+      status &= obs->ObserveEvent(noti_);
     }
+
     this->_event_lock.Unlock();
   }
 
-  return;
+  return (status);
 }
 
 }

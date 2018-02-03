@@ -94,7 +94,7 @@ public:
   Notify(int val_)
   {
     SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
-    this->NotifyHandlers(n);
+    this->notifyHandlers(n);
     return (true);
   }
 

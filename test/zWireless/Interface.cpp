@@ -179,12 +179,12 @@ zWirelessTest_MonitorInterface(void* arg)
     UTEST_BYPASS;
   }
 
-  zWireless::MonitorInterface *MyInterface = NULL;
+  zWireless::Interface *MyInterface = NULL;
 
   FOREACH(auto& phy, phys)
   {
     std::string ifname = std::string("mon") + zToStr(phy.first);
-    MyInterface = new zWireless::MonitorInterface(ifname);
+    MyInterface = new zWireless::Interface(ifname);
     TEST_ISNOT_NULL(MyInterface);
 
     if (zInterface::ConfigData::ConfigIfIndexDefault == MyInterface->GetIfIndex())

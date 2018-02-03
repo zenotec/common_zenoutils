@@ -41,7 +41,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(const SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), fd(0), _type(type_), _addr(type_)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -54,19 +54,13 @@ Socket::~Socket()
 int
 Socket::GetId() const
 {
-  return (this->fd);
+  return (0);
 }
 
 const SOCKET_TYPE
 Socket::GetType() const
 {
   return (this->_type);
-}
-
-const zSocket::Address&
-Socket::GetAddress() const
-{
-  return (this->_addr);
 }
 
 bool
@@ -84,60 +78,30 @@ Socket::Setopt(Socket::OPTIONS opt_)
 bool
 Socket::Bind(const Address& addr_)
 {
-  bool status = false;
-  if (this->GetType() == addr_.GetType())
-  {
-    this->_addr = addr_;
-    status = this->_bind();
-  }
-  return (status);
+  return (false);
 }
 
-ssize_t
+SHARED_PTR(zSocket::Notification)
+Socket::Recv()
+{
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  n->SetSubType(Notification::SUBTYPE_ERR);
+  return (n);
+}
+
+SHARED_PTR(zSocket::Notification)
 Socket::Send(const Address& addr_, const Buffer& sb_)
 {
-  return (this->_send(addr_, sb_));
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  n->SetSubType(Notification::SUBTYPE_ERR);
+  return (n);
 }
 
-ssize_t
+SHARED_PTR(zSocket::Notification)
 Socket::Send(const Address &addr_, const std::string &str_)
 {
   Buffer sb(str_);
   return (this->Send(addr_, sb));
-}
-
-bool
-Socket::rxNotify(const Address& from_, const Buffer& sb_)
-{
-  bool status = false;
-  SHARED_PTR(Notification) n(new Notification(*this));
-  if (n.get())
-  {
-    n->setSubType(Notification::SUBTYPE_PKT_RCVD);
-    n->setSrcAddress(from_);
-    n->setDstAddress(this->_addr);
-    n->setBuffer(sb_);
-    this->NotifyHandlers(n);
-    status = true;
-  }
-  return (status);
-}
-
-bool
-Socket::txNotify(const Address& to_, const Buffer& sb_)
-{
-  bool status = false;
-  SHARED_PTR(Notification) n(new Notification(*this));
-  if (n.get())
-  {
-    n->setSubType(Notification::SUBTYPE_PKT_SENT);
-    n->setSrcAddress(this->_addr);
-    n->setDstAddress(to_);
-    n->setBuffer(sb_);
-    this->NotifyHandlers(n);
-    status = true;
-  }
-  return (status);
 }
 
 }

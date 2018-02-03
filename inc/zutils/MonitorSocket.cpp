@@ -43,7 +43,7 @@ ZLOG_MODULE_INIT(MODULE_STRING);
 #include "ieee80211/Authentication.h"
 using namespace ieee80211;
 
-#include <zutils/zMonitorSocket.h>
+#include <zutils/zWirelessSocket.h>
 
 #include "MessageInjector.h"
 

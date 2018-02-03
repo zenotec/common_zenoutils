@@ -143,13 +143,9 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   zSocket::Buffer sb(sizeof(pkt));
   memcpy(sb.Head(), pkt, sizeof(pkt));
   TEST_TRUE(sb.Put(sizeof(pkt)));
-  TEST_EQ(int(MySock->Send(*DstAddr, sb)), sizeof(pkt));
-
-  // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100);
-  TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
-  MyObserver->TxSem.Pop();
+  SHARED_PTR(zSocket::Notification) txn(MySock->Send(*DstAddr, sb));
+  TEST_ISNOT_NULL(txn.get());
+  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
@@ -158,7 +154,8 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
+  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
+  TEST_ISNOT_NULL(rxn.get());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -166,13 +163,9 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((txp->GetSrcAddress() == *SrcAddr), txp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((txp->GetDstAddress() == *DstAddr), txp->GetDstAddress().GetAddress());
-
-  TEST_TRUE_MSG((rxp->GetSrcAddress() == *SrcAddr), rxp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxp->GetDstAddress() == *DstAddr), rxp->GetDstAddress().GetAddress());
-
-  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
+  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
+  TEST_TRUE(sb == rxn->GetBuffer());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock);
@@ -253,13 +246,9 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   zSocket::Buffer sb(sizeof(pkt));
   memcpy(sb.Head(), pkt, sizeof(pkt));
   TEST_TRUE(sb.Put(sizeof(pkt)));
-  TEST_EQ(int(MySock1->Send(*DstAddr, sb)), sizeof(pkt));
-
-  // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100);
-  TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) txp(MyObserver->TxSem.Front());
-  MyObserver->TxSem.Pop();
+  SHARED_PTR(zSocket::Notification) txn(MySock1->Send(*DstAddr, sb));
+  TEST_ISNOT_NULL(txn.get());
+  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
@@ -268,7 +257,8 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxp(MyObserver->RxSem.Front());
+  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
+  TEST_ISNOT_NULL(rxn.get());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -276,13 +266,9 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((txp->GetSrcAddress() == *SrcAddr), txp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((txp->GetDstAddress() == *DstAddr), txp->GetDstAddress().GetAddress());
-
-  TEST_TRUE_MSG((rxp->GetSrcAddress() == *SrcAddr), rxp->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxp->GetDstAddress() == *DstAddr), rxp->GetDstAddress().GetAddress());
-
-  TEST_TRUE(txp->GetBuffer() == rxp->GetBuffer());
+  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
+  TEST_TRUE(sb == rxn->GetBuffer());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock1);

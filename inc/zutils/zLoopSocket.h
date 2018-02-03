@@ -40,6 +40,11 @@ public:
   {
   }
 
+  LoopAddress(const Address& addr_) :
+    Address(addr_)
+  {
+  }
+
   virtual
   ~LoopAddress()
   {
@@ -66,20 +71,28 @@ public:
   virtual
   ~LoopSocket();
 
-protected:
+  virtual int
+  GetId() const;
+
+  virtual const Address&
+  GetAddress() const;
 
   virtual bool
-  _bind();
+  Bind(const Address& addr_);
 
-  virtual ssize_t
-  _recv();
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
 
-  virtual ssize_t
-  _send(const Address& to_, const Buffer& sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const Buffer& sb_);
+
+protected:
 
 private:
 
-  bool _bound;
+  int _fd;
+  LoopAddress _addr;
+
 
 };
 

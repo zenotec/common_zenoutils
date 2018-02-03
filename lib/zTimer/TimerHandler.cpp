@@ -164,7 +164,7 @@ Handler::Run(zThread::ThreadArg *arg_)
             {
               Timer* t = this->_timer_list[fds[i].fd];
               SHARED_PTR(Notification) noti(new Notification(*t));
-              t->NotifyHandlers(noti);
+              t->notifyHandlers(noti);
             }
           }
         }

@@ -82,26 +82,33 @@ public:
   virtual
   ~InetSocket();
 
+  virtual int
+  GetId() const;
+
+  virtual const Address&
+  GetAddress() const;
+
   virtual bool
   Getopt(Socket::OPTIONS opt_);
 
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
-protected:
-
   virtual bool
-  _bind();
+  Bind(const Address& addr_);
 
-  virtual ssize_t
-  _recv();
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
 
-  virtual ssize_t
-  _send(const Address& to_, const Buffer& sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const Buffer& sb_);
+
+protected:
 
 private:
 
-  InetAddress _sa;
+  int _fd;
+  InetAddress _addr;
 
 };
 

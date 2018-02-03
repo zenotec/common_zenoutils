@@ -205,14 +205,14 @@ InetSocket::InetSocket() :
     Socket(SOCKET_TYPE::TYPE_INET4)
 {
   // Create a AF_INET socket
-  this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
-  if (this->fd > 0)
+  this->_fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+  if (this->_fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_fd));
   }
   else
   {
-    this->fd = 0;
+    this->_fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
@@ -227,13 +227,25 @@ InetSocket::~InetSocket()
   else
   {
     // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
-    if (this->fd)
+    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
+    if (this->_fd)
     {
-      close(this->fd);
-      this->fd = 0;
+      close(this->_fd);
+      this->_fd = 0;
     } // end if
   }
+}
+
+int
+InetSocket::GetId() const
+{
+  return (this->_fd);
+}
+
+const Address&
+InetSocket::GetAddress() const
+{
+  return (this->_addr);
 }
 
 bool
@@ -246,7 +258,7 @@ InetSocket::Getopt(Socket::OPTIONS opt_)
   {
     int optval = 0;
     socklen_t optlen = sizeof(optval);
-    if (getsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, &optlen) < 0)
+    if (getsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &optval, &optlen) < 0)
     {
       ZLOG_ERR("Cannot get socket option: " + std::string(strerror(errno)));
     }
@@ -261,7 +273,7 @@ InetSocket::Getopt(Socket::OPTIONS opt_)
   {
     int optval = 0;
     socklen_t optlen = sizeof(optval);
-    if (getsockopt(this->fd, SOL_SOCKET, SO_BROADCAST, &optval, &optlen) < 0)
+    if (getsockopt(this->_fd, SOL_SOCKET, SO_BROADCAST, &optval, &optlen) < 0)
     {
       ZLOG_ERR("Cannot get socket option: " + std::string(strerror(errno)));
     }
@@ -282,7 +294,7 @@ InetSocket::Getopt(Socket::OPTIONS opt_)
   {
     int optval = 0;
     socklen_t optlen = sizeof(optval);
-    if (getsockopt(this->fd, SOL_IP, IP_TOS, &optval, &optlen) < 0)
+    if (getsockopt(this->_fd, SOL_IP, IP_TOS, &optval, &optlen) < 0)
     {
       ZLOG_CRIT("Cannot get socket option: " + std::string(strerror(errno)));
     }
@@ -315,7 +327,7 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
   {
     // Enable reuse of socket
     int optval = 0;
-    if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
     {
       ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
     }
@@ -325,7 +337,7 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
   {
     // Enable sending to broadcast address
     int optval = 1;
-    if (setsockopt(this->fd, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) < 0)
+    if (setsockopt(this->_fd, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) < 0)
     {
       ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
     }
@@ -354,7 +366,7 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
     else if (opt_ == Socket::OPTIONS_TOS_LP)
       optval = 0x00;
 
-    if (setsockopt(this->fd, SOL_IP, IP_TOS, &optval, sizeof(optval)) < 0)
+    if (setsockopt(this->_fd, SOL_IP, IP_TOS, &optval, sizeof(optval)) < 0)
     {
       ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
     }
@@ -372,101 +384,112 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
-InetSocket::_bind()
+InetSocket::Bind(const Address& addr_)
 {
 
-  if (!this->fd)
+  if (!this->_fd)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (false);
   }
 
-  if (this->GetAddress().GetType() != SOCKET_TYPE::TYPE_INET4)
+  if (addr_.GetType() != SOCKET_TYPE::TYPE_INET4)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
-  this->_sa = InetAddress(this->GetAddress());
+  this->_addr = InetAddress(addr_);
 
   // Bind address to socket
-  int ret = bind(this->fd, (struct sockaddr*) &this->_sa.sa, sizeof(this->_sa.sa));
+  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr.sa, sizeof(this->_addr.sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->_sa.GetAddress() + ": " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
+  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_fd));
 
   return (true);
-
 }
 
-ssize_t
-InetSocket::_recv()
+SHARED_PTR(zSocket::Notification)
+InetSocket::Recv()
 {
 
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   int nbytes = 0;
 
-  if (this->fd)
+  // Initialize notification
+  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+  n->SetDstAddress(this->GetAddress());
+
+  if (this->_fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
-    ioctl(this->fd, FIONREAD, &nbytes);
+    ioctl(this->_fd, FIONREAD, &nbytes);
     if (nbytes)
     {
       struct sockaddr_in src;
       socklen_t len = sizeof(src);
       Buffer sb(nbytes);
-      nbytes = recvfrom(this->fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
+      nbytes = recvfrom(this->_fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb.Put(nbytes))
       {
         InetAddress addr(src);
-        ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+        n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
+        n->SetSrcAddress(addr);
+        n->SetBuffer(sb);
+        ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + addr.GetAddress());
-        if (!this->rxNotify(addr, sb))
-        {
-          nbytes = -1;
-        }
+      }
+      else
+      {
+        ZLOG_ERR(std::string("Cannot receive packet: " + std::string(strerror(errno))));
       }
     }
   }
 
-  return (nbytes);
-
+  return (n);
 }
 
-ssize_t
-InetSocket::_send(const Address& to_, const Buffer& sb_)
+SHARED_PTR(zSocket::Notification)
+InetSocket::Send(const Address& to_, const Buffer& sb_)
 {
 
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   ssize_t nbytes = -1;
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = this->fd;
+  fds[0].fd = this->_fd;
   fds[0].events = (POLLOUT | POLLERR);
+
+  // Initialize notification
+  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+  n->SetSrcAddress(this->GetAddress());
+  n->SetDstAddress(to_);
+  n->SetBuffer(sb_);
 
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
     InetAddress addr(to_);
-    nbytes = sendto(this->fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
+    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+      ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
           " bytes to: " + addr.GetAddress());
-      if (!this->txNotify(to_, sb_))
-      {
-        nbytes = -1;
-      }
+      n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }
     else
     {
       ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
     }
   }
-  return (nbytes);
+
+  return (n);
 }
 
 }
