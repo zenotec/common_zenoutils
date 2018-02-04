@@ -66,9 +66,9 @@ static const struct rtap_field fieldtbl[] =
 static uint8_t*
 _align(const uint8_t* hdr_, const uint8_t* addr_, const size_t align_, size_t& pad_)
 {
-  unsigned long offset = (addr_ - hdr_);
   unsigned long mask = (align_ - 1);
-  pad_ = (offset & mask);
+  unsigned long offset = ((addr_ - hdr_) & mask);
+  pad_ = ((offset > 0) ? (align_ - offset) : offset);
   return ((uint8_t*) (addr_ + pad_));
 }
 
