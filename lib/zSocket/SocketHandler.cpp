@@ -64,16 +64,10 @@ Handler::RegisterSocket(Socket* sock_)
 
   // Conditionally stop/start handler thread so the socket fd gets added
   // to the poll list Note: this needs to be done outside critical section
-  switch (nsock)
+  this->_thread.Stop();
+  if (nsock > 0)
   {
-  case 2:
-    this->_thread.Stop();
-    // no break
-  case 1:
     this->_thread.Start();
-    break;
-  default:
-    break;
   }
 
   return (status);
@@ -99,16 +93,10 @@ Handler::UnregisterSocket(Socket* sock_)
 
   // Conditionally stop/start handler thread so the socket fd gets removed
   // from the poll list Note: this needs to be done outside critical section
-  switch (nsock)
+  this->_thread.Stop();
+  if (nsock > 0)
   {
-  case 2:
-    this->_thread.Stop();
-    // no break
-  case 1:
     this->_thread.Start();
-    break;
-  default:
-    break;
   }
 
   return (status);
