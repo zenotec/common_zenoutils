@@ -35,6 +35,14 @@ Event::Event(Event::TYPE type_) :
 Event::~Event()
 {
   this->_event_lock.Lock();
+  if (!this->_handler_list.empty())
+  {
+    fprintf(stderr, "BUG: Event not unregistered before destruction\n");
+  }
+  FOREACH(auto& handler, this->_handler_list)
+  {
+    handler->UnregisterEvent(this);
+  }
 }
 
 Event::TYPE
