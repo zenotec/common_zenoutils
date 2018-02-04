@@ -27,7 +27,6 @@
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zWireless.h>
-#include <zutils/zMonitorInterface.h>
 #include <zutils/zAccessPointInterface.h>
 
 #include <ListInterfacesCommand.h>
