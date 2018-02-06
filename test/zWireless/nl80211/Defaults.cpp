@@ -22,8 +22,8 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include "Nl80211Test.h"
 using namespace Test;
 
-#include "ListPhysCommand.h"
-#include "GetPhyCommand.h"
+#include <zutils/nl80211/ListPhysCommand.h>
+#include <zutils/nl80211/GetPhyCommand.h>
 
 int
 Nl80211Test_Phy(void* arg_)

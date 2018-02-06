@@ -24,10 +24,11 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/ieee80211/DataFrame.h>
 using namespace zUtils;
 
 // local includes
-#include "DataFrame.h"
+#include "ieee80211.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

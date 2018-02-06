@@ -18,9 +18,7 @@
 #ifndef __IEEE80211_H__
 #define __IEEE80211_H__
 
-#ifndef ETH_ALEN
-#define ETH_ALEN    6
-#endif
+#include <linux/if_ether.h>
 
 struct ieee80211_tag
 {

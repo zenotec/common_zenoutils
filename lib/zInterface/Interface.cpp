@@ -43,15 +43,15 @@
 #include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
 #include <zutils/zInterface.h>
+#include <zutils/netlink/GetLinkCommand.h>
+#include <zutils/netlink/SetLinkCommand.h>
+#include <zutils/netlink/RouteLinkEvent.h>
+using namespace netlink;
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 // local includes
 
-#include "GetLinkCommand.h"
-#include "SetLinkCommand.h"
-#include "RouteLinkEvent.h"
-using namespace netlink;
 
 #define IFFLAGS_UP      (IFF_UP | IFF_RUNNING)
 

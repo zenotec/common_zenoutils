@@ -29,10 +29,9 @@
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/nl80211/GetInterfaceCommand.h>
 
 // local includes
-
-#include "GetInterfaceCommand.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

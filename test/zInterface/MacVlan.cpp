@@ -16,11 +16,10 @@
 #include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
 using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zInterface.h>
 #include <zutils/zMacVlanInterface.h>
 
-#include "ListLinksCommand.h"
+#include <zutils/netlink/ListLinksCommand.h>
 
 #include "UnitTest.h"
 #include "zInterfaceTest.h"
@@ -28,6 +27,8 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 using namespace zUtils;
 using namespace zUtils::zInterface;
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 int
 zInterfaceTest_InterfaceMacVlan(void* arg)

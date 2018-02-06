@@ -26,9 +26,10 @@
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/ieee80211/Frame.h>
 
 // local includes
-#include "Frame.h"
+#include "ieee80211.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

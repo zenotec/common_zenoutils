@@ -23,11 +23,8 @@
 
 #include <zutils/zUtils.h>
 #include <zutils/zLog.h>
-#include <zutils/zSocket.h>
 using namespace zUtils;
-
-#include "RadioTapField.h"
-#include "RadioTap.h"
+#include <zutils/ieee80211/RadioTap.h>
 
 ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 

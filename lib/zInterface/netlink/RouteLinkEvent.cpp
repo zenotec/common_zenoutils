@@ -26,12 +26,12 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/RouteMessage.h>
+#include <zutils/netlink/RouteLinkEvent.h>
+#include <zutils/netlink/GetLinkCommand.h>
 using namespace zUtils;
 
 // local includes
-#include "GetLinkCommand.h"
-#include "RouteMessage.h"
-#include "RouteLinkEvent.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 

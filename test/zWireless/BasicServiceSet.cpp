@@ -29,9 +29,8 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zWireless.h>
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>
-
-#include <ListInterfacesCommand.h>
-#include <ListPhysCommand.h>
+#include <zutils/nl80211/ListInterfacesCommand.h>
+#include <zutils/nl80211/ListPhysCommand.h>
 
 using namespace Test;
 using namespace zUtils;

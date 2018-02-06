@@ -24,18 +24,15 @@
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>
 
-#include "GetInterfaceCommand.h"
-#include "NewBeaconCommand.h"
-#include "SetBeaconCommand.h"
-#include "StartApCommand.h"
-#include "StopApCommand.h"
-#include "SetBeaconCommand.h"
-#include "NewStationCommand.h"
-#include "DelStationCommand.h"
-using namespace nl80211;
+#include <zutils/ieee80211/Beacon.h>
 
-#include "Beacon.h"
-using namespace zUtils::zWireless::ieee80211;
+#include <zutils/nl80211/GetPhyCommand.h>
+#include <zutils/nl80211/SetPhyCommand.h>
+#include <zutils/nl80211/NewStationCommand.h>
+#include <zutils/nl80211/DelStationCommand.h>
+#include <zutils/nl80211/StartApCommand.h>
+#include <zutils/nl80211/StopApCommand.h>
+using namespace nl80211;
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

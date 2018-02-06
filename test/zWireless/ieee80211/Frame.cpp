@@ -17,14 +17,15 @@
 #include <string.h>
 
 #include <zutils/zLog.h>
+#include <zutils/ieee80211/Frame.h>
 using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
 
-#include "Frame.h"
 using namespace zWireless::ieee80211;
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 int
 Ieee80211Test_FrameGetSet(void* arg_)

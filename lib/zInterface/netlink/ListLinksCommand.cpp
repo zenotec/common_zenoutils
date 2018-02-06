@@ -25,19 +25,16 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Command.h>
+#include <zutils/netlink/Message.h>
+#include <zutils/netlink/Handler.h>
+#include <zutils/netlink/Socket.h>
+#include <zutils/netlink/RouteSocket.h>
+#include <zutils/netlink/ListLinksCommand.h>
 using namespace zUtils;
 
 // local includes
-#include "Attribute.h"
-#include "Command.h"
-
-#include "Message.h"
-#include "Handler.h"
-#include "Socket.h"
-#include "RouteSocket.h"
-using namespace netlink;
-
-#include "ListLinksCommand.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 

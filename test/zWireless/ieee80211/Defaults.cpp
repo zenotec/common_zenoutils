@@ -15,20 +15,21 @@
  */
 
 #include <zutils/zLog.h>
+#include <zutils/ieee80211/Frame.h>
 using namespace zUtils;
-ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
 
-#include "RadioTap.h"
-#include "Frame.h"
-#include "ManagementFrame.h"
-#include "Beacon.h"
-#include "Probe.h"
-#include "Association.h"
-#include "Authentication.h"
+#include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/ManagementFrame.h>
+#include <zutils/ieee80211/Beacon.h>
+#include <zutils/ieee80211/Probe.h>
+#include <zutils/ieee80211/Association.h>
+#include <zutils/ieee80211/Authentication.h>
 using namespace zUtils::zWireless::ieee80211;
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 int
 Ieee80211Test_RadiotapDefaults(void* arg_)

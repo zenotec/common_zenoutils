@@ -25,9 +25,10 @@
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/ieee80211/Beacon.h>
 
 // local includes
-#include "Beacon.h"
+#include "ieee80211.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

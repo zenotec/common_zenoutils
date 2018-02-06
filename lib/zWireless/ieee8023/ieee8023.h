@@ -18,9 +18,7 @@
 #ifndef __IEEE8023_H__
 #define __IEEE8023_H__
 
-#ifndef ETH_ALEN
-#define ETH_ALEN    6
-#endif
+#include <linux/if_ether.h>
 
 struct ieee8023_addr
 {

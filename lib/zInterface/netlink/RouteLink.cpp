@@ -30,10 +30,10 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/RouteLink.h>
 using namespace zUtils;
 
 // local includes
-#include "RouteLink.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 

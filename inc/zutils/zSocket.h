@@ -63,7 +63,7 @@ class Buffer
 
 public:
 
-  Buffer(const size_t size_ = 1500);
+  Buffer(const size_t size_ = (8 * 1024));
 
   Buffer(const std::string &str_);
 

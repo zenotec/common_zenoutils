@@ -16,8 +16,7 @@
  */
 
 #include <zutils/zLog.h>
-
-#include "HtCapsTag.h"
+#include <zutils/ieee80211/HtCapsTag.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

@@ -3,14 +3,20 @@ CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS) -I$(srcdir)
+AM_CPPFLAGS := \
+	$(CPPFLAGS_GCOV) \
+	$(com_incdir) \
+	$(BOOST_CPPFLAGS) \
+	-I${top_srcdir}/lib/zWireless/ieee80211 \
+	-I$(srcdir)
+
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 noinst_LTLIBRARIES = libieee80211.la
 
 libieee80211_la_SOURCES = \
-	ieee80211.h \
-	RadioTapField.h \
+	${top_srcdir}/lib/zWireless/ieee80211 \
+	${top_srcdir}/inc/zutils/RadioTapField.h \
 	RadioTapField.cpp \
 	RadioTapFieldTsft.cpp \
 	RadioTapFieldFlags.cpp \
@@ -21,35 +27,35 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldAntenna.cpp \
 	RadioTapFieldRxFlags.cpp \
 	RadioTapFieldTxFlags.cpp \
-	RadioTap.h \
+	${top_srcdir}/inc/zutils/RadioTap.h \
 	RadioTap.cpp \
-	Tag.h \
-	ChannelsTag.h \
-	CountryTag.h \
-	DsssTag.h \
-	ExtRatesTag.h \
-	HtCapsTag.h \
+	${top_srcdir}/inc/zutils/Tag.h \
+	${top_srcdir}/inc/zutils/ChannelsTag.h \
+	${top_srcdir}/inc/zutils/CountryTag.h \
+	${top_srcdir}/inc/zutils/DsssTag.h \
+	${top_srcdir}/inc/zutils/ExtRatesTag.h \
+	${top_srcdir}/inc/zutils/HtCapsTag.h \
 	HtCapsTag.cpp \
-	PowerCapsTag.h \
-	RatesTag.h \
-	SsidTag.h \
-	TimTag.h \
-	VendorSpecificTag.h \
-	WmmWmeTag.h \
-	Frame.h \
+	${top_srcdir}/inc/zutils/PowerCapsTag.h \
+	${top_srcdir}/inc/zutils/RatesTag.h \
+	${top_srcdir}/inc/zutils/SsidTag.h \
+	${top_srcdir}/inc/zutils/TimTag.h \
+	${top_srcdir}/inc/zutils/VendorSpecificTag.h \
+	${top_srcdir}/inc/zutils/WmmWmeTag.h \
+	${top_srcdir}/inc/zutils/Frame.h \
 	Frame.cpp \
-	ControlFrame.h \
+	${top_srcdir}/inc/zutils/ControlFrame.h \
 	ControlFrame.cpp \
-	ManagementFrame.h \
+	${top_srcdir}/inc/zutils/ManagementFrame.h \
 	ManagementFrame.cpp \
-	Beacon.h \
+	${top_srcdir}/inc/zutils/Beacon.h \
 	Beacon.cpp \
-	Probe.h \
+	${top_srcdir}/inc/zutils/Probe.h \
 	Probe.cpp \
-	Authentication.h \
+	${top_srcdir}/inc/zutils/Authentication.h \
 	Authentication.cpp \
-	Association.h \
+	${top_srcdir}/inc/zutils/Association.h \
 	Association.cpp \
-	DataFrame.h \
+	${top_srcdir}/inc/zutils/DataFrame.h \
 	DataFrame.cpp
 	

@@ -28,11 +28,10 @@
 #include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
 using namespace zUtils;
+#include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/Frame.h>
 
 // local includes
-
-#include "ieee80211/RadioTap.h"
-#include "ieee80211/Frame.h"
 
 namespace zUtils
 {
@@ -52,6 +51,8 @@ class Notification :
 public:
 
   Notification(Socket& sock_);
+
+  Notification(const zSocket::Notification& noti_);
 
   virtual
   ~Notification();
@@ -96,7 +97,7 @@ public:
   GetId() const;
 
   virtual const zSocket::Address&
-  GetAddress() const = 0;
+  GetAddress() const;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -112,6 +113,9 @@ public:
 
   virtual SHARED_PTR(zSocket::Notification)
   Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const ieee80211::RadioTap hdr_, const ieee80211::Frame& frame_);
 
   void
   Display();

@@ -25,11 +25,11 @@
 // libzutils includes
 
 #include <zutils/zMacVlanInterface.h>
+#include <zutils/netlink/NewLinkCommand.h>
+#include <zutils/netlink/DelLinkCommand.h>
+using namespace netlink;
 
 // local includes
-#include "netlink/NewLinkCommand.h"
-#include "netlink/DelLinkCommand.h"
-using namespace netlink;
 
 namespace zUtils
 {

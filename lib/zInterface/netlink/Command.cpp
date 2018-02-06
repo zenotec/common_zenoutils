@@ -22,9 +22,10 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/Command.h>
+using namespace zUtils;
 
 // local includes
-#include "Command.h"
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
