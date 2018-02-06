@@ -30,7 +30,7 @@ using namespace zUtils;
 // local includes
 #include "ieee80211.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

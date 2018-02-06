@@ -259,6 +259,9 @@ public:
   bool
   PutPayload(const uint8_t* buf_, const size_t len_);
 
+  bool
+  PutPayload(const uint8_t* hdr_buf_, const size_t hdr_len_, const uint8_t* buf_, const size_t len_);
+
   virtual void
   Display() const;
 

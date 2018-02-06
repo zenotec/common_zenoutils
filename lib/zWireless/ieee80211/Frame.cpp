@@ -31,7 +31,7 @@ using namespace zUtils;
 // local includes
 #include "ieee80211.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -597,17 +597,29 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 {
   bool status = false;
 
-  if (!len_)
-  {
-    ZLOG_WARN("Zero length payload");
-  }
-
   if (buf_ && (len_ < 7952))
   {
     this->_payload.clear();
     this->_payload.resize(len_);
     status = (memcpy(this->_payload.data(), buf_, len_) == this->_payload.data());
   }
+  return (status);
+}
+
+bool
+Frame::PutPayload(const uint8_t* hdr_buf_, const size_t hdr_len_, const uint8_t* buf_, const size_t len_)
+{
+  bool status = false;
+
+  if (buf_ && ((hdr_len_ + len_) < 7952))
+  {
+    this->_payload.clear();
+    this->_payload.resize(hdr_len_ + len_);
+    memcpy(this->_payload.data(), hdr_buf_, hdr_len_);
+    memcpy(this->_payload.data() + hdr_len_, buf_, len_);
+    status = true;
+  }
+
   return (status);
 }
 

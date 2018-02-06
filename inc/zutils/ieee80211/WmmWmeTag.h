@@ -24,7 +24,8 @@
 #include <string.h> // memcpy
 using namespace std;
 
-#include "VendorSpecificTag.h"
+#include <zutils/ieee80211/Tag.h>
+#include <zutils/ieee80211/VendorSpecificTag.h>
 
 namespace zUtils
 {

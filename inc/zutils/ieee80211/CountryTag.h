@@ -18,7 +18,7 @@
 #ifndef __IEEE80211_COUNTRYTAG_H__
 #define __IEEE80211_COUNTRYTAG_H__
 
-#include "Tag.h"
+#include <zutils/ieee80211/Tag.h>
 
 namespace zUtils
 {

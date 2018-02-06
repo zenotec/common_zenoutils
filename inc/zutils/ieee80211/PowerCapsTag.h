@@ -21,6 +21,8 @@
 #include <vector>
 using namespace std;
 
+#include <zutils/ieee80211/Tag.h>
+
 namespace zUtils
 {
 namespace zWireless

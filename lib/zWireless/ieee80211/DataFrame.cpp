@@ -30,7 +30,7 @@ using namespace zUtils;
 // local includes
 #include "ieee80211.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -179,7 +179,7 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     ZLOG_ERR("Buffer overrun");
     return (NULL);
   }
-  f->seqcntl = htole16(this->SequenceNum());
+  f->seqcntl = htole16(this->SequenceControl());
 
   if (this->Subtype() & Frame::SUBTYPE_DATAQOS)
   {
