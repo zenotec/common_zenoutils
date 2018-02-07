@@ -43,7 +43,7 @@ class ManagementFrame : public Frame
 
 public:
 
-  ManagementFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_ERR);
+  ManagementFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_NONE);
 
   virtual
   ~ManagementFrame();

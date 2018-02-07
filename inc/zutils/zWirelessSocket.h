@@ -83,7 +83,7 @@ private:
 //*****************************************************************************
 
 class Socket :
-    public zSocket::Socket
+    public zSocket::Adapter
 {
 
 public:
@@ -93,21 +93,6 @@ public:
   virtual
   ~Socket();
 
-  virtual int
-  GetId() const;
-
-  virtual const zSocket::Address&
-  GetAddress() const;
-
-  virtual bool
-  Getopt(Socket::OPTIONS opt_);
-
-  virtual bool
-  Setopt(Socket::OPTIONS opt_);
-
-  virtual bool
-  Bind(const zSocket::Address& addr_);
-
   virtual SHARED_PTR(zSocket::Notification)
   Recv();
 
@@ -115,7 +100,7 @@ public:
   Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
 
   virtual SHARED_PTR(zSocket::Notification)
-  Send(const ieee80211::RadioTap hdr_, const ieee80211::Frame& frame_);
+  Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_);
 
   void
   Display();
@@ -123,8 +108,6 @@ public:
 protected:
 
 private:
-
-  zSocket::Socket& _sock;
 
 };
 

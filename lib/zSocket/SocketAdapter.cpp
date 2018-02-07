@@ -29,7 +29,7 @@ namespace zSocket
 //*****************************************************************************
 
 Adapter::Adapter(Socket& socket_) :
-    zEvent::Adapter(socket_), _socket(socket_)
+    zSocket::Socket(socket_.GetType()), socket(socket_)
 {
 }
 
@@ -37,14 +37,34 @@ Adapter::~Adapter()
 {
 }
 
-SHARED_PTR(zEvent::Notification)
-Adapter::AdaptEvent(SHARED_PTR(zEvent::Notification) noti_)
+int
+Adapter::GetId() const
 {
-  if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
-  {
-    noti_ = this->AdaptEvent(STATIC_CAST(Notification)(noti_));
-  }
-  return (noti_);
+  return (this->socket.GetId());
+}
+
+const zSocket::Address&
+Adapter::GetAddress() const
+{
+  return (this->socket.GetAddress());
+}
+
+bool
+Adapter::Getopt(Socket::OPTIONS opt_)
+{
+  return (this->socket.Getopt(opt_));
+}
+
+bool
+Adapter::Setopt(Socket::OPTIONS opt_)
+{
+  return (this->socket.Setopt(opt_));
+}
+
+bool
+Adapter::Bind(const zSocket::Address& addr_)
+{
+  return (this->socket.Bind(addr_));
 }
 
 }

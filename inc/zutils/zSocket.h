@@ -343,6 +343,50 @@ private:
 };
 
 //**********************************************************************
+// Class: zSocket::Adapter
+//**********************************************************************
+
+class Adapter :
+    public Socket
+{
+
+public:
+
+  Adapter(Socket& socket_);
+
+  virtual
+  ~Adapter();
+
+  virtual int
+  GetId() const;
+
+  virtual const zSocket::Address&
+  GetAddress() const;
+
+  virtual bool
+  Getopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Setopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Bind(const zSocket::Address& addr_);
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv() = 0;
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
+
+protected:
+
+  Socket& socket;
+
+private:
+
+};
+
+//**********************************************************************
 // Class: zSocket::Tap
 //**********************************************************************
 
@@ -406,35 +450,6 @@ protected:
   ObserveEvent(SHARED_PTR(zSocket::Notification)noti_) = 0;
 
 private:
-
-};
-
-//**********************************************************************
-// Class: zSocket::Adapter
-//**********************************************************************
-
-class Adapter :
-    public zEvent::Adapter
-{
-
-public:
-
-  Adapter(Socket& socket_);
-
-  virtual
-  ~Adapter();
-
-protected:
-
-  virtual SHARED_PTR(zEvent::Notification)
-  AdaptEvent(SHARED_PTR(zEvent::Notification) noti_);
-
-  virtual SHARED_PTR(zSocket::Notification)
-  AdaptEvent(SHARED_PTR(zSocket::Notification) noti_) = 0;
-
-private:
-
-  Socket& _socket;
 
 };
 

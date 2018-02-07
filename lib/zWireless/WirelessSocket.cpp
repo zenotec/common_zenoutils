@@ -72,7 +72,6 @@ Notification::Notification(const zSocket::Notification& noti_) :
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
     return;
   }
-  this->RadiotapHeader()->Display();
 
   // Check for presence of FCS
   ieee80211::RadioTapFieldFlags flags;
@@ -224,7 +223,7 @@ Notification::Frame(SHARED_PTR(ieee80211::Frame)frame_)
 //*****************************************************************************
 
 Socket::Socket(zSocket::Socket& sock_) :
-    zSocket::Socket(sock_.GetType()), _sock(sock_)
+    zSocket::Adapter(sock_)
 {
 }
 
@@ -232,55 +231,53 @@ Socket::~Socket()
 {
 }
 
-int
-Socket::GetId() const
-{
-  return (this->_sock.GetId());
-}
-
-const zSocket::Address&
-Socket::GetAddress() const
-{
-  return (this->_sock.GetAddress());
-}
-
-bool
-Socket::Getopt(Socket::OPTIONS opt_)
-{
-  return (this->_sock.Getopt(opt_));
-}
-
-bool
-Socket::Setopt(Socket::OPTIONS opt_)
-{
-  return (this->_sock.Setopt(opt_));
-}
-
-bool
-Socket::Bind(const zSocket::Address& addr_)
-{
-  return (this->_sock.Bind(addr_));
-}
-
 SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
-  SHARED_PTR(Notification) n(new Notification(*this->_sock.Recv()));
-  return (n);
+  return (SHARED_PTR(Notification)(new Notification(*this->socket.Recv())));
 }
 
 SHARED_PTR(zSocket::Notification)
 Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
 {
-  SHARED_PTR(Notification) n(new Notification(*this->_sock.Send(to_, sb_)));
-  return (n);
+  return (SHARED_PTR(Notification)(new Notification(*this->socket.Send(to_, sb_))));
 }
 
 SHARED_PTR(zSocket::Notification)
-Socket::Send(const ieee80211::RadioTap hdr_, const ieee80211::Frame& frame_)
+Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
 {
-  SHARED_PTR(Notification) n(new Notification(*this));
-  return (n);
+
+  zSocket::Address addr(this->GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
+  zSocket::Buffer sb;
+  uint8_t* sbptr = sb.Head();
+  size_t sbsize = sb.TotalSize();
+
+  if (!(sbptr = hdr_.Assemble(sbptr, sbsize)))
+  {
+    ZLOG_ERR("Error assembling radiotap header");
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    return (n);
+  }
+
+  // Assemble frame (writes buffer)
+  if (!(sbptr = frame_.Assemble(sbptr, sbsize)))
+  {
+    ZLOG_ERR("Error assembling IEEE80211 header");
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    return (n);
+  }
+
+  if (!sb.Put(sb.TotalSize() - sbsize))
+  {
+    ZLOG_ERR("Error updating socket buffer size");
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    return (n);
+  }
+
+  return (this->Send(addr, sb));
 }
 
 void

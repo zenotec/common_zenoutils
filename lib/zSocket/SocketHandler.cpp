@@ -54,7 +54,7 @@ Handler::RegisterSocket(Socket* sock_)
   {
     if (this->_sock_list.size() < NSOCK_MAX)
     {
-      ZLOG_INFO("Registering socket: " + ZLOG_P(sock_));
+      ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetId()));
       status = this->RegisterEvent(sock_);
       this->_sock_list[sock_->GetId()] = sock_;
       nsock = this->_sock_list.size();
@@ -83,7 +83,7 @@ Handler::UnregisterSocket(Socket* sock_)
   {
     if (this->_sock_list.count(sock_->GetId()))
     {
-      ZLOG_INFO("Unregistering socket: " + ZLOG_P(sock_));
+      ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetId()));
       status = this->UnregisterEvent(sock_);
       this->_sock_list.erase(sock_->GetId());
     }

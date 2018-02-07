@@ -38,6 +38,8 @@ namespace zWireless
 namespace ieee80211
 {
 
+#define FRAME_PAYLOAD_MAXLEN        2048
+
 //*****************************************************************************
 // Class: Frame
 //*****************************************************************************
@@ -50,6 +52,7 @@ public:
   enum TYPE
   {
     TYPE_ERR = -1,
+    TYPE_NONE = 0,
     TYPE_MGMT = 0,
     TYPE_CNTL = 1,
     TYPE_DATA = 2,
@@ -59,6 +62,7 @@ public:
   enum SUBTYPE
   {
     SUBTYPE_ERR = -1,
+    SUBTYPE_NONE = 0,
     SUBTYPE_ASSREQ = 0,
     SUBTYPE_DATA = 0,
     SUBTYPE_ASSRESP = 1,
@@ -259,9 +263,6 @@ public:
   bool
   PutPayload(const uint8_t* buf_, const size_t len_);
 
-  bool
-  PutPayload(const uint8_t* hdr_buf_, const size_t hdr_len_, const uint8_t* buf_, const size_t len_);
-
   virtual void
   Display() const;
 
@@ -281,24 +282,15 @@ protected:
 
 private:
 
-  uint8_t _version;
-  Frame::TYPE _type;
-  Frame::SUBTYPE _subtype;
-  bool _tods;
-  bool _fromds;
-  bool _morefrag;
-  bool _retry;
-  bool _pwrmgmt;
-  bool _moredata;
-  bool _protected;
-  bool _order;
+  uint16_t _fccntl;
   uint16_t _durationid;
   std::string _address[4];
   uint16_t _seqcntl;
   uint16_t _qoscntl;
   uint32_t _htcntl;
   std::map<int, std::vector<Tag> > _tags[Tag::TYPE_LAST];
-  std::vector<uint8_t> _payload;
+  uint8_t _payload[FRAME_PAYLOAD_MAXLEN];
+  size_t _psize;
   uint32_t _fcs;
 };
 

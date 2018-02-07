@@ -43,7 +43,7 @@ class ControlFrame : public Frame
 
 public:
 
-  ControlFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_ERR);
+  ControlFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_NONE);
 
   virtual
   ~ControlFrame();

@@ -34,6 +34,15 @@ namespace zWireless
 namespace ieee80211
 {
 
+struct data_llc
+{
+  uint8_t dsap;
+  uint8_t ssap;
+  uint8_t cntl;
+  uint8_t oui[3];
+  uint8_t proto;
+};
+
 //*****************************************************************************
 // Class: DataFrame
 //*****************************************************************************
@@ -43,7 +52,7 @@ class DataFrame : public Frame
 
 public:
 
-  DataFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_ERR);
+  DataFrame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_NONE);
 
   virtual
   ~DataFrame();
@@ -84,12 +93,20 @@ public:
   bool
   Bssid(const std::string& address_);
 
+  const data_llc&
+  Llc() const;
+
+  bool
+  Llc(const data_llc& llc_);
+
   virtual void
   Display() const;
 
 protected:
 
 private:
+
+  data_llc _llc;
 
 };
 

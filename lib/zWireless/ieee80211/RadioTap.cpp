@@ -72,6 +72,7 @@ RadioTap::Assemble(uint8_t* frame_, size_t& rem_)
   frame_ = this->_chklen(frame_, sizeof(struct radiotap_header), rem_);
   if (!frame_)
   {
+    ZLOG_WARN("Buffer overrun: " + ZLOG_UINT(rem_));
     return(NULL);
   }
 
@@ -120,8 +121,9 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
   size_t pad = 0;
 
   // Validate version and length
-  if ((hdr->version != 0) || (hdr->length > rem_))
+  if ((hdr->version != 0) || (le16toh(hdr->length) > rem_))
   {
+    ZLOG_WARN("Invalid version or length: " + ZLOG_UINT(le16toh(hdr->length)));
     return (NULL);
   }
 
@@ -129,6 +131,7 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
   frame_ = this->_chklen(frame_, sizeof(struct radiotap_header), rem_);
   if (!frame_)
   {
+    ZLOG_WARN("Buffer overrun: " + ZLOG_UINT(rem_));
     return(NULL);
   }
 

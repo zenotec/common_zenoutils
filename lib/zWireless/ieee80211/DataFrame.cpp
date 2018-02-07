@@ -17,6 +17,7 @@
 
 // libc includes
 #include <stdlib.h>
+#include <string.h>
 #include <endian.h>
 
 // libc++ includes
@@ -191,6 +192,27 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     f->u.qosdata.qoscntl = htole16(this->QosControl());
   }
 
+  if (this->ToDS() && this->FromDS())
+  {
+    if (!(p_ = this->chklen(p_, sizeof(f->u.data4addr.addr4), rem_)))
+    {
+      ZLOG_ERR("Buffer overrun");
+      return (NULL);
+    }
+    if (!this->str2mac(this->Address(ADDRESS_4), f->u.data4addr.addr4))
+    {
+      ZLOG_WARN("Missing or invalid address field: 4");
+    }
+  }
+
+  uint8_t* llc = p_;
+  if (!(p_ = this->chklen(llc, sizeof(struct data_llc), rem_)))
+  {
+    ZLOG_ERR("Buffer overrun");
+    return (NULL);
+  }
+  memcpy(llc, &this->_llc, sizeof(struct data_llc));
+
   uint8_t* pay = p_;
   size_t len = this->GetPayloadLength();
 
@@ -263,13 +285,30 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     }
   }
 
+  if (this->ToDS() && this->FromDS())
+  {
+    p_ = this->chklen(p_, sizeof(f->u.data4addr.addr4), rem_);
+    if (!p_ || !this->Address(ADDRESS_4, f->u.data4addr.addr4))
+    {
+      ZLOG_ERR("Error disassembling address field 4: " + ZLOG_P(p_));
+      return (NULL);
+    }
+  }
+
+  uint8_t* llc = p_;
+  p_ = this->chklen(llc, sizeof(struct data_llc), rem_);
+  if (!p_)
+  {
+    return(llc);
+  }
+  memcpy(&this->_llc, llc, sizeof(struct data_llc));
+
   uint8_t* pay = p_;
   size_t len = rem_;
   p_ = this->chklen(pay, len, rem_);
   if (!p_ || !this->PutPayload(pay, len))
   {
-    ZLOG_ERR("Error disassembling payload: " + ZLOG_P(p_));
-    return(NULL);
+    return(pay);
   }
 
   return (p_);
@@ -339,6 +378,19 @@ DataFrame::Bssid(const std::string& address_)
 {
   Frame::ADDRESS_ID id = _bssid_addrid(this->ToDS(), this->FromDS());
   return (this->Address(id, address_));
+}
+
+const data_llc&
+DataFrame::Llc() const
+{
+  return (this->_llc);
+}
+
+bool
+DataFrame::Llc(const data_llc& llc_)
+{
+  this->_llc = llc_;
+  return (true);
 }
 
 void
