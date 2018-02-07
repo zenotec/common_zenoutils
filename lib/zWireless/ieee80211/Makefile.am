@@ -15,8 +15,10 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libieee80211.la
 
 libieee80211_la_SOURCES = \
-	${top_srcdir}/lib/zWireless/ieee80211 \
-	${top_srcdir}/inc/zutils/RadioTapField.h \
+	ieee80211.h \
+	${top_srcdir}/inc/zutils/ieee80211/RadioTap.h \
+	RadioTap.cpp \
+	${top_srcdir}/inc/zutils/ieee80211/RadioTapField.h \
 	RadioTapField.cpp \
 	RadioTapFieldTsft.cpp \
 	RadioTapFieldFlags.cpp \
@@ -27,35 +29,33 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldAntenna.cpp \
 	RadioTapFieldRxFlags.cpp \
 	RadioTapFieldTxFlags.cpp \
-	${top_srcdir}/inc/zutils/RadioTap.h \
-	RadioTap.cpp \
-	${top_srcdir}/inc/zutils/Tag.h \
-	${top_srcdir}/inc/zutils/ChannelsTag.h \
-	${top_srcdir}/inc/zutils/CountryTag.h \
-	${top_srcdir}/inc/zutils/DsssTag.h \
-	${top_srcdir}/inc/zutils/ExtRatesTag.h \
-	${top_srcdir}/inc/zutils/HtCapsTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/Tag.h \
+	${top_srcdir}/inc/zutils/ieee80211/ChannelsTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/CountryTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/DsssTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/ExtRatesTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/HtCapsTag.h \
 	HtCapsTag.cpp \
-	${top_srcdir}/inc/zutils/PowerCapsTag.h \
-	${top_srcdir}/inc/zutils/RatesTag.h \
-	${top_srcdir}/inc/zutils/SsidTag.h \
-	${top_srcdir}/inc/zutils/TimTag.h \
-	${top_srcdir}/inc/zutils/VendorSpecificTag.h \
-	${top_srcdir}/inc/zutils/WmmWmeTag.h \
-	${top_srcdir}/inc/zutils/Frame.h \
+	${top_srcdir}/inc/zutils/ieee80211/PowerCapsTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/RatesTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/SsidTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/TimTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/VendorSpecificTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/WmmWmeTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/Frame.h \
 	Frame.cpp \
-	${top_srcdir}/inc/zutils/ControlFrame.h \
+	${top_srcdir}/inc/zutils/ieee80211/ControlFrame.h \
 	ControlFrame.cpp \
-	${top_srcdir}/inc/zutils/ManagementFrame.h \
+	${top_srcdir}/inc/zutils/ieee80211/ManagementFrame.h \
 	ManagementFrame.cpp \
-	${top_srcdir}/inc/zutils/Beacon.h \
+	${top_srcdir}/inc/zutils/ieee80211/Beacon.h \
 	Beacon.cpp \
-	${top_srcdir}/inc/zutils/Probe.h \
+	${top_srcdir}/inc/zutils/ieee80211/Probe.h \
 	Probe.cpp \
-	${top_srcdir}/inc/zutils/Authentication.h \
+	${top_srcdir}/inc/zutils/ieee80211/Authentication.h \
 	Authentication.cpp \
-	${top_srcdir}/inc/zutils/Association.h \
+	${top_srcdir}/inc/zutils/ieee80211/Association.h \
 	Association.cpp \
-	${top_srcdir}/inc/zutils/DataFrame.h \
+	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h \
 	DataFrame.cpp
 	

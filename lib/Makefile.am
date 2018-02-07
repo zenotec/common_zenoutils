@@ -53,7 +53,8 @@ if COND_ZINTERFACE
 ZINTERFACE_SUBDIRS = zInterface
 ZINTERFACE_SOURCE = \
 	$(top_srcdir)/inc/zutils/zInterface.h \
-	$(top_srcdir)/inc/zutils/zLoopInterface.h
+	$(top_srcdir)/inc/zutils/zLoopInterface.h \
+	$(top_srcdir)/inc/zutils/zMacVlanInterface.h
 ZINTERFACE_CPPFLAGS =
 ZINTERFACE_LDFLAGS =
 ZINTERFACE_LIBS = \

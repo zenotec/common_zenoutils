@@ -16,5 +16,5 @@ noinst_LTLIBRARIES = libieee8023.la
 
 libieee8023_la_SOURCES = \
 	ieee8023.h \
-	Frame.h \
+	${top_srcdir}/inc/zutils/ieee8023/Frame.h \
 	Frame.cpp
