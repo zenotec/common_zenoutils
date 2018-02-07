@@ -20,36 +20,42 @@ libnetlink_la_LDFLAGS = \
 
 noinst_LTLIBRARIES = libnetlink.la
 
-libnetlink_la_SOURCES = \
+# Where to install the headers on the system
+libnetlink_ladir = $(includedir)/zutils/netlink
+
+# Headers to install
+libnetlink_la_HEADERS = \
 	${top_srcdir}/inc/zutils/netlink/Attribute.h \
 	${top_srcdir}/inc/zutils/netlink/Command.h \
-	Command.cpp \
 	${top_srcdir}/inc/zutils/netlink/Message.h \
-	Message.cpp \
 	${top_srcdir}/inc/zutils/netlink/GenericMessage.h \
-	GenericMessage.cpp \
 	${top_srcdir}/inc/zutils/netlink/RouteMessage.h \
-	RouteMessage.cpp \
 	${top_srcdir}/inc/zutils/netlink/Handler.h \
-	Handler.cpp \
 	${top_srcdir}/inc/zutils/netlink/Socket.h \
-	Socket.cpp \
 	${top_srcdir}/inc/zutils/netlink/GenericSocket.h \
-	GenericSocket.cpp \
 	${top_srcdir}/inc/zutils/netlink/RouteLink.h \
-	RouteLink.cpp \
 	${top_srcdir}/inc/zutils/netlink/RouteLinkEvent.h \
-	RouteLinkEvent.cpp \
 	${top_srcdir}/inc/zutils/netlink/RouteSocket.h \
-	RouteSocket.cpp \
 	${top_srcdir}/inc/zutils/netlink/ListLinksCommand.h \
-	ListLinksCommand.cpp \
 	${top_srcdir}/inc/zutils/netlink/GetLinkCommand.h \
-	GetLinkCommand.cpp \
 	${top_srcdir}/inc/zutils/netlink/SetLinkCommand.h \
-	SetLinkCommand.cpp \
 	${top_srcdir}/inc/zutils/netlink/NewLinkCommand.h \
+	${top_srcdir}/inc/zutils/netlink/DelLinkCommand.h
+
+libnetlink_la_SOURCES = \
+	Command.cpp \
+	Message.cpp \
+	GenericMessage.cpp \
+	RouteMessage.cpp \
+	Handler.cpp \
+	Socket.cpp \
+	GenericSocket.cpp \
+	RouteLink.cpp \
+	RouteLinkEvent.cpp \
+	RouteSocket.cpp \
+	ListLinksCommand.cpp \
+	GetLinkCommand.cpp \
+	SetLinkCommand.cpp \
 	NewLinkCommand.cpp \
-	${top_srcdir}/inc/zutils/netlink/DelLinkCommand.h \
 	DelLinkCommand.cpp
 	

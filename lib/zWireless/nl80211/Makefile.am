@@ -24,7 +24,11 @@ libnl80211_la_LDFLAGS = \
 
 noinst_LTLIBRARIES = libnl80211.la
 
-libnl80211_la_SOURCES = \
+# Where to install the headers on the system
+libnl80211_ladir = $(includedir)/zutils/nl80211
+
+# Headers to install
+libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/BeaconHeadAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/BeaconIntervalAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/BeaconTailAttribute.h \
@@ -42,41 +46,43 @@ libnl80211_la_SOURCES = \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerLevelAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerModeAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ListPhysCommand.h \
-	ListPhysCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/GetPhyCommand.h \
-	GetPhyCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetPhyCommand.h \
-	SetPhyCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/ListInterfacesCommand.h \
-	ListInterfacesCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/GetInterfaceCommand.h \
-	GetInterfaceCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetInterfaceCommand.h \
-	SetInterfaceCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/NewInterfaceCommand.h \
-	NewInterfaceCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/DelInterfaceCommand.h \
-	DelInterfaceCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/ListStationsCommand.h \
-	ListStationsCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/GetStationCommand.h \
-	GetStationCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetStationCommand.h \
-	SetStationCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/NewStationCommand.h \
-	NewStationCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/DelStationCommand.h \
-	DelStationCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetChannelCommand.h \
-	SetChannelCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetBssCommand.h \
-	SetBssCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/NewBeaconCommand.h \
-	NewBeaconCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/SetBeaconCommand.h \
-	SetBeaconCommand.cpp \
 	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h
+
+libnl80211_la_SOURCES = \
+	ListPhysCommand.cpp \
+	GetPhyCommand.cpp \
+	SetPhyCommand.cpp \
+	ListInterfacesCommand.cpp \
+	GetInterfaceCommand.cpp \
+	SetInterfaceCommand.cpp \
+	NewInterfaceCommand.cpp \
+	DelInterfaceCommand.cpp \
+	ListStationsCommand.cpp \
+	GetStationCommand.cpp \
+	SetStationCommand.cpp \
+	NewStationCommand.cpp \
+	DelStationCommand.cpp \
+	SetChannelCommand.cpp \
+	SetBssCommand.cpp \
+	NewBeaconCommand.cpp \
+	SetBeaconCommand.cpp \
 	StartApCommand.cpp \
-	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h \
 	StopApCommand.cpp
 	

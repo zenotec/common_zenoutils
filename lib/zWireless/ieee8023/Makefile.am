@@ -14,7 +14,13 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 noinst_LTLIBRARIES = libieee8023.la
 
+# Where to install the headers on the system
+libieee8023_ladir = $(includedir)/zutils/ieee8023
+
+# Headers to install
+libieee8023_la_HEADERS = \
+	${top_srcdir}/inc/zutils/ieee8023/Frame.h
+
 libieee8023_la_SOURCES = \
 	ieee8023.h \
-	${top_srcdir}/inc/zutils/ieee8023/Frame.h \
 	Frame.cpp
