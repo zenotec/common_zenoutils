@@ -554,6 +554,7 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 
   if (buf_ && (len_ < FRAME_PAYLOAD_MAXLEN))
   {
+    this->_psize = len_;
     status = (memcpy(this->_payload, buf_, len_) == this->_payload);
   }
   return (status);

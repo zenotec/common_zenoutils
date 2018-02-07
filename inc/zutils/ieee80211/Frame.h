@@ -29,8 +29,6 @@
 
 // local includes
 
-#include "Tag.h"
-
 namespace zUtils
 {
 namespace zWireless

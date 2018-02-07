@@ -40,8 +40,8 @@ struct data_llc
   uint8_t ssap;
   uint8_t cntl;
   uint8_t oui[3];
-  uint8_t proto;
-};
+  uint16_t proto;
+} __attribute__ ((packed));
 
 //*****************************************************************************
 // Class: DataFrame
