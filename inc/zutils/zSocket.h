@@ -390,27 +390,31 @@ private:
 // Class: zSocket::Tap
 //**********************************************************************
 
-class Tap
+class Tap :
+    Adapter
 {
 
 public:
 
-  Tap(Socket& sock_);
+  Tap(Socket& tapper_, Socket& tappee_);
 
   virtual
   ~Tap();
 
   bool
-  Recv(const Address& to_, Buffer& sb_);
+  Inject(SHARED_PTR(zSocket::Notification) n_);
 
-  bool
-  Send(const Address& to_, Buffer& sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv() = 0;
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
 
 protected:
 
 private:
 
-  Socket& _sock;
+  Socket& _tappee;
 
 };
 

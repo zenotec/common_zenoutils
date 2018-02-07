@@ -488,6 +488,11 @@ InetSocket::Send(const Address& to_, const Buffer& sb_)
       ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
     }
   }
+  else
+  {
+    fprintf(stderr, "BUG: Timed out polling on TX\n");
+    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+  }
 
   return (n);
 }

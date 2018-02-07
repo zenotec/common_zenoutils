@@ -125,7 +125,6 @@ BasicServiceSet::AddStation(const std::string& addr_)
 
   NewStationCommand* cmd = new NewStationCommand(this->GetIfIndex());
   cmd->Mac.SetString(addr_);
-  cmd->Display();
   this->addCommand(cmd);
 
   return (status);

@@ -240,14 +240,14 @@ Socket::Recv()
 SHARED_PTR(zSocket::Notification)
 Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
 {
-  return (SHARED_PTR(Notification)(new Notification(*this->socket.Send(to_, sb_))));
+  return (this->socket.Send(to_, sb_));
 }
 
 SHARED_PTR(zSocket::Notification)
 Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
 {
 
-  zSocket::Address addr(this->GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
+  zSocket::Address addr(zSocket::Socket::GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
   zSocket::Buffer sb;
   uint8_t* sbptr = sb.Head();
   size_t sbsize = sb.TotalSize();

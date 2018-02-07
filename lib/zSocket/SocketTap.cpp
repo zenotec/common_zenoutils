@@ -25,11 +25,11 @@ namespace zSocket
 {
 
 //*****************************************************************************
-// Class: zSocket::Injector
+// Class: zSocket::Tap
 //*****************************************************************************
 
-Tap::Tap(Socket& sock_) :
-    _sock(sock_)
+Tap::Tap(Socket& tapper_, Socket& tappee_) :
+    Adapter(tapper_), _tappee(tappee_)
 {
 }
 
@@ -38,15 +38,9 @@ Tap::~Tap()
 }
 
 bool
-Tap::Recv(const Address& to_, Buffer& sb_)
+Tap::Inject(SHARED_PTR(zSocket::Notification) n_)
 {
-  return (false);
-}
-
-bool
-Tap::Send(const Address& to_, Buffer& sb_)
-{
-  return (false);
+  return (this->_tappee.notifyHandlers(n_));
 }
 
 }
