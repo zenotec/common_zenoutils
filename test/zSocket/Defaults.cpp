@@ -50,7 +50,7 @@ zSocketTest_BufferDefaults(void* arg_)
   TEST_EQ(mySb1.Head(), mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(mySb1.TotalSize(), 1500);
+  TEST_EQ(mySb1.TotalSize(), 8192);
   TEST_EQ(std::string(""), mySb1.Str());
 
   // Create new packet of set size and validate

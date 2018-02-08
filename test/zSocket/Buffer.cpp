@@ -72,7 +72,7 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_ISNOT_NULL(mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(mySb1.TotalSize(), 1500);
+  TEST_EQ(mySb1.TotalSize(), 8192);
   TEST_EQ(std::string(""), mySb1.Str());
 
   // Create new buffer of set size and validate
@@ -83,7 +83,7 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_ISNOT_NULL(mySb2.Data());
   TEST_IS_ZERO(mySb2.Length());
   TEST_IS_ZERO(mySb2.Size());
-  TEST_EQ(mySb2.TotalSize(), 1500);
+  TEST_EQ(mySb2.TotalSize(), 8192);
   TEST_EQ(std::string(""), mySb2.Str());
 
   // Validate
@@ -126,7 +126,7 @@ zSocketTest_BufferCopy(void* arg_)
   TEST_ISNOT_NULL(mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(1500, mySb1.TotalSize());
+  TEST_EQ(8192, mySb1.TotalSize());
   TEST_EQ(std::string(""), mySb1.Str());
 
   // Write to first buffer and validate
@@ -149,7 +149,7 @@ zSocketTest_BufferCopy(void* arg_)
   TEST_TRUE(mySb1.Tail() == mySb2.Tail());
   TEST_EQ(100, mySb2.Length());
   TEST_EQ(100, mySb2.Size());
-  TEST_EQ(1500, mySb2.TotalSize());
+  TEST_EQ(8192, mySb2.TotalSize());
   p = mySb2.Data();
   for (int i = 0; i < 100; i++)
   {
