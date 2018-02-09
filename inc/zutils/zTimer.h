@@ -60,6 +60,12 @@ public:
   uint64_t
   GetTicks() const;
 
+  std::string
+  Name() const;
+
+  bool
+  Name(const std::string name_);
+
 protected:
 
   int _fd;

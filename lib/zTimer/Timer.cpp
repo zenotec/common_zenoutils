@@ -138,6 +138,19 @@ Timer::GetId() const
   return (uint32_t(this->_fd)); // read only
 }
 
+std::string
+Timer::Name() const
+{
+  return _name;
+}
+
+bool
+Timer::Name(const std::string name_)
+{
+  _name = name_;
+  return true;
+}
+
 uint64_t
 Timer::GetTicks() const
 {
