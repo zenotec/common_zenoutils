@@ -69,10 +69,11 @@ private:
 };
 
 //**********************************************************************
-// zSocket::InetSocket Class
+// Class: zSocket::InetSocket
 //**********************************************************************
 
-class InetSocket : public Socket, public zThread::ThreadArg
+class InetSocket :
+    public Socket
 {
 
 public:

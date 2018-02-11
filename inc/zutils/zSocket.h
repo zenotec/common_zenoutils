@@ -391,7 +391,7 @@ private:
 //**********************************************************************
 
 class Tap :
-    Adapter
+    public Adapter
 {
 
 public:
