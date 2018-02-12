@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TOPDIR=$(pwd)
-SRCDIR="${TOPDIR}/src"
+SRCDIR="${TOPDIR}/lib"
 TESTDIR="${TOPDIR}/test"
 TESTS="zLog zProgOpt zThread zTimer zSem zData zEvent zSocket zNode zMessage zSwitch zGpio"
 COVDIR="${TOPDIR}/coverage"
@@ -9,21 +9,19 @@ COVDIR="${TOPDIR}/coverage"
 rm -rf ${SRCDIR} ${TESTDIR} ${COVDIR}
 mkdir -p ${SRCDIR} ${TESTDIR} ${COVDIR}
 ../configure --enable-gcov
-cd ${TESTDIR}
+cd ${SRCDIR}
 lcov --base-directory . --directory . --zerocounters -q
 cd ${TOPDIR}
 make check
 
-for test in ${TESTS}; do
-  cd ${SRCDIR}/${test}
-  lcov --base-directory . --directory . -c -o ${COVDIR}/${test}_src.info
-  lcov --remove ${COVDIR}/${test}_src.info "/usr*" -o ${COVDIR}/${test}_src.info
-  cd ${TESTDIR}/${test}
-  lcov --base-directory . --directory . -c -o ${COVDIR}/${test}_test.info
-  lcov --remove ${COVDIR}/${test}_test.info "/usr*" -o ${COVDIR}/${test}_test.info
-done
+cd ${SRCDIR}
 
-genhtml -o ${COVDIR} -t "Zeno Utilities Test Coverage" --num-spaces 4 ${COVDIR}/*.info
+lcov  --directory . --capture --output-file ${COVDIR}/zeno_src.info
+
+cd ${COVDIR}
+
+lcov --remove zeno_src.info '/usr/*' -o zeno_src.info
+genhtml -t "Zeno Utilities Test Coverage" --num-spaces 4  zeno_src.info
 
 cd ${TOPDIR}
 
