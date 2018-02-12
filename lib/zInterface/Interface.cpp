@@ -18,25 +18,19 @@
  */
 
 // libc includes
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
-#include <linux/if.h>
-#include <linux/if_arp.h>
-#include <linux/wireless.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <ifaddrs.h>
+#include <net/if.h>
+#include <net/if_arp.h>
 
 // libc++ includes
 
 #include <string>
-#include <fstream>
-#include <iostream>
 
 // libzutils includes
 

@@ -16,8 +16,8 @@
  */
 
 // libc includes
+
 #include <stdlib.h>
-#include <net/if.h>
 #include <netlink/netlink.h>
 #include <netlink/errno.h>
 #include <netlink/route/link.h>
@@ -25,8 +25,9 @@
 #include <netlink/route/link/macvlan.h>
 
 // libc++ includes
+
+#include <string>
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>

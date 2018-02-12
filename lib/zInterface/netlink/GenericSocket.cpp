@@ -27,9 +27,12 @@
 #include <linux/nl80211.h>
 
 // libc++ includes
+
+#include <string>
 #include <iostream>
 
 // libzutils includes
+
 #include <zutils/zLog.h>
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Message.h>

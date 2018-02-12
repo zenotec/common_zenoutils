@@ -16,12 +16,14 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
+
+#include <errno.h>
+#include <netlink/route/link.h>
 
 // libc++ includes
+
+#include <string>
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>

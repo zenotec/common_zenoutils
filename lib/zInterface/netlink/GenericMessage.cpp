@@ -16,20 +16,20 @@
  */
 
 // libc includes
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netlink/netlink.h>
+#include <stdint.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 #include <linux/nl80211.h>
 
 // libc++ includes
+
 #include <iostream>
+#include <string>
 
 // libzutils includes
+
+#include <zutils/zUtils.h>
 #include <zutils/zLog.h>
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Message.h>
@@ -52,7 +52,7 @@ __errstr(int code)
 static const std::string
 _attr2str(const int attr_)
 {
-  std::string str = "[" + zLog::IntStr(attr_) + "] ";
+  std::string str = "[" + zToStr(attr_) + "] ";
   switch(attr_)
   {
   case NL80211_ATTR_UNSPEC:
