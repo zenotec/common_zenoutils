@@ -21,7 +21,6 @@
 #include <list>
 #include <map>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 
 #include <zutils/zSignal.h>
@@ -32,54 +31,57 @@ namespace zSignal
 {
 
 //**********************************************************************
-// Class: SignalHandler
+// Class: Handler
 //**********************************************************************
 
-SignalHandler::SignalHandler()
+Handler::Handler()
 {
-}
-
-SignalHandler::~SignalHandler()
-{
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.begin();
-  std::map<Signal::ID, Signal*>::iterator end = this->_sigs.end();
-  for (; it != end; ++it)
+  for (int i = 0; i < Signal::ID_LAST; i++)
   {
-    delete(it->second);
+    this->_sigs[i] = new Signal(Signal::ID(i));
   }
-  this->_sig_handlers.clear();
-  this->_sigs.clear();
 }
 
-bool
-SignalHandler::RegisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
+Handler::~Handler()
 {
-  ZLOG_DEBUG("Registering signal observer: " + ZLOG_INT(id_));
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.find(id_);
-  if (it == this->_sigs.end())
+  for (int i = 0; i < Signal::ID_LAST; i++)
   {
-    ZLOG_DEBUG("Registering signal event: " + ZLOG_INT(id_));
-    this->_sigs[id_] = new Signal(id_);
-    this->_sig_handlers[id_].RegisterEvent(this->_sigs[id_]);
+    if (this->_sigs[i])
+    {
+      delete (this->_sigs[i]);
+      this->_sigs[i] = NULL;
+    }
   }
-  return (this->_sig_handlers[id_].RegisterObserver(obs_));
 }
 
 bool
-SignalHandler::UnregisterObserver(Signal::ID id_, zEvent::EventObserver *obs_)
-{
-  ZLOG_DEBUG("Unregistering signal observer: " + ZLOG_INT(id_));
-  return (this->_sig_handlers[id_].UnregisterObserver(obs_));
-}
-
-bool
-SignalHandler::Notify(Signal::ID id_, siginfo_t *info_)
+Handler::RegisterObserver(Signal::ID id_, zEvent::Observer *obs_)
 {
   bool status = false;
-  std::map<Signal::ID, Signal*>::iterator it = this->_sigs.find(id_);
-  if (it != this->_sigs.end())
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
   {
-    ZLOG_DEBUG("Notifying signal observer: " + ZLOG_INT(id_));
+    status = this->_sigs[id_]->RegisterObserver(obs_);
+  }
+  return (status);
+}
+
+bool
+Handler::UnregisterObserver(Signal::ID id_, zEvent::Observer *obs_)
+{
+  bool status = false;
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
+  {
+    status = this->_sigs[id_]->UnregisterObserver(obs_);
+  }
+  return (status);
+}
+
+bool
+Handler::Notify(Signal::ID id_, siginfo_t *info_)
+{
+  bool status = false;
+  if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
+  {
     status = this->_sigs[id_]->Notify(info_);
   }
   return (status);

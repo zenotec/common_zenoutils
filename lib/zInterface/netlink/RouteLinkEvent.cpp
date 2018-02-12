@@ -26,12 +26,14 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/RouteMessage.h>
+#include <zutils/netlink/RouteLinkEvent.h>
+#include <zutils/netlink/GetLinkCommand.h>
 using namespace zUtils;
 
 // local includes
-#include "GetLinkCommand.h"
-#include "RouteMessage.h"
-#include "RouteLinkEvent.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {
@@ -153,9 +155,8 @@ RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 
   if (!this->_ifindex || (this->_ifindex == msg.LinkIndex()))
   {
-    RouteLinkNotification* n = new RouteLinkNotification(RouteLinkEvent::EVENTID_UPDOWN, msg.LinkIndex());
-    this->Notify(n);
-    delete(n);
+    SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_UPDOWN));
+    this->notifyHandlers(n);
   }
 
   return(NL_OK);
@@ -165,9 +166,8 @@ int
 RouteLinkEvent::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_)
 {
   std::cout << "RouteLinkEvent::err_cb()" << std::endl;
-  RouteLinkNotification* n = new RouteLinkNotification(RouteLinkEvent::EVENTID_ERR, 0);
-  this->Notify(n);
-  delete(n);
+  SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_ERR));
+  this->notifyHandlers(n);
 
   return(NL_SKIP);
 }
@@ -176,8 +176,8 @@ RouteLinkEvent::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* 
 // Class: RouteLinkNotification
 //*****************************************************************************
 
-RouteLinkNotification::RouteLinkNotification(RouteLinkEvent::EVENTID id_, uint32_t index_) :
-    _id(id_)
+RouteLinkNotification::RouteLinkNotification(RouteLinkEvent& rlevent_, RouteLinkEvent::EVENTID id_) :
+    zEvent::Notification(rlevent_), _id(id_)
 {
 //  GetLinkCommand cmd(index_);
 //  if (cmd.Exec())

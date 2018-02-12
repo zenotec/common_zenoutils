@@ -18,13 +18,14 @@
 
 #include <zutils/zLog.h>
 using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
 using namespace Test;
+#include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/Probe.h>
 
-#include "RadioTap.h"
-#include "Probe.h"
 using namespace zWireless::ieee80211;
 
 int

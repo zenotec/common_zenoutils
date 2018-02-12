@@ -35,12 +35,9 @@
 #include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-#include <zutils/zSocket.h>
-#include <zutils/zLoopSocket.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zUnixSocket.h>
 
 #include "zSocketTest.h"
@@ -58,19 +55,18 @@ zSocketTest_UnixSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress MyAddr;
-  TEST_EQ(SocketType::TYPE_UNIX, MyAddr.Type());
-  TEST_EQ(std::string(""), MyAddr.Address());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, MyAddr.GetType());
+  TEST_EQ(std::string(""), MyAddr.GetAddress());
 
   // Set socket address
-  TEST_TRUE(MyAddr.Address(std::string("/tmp/UnixTestSock")));
-  TEST_EQ(std::string("/tmp/UnixTestSock"), MyAddr.Address());
+  TEST_TRUE(MyAddr.SetAddress(std::string("/tmp/UnixTestSock")));
+  TEST_EQ(std::string("/tmp/UnixTestSock"), MyAddr.GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MySock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MySock);
 
   // Cleanup
-  MySock->Close();
   delete (MySock);
 
   // Return success
@@ -90,37 +86,35 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress *SrcAddr = new zSocket::UnixAddress;
-  TEST_EQ(SocketType::TYPE_UNIX, SrcAddr->Type());
-  TEST_EQ(std::string(""), SrcAddr->Address());
-  TEST_TRUE(SrcAddr->Address(std::string("/tmp/UnixSrcSock")));
-  TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->Address());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, SrcAddr->GetType());
+  TEST_EQ(std::string(""), SrcAddr->GetAddress());
+  TEST_TRUE(SrcAddr->SetAddress(std::string("/tmp/UnixSrcSock")));
+  TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MySrcSock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MySrcSock);
-  TEST_TRUE(MySrcSock->Open());
   TEST_TRUE(MySrcSock->Bind(*SrcAddr));
 
   // Create new socket address and validate
   zSocket::UnixAddress *DstAddr = new zSocket::UnixAddress;
-  TEST_EQ(SocketType::TYPE_UNIX, DstAddr->Type());
-  TEST_EQ(std::string(""), DstAddr->Address());
-  TEST_TRUE(DstAddr->Address(std::string("/tmp/UnixDstSock")));
-  TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->Address());
+  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, DstAddr->GetType());
+  TEST_EQ(std::string(""), DstAddr->GetAddress());
+  TEST_TRUE(DstAddr->SetAddress(std::string("/tmp/UnixDstSock")));
+  TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->GetAddress());
 
   // Create new socket and validate
   zSocket::UnixSocket *MyDstSock = new zSocket::UnixSocket;
   TEST_ISNOT_NULL(MyDstSock);
-  TEST_TRUE(MyDstSock->Open());
   TEST_TRUE(MyDstSock->Bind(*DstAddr));
 
   // Create new socket handler and validate
-  zEvent::EventHandler* MyHandler = new zEvent::EventHandler;
+  zSocket::Handler* MyHandler = new zSocket::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterEvent(MySrcSock);
-  MyHandler->RegisterEvent(MyDstSock);
+  MyHandler->RegisterSocket(MySrcSock);
+  MyHandler->RegisterSocket(MyDstSock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -131,22 +125,18 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  TEST_EQ((int )MySrcSock->Send(*DstAddr, ExpStr), (int )ExpStr.size());
-
-  // Wait for packet to be sent
-  status = MyObserver->TxSem.TimedWait(100000);
-  TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair txp = MyObserver->TxSem.Front();
-  MyObserver->TxSem.Pop();
+  SHARED_PTR(zSocket::Notification) txn(MySrcSock->Send(*DstAddr, ExpStr));
+  TEST_ISNOT_NULL(txn.get());
+  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
 
   // Wait for packet to be received
-  status = MyObserver->RxSem.TimedWait(100000);
+  status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  zSocket::SocketAddressBufferPair rxp = MyObserver->RxSem.Front();
+  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
 
   // Verify no errors
@@ -154,24 +144,24 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_EQ(txp.first->Address(), DstAddr->Address());
-  TEST_EQ(rxp.first->Address(), SrcAddr->Address());
-  TEST_EQ(txp.second->Str(), rxp.second->Str());
+  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
+  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
+  TEST_EQ(ExpStr, rxn->GetBuffer().Str());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterEvent(MySrcSock);
-  MyHandler->UnregisterEvent(MyDstSock);
+  MyHandler->UnregisterSocket(MySrcSock);
+  MyHandler->UnregisterSocket(MyDstSock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
-  delete (MyHandler);
   delete (MyObserver);
+  delete (MyHandler);
   delete (MySrcSock);
   delete (MyDstSock);
   delete (DstAddr);
   delete (SrcAddr);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 
 }

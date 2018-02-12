@@ -75,22 +75,22 @@ MessageSocket::Listen(zSocket::Socket *sock_)
   if (sock_)
   {
     this->_sock_handler.RegisterEvent(sock_);
-    this->_sock[sock_->Address().Address()] = sock_;
+    this->_sock[sock_->GetAddress().GetAddress()] = sock_;
     status = true;
   }
   return (status);
 }
 
 bool
-MessageSocket::Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *sock_)
+MessageSocket::Connect(const zSocket::Address& addr_, zSocket::Socket *sock_)
 {
-  ZLOG_INFO("Connecting to: " + addr_.Address());
+  ZLOG_INFO("Connecting to: " + addr_.GetAddress());
 
   bool status = false;
   if (sock_)
   {
     this->_sock_handler.RegisterEvent(sock_);
-    this->_sock[addr_.Address()] = sock_;
+    this->_sock[addr_.GetAddress()] = sock_;
 
     // Say hello and wait for response
     HelloMessage* hello = (HelloMessage*) MessageFactory::Create(Message::TYPE_HELLO);
@@ -100,7 +100,7 @@ MessageSocket::Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *soc
       this->_ack_obs.RegisterForAck(hello->GetId());
 
       // Initialize the message and send
-      hello->SetDst(addr_.Address());
+      hello->SetDst(addr_.GetAddress());
       if (this->Send(*hello))
       {
         AckMessage ack;
@@ -115,9 +115,9 @@ MessageSocket::Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *soc
 }
 
 bool
-MessageSocket::Disconnect(const zSocket::SocketAddress& addr_)
+MessageSocket::Disconnect(const zSocket::Address& addr_)
 {
-  ZLOG_INFO("Connecting from: " + addr_.Address());
+  ZLOG_INFO("Connecting from: " + addr_.GetAddress());
 
   bool status = false;
 
@@ -129,7 +129,7 @@ MessageSocket::Disconnect(const zSocket::SocketAddress& addr_)
     this->_ack_obs.RegisterForAck(bye->GetId());
 
     // Initialize the message and sendl
-    bye->SetDst(addr_.Address());
+    bye->SetDst(addr_.GetAddress());
     if (this->Send(*bye))
     {
       AckMessage ack;
@@ -138,7 +138,7 @@ MessageSocket::Disconnect(const zSocket::SocketAddress& addr_)
     this->_ack_obs.UnregisterForAck(bye->GetId());
     delete (bye);
   }
-  this->_sock.erase(addr_.Address());
+  this->_sock.erase(addr_.GetAddress());
   return (status);
 }
 
@@ -166,14 +166,14 @@ MessageSocket::Send(zMessage::Message &msg_)
   bool status = false;
 
   // Convert destination address
-  zSocket::SocketAddress* dst = zSocket::SocketAddressFactory::Create(msg_.GetDst());
+  zSocket::Address* dst = zSocket::SocketAddressFactory::Create(msg_.GetDst());
   if (dst)
   {
-    std::map<std::string, zSocket::Socket*>::iterator it = this->_sock.find(dst->Address());
+    std::map<std::string, zSocket::Socket*>::iterator it = this->_sock.find(dst->GetAddress());
     if (it != this->_sock.end())
     {
       // Update the message source address
-      msg_.SetSrc(it->second->Address().Address());
+      msg_.SetSrc(it->second->GetAddress().GetAddress());
 
       // Send message
       status = (it->second->Send(*dst, msg_.GetJson()) == msg_.GetJson().size());
@@ -186,30 +186,30 @@ MessageSocket::Send(zMessage::Message &msg_)
 }
 
 bool
-MessageSocket::EventHandler(zEvent::EventNotification* notification_)
+MessageSocket::EventHandler(zEvent::Notification* notification_)
 {
 
   ZLOG_DEBUG("Handling socket event");
 
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_SOCKET))
   {
-    status = this->EventHandler((zSocket::SocketNotification *) notification_);
+    status = this->EventHandler((zSocket::Notification *) notification_);
   }
   return (status);
 }
 
 bool
-MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
+MessageSocket::EventHandler(zSocket::Notification* notification_)
 {
   bool status = false;
-  switch (notification_->Id())
+  switch (notification_->GetSubType())
   {
-  case zSocket::SocketNotification::ID_PKT_RCVD:
+  case zSocket::Notification::SUBTYPE_PKT_RCVD:
   {
-    zSocket::SocketAddressBufferPair p = notification_->Pkt();
+    zSocket::AddressBufferPair p = notification_->Pkt();
     // Update address / socket mapping
-    this->_sock[p.first->Address()] = (zSocket::Socket*) notification_->GetEvent();
+    this->_sock[p.first->GetAddress()] = (zSocket::Socket*) notification_->GetEvent();
     // Create message from package string
     zMessage::Message *msg = MessageFactory::Create(p.second->Str());
     if (msg)
@@ -218,15 +218,15 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
       notification.id(zMessage::MessageNotification::ID_MSG_RCVD);
       notification.type(msg->GetType());
       notification.message(msg);
-      this->Notify(&notification);
+      this->NotifyHandlers(&notification);
       delete (msg);
       status = true;
     }
     break;
   }
-  case zSocket::SocketNotification::ID_PKT_SENT:
+  case zSocket::Notification::SUBTYPE_PKT_SENT:
   {
-    zSocket::SocketAddressBufferPair p = notification_->Pkt();
+    zSocket::AddressBufferPair p = notification_->Pkt();
     zMessage::Message *msg = MessageFactory::Create(p.second->Str());
     if (msg)
     {
@@ -234,7 +234,7 @@ MessageSocket::EventHandler(zSocket::SocketNotification* notification_)
       notification.id(zMessage::MessageNotification::ID_MSG_SENT);
       notification.type(msg->GetType());
       notification.message(msg);
-      this->Notify(&notification);
+      this->NotifyHandlers(&notification);
       delete (msg);
       status = true;
     }

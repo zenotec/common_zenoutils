@@ -15,6 +15,8 @@
  */
 
 #include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "zDataTest.h"
 

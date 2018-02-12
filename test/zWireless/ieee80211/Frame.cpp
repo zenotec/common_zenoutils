@@ -17,13 +17,15 @@
 #include <string.h>
 
 #include <zutils/zLog.h>
+#include <zutils/ieee80211/Frame.h>
 using namespace zUtils;
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
 
-#include "Frame.h"
 using namespace zWireless::ieee80211;
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 int
 Ieee80211Test_FrameGetSet(void* arg_)
@@ -37,7 +39,7 @@ Ieee80211Test_FrameGetSet(void* arg_)
   Frame frame(Frame::TYPE_MGMT);
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -98,8 +100,8 @@ Ieee80211Test_FrameAssemble(void* arg_)
   // Create frame and validate
   Frame frame;
   TEST_IS_ZERO(frame.Version());
-  TEST_EQ(Frame::TYPE_ERR, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::TYPE_NONE, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -249,14 +251,14 @@ Ieee80211Test_FrameDisassemble(void* arg_)
   uint8_t frm_type_mgmt[] = { 0x10, 0x11, 0x34, 0x12 };
   uint8_t frm_type_cntl[] = { 0x24, 0x22, 0x56, 0x34, 0x00 };
   uint8_t frm_type_data[] = { 0x38, 0x44, 0x78, 0x56, 0x00, 0x00 };
-  uint8_t frm_type_err[]  = { 0x4c, 0x88, 0x90, 0x78, 0x00, 0x00, 0x00 };
+  uint8_t frm_type_err[]  = { 0x4f, 0x88, 0x90, 0x78, 0x00, 0x00, 0x00 };
   uint8_t frm_short[]     = { 0x00, 0x00 };
 
   // Create frame
   Frame frame;
   TEST_IS_ZERO(frame.Version());
-  TEST_EQ(Frame::TYPE_ERR, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::TYPE_NONE, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -270,7 +272,7 @@ Ieee80211Test_FrameDisassemble(void* arg_)
   // Disassemble short frame
   len = sizeof(frm_short);
   TEST_IS_NULL(frame.Disassemble(frm_short, len));
-  TEST_IS_ZERO(len);
+  TEST_EQ(sizeof(frm_short), len);
 
   // Disassemble management frame
   len = sizeof(frm_type_mgmt);

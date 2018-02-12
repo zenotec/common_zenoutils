@@ -32,19 +32,11 @@
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/nl80211/StartApCommand.h>
 
 // local includes
-#include "Command.h"
-#include "Attribute.h"
 
-#include "Message.h"
-#include "Handler.h"
-#include "Socket.h"
-#include "GenericMessage.h"
-#include "GenericSocket.h"
-using namespace netlink;
-
-#include "StartApCommand.h"
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace nl80211
 {

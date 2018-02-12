@@ -378,7 +378,7 @@ GpioPort::Run(zThread::ThreadArg *arg_)
       {
         zGpio::GpioPort::STATE state = this->_state();
         zGpio::GpioNotification notification(state, this);
-        this->Notify(&notification);
+        this->NotifyHandlers(&notification);
       }
     }
   }

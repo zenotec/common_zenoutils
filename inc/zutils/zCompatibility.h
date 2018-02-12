@@ -40,6 +40,7 @@ typedef uint64_t u64;
 
 #define CPPVER  std::string("< 201103L")
 
+#define ATOMIC(t)       boost::atomic<t>
 #define MUTEX           boost::mutex
 #define TIMED_MUTEX     boost::timed_mutex
 #define UNIQUE_LOCK(t)  boost::unique_lock<t>
@@ -52,6 +53,7 @@ typedef uint64_t u64;
 
 #elif __cplusplus >= 201103L
 
+#include <atomic>
 #include <mutex>
 #include <chrono>
 #include <memory>
@@ -59,6 +61,7 @@ typedef uint64_t u64;
 
 #define CPPVER  std::string(">= 201103L")
 
+#define ATOMIC(t)       std::atomic<t>
 #define MUTEX           std::mutex
 #define TIMED_MUTEX     std::timed_mutex
 #define UNIQUE_LOCK(t)  std::unique_lock<t>

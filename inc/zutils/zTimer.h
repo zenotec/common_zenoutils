@@ -17,12 +17,12 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
-#include <list>
+#include <stdint.h>
 
-#include <zutils/zLog.h>
+#include <map>
+
 #include <zutils/zSem.h>
 #include <zutils/zEvent.h>
-#include <zutils/zSignal.h>
 #include <zutils/zThread.h>
 
 namespace zUtils
@@ -30,19 +30,114 @@ namespace zUtils
 namespace zTimer
 {
 
+class Handler;
+
 //**********************************************************************
-// Class: TimerThreadFunction
+// Class: Timer
 //**********************************************************************
 
-class TimerThreadFunction : public zThread::ThreadFunction
+class Timer : public zEvent::Event
+{
+
+  friend Handler;
+
+public:
+
+  Timer(const std::string& name_ = "");
+
+  virtual
+  ~Timer();
+
+  bool
+  Start(uint32_t usec_);
+
+  bool
+  Stop(void);
+
+  uint32_t
+  GetId() const;
+
+  uint64_t
+  GetTicks() const;
+
+  std::string
+  Name() const;
+
+  bool
+  Name(const std::string name_);
+
+protected:
+
+  int _fd;
+
+private:
+
+  mutable zSem::Mutex _lock;
+  uint32_t _interval; // micro-seconds
+  std::string _name;
+
+  bool
+  _start(void);
+
+  bool
+  _stop(void);
+
+};
+
+//**********************************************************************
+// Class: Notification
+//**********************************************************************
+
+class Notification : public zEvent::Notification
+{
+  friend Timer;
+
+public:
+
+  Notification(Timer& timer_);
+
+  virtual
+  ~Notification();
+
+  Timer&
+  GetTimer();
+
+  uint32_t
+  GetId() const;
+
+  uint64_t
+  GetTicks() const;
+
+protected:
+
+private:
+
+  uint32_t _id;
+  uint64_t _tick;
+
+};
+
+//**********************************************************************
+// Class: Handler
+//**********************************************************************
+
+class Handler :
+    public zEvent::Handler,
+    public zThread::ThreadFunction
 {
 
 public:
 
-  TimerThreadFunction();
+  Handler();
 
   virtual
-  ~TimerThreadFunction();
+  ~Handler();
+
+  bool
+  RegisterTimer(Timer* event_);
+
+  bool
+  UnregisterTimer(Timer* event_);
 
 protected:
 
@@ -51,84 +146,42 @@ protected:
 
 private:
 
-  uint64_t _ticks;
-
-};
-
-//**********************************************************************
-// Class: Timer
-//**********************************************************************
-
-class Timer : public zThread::ThreadArg, public zEvent::Event, public zEvent::EventHandler
-{
-
-  friend TimerThreadFunction;
-
-public:
-
-  Timer();
-
-  virtual
-  ~Timer();
-
-  void
-  Start(uint32_t usec_);
-
-  void
-  Stop(void);
-
-  void
-  Notify(uint64_t ticks_);
-
-protected:
-
-  int _fd;
-
-private:
-
   zSem::Mutex _lock;
-
+  std::map<int, Timer*> _timer_list;
   zThread::Thread _thread;
-  TimerThreadFunction _timer_func;
-
-  uint32_t _interval;
-
-  virtual void
-  _start(void);
-
-  virtual void
-  _stop(void);
 
 };
 
 //**********************************************************************
-// zTimer::TimerNotification Class
+// Class: Manager
 //**********************************************************************
 
-class TimerNotification : public zEvent::EventNotification
+class Manager : public Handler
 {
-  friend Timer;
-
 public:
 
-  TimerNotification(Timer* timer_);
-
-  virtual
-  ~TimerNotification();
-
-  uint64_t
-  Tick();
+  static Manager&
+  Instance()
+  {
+    static Manager instance;
+    return instance;
+  }
 
 protected:
 
-  void
-  tick(uint64_t tick_);
-
 private:
 
-  uint64_t _tick;
+  Manager()
+  {
+  }
+
+  Manager(Manager const&);
+
+  void
+  operator=(Manager const&);
 
 };
+
 
 }
 }

@@ -17,6 +17,8 @@
 #ifndef __ZINETSOCKET_H__
 #define __ZINETSOCKET_H__
 
+#include <netinet/in.h>
+
 #include <string>
 
 #include <zutils/zThread.h>
@@ -27,96 +29,52 @@ namespace zUtils
 namespace zSocket
 {
 
+class InetSocket;
+
 //**********************************************************************
-// InetAddress Class
+// Class: zSocket::InetAddress
 //**********************************************************************
 
-class InetAddress : public SocketAddress
+class InetAddress : public Address
 {
+
+  friend InetSocket;
 
 public:
 
   InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
 
-  InetAddress(SocketAddress &addr_);
+  InetAddress(const Address& addr_);
 
-  InetAddress(const SocketAddress &addr_);
+  InetAddress(const struct sockaddr_in& sa_);
 
   virtual
   ~InetAddress();
 
-protected:
-
-private:
+  virtual std::string
+  GetAddress() const;
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-};
-
-//**********************************************************************
-// zSocket::InetSocketRecv Class
-//**********************************************************************
-
-class InetSocketRecv : public zThread::ThreadFunction
-{
-
-public:
-
-  InetSocketRecv()
-  {
-  }
-
-  virtual
-  ~InetSocketRecv()
-  {
-  }
+  SetAddress(const std::string &addr_);
 
   virtual void
-  Run(zThread::ThreadArg *arg_);
+  Display() const;
 
 protected:
+
+  struct sockaddr_in sa;
 
 private:
 
 };
 
 //**********************************************************************
-// zSocket::InetSocketSend Class
+// Class: zSocket::InetSocket
 //**********************************************************************
 
-class InetSocketSend : public zThread::ThreadFunction
+class InetSocket :
+    public Socket
 {
-
-public:
-
-  InetSocketSend()
-  {
-  }
-
-  virtual
-  ~InetSocketSend()
-  {
-  }
-
-  virtual void
-  Run(zThread::ThreadArg *arg_);
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
-// zSocket::InetSocket Class
-//**********************************************************************
-
-class InetSocket : public Socket, public zThread::ThreadArg
-{
-
-  friend InetSocketRecv;
-  friend InetSocketSend;
 
 public:
 
@@ -125,11 +83,11 @@ public:
   virtual
   ~InetSocket();
 
-  virtual bool
-  Open();
+  virtual int
+  GetId() const;
 
-  virtual void
-  Close();
+  virtual const Address&
+  GetAddress() const;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -137,25 +95,21 @@ public:
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
-protected:
-
-  int _sock;
-
   virtual bool
-  _bind();
+  Bind(const Address& addr_);
 
-  virtual ssize_t
-  _recv(zSocket::InetAddress &src_, zSocket::SocketBuffer &sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
 
-  virtual ssize_t
-  _send(const zSocket::InetAddress &dst_, zSocket::SocketBuffer &sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const Buffer& sb_);
+
+protected:
 
 private:
 
-  zThread::Thread _rx_thread;
-  InetSocketRecv _rx_func;
-  zThread::Thread _tx_thread;
-  InetSocketSend _tx_func;
+  int _fd;
+  InetAddress _addr;
 
 };
 

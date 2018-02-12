@@ -22,11 +22,11 @@
 #include <string>
 
 #include <zutils/zUtils.h>
-#include <zutils/zSocket.h>
+#include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/ieee80211/RadioTap.h>
 
-#include "RadioTapField.h"
-#include "RadioTap.h"
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -67,12 +67,12 @@ RadioTap::Assemble(uint8_t* frame_, size_t& rem_)
 {
 
   struct radiotap_header* hdr = (struct radiotap_header*)frame_;
-  size_t offset = ((unsigned long)frame_ & 0x7);
   size_t pad = 0;
 
   frame_ = this->_chklen(frame_, sizeof(struct radiotap_header), rem_);
-  if (offset || !frame_)
+  if (!frame_)
   {
+    ZLOG_WARN("Buffer overrun: " + ZLOG_UINT(rem_));
     return(NULL);
   }
 
@@ -91,15 +91,14 @@ RadioTap::Assemble(uint8_t* frame_, size_t& rem_)
     {
       return(NULL);
     }
-    hdr->present[cnt++] = present;
-//    hdr->present[cnt++] = htobe32(present);
+    hdr->present[cnt++] = htole32(present);
     this->_length += sizeof(present);
   }
 
   // Loop through all fields and update header
   FOREACH (auto& field, this->_fields)
   {
-    frame_ = field.second.Assemble(frame_, rem_, pad);
+    frame_ = field.second.Assemble((uint8_t*)hdr, frame_, rem_, pad);
     if (!frame_)
     {
       return (NULL);
@@ -108,8 +107,7 @@ RadioTap::Assemble(uint8_t* frame_, size_t& rem_)
   }
 
   // Update header length
-  hdr->length = this->_length;
-//  hdr->length = htobe16(this->_length);
+  hdr->length = htole16(this->_length);
 
   return (frame_);
 }
@@ -120,14 +118,12 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
 
   int cnt = 0;
   radiotap_header *hdr = (radiotap_header *) frame_;
-  size_t offset = ((unsigned long)frame_ & 0x7);
   size_t pad = 0;
 
-//  printf("\nRadioTap::Disassemble(%p, %zd)\n", frame_, rem_);
-
   // Validate version and length
-  if (offset || (hdr->version != 0) || (hdr->length > rem_))
+  if ((hdr->version != 0) || (le16toh(hdr->length) > rem_))
   {
+    ZLOG_WARN("Invalid version or length: " + ZLOG_UINT(le16toh(hdr->length)));
     return (NULL);
   }
 
@@ -135,15 +131,13 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
   frame_ = this->_chklen(frame_, sizeof(struct radiotap_header), rem_);
   if (!frame_)
   {
+    ZLOG_WARN("Buffer overrun: " + ZLOG_UINT(rem_));
     return(NULL);
   }
 
-//  printf("\nRadioTap::Disassemble(%p, %zd)\n", frame_, rem_);
-
   // Save version and length
   this->_version = hdr->version;
-  this->_length = hdr->length;
-//  this->_length = be16toh(hdr->length);
+  this->_length = le16toh(hdr->length);
 
   // Loop through the present field(s) and save
   for (int cnt = 0; cnt < 8; cnt++)
@@ -156,8 +150,7 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
     }
 
     // Save present field
-    uint32_t present = hdr->present[cnt];
-//    uint32_t present = be32toh(hdr->present[cnt]);
+    uint32_t present = le32toh(hdr->present[cnt]);
     this->_present.push_back(present);
 
     // Test for additional present fields
@@ -176,7 +169,7 @@ RadioTap::Disassemble(uint8_t* frame_, size_t& rem_)
       if (bit & present)
       {
         RadioTapField field((RadioTapField::ID) id);
-        frame_ = field.Disassemble(frame_, rem_, pad);
+        frame_ = field.Disassemble((uint8_t*)hdr, frame_, rem_, pad);
         if (!frame_ || !this->PutField(field, cnt))
         {
           return (NULL);

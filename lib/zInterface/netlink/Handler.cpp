@@ -31,10 +31,12 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/Handler.h>
 using namespace zUtils;
 
 // local includes
-#include "Handler.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {

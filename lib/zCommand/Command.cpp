@@ -56,21 +56,21 @@ Command::~Command()
 }
 
 bool
-Command::EventHandler(zEvent::EventNotification* notification_)
+Command::EventHandler(zEvent::Notification* notification_)
 {
 
   bool status = false;
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_MSG))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_MSG))
   {
     status = this->EventHandler((MessageNotification*) notification_);
   }
-  else if (notification_ && (notification_->Type() == zEvent::Event::TYPE_COMMAND))
+  else if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_COMMAND))
   {
     status = this->EventHandler((zCommand::CommandNotification*) notification_);
   }
   else
   {
-    ZLOG_WARN("Unknown event: " + ZLOG_INT(notification_->Type()));
+    ZLOG_WARN("Unknown event: " + ZLOG_INT(notification_->GetType()));
   }
 
   return (status);

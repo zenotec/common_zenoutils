@@ -20,6 +20,9 @@
 #include <map>
 
 #include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zEvent.h>
 #include <zutils/zData.h>
 #include <zutils/zQueue.h>
@@ -34,13 +37,9 @@ main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zCommandTest.zlog");
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -49,9 +48,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zCommandTest_CommandDefaults, 0);
   UTEST_TEST(zCommandTest_CommandDataGetSet, 0);
   UTEST_TEST(zCommandTest_CommandExecute, 0);
-  UTEST_FINI();
 
-  // Exit
-  exit(0);
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
+
+  UTEST_FINI();
 
 }

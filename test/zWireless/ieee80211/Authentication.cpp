@@ -19,12 +19,13 @@
 
 #include <zutils/zLog.h>
 using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
+#include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/Authentication.h>
 
-#include "RadioTap.h"
-#include "Authentication.h"
 using namespace zWireless::ieee80211;
 
 

@@ -257,7 +257,7 @@ private:
 // Class: zDisplay::Display
 //*****************************************************************************
 
-class Display : public zEvent::EventObserver
+class Display : public zEvent::Observer
 {
 
 public:
@@ -303,7 +303,7 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification *notification_);
+  EventHandler(zEvent::Notification *notification_);
 
   virtual bool
   update(const DisplayBuffer& buf_) = 0;

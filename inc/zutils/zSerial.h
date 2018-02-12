@@ -150,7 +150,7 @@ private:
 // Class: SerialNotification
 //**********************************************************************
 
-class SerialNotification : public zEvent::EventNotification
+class SerialNotification : public zEvent::Notification
 {
 
   friend SerialPort;
@@ -200,7 +200,7 @@ private:
 // Class: SerialManager
 //**********************************************************************
 
-class SerialManager : public zEvent::EventHandler
+class SerialManager : public zEvent::Handler
 {
 public:
 

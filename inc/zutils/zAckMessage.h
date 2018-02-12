@@ -95,7 +95,7 @@ typedef std::map<std::string, zQueue<AckMessage> > AckMessageTable;
 // Class: AckObserver
 //**********************************************************************
 
-class AckObserver : public zEvent::EventObserver
+class AckObserver : public zEvent::Observer
 {
 
 public:
@@ -117,7 +117,7 @@ public:
 protected:
 
   bool
-  EventHandler(zEvent::EventNotification* notification_);
+  EventHandler(zEvent::Notification* notification_);
 
 private:
 

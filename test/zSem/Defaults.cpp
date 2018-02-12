@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <zutils/zLog.h>
 #include "zSemTest.h"
 
 using namespace Test;
@@ -23,10 +22,6 @@ using namespace zUtils;
 int
 zSemTest_MutexDefaults(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSemTest_Defaults()");
-  ZLOG_DEBUG("#############################################################");
 
   // Create new mutex with defaults and validate
   zSem::Mutex MyMutex1;
@@ -47,10 +42,6 @@ zSemTest_MutexDefaults(void* arg_)
 int
 zSemTest_SemaphoreDefaults(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSemTest_SemaphoreDefaults()");
-  ZLOG_DEBUG("#############################################################");
 
   // Create new semaphore with defaults and validate
   zSem::Semaphore MySem1;

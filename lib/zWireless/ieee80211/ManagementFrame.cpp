@@ -24,10 +24,13 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/ieee80211/ManagementFrame.h>
 using namespace zUtils;
 
 // local includes
-#include "ManagementFrame.h"
+#include "ieee80211.h"
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

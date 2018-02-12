@@ -42,13 +42,11 @@ public:
   TestThreadArg(void* id_, const std::string& name_, long cnt_) :
       Id(id_), Name(name_), LoopCnt(cnt_), ErrorCnt(0)
   {
-    ZLOG_DEBUG(Name + "(" + ZLOG_P(this) + "): " + ZLOG_P(Id));
   }
 
   virtual
   ~TestThreadArg()
   {
-    ZLOG_DEBUG(Name + "(" + ZLOG_P(this) + "): " + ZLOG_P(Id));
   }
 
   void* Id;
@@ -95,18 +93,12 @@ public:
 
     if (arg == NULL)
     {
-      ZLOG_ERR("(" + ZLOG_P(arg->Id) + "): NULL argument");
       return;
     }
 
-    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Running");
-
     for (; (!this->Exit() && arg->LoopCnt); arg->LoopCnt--)
     {
-      ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Count: " +
-          ZLOG_LONG(arg->LoopCnt) + "; Error: " + ZLOG_LONG(arg->ErrorCnt));
       // Wake up other thread
-      ZLOG_DEBUG("Posting...");
       if (!arg->Post())
       {
         arg->ErrorCnt++;
@@ -117,10 +109,6 @@ public:
         arg->ErrorCnt++;
       }
     }
-
-    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Finishing");
-    ZLOG_DEBUG(arg->Name + "(" + ZLOG_P(arg->Id) + "): Count: " +
-        ZLOG_LONG(arg->LoopCnt) + "; Error: " + ZLOG_LONG(arg->ErrorCnt));
   }
 
 private:

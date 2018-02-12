@@ -36,7 +36,7 @@ namespace zMessage
 // Class: MessageSocket
 //**********************************************************************
 
-class MessageSocket : public zEvent::Event, public zEvent::EventObserver
+class MessageSocket : public zEvent::Event, public zEvent::Observer
 {
 
 public:
@@ -50,10 +50,10 @@ public:
   Listen(zSocket::Socket *sock_);
 
   bool
-  Connect(const zSocket::SocketAddress& addr_, zSocket::Socket *sock_);
+  Connect(const zSocket::Address& addr_, zSocket::Socket *sock_);
 
   bool
-  Disconnect(const zSocket::SocketAddress& addr_);
+  Disconnect(const zSocket::Address& addr_);
 
   bool
   RegisterForAck(const std::string& msg_id_);
@@ -70,16 +70,16 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
+  EventHandler(zEvent::Notification* notification_);
 
 private:
 
   bool
-  EventHandler(zSocket::SocketNotification* notification_);
+  EventHandler(zSocket::Notification* notification_);
 
   std::map<std::string, zSocket::Socket*> _sock;
-  zEvent::EventHandler _sock_handler;
-  zEvent::EventHandler _msg_handler;
+  zEvent::Handler _sock_handler;
+  zEvent::Handler _msg_handler;
   HelloObserver _hello_obs;
   ByeObserver _bye_obs;
   AckObserver _ack_obs;
@@ -90,7 +90,7 @@ private:
 // Class: MessageNotification
 //**********************************************************************
 
-class MessageNotification : public zEvent::EventNotification
+class MessageNotification : public zEvent::Notification
 {
 
   friend MessageSocket;

@@ -14,26 +14,12 @@
  * limitations under the License.
  */
 
-#include <stdint.h>
-#include <netinet/in.h>
-#include <string.h>
-
 #include <string>
-#include <list>
-#include <mutex>
-#include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-
 #include <zutils/zSocket.h>
-#include <zutils/zLoopSocket.h>
-#include <zutils/zUnixSocket.h>
-#include <zutils/zInetSocket.h>
-#include <zutils/zEthSocket.h>
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
 namespace zUtils
 {
@@ -41,38 +27,25 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::SocketAddress
+// Class: zSocket::Address
 //**********************************************************************
 
-SocketAddress::SocketAddress(const SocketType type_, const std::string &addr_) :
+Address::Address(const SOCKET_TYPE type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
 {
 }
 
-SocketAddress::SocketAddress(SocketAddress &other_) :
+Address::Address(const Address &other_) :
     _type(other_._type), _addr(other_._addr)
 {
 }
 
-SocketAddress::SocketAddress(const SocketAddress &other_) :
-    _type(other_._type), _addr(other_._addr)
+Address::~Address()
 {
 }
 
-SocketAddress::~SocketAddress()
-{
-}
-
-SocketAddress &
-SocketAddress::operator=(SocketAddress &other_)
-{
-  this->_type = other_._type;
-  this->_addr = other_._addr;
-  return (*this);
-}
-
-SocketAddress &
-SocketAddress::operator=(const SocketAddress &other_)
+Address&
+Address::operator=(const Address &other_)
 {
   this->_type = other_._type;
   this->_addr = other_._addr;
@@ -80,185 +53,79 @@ SocketAddress::operator=(const SocketAddress &other_)
 }
 
 bool
-SocketAddress::operator ==(const SocketAddress &other_) const
+Address::operator ==(const Address &other_) const
 {
   return ((this->_type == other_._type) && (this->_addr == other_._addr));
 }
 
 bool
-SocketAddress::operator !=(const SocketAddress &other_) const
+Address::operator !=(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr != other_._addr));
 }
 
 bool
-SocketAddress::operator <(const SocketAddress &other_) const
+Address::operator <(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr < other_._addr));
 }
 
 bool
-SocketAddress::operator >(const SocketAddress &other_) const
+Address::operator >(const Address &other_) const
 {
   return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
-const SocketType
-SocketAddress::Type() const
+SOCKET_TYPE
+Address::GetType() const
 {
   return (this->_type);
 }
 
 bool
-SocketAddress::Type(const SocketType type_)
+Address::SetType(const SOCKET_TYPE type_)
 {
   bool status = false;
   switch (type_)
   {
-  case SocketType::TYPE_LOOP:
+  case SOCKET_TYPE::TYPE_TEST:
     // no break
-  case SocketType::TYPE_UNIX:
+  case SOCKET_TYPE::TYPE_LOOP:
     // no break
-  case SocketType::TYPE_ETH:
+  case SOCKET_TYPE::TYPE_UNIX:
     // no break
-  case SocketType::TYPE_INET:
-    if (this->verify(type_, this->_addr))
-    {
-      this->_type = type_;
-      status = true;
-    }
+  case SOCKET_TYPE::TYPE_ETH:
+    // no break
+  case SOCKET_TYPE::TYPE_INET4:
+    // no break
+  case SOCKET_TYPE::TYPE_INET6:
+    this->_type = type_;
+    status = true;
     break;
   default:
+    status = false;
     break;
   }
   return (status);
 }
 
 std::string
-SocketAddress::Address() const
+Address::GetAddress() const
 {
-  ZLOG_DEBUG("getting socket address: " + this->_addr);
   return (this->_addr);
 }
 
 bool
-SocketAddress::Address(const std::string &addr_)
+Address::SetAddress(const std::string &addr_)
 {
-  bool status = false;
-  ZLOG_DEBUG("setting socket address: " + addr_);
-  if (this->verify(this->_type, addr_))
-  {
-    this->_addr = addr_;
-    status = true;
-  }
-  return (status);
+  this->_addr = addr_;
+  return (true);
 }
 
 void
-SocketAddress::Display() const
+Address::Display() const
 {
-  std::cout << "SocketAddress: [" << (int)this->Type() << "]: " << this->Address() << std::endl;
-}
-
-bool
-SocketAddress::verify(const SocketType type_, const std::string &addr_)
-{
-  return (false);
-}
-
-//**********************************************************************
-// Class: zSocket::SocketAddressFactory
-//**********************************************************************
-
-SocketAddress*
-SocketAddressFactory::Create(const SocketType type_, const std::string& addr_)
-{
-  SocketAddress* addr = NULL;
-  switch (type_)
-  {
-  case SocketType::TYPE_LOOP:
-    addr = new LoopAddress;
-    break;
-  case SocketType::TYPE_UNIX:
-    addr = new UnixAddress(addr_);
-    break;
-  case SocketType::TYPE_ETH:
-    addr = new EthAddress(addr_);
-    break;
-  case SocketType::TYPE_INET:
-    addr = new InetAddress(addr_);
-    break;
-  default:
-    break;
-  }
-  return(addr);
-}
-
-SocketAddress*
-SocketAddressFactory::Create(const SocketAddress& addr_)
-{
-  return(SocketAddressFactory::Create(addr_.Type(), addr_.Address()));
-}
-
-SocketAddress*
-SocketAddressFactory::Create(const std::string& addr_)
-{
-  SocketAddress* addr = NULL;
-
-  // First try to create an INET address
-  addr = new InetAddress;
-  if (addr)
-  {
-    if (!addr->Address(addr_))
-    {
-      delete(addr);
-      addr = NULL;
-    }
-  }
-
-  // Next try to create an Ethernet address
-  if (!addr)
-  {
-    addr = new EthAddress;
-    if (addr)
-    {
-      if (!addr->Address(addr_))
-      {
-        delete(addr);
-        addr = NULL;
-      }
-    }
-  }
-
-  // Next try to create a new Unix address
-  if (!addr)
-  {
-    addr = new UnixAddress;
-    if (addr)
-    {
-      if (!addr->Address(addr_))
-      {
-        delete(addr);
-        addr = NULL;
-      }
-    }
-  }
-
-  // Next try to create a new Loop address
-  if (!addr)
-  {
-    addr = new LoopAddress;
-    if (addr)
-    {
-      if (!addr->Address(addr_))
-      {
-        delete(addr);
-        addr = NULL;
-      }
-    }
-  }
-
-  return(addr);
+  std::cout << "SocketAddress: [" << int(this->GetType()) << "]: " << this->GetAddress() << std::endl;
 }
 
 }

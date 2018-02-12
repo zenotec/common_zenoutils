@@ -22,13 +22,13 @@ zEventTest_EventDefaults(void * arg_)
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
+  TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
 
   // Cleanup
   delete (MyEvent);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 }
 
 int
@@ -37,26 +37,27 @@ zEventTest_EventNotificationDefaults(void * arg_)
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
+  TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
 
   // Create new event notification and validate
-  TestEventNotification *MyNotification = new TestEventNotification(MyEvent);
+  TestNotification* MyNotification = new TestNotification(*MyEvent, 88);
   TEST_ISNOT_NULL(MyNotification);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyNotification->Type());
+  TEST_EQ(Event::TYPE_TEST, MyNotification->GetType());
+  TEST_EQ(88, MyNotification->GetValue());
 
   // Cleanup
   delete (MyNotification);
   delete (MyEvent);
 
   // Return success
-  return (0);
+  UTEST_RETURN;
 }
 
 int
 zEventTest_EventHandlerDefaults(void * arg_)
 {
   // Create new event handler and validate
-  zEvent::EventHandler *MyHandler = new zEvent::EventHandler;
+  zEvent::Handler *MyHandler = new zEvent::Handler;
   TEST_ISNOT_NULL(MyHandler);
 
   // Cleanup
@@ -71,7 +72,7 @@ zEventTest_EventManagerDefaults(void * arg_)
 {
 
   // Get instance of event manager
-  zEvent::EventManager &manager = zEvent::EventManager::Instance();
+  zEvent::Manager &manager = zEvent::Manager::Instance();
 
   // Return success
   return (0);

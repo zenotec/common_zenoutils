@@ -42,17 +42,20 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
 #include <zutils/zWireless.h>
-#include "GetPhyCommand.h"
-#include "SetPhyCommand.h"
-#include "GetInterfaceCommand.h"
-#include "SetInterfaceCommand.h"
-#include "NewInterfaceCommand.h"
-#include "DelInterfaceCommand.h"
-#include "SetChannelCommand.h"
+#include <zutils/nl80211/GetPhyCommand.h>
+#include <zutils/nl80211/SetPhyCommand.h>
+#include <zutils/nl80211/GetInterfaceCommand.h>
+#include <zutils/nl80211/SetInterfaceCommand.h>
+#include <zutils/nl80211/NewInterfaceCommand.h>
+#include <zutils/nl80211/DelInterfaceCommand.h>
+#include <zutils/nl80211/SetChannelCommand.h>
 
 using namespace nl80211;
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

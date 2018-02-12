@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <iostream>
 
-#include <stdint.h>
-
-#include <mutex>
-#include <list>
-
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils
@@ -34,93 +29,70 @@ namespace zEvent
 Event::Event(Event::TYPE type_) :
     _type(type_)
 {
-  // End critical section
-  Event::_event_lock.Unlock();
+  this->_event_lock.Unlock();
 }
 
 Event::~Event()
 {
+  this->_event_lock.Lock();
+  if (!this->_handler_list.empty())
+  {
+    fprintf(stderr, "BUG: Event not unregistered before destruction\n");
+  }
+  FOREACH(auto& handler, this->_handler_list)
+  {
+    handler->UnregisterEvent(this);
+  }
 }
 
 Event::TYPE
-Event::Type() const
+Event::GetType() const
 {
-  Event::TYPE type = Event::TYPE_ERR;
-
-  // Start critical section
-  Event::_event_lock.Lock();
-
-  type = Event::_type;
-
-  // End critical section
-  Event::_event_lock.Unlock();
-
-  return (type);
-}
-
-void
-Event::Notify(zEvent::EventNotification* notification_)
-{
-
-  ZLOG_DEBUG("Notifying event handlers");
-
-  // Start critical section
-  Event::_event_lock.Lock();
-
-  // Make a copy of the handler list
-  std::list<EventHandler *> handler_list(Event::_handler_list);
-
-  // End critical section
-  Event::_event_lock.Unlock();
-
-  int cnt = handler_list.size();
-
-  // Notify all registered event handlers
-  while (!handler_list.empty())
-  {
-    ZLOG_DEBUG("Notifying event handler: " + ZLOG_INT(--cnt));
-    EventHandler *handler = handler_list.front();
-    handler_list.pop_front();
-    handler->notify(notification_);
-  }
-
-  return;
+  return (this->_type); // since type is read only, no need to lock
 }
 
 bool
-Event::registerHandler(EventHandler *handler_)
+Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
-  if (handler_)
+
+  if (this->_event_lock.Lock())
   {
-    // Start critical section
-    if (Event::_event_lock.Lock())
+    status = true;
+
+    // Notify all registered event handlers
+    FOREACH (auto& handler, this->_handler_list)
     {
-      // Add handler to list
-      Event::_handler_list.push_front(handler_);
-      // End critical section
-      Event::_event_lock.Unlock();
-      status = true;
+      status &= handler->notifyObservers(noti_);
     }
+
+    this->_event_lock.Unlock();
+
   }
   return (status);
 }
 
 bool
-Event::unregisterHandler(EventHandler *handler_)
+Event::registerHandler(Handler *handler_)
 {
   bool status = false;
-  if (handler_)
+  if (handler_ && this->_event_lock.Lock())
   {
-    // Start critical section
-    if (Event::_event_lock.Lock())
-    {
-      // Remove handler from list
-      Event::_handler_list.remove(handler_);
-      // End critical section
-      Event::_event_lock.Unlock();
-      status = true;
-    }
+    this->_handler_list.push_front(handler_);
+    status = this->_event_lock.Unlock();
+  }
+  return (status);
+}
+
+bool
+Event::unregisterHandler(Handler *handler_)
+{
+  bool status = false;
+  // Remove handler from list
+  if (handler_ && this->_event_lock.Lock())
+  {
+    this->_handler_list.remove(handler_);
+    status = this->_event_lock.Unlock();
   }
   return (status);
 }

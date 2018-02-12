@@ -17,8 +17,6 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-
 #include "zUuidTest.h"
 
 using namespace Test;

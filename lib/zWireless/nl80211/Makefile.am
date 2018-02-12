@@ -24,57 +24,65 @@ libnl80211_la_LDFLAGS = \
 
 noinst_LTLIBRARIES = libnl80211.la
 
+# Where to install the headers on the system
+libnl80211_ladir = $(includedir)/zutils/nl80211
+
+# Headers to install
+libnl80211_la_HEADERS = \
+	${top_srcdir}/inc/zutils/nl80211/BeaconHeadAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/BeaconIntervalAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/BeaconTailAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/ChannelTypeAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/ChannelWidthAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/DtimPeriodAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/FrequencyAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/IfIndexAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/IfNameAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/IfTypeAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/MacAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/PhyIndexAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/PhyNameAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/SsidAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/TxPowerLevelAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/TxPowerModeAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/ListPhysCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/GetPhyCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetPhyCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/ListInterfacesCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/GetInterfaceCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetInterfaceCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/NewInterfaceCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/DelInterfaceCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/ListStationsCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/GetStationCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetStationCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/NewStationCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/DelStationCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetChannelCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetBssCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/NewBeaconCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/SetBeaconCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h
+
 libnl80211_la_SOURCES = \
-	BeaconHeadAttribute.h \
-	BeaconIntervalAttribute.h \
-	BeaconTailAttribute.h \
-	ChannelTypeAttribute.h \
-	ChannelWidthAttribute.h \
-	DtimPeriodAttribute.h \
-	FrequencyAttribute.h \
-	IfIndexAttribute.h \
-	IfNameAttribute.h \
-	IfTypeAttribute.h \
-	MacAttribute.h \
-	PhyIndexAttribute.h \
-	PhyNameAttribute.h \
-	SsidAttribute.h \
-	ListPhysCommand.h \
 	ListPhysCommand.cpp \
-	GetPhyCommand.h \
 	GetPhyCommand.cpp \
-	SetPhyCommand.h \
 	SetPhyCommand.cpp \
-	ListInterfacesCommand.h \
 	ListInterfacesCommand.cpp \
-	GetInterfaceCommand.h \
 	GetInterfaceCommand.cpp \
-	SetInterfaceCommand.h \
 	SetInterfaceCommand.cpp \
-	NewInterfaceCommand.h \
 	NewInterfaceCommand.cpp \
-	DelInterfaceCommand.h \
 	DelInterfaceCommand.cpp \
-	ListStationsCommand.h \
 	ListStationsCommand.cpp \
-	GetStationCommand.h \
 	GetStationCommand.cpp \
-	SetStationCommand.h \
 	SetStationCommand.cpp \
-	NewStationCommand.h \
 	NewStationCommand.cpp \
-	DelStationCommand.h \
 	DelStationCommand.cpp \
-	SetChannelCommand.h \
 	SetChannelCommand.cpp \
-	SetBssCommand.h \
 	SetBssCommand.cpp \
-	NewBeaconCommand.h \
 	NewBeaconCommand.cpp \
-	SetBeaconCommand.h \
 	SetBeaconCommand.cpp \
-	StartApCommand.h \
 	StartApCommand.cpp \
-	StopApCommand.h \
 	StopApCommand.cpp
 	

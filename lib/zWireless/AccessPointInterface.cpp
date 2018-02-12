@@ -37,13 +37,15 @@
 #include <map>
 
 // libzutils includes
+#include <zutils/zLog.h>
+#include <zutils/nl80211/GetInterfaceCommand.h>
+#include <zutils/nl80211/StartApCommand.h>
+#include <zutils/nl80211/StopApCommand.h>
+using namespace nl80211;
 #include <zutils/zAccessPointInterface.h>
 
-#include "GetInterfaceCommand.h"
-#include "StartApCommand.h"
-#include "StopApCommand.h"
-#include "SetBeaconCommand.h"
-using namespace nl80211;
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

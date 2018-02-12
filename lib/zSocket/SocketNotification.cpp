@@ -31,6 +31,8 @@
 
 #include <zutils/zSocket.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+
 namespace zUtils
 {
 namespace zSocket
@@ -40,45 +42,74 @@ namespace zSocket
 // zSocket::SocketNotification Class
 //*****************************************************************************
 
-SocketNotification::SocketNotification(Socket* sock_) :
-    _id(SocketNotification::ID_NONE), zEvent::EventNotification(sock_)
+Notification::Notification(Socket& sock_) :
+    zEvent::Notification(sock_), _subtype(Notification::SUBTYPE_NONE),
+    _sa(sock_.GetType()), _da(sock_.GetType())
 {
 }
 
-SocketNotification::~SocketNotification()
+Notification::~Notification()
 {
 }
 
-SocketNotification::ID
-SocketNotification::Id() const
+Socket&
+Notification::GetSocket() const
 {
-  return (this->_id);
+  return (static_cast<Socket&>(this->GetEvent()));
+}
+
+int
+Notification::GetId() const
+{
+  return (this->GetSocket().GetId());
+}
+
+Notification::SUBTYPE
+Notification::GetSubType() const
+{
+  return (this->_subtype);
+}
+
+const Address&
+Notification::GetSrcAddress() const
+{
+  return (this->_sa);
+}
+
+const Address&
+Notification::GetDstAddress() const
+{
+  return (this->_da);
+}
+
+const Buffer&
+Notification::GetBuffer() const
+{
+  return (this->_sb);
 }
 
 void
-SocketNotification::id(SocketNotification::ID id_)
+Notification::SetSubType(Notification::SUBTYPE subtype_)
 {
-  this->_id = id_;
-  return;
-}
-
-zSocket::Socket*
-SocketNotification::Sock()
-{
-  return (static_cast<zSocket::Socket*>(this->GetEvent()));
-}
-
-SocketAddressBufferPair
-SocketNotification::Pkt() const
-{
-  return (this->_pkt);
+  this->_subtype = subtype_;
 }
 
 void
-SocketNotification::pkt(SocketAddressBufferPair &pkt_)
+Notification::SetSrcAddress(const Address& sa_)
 {
-  this->_pkt = pkt_;
-  return;
+  this->_sa = sa_;
+}
+
+void
+Notification::SetDstAddress(const Address& da_)
+{
+  this->_da = da_;
+}
+
+void
+Notification::SetBuffer(const Buffer& sb_)
+{
+  this->_sb = sb_;
 }
 
 }

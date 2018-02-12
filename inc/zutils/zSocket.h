@@ -17,16 +17,29 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
+#include <time.h>
+
+#include <map>
+
 #include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
+#include <zutils/zThread.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-typedef enum SocketType
+class Buffer;
+class Address;
+class Socket;
+class Notification;
+class Tap;
+class Handler;
+
+
+enum SOCKET_TYPE
 {
   TYPE_ERR = -1,
   TYPE_NONE = 0,
@@ -34,45 +47,42 @@ typedef enum SocketType
   TYPE_LOOP = 2,
   TYPE_UNIX = 3,
   TYPE_ETH = 4,
-  TYPE_INET = 5,
+  TYPE_INET4 = 5,
   TYPE_INET6 = 6,
   TYPE_LAST
-} SocketType;
+};
 
 //**********************************************************************
-// Class: zSocket::SocketBuffer
+// Class: zSocket::Buffer
 //**********************************************************************
 
-class SocketBuffer
+struct skbmem;
+
+class Buffer
 {
 
 public:
 
-  SocketBuffer(const size_t size_ = 1500);
+  Buffer(const size_t size_ = (8 * 1024));
 
-  SocketBuffer(const std::string &str_);
+  Buffer(const std::string &str_);
 
-  SocketBuffer(SocketBuffer &other_);
-
-  SocketBuffer(const SocketBuffer &other_);
+  Buffer(const Buffer &other_);
 
   virtual
-  ~SocketBuffer();
+  ~Buffer();
 
-  SocketBuffer &
-  operator=(SocketBuffer &other_);
-
-  SocketBuffer &
-  operator=(const SocketBuffer &other_);
+  Buffer &
+  operator=(const Buffer &other_);
 
   bool
-  operator==(SocketBuffer &other_);
+  operator==(const Buffer &other_) const;
 
   bool
-  operator!=(SocketBuffer &other_);
+  operator!=(const Buffer &other_) const;
 
   uint8_t *
-  Head();
+  Head() const;
 
   bool
   Put(off_t off_);
@@ -83,142 +93,120 @@ public:
   bool
   Pull(off_t off_);
 
-  uint8_t *
-  Data(off_t off_ = 0);
+  bool
+  Reset();
 
   uint8_t *
-  Tail();
+  Data() const;
 
   uint8_t *
-  End();
+  Tail() const;
+
+  uint8_t *
+  End() const;
 
   size_t
-  Length();
+  Length() const;
 
   size_t
-  Size();
+  Size() const;
 
   size_t
-  TotalSize();
+  TotalSize() const;
 
   std::string
-  Str();
+  Str() const;
 
   bool
   Str(const std::string &str_);
+
+  void
+  Display() const;
 
 protected:
 
 private:
 
+  struct timespec _ts;
+  SHARED_PTR(struct skbmem) _skbmem;
   uint8_t *_head;
   size_t _data;
   size_t _tail;
   size_t _end;
 
+  void
+  _init(const size_t size_);
+
+  void
+  _copy (const Buffer& other_);
+
 };
 
 //**********************************************************************
-// Class: zSocket::SocketAddress
+// Class: zSocket::Address
 //**********************************************************************
 
-class SocketAddress
+class Address
 {
 
 public:
 
-  SocketAddress(const SocketType type = SocketType::TYPE_NONE,
-      const std::string &addr_ = std::string(""));
+  Address(const SOCKET_TYPE type, const std::string& addr_ = std::string(""));
 
-  SocketAddress(SocketAddress &other_);
-
-  SocketAddress(const SocketAddress &other_);
+  Address(const Address &other_);
 
   virtual
-  ~SocketAddress();
+  ~Address();
 
-  SocketAddress &
-  operator=(SocketAddress &other_);
-
-  SocketAddress &
-  operator=(const SocketAddress &other_);
+  Address &
+  operator=(const Address &other_);
 
   bool
-  operator ==(const SocketAddress &other_) const;
-  bool
-  operator !=(const SocketAddress &other_) const;
-  bool
-  operator <(const SocketAddress &other_) const;
-  bool
-  operator >(const SocketAddress &other_) const;
-
-  const SocketType
-  Type() const;
+  operator ==(const Address &other_) const;
 
   bool
-  Type(const SocketType type_);
-
-  std::string
-  Address() const;
+  operator !=(const Address &other_) const;
 
   bool
-  Address(const std::string &addr_);
+  operator <(const Address &other_) const;
+
+  bool
+  operator >(const Address &other_) const;
+
+  SOCKET_TYPE
+  GetType() const;
+
+  bool
+  SetType(const SOCKET_TYPE type_);
+
+  virtual std::string
+  GetAddress() const;
+
+  virtual bool
+  SetAddress(const std::string &addr_);
 
   virtual void
   Display() const;
 
 protected:
 
+private:
+
+  SOCKET_TYPE _type;
   std::string _addr;
 
-  virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-private:
-
-  SocketType _type;
-
 };
-
-//**********************************************************************
-// Class: zSocket::SocketAddressFactory
-//**********************************************************************
-
-class SocketAddressFactory
-{
-public:
-
-  static SocketAddress*
-  Create(const SocketType type_, const std::string& addr_ = "");
-
-  static SocketAddress*
-  Create(const SocketAddress& addr_);
-
-  static SocketAddress*
-  Create(const std::string& addr_);
-
-private:
-
-};
-
-//**********************************************************************
-// Typedef: zSocket::SocketAddressBufferPair
-//**********************************************************************
-
-typedef std::pair<SHARED_PTR(const SocketAddress), SHARED_PTR(SocketBuffer)> SocketAddressBufferPair;
-
-//**********************************************************************
-// Typedef: zSocket::SocketAddressBufferQueue
-//**********************************************************************
-
-typedef zQueue<SocketAddressBufferPair> SocketAddressBufferQueue;
 
 //**********************************************************************
 // Class: zSocket::Socket
 //**********************************************************************
 
-class Socket : public zEvent::Event
+class Socket :
+    public zEvent::Event
 {
+
+  friend Tap;
+  friend Handler;
 
 public:
 
@@ -226,31 +214,29 @@ public:
   {
     OPTIONS_ERR = -1,
     OPTIONS_NONE = 0,
-    OPTIONS_ALLOW_BCAST = 1,
-    OPTIONS_NONBLOCK = 2,
-    OPTIONS_TOS_LP = 3,
-    OPTIONS_TOS_NP = 4,
-    OPTIONS_TOS_HP = 5,
-    OPTIONS_TOS_UHP = 6,
+    OPTIONS_ALLOW_BCAST, // Allow sending of broadcast packets
+    OPTIONS_NONBLOCK, // Do not block
+    OPTIONS_ALLOW_REUSE, // Allow multiple socket to use address
+    OPTIONS_TOS_LP, // Low priority
+    OPTIONS_TOS_NP, // Normal priority
+    OPTIONS_TOS_HP, // High priority
+    OPTIONS_TOS_UHP, // Ultra-high priority
     OPTIONS_LAST
   };
 
-  Socket(SocketType type_ = SocketType::TYPE_NONE);
+  Socket(const SOCKET_TYPE type_);
 
   virtual
   ~Socket();
 
-  const SocketType
-  Type() const;
+  virtual int
+  GetId() const;
 
-  const SocketAddress&
-  Address() const;
+  const SOCKET_TYPE
+  GetType() const;
 
-  virtual bool
-  Open() = 0;
-
-  virtual void
-  Close() = 0;
+  virtual const Address&
+  GetAddress() const = 0;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -258,37 +244,23 @@ public:
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
-  bool
-  Bind(const SocketAddress& addr_);
+  virtual bool
+  Bind(const Address& addr_);
 
-  ssize_t
-  Send(SocketAddressBufferPair& pair_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
 
-  ssize_t
-  Send(const SocketAddress& to_, SocketBuffer& sb_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const Buffer& sb_);
 
-  ssize_t
-  Send(const SocketAddress& to_, const std::string& str_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const std::string& str_);
 
 protected:
 
-  SocketAddress* _addr;
-
-  virtual bool
-  _bind() = 0;
-
-  // Called by derived class to process a received packet
-  bool
-  rxbuf(SocketAddressBufferPair& pair_);
-
-  // Called by derived class to get packet to send
-  bool
-  txbuf(SocketAddressBufferPair& pair_, size_t timeout_ = 1000000 /* usec */);
-
 private:
 
-  const SocketType _type;
-  SocketAddressBufferQueue _txq;
+  const SOCKET_TYPE _type;
 
   Socket(Socket &other_);
 
@@ -303,67 +275,234 @@ private:
 };
 
 //**********************************************************************
-// Class: zSocket::SocketNotification
+// Class: zSocket::Notification
 //**********************************************************************
 
-class SocketNotification : public zEvent::EventNotification
+class Notification :
+    public zEvent::Notification
 {
 
   friend Socket;
 
 public:
 
-  enum ID
+  enum SUBTYPE
   {
-    ID_ERR = -1,
-    ID_NONE = 0,
-    ID_PKT_RCVD = 1,
-    ID_PKT_SENT = 2,
-    ID_PKT_ERR = 3,
-    ID_LAST
+    SUBTYPE_ERR = -1,
+    SUBTYPE_NONE = 0,
+    SUBTYPE_PKT_RCVD = 1,
+    SUBTYPE_PKT_SENT = 2,
+    SUBTYPE_PKT_ERR = 3,
+    SUBTYPE_LAST
   };
 
-  SocketNotification(Socket* sock_);
+  Notification(Socket& sock_);
 
   virtual
-  ~SocketNotification();
+  ~Notification();
 
-  SocketNotification::ID
-  Id() const;
+  Socket&
+  GetSocket() const;
 
-  Socket*
-  Sock();
+  int
+  GetId() const;
 
-  SocketAddressBufferPair
-  Pkt() const;
+  Notification::SUBTYPE
+  GetSubType() const;
+
+  void
+  SetSubType(Notification::SUBTYPE subtype_);
+
+  const Address&
+  GetSrcAddress() const;
+
+  void
+  SetSrcAddress(const Address& sa_);
+
+  const Address&
+  GetDstAddress() const;
+
+  void
+  SetDstAddress(const Address& da_);
+
+  const Buffer&
+  GetBuffer() const;
+
+  void
+  SetBuffer(const Buffer& sb_);
 
 protected:
 
-  void
-  id(SocketNotification::ID id_);
-
-  void
-  pkt(SocketAddressBufferPair &pkt_);
-
 private:
 
-  SocketNotification::ID _id;
-  SocketAddressBufferPair _pkt;
+  Notification::SUBTYPE _subtype;
+  Address _sa;
+  Address _da;
+  Buffer _sb;
 
 };
 
 //**********************************************************************
-// Class: zSocket::SocketManager
+// Class: zSocket::Adapter
 //**********************************************************************
 
-class SocketManager : public zEvent::EventHandler
+class Adapter :
+    public Socket
+{
+
+public:
+
+  Adapter(Socket& socket_);
+
+  virtual
+  ~Adapter();
+
+  virtual int
+  GetId() const;
+
+  virtual const zSocket::Address&
+  GetAddress() const;
+
+  virtual bool
+  Getopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Setopt(Socket::OPTIONS opt_);
+
+  virtual bool
+  Bind(const zSocket::Address& addr_);
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv() = 0;
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
+
+protected:
+
+  Socket& socket;
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::Tap
+//**********************************************************************
+
+class Tap :
+    public Adapter
+{
+
+public:
+
+  Tap(Socket& tapper_, Socket& tappee_);
+
+  virtual
+  ~Tap();
+
+  bool
+  Inject(SHARED_PTR(zSocket::Notification) n_);
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv() = 0;
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
+
+protected:
+
+private:
+
+  Socket& _tappee;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Observer
+//**********************************************************************
+
+class Observer :
+    public zEvent::Observer
+{
+
+public:
+
+  Observer()
+  {
+  }
+
+  virtual
+  ~Observer()
+  {
+  }
+
+protected:
+
+  virtual bool
+  ObserveEvent(SHARED_PTR(zEvent::Notification)noti_)
+  {
+    bool status = false;
+    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
+    {
+      status = this->ObserveEvent(STATIC_CAST(Notification)(noti_));
+    }
+    return (status);
+  }
+
+  virtual bool
+  ObserveEvent(SHARED_PTR(zSocket::Notification)noti_) = 0;
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::Handler
+//**********************************************************************
+
+class Handler :
+    public zEvent::Handler,
+    public zThread::ThreadFunction
 {
 public:
 
-  static SocketManager&
+  Handler();
+
+  virtual
+  ~Handler();
+
+  bool
+  RegisterSocket(Socket* socket_);
+
+  bool
+  UnregisterSocket(Socket* socket_);
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+  zSem::Mutex _lock;
+  std::map<int, Socket*> _sock_list;
+  zThread::Thread _thread;
+
+};
+
+//**********************************************************************
+// Class: zSocket::Manager
+//**********************************************************************
+
+class Manager : public Handler
+{
+public:
+
+  static Manager&
   Instance()
   {
-    static SocketManager instance;
+    static Manager instance;
     return instance;
   }
 
@@ -371,14 +510,14 @@ protected:
 
 private:
 
-  SocketManager()
+  Manager()
   {
   }
 
-  SocketManager(SocketManager const&);
+  Manager(Manager const&);
 
   void
-  operator=(SocketManager const&);
+  operator=(Manager const&);
 
 };
 

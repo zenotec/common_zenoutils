@@ -31,8 +31,8 @@ namespace zConfig
 // Class: ConfigurationNotification
 //**********************************************************************
 
-ConfigNotification::ConfigNotification(ConfigNotification::ID id_) :
-    _id(id_)
+ConfigNotification::ConfigNotification(Configuration& config_, const ConfigNotification::ID id_) :
+    zEvent::Notification(config_), _id(id_)
 {
 }
 

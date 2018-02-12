@@ -40,7 +40,7 @@ if COND_ZWIRELESS
 ZWIRELESS_SUBDIRS = zWireless
 ZWIRELESS_SOURCE = \
 	$(top_srcdir)/inc/zutils/zWireless.h \
-	$(top_srcdir)/inc/zutils/zMonitorInterface.h \
+	$(top_srcdir)/inc/zutils/zWirelessSocket.h \
 	$(top_srcdir)/inc/zutils/zAccessPointInterface.h \
 	$(top_srcdir)/inc/zutils/zBasicServiceSet.h
 ZWIRELESS_CPPFLAGS =
@@ -53,7 +53,8 @@ if COND_ZINTERFACE
 ZINTERFACE_SUBDIRS = zInterface
 ZINTERFACE_SOURCE = \
 	$(top_srcdir)/inc/zutils/zInterface.h \
-	$(top_srcdir)/inc/zutils/zLoopInterface.h
+	$(top_srcdir)/inc/zutils/zLoopInterface.h \
+	$(top_srcdir)/inc/zutils/zMacVlanInterface.h
 ZINTERFACE_CPPFLAGS =
 ZINTERFACE_LDFLAGS =
 ZINTERFACE_LIBS = \
@@ -195,23 +196,23 @@ GCOV_LDFLAGS = -lgcov
 endif
 
 SUBDIRS = \
-	$(ZLOG_SUBDIRS) \
 	$(ZSEM_SUBDIRS) \
 	$(ZQUEUE_SUBDIRS) \
-	$(ZDATA_SUBDIRS) \
-	$(ZMATH_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
-	$(ZCONFIG_SUBDIRS) \
 	$(ZSIGNAL_SUBDIRS) \
 	$(ZTHREAD_SUBDIRS) \
 	$(ZTIMER_SUBDIRS) \
+	$(ZLOG_SUBDIRS) \
+	$(ZDATA_SUBDIRS) \
+	$(ZMATH_SUBDIRS) \
+	$(ZCONFIG_SUBDIRS) \
 	$(ZGPIO_SUBDIRS) \
 	$(ZLED_SUBDIRS) \
 	$(ZSERIAL_SUBDIRS) \
 	$(ZINTERFACE_SUBDIRS) \
+	$(ZSOCKET_SUBDIRS) \
 	$(ZWIRELESS_SUBDIRS) \
 	$(ZPROGRAM_SUBDIRS) \
-	$(ZSOCKET_SUBDIRS) \
 	$(ZMESSAGE_SUBDIRS)
 
 AM_CPPFLAGS := \
@@ -230,9 +231,9 @@ AM_CPPFLAGS := \
 	$(ZLED_CPPFLAGS) \
 	$(ZSERIAL_CPPFLAGS) \
 	$(ZINTERFACE_CPPFLAGS) \
+	$(ZSOCKET_CPPFLAGS) \
 	$(ZWIRELESS_CPPFLAGS) \
 	$(ZPROGRAM_CPPFLAGS) \
-	$(ZSOCKET_CPPFLAGS) \
 	$(ZMESSAGE_CPPFLAGS) \
 	-Werror -Wfatal-errors
 
@@ -252,9 +253,9 @@ AM_LDFLAGS := \
 	$(ZLED_LDFLAGS) \
 	$(ZSERIAL_LDFLAGS) \
 	$(ZINTERFACE_LDFLAGS) \
+	$(ZSOCKET_LDFLAGS) \
 	$(ZWIRELESS_LDFLAGS) \
 	$(ZPROGRAM_LDFLAGS) \
-	$(ZSOCKET_LDFLAGS) \
 	$(ZMESSAGE_LDFLAGS)
 
 lib_LTLIBRARIES = libzutils.la
@@ -281,9 +282,9 @@ libzutils_la_HEADERS = \
 	$(ZLED_SOURCE) \
 	$(ZSERIAL_SOURCE) \
 	$(ZINTERFACE_SOURCE) \
+	$(ZSOCKET_SOURCE) \
 	$(ZWIRELESS_SOURCE) \
 	$(ZPROGRAM_SOURCE) \
-	$(ZSOCKET_SOURCE) \
 	$(ZMESSAGE_SOURCE)
 
 # Sources to include in the package
@@ -305,7 +306,7 @@ libzutils_la_LIBADD = \
 	$(ZLED_LIBS) \
 	$(ZSERIAL_LIBS) \
 	$(ZINTERFACE_LIBS) \
+	$(ZSOCKET_LIBS) \
 	$(ZWIRELESS_LIBS) \
 	$(ZPROGRAM_LIBS) \
-	$(ZSOCKET_LIBS) \
 	$(ZMESSAGE_LIBS)

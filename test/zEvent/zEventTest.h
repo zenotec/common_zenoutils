@@ -47,38 +47,66 @@ zEventTest_EventManagerTest(void* arg_);
 
 using namespace zUtils;
 using namespace Test;
+using namespace zEvent;
 
-class TestEventNotification : public zEvent::EventNotification
+class TestNotification :
+    public Notification
 {
+
 public:
-  TestEventNotification(zEvent::Event* event_) :
-      zEvent::EventNotification(event_)
-  {
 
-  }
-  ~TestEventNotification()
+  TestNotification(Event& event_, int value_) :
+      Notification(event_), _value(value_)
   {
-
   }
+
+  ~TestNotification()
+  {
+  }
+
+  int
+  GetValue() const
+  {
+    return (this->_value);
+  }
+
+private:
+
+  int _value;
+
 };
 
-class TestEvent : public zEvent::Event
+class TestEvent :
+    public Event
 {
-public:
-  TestEvent() :
-      zEvent::Event(zEvent::Event::TYPE_TEST)
-  {
 
+public:
+
+  TestEvent() :
+      Event(zEvent::Event::TYPE_TEST)
+  {
   }
   ~TestEvent()
   {
-
   }
+
+  bool
+  Notify(int val_)
+  {
+    SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
+    this->notifyHandlers(n);
+    return (true);
+  }
+
 };
 
-class TestObserver : public zEvent::EventObserver, public zQueue<const zEvent::EventNotification*>
+class TestObserver :
+    public Observer,
+    public zQueue<SHARED_PTR(zEvent::Notification)>
 {
+
 public:
+
   TestObserver()
   {
   }
@@ -89,11 +117,9 @@ public:
   }
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
   {
-    ZLOG_DEBUG("Handling event");
-    this->Push(notification_);
-    return (true);
+    return (this->Push(noti_));
   }
 };
 

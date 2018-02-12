@@ -18,7 +18,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include <zutils/zLog.h>
 #include <zutils/zSem.h>
 
 namespace zUtils
@@ -31,22 +30,17 @@ namespace zSem
 //*****************************************************************************
 
 Semaphore::Semaphore(const uint32_t value_) :
-    _lock(Mutex::LOCKED), _empty(Mutex::LOCKED), _cnt(value_)
+    _sem_lock(Mutex::LOCKED), _sem_cnt(value_)
 {
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-  if (this->_cnt != 0)
+  if (this->_sem_cnt == 0)
   {
-    this->_empty.Unlock();
+    this->_empty_lock.lock();
   }
-  this->_lock.Unlock();
+  this->_sem_lock.Unlock();
 }
 
 Semaphore::~Semaphore()
 {
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
 }
 
 bool
@@ -54,22 +48,19 @@ Semaphore::Post()
 {
   bool status = false;
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
     // Test for overflow
-    if ((this->_cnt + 1) > this->_cnt)
+    if ((this->_sem_cnt + 1) > this->_sem_cnt)
     {
-      if (this->_cnt == 0)
+      if (this->_sem_cnt == 0)
       {
-        this->_empty.Unlock();
+        this->_empty_lock.unlock();
       }
-      this->_cnt++;
+      this->_sem_cnt++;
     }
     status = true;
-    this->_lock.Unlock();
+    this->_sem_lock.Unlock();
   }
 
   return (status);
@@ -79,18 +70,13 @@ bool
 Semaphore::Wait()
 {
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
   bool status = this->TryWait();
 
   if (!status)
   {
-    if (this->_empty.Lock())
-    {
-      this->_empty.Unlock();
-      status = this->TryWait();
-    }
+    this->_empty_lock.lock();
+    this->_empty_lock.unlock();
+    status = this->TryWait();
   }
 
   return (status);
@@ -100,46 +86,33 @@ bool
 Semaphore::TryWait()
 {
   bool status = false;
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
-    if (this->_cnt != 0)
+    if (this->_sem_cnt > 0)
     {
-      this->_cnt--;
-      if (this->_cnt == 0)
+      if (this->_sem_cnt-- == 1)
       {
-        this->_empty.Lock();
+        this->_empty_lock.lock();
       }
       status = true;
     }
-    this->_lock.Unlock();
+    this->_sem_lock.Unlock();
   }
-
-  ZLOG_DEBUG("STATUS: " + ZLOG_BOOL(status));
   return (status);
 }
 
 bool
 Semaphore::TimedWait(uint32_t msec_)
 {
-
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): Count" +
-      ZLOG_UINT(this->_cnt) + "; Time: " + ZLOG_UINT(msec_));
-
   bool status = this->TryWait();
-
   if (!status)
   {
-    if (this->_empty.TimedLock(msec_))
+    if (TIMED_LOCK(this->_empty_lock, msec_))
     {
-      this->_empty.Unlock();
+      this->_empty_lock.unlock();
       status = this->TryWait();
     }
   }
-
   return (status);
 }
 
@@ -148,18 +121,14 @@ Semaphore::Reset()
 {
   bool status = false;
 
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ":" + ZLOG_P(&this->_empty) + "): " +
-      ZLOG_UINT(this->_cnt));
-
-  if (this->_lock.Lock())
+  if (this->_sem_lock.Lock())
   {
-    if (this->_cnt != 0)
+    if (this->_sem_cnt != 0)
     {
-      this->_cnt = 0;
-      this->_empty.Lock();
+      this->_sem_cnt = 0;
+      this->_empty_lock.lock();
     }
-    status = true;
-    this->_lock.Unlock();
+    status = this->_sem_lock.Unlock();
   }
 
   return (status);

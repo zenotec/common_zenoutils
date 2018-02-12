@@ -19,7 +19,6 @@
 
 #include <queue>
 
-#include <zutils/zLog.h>
 #include <zutils/zSem.h>
 
 namespace zUtils
@@ -28,7 +27,9 @@ namespace zUtils
 template<typename T>
   class zQueue : private std::queue<T>, public zSem::Semaphore
   {
+
   public:
+
     zQueue()
     {
       this->_queue_lock.Unlock();
@@ -64,25 +65,29 @@ template<typename T>
       return (item);
     }
 
-    void
+    bool
     Push(T item_)
     {
+      bool status = false;
       if (this->_queue_lock.Lock())
       {
         this->push(item_);
-        this->Post();
-        this->_queue_lock.Unlock();
+        status = this->Post();
+        status &= this->_queue_lock.Unlock();
       }
+      return (status);
     }
 
-    void
+    bool
     Pop()
     {
+      bool status = false;
       if (this->_queue_lock.Lock())
       {
         this->pop();
-        this->_queue_lock.Unlock();
+        status = this->_queue_lock.Unlock();
       }
+      return (status);
     }
 
     ssize_t
@@ -127,6 +132,7 @@ template<typename T>
   protected:
 
   private:
+
     zSem::Mutex _queue_lock;
 
   };

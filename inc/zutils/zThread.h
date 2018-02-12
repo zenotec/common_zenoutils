@@ -64,6 +64,12 @@ public:
   Run(zThread::ThreadArg *arg_) = 0;
 
   bool
+  Yield();
+
+  bool
+  Yield(bool flag_);
+
+  bool
   Exit();
 
   bool
@@ -74,10 +80,14 @@ protected:
   bool
   setThread(Thread* thread_);
 
+  void
+  yield() const;
+
 private:
 
   zSem::Mutex _thread_lock;
   Thread *_thread;
+  bool _yield;
   bool _exit;
 
 };
@@ -86,7 +96,8 @@ private:
 // Class: Thread
 //**********************************************************************
 
-class Thread : public zEvent::EventObserver
+class Thread :
+    public zEvent::Observer
 {
 public:
 
@@ -116,13 +127,13 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
 
 private:
 
   std::thread *_thread;
 
-  zEvent::EventHandler _sighandler;
+  zEvent::Handler _sighandler;
 
   std::string _name;
   ThreadFunction *_func;

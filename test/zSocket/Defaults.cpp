@@ -24,10 +24,8 @@
 #include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include <zutils/zSocket.h>
 #include <zutils/zLoopSocket.h>
@@ -47,16 +45,16 @@ zSocketTest_BufferDefaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new packet and validate
-  SocketBuffer mySb1;
+  Buffer mySb1;
   TEST_ISNOT_NULL(mySb1.Head());
   TEST_EQ(mySb1.Head(), mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(mySb1.TotalSize(), 1500);
+  TEST_EQ(mySb1.TotalSize(), 8192);
   TEST_EQ(std::string(""), mySb1.Str());
 
   // Create new packet of set size and validate
-  SocketBuffer mySb2(500);
+  Buffer mySb2(500);
   TEST_ISNOT_NULL(mySb2.Head());
   TEST_EQ(mySb1.Head(), mySb1.Data());
   TEST_ISNOT_NULL(mySb2.Data());
@@ -81,8 +79,8 @@ zSocketTest_AddressDefaults(void* arg_)
   // Create new socket address and validate
   TestAddress *myAddr = new TestAddress;
   TEST_ISNOT_NULL(myAddr);
-  TEST_EQ(SocketType::TYPE_TEST, myAddr->Type());
-  TEST_EQ(std::string(""), myAddr->Address());
+  TEST_EQ(SOCKET_TYPE::TYPE_TEST, myAddr->GetType());
+  TEST_EQ(std::string(""), myAddr->GetAddress());
   delete (myAddr);
 
   // Return success

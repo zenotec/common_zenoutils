@@ -17,7 +17,10 @@
 #include <iostream>
 
 #include <zutils/zLog.h>
+
 #include <zutils/zData.h>
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_DATA);
 
 namespace zUtils
 {

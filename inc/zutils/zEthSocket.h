@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@
 #ifndef __ZETHSOCKET_H__
 #define __ZETHSOCKET_H__
 
-#include <stdint.h>
+#include <linux/if_packet.h>
 #include <linux/if_ether.h>
 
 #include <string>
-#include <map>
 
 #include <zutils/zThread.h>
-#include <zutils/zInterface.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -32,107 +30,53 @@ namespace zUtils
 namespace zSocket
 {
 
-struct hwaddr
-{
-  uint8_t addr[ETH_ALEN];
-};
+class EthSocket;
 
 //**********************************************************************
-// EthAddress Class
+// Class: zSocket::EthAddress
 //**********************************************************************
 
-class EthAddress : public SocketAddress
+class EthAddress :
+    public Address
 {
+
+  friend EthSocket;
 
 public:
 
-  EthAddress(const std::string &addr_= std::string("00:00:00:00:00:00"));
+  EthAddress(const std::string &addr_ = "00:00:00:00:00:00");
 
-  EthAddress(SocketAddress &addr_);
+  EthAddress(const Address& addr_);
 
-  EthAddress(const SocketAddress &addr_);
+  EthAddress(const struct sockaddr_ll& sa_);
 
   virtual
   ~EthAddress();
 
-  struct hwaddr
-  HwAddress() const;
-
-  bool
-  HwAddress(const struct hwaddr addr_);
-
-protected:
-
-private:
+  virtual std::string
+  GetAddress() const;
 
   virtual bool
-  verify(const SocketType type_, const std::string &addr_);
-
-};
-
-//**********************************************************************
-// zSocket::EthSocketRecv Class
-//**********************************************************************
-
-class EthSocketRecv : public zThread::ThreadFunction
-{
-
-public:
-
-  EthSocketRecv()
-  {
-  }
-
-  virtual
-  ~EthSocketRecv()
-  {
-  }
+  SetAddress(const std::string &addr_);
 
   virtual void
-  Run(zThread::ThreadArg *arg_);
+  Display() const;
 
 protected:
+
+  struct sockaddr_ll sa;
 
 private:
 
 };
 
 //**********************************************************************
-// zSocket::EthSocketSend Class
+// Class: zSocket::EthSocket
 //**********************************************************************
 
-class EthSocketSend : public zThread::ThreadFunction
+class EthSocket :
+    public Socket
 {
-
-public:
-
-  EthSocketSend()
-  {
-  }
-
-  virtual
-  ~EthSocketSend()
-  {
-  }
-
-  virtual void
-  Run(zThread::ThreadArg *arg_);
-
-protected:
-
-private:
-
-};
-
-//**********************************************************************
-// zSocket::EthSocket Class
-//**********************************************************************
-
-class EthSocket : public Socket, public zThread::ThreadArg, zEvent::EventObserver
-{
-
-  friend EthSocketRecv;
-  friend EthSocketSend;
 
 public:
 
@@ -147,51 +91,38 @@ public:
     PROTO_LAST
   };
 
-  EthSocket();
+  EthSocket(const EthSocket::PROTO proto_ = PROTO_ALL);
 
   virtual
   ~EthSocket();
 
-  bool
-  Open(const PROTO proto_);
+  virtual int
+  GetId() const;
+
+  virtual const Address&
+  GetAddress() const;
 
   virtual bool
-  Open();
+  Getopt(Socket::OPTIONS opt_);
 
-  bool
-  Close(const PROTO proto_);
+  virtual bool
+  Setopt(Socket::OPTIONS opt_);
 
-  virtual void
-  Close();
+  virtual bool
+  Bind(const Address& addr_);
 
-  bool
-  Bind(const zInterface::Interface& iface_);
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const Address& to_, const Buffer& sb_);
 
 protected:
 
-  std::map<PROTO, int> _sockfd;
-
-  virtual bool
-  _bind();
-
-  virtual ssize_t
-  _recv(const int fd_, zSocket::EthAddress &src_, zSocket::SocketBuffer &sb_);
-
-  virtual ssize_t
-  _send(const int fd_, const zSocket::EthAddress &dst_, zSocket::SocketBuffer &sb_);
-
-  virtual bool
-  EventHandler(zEvent::EventNotification* notification_);
-
 private:
 
-  zInterface::Interface* _iface;
-  zEvent::EventHandler _iface_handler;
-
-  zThread::Thread _rx_thread;
-  EthSocketRecv _rx_func;
-  zThread::Thread _tx_thread;
-  EthSocketSend _tx_func;
+  int _fd;
+  EthAddress _addr;
 
 };
 

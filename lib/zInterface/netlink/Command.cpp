@@ -22,9 +22,12 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/Command.h>
+using namespace zUtils;
 
 // local includes
-#include "Command.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {
@@ -51,7 +54,7 @@ Command::Command(const std::string& ifname_) :
     this->_ifindex = if_nametoindex(ifname_.c_str());
     if (!this->_ifindex)
     {
-      ZLOG_ERR("Error retrieving interface index for: " + ifname_);
+      ZLOG_WARN("Error retrieving interface index for: " + ifname_);
     }
   }
   else

@@ -27,7 +27,6 @@
 #include <list>
 #include <map>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSignal.h>
 #include <zutils/zTimer.h>
@@ -57,180 +56,141 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 }
 
 //**********************************************************************
-// Class: TimerThreadFunction
-//**********************************************************************
-
-TimerThreadFunction::TimerThreadFunction() :
-    _ticks(0)
-{
-
-}
-
-TimerThreadFunction::~TimerThreadFunction()
-{
-
-}
-
-void
-TimerThreadFunction::Run(zThread::ThreadArg *arg_)
-{
-
-  uint64_t ticks = 0;
-  Timer *timer = (Timer *) arg_;
-
-  if (!arg_)
-  {
-    return;
-  }
-
-//  ZLOG_DEBUG("Running...");
-
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = timer->_fd;
-  fds[0].events = (POLLIN | POLLERR);
-
-  while (!this->Exit())
-  {
-//    ZLOG_DEBUG("Polling...");
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLIN))
-    {
-//      ZLOG_DEBUG("Reading...");
-      ret = read(fds[0].fd, &ticks, sizeof(ticks));
-      if (ret > 0)
-      {
-//        ZLOG_DEBUG("Notifying...");
-        this->_ticks += ticks;
-        timer->Notify(this->_ticks);
-      }
-    }
-  }
-
-}
-
-//**********************************************************************
 // Class: Timer
 //**********************************************************************
 
-Timer::Timer() :
-    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _thread(&this->_timer_func, this),
-        _interval(0)
+Timer::Timer(const std::string& name_) :
+    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0), _name(name_)
 {
-
-  this->RegisterEvent(this);
 
   // Create timer
   this->_fd = timerfd_create(CLOCK_REALTIME, O_NONBLOCK);
   if (this->_fd <= 0)
   {
-    ZLOG_CRIT("Cannot create timer: " + std::string(strerror(errno)));
     this->_fd = 0;
-    return;
   } // end if
 
-  // Start timer monitor thread
-  this->_thread.Start();
+  fprintf(stderr, "(%d) Creating timer: %s\n", this->_fd, this->_name.c_str());
 
   this->_lock.Unlock();
 }
 
 Timer::~Timer()
 {
-  int stat = 0;
-  struct itimerspec its = { 0 };
 
-  // Stop timer
+  fprintf(stderr, "(%d) Destroying timer: %s\n", this->_fd, this->_name.c_str());
+
+  // Make sure the timer is stopped
   this->Stop();
 
-  // Kill timer monitor thread
-  this->_thread.Stop();
+  this->_lock.Lock();
 
+  // Make sure the timer is unregistered from all handlers
+  if (!this->_handler_list.empty())
+  {
+    fprintf(stderr, "BUG: Timer registered with handler, not closing FD\n");
+  }
+  else
+  {
   // Delete timer
   if (this->_fd)
   {
     close(this->_fd);
+    this->_fd = 0;
   } // end if
-
-  // Unregister event
-  this->UnregisterEvent(this);
-
-  // Wait for lock to be available or timeout
-  this->_lock.TimedLock(100);
+  }
 }
 
-void
+bool
 Timer::Start(uint32_t usec_)
 {
-  ZLOG_DEBUG("Starting interval timer");
-  if (this->_fd && this->_lock.Lock())
+
+  fprintf(stderr, "(%d) Starting timer: %s\n", this->_fd, this->_name.c_str());
+
+  bool status = false;
+  if (this->_lock.Lock())
   {
     this->_interval = usec_;
-    this->_start();
+    status = this->_start();
     this->_lock.Unlock();
   } // end if
+  return (status);
 }
 
-void
+bool
 Timer::Stop(void)
 {
-  ZLOG_DEBUG("Stopping interval timer");
-  if (this->_fd && this->_lock.Lock())
+
+  fprintf(stderr, "(%d) Stopping timer: %s\n", this->_fd, this->_name.c_str());
+
+  bool status  = false;
+  if (this->_lock.Lock())
   {
-    this->_stop();
+    status = this->_stop();
     this->_lock.Unlock();
   } // end if
+  return (status);
 }
 
-void
-Timer::Notify(uint64_t ticks_)
+uint32_t
+Timer::GetId() const
 {
-  ZLOG_DEBUG("Notifying: " + ZLOG_ULONG(ticks_));
-  TimerNotification notification(this);
-  notification.tick(ticks_);
-  zEvent::Event::Notify(&notification);
-  return;
+  return (uint32_t(this->_fd)); // read only
 }
 
-void
+std::string
+Timer::Name() const
+{
+  return _name;
+}
+
+bool
+Timer::Name(const std::string name_)
+{
+  _name = name_;
+  return true;
+}
+
+uint64_t
+Timer::GetTicks() const
+{
+  uint64_t ticks = 0;
+  if (this->_fd && this->_lock.Lock())
+  {
+    if (read(this->_fd, &ticks, sizeof(ticks) != sizeof(ticks)))
+    {
+      ticks = 0;
+    }
+    this->_lock.Unlock();
+  } // end if
+  return (ticks);
+}
+
+bool
 Timer::_start()
 {
-  int stat = 0;
-
-  // Compute time
-  struct itimerspec its = { 0 };
-  _add_time(&its.it_value, this->_interval);
-  _add_time(&its.it_interval, this->_interval);
-
-  // Start timer
-  stat = timerfd_settime(this->_fd, 0, &its, NULL);
-  if (stat != 0)
-  {
-    ZLOG_ERR("Cannot start timer: " + std::string(strerror(errno)));
-  } // end if
-
-  return;
-
-}
-
-void
-Timer::_stop()
-{
-  int stat = 0;
-  struct itimerspec its = { 0 };
-
+  bool status  = false;
   if (this->_fd)
   {
+    // Compute time and set interval time
+    struct itimerspec its = { 0 };
+    _add_time(&its.it_value, this->_interval);
+    _add_time(&its.it_interval, this->_interval);
+    status = (timerfd_settime(this->_fd, 0, &its, NULL) == 0);
+  }
+  return (status);
+}
 
-    // Stop timer
-    stat = timerfd_settime(this->_fd, 0, &its, NULL);
-    if (stat != 0)
-    {
-      ZLOG_ERR("Cannot stop timer: " + std::string(strerror(errno)));
-    } // end if
-
-  } // end if
-
+bool
+Timer::_stop()
+{
+  bool status  = false;
+  if (this->_fd)
+  {
+    struct itimerspec its = { 0 };
+    status = (timerfd_settime(this->_fd, 0, &its, NULL) == 0);
+  }
+  return (status);
 }
 
 }

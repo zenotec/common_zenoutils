@@ -58,7 +58,7 @@ private:
 // Class: ByeObserver
 //**********************************************************************
 
-class ByeObserver : public zEvent::EventObserver
+class ByeObserver : public zEvent::Observer
 {
 
 public:
@@ -71,7 +71,7 @@ public:
 protected:
 
   bool
-  EventHandler(zEvent::EventNotification* notification_);
+  EventHandler(zEvent::Notification* notification_);
 
 private:
 

@@ -20,5 +20,10 @@ zTimerUnitTest_SOURCES = \
     StartStop.cpp
 
 zTimerUnitTest_LDADD = \
-    ${top_builddir}/lib/libzutils.la
+    ${top_builddir}/lib/zTimer/libzTimer.la \
+    ${top_builddir}/lib/zLog/libzLog.la \
+    ${top_builddir}/lib/zThread/libzThread.la \
+    ${top_builddir}/lib/zSignal/libzSignal.la \
+    ${top_builddir}/lib/zEvent/libzEvent.la \
+    ${top_builddir}/lib/zSem/libzSem.la
 

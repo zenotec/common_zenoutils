@@ -26,9 +26,12 @@
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/ieee80211/Frame.h>
 
 // local includes
-#include "Frame.h"
+#include "ieee80211.h"
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -42,9 +45,8 @@ namespace ieee80211
 //*****************************************************************************
 
 Frame::Frame(const Frame::TYPE type_) :
-    _version(0), _type(type_), _subtype(Frame::SUBTYPE_ERR), _tods(false), _fromds(false),
-    _morefrag(false), _retry(false), _pwrmgmt(false), _moredata(false), _protected(false),
-    _order(false), _durationid(0), _seqcntl(0), _qoscntl(0), _htcntl(0), _fcs(0)
+    _fccntl(0), _durationid(0), _seqcntl(0), _qoscntl(0), _htcntl(0),
+    _payload{ 0 }, _psize(0), _fcs(0)
 {
 }
 
@@ -61,24 +63,12 @@ Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, (sizeof(f->fc) + sizeof(f->duration)), rem_);
   if (!p_)
   {
+    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
 
   // Fill in the frame control field
-  uint16_t fc = 0;
-  fc = ((this->Version() & 0x03) << 0);
-  fc |= ((this->Type() & 0x03) << 2);
-  fc |= ((this->Subtype() & 0x0f) << 4);
-  fc |= (this->ToDS() << 8);
-  fc |= (this->FromDS() << 9);
-  fc |= (this->MoreFragments() << 10);
-  fc |= (this->Retry() << 11);
-  fc |= (this->PowerManagement() << 12);
-  fc |= (this->MoreData() << 13);
-  fc |= (this->Protected() << 14);
-  fc |= (this->Order()<< 15);
-  f->fc = htole16(fc);
-
+  f->fc = htole16(this->_fccntl);
   f->duration = htole16(this->_durationid);
 
   return (p_);
@@ -99,71 +89,23 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     }
   }
 
-  p_ = this->chklen(p_, sizeof(f->fc), rem_);
+  p_ = this->chklen(p_, (sizeof(f->fc) + sizeof(f->duration)), rem_);
   if (!p_)
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
 
-  // Decode the frame control field
-  uint16_t fc = le16toh(f->fc);
-  this->Version((fc >> 0) & 0x03);
-  if (this->Version() != 0)
+  this->_fccntl = le16toh(f->fc);
+
+  // Perform sanity check on version to determine if this is a valid frame
+  if (this->Version())
   {
     ZLOG_ERR("Invalid header version: " + ZLOG_INT(this->Version()))
     return (NULL);
   }
-  if (!this->Type(Frame::TYPE(((fc >> 2) & 0x03))))
-  {
-    ZLOG_ERR("Invalid type: " + ZLOG_INT(this->Type()))
-    return(NULL);
-  }
-  if(!this->Subtype(Frame::SUBTYPE(((fc >> 4) & 0x0f))))
-  {
-    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()))
-    return(NULL);
-  }
-  if(!this->ToDS(!!(fc & (1 << 8))))
-  {
-    return(NULL);
-  }
-  if(!this->FromDS(!!(fc & (1 << 9))))
-  {
-    return(NULL);
-  }
-  if(!this->MoreFragments(!!(fc & (1 << 10))))
-  {
-    return(NULL);
-  }
-  if(!this->Retry(!!(fc & (1 << 11))))
-  {
-    return(NULL);
-  }
-  if(!this->PowerManagement(!!(fc & (1 << 12))))
-  {
-    return(NULL);
-  }
-  if(!this->MoreData(!!(fc & (1 << 13))))
-  {
-    return(NULL);
-  }
-  if(!this->Protected(!!(fc & (1 << 14))))
-  {
-    return(NULL);
-  }
-  if(!this->Order(!!(fc & (1 << 15))))
-  {
-    return(NULL);
-  }
 
-  p_ = this->chklen(p_, sizeof(f->duration), rem_);
-  if (!p_)
-  {
-    ZLOG_ERR("Missing duration field");
-    return (NULL);
-  }
-  this->DurationId(le16toh(f->duration));
+  this->_durationid = le16toh(f->duration);
 
   return (p_);
 }
@@ -268,20 +210,21 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
 uint8_t
 Frame::Version() const
 {
-  return (this->_version);
+  return ((this->_fccntl >> 0) & 0x03);
 }
 
 bool
 Frame::Version(const uint8_t version_)
 {
-  this->_version = version_;
+  this->_fccntl &= ~(0x0003 << 0);
+  this->_fccntl |= ((version_ & 0x0003) << 0);
   return (true);
 }
 
 Frame::TYPE
 Frame::Type() const
 {
-  return (this->_type);
+  return (Frame::TYPE((this->_fccntl >> 2) & 0x0003));
 }
 
 bool
@@ -290,7 +233,8 @@ Frame::Type(const Frame::TYPE type_)
   bool status = false;
   if (type_ < TYPE_LAST)
   {
-    this->_type = type_;
+    this->_fccntl &= ~(0x0003 << 2);
+    this->_fccntl |= ((type_ & 0x0003) << 2);
     status = true;
   }
   return (status);
@@ -299,117 +243,131 @@ Frame::Type(const Frame::TYPE type_)
 Frame::SUBTYPE
 Frame::Subtype() const
 {
-  return (this->_subtype);
+  return (Frame::SUBTYPE((this->_fccntl >> 4) & 0x000f));
 }
 
 bool
 Frame::Subtype(const Frame::SUBTYPE stype_)
 {
-  this->_subtype = stype_;
-  return (true);
+  bool status = false;
+  if (stype_ < SUBTYPE_LAST)
+  {
+    this->_fccntl &= ~(0x000f << 4);
+    this->_fccntl |= ((stype_ & 0x000f) << 4);
+    status = true;
+  }
+  return (status);
 }
 
 bool
 Frame::ToDS() const
 {
-  return (this->_tods);
+  return (!!(this->_fccntl & (0x0001 << 8)));
 }
 
 bool
 Frame::ToDS(const bool flag_)
 {
-  this->_tods = flag_;
+  this->_fccntl &= ~(0x0001 << 8);
+  this->_fccntl |= ((flag_ & 0x0001) << 8);
   return (true);
 }
 
 bool
 Frame::FromDS() const
 {
-  return (this->_fromds);
+  return (!!(this->_fccntl & (0x0001 << 9)));
 }
 
 bool
 Frame::FromDS(const bool flag_)
 {
-  this->_fromds = flag_;
+  this->_fccntl &= ~(0x0001 << 9);
+  this->_fccntl |= ((flag_ & 0x0001) << 9);
   return (true);
 }
 
 bool
 Frame::MoreFragments() const
 {
-  return (this->_morefrag);
+  return (!!(this->_fccntl & (0x0001 << 10)));
 }
 
 bool
 Frame::MoreFragments(const bool flag_)
 {
-  this->_morefrag = flag_;
+  this->_fccntl &= ~(0x0001 << 10);
+  this->_fccntl |= ((flag_ & 0x0001) << 10);
   return (true);
 }
 
 bool
 Frame::Retry() const
 {
-  return (this->_retry);
+  return (!!(this->_fccntl & (0x0001 << 11)));
 }
 
 bool
 Frame::Retry(const bool flag_)
 {
-  this->_retry = flag_;
+  this->_fccntl &= ~(0x0001 << 11);
+  this->_fccntl |= ((flag_ & 0x0001) << 11);
   return (true);
 }
 
 bool
 Frame::PowerManagement() const
 {
-  return (this->_pwrmgmt);
+  return (!!(this->_fccntl & (0x0001 << 12)));
 }
 
 bool
 Frame::PowerManagement(const bool flag_)
 {
-  this->_pwrmgmt = flag_;
+  this->_fccntl &= ~(0x0001 << 12);
+  this->_fccntl |= ((flag_ & 0x0001) << 12);
   return (true);
 }
 
 bool
 Frame::MoreData() const
 {
-  return (this->_moredata);
+  return (!!(this->_fccntl & (0x0001 << 13)));
 }
 
 bool
 Frame::MoreData(const bool flag_)
 {
-  this->_moredata = flag_;
+  this->_fccntl &= ~(0x0001 << 13);
+  this->_fccntl |= ((flag_ & 0x0001) << 13);
   return (true);
 }
 
 bool
 Frame::Protected() const
 {
-  return (this->_protected);
+  return (!!(this->_fccntl & (0x0001 << 14)));
 }
 
 bool
 Frame::Protected(const bool flag_)
 {
-  this->_protected = flag_;
+  this->_fccntl &= ~(0x0001 << 14);
+  this->_fccntl |= ((flag_ & 0x0001) << 14);
   return (true);
 }
 
 bool
 Frame::Order() const
 {
-  return (this->_order);
+  return (!!(this->_fccntl & (0x0001 << 15)));
 }
 
 bool
 Frame::Order(const bool flag_)
 {
-  this->_order = flag_;
+  this->_fccntl &= ~(0x0001 << 15);
+  this->_fccntl |= ((flag_ & 0x0001) << 15);
   return (true);
 }
 
@@ -578,15 +536,15 @@ Frame::FrameCheck(const uint32_t fcs_)
 size_t
 Frame::GetPayload(uint8_t*& buf_, const size_t len_) const
 {
-  size_t cnt = std::min(this->_payload.size(), len_);
-  memcpy(buf_, this->_payload.data(), cnt);
+  size_t cnt = std::min(this->_psize, len_);
+  memcpy(buf_, this->_payload, cnt);
   return(cnt);
 }
 
 size_t
 Frame::GetPayloadLength() const
 {
-  return(this->_payload.size());
+  return(this->_psize);
 }
 
 bool
@@ -594,16 +552,10 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 {
   bool status = false;
 
-  if (!len_)
+  if (buf_ && (len_ < FRAME_PAYLOAD_MAXLEN))
   {
-    ZLOG_WARN("Zero length payload");
-  }
-
-  if (buf_ && (len_ < 7952))
-  {
-    this->_payload.clear();
-    this->_payload.resize(len_);
-    status = (memcpy(this->_payload.data(), buf_, len_) == this->_payload.data());
+    this->_psize = len_;
+    status = (memcpy(this->_payload, buf_, len_) == this->_payload);
   }
   return (status);
 }
@@ -623,6 +575,7 @@ Frame::Display() const
   std::cout << "\tProtect:  \t" << (this->Protected() ? "true" : "false") << std::endl;
   std::cout << "\tOrder:    \t" << (this->Order() ? "true" : "false") << std::endl;
   std::cout << "\tDuration: \t" << (int) this->DurationId() << std::endl;
+  printf("fccntl: 0x%04x\n", this->_fccntl);
 }
 
 bool

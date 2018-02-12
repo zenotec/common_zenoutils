@@ -30,6 +30,8 @@
 
 #include <zutils/zSocket.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+
 namespace zUtils
 {
 namespace zSocket
@@ -38,8 +40,8 @@ namespace zSocket
 //*****************************************************************************
 // zSocket::Socket Class
 //*****************************************************************************
-Socket::Socket(SocketType type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(NULL)
+Socket::Socket(const SOCKET_TYPE type_) :
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -47,23 +49,18 @@ Socket::Socket(SocketType type_) :
 Socket::~Socket()
 {
   ZLOG_DEBUG("Destroying socket: '" + ZLOG_P(this) + "'");
-  if (this->_addr)
-  {
-    delete (this->_addr);
-    this->_addr = NULL;
-  }
 }
 
-const SocketType
-Socket::Type() const
+int
+Socket::GetId() const
+{
+  return (0);
+}
+
+const SOCKET_TYPE
+Socket::GetType() const
 {
   return (this->_type);
-}
-
-const zSocket::SocketAddress&
-Socket::Address() const
-{
-  return (*this->_addr);
 }
 
 bool
@@ -79,67 +76,32 @@ Socket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
-Socket::Bind(const SocketAddress& addr_)
+Socket::Bind(const Address& addr_)
 {
-  bool status = false;
-  this->_addr = zSocket::SocketAddressFactory::Create(addr_);
-  if (this->_addr)
-  {
-    status = this->_bind();
-  }
-  return (status);
+  return (false);
 }
 
-ssize_t
-Socket::Send(SocketAddressBufferPair& pair_)
+SHARED_PTR(zSocket::Notification)
+Socket::Recv()
 {
-  ZLOG_DEBUG("Sending packet: " + pair_.first->Address() +
-      "(" + zLog::IntStr(pair_.second->Size()) + ")");
-  this->_txq.Push(pair_);
-  return (pair_.second->Size());
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  n->SetSubType(Notification::SUBTYPE_ERR);
+  return (n);
 }
 
-ssize_t
-Socket::Send(const SocketAddress& addr_, SocketBuffer& sb_)
+SHARED_PTR(zSocket::Notification)
+Socket::Send(const Address& addr_, const Buffer& sb_)
 {
-  SHARED_PTR(SocketAddress)addr(zSocket::SocketAddressFactory::Create(addr_));
-  SHARED_PTR(SocketBuffer) sb(new SocketBuffer(sb_));
-  SocketAddressBufferPair p(addr, sb);
-  return (this->Send(p));
+  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  n->SetSubType(Notification::SUBTYPE_ERR);
+  return (n);
 }
 
-ssize_t
-Socket::Send(const SocketAddress &addr_, const std::string &str_)
+SHARED_PTR(zSocket::Notification)
+Socket::Send(const Address &addr_, const std::string &str_)
 {
-  SocketBuffer sb(str_);
+  Buffer sb(str_);
   return (this->Send(addr_, sb));
-}
-
-bool
-Socket::rxbuf(SocketAddressBufferPair &pair_)
-{
-  SocketNotification notification(this);
-  notification.id(SocketNotification::ID_PKT_RCVD);
-  notification.pkt(pair_);
-  this->Notify(&notification);
-  return (true);
-}
-
-bool
-Socket::txbuf(SocketAddressBufferPair &pair_, size_t timeout_)
-{
-  bool status = false;
-  if (this->_txq.TimedWait(timeout_))
-  {
-    pair_ = this->_txq.Front();
-    this->_txq.Pop();
-    SocketNotification notification(this);
-    notification.id(SocketNotification::ID_PKT_SENT);
-    notification.pkt(pair_);
-    this->Notify(&notification);
-    status = true;
-  }
-  return (status);
 }
 
 }

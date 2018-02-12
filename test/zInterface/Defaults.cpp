@@ -21,6 +21,11 @@
 #include "zInterfaceTest.h"
 
 #include <zutils/zCompatibility.h>
+
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zInterface.h>
 
 using namespace Test;
@@ -39,8 +44,8 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
 
   MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
   TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
@@ -51,8 +56,8 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData);
   MyConfig = new ConfigData(data);
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
   TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
@@ -76,10 +81,10 @@ zInterfaceTest_InterfaceDefaults(void* arg)
   ZLOG_DEBUG("# zInterfaceTest_InterfaceDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  Interface *MyInterface = new zInterface::Interface(ConfigData::ConfigNameDefault);
+  Interface *MyInterface = new zInterface::Interface(ConfigData::ConfigIfNameDefault);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-  TEST_EQ(ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+  TEST_EQ(ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+  TEST_EQ(ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
   TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->GetMtu());

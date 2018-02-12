@@ -34,6 +34,8 @@
 
 #include <zutils/zDisplay.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_DISPLAY);
+
 namespace zUtils
 {
 namespace zDisplay
@@ -157,7 +159,7 @@ Display::Flush()
 }
 
 bool
-Display::EventHandler(zEvent::EventNotification *notification_)
+Display::EventHandler(zEvent::Notification *notification_)
 {
 
   bool status = false;
@@ -169,11 +171,11 @@ Display::EventHandler(zEvent::EventNotification *notification_)
     return(true);
   }
 
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_TIMER))
+  if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_TIMER))
   {
 
-    const zTimer::TimerNotification *n = NULL;
-    n = static_cast<const zTimer::TimerNotification *>(notification_);
+    const zTimer::Notification *n = NULL;
+    n = static_cast<const zTimer::Notification *>(notification_);
 
     // Get first page
     DisplayPage* page = this->_pages.front();

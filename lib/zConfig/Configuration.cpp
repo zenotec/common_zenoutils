@@ -23,6 +23,8 @@
 #include <zutils/zEvent.h>
 #include <zutils/zConfig.h>
 
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_CONFIG);
+
 namespace zUtils
 {
 namespace zConfig

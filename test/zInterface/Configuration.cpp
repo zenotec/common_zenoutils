@@ -14,6 +14,11 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zInterface.h>
 
 #include "UnitTest.h"
@@ -31,8 +36,8 @@ zInterfaceTest_InterfaceConfiguration (void* arg)
 
   ConfigData *MyConfig = new ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
-  TEST_EQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
   TEST_EQ(ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
@@ -51,9 +56,9 @@ zInterfaceTest_InterfaceConfiguration (void* arg)
   TEST_TRUE(MyConfig->SetAdminState(ConfigData::STATE_UP));
 
   // Get
-  TEST_NEQ(ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
+  TEST_NEQ(ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
   TEST_EQ(3, MyConfig->GetIfIndex());
-  TEST_NEQ(ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_NEQ(ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(std::string("eth0"), MyConfig->GetIfName());
   TEST_NEQ(ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(ConfigData::IFTYPE_IEEE8023, MyConfig->GetIfType());

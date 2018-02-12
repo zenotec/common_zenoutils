@@ -41,15 +41,17 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
-
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
+#include <zutils/netlink/GetLinkCommand.h>
+#include <zutils/netlink/SetLinkCommand.h>
+#include <zutils/netlink/RouteLinkEvent.h>
+using namespace netlink;
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 // local includes
 
-#include "GetLinkCommand.h"
-#include "SetLinkCommand.h"
-#include "RouteLinkEvent.h"
-using namespace netlink;
 
 #define IFFLAGS_UP      (IFF_UP | IFF_RUNNING)
 
@@ -191,6 +193,62 @@ Interface::SetIfName(const std::string& name_)
   if (this->lock.Lock())
   {
     status = this->stagingConfig.SetIfName(name_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+unsigned int
+Interface::GetMasterIfIndex() const
+{
+  unsigned int ifindex = 0;
+  if (this->lock.Lock())
+  {
+    ifindex = this->getMasterIfIndex();
+    if (!ifindex)
+    {
+      ifindex = this->stagingConfig.GetMasterIfIndex();
+    }
+    this->lock.Unlock();
+  }
+  return (ifindex);
+}
+
+bool
+Interface::SetMasterIfIndex(const unsigned int ifindex_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetMasterIfIndex(ifindex_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+std::string
+Interface::GetMasterIfName() const
+{
+  std::string name;
+  if (this->lock.Lock())
+  {
+    name = this->getMasterIfName();
+    if (name.empty())
+    {
+      name = this->stagingConfig.GetMasterIfName();
+    }
+    this->lock.Unlock();
+  }
+  return (name);
+}
+
+bool
+Interface::SetMasterIfName(const std::string& name_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetMasterIfName(name_);
     this->lock.Unlock();
   }
   return (status);
@@ -505,6 +563,7 @@ void
 Interface::Display(const std::string &prefix_)
 {
   std::cout << std::endl << "--------------- Interface ---------------" << std::endl;
+  std::cout << prefix_ << "Master: \t" << this->GetMasterIfIndex() << std::endl;
   std::cout << prefix_ << "Index:  \t" << this->GetIfIndex() << std::endl;
   std::cout << prefix_ << "Name:   \t" << this->GetIfName() << std::endl;
   std::cout << prefix_ << "Type:   \t" << _type2str(this->GetIfType()) << std::endl;
@@ -592,6 +651,37 @@ Interface::setIfIndex(const unsigned int ifindex_)
   return (true);
 }
 
+unsigned int
+Interface::getMasterIfIndex() const
+{
+  unsigned int ifindex = 0;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetLinkCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      ifindex = cmd.MasterIfIndex();
+    }
+  }
+  return (ifindex);
+}
+
+bool
+Interface::setMasterIfIndex(const unsigned int ifindex_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex())
+  {
+    SetLinkCommand* cmd = new SetLinkCommand(this->workingConfig.GetIfIndex());
+    if (cmd->MasterIfIndex(ifindex_))
+    {
+      this->addCommand(cmd);
+      status = true;
+    }
+  }
+  return (status);
+}
+
 std::string
 Interface::getIfName() const
 {
@@ -615,6 +705,37 @@ Interface::setIfName(const std::string& name_)
   {
     SetLinkCommand* cmd = new SetLinkCommand(this->workingConfig.GetIfIndex());
     if (cmd->IfName(name_))
+    {
+      this->addCommand(cmd);
+      status = true;
+    }
+  }
+  return (status);
+}
+
+std::string
+Interface::getMasterIfName() const
+{
+  std::string name;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetLinkCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      name = cmd.MasterIfName();
+    }
+  }
+  return (name);
+}
+
+bool
+Interface::setMasterIfName(const std::string& name_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex())
+  {
+    SetLinkCommand* cmd = new SetLinkCommand(this->workingConfig.GetIfIndex());
+    if (cmd->MasterIfName(name_))
     {
       this->addCommand(cmd);
       status = true;

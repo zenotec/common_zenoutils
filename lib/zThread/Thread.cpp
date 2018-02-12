@@ -21,10 +21,8 @@
 #include <map>
 
 #include <zutils/zSem.h>
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSignal.h>
-
 #include <zutils/zThread.h>
 
 namespace zUtils
@@ -37,7 +35,7 @@ namespace zThread
 //**********************************************************************
 
 ThreadFunction::ThreadFunction() :
-    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _exit(false)
+    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _yield(false), _exit(false)
 {
   this->_thread_lock.Unlock();
 }
@@ -45,6 +43,31 @@ ThreadFunction::ThreadFunction() :
 ThreadFunction::~ThreadFunction()
 {
   this->_thread_lock.Lock();
+}
+
+bool
+ThreadFunction::Yield()
+{
+  bool flag = false;
+  if (this->_thread_lock.Lock())
+  {
+    flag = this->_yield;
+    this->_thread_lock.Unlock();
+  }
+  return (flag);
+}
+
+bool
+ThreadFunction::Yield(bool flag_)
+{
+  bool status = false;
+  if (this->_thread_lock.Lock())
+  {
+    this->_yield = flag_;
+    status = true;
+    this->_thread_lock.Unlock();
+  }
+  return (status);
 }
 
 bool
@@ -84,20 +107,22 @@ ThreadFunction::setThread(Thread* thread_)
   return(status);
 }
 
+void
+ThreadFunction::yield() const
+{
+  std::this_thread::yield();
+}
+
 //*****************************************************************************
 // Class Thread
 //*****************************************************************************
 Thread::Thread(ThreadFunction *func_, ThreadArg *arg_) :
     _thread(NULL), _func(func_), _arg(arg_)
 {
-  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
-  zSignal::SignalManager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
 }
 
 Thread::~Thread()
 {
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
-  zSignal::SignalManager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
   // Terminate listener thread
   this->Stop();
 }
@@ -125,11 +150,14 @@ bool
 Thread::Start()
 {
   bool status = false;
-  if (this->_func && this->_func->setThread(this) && this->_func->Exit(false))
+  if (!this->_thread && this->_func && this->_func->setThread(this))
   {
-    ZLOG_DEBUG("Starting thread: " + ZLOG_P(this));
+    zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
+    this->_func->Exit(false);
+    this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
-    status = true;
+    status = !!this->_thread;
   }
   return (status);
 }
@@ -140,10 +168,11 @@ Thread::Join()
   bool status = false;
   if (this->_func && this->_thread && this->_thread->joinable())
   {
-    ZLOG_DEBUG("Joining thread: " + ZLOG_P(this));
     this->_thread->join();
     delete (this->_thread);
     this->_thread = NULL;
+    zSignal::Manager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGTERM, this);
+    zSignal::Manager::Instance().UnregisterObserver(zSignal::Signal::ID_SIGINT, this);
     status = true;
   }
   return (status);
@@ -155,7 +184,6 @@ Thread::Stop()
   bool status = false;
   if (this->_func && this->_thread)
   {
-    ZLOG_DEBUG("Stopping thread: " + ZLOG_P(this));
     if (this->_func->Exit(true))
     {
       status = this->Join();
@@ -165,14 +193,14 @@ Thread::Stop()
 }
 
 bool
-Thread::EventHandler(zEvent::EventNotification* notification_)
+Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
-  zSignal::SignalNotification *n = NULL;
+  SHARED_PTR(zSignal::Notification) n = NULL;
 
-  if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SIGNAL))
+  if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SIGNAL))
   {
-    n = static_cast<zSignal::SignalNotification*>(notification_);
+    n = STATIC_CAST(zSignal::Notification)(noti_);
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:

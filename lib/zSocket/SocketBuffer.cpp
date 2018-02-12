@@ -15,145 +15,81 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
-#include <netinet/in.h>
 #include <string.h>
+#include <time.h>
 
 #include <string>
-#include <list>
-#include <mutex>
-#include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
-
 #include <zutils/zSocket.h>
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-//*****************************************************************************
-// Class: SocketBuffer
-//*****************************************************************************
+#define SKBMEM_DATA_LEN     (8 * 1024)
 
-SocketBuffer::SocketBuffer(size_t size_) :
-    _head(0), _data(0), _tail(0), _end(size_)
+struct skbmem
 {
-  this->_head = (uint8_t *) malloc(this->_end);
-  if (!this->_head)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  memset(this->_head, 0, this->_end);
+  zSem::Mutex lock;
+  struct timespec ts;
+  uint8_t data[SKBMEM_DATA_LEN];
+};
+
+struct timespec
+_get_ts()
+{
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  return (ts);
 }
 
-SocketBuffer::SocketBuffer(const std::string &str_) :
-    _head(0), _data(0), _tail(0), _end(str_.size())
+//*****************************************************************************
+// Class: Buffer
+//*****************************************************************************
+
+Buffer::Buffer(size_t size_) :
+    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
-  this->_head = (uint8_t *) malloc(this->_end);
-  if (!this->_head)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  memset(this->_head, 0, this->_end);
+  this->_init(size_);
+  this->_skbmem->lock.Unlock();
+}
+
+Buffer::Buffer(const std::string &str_) :
+    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
+{
+  this->_init(str_.size());
   this->Str(str_);
 }
 
-SocketBuffer::SocketBuffer(SocketBuffer &other_) :
-    _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
+Buffer::Buffer(const Buffer &other_) :
+    _ts(_get_ts()), _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
-  this->_head = (uint8_t *) malloc(other_._end);
-  if (!this->_head)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  memset(this->_head, 0, other_._end);
-  memcpy(this->_head, other_._head, other_._tail);
+  this->_copy(other_);
 }
 
-SocketBuffer::SocketBuffer(const SocketBuffer &other_) :
-    _head(0), _data(other_._data), _tail(other_._tail), _end(other_._end)
+Buffer::~Buffer()
 {
-  this->_head = (uint8_t *) malloc(other_._end);
-  if (!this->_head)
-  {
-    std::string errMsg = "Error allocating memory for socket buffer";
-    ZLOG_CRIT(errMsg);
-    throw errMsg;
-  }
-  memset(this->_head, 0, other_._end);
-  memcpy(this->_head, other_._head, other_._tail);
+  this->_skbmem = NULL;
+  this->_head = NULL;
+  this->_data = 0;
+  this->_tail = 0;
+  this->_end = 0;
 }
 
-SocketBuffer::~SocketBuffer()
+Buffer &
+Buffer::operator=(const Buffer& other_)
 {
-  if (this->_head)
-  {
-    free(this->_head);
-    this->_head = 0;
-  } // end if
-}
-
-SocketBuffer &
-SocketBuffer::operator=(SocketBuffer &other_)
-{
-  // Free previous buffer if it is a different size
-  if (this->_head && (this->_end != other_._end))
-  {
-    free(this->_head);
-    this->_head = (uint8_t *) malloc(other_._end);
-    if (!this->_head)
-    {
-      std::string errMsg = "Error allocating memory for socket buffer";
-      ZLOG_CRIT(errMsg);
-      throw errMsg;
-    }
-  } // end if
-  this->_data = other_._data;
-  this->_tail = other_._tail;
-  this->_end = other_._end;
-  memcpy(this->_head, other_._head, this->_tail);
-  memset(this->_head + this->_tail, 0, this->_end - this->_tail);
-  return (*this);
-}
-
-SocketBuffer &
-SocketBuffer::operator=(const SocketBuffer &other_)
-{
-  // Free previous buffer if it is a different size
-  if (this->_head && (this->_end != other_._end))
-  {
-    free(this->_head);
-    this->_head = (uint8_t *) malloc(other_._end);
-    if (!this->_head)
-    {
-      std::string errMsg = "Error allocating memory for socket buffer";
-      ZLOG_CRIT(errMsg);
-      throw errMsg;
-    }
-  } // end if
-  this->_data = other_._data;
-  this->_tail = other_._tail;
-  this->_end = other_._end;
-  memcpy(this->_head, other_._head, this->_tail);
-  memset(this->_head + this->_tail, 0, this->_end - this->_tail);
+  this->_copy(other_);
   return (*this);
 }
 
 bool
-SocketBuffer::operator ==(SocketBuffer &other_)
+Buffer::operator ==(const Buffer &other_) const
 {
   bool stat = false;
   if (this->Size() == other_.Size())
@@ -164,24 +100,19 @@ SocketBuffer::operator ==(SocketBuffer &other_)
 }
 
 bool
-SocketBuffer::operator !=(SocketBuffer &other_)
+Buffer::operator !=(const Buffer &other_) const
 {
-  bool stat = false;
-  if (this->Size() == other_.Size())
-  {
-    stat = (memcmp(this->_head, other_._head, this->Size()) == 0);
-  } // end if
-  return (!stat);
+  return (!(this->operator ==(other_)));
 }
 
 uint8_t *
-SocketBuffer::Head()
+Buffer::Head() const
 {
   return (this->_head);
 }
 
 bool
-SocketBuffer::Put(off_t off_)
+Buffer::Put(off_t off_)
 {
   bool ret = false;
   if ((this->_tail + off_) <= this->_end)
@@ -193,7 +124,7 @@ SocketBuffer::Put(off_t off_)
 }
 
 bool
-SocketBuffer::Push(off_t off_)
+Buffer::Push(off_t off_)
 {
   bool ret = false;
   if ((this->_data - off_) >= 0)
@@ -205,7 +136,7 @@ SocketBuffer::Push(off_t off_)
 }
 
 bool
-SocketBuffer::Pull(off_t off_)
+Buffer::Pull(off_t off_)
 {
   bool ret = false;
   if ((this->_data + off_) <= this->_tail)
@@ -216,56 +147,59 @@ SocketBuffer::Pull(off_t off_)
   return (ret);
 }
 
-uint8_t *
-SocketBuffer::Data(off_t off_)
+bool
+Buffer::Reset()
 {
-  uint8_t *data = 0;
-  if ((this->_data + off_) <= this->_tail)
-  {
-    data = (this->_head + this->_data);
-    this->_data += off_;
-  } // end if
-  return (data);
+  this->_data = 0;
+  this->_tail = 0;
+  return true;
 }
 
 uint8_t *
-SocketBuffer::Tail()
+Buffer::Data() const
+{
+  return (this->_head + this->_data);
+}
+
+uint8_t *
+Buffer::Tail() const
 {
   return (this->_head + this->_tail);
 }
 
 uint8_t *
-SocketBuffer::End()
+Buffer::End() const
 {
   return (this->_head + this->_end);
 }
 
+
 size_t
-SocketBuffer::Length()
+Buffer::Length() const
 {
   return (this->_tail - this->_data);
 }
 
 size_t
-SocketBuffer::Size()
+Buffer::Size() const
 {
   return (this->_tail);
 }
 
 size_t
-SocketBuffer::TotalSize()
+Buffer::TotalSize() const
 {
   return (this->_end);
 }
 
 std::string
-SocketBuffer::Str()
+Buffer::Str() const
 {
   return (std::string((const char *) this->Head(), this->Size()));
 }
 
 bool
-SocketBuffer::Str(const std::string &str_)
+Buffer::Str(const std::string &str_)
 {
   bool status = false;
   void *ret = memcpy(this->Head(), str_.c_str(), str_.size());
@@ -274,6 +208,39 @@ SocketBuffer::Str(const std::string &str_)
     status = true;
   }
   return (status);
+}
+
+void
+Buffer::Display() const
+{
+  printf("zSocket::Buffer(): %p\n", this);
+}
+
+void
+Buffer::_init(const size_t size_)
+{
+  this->_skbmem = SHARED_PTR(struct skbmem)(new skbmem);
+  if (!this->_skbmem.get())
+  {
+    std::string errMsg = "Error allocating memory for socket buffer";
+    ZLOG_CRIT(errMsg);
+    throw errMsg;
+  }
+  this->_ts = _get_ts();
+  this->_skbmem->ts = this->_ts;
+  this->_head = &this->_skbmem->data[0];
+  this->_end = ((size_ < SKBMEM_DATA_LEN) ? size_ : SKBMEM_DATA_LEN);
+  memset(this->_head, 0, this->_end);
+}
+
+void
+Buffer::_copy (const Buffer& other_)
+{
+  this->_skbmem = other_._skbmem;
+  this->_head = other_._head;
+  this->_data = 0;
+  this->_tail = other_._tail;
+  this->_end = other_._end;
 }
 
 }

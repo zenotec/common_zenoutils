@@ -14,6 +14,9 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zWireless.h>
 
 #include "UnitTest.h"
@@ -31,8 +34,8 @@ zWirelessTest_WirelessConfiguration (void* arg)
 
   zWireless::ConfigData *MyConfig = new zWireless::ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(zWireless::ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
-  TEST_EQ(zWireless::ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(zWireless::ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(zWireless::ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE80211, MyConfig->GetIfType());
   TEST_EQ(zWireless::ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
   TEST_EQ(zWireless::ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
@@ -69,9 +72,9 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_TRUE(MyConfig->SetTxPower(23));
 
   // Get
-  TEST_NEQ(zWireless::ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
+  TEST_NEQ(zWireless::ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
   TEST_EQ(3, MyConfig->GetIfIndex());
-  TEST_NEQ(zWireless::ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_NEQ(zWireless::ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(std::string("wlan0"), MyConfig->GetIfName());
   TEST_NEQ(zWireless::ConfigData::IFTYPE_DEF, MyConfig->GetIfType());
   TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE80211, MyConfig->GetIfType());

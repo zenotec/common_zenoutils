@@ -32,36 +32,30 @@ namespace zSignal
 //**********************************************************************
 // Class: SignalNotification
 //**********************************************************************
-SignalNotification::SignalNotification(Signal* signal_) :
-    _id(Signal::ID_NONE), zEvent::EventNotification(signal_)
+Notification::Notification(Signal& signal_) :
+    zEvent::Notification(signal_), _id(signal_.Id()), _info(NULL),
+    _cnt(signal_.Count())
 {
 }
 
-SignalNotification::~SignalNotification()
+Notification::~Notification()
 {
 }
 
 Signal::ID
-SignalNotification::Id() const
+Notification::Id() const
 {
   return (this->_id);
 }
 
-void
-SignalNotification::id(Signal::ID id_)
-{
-  this->_id = id_;
-  return;
-}
-
 const siginfo_t*
-SignalNotification::SigInfo() const
+Notification::SigInfo() const
 {
   return (this->_info);
 }
 
 void
-SignalNotification::siginfo(const siginfo_t *info_)
+Notification::siginfo(const siginfo_t *info_)
 {
   this->_info = info_;
   return;

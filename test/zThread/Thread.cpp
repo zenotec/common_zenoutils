@@ -17,9 +17,6 @@
 #include <list>
 #include <mutex>
 
-#include <zutils/zLog.h>
-#include <zutils/zSem.h>
-
 #include "zThreadTest.h"
 
 using namespace Test;
@@ -28,10 +25,6 @@ using namespace zUtils;
 int
 zThreadTest_RunOnce(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zThreadTest_RunOnce()");
-  ZLOG_DEBUG("#############################################################");
 
   int loops = 1;
 
@@ -63,10 +56,6 @@ zThreadTest_RunOnce(void* arg_)
 int
 zThreadTest_RunMultiple(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zThreadTest_RunMultiple()");
-  ZLOG_DEBUG("#############################################################");
 
   int loops = 10;
 
@@ -100,10 +89,6 @@ zThreadTest_RunMultiple(void* arg_)
 int
 zThreadTest_Synchronize(void* arg_)
 {
-
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zThreadTest_Synchronize()");
-  ZLOG_DEBUG("#############################################################");
 
   int loops = 10;
 

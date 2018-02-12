@@ -24,10 +24,8 @@
 #include <memory>
 
 #include <zutils/zLog.h>
-#include <zutils/zSem.h>
-#include <zutils/zThread.h>
-#include <zutils/zQueue.h>
-#include <zutils/zEvent.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include <zutils/zSocket.h>
 #include <zutils/zLoopSocket.h>
@@ -39,13 +37,10 @@ main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("zSocketTest.zlog");
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_SOCKET, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -55,8 +50,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_ObserverDefaults, 0);
   UTEST_TEST(zSocketTest_SocketDefaults, 0);
 
-  UTEST_TEST(zSocketTest_BufferCompare, 0);
   UTEST_TEST(zSocketTest_BufferString, 0);
+  UTEST_TEST(zSocketTest_BufferCompare, 0);
+  UTEST_TEST(zSocketTest_BufferCopy, 0);
 
   UTEST_TEST(zSocketTest_AddressGetSet, 0);
   UTEST_TEST(zSocketTest_AddressCompare, 0);
@@ -86,6 +82,8 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_InetSocketDefault, 0);
   UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
   UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
+
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
   UTEST_FINI();
 

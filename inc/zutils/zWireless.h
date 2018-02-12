@@ -152,7 +152,7 @@ public:
   static const unsigned int ConfigChannelDefault;
   static const unsigned int ConfigTxPowerDefault;
 
-  ConfigData(const std::string& name_ = ConfigNameDefault);
+  ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
   ConfigData(zInterface::ConfigData config_);
 

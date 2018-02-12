@@ -31,13 +31,14 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Message.h>
+#include <zutils/netlink/GenericMessage.h>
 using namespace zUtils;
 
 // local includes
-#include "Attribute.h"
 
-#include "Message.h"
-#include "GenericMessage.h"
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {

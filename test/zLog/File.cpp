@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
+
 #include <fstream>
 
 #include "zLogTest.h"
@@ -33,6 +35,8 @@ int
 zLogTest_FileConnector(void* arg_)
 {
 
+  zUtils::zLog::Log _zlogger(zLog::Log::MODULE_TEST);
+
   // Log file names
   const char *logName = "/tmp/fconn-utest.log";
 
@@ -44,12 +48,9 @@ zLogTest_FileConnector(void* arg_)
   logFile.open(logName);
   TEST_FALSE(logFile.is_open());
 
-  // Test log defaults
-  TEST_EQ(zLog::WARN, zLog::Log::Instance().GetMaxLevel());
-
   // Create file connector and register
   zLog::FileConnector fileConn(logName);
-  zLog::Log::Instance().RegisterConnector(zLog::CRIT, &fileConn);
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_CRIT, &fileConn);
 
   // Log message and validate
   logFile.open(logName);
@@ -57,11 +58,12 @@ zLogTest_FileConnector(void* arg_)
   int logSize = GetFileSize(logFile);
   TEST_ISNOT_ZERO(logSize);
   ZLOG_CRIT("CRIT");
+  usleep(100000);
   TEST_NEQ(logSize, GetFileSize(logFile));
   logFile.close();
 
   // Cleanup
-  zLog::Log::Instance().UnregisterConnector(zLog::CRIT);
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_CRIT);
 
   // Clean up log files from /tmp
   remove(logName);

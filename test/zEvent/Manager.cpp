@@ -22,31 +22,31 @@ zEventTest_EventManagerTest(void* arg_)
   bool status = false;
 
   // Create new event and validate
-  zEvent::Event *MyEvent = new zEvent::Event(zEvent::Event::TYPE_TEST);
+  TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->Type());
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
 
   // Register event with handler
-  zEvent::EventManager::Instance().RegisterEvent(MyEvent);
+  zEvent::Manager::Instance().RegisterEvent(MyEvent);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
   TEST_ISNOT_NULL(MyObserver);
 
   // Register observer with handler
-  zEvent::EventManager::Instance().RegisterObserver(MyObserver);
+  zEvent::Manager::Instance().RegisterObserver(MyObserver);
   TEST_FALSE(MyObserver->TimedWait(1));
 
   // Notify
-  MyEvent->Notify(NULL);
+  MyEvent->Notify(0);
   TEST_TRUE(MyObserver->TimedWait(100));
 
   // Unregister observer with handler
-  zEvent::EventManager::Instance().UnregisterObserver(MyObserver);
+  zEvent::Manager::Instance().UnregisterObserver(MyObserver);
   TEST_FALSE(MyObserver->TimedWait(1));
 
   // Unregister event with handler
-  zEvent::EventManager::Instance().UnregisterEvent(MyEvent);
+  zEvent::Manager::Instance().UnregisterEvent(MyEvent);
 
   // Cleanup
   delete (MyObserver);

@@ -48,7 +48,9 @@ public:
 
   static const std::string ConfigRoot;
   static const std::string ConfigIfIndexPath;
+  static const std::string ConfigMasterIfIndexPath;
   static const std::string ConfigIfNamePath;
+  static const std::string ConfigMasterIfNamePath;
   static const std::string ConfigIfTypePath;
   static const std::string ConfigMtuPath;
   static const std::string ConfigHwAddressPath;
@@ -86,14 +88,16 @@ public:
   {
     IFTYPE_ERR = -1,
     IFTYPE_NONE = 0,
-    IFTYPE_DEF = 0,
-    IFTYPE_LOOP = 1,
-    IFTYPE_IEEE8023 = 2,
-    IFTYPE_IEEE80211 = 3,
-    IFTYPE_BRIDGE = 4,
-    IFTYPE_BOND = 5,
-    IFTYPE_OTHER = 6,
-    IFTYPE_UNKNOWN = 7,
+    IFTYPE_DEF = IFTYPE_NONE,
+    IFTYPE_LOOP,
+    IFTYPE_IEEE8023,
+    IFTYPE_IEEE80211,
+    IFTYPE_BRIDGE,
+    IFTYPE_BOND,
+    IFTYPE_VLAN,
+    IFTYPE_MACVLAN,
+    IFTYPE_OTHER,
+    IFTYPE_UNKNOWN,
     IFTYPE_LAST
   };
 
@@ -101,7 +105,7 @@ public:
   {
     STATE_ERR = -1,
     STATE_NONE = 0,
-    STATE_DEF = 0,
+    STATE_DEF = STATE_NONE,
     STATE_UNKNOWN = 1,
     STATE_UP = 2,
     STATE_DOWN = 3,
@@ -116,9 +120,13 @@ public:
     PROMODE_LAST
   };
 
-  static const unsigned int ConfigIndexDefault;
+  static const unsigned int ConfigIfIndexDefault;
 
-  static const std::string ConfigNameDefault;
+  static const unsigned int ConfigMasterIfIndexDefault;
+
+  static const std::string ConfigIfNameDefault;
+
+  static const std::string ConfigMasterIfNameDefault;
 
   static const std::string ConfigTypeNone;
   static const std::string ConfigTypeLoop;
@@ -127,6 +135,8 @@ public:
   static const std::string ConfigTypeOther;
   static const std::string ConfigTypeBond;
   static const std::string ConfigTypeBridge;
+  static const std::string ConfigTypeVlan;
+  static const std::string ConfigTypeMacVlan;
   static const std::string ConfigTypeDefault;
 
   static const unsigned int ConfigMtuDefault;
@@ -146,7 +156,7 @@ public:
 
   static const ConfigData::PROMODE ConfigPromiscuousModeDefault;
 
-  ConfigData(const std::string& name_ = ConfigNameDefault);
+  ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
   ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
 
@@ -163,16 +173,28 @@ public:
   SetData(SHARED_PTR(zConfig::ConfigData) data_);
 
   unsigned int
-  GetIfIndex(const unsigned int mtu_ = ConfigIndexDefault) const;
+  GetIfIndex(const unsigned int mtu_ = ConfigIfIndexDefault) const;
 
   bool
-  SetIfIndex(const unsigned int mtu_ = ConfigIndexDefault);
+  SetIfIndex(const unsigned int mtu_ = ConfigIfIndexDefault);
+
+  unsigned int
+  GetMasterIfIndex(const unsigned int mtu_ = ConfigMasterIfIndexDefault) const;
+
+  bool
+  SetMasterIfIndex(const unsigned int mtu_ = ConfigMasterIfIndexDefault);
 
   std::string
-  GetIfName(const std::string& name_ = ConfigNameDefault) const;
+  GetIfName(const std::string& name_ = ConfigIfNameDefault) const;
 
   virtual bool
-  SetIfName(const std::string& name_ = ConfigNameDefault);
+  SetIfName(const std::string& name_ = ConfigIfNameDefault);
+
+  std::string
+  GetMasterIfName(const std::string& name_ = ConfigMasterIfNameDefault) const;
+
+  virtual bool
+  SetMasterIfName(const std::string& name_ = ConfigMasterIfNameDefault);
 
   ConfigData::IFTYPE
   GetIfType(const ConfigData::IFTYPE type_ = ConfigData::IFTYPE_DEF) const;
@@ -228,7 +250,7 @@ private:
 // Class: InterfaceNotification
 // ****************************************************************************
 
-class InterfaceNotification : public zEvent::EventNotification
+class InterfaceNotification : public zEvent::Notification
 {
 
 public:
@@ -275,6 +297,18 @@ public:
 
   bool
   SetIfName(const std::string& name_);
+
+  unsigned int
+  GetMasterIfIndex() const;
+
+  bool
+  SetMasterIfIndex(const unsigned int ifindex_);
+
+  std::string
+  GetMasterIfName() const;
+
+  bool
+  SetMasterIfName(const std::string& name_);
 
   ConfigData::IFTYPE
   GetIfType() const;
@@ -355,11 +389,23 @@ protected:
   bool
   setIfIndex(const unsigned int ifindex_);
 
+  unsigned int
+  getMasterIfIndex() const;
+
+  bool
+  setMasterIfIndex(const unsigned int ifindex_);
+
   std::string
   getIfName() const;
 
   bool
   setIfName(const std::string& name_);
+
+  std::string
+  getMasterIfName() const;
+
+  bool
+  setMasterIfName(const std::string& name_);
 
   ConfigData::IFTYPE
   getIfType() const;
@@ -437,7 +483,7 @@ private:
 // Class: InterfaceManager
 //**********************************************************************
 
-class InterfaceManager : public zEvent::EventHandler
+class InterfaceManager : public zEvent::Handler
 {
 
 public:

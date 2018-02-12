@@ -62,7 +62,7 @@ zSerialTest_TtyPortSendRecvChar(void *arg_);
 int
 zSerialTest_TtyPortSendRecvBuf(void *arg_);
 
-class TestObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::Observer
 {
 public:
   TestObserver()
@@ -81,10 +81,10 @@ public:
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  EventHandler(zEvent::Notification* notification_)
   {
     bool status = false;
-    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SERIAL))
+    if (notification_ && (notification_->GetType() == zEvent::Event::TYPE_SERIAL))
     {
       zSerial::SerialNotification *n = (zSerial::SerialNotification *) notification_;
       switch (n->Id())

@@ -21,7 +21,6 @@
 #include <list>
 #include <map>
 
-#include <zutils/zLog.h>
 #include <zutils/zEvent.h>
 
 #include <zutils/zSignal.h>
@@ -58,6 +57,9 @@ _id2sig(Signal::ID id_)
   case Signal::ID_SIGUSR2:
     sig = SIGUSR2;
     break;
+  case Signal::ID_SIGTIMER:
+    sig = SIGRTMIN;
+    break;
   default:
     sig = -1;
     break;
@@ -69,32 +71,41 @@ Signal::ID
 _sig2id(int sig_)
 {
   Signal::ID id = Signal::ID_ERR;
-  switch (sig_)
+
+  // Some signals are not constants so we need to use an if
+  if (sig_ == SIGRTMIN)
   {
-  case SIGINT:
-    id = Signal::ID_SIGINT;
-    break;
-  case SIGTERM:
-    id = Signal::ID_SIGTERM;
-    break;
-  case SIGABRT:
-    id = Signal::ID_SIGABRT;
-    break;
-  case SIGALRM:
-    id = Signal::ID_SIGALRM;
-    break;
-  case SIGCHLD:
-    id = Signal::ID_SIGCHLD;
-    break;
-  case SIGUSR1:
-    id = Signal::ID_SIGUSR1;
-    break;
-  case SIGUSR2:
-    id = Signal::ID_SIGUSR2;
-    break;
-  default:
-    id = Signal::ID_ERR;
-    break;
+    id = Signal::ID_SIGTIMER;
+  }
+  else
+  {
+    switch (sig_)
+    {
+    case SIGINT:
+      id = Signal::ID_SIGINT;
+      break;
+    case SIGTERM:
+      id = Signal::ID_SIGTERM;
+      break;
+    case SIGABRT:
+      id = Signal::ID_SIGABRT;
+      break;
+    case SIGALRM:
+      id = Signal::ID_SIGALRM;
+      break;
+    case SIGCHLD:
+      id = Signal::ID_SIGCHLD;
+      break;
+    case SIGUSR1:
+      id = Signal::ID_SIGUSR1;
+      break;
+    case SIGUSR2:
+      id = Signal::ID_SIGUSR2;
+      break;
+    default:
+      id = Signal::ID_ERR;
+      break;
+    }
   }
   return (id);
 }
@@ -103,8 +114,7 @@ static void
 _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 {
   Signal::ID id = _sig2id(sig_);
-  ZLOG_DEBUG("Notifying signal observer: " + ZLOG_INT(id));
-  SignalManager::Instance().Notify(id, info_);
+  Manager::Instance().Notify(id, info_);
 }
 
 //**********************************************************************
@@ -112,8 +122,9 @@ _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 //**********************************************************************
 
 Signal::Signal(const Signal::ID id_) :
-    _id(id_), zEvent::Event(zEvent::Event::TYPE_SIGNAL)
+    zEvent::Event(zEvent::Event::TYPE_SIGNAL), _id(id_), _count(0)
 {
+  this->RegisterEvent(this);
   memset(&this->_act, 0, sizeof(this->_act));
   memset(&this->_oldact, 0, sizeof(this->_oldact));
   this->_act.sa_sigaction = _sigaction_func;
@@ -128,6 +139,7 @@ Signal::Signal(const Signal::ID id_) :
 
 Signal::~Signal()
 {
+  this->UnregisterEvent(this);
   int sig = _id2sig(this->_id);
   sigaction(sig, &this->_oldact, NULL);
 }
@@ -138,15 +150,20 @@ Signal::Id() const
   return (this->_id);
 }
 
+uint64_t
+Signal::Count() const
+{
+  return (this->_count);
+}
+
 bool
 Signal::Notify(siginfo_t *info_)
 {
-  SignalNotification notification(this);
-  notification.id(this->_id);
-  notification.siginfo(info_);
-  ZLOG_DEBUG("Notifying signal observer: " + ZLOG_INT(this->_id));
-  zEvent::Event::Notify(&notification);
-  return true;
+  this->_count++;
+  SHARED_PTR(Notification) notification(new Notification(*this));
+  notification->siginfo(info_);
+  zEvent::Event::notifyHandlers(notification);
+  return (true);
 }
 
 }

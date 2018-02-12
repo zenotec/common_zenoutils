@@ -21,6 +21,11 @@
 #include "zWirelessTest.h"
 
 #include <zutils/zCompatibility.h>
+
+#include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
+
 #include <zutils/zWireless.h>
 
 using namespace Test;
@@ -36,8 +41,8 @@ zWirelessTest_WirelessConfigurationDefaults(void* arg)
 
   zWireless::ConfigData *MyConfig = new zWireless::ConfigData;
   TEST_ISNOT_NULL(MyConfig);
-  TEST_EQ(zWireless::ConfigData::ConfigIndexDefault, MyConfig->GetIfIndex());
-  TEST_EQ(zWireless::ConfigData::ConfigNameDefault, MyConfig->GetIfName());
+  TEST_EQ(zWireless::ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());
+  TEST_EQ(zWireless::ConfigData::ConfigIfNameDefault, MyConfig->GetIfName());
   TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE80211, MyConfig->GetIfType());
   TEST_EQ(zWireless::ConfigData::ConfigHwAddressDefault, MyConfig->GetHwAddress());
   TEST_EQ(zWireless::ConfigData::ConfigMtuDefault, MyConfig->GetMtu());
@@ -72,10 +77,10 @@ zWirelessTest_WirelessDefaults(void* arg)
 
   zWireless::Interface *MyInterface = NULL;
 
-  MyInterface = new zWireless::Interface(zWireless::ConfigData::ConfigNameDefault);
+  MyInterface = new zWireless::Interface(zWireless::ConfigData::ConfigIfNameDefault);
   TEST_ISNOT_NULL(MyInterface);
-  TEST_EQ(zWireless::ConfigData::ConfigIndexDefault, MyInterface->GetIfIndex());
-  TEST_EQ(zWireless::ConfigData::ConfigNameDefault, MyInterface->GetIfName());
+  TEST_EQ(zWireless::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
+  TEST_EQ(zWireless::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
   TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
   TEST_EQ(zWireless::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
   TEST_EQ(zWireless::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());

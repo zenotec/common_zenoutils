@@ -26,10 +26,13 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zLog.h>
 #include <zutils/zInterface.h>
 #include <zutils/zWireless.h>
 
 // local includes
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {

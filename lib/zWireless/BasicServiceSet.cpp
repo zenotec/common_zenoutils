@@ -20,21 +20,21 @@
 // libc includes
 
 // libzutils includes
+#include <zutils/zLog.h>
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>
 
-#include "GetInterfaceCommand.h"
-#include "NewBeaconCommand.h"
-#include "SetBeaconCommand.h"
-#include "StartApCommand.h"
-#include "StopApCommand.h"
-#include "SetBeaconCommand.h"
-#include "NewStationCommand.h"
-#include "DelStationCommand.h"
+#include <zutils/ieee80211/Beacon.h>
+
+#include <zutils/nl80211/GetPhyCommand.h>
+#include <zutils/nl80211/SetPhyCommand.h>
+#include <zutils/nl80211/NewStationCommand.h>
+#include <zutils/nl80211/DelStationCommand.h>
+#include <zutils/nl80211/StartApCommand.h>
+#include <zutils/nl80211/StopApCommand.h>
 using namespace nl80211;
 
-#include "Beacon.h"
-using namespace zUtils::zWireless::ieee80211;
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -125,7 +125,6 @@ BasicServiceSet::AddStation(const std::string& addr_)
 
   NewStationCommand* cmd = new NewStationCommand(this->GetIfIndex());
   cmd->Mac.SetString(addr_);
-  cmd->Display();
   this->addCommand(cmd);
 
   return (status);
@@ -172,7 +171,7 @@ BasicServiceSet::Create()
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
-  this->SetChannel(1);
+//  this->SetChannel(1);
   this->Commit();
 
   uint8_t buf[512] = { 0 };

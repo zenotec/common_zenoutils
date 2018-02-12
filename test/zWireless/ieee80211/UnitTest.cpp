@@ -17,6 +17,8 @@
 #include <string>
 
 #include <zutils/zLog.h>
+using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "UnitTest.h"
 #include "Ieee80211Test.h"
@@ -267,13 +269,9 @@ main(int argc, const char **argv)
 {
 
   // Setup logging for testing
-  zUtils::zLog::FileConnector conn("Ieee80211Test.zlog");
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::CRIT, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::ERROR, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::WARN, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::INFO, &conn);
-  zUtils::zLog::Log::Instance().RegisterConnector(zUtils::zLog::DBG, &conn);
-  zUtils::zLog::Log::Instance().SetMaxLevel(zUtils::zLog::DBG);
+  zLog::FileConnector conn("UnitTest.zlog");
+  zLog::Manager::Instance().RegisterConnector(zLog::Log::LEVEL_ALL, &conn);
+  zLog::Manager::Instance().SetMaxLevel(zLog::Log::MODULE_TEST, zLog::Log::LEVEL_DEBUG);
 
   // Test all classes
   UTEST_INIT();
@@ -332,9 +330,8 @@ main(int argc, const char **argv)
   UTEST_TEST(Ieee80211Test_AuthenticationAssemble, 0);
   UTEST_TEST(Ieee80211Test_AuthenticationDisassemble, 0);
 
-  UTEST_FINI();
+  zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
-  // Exit
-  exit(0);
+  UTEST_FINI();
 
 }

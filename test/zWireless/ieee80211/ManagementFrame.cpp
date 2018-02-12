@@ -18,11 +18,13 @@
 
 #include <zutils/zLog.h>
 using namespace zUtils;
+ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
+#include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/ManagementFrame.h>
 
-#include "ManagementFrame.h"
 using namespace zWireless::ieee80211;
 
 int
@@ -37,7 +39,7 @@ Ieee80211Test_ManagementFrameGetSet(void* arg_)
   ManagementFrame frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -116,7 +118,7 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   ManagementFrame frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -214,7 +216,7 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   ManagementFrame frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ERR, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());

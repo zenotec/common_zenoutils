@@ -20,6 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <net/if.h>
 #include <netinet/in.h>
 #include <netlink/netlink.h>
 #include <linux/if_arp.h>
@@ -29,10 +30,12 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
+#include <zutils/netlink/RouteLink.h>
 using namespace zUtils;
 
 // local includes
-#include "RouteLink.h"
+
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
 namespace netlink
 {
@@ -199,6 +202,29 @@ RouteLink::IfIndex(const int index_)
   return (status);
 }
 
+int
+RouteLink::MasterIfIndex() const
+{
+  int index = 0;
+  if (this->_link)
+  {
+    index = rtnl_link_get_link(this->_link);
+  }
+  return (index);
+}
+
+bool
+RouteLink::MasterIfIndex(const int index_)
+{
+  bool status = false;
+  if (this->_link)
+  {
+    rtnl_link_set_link(this->_link, index_);
+    status = true;
+  }
+  return (status);
+}
+
 std::string
 RouteLink::IfName() const
 {
@@ -218,6 +244,26 @@ RouteLink::IfName(const std::string& name_)
   {
     rtnl_link_set_name(this->_link, name_.c_str());
     status = true;
+  }
+  return (status);
+}
+
+std::string
+RouteLink::MasterIfName() const
+{
+  char str[256] = { 0 };
+  if_indextoname(this->MasterIfIndex(), str);
+  return (std::string(str));
+}
+
+bool
+RouteLink::MasterIfName(const std::string& ifname_)
+{
+  bool status = false;
+  int index = if_nametoindex(ifname_.c_str());
+  if (index)
+  {
+    status = this->MasterIfIndex(index);
   }
   return (status);
 }
@@ -423,6 +469,7 @@ void
 RouteLink::Display() const
 {
   std::cout << "Link: " << std::endl;
+  std::cout << "\tMaster:\t" << this->MasterIfIndex() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tType:  \t" << _arptype2str(this->ArpType()) << std::endl;

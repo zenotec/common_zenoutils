@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-#include <stdint.h>
-
-#include <mutex>
-#include <list>
-#include <queue>
-#include <vector>
-
-#include <zutils/zLog.h>
+#include <zutils/zCompatibility.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils
@@ -33,138 +26,102 @@ namespace zEvent
 // Class: EventHandler
 //**********************************************************************
 
-EventHandler::EventHandler()
+Handler::Handler()
 {
-  ZLOG_DEBUG("(" + ZLOG_P(this) + ")");
-  // End critical section
-  EventHandler::_event_lock.Unlock();
+  this->_event_lock.Unlock();
 }
 
-EventHandler::~EventHandler()
+Handler::~Handler()
 {
-//  ZLOG_DEBUG("(" + ZLOG_P(this) + ")"); // TODO: Causes segfault
+  this->_event_lock.Lock();
+  FOREACH(auto& event, this->_event_list)
+  {
+    event->unregisterHandler(this);
+  }
+  this->_event_list.clear();
 }
 
 bool
-EventHandler::RegisterEvent(Event *event_)
+Handler::RegisterEvent(Event *event_)
 {
   bool status = false;
-  if (event_)
+  if (event_ && this->_event_lock.Lock())
   {
-    // Start critical section
-    if (EventHandler::_event_lock.Lock())
-    {
-      ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(event_));
+    // Remove any possible duplicates
+    this->_event_list.remove(event_);
+    event_->unregisterHandler(this);
 
-      // Remove any possible duplicates
-      EventHandler::_event_list.remove(event_);
-      status = event_->unregisterHandler(this);
-
-      // Register event
-      EventHandler::_event_list.push_back(event_);
-      status = event_->registerHandler(this);
-
-      // End critical section
-      EventHandler::_event_lock.Unlock();
-    }
+    // Register event
+    this->_event_list.push_back(event_);
+    status = event_->registerHandler(this);
+    status &= this->_event_lock.Unlock();
   }
   return (status);
 }
 
 bool
-EventHandler::UnregisterEvent(Event *event_)
+Handler::UnregisterEvent(Event *event_)
 {
   bool status = false;
-  if (event_)
+  if (event_ && this->_event_lock.Lock())
   {
-    // Start critical section
-    if (EventHandler::_event_lock.Lock())
-    {
-      ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(event_));
-      // Unregister event
-      EventHandler::_event_list.remove(event_);
-      status = event_->unregisterHandler(this);
-      // End critical section
-      EventHandler::_event_lock.Unlock();
-    }
+    this->_event_list.remove(event_);
+    status = event_->unregisterHandler(this);
+    status &= this->_event_lock.Unlock();
   }
   return (status);
 }
 
 bool
-EventHandler::RegisterObserver(EventObserver *obs_)
+Handler::RegisterObserver(Observer *obs_)
 {
   bool status = false;
-  if (obs_)
+  if (obs_ && this->_event_lock.Lock())
   {
-    // Start critical section
-    if (EventHandler::_event_lock.Lock())
-    {
-      ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(obs_));
+    // Remove any duplicates
+    this->_obs_list.remove(obs_);
 
-      // Remove any possible duplicates
-      EventHandler::_obs_list.remove(obs_);
-
-      // Register observer
-      EventHandler::_obs_list.push_back(obs_);
-      status = true;
-
-      // End critical section
-      EventHandler::_event_lock.Unlock();
-    }
+    // Register observer
+    this->_obs_list.push_back(obs_);
+    status = this->_event_lock.Unlock();
   }
   return (status);
 }
 
 bool
-EventHandler::UnregisterObserver(EventObserver *obs_)
+Handler::UnregisterObserver(Observer *obs_)
 {
   bool status = false;
-  if (obs_)
+  if (obs_ && this->_event_lock.Lock())
   {
-    // Start critical section
-    if (EventHandler::_event_lock.Lock())
-    {
-      ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(obs_));
-      // Unregister observer
-      EventHandler::_obs_list.remove(obs_);
-      status = true;
-      // End critical section
-      EventHandler::_event_lock.Unlock();
-    }
+    // Unregister observer
+    this->_obs_list.remove(obs_);
+    status = this->_event_lock.Unlock();
   }
   return (status);
 }
 
-void
-EventHandler::notify(EventNotification* notification_)
+bool
+Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 {
 
+  bool status = false;
   // Note: never call this routine directly; Only should be called by the event class
 
   // Start critical section
-  if (!EventHandler::_event_lock.Lock())
+  if (this->_event_lock.Lock())
   {
-    return;
+    status = true;
+
+    FOREACH (auto& obs, this->_obs_list)
+    {
+      status &= obs->ObserveEvent(noti_);
+    }
+
+    this->_event_lock.Unlock();
   }
 
-  // Create copy of the observer list
-  std::list<EventObserver *> obs_list(EventHandler::_obs_list);
-
-  // End critical section
-  EventHandler::_event_lock.Unlock();
-
-  int cnt = obs_list.size();
-
-  // Notify all registered observers
-  while (!obs_list.empty())
-  {
-    ZLOG_DEBUG("(" + ZLOG_P(this) + "): " + ZLOG_P(obs_list.front()));
-    obs_list.front()->EventHandler(notification_);
-    obs_list.pop_front();
-  }
-
-  return;
+  return (status);
 }
 
 }

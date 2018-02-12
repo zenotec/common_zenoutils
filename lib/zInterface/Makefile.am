@@ -8,7 +8,19 @@ CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
-AM_CPPFLAGS := $(CPPFLAGS_GCOV) $(com_incdir) $(BOOST_CPPFLAGS) -I$(srcdir) -I$(srcdir)/netlink -I$(srcdir)/nl80211
+if COND_DEBUG
+CPPFLAGS_DEBUG = -DDEBUG
+endif
+
+AM_CPPFLAGS := \
+	$(CPPFLAGS_GCOV) \
+	$(com_incdir) \
+	$(BOOST_CPPFLAGS) \
+	$(CPPFLAGS_DEBUG) \
+	-I$(srcdir) \
+	-I$(srcdir)/netlink \
+	-I$(srcdir)/nl80211
+
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
 noinst_LTLIBRARIES = libzInterface.la
@@ -28,7 +40,8 @@ libzInterface_la_LDFLAGS = \
 libzInterface_la_SOURCES = \
     Configuration.cpp \
     Interface.cpp \
-    LoopInterface.cpp
+    LoopInterface.cpp \
+    MacVlanInterface.cpp
 
 libzInterface_la_LIBADD = \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la

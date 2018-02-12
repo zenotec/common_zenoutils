@@ -17,6 +17,8 @@
 #ifndef __ZSEMAPHORE_H__
 #define __ZSEMAPHORE_H__
 
+#include <thread>
+
 #include <zutils/zCompatibility.h>
 
 namespace zUtils
@@ -30,6 +32,7 @@ namespace zSem
 class Mutex
 {
 public:
+
   enum STATE
   {
     LOCKED, UNLOCKED
@@ -52,11 +55,16 @@ public:
   bool
   Unlock();
 
+  Mutex::STATE
+  State() const;
+
 protected:
 
 private:
 
-  TIMED_MUTEX _lock;
+  TIMED_MUTEX _mutex_lock;
+  uint32_t _refcnt;
+  std::thread::id _mutex_owner;
 
   Mutex(Mutex &other_);
 
@@ -67,6 +75,9 @@ private:
 
   Mutex &
   operator=(const Mutex &other_);
+
+  void
+  _set_owner(const std::thread::id tid_);
 
 };
 
@@ -111,9 +122,9 @@ private:
   Semaphore &
   operator=(const Semaphore &other_);
 
-  Mutex _lock;
-  Mutex _empty;
-  uint32_t _cnt;
+  Mutex _sem_lock;
+  TIMED_MUTEX _empty_lock; // empty = locked
+  ATOMIC(uint32_t) _sem_cnt;
 
 };
 

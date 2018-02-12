@@ -17,6 +17,8 @@
 #ifndef _ZSOCKETTEST_H_
 #define _ZSOCKETTEST_H_
 
+#include <zutils/zLoopSocket.h>
+
 #include "UnitTest.h"
 
 int
@@ -29,9 +31,11 @@ int
 zSocketTest_SocketDefaults(void* arg_);
 
 int
+zSocketTest_BufferString(void* arg_);
+int
 zSocketTest_BufferCompare(void* arg_);
 int
-zSocketTest_BufferString(void* arg_);
+zSocketTest_BufferCopy(void* arg_);
 
 int
 zSocketTest_AddressGetSet(void* arg_);
@@ -89,12 +93,13 @@ using namespace Test;
 using namespace zUtils;
 using namespace zSocket;
 
-class TestAddress : public zSocket::SocketAddress
+class TestAddress : public zSocket::Address
 {
+
 public:
 
   TestAddress() :
-    zSocket::SocketAddress(SocketType::TYPE_TEST)
+    zSocket::Address(SOCKET_TYPE::TYPE_TEST)
   {
   }
 
@@ -105,17 +110,13 @@ public:
 
 protected:
 
-  virtual bool
-  verify(const SocketType type_, const std::string &addr_)
-  {
-    return (type_ == SocketType::TYPE_TEST);
-  }
-
 };
 
-class TestObserver : public zEvent::EventObserver
+class TestObserver : public zEvent::Observer
 {
+
 public:
+
   TestObserver()
   {
   }
@@ -125,34 +126,34 @@ public:
   {
   }
 
-  zQueue<SocketAddressBufferPair> RxSem;
-  zQueue<SocketAddressBufferPair> TxSem;
-  zQueue<SocketAddressBufferPair> ErrSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> RxSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> TxSem;
+  zQueue<SHARED_PTR(zSocket::Notification)> ErrSem;
 
 protected:
 
   virtual bool
-  EventHandler(zEvent::EventNotification* notification_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
   {
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (notification_ && (notification_->Type() == zEvent::Event::TYPE_SOCKET))
+    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
-      SocketNotification *n = (SocketNotification *) notification_;
-      switch (n->Id())
+      SHARED_PTR(Notification) n = STATIC_CAST(Notification)(noti_);
+      switch (n->GetSubType())
       {
-      case SocketNotification::ID_PKT_RCVD:
-        this->RxSem.Push(n->Pkt());
+      case Notification::SUBTYPE_PKT_RCVD:
+        this->RxSem.Push(n);
         status = true;
         break;
-      case SocketNotification::ID_PKT_SENT:
-        this->TxSem.Push(n->Pkt());
+      case Notification::SUBTYPE_PKT_SENT:
+        this->TxSem.Push(n);
         this->TxSem.Post();
         status = true;
         break;
       default:
-        this->ErrSem.Push(n->Pkt());
+        this->ErrSem.Push(n);
         status = false;
         break;
       }
@@ -164,9 +165,12 @@ private:
 
 };
 
-class TestSocket : public LoopSocket
+class TestSocket :
+    public LoopSocket
 {
+
 public:
+
   TestSocket()
   {
   }

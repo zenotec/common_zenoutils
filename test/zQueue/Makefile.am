@@ -19,5 +19,5 @@ zQueueUnitTest_SOURCES = \
     Defaults.cpp
 
 zQueueUnitTest_LDADD = \
-    ${top_builddir}/lib/libzutils.la
+    ${top_builddir}/lib/zSem/libzSem.la
 
