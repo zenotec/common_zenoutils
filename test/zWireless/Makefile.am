@@ -45,6 +45,7 @@ zWirelessUnitTest_SOURCES = \
     Defaults.cpp \
     Configuration.cpp \
     Interface.cpp \
+    Adapter.cpp \
     BasicServiceSet.cpp
 
 zWirelessUnitTest_LDADD = \

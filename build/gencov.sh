@@ -6,9 +6,9 @@ TESTDIR="${TOPDIR}/test"
 TESTS="zLog zProgOpt zThread zTimer zSem zData zEvent zSocket zNode zMessage zSwitch zGpio"
 COVDIR="${TOPDIR}/coverage"
 
-rm -rf ${SRCDIR} ${TESTDIR} ${COVDIR}
-mkdir -p ${SRCDIR} ${TESTDIR} ${COVDIR}
-../configure --enable-gcov
+#rm -rf ${SRCDIR} ${TESTDIR} ${COVDIR}
+#mkdir -p ${SRCDIR} ${TESTDIR} ${COVDIR}
+#../configure --enable-gcov
 cd ${SRCDIR}
 lcov --base-directory . --directory . --zerocounters -q
 cd ${TOPDIR}

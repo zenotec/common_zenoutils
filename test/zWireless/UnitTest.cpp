@@ -52,6 +52,9 @@ main(int argc, const char **argv)
 
   UTEST_TEST(zWirelessTest_BasicServiceSet, 0);
 
+
+  UTEST_TEST(zAdapterTest_WirelessSocket, 0);
+
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
   UTEST_FINI();
