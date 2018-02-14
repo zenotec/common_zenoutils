@@ -22,9 +22,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netlink/netlink.h>
+#include <netlink/attr.h>
+#include <netlink/msg.h>
 #include <netlink/route/rtnl.h>
 #include <linux/rtnetlink.h>
-#include <linux/if.h>
+#include <net/if.h>
 #include <linux/if_link.h>
 
 // libc++ includes

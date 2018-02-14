@@ -16,16 +16,19 @@
  */
 
 // libc includes
+
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
-#include <net/if.h>
 #include <netinet/in.h>
 #include <netlink/netlink.h>
-#include <linux/if_arp.h>
+#include <net/if.h>
+#include <net/if_arp.h>
 
 // libc++ includes
+
+#include <string>
 #include <iostream>
 
 // libzutils includes

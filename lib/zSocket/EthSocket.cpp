@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
+// libc includes
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <linux/if_packet.h>
-#include <linux/if_ether.h>
-#include <netinet/in.h>
-#include <netinet/ether.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <poll.h>
+
+// libc++ includes
+
+// libzutils includes
 
 #include <zutils/zUtils.h>
 #include <zutils/zLog.h>

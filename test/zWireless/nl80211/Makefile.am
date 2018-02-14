@@ -24,6 +24,7 @@ Nl80211UnitTest_CPPFLAGS = \
 Nl80211UnitTest_LDFLAGS = \
   ${AM_LIBS} \
   ${NL3_LIBS} \
+  ${AM_CPPFLAGS} \
   ${NLGENL3_LIBS} \
   ${NLRTNL3_LIBS}
 
