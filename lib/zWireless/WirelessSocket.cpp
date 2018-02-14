@@ -32,7 +32,9 @@
 #include <zutils/ieee80211/ControlFrame.h>
 #include <zutils/ieee80211/DataFrame.h>
 #include <zutils/ieee80211/Association.h>
+#include <zutils/ieee80211/Disassociation.h>
 #include <zutils/ieee80211/Authentication.h>
+#include <zutils/ieee80211/Deauthentication.h>
 #include <zutils/zWirelessSocket.h>
 
 // local includes
@@ -132,6 +134,16 @@ Notification::Notification(const zSocket::Notification& noti_) :
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
+    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_DISASS))
+    {
+      this->Frame(SHARED_PTR(ieee80211::Disassociation)(new ieee80211::Disassociation));
+      f = this->Frame()->Disassemble(f, rem, fcsflag);
+      if (f == 0)
+      {
+        ZLOG_WARN("Cannot decode disassociation frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+    }
     else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_ASSRESP))
     {
       this->Frame(SHARED_PTR(ieee80211::AssociationResponse)(new ieee80211::AssociationResponse));
@@ -149,6 +161,16 @@ Notification::Notification(const zSocket::Notification& noti_) :
       if (f == 0)
       {
         ZLOG_WARN("Cannot decode authentication frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+    }
+    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_DEAUTH))
+    {
+      this->Frame(SHARED_PTR(ieee80211::Deauthentication)(new ieee80211::Deauthentication));
+      f = this->Frame()->Disassemble(f, rem, fcsflag);
+      if (f == 0)
+      {
+        ZLOG_WARN("Cannot decode deauthentication frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
