@@ -115,7 +115,7 @@ BasicServiceSet::SetBssid(const std::string& bssid_)
 bool
 BasicServiceSet::AddStation(const std::string& addr_)
 {
-  bool status = false;
+  bool status = true;
 
   if (!this->GetIfIndex())
   {
@@ -133,7 +133,7 @@ BasicServiceSet::AddStation(const std::string& addr_)
 bool
 BasicServiceSet::DelStation(const std::string& addr_)
 {
-  bool status = false;
+  bool status = true;
 
   if (!this->GetIfIndex())
   {

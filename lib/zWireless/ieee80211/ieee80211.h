@@ -55,6 +55,18 @@ struct ieee80211_assreq
   ieee80211_tag tags;
 } __attribute__ ((packed));
 
+struct ieee80211_disass
+{
+  uint16_t reasonCode;
+  ieee80211_tag tags;
+} __attribute__ ((packed));
+
+struct ieee80211_deauth
+{
+  uint16_t reasonCode;
+  ieee80211_tag tags;
+} __attribute__ ((packed));
+
 struct ieee80211_auth
 {
   uint16_t algorithm;
@@ -95,6 +107,8 @@ struct ieee80211_mgmthdr
     ieee80211_proberesp proberesp;
     ieee80211_assreq assreq;
     ieee80211_assresp assresp;
+    ieee80211_disass disass;
+    ieee80211_deauth deauth;
   } u;
 }__attribute__ ((packed));
 

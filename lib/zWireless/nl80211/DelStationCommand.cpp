@@ -93,7 +93,7 @@ DelStationCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_NEW_STATION);
+  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_DEL_STATION);
   cmdmsg.PutAttribute(&this->IfIndex);
   cmdmsg.PutAttribute(&this->Mac);
 
