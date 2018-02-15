@@ -201,6 +201,10 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
         break;
       }
     }
+    else
+    {
+      break; // TODO: KEM: Not sure what effect this will have yet
+    }
   }
 
   // Return pointer to end of buffer; NULL on error
