@@ -136,32 +136,10 @@ DelStationCommand::Display() const
 }
 
 int
-DelStationCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+DelStationCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
-  {
-    ZLOG_ERR("Error parsing generic message");
-    return (NL_SKIP);
-  }
-  msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
-    return(NL_SKIP);
-  }
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 
