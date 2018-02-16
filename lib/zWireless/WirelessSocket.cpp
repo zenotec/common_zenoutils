@@ -207,6 +207,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
     break;
   }
   } // end ieee80211hdr.Type()
+
   return;
 }
 
@@ -256,7 +257,37 @@ Socket::~Socket()
 SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
-  return (SHARED_PTR(Notification)(new Notification(*this->socket.Recv())));
+
+  ieee80211::RadioTapFieldTxFlags rxflags;
+  ieee80211::RadioTapFieldTxFlags txflags;
+
+  // Receive frame and convert to wireless notification
+  SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
+
+  // Check for TX status frame
+  if (n->RadiotapHeader()->GetField(rxflags))
+  {
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_RCVD);
+  }
+  else if (n->RadiotapHeader()->GetField(txflags))
+  {
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_SENT);
+  }
+  else
+  {
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+  }
+
+  // Update destination address from actual frame
+  zSocket::Address daddr(zSocket::Socket::GetType(), n->Frame()->Address(ieee80211::Frame::ADDRESS_1));
+  n->SetDstAddress(daddr);
+
+  // Update source address from actual frame
+  zSocket::Address saddr(zSocket::Socket::GetType(), n->Frame()->Address(ieee80211::Frame::ADDRESS_2));
+  n->SetSrcAddress(saddr);
+
+  // Return wireless notification
+  return (n);
 }
 
 SHARED_PTR(zSocket::Notification)
@@ -269,7 +300,6 @@ SHARED_PTR(zSocket::Notification)
 Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
 {
 
-  zSocket::Address addr(zSocket::Socket::GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
   zSocket::Buffer sb;
   uint8_t* sbptr = sb.Head();
   size_t sbsize = sb.TotalSize();
@@ -299,7 +329,8 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
     return (n);
   }
 
-  return (this->Send(addr, sb));
+  zSocket::Address daddr(zSocket::Socket::GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
+  return (this->Send(daddr, sb));
 }
 
 void
