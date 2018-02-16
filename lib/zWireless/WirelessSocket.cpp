@@ -258,7 +258,7 @@ SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
 
-  ieee80211::RadioTapFieldTxFlags rxflags;
+  ieee80211::RadioTapFieldRxFlags rxflags;
   ieee80211::RadioTapFieldTxFlags txflags;
 
   // Receive frame and convert to wireless notification
