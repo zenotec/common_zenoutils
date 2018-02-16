@@ -105,8 +105,6 @@ bool
 Timer::Start(uint32_t usec_)
 {
 
-  fprintf(stderr, "(%d) Starting timer: %s\n", this->_fd, this->_name.c_str());
-
   bool status = false;
   if (this->_lock.Lock())
   {
@@ -120,8 +118,6 @@ Timer::Start(uint32_t usec_)
 bool
 Timer::Stop(void)
 {
-
-  fprintf(stderr, "(%d) Stopping timer: %s\n", this->_fd, this->_name.c_str());
 
   bool status  = false;
   if (this->_lock.Lock())
