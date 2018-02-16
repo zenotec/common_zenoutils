@@ -475,27 +475,25 @@ Interface::Commit()
     status = true; // Innocent until proven guilty
 
     // Always make this command first to ensure all commands are executed while the interface is down
-    if (zInterface::ConfigData::STATE_DOWN != this->workingConfig.GetAdminState())
+    if (zInterface::ConfigData::STATE_DOWN == this->workingConfig.GetAdminState())
     {
-      this->workingConfig.SetAdminState(zInterface::ConfigData::STATE_DOWN);
-      status &= this->setAdminState(zInterface::ConfigData::STATE_DOWN);
+      if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
+      {
+        status &= this->setIfName(this->stagingConfig.GetIfName());
+      }
+
+      if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
+      {
+        status &= this->setIfType(this->stagingConfig.GetIfType());
+      }
+
+      if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
+      {
+        status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
+      }
     }
 
-    if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
-    {
-      status &= this->setIfName(this->stagingConfig.GetIfName());
-    }
-
-    if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
-    {
-      status &= this->setIfType(this->stagingConfig.GetIfType());
-    }
-
-    if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
-    {
-      status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
-    }
-
+    // The following commands can be executed regardless of the interfaces' administrative state
     if (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu())
     {
       status &= this->setMtu(this->stagingConfig.GetMtu());

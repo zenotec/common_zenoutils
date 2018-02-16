@@ -474,27 +474,25 @@ Interface::Commit()
     status = true; // Innocent until proven guilty
 
     // Always make this command first to ensure all commands are executed while the interface is down
-    if (zWireless::ConfigData::STATE_DOWN != this->workingConfig.GetAdminState())
+    if (zInterface::ConfigData::STATE_DOWN == this->workingConfig.GetAdminState())
     {
-      this->workingConfig.SetAdminState(zWireless::ConfigData::STATE_DOWN);
-      status &= this->setAdminState(zWireless::ConfigData::STATE_DOWN);
+      if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
+      {
+        status &= this->setIfName(this->stagingConfig.GetIfName());
+      }
+
+      if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
+      {
+        status &= this->setIfType(this->stagingConfig.GetIfType());
+      }
+
+      if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
+      {
+        status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
+      }
     }
 
-    if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
-    {
-      status &= this->setIfName(this->stagingConfig.GetIfName());
-    }
-
-    if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
-    {
-      status &= this->setIfType(this->stagingConfig.GetIfType());
-    }
-
-    if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
-    {
-      status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
-    }
-
+    // The following commands can be executed regardless of the interfaces' administrative state
     if (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu())
     {
       status &= this->setMtu(this->stagingConfig.GetMtu());
@@ -510,28 +508,7 @@ Interface::Commit()
       status &= this->setNetmask(this->stagingConfig.GetNetmask());
     }
 
-    if (this->stagingConfig.GetPhyName() != this->workingConfig.GetPhyName())
-    {
-      status &= this->_setPhyName(this->stagingConfig.GetPhyName());
-    }
-
-    if (this->stagingConfig.GetHwMode() != this->workingConfig.GetHwMode())
-    {
-      status &= this->_setHwMode(this->stagingConfig.GetHwMode());
-    }
-
-    if (this->stagingConfig.GetHtMode() != this->workingConfig.GetHtMode())
-    {
-      status &= this->_setHtMode(this->stagingConfig.GetHtMode());
-    }
-
-    if (this->stagingConfig.GetOpMode() != this->workingConfig.GetOpMode())
-    {
-      status &= this->_setOpMode(this->stagingConfig.GetOpMode());
-    }
-
-    // Always make this command last but before setting the channel / TX power to ensure
-    //   all commands are executed while the interface is down
+    // Always make this command last to ensure all above commands are executed while the interface is down
     if (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState())
     {
       status &= this->setAdminState(this->stagingConfig.GetAdminState());
