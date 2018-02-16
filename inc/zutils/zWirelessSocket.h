@@ -20,10 +20,15 @@
 
 // libc includes
 
+#include <stdint.h>
+
 // libc++ includes
+
 #include <string>
+#include <map>
 
 // libzutils includes
+
 #include <zutils/zCompatibility.h>
 #include <zutils/zEvent.h>
 #include <zutils/zSocket.h>
@@ -108,6 +113,9 @@ public:
 protected:
 
 private:
+
+  std::map<std::string, uint16_t> _rxseq;
+  std::map<std::string, uint16_t> _txseq;
 
 };
 

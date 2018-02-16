@@ -73,7 +73,7 @@ public:
 
 protected:
 
-  int
+  virtual int
   ack_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int

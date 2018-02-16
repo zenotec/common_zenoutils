@@ -304,6 +304,14 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
   uint8_t* sbptr = sb.Head();
   size_t sbsize = sb.TotalSize();
 
+  zSocket::Address daddr(zSocket::Socket::GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
+
+//  // TODO: Debug for now, remove if not needed
+//  if (frame_.Type() == ieee80211::Frame::TYPE_DATA)
+//  {
+//    frame_.SequenceNum(this->_txseq[daddr.GetAddress()]++);
+//  }
+
   if (!(sbptr = hdr_.Assemble(sbptr, sbsize)))
   {
     ZLOG_ERR("Error assembling radiotap header");
@@ -329,7 +337,6 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
     return (n);
   }
 
-  zSocket::Address daddr(zSocket::Socket::GetType(), frame_.Address(ieee80211::Frame::ADDRESS_1));
   return (this->Send(daddr, sb));
 }
 
