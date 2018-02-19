@@ -22,7 +22,6 @@
 #include <map>
 
 #include <zutils/zCompatibility.h>
-#include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
 #include <zutils/zThread.h>
 
@@ -46,7 +45,7 @@ enum SOCKET_TYPE
   TYPE_TEST = 1,
   TYPE_LOOP = 2,
   TYPE_UNIX = 3,
-  TYPE_ETH = 4,
+  TYPE_RAW = 4,
   TYPE_INET4 = 5,
   TYPE_INET6 = 6,
   TYPE_LAST
@@ -292,7 +291,8 @@ public:
     SUBTYPE_NONE = 0,
     SUBTYPE_PKT_RCVD = 1,
     SUBTYPE_PKT_SENT = 2,
-    SUBTYPE_PKT_ERR = 3,
+    SUBTYPE_PKT_DROP = 3,
+    SUBTYPE_PKT_ERR = 4,
     SUBTYPE_LAST
   };
 

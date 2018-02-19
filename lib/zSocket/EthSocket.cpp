@@ -123,13 +123,13 @@ _sa2addr(const struct sockaddr_ll &sa_, std::string &addr_)
 //**********************************************************************
 
 EthAddress::EthAddress(const std::string &addr_) :
-    Address(SOCKET_TYPE::TYPE_ETH, addr_), sa { 0 }
+    Address(SOCKET_TYPE::TYPE_RAW, addr_), sa { 0 }
 {
   _addr2sa(addr_, this->sa);
 }
 
 EthAddress::EthAddress(const Address &addr_) :
-    Address(SOCKET_TYPE::TYPE_ETH), sa { 0 }
+    Address(SOCKET_TYPE::TYPE_RAW), sa { 0 }
 {
   if (addr_.GetType() == this->GetType())
   {
@@ -138,7 +138,7 @@ EthAddress::EthAddress(const Address &addr_) :
 }
 
 EthAddress::EthAddress(const struct sockaddr_ll& sa_) :
-        Address(SOCKET_TYPE::TYPE_ETH), sa (sa_)
+        Address(SOCKET_TYPE::TYPE_RAW), sa (sa_)
 {
   this->SetAddress(this->GetAddress());
 }
@@ -183,7 +183,7 @@ EthAddress::Display() const
 //**********************************************************************
 
 EthSocket::EthSocket(const EthSocket::PROTO proto_) :
-    Socket(SOCKET_TYPE::TYPE_ETH), _fd(0)
+    Socket(SOCKET_TYPE::TYPE_RAW), _fd(0)
 {
   // Create a AF_INET socket
   this->_fd = socket( PF_PACKET, SOCK_RAW, htons(proto_));
@@ -288,7 +288,7 @@ EthSocket::Bind(const Address& addr_)
     return (false);
   }
 
-  if (addr_.GetType() != SOCKET_TYPE::TYPE_ETH)
+  if (addr_.GetType() != SOCKET_TYPE::TYPE_RAW)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);

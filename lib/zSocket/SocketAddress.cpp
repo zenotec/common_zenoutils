@@ -94,7 +94,7 @@ Address::SetType(const SOCKET_TYPE type_)
     // no break
   case SOCKET_TYPE::TYPE_UNIX:
     // no break
-  case SOCKET_TYPE::TYPE_ETH:
+  case SOCKET_TYPE::TYPE_RAW:
     // no break
   case SOCKET_TYPE::TYPE_INET4:
     // no break

@@ -55,7 +55,7 @@ zSocketTest_EthAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   EthAddress myAddr;
-  TEST_EQ(SOCKET_TYPE::TYPE_ETH, myAddr.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_RAW, myAddr.GetType());
   TEST_EQ(std::string("00:00:00:00:00:00"), myAddr.GetAddress());
 
   // Set socket address using string notation (bad address)
@@ -81,12 +81,12 @@ zSocketTest_EthAddressCompare(void* arg_)
 
   // Create new socket address and validate
   EthAddress myAddr1;
-  TEST_EQ(SOCKET_TYPE::TYPE_ETH, myAddr1.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_RAW, myAddr1.GetType());
   TEST_EQ(std::string("00:00:00:00:00:00"), myAddr1.GetAddress());
 
   // Create second socket address and validate
   EthAddress myAddr2;
-  TEST_EQ(SOCKET_TYPE::TYPE_ETH, myAddr2.GetType());
+  TEST_EQ(SOCKET_TYPE::TYPE_RAW, myAddr2.GetType());
   TEST_EQ(std::string("00:00:00:00:00:00"), myAddr2.GetAddress());
 
   // Compare address (match)
