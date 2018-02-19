@@ -253,7 +253,7 @@ public:
   AddTag(const Tag& tag_);
 
   size_t
-  GetPayload(uint8_t*& buf_, const size_t len_) const;
+  GetPayload(uint8_t* buf_, const size_t len_) const;
 
   size_t
   GetPayloadLength() const;

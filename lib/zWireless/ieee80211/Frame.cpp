@@ -538,7 +538,7 @@ Frame::FrameCheck(const uint32_t fcs_)
 }
 
 size_t
-Frame::GetPayload(uint8_t*& buf_, const size_t len_) const
+Frame::GetPayload(uint8_t* buf_, const size_t len_) const
 {
   size_t cnt = std::min(this->_psize, len_);
   memcpy(buf_, this->_payload, cnt);
