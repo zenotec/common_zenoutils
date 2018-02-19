@@ -475,7 +475,7 @@ Interface::Commit()
     status = true; // Innocent until proven guilty
 
     // Always make this command first to ensure all commands are executed while the interface is down
-    if (zInterface::ConfigData::STATE_DOWN == this->workingConfig.GetAdminState())
+    if (zInterface::ConfigData::STATE_UP != this->workingConfig.GetAdminState())
     {
       if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
       {
