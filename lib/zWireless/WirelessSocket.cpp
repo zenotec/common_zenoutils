@@ -88,6 +88,13 @@ Notification::Notification(const zSocket::Notification& noti_) :
     return;
   }
 
+  // Check for TX flags indicating this was a frame we transmitted
+  ieee80211::RadioTapFieldTxFlags txflags;
+  if (this->RadiotapHeader()->GetField(txflags))
+  {
+    this->SetSubType(zSocket::Notification::SUBTYPE_PKT_SENT);
+  }
+
   // Peek at the 802.11 frame to determine its type/subtype
   f = this->Frame()->Peek(f, rem, fcsflag);
   if (f == 0)
@@ -266,25 +273,8 @@ SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
 
-  ieee80211::RadioTapFieldRxFlags rxflags;
-  ieee80211::RadioTapFieldTxFlags txflags;
-
   // Receive frame and convert to wireless notification
   SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
-
-  // Check for TX status frame
-  if (n->RadiotapHeader()->GetField(rxflags))
-  {
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_RCVD);
-  }
-  else if (n->RadiotapHeader()->GetField(txflags))
-  {
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_SENT);
-  }
-  else
-  {
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-  }
 
   // Update destination address from actual frame
   zSocket::Address daddr(zSocket::Socket::GetType(), n->Frame()->Address(ieee80211::Frame::ADDRESS_1));
