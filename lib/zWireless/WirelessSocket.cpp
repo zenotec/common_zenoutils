@@ -80,6 +80,14 @@ Notification::Notification(const zSocket::Notification& noti_) :
   this->RadiotapHeader()->GetField(flags);
   bool fcsflag = flags.FCS();
 
+  // Check for bad FCS
+  if (flags.BadFCS())
+  {
+    ZLOG_INFO("Bad FCS");
+    this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    return;
+  }
+
   // Peek at the 802.11 frame to determine its type/subtype
   f = this->Frame()->Peek(f, rem, fcsflag);
   if (f == 0)
