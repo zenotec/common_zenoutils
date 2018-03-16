@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +15,19 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_SOCKET_H__
-#define __NETLINK_SOCKET_H__
+#ifndef __NL80211_SOCKET_H__
+#define __NL80211_SOCKET_H__
 
-#include <netlink/netlink.h>
+#include <zutils/netlink/GenericSocket.h>
 
-#include <zutils/zCompatibility.h>
-
-#include "Message.h"
-#include "Handler.h"
-
-namespace netlink
+namespace nl80211
 {
 
 //*****************************************************************************
-// Class: Socket
+// Class: GenericSocket
 //*****************************************************************************
 
-class Socket
+class Socket : public netlink::GenericSocket
 {
 
 public:
@@ -42,27 +37,10 @@ public:
   virtual
   ~Socket();
 
-  virtual struct nl_sock*
-  operator()();
-
-  bool
-  SetHandler(Handler* handler_);
-
-  virtual bool
-  Connect(const int family_);
-
-  bool
-  Disconnect();
-
-  bool
-  SendMsg(Message& msg_);
-
-  bool
-  RecvMsg(); // Receives the message and invokes the installed handler
+  SHARED_PTR(netlink::GenericSocket)
+  CreateMsg();
 
 protected:
-
-  struct nl_sock* _sock;
 
 private:
 
@@ -70,4 +48,4 @@ private:
 
 }
 
-#endif /* __NETLINK_SOCKET_H__ */
+#endif /* __NL80211_SOCKET_H__ */

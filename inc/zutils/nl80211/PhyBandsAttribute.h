@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,69 +15,73 @@
  * limitations under the License.
  */
 
-#ifndef __NETLINK_MESSAGE_H__
-#define __NETLINK_MESSAGE_H__
+#ifndef __NL80211_PHYBANDSATTRIBUTE_H__
+#define __NL80211_PHYBANDSATTRIBUTE_H__
 
+// libc includes
 #include <stdint.h>
-
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
 #include <linux/nl80211.h>
 
-#include <string>
+// libc++ includes
 
+// libzutils includes
 #include <zutils/netlink/Attribute.h>
 
-namespace netlink
+// local includes
+
+namespace nl80211
 {
 
-class AttributeMap;
-
 //*****************************************************************************
-// Class: Message
+// Class: PhyBandAttribute
 //*****************************************************************************
 
-class Message
+class PhyBandAttribute : public Attribute<AttributeBuffer>
 {
+
 public:
 
-  Message();
+  PhyBandAttribute() :
+      Attribute(NL80211_ATTR_WIPHY_BANDS)
+  {
+  }
 
   virtual
-  ~Message();
-
-  virtual bool
-  Assemble(struct nl_msg* msg_) = 0;
-
-  virtual bool
-  Disassemble(struct nl_msg* msg_) = 0;
-
-  uint16_t
-  GetType() const;
-
-  bool
-  SetType(const uint16_t type_);
-
-  bool
-  GetAttribute(Attribute& attr_);
-
-  bool
-  PutAttribute(Attribute& attr_);
-
-  void
-  Display() const;
+  ~PhyBandAttribute()
+  {
+  }
 
 protected:
 
-  AttributeMap _attrs;
-
 private:
 
-  uint16_t _type;
+};
+
+//*****************************************************************************
+// Class: PhyBandsAttribute
+//*****************************************************************************
+
+class PhyBandsAttribute : public AttributeNested<PhyBandAttribute>
+{
+
+public:
+
+  PhyBandsAttribute() :
+      Attribute(NL80211_ATTR_WIPHY_BANDS)
+  {
+  }
+
+  virtual
+  ~PhyBandsAttribute()
+  {
+  }
+
+protected:
+
+private:
 
 };
 
 }
 
-#endif /* __NETLINK_MESSAGE_H__ */
+#endif /* __NL80211_PHYBANDSATTRIBUTE_H__ */

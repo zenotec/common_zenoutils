@@ -142,12 +142,8 @@ _attr2str(const int attr_)
 // Class: RouteMessage
 //*****************************************************************************
 
-RouteMessage::RouteMessage(const int family_, const int flags_, const uint8_t id_)
-{
-}
-
-RouteMessage::RouteMessage(struct nl_msg* msg_) :
-    Message(msg_)
+RouteMessage::RouteMessage(const int family_) :
+    _family(family_), _flags(0), _command(0)
 {
 }
 
@@ -159,11 +155,11 @@ uint8_t
 RouteMessage::AddressFamily() const
 {
   uint8_t family = 0;
-  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-  if (rtnlhdr)
-  {
-    family = rtnlhdr->ifi_family;
-  }
+//  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//  if (rtnlhdr)
+//  {
+//    family = rtnlhdr->ifi_family;
+//  }
   return(family);
 }
 
@@ -171,11 +167,11 @@ uint16_t
 RouteMessage::LinkLayerType() const
 {
   uint16_t type = 0;
-  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-  if (rtnlhdr)
-  {
-    type = rtnlhdr->ifi_type;
-  }
+//  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//  if (rtnlhdr)
+//  {
+//    type = rtnlhdr->ifi_type;
+//  }
   return(type);
 }
 
@@ -183,11 +179,11 @@ uint32_t
 RouteMessage::LinkIndex() const
 {
   uint32_t index = 0;
-  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-  if (rtnlhdr)
-  {
-    index = rtnlhdr->ifi_index;
-  }
+//  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//  if (rtnlhdr)
+//  {
+//    index = rtnlhdr->ifi_index;
+//  }
   return(index);
 }
 
@@ -195,11 +191,11 @@ uint32_t
 RouteMessage::Flags() const
 {
   uint32_t flags = 0;
-  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-  if (rtnlhdr)
-  {
-    flags = rtnlhdr->ifi_flags;
-  }
+//  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//  if (rtnlhdr)
+//  {
+//    flags = rtnlhdr->ifi_flags;
+//  }
   return(flags);
 }
 
@@ -207,63 +203,63 @@ uint32_t
 RouteMessage::FlagsMask() const
 {
   uint32_t flags = 0;
-  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-  if (rtnlhdr)
-  {
-    flags = rtnlhdr->ifi_change;
-  }
+//  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//  if (rtnlhdr)
+//  {
+//    flags = rtnlhdr->ifi_change;
+//  }
   return(flags);
 }
 
-bool
-RouteMessage::Parse()
-{
-
-  int ret = 0;
-
-  switch (this->Type())
-  {
-  case RTM_NEWLINK:
-    // no break
-  case RTM_DELLINK:
-    // no break
-  case RTM_GETLINK:
-    // no break
-  case RTM_SETLINK:
-    // no break
-  {
-    struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
-    struct nlattr* attr = nlmsg_attrdata(this->Header(), sizeof(struct ifinfomsg));
-    int len = nlmsg_attrlen(this->Header(), sizeof(struct ifinfomsg));
-
-    ret = nla_parse(this->_attrs, RTA_MAX, attr, len, NULL);
-    if (ret < 0)
-    {
-      ZLOG_ERR("Error parsing route link message attributes");
-      ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-      return (false);
-    }
-    return (true);
-  }
-  default:
-  {
-    std::cout << "RouteMessage::Parse(): UNKNOWN" << std::endl;
-    return (false);
-  }
-  }
-
-}
+//bool
+//RouteMessage::Parse()
+//{
+//
+//  int ret = 0;
+//
+//  switch (this->Type())
+//  {
+//  case RTM_NEWLINK:
+//    // no break
+//  case RTM_DELLINK:
+//    // no break
+//  case RTM_GETLINK:
+//    // no break
+//  case RTM_SETLINK:
+//    // no break
+//  {
+//    struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) this->Data();
+//    struct nlattr* attr = nlmsg_attrdata(this->Header(), sizeof(struct ifinfomsg));
+//    int len = nlmsg_attrlen(this->Header(), sizeof(struct ifinfomsg));
+//
+//    ret = nla_parse(this->_attrs, RTA_MAX, attr, len, NULL);
+//    if (ret < 0)
+//    {
+//      ZLOG_ERR("Error parsing route link message attributes");
+//      ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+//      return (false);
+//    }
+//    return (true);
+//  }
+//  default:
+//  {
+//    std::cout << "RouteMessage::Parse(): UNKNOWN" << std::endl;
+//    return (false);
+//  }
+//  }
+//
+//}
 
 void
 RouteMessage::DisplayAttributes() const
 {
-  for(int i = 0; i < RTA_MAX; i++)
-  {
-    if (this->_attrs[i])
-    {
-      std::cout << _attr2str(i) << std::endl;
-    }
-  }
+//  for(int i = 0; i < RTA_MAX; i++)
+//  {
+//    if (this->_attrs[i])
+//    {
+//      std::cout << _attr2str(i) << std::endl;
+//    }
+//  }
   std::cout << std::endl;
 }
 

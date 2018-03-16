@@ -44,6 +44,7 @@ libnetlink_la_HEADERS = \
 
 libnetlink_la_SOURCES = \
 	Command.cpp \
+	Attribute.cpp \
 	Message.cpp \
 	GenericMessage.cpp \
 	RouteMessage.cpp \

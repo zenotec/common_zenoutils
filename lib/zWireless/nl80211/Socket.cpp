@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,76 +16,62 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netlink/netlink.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <unistd.h>
+//#include <sys/socket.h>
+//#include <netinet/in.h>
+//#include <netlink/netlink.h>
+//#include <netlink/genl/genl.h>
+//#include <netlink/genl/ctrl.h>
+//#include <linux/nl80211.h>
 
 // libc++ includes
-#include <iostream>
+
+//#include <string>
+//#include <iostream>
 
 // libzutils includes
+
+#include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
-#include <zutils/netlink/Attribute.h>
-#include <zutils/netlink/Message.h>
+//#include <zutils/netlink/Attribute.h>
+//#include <zutils/netlink/Message.h>
+//#include <zutils/netlink/Handler.h>
+#include <zutils/netlink/GenericSocket.h>
+#include <zutils/netlink/GenericMessage.h>
+#include <zutils/nl80211/Socket.h>
 using namespace zUtils;
 
 // local includes
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 
-namespace netlink
+namespace nl80211
 {
-
-static std::string
-__errstr(int code)
-{
-  return(std::string(nl_geterror(code)));
-}
 
 //*****************************************************************************
-// Class: Message
+// Class: Socket
 //*****************************************************************************
 
-Message::Message() :
-    _type(0)
+Socket::Socket()
 {
 }
 
-Message::~Message()
+Socket::~Socket()
 {
 }
 
-uint16_t
-Message::GetType() const
-{
-  return(this->_type);
-}
+//const int
+//Socket::SetFamily(const std::string& family_)
+//{
+//  this->_family = genl_ctrl_resolve((struct nl_sock*)this->_sock, NL80211_GENL_NAME);
+//}
 
-bool
-Message::SetType(const uint16_t type_)
+SHARED_PTR(GenericMessage)
+Socket::CreateMsg()
 {
-  this->_type = type_;
-  return(true);
-}
-
-bool
-Message::GetAttribute(Attribute& attr_)
-{
-  return (this->_attrs.GetAttribute(attr_));
-}
-
-bool
-Message::PutAttribute(Attribute& attr_)
-{
-  return (this->_attrs.PutAttribute(attr_));
-}
-
-void
-Message::Display() const
-{
+  return (this->CreateMsg(NL80211_GENL_NAME));
 }
 
 }

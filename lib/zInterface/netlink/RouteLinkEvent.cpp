@@ -144,8 +144,8 @@ RouteLinkEvent::Stop()
 int
 RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 {
-  RouteMessage msg(msg_);
-  if (!msg.Parse())
+  RouteMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing route link message");
     return (NL_SKIP);

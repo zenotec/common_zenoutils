@@ -33,11 +33,13 @@
 
 // libzutils includes
 
+#include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Message.h>
 #include <zutils/netlink/Handler.h>
 #include <zutils/netlink/Socket.h>
+#include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
 using namespace zUtils;
 
@@ -66,6 +68,12 @@ GenericSocket::~GenericSocket()
 {
 }
 
+//const int
+//GenericSocket::SetFamily(const std::string& family_)
+//{
+//  this->_family = genl_ctrl_resolve((struct nl_sock*)this->_sock, NL80211_GENL_NAME);
+//}
+
 bool
 GenericSocket::Connect()
 {
@@ -77,16 +85,26 @@ GenericSocket::Connect()
     return (false);
   }
 
-  this->_family = genl_ctrl_resolve((struct nl_sock*)this->_sock, NL80211_GENL_NAME);
-  if (this->_family < 0)
+  return (true);
+}
+
+SHARED_PTR(GenericMessage)
+GenericSocket::CreateMsg(const std::string& family_)
+{
+  SHARED_PTR(GenericMessage) msg;
+
+  int family = genl_ctrl_resolve((struct nl_sock*)this->_sock, family_.c_str());
+  if (family < 0)
   {
-    ZLOG_ERR("Error resolving generic netlink family name: " + std::string(NL80211_GENL_NAME));
-    ZLOG_ERR("Error: (" + ZLOG_INT(this->_family) + ") " + __errstr(this->_family));
-    this->Disconnect();
-    return (false);
+    ZLOG_ERR("Error resolving generic netlink family name: " + family_);
+    ZLOG_ERR("Error: (" + ZLOG_INT(family) + ") " + __errstr(family));
+  }
+  else
+  {
+    msg = SHARED_PTR(GenericMessage)(new GenericMessage(family));
   }
 
-  return (true);
+  return (msg);
 }
 
 }

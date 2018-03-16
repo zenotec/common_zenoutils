@@ -48,6 +48,7 @@ zWirelessTest_WirelessInterface(void* arg)
   std::map<uint32_t, std::string> ifaces = ifacescmd();
   if (ifaces.empty())
   {
+    ZLOG_DEBUG("Test bypassed: no interfaces found");
     UTEST_BYPASS;
   }
 

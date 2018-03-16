@@ -37,12 +37,31 @@ class RouteMessage : public Message
 {
 public:
 
-  RouteMessage(const int family_, const int flags_, const uint8_t id_);
-
-  RouteMessage(struct nl_msg* msg_);
+  RouteMessage(const int family_ = 0);
 
   virtual
   ~RouteMessage();
+
+  virtual bool
+  Assemble(struct nl_msg* msg_);
+
+  virtual bool
+  Disassemble(struct nl_msg* msg_);
+
+  int
+  GetFamily() const;
+
+  int
+  GetFlags() const;
+
+  bool
+  SetFlags(const int flags_);
+
+  int
+  GetCommand() const;
+
+  bool
+  SetCommand(const int command_);
 
   uint8_t
   AddressFamily() const;
@@ -59,15 +78,16 @@ public:
   uint32_t
   FlagsMask() const;
 
-  virtual bool
-  Parse();
-
   void
   DisplayAttributes() const;
 
 protected:
 
 private:
+
+  int _family;
+  int _flags;
+  int _command;
 
 };
 

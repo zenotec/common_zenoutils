@@ -116,11 +116,23 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+//  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
+//  msg.Display();
+//  msg.DisplayAttributes();
+
   if (msg.GetAttribute(NL80211_ATTR_IFINDEX, index) &&
       msg.GetAttribute(NL80211_ATTR_IFNAME, name))
   {
     this->_ifs[index] = name;
   }
+
+  return (NL_OK);
+
+}
+
+int
+ListInterfacesCommand::finish_cb(struct nl_msg* msg_, void* arg_)
+{
 
   return (NL_OK);
 

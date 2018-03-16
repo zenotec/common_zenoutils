@@ -40,6 +40,9 @@ public:
   virtual bool
   Connect();
 
+  SHARED_PTR(GenericMessage)
+  CreateMsg(const std::string& family_);
+
 protected:
 
 private:

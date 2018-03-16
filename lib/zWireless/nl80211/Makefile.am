@@ -63,9 +63,11 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/NewBeaconCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/SetBeaconCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
-	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h
+	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/Socket.h
 
 libnl80211_la_SOURCES = \
+	Socket.cpp \
 	ListPhysCommand.cpp \
 	GetPhyCommand.cpp \
 	SetPhyCommand.cpp \

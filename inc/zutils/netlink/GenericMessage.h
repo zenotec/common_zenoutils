@@ -37,22 +37,42 @@ class GenericMessage : public Message
 {
 public:
 
-  GenericMessage(const int family_, const int flags_, const uint8_t id_);
-
-  GenericMessage(struct nl_msg* msg_);
+  GenericMessage(const int family_);
 
   virtual
   ~GenericMessage();
 
   virtual bool
-  Parse();
+  Assemble(struct nl_msg* msg_);
 
-  void
+  virtual bool
+  Disassemble(struct nl_msg* msg_);
+
+  int
+  GetFamily() const;
+
+  int
+  GetFlags() const;
+
+  bool
+  SetFlags(const int flags_);
+
+  int
+  GetCommand() const;
+
+  bool
+  SetCommand(const int command_);
+
+  virtual void
   DisplayAttributes() const;
 
 protected:
 
 private:
+
+  int _family;
+  int _flags;
+  int _command;
 
 };
 

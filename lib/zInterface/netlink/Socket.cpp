@@ -55,7 +55,7 @@ __errstr(int code)
 //*****************************************************************************
 
 Socket::Socket() :
-    _sock(NULL), _family(-1)
+    _sock(NULL)
 {
 }
 
@@ -120,16 +120,6 @@ Socket::SetHandler(Handler* handler_)
   return(true);
 }
 
-int
-Socket::Family() const
-{
-  if (this->_family == -1)
-  {
-    ZLOG_WARN("Requesting socket family identifier before connecting socket");
-  }
-  return(this->_family);
-}
-
 bool
 Socket::Connect(const int family_)
 {
@@ -162,7 +152,6 @@ Socket::Disconnect()
   {
     nl_socket_free(this->_sock);
     this->_sock = NULL;
-    this->_family = -1;
     status = true;
   }
   return(status);
@@ -171,32 +160,52 @@ Socket::Disconnect()
 bool
 Socket::SendMsg(Message& msg_)
 {
-//  std::cout << "Sending message: " << std::endl;
-//  msg_.Display();
 
-  int ret = nl_send_auto(this->_sock, msg_());
+  bool status = true;
+
+  std::cout << "Sending message: " << std::endl;
+  msg_.Display();
+
+  // Allocate a new message and acquire reference
+  struct nl_msg* msg = nlmsg_alloc();
+  nlmsg_get(msg);
+
+  // Assemble message
+  msg_.Assemble(msg);
+
+  // Send message and verify success
+  int ret = nl_send_auto(this->_sock, msg);
   if (ret < 0)
   {
     ZLOG_ERR("Error sending netlink message");
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return (false);
+    status = false;
   }
 
-  return(true);
+  // Free message
+  nlmsg_free(msg);
+
+  // Return status
+  return(status);
 }
 
 bool
 Socket::RecvMsg()
 {
+  bool status = true;
+
+  // Receive message and verify success (note: Invokes installed handler)
   int ret = nl_recvmsgs_default(this->_sock);
   if (ret < 0)
   {
     ZLOG_ERR("Error receiving netlink message");
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return (false);
+    status = false;
   }
 
-  return(true);
+  // Return status
+  return(status);
+
 }
 
 }

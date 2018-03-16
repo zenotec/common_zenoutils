@@ -478,17 +478,8 @@ _attr2str(const int attr_)
 // Class: GenericMessage
 //*****************************************************************************
 
-GenericMessage::GenericMessage(const int family_, const int flags_, const uint8_t id_)
-{
-  if (!genlmsg_put(this->operator ()(), NL_AUTO_PORT, NL_AUTO_SEQ,
-      family_, 0, flags_, id_, 0))
-  {
-    ZLOG_ERR("Error initializing netlink generic message header");
-  }
-}
-
-GenericMessage::GenericMessage(struct nl_msg* msg_) :
-    Message(msg_)
+GenericMessage::GenericMessage(const int family_) :
+    _family(family_), _flags(0), _command(0)
 {
 }
 
@@ -497,38 +488,38 @@ GenericMessage::~GenericMessage()
 }
 
 bool
-GenericMessage::Parse()
+GenericMessage::Assemble(struct nl_msg* msg_)
 {
+  if (!genlmsg_put(msg_, NL_AUTO_PORT, NL_AUTO_SEQ,
+      this->_family, 0, this->_flags, this->_command, 0))
+  {
+    ZLOG_ERR("Error initializing netlink generic message header");
+  }
+}
 
-  int ret = 0;
-
-  struct genlmsghdr *gnlhdr = (struct genlmsghdr *) this->Data();
+bool
+GenericMessage::Disassemble(struct nl_msg* msg_)
+{
+  struct genlmsghdr *gnlhdr = (struct genlmsghdr *) nlmsg_data(nlmsg_hdr(msg_));
   struct nlattr* attr = genlmsg_attrdata(gnlhdr, 0);
   int len = genlmsg_attrlen(gnlhdr, 0);
-
-  ret = nla_parse(this->_attrs, NL80211_ATTR_MAX, attr, len, NULL);
-  if (ret < 0)
-  {
-    ZLOG_ERR("Error parsing generic message attributes");
-    ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
-    return (false);
-  }
-
-  return(true);
-
+  return(this->_attrs.Disassemble(attr, len));
 }
 
 void
 GenericMessage::DisplayAttributes() const
 {
-  for(int i = 0; i < NL80211_ATTR_MAX; i++)
-  {
-    if (this->_attrs[i])
-    {
-      std::cout << _attr2str(i) << std::endl;
-    }
-  }
-  std::cout << std::endl;
+//  for(int i = 0; i < NL80211_ATTR_MAX; i++)
+//  {
+//    if (this->_attrs[i])
+//    {
+//      std::cout << _attr2str(i);
+//      std::cout << " Size: " << int(nla_len(this->_attrs[i]));
+//      std::cout << " (Nested: " << ((nla_is_nested(this->_attrs[i]) == 1) ? "Y" : "N") << ")";
+//      std::cout << std::endl;
+//    }
+//  }
+//  std::cout << std::endl;
 }
 
 }
