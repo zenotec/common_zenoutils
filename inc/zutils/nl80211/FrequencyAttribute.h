@@ -98,13 +98,13 @@ _chan2freq(uint16_t chan_)
 // Class: FrequencyAttribute
 //*****************************************************************************
 
-class FrequencyAttribute : public Attribute<uint32_t>
+class FrequencyAttribute : public Attribute
 {
 
 public:
 
   FrequencyAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_FREQ)
+      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_FREQ)
   {
     this->SetValue(0);
     this->ClrValid();
@@ -118,14 +118,16 @@ public:
   uint32_t
   GetChannel() const
   {
-    return(_freq2chan(this->GetValue()));
+    uint32_t freq = 0;
+    this->GetValue(freq);
+    return(_freq2chan(freq));
   }
 
   bool
   SetChannel(const uint32_t channel_)
   {
-    this->SetValue(_chan2freq(channel_));
-    return(true);
+    uint32_t freq = _chan2freq(channel_);
+    return(this->SetValue(freq));
   }
 
 protected:

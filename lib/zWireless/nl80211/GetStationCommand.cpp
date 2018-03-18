@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -55,7 +46,7 @@ __errstr(int code)
 GetStationCommand::GetStationCommand(const unsigned int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex(ifindex_);
+  this->IfIndex.SetValue(this->GetIfIndex());
 }
 
 GetStationCommand::~GetStationCommand()
@@ -68,7 +59,7 @@ GetStationCommand::Exec()
 
   this->_count.Reset();
 
-  if (!this->IfIndex())
+  if (!this->IfIndex.IsValid())
   {
     ZLOG_ERR("Error getting interface index for: " + this->IfName());
     return(false);
@@ -86,8 +77,10 @@ GetStationCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_STATION);
-  cmdmsg.PutAttribute(&this->IfIndex);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_GET_STATION);
+
+  cmdmsg->PutAttribute(this->IfIndex);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -121,8 +114,8 @@ GetStationCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "GetStationCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tMac:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
@@ -131,23 +124,23 @@ int
 GetStationCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
   msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 

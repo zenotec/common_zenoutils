@@ -38,15 +38,15 @@ namespace nl80211
 // Class: SsidAttribute
 //*****************************************************************************
 
-class SsidAttribute : public Attribute<AttributeBuffer>
+class SsidAttribute : public Attribute
 {
 
 public:
 
   SsidAttribute() :
-      Attribute(NL80211_ATTR_SSID), _buf { 0 }
+      Attribute(TYPE_BINARY, NL80211_ATTR_SSID), _buf { 0 }
   {
-    this->SetValue(std::make_pair(this->_buf, MAX_SSID_LEN));
+    this->SetValue(this->_buf, MAX_SSID_LEN);
     this->ClrValid();
   }
 
@@ -61,7 +61,7 @@ public:
     std::string str;
     if (this->IsValid())
     {
-      str = std::string(this->_buf);
+      str = std::string((char*)this->_buf);
     }
     return (str);
   }
@@ -75,7 +75,7 @@ public:
       if (memcpy(this->_buf, str.c_str(), str.size()) == this->_buf)
       {
         memset((this->_buf + str.size()), 0, (sizeof(this->_buf) - str.size()));
-        this->SetValue(std::make_pair(this->_buf, str.size()));
+        this->SetValue(this->_buf, str.size());
         status = true;
       }
     }
@@ -86,7 +86,7 @@ protected:
 
 private:
 
-  char _buf[MAX_SSID_LEN+1];
+  uint8_t _buf[MAX_SSID_LEN+1];
 
 };
 

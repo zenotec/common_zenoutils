@@ -546,7 +546,7 @@ Interface::Create()
   {
     NewInterfaceCommand *cmd =
         new NewInterfaceCommand(this->stagingConfig.GetIfName(), this->stagingConfig.GetPhyIndex());
-    cmd->IfType(_opmode2nl(this->stagingConfig.GetOpMode()));
+    cmd->IfType.SetValue(_opmode2nl(this->stagingConfig.GetOpMode()));
     this->addCommand(cmd);
     status = this->execCommands();
     this->lock.Unlock();
@@ -674,7 +674,7 @@ Interface::_getHtMode() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      switch (cmd.ChannelType())
+      switch (cmd.ChannelType.GetValue<uint32_t>())
       {
       case NL80211_CHAN_NO_HT:
         mode = ConfigData::HTMODE_NOHT;
@@ -691,7 +691,7 @@ Interface::_getHtMode() const
       default:
         break;
       }
-      switch (cmd.ChannelWidth())
+      switch (cmd.ChannelWidth.GetValue<uint32_t>())
       {
       case NL80211_CHAN_WIDTH_20_NOHT:
         mode = ConfigData::HTMODE_NOHT;
@@ -734,7 +734,7 @@ Interface::_getOpMode() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      mode = _nl2opmode(cmd.IfType());
+      mode = _nl2opmode(cmd.IfType.GetValue<uint32_t>());
     }
   }
   return (mode);
@@ -747,7 +747,7 @@ Interface::_setOpMode(const ConfigData::OPMODE mode_)
   if (this->workingConfig.GetIfIndex())
   {
     SetInterfaceCommand* cmd = new SetInterfaceCommand(this->workingConfig.GetIfIndex());
-    cmd->IfType(_opmode2nl(mode_));
+    cmd->IfType.SetValue(_opmode2nl(mode_));
     this->addCommand(cmd);
     status = true;
   }

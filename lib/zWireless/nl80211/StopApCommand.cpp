@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -57,16 +48,11 @@ StopApCommand::StopApCommand(int index_) :
   this->IfIndex.SetValue(index_);
 }
 
-StopApCommand::StopApCommand(const std::string& name_) :
-    Command(name_)
+StopApCommand::StopApCommand(const std::string& ifname_) :
+    Command(ifname_)
 {
-  this->IfName.SetValue(name_);
-  this->IfIndex.SetValue((uint32_t)if_nametoindex(name_.c_str()));
-  if (!this->IfIndex())
-  {
-    ZLOG_ERR("Error retrieving interface index for: " + name_);
-    return;
-  }
+  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfName.SetValue(ifname_);
 }
 
 StopApCommand::~StopApCommand()
@@ -88,21 +74,49 @@ StopApCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_STOP_AP);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_STOP_AP);
+
+
+  // Set interface index attribute
+  if (!cmdmsg->PutAttribute(this->IfIndex))
+  {
+    ZLOG_ERR("Error setting ifindex attribute");
+    return (false);
+  }
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 }
 
 void
 StopApCommand::Display() const
 {
   std::cout << "Set BSS: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
 }
 
@@ -110,23 +124,24 @@ int
 StopApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
   msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 

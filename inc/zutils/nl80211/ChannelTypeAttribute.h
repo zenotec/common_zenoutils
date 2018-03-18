@@ -52,13 +52,13 @@ namespace nl80211
 // Class: ChannelTypeAttribute
 //*****************************************************************************
 
-class ChannelTypeAttribute : public Attribute<uint32_t>
+class ChannelTypeAttribute : public Attribute
 {
 
 public:
 
   ChannelTypeAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_CHANNEL_TYPE)
+      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_CHANNEL_TYPE)
   {
     this->SetValue(NL80211_CHAN_NO_HT);
     this->ClrValid();
@@ -70,10 +70,12 @@ public:
   }
 
   std::string
-  GetString() const
+  ToString() const
   {
     std::string str;
-    switch(this->GetValue())
+    uint32_t val = 0;
+    this->GetValue(val);
+    switch(val)
     {
     case NL80211_CHAN_NO_HT:
       str += "NL80211_CHAN_NO_HT";

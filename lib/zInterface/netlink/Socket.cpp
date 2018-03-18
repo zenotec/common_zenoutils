@@ -158,20 +158,20 @@ Socket::Disconnect()
 }
 
 bool
-Socket::SendMsg(Message& msg_)
+Socket::SendMsg(SHARED_PTR(Message) msg_)
 {
 
   bool status = true;
 
   std::cout << "Sending message: " << std::endl;
-  msg_.Display();
+  msg_->Display();
 
   // Allocate a new message and acquire reference
   struct nl_msg* msg = nlmsg_alloc();
   nlmsg_get(msg);
 
   // Assemble message
-  msg_.Assemble(msg);
+  msg_->Assemble(msg);
 
   // Send message and verify success
   int ret = nl_send_auto(this->_sock, msg);

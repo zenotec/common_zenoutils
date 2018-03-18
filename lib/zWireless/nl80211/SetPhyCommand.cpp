@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -73,18 +64,18 @@ SetPhyCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetPhyCommand:" << std::endl;
-  std::cout << "\tIndex:    \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tIndex:    \t" << this->IfIndex() << std::endl;
   if (this->IfName.IsValid())
   {
-    std::cout << "\tName:     \t" << this->IfName.GetValue() << std::endl;
+    std::cout << "\tName:     \t" << this->IfName() << std::endl;
   }
   if (this->PhyIndex.IsValid())
   {
-    std::cout << "\tPhyIndex: \t" << this->PhyIndex.GetValue() << std::endl;
+    std::cout << "\tPhyIndex: \t" << this->PhyIndex() << std::endl;
   }
   if (this->PhyName.IsValid())
   {
-    std::cout << "\tPhyName:  \t" << this->PhyName.GetValue() << std::endl;
+    std::cout << "\tPhyName:  \t" << this->PhyName() << std::endl;
   }
   if (this->Frequency.IsValid())
   {
@@ -96,7 +87,7 @@ SetPhyCommand::Display() const
   }
   if (this->TxPowerLevel.IsValid())
   {
-    std::cout << "\tPowerLevel:\t" << this->TxPowerLevel.GetValue() << std::endl;
+    std::cout << "\tPowerLevel:\t" << this->TxPowerLevel() << std::endl;
   }
   std::cout << "##################################################" << std::endl;
 }
@@ -127,29 +118,30 @@ SetPhyCommand::Exec()
     return (false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_WIPHY);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_SET_WIPHY);
 
   // Set interface index attribute
-  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  if (!cmdmsg->PutAttribute(this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
   }
 
   // Set phy index attribute
-  if (!cmdmsg.PutAttribute(&this->PhyIndex))
+  if (!cmdmsg->PutAttribute(this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
   }
 
   // Set optional phy name attribute
-  cmdmsg.PutAttribute(&this->PhyName);
-  cmdmsg.PutAttribute(&this->Frequency);
-  cmdmsg.PutAttribute(&this->ChannelType);
-  cmdmsg.PutAttribute(&this->ChannelWidth);
-  cmdmsg.PutAttribute(&this->TxPowerMode);
-  cmdmsg.PutAttribute(&this->TxPowerLevel);
+  cmdmsg->PutAttribute(this->PhyName);
+  cmdmsg->PutAttribute(this->Frequency);
+  cmdmsg->PutAttribute(this->ChannelType);
+  cmdmsg->PutAttribute(this->ChannelWidth);
+  cmdmsg->PutAttribute(this->TxPowerMode);
+  cmdmsg->PutAttribute(this->TxPowerLevel);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))

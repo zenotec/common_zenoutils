@@ -15,13 +15,15 @@
  * limitations under the License.
  */
 
-#ifndef __ATTRIBUTE_H__
-#define __ATTRIBUTE_H__
+#ifndef __NETLINK_ATTRIBUTE_H__
+#define __NETLINK_ATTRIBUTE_H__
 
+#include <stdint.h>
 #include <stddef.h>
 
 #include <netlink/attr.h>
 
+#include <string>
 #include <vector>
 #include <map>
 
@@ -85,11 +87,14 @@ public:
   size_t
   GetLength() const;
 
-  size_t
-  GetValue(uint8_t* p_, size_t len_) const;
-
-  bool
-  GetValue(std::string& str_) const;
+  template<typename T>
+    T
+    GetValue() const
+    {
+      T value;
+      this->GetValue(value);
+      return (value);
+    }
 
   template<typename T>
     bool
@@ -104,17 +109,23 @@ public:
     }
 
   size_t
+  GetValue(uint8_t* p_, size_t len_) const;
+
+  bool
+  GetValue(std::string& str_) const;
+
+  template<typename T>
+    bool
+    SetValue(const T value_)
+    {
+      return (this->SetValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
+    }
+
+  size_t
   SetValue(const uint8_t* p_, size_t len_);
 
   bool
   SetValue(const std::string& str_);
-
-  template<typename T>
-    bool
-    SetValue(T& value_)
-    {
-      return (this->SetValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
-    }
 
 protected:
 
@@ -123,7 +134,7 @@ protected:
 private:
 
   bool _valid;
-  TYPE _type;
+  Attribute::TYPE _type;
   uint32_t _id;
 
 };
@@ -193,4 +204,4 @@ private:
 
 }
 
-#endif /* __ATTRIBUTE_H__ */
+#endif /* __NETLINK_ATTRIBUTE_H__ */

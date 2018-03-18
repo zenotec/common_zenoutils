@@ -168,7 +168,7 @@ AttributeMap::GetAttribute(Attribute& attr_)
   bool status = false;
   if (this->_attrs.count(attr_.GetId()))
   {
-    struct nlattr* attr = this->_attrs[attr_.Id()];
+    struct nlattr* attr = this->_attrs[attr_.GetId()];
     status = (attr_.SetValue((const uint8_t*)nla_data(attr), nla_len(attr)) == nla_len(attr));
   }
   return (status);

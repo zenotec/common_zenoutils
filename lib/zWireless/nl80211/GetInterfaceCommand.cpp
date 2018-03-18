@@ -16,12 +16,6 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
 
 // libc++ includes
 #include <iostream>
@@ -51,14 +45,14 @@ __errstr(int code)
 GetInterfaceCommand::GetInterfaceCommand(int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex(this->GetIfIndex());
+  this->IfIndex.SetValue(this->GetIfIndex());
 }
 
 GetInterfaceCommand::GetInterfaceCommand(const std::string& ifname_) :
     Command(ifname_)
 {
-  this->IfIndex(this->GetIfIndex());
-  this->IfName(ifname_);
+  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfName.SetValue(ifname_);
 }
 
 GetInterfaceCommand::~GetInterfaceCommand()
@@ -70,14 +64,16 @@ GetInterfaceCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "GetInterfaceCommand: " << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tPhy:   \t" << this->PhyIndex.GetValue() << std::endl;
-  std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
+  std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
   std::cout << "\tMAC:   \t" << this->Mac.GetString() << std::endl;
-  std::cout << "\tFreq:  \t" << this->Frequency.GetValue() << std::endl;
+  std::cout << "\tFreq:  \t" << this->Frequency.GetValue<uint32_t>() << std::endl;
   std::cout << "\tSSID:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tPower: \t" << this->TxPowerLevel.GetValue() << std::endl;
+  std::cout << "\tPower: \t" << this->TxPowerLevel.GetValue<uint32_t>() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -88,7 +84,7 @@ GetInterfaceCommand::Exec()
   this->_status = false;
   this->_count.Reset();
 
-  if (!this->IfIndex())
+  if (!this->IfIndex.IsValid())
   {
     ZLOG_ERR("Error executing GetInterfaceCommand: " + this->IfName());
     ZLOG_ERR("Valid interface index must be specified");
@@ -107,10 +103,11 @@ GetInterfaceCommand::Exec()
     return (false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_INTERFACE);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_GET_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  if (!cmdmsg->PutAttribute(this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
@@ -146,54 +143,54 @@ int
 GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
 
-//  std::cout << "GetInterfaceCommand::valid_cb()" << std::endl;
-//  msg.Display();
-//  msg.DisplayAttributes();
+  std::cout << "GetInterfaceCommand::valid_cb()" << std::endl;
+  msg.Display();
+  msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->PhyIndex))
+  if (!msg.GetAttribute(this->PhyIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfType))
+  if (!msg.GetAttribute(this->IfType))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->Mac))
+  if (!msg.GetAttribute(this->Mac))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Mac.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Mac.GetId()));
     return (NL_SKIP);
   }
 
   // Optional attributes
-  msg.GetAttribute(&this->Ssid);
-  msg.GetAttribute(&this->Frequency);
-  msg.GetAttribute(&this->ChannelType);
-  msg.GetAttribute(&this->ChannelWidth);
-  msg.GetAttribute(&this->TxPowerMode);
-  msg.GetAttribute(&this->TxPowerLevel);
+  msg.GetAttribute(this->Ssid);
+  msg.GetAttribute(this->Frequency);
+  msg.GetAttribute(this->ChannelType);
+  msg.GetAttribute(this->ChannelWidth);
+  msg.GetAttribute(this->TxPowerMode);
+  msg.GetAttribute(this->TxPowerLevel);
 
   this->_status = true;
   this->_count.Post();

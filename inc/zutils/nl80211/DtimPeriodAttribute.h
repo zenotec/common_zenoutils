@@ -36,13 +36,13 @@ namespace nl80211
 // Class: DtimPeriodAttribute
 //*****************************************************************************
 
-class DtimPeriodAttribute : public Attribute<uint32_t>
+class DtimPeriodAttribute : public Attribute
 {
 
 public:
 
   DtimPeriodAttribute() :
-      Attribute(NL80211_ATTR_DTIM_PERIOD)
+      Attribute(TYPE_U32, NL80211_ATTR_DTIM_PERIOD)
   {
     this->SetValue(3);
     this->ClrValid();

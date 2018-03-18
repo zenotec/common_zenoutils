@@ -26,6 +26,7 @@
 
 // libzutils includes
 #include <zutils/netlink/Attribute.h>
+using namespace netlink;
 
 // local includes
 
@@ -36,13 +37,13 @@ namespace nl80211
 // Class: IfIndexAttribute
 //*****************************************************************************
 
-class IfIndexAttribute : public Attribute<uint32_t>
+class IfIndexAttribute : public Attribute
 {
 
 public:
 
   IfIndexAttribute() :
-      Attribute(NL80211_ATTR_IFINDEX)
+      Attribute(TYPE_U32, NL80211_ATTR_IFINDEX)
   {
     this->SetValue(0);
     this->ClrValid();
@@ -51,6 +52,18 @@ public:
   virtual
   ~IfIndexAttribute()
   {
+  }
+
+  uint32_t
+  operator()() const
+  {
+    return (this->GetValue<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t ifindex_)
+  {
+    return (this->SetValue(ifindex_));
   }
 
 protected:

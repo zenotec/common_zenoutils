@@ -16,22 +16,15 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
+#include <zutils/nl80211/IfIndexAttribute.h>
+#include <zutils/nl80211/IfNameAttribute.h>
 #include <zutils/nl80211/ListInterfacesCommand.h>
 
 // local includes
@@ -80,7 +73,11 @@ ListInterfacesCommand::Display() const
 bool
 ListInterfacesCommand::Exec()
 {
+
+  this->_status = false;
+  this->_count.Reset();
   this->_ifs.clear();
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -93,12 +90,34 @@ ListInterfacesCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), NLM_F_DUMP, NL80211_CMD_GET_INTERFACE);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetFlags(NLM_F_DUMP);
+  cmdmsg->SetCommand(NL80211_CMD_GET_INTERFACE);
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error waiting for response for netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 
 }
 
@@ -106,25 +125,34 @@ int
 ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  uint32_t index = 0;
-  std::string name;
+  IfIndexAttribute ifindex;
+  IfNameAttribute ifname;
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return(NL_SKIP);
   }
 
-//  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
-//  msg.Display();
-//  msg.DisplayAttributes();
+  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
+  msg.Display();
+  msg.DisplayAttributes();
 
-  if (msg.GetAttribute(NL80211_ATTR_IFINDEX, index) &&
-      msg.GetAttribute(NL80211_ATTR_IFNAME, name))
+  if (!msg.GetAttribute(ifindex))
   {
-    this->_ifs[index] = name;
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifindex.GetId()));
+    return(NL_SKIP);
   }
+
+  if (!msg.GetAttribute(ifname))
+  {
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifname.GetId()));
+    return(NL_SKIP);
+  }
+
+  // Add interface to map
+  this->_ifs[ifindex()] = ifname();
 
   return (NL_OK);
 
@@ -133,9 +161,9 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 int
 ListInterfacesCommand::finish_cb(struct nl_msg* msg_, void* arg_)
 {
-
+  this->_status = true;
+  this->_count.Post();
   return (NL_OK);
-
 }
 
 int
@@ -143,6 +171,8 @@ ListInterfacesCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, v
 {
   ZLOG_ERR("Error executing ListInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

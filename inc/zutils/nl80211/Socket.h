@@ -37,7 +37,7 @@ public:
   virtual
   ~Socket();
 
-  SHARED_PTR(netlink::GenericSocket)
+  virtual SHARED_PTR(netlink::GenericMessage)
   CreateMsg();
 
 protected:

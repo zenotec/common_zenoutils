@@ -31,7 +31,19 @@
 // libc++ includes
 
 // libzutils includes
+#include <zutils/zLog.h>
+using namespace zUtils;
+#include <zutils/netlink/Command.h>
 #include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Handler.h>
+#include <zutils/netlink/Message.h>
+#include <zutils/netlink/Socket.h>
+#include <zutils/netlink/GenericMessage.h>
+#include <zutils/netlink/GenericSocket.h>
+using namespace netlink;
+#include <zutils/nl80211/Socket.h>
+#include <zutils/nl80211/IfIndexAttribute.h>
+#include <zutils/nl80211/IfNameAttribute.h>
 
 // local includes
 
@@ -73,7 +85,7 @@ protected:
 
 private:
 
-  netlink::GenericSocket _sock;
+  nl80211::Socket _sock;
 
 };
 

@@ -37,7 +37,7 @@ class GenericMessage : public Message
 {
 public:
 
-  GenericMessage(const int family_);
+  GenericMessage(const int family_ = 0);
 
   virtual
   ~GenericMessage();

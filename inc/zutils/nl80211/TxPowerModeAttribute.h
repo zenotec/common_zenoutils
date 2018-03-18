@@ -36,7 +36,7 @@ namespace nl80211
 // Class: TxPowerModeAttribute
 //*****************************************************************************
 
-class TxPowerModeAttribute : public Attribute<uint32_t>
+class TxPowerModeAttribute : public Attribute
 {
 
 public:
@@ -52,7 +52,7 @@ public:
   };
 
   TxPowerModeAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_TX_POWER_SETTING)
+      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_TX_POWER_SETTING)
   {
     this->SetValue(NL80211_TX_POWER_AUTOMATIC);
     this->ClrValid();
@@ -67,7 +67,9 @@ public:
   GetMode() const
   {
     MODE mode = MODE_ERR;
-    switch (this->GetValue())
+    uint32_t val = 0;
+    this->GetValue(val);
+    switch (val)
     {
     case NL80211_TX_POWER_AUTOMATIC:
       mode = MODE_AUTO;

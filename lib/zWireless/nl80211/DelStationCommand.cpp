@@ -16,33 +16,18 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
-#include <zutils/netlink/Attribute.h>
-#include <zutils/netlink/Command.h>
-#include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
-#include <zutils/netlink/Socket.h>
-#include <zutils/netlink/GenericMessage.h>
-#include <zutils/netlink/GenericSocket.h>
-using namespace netlink;
 #include <zutils/nl80211/DelStationCommand.h>
 
 // local includes
+
+
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace nl80211
@@ -62,7 +47,7 @@ __errstr(int code)
 DelStationCommand::DelStationCommand(const unsigned int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex(ifindex_);
+  this->IfIndex.SetValue(this->GetIfIndex());
 }
 
 DelStationCommand::~DelStationCommand()
@@ -75,9 +60,9 @@ DelStationCommand::Exec()
 
   this->_count.Reset();
 
-  if (!this->IfIndex())
+  if (!this->IfIndex.IsValid())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
     return(false);
   }
 
@@ -93,9 +78,11 @@ DelStationCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_DEL_STATION);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Mac);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_DEL_STATION);
+
+  cmdmsg->PutAttribute(this->IfIndex);
+  cmdmsg->PutAttribute(this->Mac);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -129,8 +116,8 @@ DelStationCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "DelStationCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tMac:   \t" << this->Mac.GetString() << std::endl;
   std::cout << "##################################################" << std::endl;
 }

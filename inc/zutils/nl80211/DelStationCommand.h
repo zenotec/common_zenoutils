@@ -32,6 +32,7 @@
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
 using namespace netlink;
+#include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/PhyIndexAttribute.h>
 #include <zutils/nl80211/PhyNameAttribute.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
@@ -81,7 +82,7 @@ protected:
 
 private:
 
-  netlink::GenericSocket _sock;
+  nl80211::Socket _sock;
 
 };
 

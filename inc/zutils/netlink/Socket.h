@@ -55,7 +55,7 @@ public:
   Disconnect();
 
   bool
-  SendMsg(Message& msg_);
+  SendMsg(SHARED_PTR(Message) msg_);
 
   bool
   RecvMsg(); // Receives the message and invokes the installed handler

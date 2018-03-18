@@ -68,12 +68,6 @@ GenericSocket::~GenericSocket()
 {
 }
 
-//const int
-//GenericSocket::SetFamily(const std::string& family_)
-//{
-//  this->_family = genl_ctrl_resolve((struct nl_sock*)this->_sock, NL80211_GENL_NAME);
-//}
-
 bool
 GenericSocket::Connect()
 {

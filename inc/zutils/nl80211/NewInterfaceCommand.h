@@ -31,6 +31,8 @@
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
 using namespace netlink;
+
+#include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/PhyIndexAttribute.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
@@ -43,7 +45,9 @@ namespace nl80211
 // Class: NewInterfaceCommand
 //*****************************************************************************
 
-class NewInterfaceCommand : public netlink::Command, public netlink::Handler
+class NewInterfaceCommand :
+    public netlink::Command,
+    public netlink::Handler
 {
 
 public:
@@ -74,7 +78,7 @@ protected:
 
 private:
 
-  netlink::GenericSocket _sock;
+  nl80211::Socket _sock;
 
 };
 

@@ -18,7 +18,10 @@
 #ifndef __NETLINK_GENERICSOCKET_H__
 #define __NETLINK_GENERICSOCKET_H__
 
-#include "Socket.h"
+#include <zutils/zCompatibility.h>
+
+#include <zutils/netlink/Socket.h>
+#include <zutils/netlink/GenericMessage.h>
 
 namespace netlink
 {
@@ -40,7 +43,7 @@ public:
   virtual bool
   Connect();
 
-  SHARED_PTR(GenericMessage)
+  virtual SHARED_PTR(GenericMessage)
   CreateMsg(const std::string& family_);
 
 protected:

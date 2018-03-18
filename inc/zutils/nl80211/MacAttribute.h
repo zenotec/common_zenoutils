@@ -63,15 +63,15 @@ _mac2str(const uint8_t* hwaddr_, std::string& addr_)
 // Class: MacAttribute
 //*****************************************************************************
 
-class MacAttribute : public Attribute<AttributeBuffer>
+class MacAttribute : public Attribute
 {
 
 public:
 
   MacAttribute() :
-      Attribute(NL80211_ATTR_IFTYPE), _mac{0}
+      Attribute(TYPE_BINARY, NL80211_ATTR_IFTYPE), _mac{0}
   {
-    this->SetValue(std::make_pair(this->_mac, sizeof(this->_mac)));
+    this->SetValue(this->_mac, sizeof(this->_mac));
     this->ClrValid();
   }
 

@@ -36,13 +36,13 @@ namespace nl80211
 // Class: BeaconIntervalAttribute
 //*****************************************************************************
 
-class BeaconIntervalAttribute : public Attribute<uint32_t>
+class BeaconIntervalAttribute : public Attribute
 {
 
 public:
 
   BeaconIntervalAttribute() :
-      Attribute(NL80211_ATTR_BEACON_INTERVAL)
+      Attribute(TYPE_U32, NL80211_ATTR_BEACON_INTERVAL)
   {
     this->SetValue(0);
     this->ClrValid();

@@ -181,8 +181,8 @@ BasicServiceSet::Create()
     StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
     cmd->BeaconHead.PutBuffer(this->_beacon->Head(), this->_beacon->HeadSize());
     cmd->BeaconTail.PutBuffer(this->_beacon->Tail(), this->_beacon->TailSize());
-    cmd->BeaconInterval(100);
-    cmd->DtimPeriod(this->_beacon->Tim.Period());
+    cmd->BeaconInterval.SetValue(100);
+    cmd->DtimPeriod.SetValue(this->_beacon->Tim.Period());
     cmd->Ssid.SetString(this->_beacon->Ssid());
     cmd->Channel.SetChannel(1);
 //    cmd->Display();

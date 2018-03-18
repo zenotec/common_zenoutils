@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -70,8 +61,8 @@ void
 GetPhyCommand::Display() const
 {
   std::cout << "Phy:" << std::endl;
-  std::cout << "\tIndex: \t" << this->PhyIndex.GetValue() << std::endl;
-  std::cout << "\tName:  \t" << this->PhyName.GetValue() << std::endl;
+  std::cout << "\tIndex: \t" << this->PhyIndex() << std::endl;
+  std::cout << "\tName:  \t" << this->PhyName() << std::endl;
   if (this->Frequency.IsValid())
   {
     std::cout << "\tChannel:  \t" << this->Frequency.GetChannel() << std::endl;
@@ -97,10 +88,11 @@ GetPhyCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_GET_WIPHY);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_GET_WIPHY);
 
   // Set PHY index attribute
-  if (!cmdmsg.PutAttribute(&this->PhyIndex))
+  if (!cmdmsg->PutAttribute(this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
@@ -137,8 +129,8 @@ int
 GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return(NL_SKIP);
@@ -148,23 +140,23 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 //  msg.Display();
   msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->PhyIndex))
+  if (!msg.GetAttribute(this->PhyIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->PhyName))
+  if (!msg.GetAttribute(this->PhyName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyName.GetId()));
     return(NL_SKIP);
   }
 
-  msg.GetAttribute(&this->Frequency);
-  msg.GetAttribute(&this->ChannelType);
-  msg.GetAttribute(&this->ChannelWidth);
-  msg.GetAttribute(&this->TxPowerMode);
-  msg.GetAttribute(&this->TxPowerLevel);
+  msg.GetAttribute(this->Frequency);
+  msg.GetAttribute(this->ChannelType);
+  msg.GetAttribute(this->ChannelWidth);
+  msg.GetAttribute(this->TxPowerMode);
+  msg.GetAttribute(this->TxPowerLevel);
 
   this->_status = true;
   this->_count.Post();

@@ -26,6 +26,7 @@
 
 // libzutils includes
 #include <zutils/netlink/Attribute.h>
+using namespace netlink;
 
 // local includes
 
@@ -36,19 +37,31 @@ namespace nl80211
 // Class: PhyNameAttribute
 //*****************************************************************************
 
-class PhyNameAttribute : public Attribute<std::string>
+class PhyNameAttribute : public Attribute
 {
 
 public:
 
   PhyNameAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_NAME)
+      Attribute(TYPE_STRING, NL80211_ATTR_WIPHY_NAME)
   {
   }
 
   virtual
   ~PhyNameAttribute()
   {
+  }
+
+  std::string
+  operator()() const
+  {
+    return (this->GetValue<std::string>());
+  }
+
+  bool
+  operator()(const std::string& ifname_)
+  {
+    return (this->SetValue(ifname_));
   }
 
 protected:

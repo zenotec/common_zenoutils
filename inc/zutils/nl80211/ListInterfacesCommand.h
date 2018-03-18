@@ -26,17 +26,7 @@
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
 using namespace netlink;
-#include <zutils/nl80211/PhyIndexAttribute.h>
-#include <zutils/nl80211/PhyNameAttribute.h>
-#include <zutils/nl80211/IfIndexAttribute.h>
-#include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/MacAttribute.h>
-#include <zutils/nl80211/SsidAttribute.h>
-#include <zutils/nl80211/FrequencyAttribute.h>
-#include <zutils/nl80211/ChannelTypeAttribute.h>
-#include <zutils/nl80211/ChannelWidthAttribute.h>
-#include <zutils/nl80211/TxPowerModeAttribute.h>
-#include <zutils/nl80211/TxPowerLevelAttribute.h>
+#include <zutils/nl80211/Socket.h>
 
 // local includes
 
@@ -47,7 +37,9 @@ namespace nl80211
 // Class: ListInterfacesCommand
 //*****************************************************************************
 
-class ListInterfacesCommand : public netlink::Command, public netlink::Handler
+class ListInterfacesCommand :
+    public netlink::Command,
+    public netlink::Handler
 {
 
 public:
@@ -79,7 +71,7 @@ protected:
 
 private:
 
-  netlink::GenericSocket _sock;
+  nl80211::Socket _sock;
 
   std::map<uint32_t, std::string> _ifs;
 

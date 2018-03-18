@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -94,12 +85,34 @@ ListStationsCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), NLM_F_DUMP, NL80211_CMD_GET_STATION);
-  this->_sock.SendMsg(cmdmsg);
-  this->_sock.RecvMsg();
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetFlags(NLM_F_DUMP);
+  cmdmsg->SetCommand(NL80211_CMD_GET_STATION);
+
+  // Send message
+  if (!this->_sock.SendMsg(cmdmsg))
+  {
+    ZLOG_ERR("Error sending get_interface netlink message");
+    return(false);
+  }
+
+  // Wait for the response
+  if (!this->_sock.RecvMsg())
+  {
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    return(false);
+  }
+
+  if (!this->_count.TimedWait(100))
+  {
+    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    return(false);
+  }
+
+  // Clean up
   this->_sock.Disconnect();
 
-  return(true);
+  return(this->_status);
 
 }
 
@@ -110,18 +123,18 @@ ListStationsCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   uint32_t index = 0;
   std::string name;
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return(NL_SKIP);
   }
 
-  if (msg.GetAttribute(NL80211_ATTR_WIPHY, index) &&
-      msg.GetAttribute(NL80211_ATTR_WIPHY_NAME, name))
-  {
-    this->_stas[index] = name;
-  }
+//  if (msg.GetAttribute(NL80211_ATTR_WIPHY, index) &&
+//      msg.GetAttribute(NL80211_ATTR_WIPHY_NAME, name))
+//  {
+//    this->_stas[index] = name;
+//  }
 
   return (NL_OK);
 }

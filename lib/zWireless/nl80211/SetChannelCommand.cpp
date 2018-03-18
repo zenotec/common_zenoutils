@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -91,10 +82,12 @@ SetChannelCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_CHANNEL);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Frequency);
-  cmdmsg.PutAttribute(&this->ChannelWidth);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_SET_CHANNEL);
+
+  cmdmsg->PutAttribute(this->IfIndex);
+  cmdmsg->PutAttribute(this->Frequency);
+  cmdmsg->PutAttribute(this->ChannelWidth);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -126,8 +119,8 @@ void
 SetChannelCommand::Display() const
 {
   std::cout << "Set Channel: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tChannel:  \t" << this->Frequency.GetChannel() << std::endl;
 }
 

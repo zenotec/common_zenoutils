@@ -66,13 +66,13 @@ namespace nl80211
 // Class: ChannelWidthAttribute
 //*****************************************************************************
 
-class ChannelWidthAttribute : public Attribute<uint32_t>
+class ChannelWidthAttribute : public Attribute
 {
 
 public:
 
   ChannelWidthAttribute() :
-      Attribute(NL80211_ATTR_CHANNEL_WIDTH)
+      Attribute(TYPE_U32, NL80211_ATTR_CHANNEL_WIDTH)
   {
     this->SetValue(NL80211_CHAN_WIDTH_20_NOHT);
     this->ClrValid();
@@ -84,10 +84,12 @@ public:
   }
 
   std::string
-  GetString() const
+  ToString() const
   {
     std::string str;
-    switch(this->GetValue())
+    uint32_t val = 0;
+    this->GetValue(val);
+    switch(val)
     {
     case NL80211_CHAN_WIDTH_20_NOHT:
       str += "NL80211_CHAN_WIDTH_20_NOHT";

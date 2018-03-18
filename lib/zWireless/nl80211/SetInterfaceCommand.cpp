@@ -16,14 +16,14 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
+//#include <stdlib.h>
+//#include <net/if.h>
+//#include <linux/nl80211.h>
+//#include <netlink/netlink.h>
+//#include <netlink/msg.h>
+//#include <netlink/attr.h>
+//#include <netlink/genl/genl.h>
+//#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
@@ -74,9 +74,9 @@ SetInterfaceCommand::Exec()
   this->_status = false;
   this->_count.Reset();
 
-  if (!this->IfIndex())
+  if (!this->IfIndex.IsValid())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
     return(false);
   }
 
@@ -92,17 +92,18 @@ SetInterfaceCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_INTERFACE);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_SET_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  if (!cmdmsg->PutAttribute(this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
   }
 
   // Set interface type attribute
-  if (!cmdmsg.PutAttribute(&this->IfType))
+  if (!cmdmsg->PutAttribute(this->IfType))
   {
     ZLOG_ERR("Error setting iftype attribute");
     return (false);
@@ -138,9 +139,12 @@ void
 SetInterfaceCommand::Display() const
 {
   std::cout << "Set Interface: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:  \t" << this->IfName.GetValue<std::string>() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex: \t" << int(this->IfIndex.GetValue<uint32_t>()) << std::endl;
+  if (this->IfType.IsValid())
+    std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
 }
 
 int
@@ -149,30 +153,32 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 
   std::cout << "SetInterfaceCommand::valid_cb()" << std::endl;
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+
+  // Debug prints, comment out when not needed
   msg.Display();
   msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfType))
+  if (!msg.GetAttribute(this->IfType))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
     return (NL_SKIP);
   }
 

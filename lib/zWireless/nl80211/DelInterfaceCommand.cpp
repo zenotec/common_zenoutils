@@ -16,32 +16,13 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
 using namespace zUtils;
-#include <zutils/netlink/Attribute.h>
-#include <zutils/netlink/Command.h>
-#include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
-#include <zutils/netlink/Socket.h>
-#include <zutils/netlink/GenericMessage.h>
-#include <zutils/netlink/GenericSocket.h>
-using namespace netlink;
-#include <zutils/nl80211/IfIndexAttribute.h>
-#include <zutils/nl80211/IfNameAttribute.h>
 #include <zutils/nl80211/DelInterfaceCommand.h>
 
 // local includes
@@ -61,16 +42,17 @@ __errstr(int code)
 // Class: DelInterfaceCommand
 //*****************************************************************************
 
-DelInterfaceCommand::DelInterfaceCommand(int index_) :
-    Command(index_)
+DelInterfaceCommand::DelInterfaceCommand(int ifindex_) :
+    Command(ifindex_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex.SetValue(this->GetIfIndex());
 }
 
-DelInterfaceCommand::DelInterfaceCommand(const std::string& name_) :
-    Command(name_)
+DelInterfaceCommand::DelInterfaceCommand(const std::string& ifname_) :
+    Command(ifname_)
 {
-  this->IfName.SetValue(name_);
+  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfName.SetValue(ifname_);
 }
 
 DelInterfaceCommand::~DelInterfaceCommand()
@@ -84,9 +66,9 @@ DelInterfaceCommand::Exec()
   this->_status = false;
   this->_count.Reset();
 
-  if (!this->IfIndex())
+  if (!this->IfIndex.IsValid())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
     return(false);
   }
 
@@ -102,10 +84,11 @@ DelInterfaceCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_DEL_INTERFACE);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_DEL_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg.PutAttribute(&this->IfIndex))
+  if (!cmdmsg->PutAttribute(this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
@@ -140,26 +123,25 @@ DelInterfaceCommand::Exec()
 void
 DelInterfaceCommand::Display() const
 {
-  std::cout << "Deleted Interface: " << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
+  std::cout << "Delete Interface: " << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
 }
 
 int
 DelInterfaceCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 
 int
 DelInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
-  ZLOG_ERR("Error executing DelInterfaceCommand: (" + zLog::IntStr(this->IfIndex()) +
-      std::string("): ") + this->IfName());
+  ZLOG_ERR("Error executing DelInterfaceCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();

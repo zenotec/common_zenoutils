@@ -16,18 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -91,13 +82,15 @@ SetBeaconCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_SET_BEACON);
-  cmdmsg.PutAttribute(&this->IfIndex);
-  cmdmsg.PutAttribute(&this->Ssid);
-  cmdmsg.PutAttribute(&this->BeaconInterval);
-  cmdmsg.PutAttribute(&this->DtimPeriod);
-  cmdmsg.PutAttribute(&this->BeaconHead);
-  cmdmsg.PutAttribute(&this->BeaconTail);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_SET_BEACON);
+
+  cmdmsg->PutAttribute(this->IfIndex);
+  cmdmsg->PutAttribute(this->Ssid);
+  cmdmsg->PutAttribute(this->BeaconInterval);
+  cmdmsg->PutAttribute(this->DtimPeriod);
+  cmdmsg->PutAttribute(this->BeaconHead);
+  cmdmsg->PutAttribute(this->BeaconTail);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -131,13 +124,13 @@ SetBeaconCommand::Display() const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetBeaconCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue() << std::endl;
-  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue().second << std::endl;
-  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue().second << std::endl;
+  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue<uint32_t>() << std::endl;
+  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue<uint32_t>() << std::endl;
+  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue<uint32_t>()<< std::endl;
+  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue<uint32_t>() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -145,29 +138,29 @@ int
 SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
 //  msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->Ssid))
+  if (!msg.GetAttribute(this->Ssid))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.GetId()));
     return(NL_SKIP);
   }
 

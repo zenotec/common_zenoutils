@@ -35,13 +35,14 @@
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
-//#include <zutils/netlink/Attribute.h>
-//#include <zutils/netlink/Message.h>
-//#include <zutils/netlink/Handler.h>
+using namespace zUtils;
+#include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Message.h>
+#include <zutils/netlink/Handler.h>
 #include <zutils/netlink/GenericSocket.h>
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/nl80211/Socket.h>
-using namespace zUtils;
+using namespace netlink;
 
 // local includes
 
@@ -62,16 +63,10 @@ Socket::~Socket()
 {
 }
 
-//const int
-//Socket::SetFamily(const std::string& family_)
-//{
-//  this->_family = genl_ctrl_resolve((struct nl_sock*)this->_sock, NL80211_GENL_NAME);
-//}
-
-SHARED_PTR(GenericMessage)
+SHARED_PTR(netlink::GenericMessage)
 Socket::CreateMsg()
 {
-  return (this->CreateMsg(NL80211_GENL_NAME));
+  return (netlink::GenericSocket::CreateMsg(std::string(NL80211_GENL_NAME)));
 }
 
 }

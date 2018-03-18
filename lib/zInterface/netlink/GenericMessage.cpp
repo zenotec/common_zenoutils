@@ -506,6 +506,38 @@ GenericMessage::Disassemble(struct nl_msg* msg_)
   return(this->_attrs.Disassemble(attr, len));
 }
 
+int
+GenericMessage::GetFamily() const
+{
+  return (this->_family);
+}
+
+int
+GenericMessage::GetFlags() const
+{
+  return (this->_flags);
+}
+
+bool
+GenericMessage::SetFlags(const int flags_)
+{
+  this->_flags = flags_;
+  return (true);
+}
+
+int
+GenericMessage::GetCommand() const
+{
+  return (this->_command);
+}
+
+bool
+GenericMessage::SetCommand(const int command_)
+{
+  this->_command = command_;
+  return (true);
+}
+
 void
 GenericMessage::DisplayAttributes() const
 {

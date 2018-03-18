@@ -18,10 +18,10 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 
+#include <string>
+
 #include <zutils/zSem.h>
 using namespace zUtils;
-
-#include "Attribute.h"
 
 //*****************************************************************************
 // Class: Command

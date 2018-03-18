@@ -151,6 +151,60 @@ RouteMessage::~RouteMessage()
 {
 }
 
+bool
+RouteMessage::Assemble(struct nl_msg* msg_)
+{
+  return (false);
+}
+
+bool
+RouteMessage::Disassemble(struct nl_msg* msg_)
+{
+  struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) nlmsg_data(nlmsg_hdr(msg_));
+  struct nlattr* attr = nlmsg_attrdata(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
+  int len = nlmsg_attrlen(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
+
+  //    family = rtnlhdr->ifi_family;
+  //    type = rtnlhdr->ifi_type;
+  //    index = rtnlhdr->ifi_index;
+  //    flags = rtnlhdr->ifi_flags;
+  //    flags = rtnlhdr->ifi_change;
+
+  return(this->_attrs.Disassemble(attr, len));
+}
+
+int
+RouteMessage::GetFamily() const
+{
+  return (this->_family);
+}
+
+int
+RouteMessage::GetFlags() const
+{
+  return (this->_flags);
+}
+
+bool
+RouteMessage::SetFlags(const int flags_)
+{
+  this->_flags = flags_;
+  return (true);
+}
+
+int
+RouteMessage::GetCommand() const
+{
+  return (this->_command);
+}
+
+bool
+RouteMessage::SetCommand(const int command_)
+{
+  this->_command = command_;
+  return (true);
+}
+
 uint8_t
 RouteMessage::AddressFamily() const
 {

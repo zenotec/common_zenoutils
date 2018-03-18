@@ -36,15 +36,15 @@ namespace nl80211
 // Class: BeaconHeadAttribute
 //*****************************************************************************
 
-class BeaconHeadAttribute : public Attribute<AttributeBuffer>
+class BeaconHeadAttribute : public Attribute
 {
 
 public:
 
   BeaconHeadAttribute() :
-      Attribute(NL80211_ATTR_BEACON_HEAD), _buf { 0 }
+      Attribute(TYPE_BINARY, NL80211_ATTR_BEACON_HEAD), _buf { 0 }
   {
-    this->SetValue(std::make_pair(this->_buf, sizeof(this->_buf)));
+    this->SetValue(this->_buf, sizeof(this->_buf));
     this->ClrValid();
   }
 
@@ -69,7 +69,7 @@ public:
       if (memcpy(this->_buf, buf_, len_) == this->_buf)
       {
         memset((this->_buf + len_), 0, (sizeof(this->_buf) - len_));
-        this->SetValue(std::make_pair(this->_buf, len_));
+        this->SetValue(this->_buf, len_);
         status = true;
       }
     }

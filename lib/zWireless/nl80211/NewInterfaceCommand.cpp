@@ -16,19 +16,9 @@
  */
 
 // libc includes
-#include <stdlib.h>
-#include <net/if.h>
-#include <linux/netlink.h>
-#include <linux/nl80211.h>
-#include <netlink/netlink.h>
-#include <netlink/msg.h>
-#include <netlink/attr.h>
-#include <netlink/genl/genl.h>
-#include <netlink/genl/ctrl.h>
 
 // libc++ includes
 #include <iostream>
-#include <map>
 
 // libzutils includes
 #include <zutils/zLog.h>
@@ -88,24 +78,25 @@ NewInterfaceCommand::Exec()
     return(false);
   }
 
-  GenericMessage cmdmsg(this->_sock.Family(), 0, NL80211_CMD_NEW_INTERFACE);
+  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  cmdmsg->SetCommand(NL80211_CMD_NEW_INTERFACE);
 
   // Set phy index attribute
-  if (!cmdmsg.PutAttribute(&this->PhyIndex))
+  if (!cmdmsg->PutAttribute(this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
   }
 
   // Set interface name attribute
-  if (!cmdmsg.PutAttribute(&this->IfName))
+  if (!cmdmsg->PutAttribute(this->IfName))
   {
     ZLOG_ERR("Error setting interface name attribute");
     return (false);
   }
 
   // Set interface type attribute
-  if (!cmdmsg.PutAttribute(&this->IfType))
+  if (!cmdmsg->PutAttribute(this->IfType))
   {
     ZLOG_ERR("Error setting iftype attribute");
     return (false);
@@ -141,10 +132,10 @@ void
 NewInterfaceCommand::Display() const
 {
   std::cout << "New Interface: " << std::endl;
-  std::cout << "\tPhy:   \t" << this->PhyIndex.GetValue() << std::endl;
-  std::cout << "\tName:  \t" << this->IfName.GetValue() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex.GetValue() << std::endl;
-  std::cout << "\tType:  \t" << this->IfType.GetString() << std::endl;
+  std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
+  std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
 }
 
 int
@@ -153,34 +144,34 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
 
   this->_count.Reset();
 
-  GenericMessage msg(msg_);
-  if (!msg.Parse())
+  GenericMessage msg;
+  if (!msg.Disassemble(msg_))
   {
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->PhyIndex))
+  if (!msg.GetAttribute(this->PhyIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfIndex))
+  if (!msg.GetAttribute(this->IfIndex))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfName))
+  if (!msg.GetAttribute(this->IfName))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(&this->IfType))
+  if (!msg.GetAttribute(this->IfType))
   {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.Id()));
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
     return(NL_SKIP);
   }
 
