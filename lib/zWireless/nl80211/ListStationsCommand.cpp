@@ -72,7 +72,10 @@ ListStationsCommand::Display() const
 bool
 ListStationsCommand::Exec()
 {
+  this->_status = false;
+  this->_count.Reset();
   this->_stas.clear();
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -140,10 +143,20 @@ ListStationsCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 }
 
 int
+ListStationsCommand::finish_cb(struct nl_msg* msg_, void* arg_)
+{
+  this->_status = true;
+  this->_count.Post();
+  return (NL_OK);
+}
+
+int
 ListStationsCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
   ZLOG_ERR("Error executing ListPhyCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

@@ -84,7 +84,7 @@ GetInterfaceCommand::Exec()
   this->_status = false;
   this->_count.Reset();
 
-  if (!this->IfIndex.IsValid())
+  if (!this->IfIndex())
   {
     ZLOG_ERR("Error executing GetInterfaceCommand: " + this->IfName());
     ZLOG_ERR("Valid interface index must be specified");

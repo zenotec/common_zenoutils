@@ -70,6 +70,9 @@ protected:
   valid_cb(struct nl_msg* msg, void* arg);
 
   virtual int
+  finish_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);
 
 private:
