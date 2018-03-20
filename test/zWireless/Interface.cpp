@@ -77,6 +77,7 @@ zWirelessTest_WirelessInterface(void* arg)
 
     MyInterface = new zWireless::Interface(iface.second);
     TEST_ISNOT_NULL(MyInterface);
+
     TEST_EQ(iface.first, MyInterface->GetIfIndex());
     TEST_EQ(iface.second, MyInterface->GetIfName());
 

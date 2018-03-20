@@ -165,6 +165,9 @@ public:
   bool
   PutAttribute(Attribute& attr_);
 
+  void
+  Display() const;
+
 protected:
 
 private:

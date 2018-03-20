@@ -74,6 +74,8 @@ bool
 ListInterfacesCommand::Exec()
 {
 
+  std::cout << "ListInterfacesCommand::Exec()" << std::endl;
+
   this->_status = false;
   this->_count.Reset();
   this->_ifs.clear();
@@ -125,6 +127,8 @@ int
 ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
+  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
+
   IfIndexAttribute ifindex;
   IfNameAttribute ifname;
 
@@ -135,7 +139,6 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
   msg.Display();
   msg.DisplayAttributes();
 

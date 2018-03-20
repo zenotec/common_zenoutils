@@ -500,10 +500,13 @@ GenericMessage::Assemble(struct nl_msg* msg_)
 bool
 GenericMessage::Disassemble(struct nl_msg* msg_)
 {
+  bool status = false;
   struct genlmsghdr *gnlhdr = (struct genlmsghdr *) nlmsg_data(nlmsg_hdr(msg_));
   struct nlattr* attr = genlmsg_attrdata(gnlhdr, 0);
   int len = genlmsg_attrlen(gnlhdr, 0);
-  return(this->_attrs.Disassemble(attr, len));
+  status = this->_attrs.Disassemble(attr, len);
+  this->_attrs.Display();
+  return(status);
 }
 
 int

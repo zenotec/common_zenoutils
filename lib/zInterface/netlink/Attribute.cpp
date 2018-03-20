@@ -159,6 +159,8 @@ AttributeMap::Disassemble(struct nlattr* hdr_, size_t len_)
     this->_attrs[attr->nla_type] = attr;
   }
 
+  std::cout << "AttributeMap::Disassemble(): " << this->_attrs.size() << std::endl;
+
   return (true);
 }
 
@@ -169,7 +171,31 @@ AttributeMap::GetAttribute(Attribute& attr_)
   if (this->_attrs.count(attr_.GetId()))
   {
     struct nlattr* attr = this->_attrs[attr_.GetId()];
-    status = (attr_.SetValue((const uint8_t*)nla_data(attr), nla_len(attr)) == nla_len(attr));
+    switch (attr_.GetType())
+    {
+    case Attribute::TYPE_U8:
+      // no break
+    case Attribute::TYPE_S8:
+      // no break
+    case Attribute::TYPE_U16:
+      // no break
+    case Attribute::TYPE_S16:
+      // no break
+    case Attribute::TYPE_U32:
+      // no break
+    case Attribute::TYPE_S32:
+      // no break
+    case Attribute::TYPE_U64:
+      // no break
+    case Attribute::TYPE_S64:
+      // no break
+    case Attribute::TYPE_BINARY:
+      status = (attr_.SetValue((const uint8_t*)nla_data(attr), nla_len(attr)) == nla_len(attr));
+      break;
+    case Attribute::TYPE_STRING:
+      status = attr_.SetValue(std::string((char *)nla_data(attr)));
+      break;
+    }
   }
   return (status);
 }
@@ -178,6 +204,15 @@ bool
 AttributeMap::PutAttribute(Attribute& attr_)
 {
   return (false);
+}
+
+void
+AttributeMap::Display() const
+{
+  FOREACH(auto& attr, this->_attrs)
+  {
+    std::cout << "Attribute: [" << nla_type(attr.second) << "]: " << nla_len(attr.second) << std::endl;
+  }
 }
 
 //*****************************************************************************
