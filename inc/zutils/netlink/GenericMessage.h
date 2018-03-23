@@ -25,6 +25,7 @@
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 
+#include <zutils/netlink/Message.h>
 
 namespace netlink
 {
@@ -62,9 +63,6 @@ public:
 
   bool
   SetCommand(const int command_);
-
-  virtual void
-  DisplayAttributes() const;
 
 protected:
 

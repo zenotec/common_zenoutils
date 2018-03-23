@@ -38,16 +38,14 @@ namespace nl80211
 // Class: SsidAttribute
 //*****************************************************************************
 
-class SsidAttribute : public Attribute
+class SsidAttribute : public AttributeValue
 {
 
 public:
 
   SsidAttribute() :
-      Attribute(TYPE_BINARY, NL80211_ATTR_SSID), _buf { 0 }
+      AttributeValue(NL80211_ATTR_SSID)
   {
-    this->SetValue(this->_buf, MAX_SSID_LEN);
-    this->ClrValid();
   }
 
   virtual
@@ -56,28 +54,22 @@ public:
   }
 
   std::string
-  GetString() const
+  operator()() const
   {
     std::string str;
-    if (this->IsValid())
-    {
-      str = std::string((char*)this->_buf);
-    }
+    size_t len = this->GetLength();
+    str.resize(len);
+    this->Get((uint8_t*) str.c_str(), len);
     return (str);
   }
 
   bool
-  SetString(const std::string& str)
+  operator()(const std::string& str_)
   {
     bool status = false;
-    if (str.size() && (str.size() <= MAX_SSID_LEN))
+    if (str_.size() <= MAX_SSID_LEN)
     {
-      if (memcpy(this->_buf, str.c_str(), str.size()) == this->_buf)
-      {
-        memset((this->_buf + str.size()), 0, (sizeof(this->_buf) - str.size()));
-        this->SetValue(this->_buf, str.size());
-        status = true;
-      }
+      status = this->Set((const uint8_t*) str_.c_str(), str_.size());
     }
     return (status);
   }
@@ -86,7 +78,7 @@ protected:
 
 private:
 
-  uint8_t _buf[MAX_SSID_LEN+1];
+  uint8_t _buf[MAX_SSID_LEN + 1];
 
 };
 

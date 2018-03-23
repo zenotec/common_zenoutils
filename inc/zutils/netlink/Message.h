@@ -32,14 +32,13 @@
 namespace netlink
 {
 
-class AttributeMap;
-
 //*****************************************************************************
 // Class: Message
 //*****************************************************************************
 
 class Message
 {
+
 public:
 
   Message();
@@ -70,7 +69,7 @@ public:
 
 protected:
 
-  AttributeMap _attrs;
+  std::map<int, Attribute> _attrs;
 
 private:
 

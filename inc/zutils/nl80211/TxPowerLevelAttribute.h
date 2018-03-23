@@ -36,16 +36,14 @@ namespace nl80211
 // Class: TxPowerLevelAttribute
 //*****************************************************************************
 
-class TxPowerLevelAttribute : public Attribute
+class TxPowerLevelAttribute : public AttributeValue
 {
 
 public:
 
   TxPowerLevelAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_TX_POWER_LEVEL)
+    AttributeValue(NL80211_ATTR_WIPHY_TX_POWER_LEVEL)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
@@ -60,9 +58,9 @@ public:
   }
 
   bool
-  operator()(const uint32_t ifindex_)
+  operator()(const uint32_t interval_)
   {
-    return (this->SetValue(ifindex_));
+    return (this->SetValue(interval_));
   }
 
 protected:

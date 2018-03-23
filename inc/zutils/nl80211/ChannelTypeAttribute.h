@@ -58,10 +58,8 @@ class ChannelTypeAttribute : public Attribute
 public:
 
   ChannelTypeAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_CHANNEL_TYPE)
+    Attribute(NL80211_ATTR_WIPHY_CHANNEL_TYPE)
   {
-    this->SetValue(NL80211_CHAN_NO_HT);
-    this->ClrValid();
   }
 
   virtual
@@ -69,13 +67,23 @@ public:
   {
   }
 
+  uint32_t
+  operator()() const
+  {
+    return (this->Get<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->Set(interval_));
+  }
+
   std::string
   ToString() const
   {
     std::string str;
-    uint32_t val = 0;
-    this->GetValue(val);
-    switch(val)
+    switch(this->operator()())
     {
     case NL80211_CHAN_NO_HT:
       str += "NL80211_CHAN_NO_HT";

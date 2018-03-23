@@ -235,7 +235,6 @@ RouteLink::IfName() const
   if (this->_link)
   {
     name = rtnl_link_get_name(this->_link);
-    std::cout << "RouteLink::IfName(): " << strlen(name) << std::endl;
   }
   return (name ? std::string(name) : std::string(""));
 }

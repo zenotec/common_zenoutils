@@ -37,16 +37,14 @@ namespace nl80211
 // Class: IfIndexAttribute
 //*****************************************************************************
 
-class IfIndexAttribute : public Attribute
+class IfIndexAttribute : public AttributeValue
 {
 
 public:
 
   IfIndexAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_IFINDEX)
+    AttributeValue(NL80211_ATTR_IFINDEX)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
@@ -61,9 +59,9 @@ public:
   }
 
   bool
-  operator()(const uint32_t ifindex_)
+  operator()(const uint32_t interval_)
   {
-    return (this->SetValue(ifindex_));
+    return (this->SetValue(interval_));
   }
 
 protected:

@@ -42,10 +42,8 @@ class BeaconHeadAttribute : public Attribute
 public:
 
   BeaconHeadAttribute() :
-      Attribute(TYPE_BINARY, NL80211_ATTR_BEACON_HEAD), _buf { 0 }
+      Attribute(NL80211_ATTR_BEACON_HEAD)
   {
-    this->SetValue(this->_buf, sizeof(this->_buf));
-    this->ClrValid();
   }
 
   virtual
@@ -53,34 +51,9 @@ public:
   {
   }
 
-  void*
-  GetBuffer() const
-  {
-    return ((void*) this->_buf);
-  }
-
-  bool
-  PutBuffer(void* buf_, size_t len_)
-  {
-    bool status = false;
-    //printf("BeaconHeadAttribute::PutBuffer(%p, %zd)\n", buf_, len_);
-    if (buf_ && len_ && (len_ < sizeof(this->_buf)))
-    {
-      if (memcpy(this->_buf, buf_, len_) == this->_buf)
-      {
-        memset((this->_buf + len_), 0, (sizeof(this->_buf) - len_));
-        this->SetValue(this->_buf, len_);
-        status = true;
-      }
-    }
-    return (status);
-  }
-
 protected:
 
 private:
-
-  uint8_t _buf[512];
 
 };
 

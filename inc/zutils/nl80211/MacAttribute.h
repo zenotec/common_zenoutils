@@ -63,16 +63,14 @@ _mac2str(const uint8_t* hwaddr_, std::string& addr_)
 // Class: MacAttribute
 //*****************************************************************************
 
-class MacAttribute : public Attribute
+class MacAttribute : public AttributeValue
 {
 
 public:
 
   MacAttribute() :
-      Attribute(TYPE_BINARY, NL80211_ATTR_IFTYPE), _mac{0}
+      AttributeValue(NL80211_ATTR_IFTYPE)
   {
-    this->SetValue(this->_mac, sizeof(this->_mac));
-    this->ClrValid();
   }
 
   virtual
@@ -81,24 +79,26 @@ public:
   }
 
   std::string
-  GetString() const
+  operator()() const
   {
+    uint8_t mac[ETH_ALEN] = { 0 };
+    size_t len = ETH_ALEN;
     std::string str;
-    if (this->IsValid())
+    if (this->Get(mac, len))
     {
-      _mac2str(this->_mac, str);
+      _mac2str(mac, str);
     }
     return(str);
   }
 
   bool
-  SetString(const std::string& addr_)
+  operator()(const std::string& addr_)
   {
     bool status = false;
-    if (_str2mac(addr_, this->_mac))
+    uint8_t mac[ETH_ALEN] = { 0 };
+    if (_str2mac(addr_, mac))
     {
-      this->SetValid();
-      status = true;
+      status = this->Set(mac, sizeof(mac));
     }
     return(status);
   }

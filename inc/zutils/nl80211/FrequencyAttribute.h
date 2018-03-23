@@ -104,10 +104,8 @@ class FrequencyAttribute : public Attribute
 public:
 
   FrequencyAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_WIPHY_FREQ)
+    Attribute(NL80211_ATTR_WIPHY_FREQ)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
@@ -116,18 +114,27 @@ public:
   }
 
   uint32_t
+  operator()() const
+  {
+    return (this->Get<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->Set(interval_));
+  }
+
+  uint32_t
   GetChannel() const
   {
-    uint32_t freq = 0;
-    this->GetValue(freq);
-    return(_freq2chan(freq));
+    return(_freq2chan(this->operator()()));
   }
 
   bool
   SetChannel(const uint32_t channel_)
   {
-    uint32_t freq = _chan2freq(channel_);
-    return(this->SetValue(freq));
+    return(this->operator()(_chan2freq(channel_)));
   }
 
 protected:

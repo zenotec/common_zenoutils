@@ -36,16 +36,14 @@ namespace nl80211
 // Class: IfTypeAttribute
 //*****************************************************************************
 
-class IfTypeAttribute : public Attribute
+class IfTypeAttribute : public AttributeValue
 {
 
 public:
 
   IfTypeAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_IFTYPE)
+      AttributeValue(NL80211_ATTR_IFTYPE)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
@@ -53,13 +51,23 @@ public:
   {
   }
 
+  uint32_t
+  operator()() const
+  {
+    return (this->GetValue<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->SetValue(interval_));
+  }
+
   std::string
   ToString() const
   {
     std::string str;
-    uint32_t val = 0;
-    this->GetValue(val);
-    switch (val)
+    switch (this->operator()())
     {
     case NL80211_IFTYPE_UNSPECIFIED:
       str = "Unspecified";

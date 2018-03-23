@@ -45,14 +45,14 @@ __errstr(int code)
 DelInterfaceCommand::DelInterfaceCommand(int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 DelInterfaceCommand::DelInterfaceCommand(const std::string& ifname_) :
     Command(ifname_)
 {
-  this->IfIndex.SetValue(this->GetIfIndex());
-  this->IfName.SetValue(ifname_);
+  this->IfIndex.Set(this->GetIfIndex());
+  this->IfName.Set(ifname_);
 }
 
 DelInterfaceCommand::~DelInterfaceCommand()
@@ -66,7 +66,7 @@ DelInterfaceCommand::Exec()
   this->_status = false;
   this->_count.Reset();
 
-  if (!this->IfIndex.IsValid())
+  if (!this->IfIndex())
   {
     ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
     return(false);
@@ -88,7 +88,7 @@ DelInterfaceCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_DEL_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg->PutAttribute(this->IfIndex))
+  if (!cmdmsg->PutAttribute(this->IfIndex.GetId(), this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
@@ -124,10 +124,8 @@ void
 DelInterfaceCommand::Display() const
 {
   std::cout << "Delete Interface: " << std::endl;
-  if (this->IfName.IsValid())
-    std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  if (this->IfIndex.IsValid())
-    std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
+  std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
 }
 
 int

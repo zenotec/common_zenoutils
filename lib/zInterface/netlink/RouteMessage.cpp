@@ -160,17 +160,20 @@ RouteMessage::Assemble(struct nl_msg* msg_)
 bool
 RouteMessage::Disassemble(struct nl_msg* msg_)
 {
+
+  bool status = true;
   struct ifinfomsg* rtnlhdr = (struct ifinfomsg *) nlmsg_data(nlmsg_hdr(msg_));
   struct nlattr* attr = nlmsg_attrdata(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
   int len = nlmsg_attrlen(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
 
-  //    family = rtnlhdr->ifi_family;
-  //    type = rtnlhdr->ifi_type;
-  //    index = rtnlhdr->ifi_index;
-  //    flags = rtnlhdr->ifi_flags;
-  //    flags = rtnlhdr->ifi_change;
+  struct nlattr* pos = NULL;
+  int rem = 0;
+  nla_for_each_attr(pos, attr, len, rem)
+  {
+    status &= this->_attrs[nla_type(pos)].Disassemble(pos);
+  }
 
-  return(this->_attrs.Disassemble(attr, len));
+  return(status);
 }
 
 int

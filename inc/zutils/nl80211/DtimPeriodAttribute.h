@@ -42,15 +42,25 @@ class DtimPeriodAttribute : public Attribute
 public:
 
   DtimPeriodAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_DTIM_PERIOD)
+    Attribute(NL80211_ATTR_DTIM_PERIOD)
   {
-    this->SetValue(3);
-    this->ClrValid();
   }
 
   virtual
   ~DtimPeriodAttribute()
   {
+  }
+
+  uint32_t
+  operator()() const
+  {
+    return (this->Get<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->Set(interval_));
   }
 
 protected:

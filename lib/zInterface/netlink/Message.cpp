@@ -39,12 +39,6 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 namespace netlink
 {
 
-static std::string
-__errstr(int code)
-{
-  return(std::string(nl_geterror(code)));
-}
-
 //*****************************************************************************
 // Class: Message
 //*****************************************************************************
@@ -74,13 +68,19 @@ Message::SetType(const uint16_t type_)
 bool
 Message::GetAttribute(Attribute& attr_)
 {
-  return (this->_attrs.GetAttribute(attr_));
+  bool status = false;
+  if (this->_attrs.count(attr_.GetId()))
+  {
+    attr_ = this->_attrs.at(attr_.GetId());
+  }
+  return (status);
 }
 
 bool
 Message::PutAttribute(Attribute& attr_)
 {
-  return (this->_attrs.PutAttribute(attr_));
+  this->_attrs[attr_.GetId()] = attr_;
+  return (true);
 }
 
 void

@@ -344,6 +344,7 @@ AC_CONFIG_FILES([
 	lib/zInterface/Makefile
 	lib/zInterface/netlink/Makefile
 	test/zInterface/Makefile
+	test/zInterface/netlink/Makefile
 ])
 AC_CONFIG_FILES([
 	lib/zWireless/Makefile

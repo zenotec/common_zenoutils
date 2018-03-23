@@ -37,16 +37,14 @@ namespace nl80211
 // Class: PhyIndexAttribute
 //*****************************************************************************
 
-class PhyIndexAttribute : public Attribute
+class PhyIndexAttribute : public AttributeValue
 {
 
 public:
 
   PhyIndexAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_WIPHY)
+    AttributeValue(NL80211_ATTR_WIPHY)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual

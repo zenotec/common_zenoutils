@@ -807,7 +807,7 @@ Interface::_setTxPower(unsigned int txpower_)
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->TxPowerMode.SetMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
+    cmd->TxPowerMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
     cmd->TxPowerLevel(txpower_);
     this->addCommand(cmd);
     status = true;

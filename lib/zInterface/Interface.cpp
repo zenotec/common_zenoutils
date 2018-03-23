@@ -684,7 +684,6 @@ Interface::getIfName() const
     if (cmd.Exec())
     {
       name = cmd.IfName();
-      std::cout << "Interface::getIfName(): " << name << " (" << name.size() << ")" << std::endl;
     }
   }
   return (name);

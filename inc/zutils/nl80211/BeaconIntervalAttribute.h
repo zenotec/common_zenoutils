@@ -42,15 +42,25 @@ class BeaconIntervalAttribute : public Attribute
 public:
 
   BeaconIntervalAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_BEACON_INTERVAL)
+    Attribute(NL80211_ATTR_BEACON_INTERVAL)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
   ~BeaconIntervalAttribute()
   {
+  }
+
+  uint32_t
+  operator()() const
+  {
+    return (this->Get<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->Set(interval_));
   }
 
 protected:

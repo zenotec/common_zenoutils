@@ -71,6 +71,7 @@ zWirelessTest_WirelessInterface(void* arg)
   TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyInterface->GetOpMode());
   TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
   TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
+  delete (MyInterface);
 
   FOREACH(auto& iface, ifaces)
   {

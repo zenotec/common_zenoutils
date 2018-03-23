@@ -37,13 +37,13 @@ namespace nl80211
 // Class: PhyNameAttribute
 //*****************************************************************************
 
-class PhyNameAttribute : public Attribute
+class PhyNameAttribute : public AttributeValue
 {
 
 public:
 
   PhyNameAttribute() :
-      Attribute(TYPE_STRING, NL80211_ATTR_WIPHY_NAME)
+    AttributeValue(NL80211_ATTR_WIPHY_NAME)
   {
   }
 
@@ -61,7 +61,7 @@ public:
   bool
   operator()(const std::string& ifname_)
   {
-    return (this->SetValue(ifname_));
+    return (this->Set(ifname_));
   }
 
 protected:

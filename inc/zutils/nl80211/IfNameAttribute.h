@@ -37,13 +37,13 @@ namespace nl80211
 // Class: IfNameAttribute
 //*****************************************************************************
 
-class IfNameAttribute : public Attribute
+class IfNameAttribute : public AttributeValue
 {
 
 public:
 
   IfNameAttribute() :
-      Attribute(TYPE_STRING, NL80211_ATTR_IFNAME)
+      AttributeValue(NL80211_ATTR_IFNAME)
   {
   }
 
@@ -61,7 +61,7 @@ public:
   bool
   operator()(const std::string& ifname_)
   {
-    return (this->SetValue(ifname_));
+    return (this->Set(ifname_));
   }
 
 protected:

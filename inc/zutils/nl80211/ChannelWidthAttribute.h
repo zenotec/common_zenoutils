@@ -72,10 +72,8 @@ class ChannelWidthAttribute : public Attribute
 public:
 
   ChannelWidthAttribute() :
-      Attribute(TYPE_U32, NL80211_ATTR_CHANNEL_WIDTH)
+    Attribute(NL80211_ATTR_CHANNEL_WIDTH)
   {
-    this->SetValue(NL80211_CHAN_WIDTH_20_NOHT);
-    this->ClrValid();
   }
 
   virtual
@@ -83,13 +81,23 @@ public:
   {
   }
 
+  uint32_t
+  operator()() const
+  {
+    return (this->Get<uint32_t>());
+  }
+
+  bool
+  operator()(const uint32_t interval_)
+  {
+    return (this->Set(interval_));
+  }
+
   std::string
   ToString() const
   {
     std::string str;
-    uint32_t val = 0;
-    this->GetValue(val);
-    switch(val)
+    switch(this->operator()())
     {
     case NL80211_CHAN_WIDTH_20_NOHT:
       str += "NL80211_CHAN_WIDTH_20_NOHT";

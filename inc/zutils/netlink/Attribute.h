@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,27 +41,9 @@ class Attribute
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = NLA_UNSPEC,
-    TYPE_U8 = NLA_U8,     /**< 8 bit integer */
-    TYPE_U16 = NLA_U16,    /**< 16 bit integer */
-    TYPE_U32 = NLA_U32,    /**< 32 bit integer */
-    TYPE_U64 = NLA_U64,    /**< 64 bit integer */
-    TYPE_STRING = NLA_STRING, /**< NUL terminated character string */
-    TYPE_FLAG = NLA_FLAG,   /**< Flag */
-    TYPE_MSECS = NLA_MSECS,  /**< Micro seconds (64bit) */
-    TYPE_NESTED = NLA_NESTED, /**< Nested attributes */
-    TYPE_BINARY = NLA_BINARY,
-    TYPE_S8 = NLA_S8,
-    TYPE_S16 = NLA_S16,
-    TYPE_S32 = NLA_S32,
-    TYPE_S64 = NLA_S64,
-    TYPE_LAST = __NLA_TYPE_MAX
-  };
+  Attribute(const uint32_t id_ = 0, const bool nested_ = false);
 
-  Attribute(const Attribute::TYPE type_, const uint32_t id_, const size_t len_ = 0);
+  Attribute(const Attribute& other_);
 
   virtual
   ~Attribute();
@@ -69,141 +51,167 @@ public:
   Attribute&
   operator=(const Attribute& other_);
 
-  bool
-  IsValid() const;
+  Attribute&
+  operator+=(const Attribute& other_);
 
-  void
-  SetValid();
+  virtual bool
+  Assemble(struct nl_msg* msg_);
 
-  void
-  ClrValid();
-
-  Attribute::TYPE
-  GetType() const;
+  virtual bool
+  Disassemble(struct nlattr* attr_, size_t len_ = 0);
 
   uint32_t
   GetId() const;
 
-  size_t
+  bool
+  SetId(const uint32_t id_);
+
+  virtual size_t
   GetLength() const;
 
   template<typename T>
     T
-    GetValue() const
+    Get() const
     {
       T value;
-      this->GetValue(value);
+      this->Get(value);
       return (value);
     }
 
   template<typename T>
     bool
-    GetValue(T& value_) const
+    Get(T& value_) const
     {
       bool status = false;
-      if (sizeof(T) == this->GetLength())
+      size_t len = sizeof(T);
+      if (len == this->GetLength())
       {
-        status = (this->GetValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
+        status = this->Get((uint8_t*) &value_, len);
       }
       return (status);
     }
 
-  size_t
-  GetValue(uint8_t* p_, size_t len_) const;
+  bool
+  Get(std::string& str_) const;
 
   bool
-  GetValue(std::string& str_) const;
+  Get(uint8_t* p_, size_t& len_) const;
 
   template<typename T>
     bool
-    SetValue(const T value_)
+    Set(const T value_)
     {
-      return (this->SetValue((uint8_t*) &value_, sizeof(T)) == sizeof(T));
+      return (this->Set((uint8_t*) &value_, sizeof(T)));
     }
 
-  size_t
-  SetValue(const uint8_t* p_, size_t len_);
+  bool
+  Set(const std::string& str_);
 
   bool
-  SetValue(const std::string& str_);
+  Set(const uint8_t* p_, const size_t len_);
+
+  bool
+  Get(Attribute& attr_);
+
+  bool
+  Put(Attribute& attr_);
+
+  virtual void
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 
-  std::vector<uint8_t> _value;
-
-private:
-
-  bool _valid;
-  Attribute::TYPE _type;
-  uint32_t _id;
-
-};
-
-//*****************************************************************************
-// Class: AttributeMap
-//*****************************************************************************
-
-class AttributeMap
-{
-
-public:
-
-  AttributeMap();
-
-  virtual
-  ~AttributeMap();
-
-  bool
-  Assemble(struct nlattr* hdr_, size_t len_);
-
-  bool
-  Disassemble(struct nlattr* hdr_, size_t len_);
-
-  bool
-  GetAttribute(Attribute& attr_);
-
-  bool
-  PutAttribute(Attribute& attr_);
-
-  void
-  Display() const;
-
-protected:
-
-private:
-
-  std::map<int, struct nlattr*> _attrs;
-
-};
-
-//*****************************************************************************
-// Class: AttributeNested
-//*****************************************************************************
-
-class AttributeNested
-{
-
-public:
-
-  AttributeNested(const uint32_t id_);
-
-  virtual
-  ~AttributeNested();
-
-  bool
-  Assemble(struct nlattr* hdr_);
-
-  bool
-  Disassemble(struct nlattr* hdr_);
-
-protected:
+  bool nested;
+  std::map<int, std::vector<uint8_t> > attrs;
 
 private:
 
   uint32_t _id;
-  std::vector<AttributeMap> _attrs;
 
 };
+//
+////*****************************************************************************
+//// Class: AttributeTable
+////*****************************************************************************
+//
+//class AttributeTable
+//{
+//
+//public:
+//
+//  AttributeTable();
+//
+//  virtual
+//  ~AttributeTable();
+//
+//  virtual bool
+//  Assemble(struct nl_msg* msg_);
+//
+//  virtual bool
+//  Disassemble(struct nlattr* attr_, size_t len_);
+//
+//  bool
+//  Get(Attribute& attr_);
+//
+//  bool
+//  Put(Attribute& attr_);
+//
+//  virtual size_t
+//  GetLength() const;
+//
+//  virtual void
+//  Display(const std::string& prefix_ = "") const;
+//
+//protected:
+//
+//private:
+//
+//  std::map<int, Attribute> _attrs;
+//
+//};
+//
+////*****************************************************************************
+//// Class: AttributeNested
+////*****************************************************************************
+//
+//class AttributeNested : public Attribute
+//{
+//
+//public:
+//
+//  AttributeNested(const uint32_t id_);
+//
+//  virtual
+//  ~AttributeNested();
+//
+//  AttributeNested&
+//  operator=(const Attribute& other_);
+//
+//  virtual bool
+//  Assemble(struct nl_msg* msg_);
+//
+//  virtual bool
+//  Disassemble(struct nlattr* attr_, size_t len_ = 0);
+//
+//  bool
+//  Get(Attribute& attr_);
+//
+//  bool
+//  Put(Attribute& attr_);
+//
+//  size_t
+//  GetLength() const;
+//
+//  virtual void
+//  Display(const std::string& prefix_ = "") const;
+//
+//protected:
+//
+//private:
+//
+//  AttributeTable _attrs;
+//
+//};
 
 }
 

@@ -1,10 +1,7 @@
 if COND_GCOV
-CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
+CPPFLAGS_GCOV = -g3 -Og -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
-
-SUBDIRS = \
-	netlink
 
 AM_CPPFLAGS := \
   $(CPPFLAGS_GCOV) \
@@ -16,40 +13,32 @@ AM_CPPFLAGS := \
 
 AM_LDFLAGS := $(LDFLAGS_GCOV)
 
-zInterfaceUnitTest_CPPFLAGS = \
+NetlinkUnitTest_CPPFLAGS = \
   ${AM_CPPFLAGS} \
   ${NL3_CFLAGS} \
   ${NLGENL3_CFLAGS} \
   ${NLRTNL3_CFLAGS}
 
-zInterfaceUnitTest_LDFLAGS = \
-  ${AM_LDFLAGS} \
+NetlinkUnitTest_LDFLAGS = \
+  ${AM_LIBS} \
   ${NL3_LIBS} \
+  ${AM_CPPFLAGS} \
   ${NLGENL3_LIBS} \
   ${NLRTNL3_LIBS}
 
-CLEANFILES = \
-	zInterfaceTest.zlog
+check_PROGRAMS = NetlinkUnitTest
 
-check_PROGRAMS = zInterfaceUnitTest
-
-zInterfaceUnitTest_SOURCES = \
+NetlinkUnitTest_SOURCES = \
     $(top_srcdir)/test/inc/UnitTest.h \
     valgrind.sh \
-    zInterfaceTest.h \
+    NetlinkTest.h \
     UnitTest.cpp \
-    Defaults.cpp \
-    Configuration.cpp \
-    Interface.cpp \
-    MacVlan.cpp \
-    Factory.cpp
+    Defaults.cpp
 
-zInterfaceUnitTest_LDADD = \
-    ${top_builddir}/lib/zInterface/libzInterface.la \
+NetlinkUnitTest_LDADD = \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la \
     ${top_builddir}/lib/zLog/libzLog.la \
     ${top_builddir}/lib/zThread/libzThread.la \
     ${top_builddir}/lib/zSignal/libzSignal.la \
     ${top_builddir}/lib/zEvent/libzEvent.la \
     ${top_builddir}/lib/zSem/libzSem.la
-
