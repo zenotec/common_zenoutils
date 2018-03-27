@@ -66,11 +66,7 @@ GenericMessage::Assemble(struct nl_msg* msg_)
   }
   else
   {
-    status = true;
-    FOREACH(auto& attr, this->_attrs)
-    {
-      status &= attr.second.Assemble(msg_);
-    }
+    status = this->_attrs.Assemble(msg_);
     this->Display();
   }
   return (status);
@@ -84,12 +80,7 @@ GenericMessage::Disassemble(struct nl_msg* msg_)
   struct nlattr* attr = genlmsg_attrdata(gnlhdr, 0);
   int len = genlmsg_attrlen(gnlhdr, 0);
 
-  struct nlattr* pos = NULL;
-  int rem = 0;
-  nla_for_each_attr(pos, attr, len, rem)
-  {
-    status &= this->_attrs[nla_type(pos)].Disassemble(pos);
-  }
+  status = this->_attrs.Disassemble(attr, len);
 
   return(status);
 }

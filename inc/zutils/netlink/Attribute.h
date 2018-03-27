@@ -41,30 +41,81 @@ class Attribute
 
 public:
 
-  Attribute(const uint32_t id_ = 0, const bool nested_ = false);
-
-  Attribute(const Attribute& other_);
+  Attribute(const uint32_t id_ = 0, const bool nested_ = false) :
+    _id(id_), _nested(nested_)
+  {
+  }
 
   virtual
-  ~Attribute();
+  ~Attribute()
+  {
+  }
 
-  Attribute&
-  operator=(const Attribute& other_);
+  virtual bool
+  Assemble(struct nl_msg* msg_) = 0;
 
-  Attribute&
-  operator+=(const Attribute& other_);
+  virtual bool
+  Disassemble(struct nlattr* attr_, size_t len_ = 0) = 0;
+
+  bool
+  IsNested() const
+  {
+    return (this->_nested);
+  }
+
+  uint32_t
+  GetId() const
+  {
+    return (this->_id);
+  }
+
+  bool
+  SetId(const uint32_t id_)
+  {
+    this->_id = id_;
+    return (true);
+  }
+
+  virtual size_t
+  GetLength() const = 0;
+
+  virtual void
+  Display(const std::string& prefix_ = "") const = 0;
+
+protected:
+
+private:
+
+  uint32_t _id;
+  bool _nested;
+
+};
+
+//*****************************************************************************
+// Class: AttributeValue
+//*****************************************************************************
+
+class AttributeValue :
+    public Attribute
+{
+
+public:
+
+  AttributeValue(const uint32_t id_ = 0);
+
+  AttributeValue(const Attribute* other_);
+
+  virtual
+  ~AttributeValue();
+
+  AttributeValue&
+  operator=(const Attribute* other_);
 
   virtual bool
   Assemble(struct nl_msg* msg_);
 
   virtual bool
   Disassemble(struct nlattr* attr_, size_t len_ = 0);
-
-  uint32_t
-  GetId() const;
-
-  bool
-  SetId(const uint32_t id_);
 
   virtual size_t
   GetLength() const;
@@ -110,108 +161,102 @@ public:
   bool
   Set(const uint8_t* p_, const size_t len_);
 
-  bool
-  Get(Attribute& attr_);
+  virtual void
+  Display(const std::string& prefix_ = "") const;
+
+protected:
+
+private:
+
+  std::vector<uint8_t> _data;
+
+};
+
+//*****************************************************************************
+// Class: AttributeTable
+//*****************************************************************************
+
+class AttributeTable
+{
+
+public:
+
+  AttributeTable();
+
+  virtual
+  ~AttributeTable();
+
+  virtual bool
+  Assemble(struct nl_msg* msg_);
+
+  virtual bool
+  Disassemble(struct nlattr* attr_, size_t len_);
 
   bool
-  Put(Attribute& attr_);
+  Get(Attribute* attr_);
+
+  bool
+  Put(Attribute* attr_);
+
+  virtual size_t
+  GetLength() const;
 
   virtual void
   Display(const std::string& prefix_ = "") const;
 
 protected:
 
-  bool nested;
-  std::map<int, std::vector<uint8_t> > attrs;
+private:
+
+  std::map<int, SHARED_PTR(Attribute)> _attrs;
+
+};
+
+//*****************************************************************************
+// Class: AttributeNested
+//*****************************************************************************
+
+class AttributeNested :
+    public Attribute
+{
+
+public:
+
+  AttributeNested(const uint32_t id_);
+
+  AttributeNested(const Attribute* other_);
+
+  virtual
+  ~AttributeNested();
+
+  AttributeNested&
+  operator=(const Attribute* other_);
+
+  virtual bool
+  Assemble(struct nl_msg* msg_);
+
+  virtual bool
+  Disassemble(struct nlattr* attr_, size_t len_ = 0);
+
+  bool
+  Get(Attribute* attr_);
+
+  bool
+  Put(Attribute* attr_);
+
+  size_t
+  GetLength() const;
+
+  virtual void
+  Display(const std::string& prefix_ = "") const;
+
+protected:
 
 private:
 
-  uint32_t _id;
+  AttributeTable _attrs;
 
 };
-//
-////*****************************************************************************
-//// Class: AttributeTable
-////*****************************************************************************
-//
-//class AttributeTable
-//{
-//
-//public:
-//
-//  AttributeTable();
-//
-//  virtual
-//  ~AttributeTable();
-//
-//  virtual bool
-//  Assemble(struct nl_msg* msg_);
-//
-//  virtual bool
-//  Disassemble(struct nlattr* attr_, size_t len_);
-//
-//  bool
-//  Get(Attribute& attr_);
-//
-//  bool
-//  Put(Attribute& attr_);
-//
-//  virtual size_t
-//  GetLength() const;
-//
-//  virtual void
-//  Display(const std::string& prefix_ = "") const;
-//
-//protected:
-//
-//private:
-//
-//  std::map<int, Attribute> _attrs;
-//
-//};
-//
-////*****************************************************************************
-//// Class: AttributeNested
-////*****************************************************************************
-//
-//class AttributeNested : public Attribute
-//{
-//
-//public:
-//
-//  AttributeNested(const uint32_t id_);
-//
-//  virtual
-//  ~AttributeNested();
-//
-//  AttributeNested&
-//  operator=(const Attribute& other_);
-//
-//  virtual bool
-//  Assemble(struct nl_msg* msg_);
-//
-//  virtual bool
-//  Disassemble(struct nlattr* attr_, size_t len_ = 0);
-//
-//  bool
-//  Get(Attribute& attr_);
-//
-//  bool
-//  Put(Attribute& attr_);
-//
-//  size_t
-//  GetLength() const;
-//
-//  virtual void
-//  Display(const std::string& prefix_ = "") const;
-//
-//protected:
-//
-//private:
-//
-//  AttributeTable _attrs;
-//
-//};
 
 }
 

@@ -68,7 +68,7 @@ DelInterfaceCommand::Exec()
 
   if (!this->IfIndex())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName.Get<std::string>());
     return(false);
   }
 
@@ -88,7 +88,7 @@ DelInterfaceCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_DEL_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg->PutAttribute(this->IfIndex.GetId(), this->IfIndex))
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);

@@ -41,11 +41,11 @@ NetlinkTest_GenericMessage(void* arg_)
   TEST_IS_ZERO(MyMessage1.GetFlags());
   TEST_IS_ZERO(MyMessage1.GetCommand());
 
-  netlink::Attribute MyNestedAttr1(1, true);
+  netlink::AttributeNested MyNestedAttr1(1);
   TEST_EQ(1, MyNestedAttr1.GetId());
   TEST_IS_ZERO(MyNestedAttr1.GetLength());
 
-  netlink::Attribute MyAttr1(2);
+  netlink::AttributeValue MyAttr1(2);
   TEST_EQ(2, MyAttr1.GetId());
   TEST_IS_ZERO(MyAttr1.GetLength());
 
@@ -55,9 +55,9 @@ NetlinkTest_GenericMessage(void* arg_)
   TEST_TRUE(MyAttr1.Set(ExpVal));
   TEST_EQ(sizeof(ExpVal), MyAttr1.GetLength());
 
-  TEST_TRUE(MyNestedAttr1.Put(MyAttr1));
+  TEST_TRUE(MyNestedAttr1.Put(&MyAttr1));
 
-  TEST_TRUE(MyMessage1.PutAttribute(MyNestedAttr1));
+  TEST_TRUE(MyMessage1.PutAttribute(&MyNestedAttr1));
 
   TEST_TRUE(MyMessage1.Assemble(msg));
 
@@ -70,14 +70,14 @@ NetlinkTest_GenericMessage(void* arg_)
 
   TEST_TRUE(MyMessage2.Disassemble(msg));
 
-  netlink::Attribute MyNestedAttr2(1, true);
+  netlink::AttributeNested MyNestedAttr2(1);
   TEST_EQ(1, MyNestedAttr2.GetId());
-  TEST_TRUE(MyMessage1.GetAttribute(MyNestedAttr2));
+  TEST_TRUE(MyMessage1.GetAttribute(&MyNestedAttr2));
 
-  netlink::Attribute MyAttr2(2);
+  netlink::AttributeValue MyAttr2(2);
   TEST_EQ(2, MyAttr2.GetId());
   TEST_IS_ZERO(MyAttr2.GetLength());
-  TEST_TRUE(MyNestedAttr2.Get(MyAttr2));
+  TEST_TRUE(MyNestedAttr2.Get(&MyAttr2));
 
   // Return success
   UTEST_RETURN(UTEST_PASS);

@@ -65,7 +65,7 @@ public:
   operator()() const
   {
     MODE mode = MODE_ERR;
-    switch (this->GetValue<uint32_t>())
+    switch (this->Get<uint32_t>())
     {
     case NL80211_TX_POWER_AUTOMATIC:
       mode = MODE_AUTO;
@@ -89,16 +89,13 @@ public:
     switch (mode_)
     {
     case MODE_AUTO:
-      this->SetValue(NL80211_TX_POWER_AUTOMATIC);
-      status = true;
+      status = this->Set(NL80211_TX_POWER_AUTOMATIC);
       break;
     case MODE_LIMITED:
-      this->SetValue(NL80211_TX_POWER_LIMITED);
-      status = true;
+      status = this->Set(NL80211_TX_POWER_LIMITED);
       break;
     case MODE_FIXED:
-      this->SetValue(NL80211_TX_POWER_FIXED);
-      status = true;
+      status = this->Set(NL80211_TX_POWER_FIXED);
       break;
     default:
       break;

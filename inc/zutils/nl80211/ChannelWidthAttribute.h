@@ -66,13 +66,13 @@ namespace nl80211
 // Class: ChannelWidthAttribute
 //*****************************************************************************
 
-class ChannelWidthAttribute : public Attribute
+class ChannelWidthAttribute : public AttributeValue
 {
 
 public:
 
   ChannelWidthAttribute() :
-    Attribute(NL80211_ATTR_CHANNEL_WIDTH)
+    AttributeValue(NL80211_ATTR_CHANNEL_WIDTH)
   {
   }
 

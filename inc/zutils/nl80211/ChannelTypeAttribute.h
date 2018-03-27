@@ -52,13 +52,13 @@ namespace nl80211
 // Class: ChannelTypeAttribute
 //*****************************************************************************
 
-class ChannelTypeAttribute : public Attribute
+class ChannelTypeAttribute : public AttributeValue
 {
 
 public:
 
   ChannelTypeAttribute() :
-    Attribute(NL80211_ATTR_WIPHY_CHANNEL_TYPE)
+    AttributeValue(NL80211_ATTR_WIPHY_CHANNEL_TYPE)
   {
   }
 

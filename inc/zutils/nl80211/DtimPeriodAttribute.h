@@ -36,13 +36,13 @@ namespace nl80211
 // Class: DtimPeriodAttribute
 //*****************************************************************************
 
-class DtimPeriodAttribute : public Attribute
+class DtimPeriodAttribute : public AttributeValue
 {
 
 public:
 
   DtimPeriodAttribute() :
-    Attribute(NL80211_ATTR_DTIM_PERIOD)
+    AttributeValue(NL80211_ATTR_DTIM_PERIOD)
   {
   }
 

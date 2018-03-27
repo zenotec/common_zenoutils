@@ -55,7 +55,7 @@ public:
   std::string
   operator()() const
   {
-    return (this->GetValue<std::string>());
+    return (this->Get<std::string>());
   }
 
   bool

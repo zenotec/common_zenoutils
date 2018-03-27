@@ -47,7 +47,7 @@ __errstr(int code)
 DelStationCommand::DelStationCommand(const unsigned int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 DelStationCommand::~DelStationCommand()
@@ -60,9 +60,9 @@ DelStationCommand::Exec()
 
   this->_count.Reset();
 
-  if (!this->IfIndex.IsValid())
+  if (!this->IfIndex())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName.Get<std::string>());
     return(false);
   }
 
@@ -81,8 +81,8 @@ DelStationCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_DEL_STATION);
 
-  cmdmsg->PutAttribute(this->IfIndex);
-  cmdmsg->PutAttribute(this->Mac);
+  cmdmsg->PutAttribute(&this->IfIndex);
+  cmdmsg->PutAttribute(&this->Mac);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -118,7 +118,7 @@ DelStationCommand::Display() const
   std::cout << "DelStationCommand: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tMac:   \t" << this->Mac.GetString() << std::endl;
+  std::cout << "\tMac:   \t" << this->Mac() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 

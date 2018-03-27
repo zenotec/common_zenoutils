@@ -55,13 +55,13 @@ public:
   uint32_t
   operator()() const
   {
-    return (this->GetValue<uint32_t>());
+    return (this->Get<uint32_t>());
   }
 
   bool
   operator()(const uint32_t ifindex_)
   {
-    return (this->SetValue(ifindex_));
+    return (this->Set(ifindex_));
   }
 
 protected:

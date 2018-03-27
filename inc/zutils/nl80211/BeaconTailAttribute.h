@@ -36,13 +36,13 @@ namespace nl80211
 // Class: BeaconTailAttribute
 //*****************************************************************************
 
-class BeaconTailAttribute : public Attribute
+class BeaconTailAttribute : public AttributeValue
 {
 
 public:
 
   BeaconTailAttribute() :
-    Attribute(NL80211_ATTR_BEACON_TAIL)
+      AttributeValue(NL80211_ATTR_BEACON_TAIL)
   {
   }
 

@@ -36,13 +36,13 @@ namespace nl80211
 // Class: BeaconHeadAttribute
 //*****************************************************************************
 
-class BeaconHeadAttribute : public Attribute
+class BeaconHeadAttribute : public AttributeValue
 {
 
 public:
 
   BeaconHeadAttribute() :
-      Attribute(NL80211_ATTR_BEACON_HEAD)
+      AttributeValue(NL80211_ATTR_BEACON_HEAD)
   {
   }
 

@@ -166,12 +166,7 @@ RouteMessage::Disassemble(struct nl_msg* msg_)
   struct nlattr* attr = nlmsg_attrdata(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
   int len = nlmsg_attrlen(nlmsg_hdr(msg_), sizeof(struct ifinfomsg));
 
-  struct nlattr* pos = NULL;
-  int rem = 0;
-  nla_for_each_attr(pos, attr, len, rem)
-  {
-    status &= this->_attrs[nla_type(pos)].Disassemble(pos);
-  }
+  status = this->_attrs.Disassemble(attr, len);
 
   return(status);
 }

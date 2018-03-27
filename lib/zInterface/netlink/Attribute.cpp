@@ -40,80 +40,55 @@ namespace netlink
 // Class: Attribute
 //*****************************************************************************
 
-Attribute::Attribute(const uint32_t id_, const bool nested_) :
-    nested(nested_), _id(id_)
+AttributeValue::AttributeValue(const uint32_t id_) :
+    Attribute(id_)
 {
 }
 
-Attribute::Attribute(const Attribute& other_) :
-    nested(other_.nested), _id(other_._id), attrs(other_.attrs)
+AttributeValue::AttributeValue(const Attribute* other_) :
+    Attribute(0)
+{
+  this->operator =(other_);
+}
+
+AttributeValue::~AttributeValue()
 {
 }
 
-Attribute::~Attribute()
+AttributeValue&
+AttributeValue::operator =(const Attribute* other_)
 {
-}
-
-Attribute&
-Attribute::operator=(const Attribute& other_)
-{
-  this->_id = other_._id;
-  if (!this->nested && other_.nested)
+  if (other_)
   {
-    // TODO: Convert to un-nested
+    this->SetId(other_->GetId());
+    if (other_->IsNested())
+    {
+      AttributeNested* val = (AttributeNested*) other_;
+      // TODO:
+      std::cerr << "AttributeValue::operator=(): Not implemented" << std::endl;
+    }
+    else
+    {
+      AttributeValue* val = (AttributeValue*) other_;
+      this->_data = val->_data;
+    }
   }
-  else if (this->nested && !other_.nested)
-  {
-    // TODO: Convert to nested
-  }
-  else
-  {
-    this->attrs = other_.attrs;
-  }
-  return (*this);
-}
-
-Attribute&
-Attribute::operator +=(const Attribute& other_)
-{
   return (*this);
 }
 
 bool
-Attribute::Assemble(struct nl_msg* msg_)
+AttributeValue::Assemble(struct nl_msg* msg_)
 {
   bool status = true;
-
   if (msg_)
   {
-    return (false);
-  }
-
-  if (this->nested)
-  {
-    struct nlattr* start = nla_nest_start(msg_, this->GetId());
-    if (start)
-    {
-      FOREACH(auto& attr, this->attrs)
-      {
-        status &= (nla_put(msg_, attr.first, attr.second.size(), attr.second.data()) == 0);
-      }
-      nla_nest_end(msg_, start);
-    }
-    else
-    {
-      nla_nest_cancel(msg_, start);
-    }
-  }
-  else
-  {
-    status = (nla_put(msg_, this->GetId(), this->attrs[0].size(), this->attrs[0].data()) == 0);
+    status = (nla_put(msg_, this->GetId(), this->_data.size(), this->_data.data()) == 0);
   }
   return (status);
 }
 
 bool
-Attribute::Disassemble(struct nlattr* attr_, size_t len)
+AttributeValue::Disassemble(struct nlattr* attr_, size_t len)
 {
   bool status = false;
   fprintf(stderr, "AttributeValue::Disassemble(): %p[%d]: %d\n", attr_, nla_type(attr_), nla_len(attr_));
@@ -124,241 +99,245 @@ Attribute::Disassemble(struct nlattr* attr_, size_t len)
   return (status);
 }
 
-uint32_t
-Attribute::GetId() const
-{
-  return (this->_id);
-}
-
-bool
-Attribute::SetId(const uint32_t id_)
-{
-  this->_id = id_;
-  return (true);
-}
-
 size_t
-Attribute::GetLength() const
+AttributeValue::GetLength() const
 {
-  size_t len = 0;
-  if (this->nested)
-  {
-    FOREACH(auto& attr, this->attrs)
-    {
-      len += (sizeof(struct nlattr) + attr.second.size());
-    }
-  }
-  else if (this->attrs.count(0))
-  {
-    len = this->attrs.at(0).size();
-  }
-  return (len);
+  return (this->_data.size());
 }
 
 bool
-Attribute::Get(std::string& str_) const
+AttributeValue::Get(std::string& str_) const
 {
   bool status = false;
   return (status);
 }
 
 bool
-Attribute::Set(const std::string& str_)
+AttributeValue::Set(const std::string& str_)
 {
   bool status = false;
   size_t len = strlen(str_.c_str());
-  this->attrs[0].resize(len);
-  status = (strcpy((char*)this->attrs[0].data(), str_.c_str()));
+  this->_data.resize(len);
+  status = (strcpy((char*)this->_data.data(), str_.c_str()));
   return (status);
 }
 
 bool
-Attribute::Get(uint8_t* p_, size_t& len_) const
+AttributeValue::Get(uint8_t* p_, size_t& len_) const
 {
   bool status = false;
   return (status);
 }
 
 bool
-Attribute::Set(const uint8_t* p_, const size_t len_)
+AttributeValue::Set(const uint8_t* p_, const size_t len_)
 {
   bool status = false;
-  this->attrs[0].resize(len_);
-  if (memcpy(this->attrs[0].data(), p_, len_) == this->attrs[0].data())
+  this->_data.resize(len_);
+  status = (memcpy(this->_data.data(), p_, len_) == this->_data.data());
+  return (status);
+}
+
+void
+AttributeValue::Display(const std::string& prefix_) const
+{
+  std::cout << prefix_ << "Value[" << this->GetId() << "]: " << this->GetLength() << std::endl;
+}
+
+//*****************************************************************************
+// Class: AttributeTable
+//*****************************************************************************
+
+AttributeTable::AttributeTable()
+{
+}
+
+AttributeTable::~AttributeTable()
+{
+}
+
+bool
+AttributeTable::Assemble(struct nl_msg* msg_)
+{
+  bool status = true;
+  FOREACH(auto& attr, this->_attrs)
   {
+    status &= attr.second->Assemble(msg_);
+  }
+  return (status);
+}
+
+bool
+AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
+{
+
+  bool status = true;
+  struct nlattr* pos = NULL;
+  int rem = 0;
+
+  // Start fresh
+  this->_attrs.clear();
+
+  for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
+  {
+    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d\n", pos, nla_type(pos), nla_len(pos));
+    SHARED_PTR(Attribute) a(STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(nla_type(pos)))));
+    status &= a->Disassemble(pos);
+    this->_attrs[nla_type(pos)] = a;
+  }
+
+  return (status);
+}
+
+size_t
+AttributeTable::GetLength() const
+{
+  return (this->_attrs.size());
+}
+
+bool
+AttributeTable::Get(Attribute* attr_)
+{
+  bool status = false;
+  if (attr_ && this->_attrs.count(attr_->GetId()))
+  {
+    if (attr_->IsNested())
+    {
+      *(AttributeNested*)attr_ = this->_attrs.at(attr_->GetId()).get();
+    }
+    else
+    {
+      *(AttributeValue*)attr_ = this->_attrs.at(attr_->GetId()).get();
+    }
     status = true;
   }
   return (status);
 }
 
 bool
-Attribute::Get(Attribute& attr_)
+AttributeTable::Put(Attribute* attr_)
 {
   bool status = false;
-  if (this->nested)
+  if (attr_)
   {
+    SHARED_PTR(Attribute) a;
+    if (attr_->IsNested())
+    {
+      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeNested)(new AttributeNested(attr_)));
+    }
+    else
+    {
+      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(attr_)));
+    }
+    this->_attrs[attr_->GetId()] = a;
+  }
+  return (true);
+}
 
+void
+AttributeTable::Display(const std::string& prefix_) const
+{
+  std::cout << prefix_ << "Table" << std::endl;
+  FOREACH (auto& attr, this->_attrs)
+  {
+    attr.second->Display(prefix_ + std::string("\t"));
+  }
+  return;
+}
+
+//*****************************************************************************
+// Class: AttributeNested
+//*****************************************************************************
+
+AttributeNested::AttributeNested(const uint32_t id_) :
+    Attribute(id_, true)
+{
+}
+
+AttributeNested::AttributeNested(const Attribute* other_) :
+    Attribute(0)
+{
+  this->operator =(other_);
+}
+
+AttributeNested::~AttributeNested()
+{
+}
+
+AttributeNested&
+AttributeNested::operator =(const Attribute* other_)
+{
+  if (other_)
+  {
+    this->SetId(other_->GetId());
+    if (other_->IsNested())
+    {
+      AttributeNested* val = (AttributeNested*) other_;
+      this->_attrs = val->_attrs;
+    }
+    else
+    {
+      // TODO:
+      std::cerr << "AttributeNested::operator=(): Not implemented" << std::endl;
+    }
+  }
+  return (*this);
+}
+
+bool
+AttributeNested::Assemble(struct nl_msg* msg_)
+{
+  bool status = false;
+  struct nlattr* start = nla_nest_start(msg_, (this->GetId() | NLA_F_NESTED));
+  if (msg_ && start)
+  {
+    status = this->_attrs.Assemble(msg_);
+    nla_nest_end(msg_, start);
+  }
+  else
+  {
+    nla_nest_cancel(msg_, start);
   }
   return (status);
 }
 
 bool
-Attribute::Put(Attribute& attr_)
+AttributeNested::Disassemble(struct nlattr* attr_, size_t len_)
 {
-  bool status = false;
-  if (this->nested)
+  bool status = true;
+  struct nlattr* pos = NULL;
+  int rem = 0;
+  for (pos = (struct nlattr*)nla_data(attr_), rem = nla_len(attr_);
+      nla_ok(pos, rem); pos = nla_next(pos, &rem))
   {
-    this->attrs[attr_.GetId()] = attr_.attrs[0];
+    status &= this->_attrs.Disassemble((struct nlattr*)nla_data(pos), nla_len(pos));
   }
   return (status);
 }
 
-void
-Attribute::Display(const std::string& prefix_) const
+size_t
+AttributeNested::GetLength() const
 {
-  std::cout << prefix_ << "Attr[" << this->GetId() << "]: " << this->GetLength() << std::endl;
+  return (this->_attrs.GetLength());
 }
-//
-////*****************************************************************************
-//// Class: AttributeTable
-////*****************************************************************************
-//
-//AttributeTable::AttributeTable()
-//{
-//}
-//
-//AttributeTable::~AttributeTable()
-//{
-//}
-//
-//bool
-//AttributeTable::Assemble(struct nl_msg* msg_)
-//{
-//  bool status = true;
-//  FOREACH(auto& attr, this->_attrs)
-//  {
-//    status &= attr.second.Assemble(msg_);
-//  }
-//  return (status);
-//}
-//
-//bool
-//AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
-//{
-//
-//  bool status = true;
-//  struct nlattr* pos = NULL;
-//  int rem = 0;
-//
-//  // Start fresh
-//  this->_attrs.clear();
-//
-//  for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
-//  {
-//    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d\n", pos, nla_type(pos), nla_len(pos));
-//    status &= this->_attrs[nla_type(pos)].Disassemble(pos);
-//  }
-//
-//  return (status);
-//}
-//
-//size_t
-//AttributeTable::GetLength() const
-//{
-//  return (this->_attrs.size());
-//}
-//
-//bool
-//AttributeTable::Get(Attribute& attr_)
-//{
-//  bool status = false;
-//  if (this->_attrs.count(attr_.GetId()))
-//  {
-//    attr_ = this->_attrs.at(attr_.GetId());
-//    status = true;
-//  }
-//  return (status);
-//}
-//
-//bool
-//AttributeTable::Put(Attribute& attr_)
-//{
-//  this->_attrs[attr_.GetId()] = attr_;
-//  return (true);
-//}
-//
-//void
-//AttributeTable::Display(const std::string& prefix_) const
-//{
-//  std::cout << prefix_ << "Table" << std::endl;
-//  FOREACH (auto& attr, this->_attrs)
-//  {
-//    attr.second.Display(prefix_ + std::string("\t"));
-//  }
-//  return;
-//}
-//
-////*****************************************************************************
-//// Class: AttributeNested
-////*****************************************************************************
-//
-//AttributeNested::AttributeNested(const uint32_t id_) :
-//    Attribute(id_)
-//{
-//}
-//
-//AttributeNested::~AttributeNested()
-//{
-//}
-//
-//bool
-//AttributeNested::Assemble(struct nl_msg* msg_)
-//{
-//  bool status = false;
-//  struct nlattr* start = nla_nest_start(msg_, (this->GetId() | NLA_F_NESTED));
-//  if (msg_ && start)
-//  {
-//    status = this->_attrs.Assemble(msg_);
-//    nla_nest_end(msg_, start);
-//  }
-//  else
-//  {
-//    nla_nest_cancel(msg_, start);
-//  }
-//  return (status);
-//}
-//
-//bool
-//AttributeNested::Disassemble(struct nlattr* attr_, size_t len_)
-//{
-//  bool status = Attribute::Disassemble(attr_, len_);
-//  status &= this->_attrs.Disassemble((struct nlattr*)nla_data(attr_), nla_len(attr_));
-//  return (status);
-//}
-//
-//size_t
-//AttributeNested::GetLength() const
-//{
-//  return (Attribute::GetLength());
-//}
-//
-//bool
-//AttributeNested::Get(Attribute& attr_)
-//{
-//  return (this->_attrs.Get(attr_));
-//}
-//
-//bool
-//AttributeNested::Put(Attribute& attr_)
-//{
-//  return (this->_attrs.Put(attr_));
-//}
-//
-//void
-//AttributeNested::Display(const std::string& prefix_) const
-//{
-//  std::cout << prefix_ << "Nested" << std::endl;
-//  this->_attrs.Display(prefix_ + std::string("\t"));
-//}
+
+bool
+AttributeNested::Get(Attribute* attr_)
+{
+  return (this->_attrs.Get(attr_));
+}
+
+bool
+AttributeNested::Put(Attribute* attr_)
+{
+  return (this->_attrs.Put(attr_));
+}
+
+void
+AttributeNested::Display(const std::string& prefix_) const
+{
+  std::cout << prefix_ << "Nested[" << this->GetId() << "]: " << this->GetLength() << std::endl;
+  this->_attrs.Display(prefix_ + std::string("\t"));
+}
 
 }

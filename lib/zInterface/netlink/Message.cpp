@@ -66,26 +66,21 @@ Message::SetType(const uint16_t type_)
 }
 
 bool
-Message::GetAttribute(Attribute& attr_)
+Message::GetAttribute(Attribute* attr_)
 {
-  bool status = false;
-  if (this->_attrs.count(attr_.GetId()))
-  {
-    attr_ = this->_attrs.at(attr_.GetId());
-  }
-  return (status);
+  return (this->_attrs.Get(attr_));
 }
 
 bool
-Message::PutAttribute(Attribute& attr_)
+Message::PutAttribute(Attribute* attr_)
 {
-  this->_attrs[attr_.GetId()] = attr_;
-  return (true);
+  return (this->_attrs.Put(attr_));
 }
 
 void
 Message::Display() const
 {
+  this->_attrs.Display();
 }
 
 }

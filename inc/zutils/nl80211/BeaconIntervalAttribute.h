@@ -36,13 +36,13 @@ namespace nl80211
 // Class: BeaconIntervalAttribute
 //*****************************************************************************
 
-class BeaconIntervalAttribute : public Attribute
+class BeaconIntervalAttribute : public AttributeValue
 {
 
 public:
 
   BeaconIntervalAttribute() :
-    Attribute(NL80211_ATTR_BEACON_INTERVAL)
+      AttributeValue(NL80211_ATTR_BEACON_INTERVAL)
   {
   }
 

@@ -98,13 +98,13 @@ _chan2freq(uint16_t chan_)
 // Class: FrequencyAttribute
 //*****************************************************************************
 
-class FrequencyAttribute : public Attribute
+class FrequencyAttribute : public AttributeValue
 {
 
 public:
 
   FrequencyAttribute() :
-    Attribute(NL80211_ATTR_WIPHY_FREQ)
+    AttributeValue(NL80211_ATTR_WIPHY_FREQ)
   {
   }
 

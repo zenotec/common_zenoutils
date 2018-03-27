@@ -59,17 +59,17 @@ public:
   SetType(const uint16_t type_);
 
   bool
-  GetAttribute(Attribute& attr_);
+  GetAttribute(Attribute* attr_);
 
   bool
-  PutAttribute(Attribute& attr_);
+  PutAttribute(Attribute* attr_);
 
   void
   Display() const;
 
 protected:
 
-  std::map<int, Attribute> _attrs;
+  AttributeTable _attrs;
 
 private:
 
