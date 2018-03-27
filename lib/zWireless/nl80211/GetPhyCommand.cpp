@@ -92,7 +92,7 @@ GetPhyCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_GET_WIPHY);
 
   // Set PHY index attribute
-  if (!cmdmsg->PutAttribute(this->PhyIndex))
+  if (!cmdmsg->PutAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
@@ -137,26 +137,25 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 
   std::cout << "GetPhyCommand::valid_cb()" << std::endl;
-//  msg.Display();
-  msg.DisplayAttributes();
+  msg.Display();
 
-  if (!msg.GetAttribute(this->PhyIndex))
+  if (!msg.GetAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->PhyName))
+  if (!msg.GetAttribute(&this->PhyName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyName.GetId()));
     return(NL_SKIP);
   }
 
-  msg.GetAttribute(this->Frequency);
-  msg.GetAttribute(this->ChannelType);
-  msg.GetAttribute(this->ChannelWidth);
-  msg.GetAttribute(this->TxPowerMode);
-  msg.GetAttribute(this->TxPowerLevel);
+  msg.GetAttribute(&this->Frequency);
+  msg.GetAttribute(&this->ChannelType);
+  msg.GetAttribute(&this->ChannelWidth);
+  msg.GetAttribute(&this->TxPowerMode);
+  msg.GetAttribute(&this->TxPowerLevel);
 
   this->_status = true;
   this->_count.Post();

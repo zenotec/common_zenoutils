@@ -80,43 +80,43 @@ StartApCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_START_AP);
 
-  if (!cmdmsg->PutAttribute(this->IfIndex))
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Error putting interface index attribute");
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->Ssid))
+  if (!cmdmsg->PutAttribute(&this->Ssid))
   {
-    ZLOG_ERR("Error putting SSID attribute: " + this->Ssid.GetString());
+    ZLOG_ERR("Error putting SSID attribute: " + this->Ssid());
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->Channel))
+  if (!cmdmsg->PutAttribute(&this->Channel))
   {
     ZLOG_ERR("Error putting channel attribute: " + zToStr(this->Channel.GetChannel()));
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->BeaconInterval))
+  if (!cmdmsg->PutAttribute(&this->BeaconInterval))
   {
-    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval.GetValue<uint32_t>()));
+    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval.Get<uint32_t>()));
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->DtimPeriod))
+  if (!cmdmsg->PutAttribute(&this->DtimPeriod))
   {
     ZLOG_ERR("Error putting DTIM period attribute");
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->BeaconHead))
+  if (!cmdmsg->PutAttribute(&this->BeaconHead))
   {
     ZLOG_ERR("Error putting beacon head attribute");
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(this->BeaconTail))
+  if (!cmdmsg->PutAttribute(&this->BeaconTail))
   {
     ZLOG_ERR("Error putting beacon tail attribute");
     return (false);
@@ -158,17 +158,17 @@ StartApCommand::Display() const
   if (this->IfIndex.IsValid())
     std::cout << "\tIndex:  \t" << this->IfIndex() << std::endl;
   if (this->Ssid.IsValid())
-    std::cout << "\tSsid:   \t" << this->Ssid.GetString() << std::endl;
+    std::cout << "\tSsid:   \t" << this->Ssid() << std::endl;
   if (this->Channel.IsValid())
     std::cout << "\tChannel:\t" << this->Channel.GetChannel() << std::endl;
   if (this->BeaconInterval.IsValid())
-    std::cout << "\tBINT:   \t" << this->BeaconInterval.GetValue<uint32_t>() << std::endl;
+    std::cout << "\tBINT:   \t" << this->BeaconInterval() << std::endl;
   if (this->DtimPeriod.IsValid())
-    std::cout << "\tDTIM:   \t" << this->DtimPeriod.GetValue<uint32_t>() << std::endl;
+    std::cout << "\tDTIM:   \t" << this->DtimPeriod() << std::endl;
   if (this->BeaconHead.IsValid())
-    std::cout << "\tBHEAD:  \t" << this->BeaconHead.GetValue<uint32_t>() << std::endl;
+    std::cout << "\tBHEAD:  \t" << this->BeaconHead.Get<uint32_t>() << std::endl;
   if (this->BeaconTail.IsValid())
-    std::cout << "\tBTAIL:  \t" << this->BeaconTail.GetValue<uint32_t>() << std::endl;
+    std::cout << "\tBTAIL:  \t" << this->BeaconTail.Get<uint32_t>() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 

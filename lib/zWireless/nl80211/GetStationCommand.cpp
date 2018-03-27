@@ -46,7 +46,7 @@ __errstr(int code)
 GetStationCommand::GetStationCommand(const unsigned int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex.SetValue(this->GetIfIndex());
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 GetStationCommand::~GetStationCommand()
@@ -59,7 +59,7 @@ GetStationCommand::Exec()
 
   this->_count.Reset();
 
-  if (!this->IfIndex.IsValid())
+  if (!this->IfIndex())
   {
     ZLOG_ERR("Error getting interface index for: " + this->IfName());
     return(false);
@@ -80,7 +80,7 @@ GetStationCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_GET_STATION);
 
-  cmdmsg->PutAttribute(this->IfIndex);
+  cmdmsg->PutAttribute(&this->IfIndex);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -116,7 +116,7 @@ GetStationCommand::Display() const
   std::cout << "GetStationCommand: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tMac:   \t" << this->Mac.GetString() << std::endl;
+  std::cout << "\tMac:   \t" << this->Mac() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -130,15 +130,15 @@ GetStationCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
-  msg.DisplayAttributes();
+  msg.Display();
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);

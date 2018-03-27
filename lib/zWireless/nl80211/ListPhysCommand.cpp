@@ -134,13 +134,13 @@ ListPhysCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(phyindex))
+  if (!msg.GetAttribute(&phyindex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(phyindex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(phyname))
+  if (!msg.GetAttribute(&phyname))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(phyname.GetId()));
     return(NL_SKIP);

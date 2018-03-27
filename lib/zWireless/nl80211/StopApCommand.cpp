@@ -45,14 +45,14 @@ __errstr(int code)
 StopApCommand::StopApCommand(int index_) :
     Command(index_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 StopApCommand::StopApCommand(const std::string& ifname_) :
     Command(ifname_)
 {
-  this->IfIndex.SetValue(this->GetIfIndex());
-  this->IfName.SetValue(ifname_);
+  this->IfIndex.Set(this->GetIfIndex());
+  this->IfName.Set(ifname_);
 }
 
 StopApCommand::~StopApCommand()
@@ -79,7 +79,7 @@ StopApCommand::Exec()
 
 
   // Set interface index attribute
-  if (!cmdmsg->PutAttribute(this->IfIndex))
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
@@ -117,7 +117,7 @@ StopApCommand::Display() const
   std::cout << "Set BSS: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
+  std::cout << "\tSsid:  \t" << this->Ssid() << std::endl;
 }
 
 int
@@ -131,15 +131,15 @@ StopApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  msg.DisplayAttributes();
+  msg.Display();
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);

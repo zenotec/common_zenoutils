@@ -50,6 +50,8 @@ zInterfaceUnitTest_LDADD = \
     ${top_builddir}/lib/zLog/libzLog.la \
     ${top_builddir}/lib/zThread/libzThread.la \
     ${top_builddir}/lib/zSignal/libzSignal.la \
+    ${top_builddir}/lib/zConfig/libzConfig.la \
     ${top_builddir}/lib/zEvent/libzEvent.la \
+    ${top_builddir}/lib/zData/libzData.la \
     ${top_builddir}/lib/zSem/libzSem.la
 

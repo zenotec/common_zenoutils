@@ -76,6 +76,8 @@ zWirelessTest_WirelessInterface(void* arg)
   FOREACH(auto& iface, ifaces)
   {
 
+    ZLOG_DEBUG("Testing interface: " + iface.second + "[" + ZLOG_INT(iface.first) + "]");
+
     MyInterface = new zWireless::Interface(iface.second);
     TEST_ISNOT_NULL(MyInterface);
 

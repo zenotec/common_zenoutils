@@ -82,21 +82,21 @@ NewInterfaceCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_NEW_INTERFACE);
 
   // Set phy index attribute
-  if (!cmdmsg->PutAttribute(this->PhyIndex))
+  if (!cmdmsg->PutAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
   }
 
   // Set interface name attribute
-  if (!cmdmsg->PutAttribute(this->IfName))
+  if (!cmdmsg->PutAttribute(&this->IfName))
   {
     ZLOG_ERR("Error setting interface name attribute");
     return (false);
   }
 
   // Set interface type attribute
-  if (!cmdmsg->PutAttribute(this->IfType))
+  if (!cmdmsg->PutAttribute(&this->IfType))
   {
     ZLOG_ERR("Error setting iftype attribute");
     return (false);
@@ -151,25 +151,25 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->PhyIndex))
+  if (!msg.GetAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfType))
+  if (!msg.GetAttribute(&this->IfType))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
     return(NL_SKIP);

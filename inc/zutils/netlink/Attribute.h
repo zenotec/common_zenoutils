@@ -58,6 +58,26 @@ public:
   Disassemble(struct nlattr* attr_, size_t len_ = 0) = 0;
 
   bool
+  IsValid() const
+  {
+    return (this->_valid);
+  }
+
+  bool
+  SetValid()
+  {
+    this->_valid = true;
+    return (this->_valid);
+  }
+
+  bool
+  ClrValid()
+  {
+    this->_valid = false;
+    return (!this->_valid);
+  }
+
+  bool
   IsNested() const
   {
     return (this->_nested);
@@ -86,8 +106,9 @@ protected:
 
 private:
 
-  uint32_t _id;
+  bool _valid;
   bool _nested;
+  uint32_t _id;
 
 };
 

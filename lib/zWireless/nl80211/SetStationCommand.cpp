@@ -46,7 +46,7 @@ __errstr(int code)
 SetStationCommand::SetStationCommand(const unsigned int ifindex_) :
     Command(ifindex_)
 {
-  this->IfIndex(ifindex_);
+  this->IfIndex(this->GetIfIndex());
 }
 
 SetStationCommand::~SetStationCommand()
@@ -80,7 +80,7 @@ SetStationCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_SET_STATION);
 
-  cmdmsg->PutAttribute(this->IfIndex);
+  cmdmsg->PutAttribute(&this->IfIndex);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -116,7 +116,7 @@ SetStationCommand::Display() const
   std::cout << "SetStationCommand: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tMac:   \t" << this->Mac.GetString() << std::endl;
+  std::cout << "\tMac:   \t" << this->Mac() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -131,15 +131,15 @@ SetStationCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  msg.DisplayAttributes();
+  msg.Display();
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);

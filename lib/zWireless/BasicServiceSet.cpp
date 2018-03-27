@@ -124,7 +124,7 @@ BasicServiceSet::AddStation(const std::string& addr_)
   }
 
   NewStationCommand* cmd = new NewStationCommand(this->GetIfIndex());
-  cmd->Mac.SetString(addr_);
+  cmd->Mac(addr_);
   this->addCommand(cmd);
 
   return (status);
@@ -142,7 +142,7 @@ BasicServiceSet::DelStation(const std::string& addr_)
   }
 
   DelStationCommand* cmd = new DelStationCommand(this->GetIfIndex());
-  cmd->Mac.SetString(addr_);
+  cmd->Mac(addr_);
   this->addCommand(cmd);
 
   return (status);
@@ -179,11 +179,11 @@ BasicServiceSet::Create()
   if (this->_beacon->Assemble(buf, blen) != NULL)
   {
     StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
-    cmd->BeaconHead.PutBuffer(this->_beacon->Head(), this->_beacon->HeadSize());
-    cmd->BeaconTail.PutBuffer(this->_beacon->Tail(), this->_beacon->TailSize());
-    cmd->BeaconInterval.SetValue(100);
-    cmd->DtimPeriod.SetValue(this->_beacon->Tim.Period());
-    cmd->Ssid.SetString(this->_beacon->Ssid());
+    cmd->BeaconHead.Set(this->_beacon->Head(), this->_beacon->HeadSize());
+    cmd->BeaconTail.Set(this->_beacon->Tail(), this->_beacon->TailSize());
+    cmd->BeaconInterval(100);
+    cmd->DtimPeriod(this->_beacon->Tim.Period());
+    cmd->Ssid(this->_beacon->Ssid());
     cmd->Channel.SetChannel(1);
 //    cmd->Display();
     this->addCommand(cmd);

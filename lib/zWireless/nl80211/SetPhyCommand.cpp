@@ -83,7 +83,7 @@ SetPhyCommand::Display() const
   }
   if (this->TxPowerMode.IsValid())
   {
-    std::cout << "\tPowerMode:\t" << this->TxPowerMode.GetMode() << std::endl;
+    std::cout << "\tPowerMode:\t" << this->TxPowerMode() << std::endl;
   }
   if (this->TxPowerLevel.IsValid())
   {
@@ -122,26 +122,26 @@ SetPhyCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_SET_WIPHY);
 
   // Set interface index attribute
-  if (!cmdmsg->PutAttribute(this->IfIndex))
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
   }
 
   // Set phy index attribute
-  if (!cmdmsg->PutAttribute(this->PhyIndex))
+  if (!cmdmsg->PutAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Error setting phyindex attribute");
     return (false);
   }
 
   // Set optional phy name attribute
-  cmdmsg->PutAttribute(this->PhyName);
-  cmdmsg->PutAttribute(this->Frequency);
-  cmdmsg->PutAttribute(this->ChannelType);
-  cmdmsg->PutAttribute(this->ChannelWidth);
-  cmdmsg->PutAttribute(this->TxPowerMode);
-  cmdmsg->PutAttribute(this->TxPowerLevel);
+  cmdmsg->PutAttribute(&this->PhyName);
+  cmdmsg->PutAttribute(&this->Frequency);
+  cmdmsg->PutAttribute(&this->ChannelType);
+  cmdmsg->PutAttribute(&this->ChannelWidth);
+  cmdmsg->PutAttribute(&this->TxPowerMode);
+  cmdmsg->PutAttribute(&this->TxPowerLevel);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -173,10 +173,8 @@ SetPhyCommand::Exec()
 int
 SetPhyCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 

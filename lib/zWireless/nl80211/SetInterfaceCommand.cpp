@@ -54,13 +54,14 @@ __errstr(int code)
 SetInterfaceCommand::SetInterfaceCommand(int index_) :
     Command(index_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 SetInterfaceCommand::SetInterfaceCommand(const std::string& name_) :
     Command(name_)
 {
-  this->IfName.SetValue(name_);
+  this->IfIndex.Set(this->GetIfIndex());
+  this->IfName.Set(name_);
 }
 
 SetInterfaceCommand::~SetInterfaceCommand()
@@ -76,7 +77,7 @@ SetInterfaceCommand::Exec()
 
   if (!this->IfIndex.IsValid())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName.GetValue<std::string>());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName());
     return(false);
   }
 
@@ -96,14 +97,14 @@ SetInterfaceCommand::Exec()
   cmdmsg->SetCommand(NL80211_CMD_SET_INTERFACE);
 
   // Set interface index attribute
-  if (!cmdmsg->PutAttribute(this->IfIndex))
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Error setting ifindex attribute");
     return (false);
   }
 
   // Set interface type attribute
-  if (!cmdmsg->PutAttribute(this->IfType))
+  if (!cmdmsg->PutAttribute(&this->IfType))
   {
     ZLOG_ERR("Error setting iftype attribute");
     return (false);
@@ -140,9 +141,9 @@ SetInterfaceCommand::Display() const
 {
   std::cout << "Set Interface: " << std::endl;
   if (this->IfName.IsValid())
-    std::cout << "\tName:  \t" << this->IfName.GetValue<std::string>() << std::endl;
+    std::cout << "\tName:  \t" << this->IfName() << std::endl;
   if (this->IfIndex.IsValid())
-    std::cout << "\tIndex: \t" << int(this->IfIndex.GetValue<uint32_t>()) << std::endl;
+    std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
   if (this->IfType.IsValid())
     std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
 }
@@ -162,21 +163,20 @@ SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 
   // Debug prints, comment out when not needed
   msg.Display();
-  msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return (NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfType))
+  if (!msg.GetAttribute(&this->IfType))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
     return (NL_SKIP);

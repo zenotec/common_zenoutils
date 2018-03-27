@@ -45,13 +45,13 @@ __errstr(int code)
 SetBeaconCommand::SetBeaconCommand(int index_) :
     Command(index_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex.Set(index_);
 }
 
 SetBeaconCommand::SetBeaconCommand(const std::string& name_) :
     Command(name_)
 {
-  this->IfName.SetValue(name_);
+  this->IfName.Set(name_);
 }
 
 SetBeaconCommand::~SetBeaconCommand()
@@ -85,12 +85,12 @@ SetBeaconCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_SET_BEACON);
 
-  cmdmsg->PutAttribute(this->IfIndex);
-  cmdmsg->PutAttribute(this->Ssid);
-  cmdmsg->PutAttribute(this->BeaconInterval);
-  cmdmsg->PutAttribute(this->DtimPeriod);
-  cmdmsg->PutAttribute(this->BeaconHead);
-  cmdmsg->PutAttribute(this->BeaconTail);
+  cmdmsg->PutAttribute(&this->IfIndex);
+  cmdmsg->PutAttribute(&this->Ssid);
+  cmdmsg->PutAttribute(&this->BeaconInterval);
+  cmdmsg->PutAttribute(&this->DtimPeriod);
+  cmdmsg->PutAttribute(&this->BeaconHead);
+  cmdmsg->PutAttribute(&this->BeaconTail);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -126,11 +126,11 @@ SetBeaconCommand::Display() const
   std::cout << "SetBeaconCommand: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid.GetString() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval.GetValue<uint32_t>() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod.GetValue<uint32_t>() << std::endl;
-  std::cout << "\tBHEAD: \t" << this->BeaconHead.GetValue<uint32_t>()<< std::endl;
-  std::cout << "\tBTAIL: \t" << this->BeaconTail.GetValue<uint32_t>() << std::endl;
+  std::cout << "\tSsid:  \t" << this->Ssid() << std::endl;
+  std::cout << "\tBINT:  \t" << this->BeaconInterval.Get<uint32_t>() << std::endl;
+  std::cout << "\tDTIM:  \t" << this->DtimPeriod.Get<uint32_t>() << std::endl;
+  std::cout << "\tBHEAD: \t" << this->BeaconHead.Get<uint32_t>()<< std::endl;
+  std::cout << "\tBTAIL: \t" << this->BeaconTail.Get<uint32_t>() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -146,19 +146,19 @@ SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 //  msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(this->IfIndex))
+  if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->IfName))
+  if (!msg.GetAttribute(&this->IfName))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(this->Ssid))
+  if (!msg.GetAttribute(&this->Ssid))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.GetId()));
     return(NL_SKIP);

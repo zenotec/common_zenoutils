@@ -45,13 +45,14 @@ __errstr(int code)
 SetChannelCommand::SetChannelCommand(int index_) :
     Command(index_)
 {
-  this->IfIndex.SetValue(index_);
+  this->IfIndex.Set(this->GetIfIndex());
 }
 
 SetChannelCommand::SetChannelCommand(const std::string& name_) :
     Command(name_)
 {
-  this->IfName.SetValue(name_);
+  this->IfIndex.Set(this->GetIfIndex());
+  this->IfName.Set(name_);
 }
 
 SetChannelCommand::~SetChannelCommand()
@@ -85,9 +86,9 @@ SetChannelCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_SET_CHANNEL);
 
-  cmdmsg->PutAttribute(this->IfIndex);
-  cmdmsg->PutAttribute(this->Frequency);
-  cmdmsg->PutAttribute(this->ChannelWidth);
+  cmdmsg->PutAttribute(&this->IfIndex);
+  cmdmsg->PutAttribute(&this->Frequency);
+  cmdmsg->PutAttribute(&this->ChannelWidth);
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -127,10 +128,8 @@ SetChannelCommand::Display() const
 int
 SetChannelCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 

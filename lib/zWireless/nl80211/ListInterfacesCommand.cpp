@@ -140,15 +140,14 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 
   msg.Display();
-  msg.DisplayAttributes();
 
-  if (!msg.GetAttribute(ifindex))
+  if (!msg.GetAttribute(&ifindex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifindex.GetId()));
     return(NL_SKIP);
   }
 
-  if (!msg.GetAttribute(ifname))
+  if (!msg.GetAttribute(&ifname))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifname.GetId()));
     return(NL_SKIP);
