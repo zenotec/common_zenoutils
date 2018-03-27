@@ -18,6 +18,7 @@ zEventUnitTest_SOURCES = \
     UnitTest.cpp \
     Defaults.cpp \
     Event.cpp \
+    Adapter.cpp \
     Handler.cpp \
     Manager.cpp
 

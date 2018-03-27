@@ -36,9 +36,22 @@ Adapter::~Adapter()
 }
 
 bool
-Adapter::ObserveEvent(SHARED_PTR(zEvent::Notification)noti_)
+Adapter::registerHandler(Handler* handler_)
 {
-  return (this->notifyHandlers(this->AdaptEvent(noti_)));
+  return (this->_event.registerHandler(handler_));
+}
+
+bool
+Adapter::unregisterHandler(Handler* handler_)
+{
+  return (this->_event.unregisterHandler(handler_));
+}
+
+bool
+Adapter::notifyHandlers(SHARED_PTR(zEvent::Notification) n_)
+{
+  fprintf(stderr, "Adapter::notifyHandlers()\n");
+  return (this->_event.notifyHandlers(this->AdaptEvent(n_)));
 }
 
 }

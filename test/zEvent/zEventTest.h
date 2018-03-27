@@ -32,6 +32,8 @@
 int
 zEventTest_EventDefaults(void * arg_);
 int
+zEventTest_EventAdapterDefaults(void * arg_);
+int
 zEventTest_EventNotificationDefaults(void * arg_);
 int
 zEventTest_EventHandlerDefaults(void * arg_);
@@ -40,6 +42,8 @@ zEventTest_EventManagerDefaults(void * arg_);
 
 int
 zEventTest_EventTest(void* arg_);
+int
+zEventTest_EventAdapterTest(void* arg_);
 int
 zEventTest_EventHandlerTest(void* arg_);
 int
@@ -70,6 +74,13 @@ public:
     return (this->_value);
   }
 
+  bool
+  SetValue(const int value_)
+  {
+    this->_value = value_;
+    return (true);
+  }
+
 private:
 
   int _value;
@@ -86,6 +97,8 @@ public:
       Event(zEvent::Event::TYPE_TEST)
   {
   }
+
+  virtual
   ~TestEvent()
   {
   }
@@ -96,6 +109,44 @@ public:
     SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
     this->notifyHandlers(n);
     return (true);
+  }
+
+};
+
+class TestAdapter :
+    public Adapter
+{
+
+public:
+
+  TestAdapter(Event& event_) :
+    Adapter(event_)
+  {
+  }
+
+  virtual
+  ~TestAdapter()
+  {
+  }
+
+  bool
+  Notify(int val_)
+  {
+    SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
+    this->notifyHandlers(n);
+    return (true);
+  }
+
+  virtual SHARED_PTR(zEvent::Notification)
+  AdaptEvent(SHARED_PTR(zEvent::Notification) n_)
+  {
+    fprintf(stderr, "TestAdapter::AdaptEvent()\n");
+    if (n_->GetType() == zEvent::Event::TYPE_TEST)
+    {
+      SHARED_PTR(TestNotification) tn(STATIC_CAST(TestNotification)(n_));
+      tn->SetValue(tn->GetValue() * 2);
+    }
+    return (n_);
   }
 
 };
@@ -117,9 +168,9 @@ public:
   }
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   {
-    return (this->Push(noti_));
+    return (this->Push(n_));
   }
 };
 

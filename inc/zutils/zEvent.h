@@ -38,6 +38,7 @@ class Handler;
 class Event
 {
 
+  friend class Adapter;
   friend class Handler;
 
 public:
@@ -72,14 +73,14 @@ protected:
 
   std::list<Handler*> _handler_list;
 
-  bool
+  virtual bool
   registerHandler(Handler* handler_);
 
-  bool
+  virtual bool
   unregisterHandler(Handler* handler_);
 
-  bool
-  notifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
+  virtual bool
+  notifyHandlers(SHARED_PTR(zEvent::Notification) n_);
 
 private:
 
@@ -89,6 +90,41 @@ private:
   Event(Event &other_);
 
   Event(const Event &other_);
+
+};
+
+//**********************************************************************
+// Class: Adapter
+//**********************************************************************
+
+class Adapter :
+    public Event
+{
+
+public:
+
+  Adapter(Event& event_);
+
+  virtual
+  ~Adapter();
+
+  virtual SHARED_PTR(zEvent::Notification)
+  AdaptEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
+
+protected:
+
+  virtual bool
+  registerHandler(Handler* handler_);
+
+  virtual bool
+  unregisterHandler(Handler* handler_);
+
+  virtual bool
+  notifyHandlers(SHARED_PTR(zEvent::Notification) n_);
+
+private:
+
+  Event& _event;
 
 };
 
@@ -176,35 +212,6 @@ private:
 
   void
   operator=(Handler const &);
-
-};
-
-//**********************************************************************
-// Class: Adapter
-//**********************************************************************
-
-class Adapter :
-    public Event
-{
-
-public:
-
-  Adapter(Event& event_);
-
-  virtual
-  ~Adapter();
-
-protected:
-
-  virtual SHARED_PTR(zEvent::Notification)
-  AdaptEvent(SHARED_PTR(zEvent::Notification) noti_) = 0;
-
-private:
-
-  Event& _event;
-
-  virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
 
 };
 

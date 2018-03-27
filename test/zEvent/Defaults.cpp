@@ -32,6 +32,27 @@ zEventTest_EventDefaults(void * arg_)
 }
 
 int
+zEventTest_EventAdapterDefaults(void * arg_)
+{
+  // Create new event and validate
+  TestEvent *MyEvent = new TestEvent;
+  TEST_ISNOT_NULL(MyEvent);
+  TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
+
+  // Create new event adapter and validate
+  TestAdapter *MyAdapter = new TestAdapter(*MyEvent);
+  TEST_ISNOT_NULL(MyAdapter);
+  TEST_EQ(Event::TYPE_TEST, MyAdapter->GetType());
+
+  // Cleanup
+  delete (MyAdapter);
+  delete (MyEvent);
+
+  // Return success
+  UTEST_RETURN;
+}
+
+int
 zEventTest_EventNotificationDefaults(void * arg_)
 {
   // Create new event and validate
