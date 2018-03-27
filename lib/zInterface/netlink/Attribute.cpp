@@ -109,6 +109,7 @@ bool
 AttributeValue::Get(std::string& str_) const
 {
   bool status = false;
+  str_ = std::string((char*)this->_data.data());
   return (status);
 }
 
@@ -126,6 +127,8 @@ bool
 AttributeValue::Get(uint8_t* p_, size_t& len_) const
 {
   bool status = false;
+  len_ = std::min(this->_data.size(), len_);
+  status = (memcpy(p_, this->_data.data(), len_) == p_);
   return (status);
 }
 
@@ -180,8 +183,17 @@ AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
 
   for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
   {
-    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d\n", pos, nla_type(pos), nla_len(pos));
-    SHARED_PTR(Attribute) a(STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(nla_type(pos)))));
+    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d %s\n",
+        pos, nla_type(pos), nla_len(pos), (nla_is_nested(pos) ? "+" : ""));
+    SHARED_PTR(Attribute) a;
+    if (nla_is_nested(pos))
+    {
+      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeNested)(new AttributeNested(nla_type(pos))));
+    }
+    else
+    {
+      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(nla_type(pos))));
+    }
     status &= a->Disassemble(pos);
     this->_attrs[nla_type(pos)] = a;
   }
@@ -237,7 +249,7 @@ AttributeTable::Put(Attribute* attr_)
 void
 AttributeTable::Display(const std::string& prefix_) const
 {
-  std::cout << prefix_ << "Table" << std::endl;
+  std::cout << prefix_ << "Table: " << this->_attrs.size() << std::endl;
   FOREACH (auto& attr, this->_attrs)
   {
     attr.second->Display(prefix_ + std::string("\t"));

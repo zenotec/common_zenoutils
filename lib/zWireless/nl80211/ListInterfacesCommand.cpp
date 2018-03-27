@@ -147,11 +147,15 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  std::cout << "IfIndex: " << ifindex() << std::endl;
+
   if (!msg.GetAttribute(&ifname))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifname.GetId()));
     return(NL_SKIP);
   }
+
+  std::cout << "IfName: " << ifname() << std::endl;
 
   // Add interface to map
   this->_ifs[ifindex()] = ifname();
@@ -164,6 +168,8 @@ int
 ListInterfacesCommand::finish_cb(struct nl_msg* msg_, void* arg_)
 {
   this->_status = true;
+  std::cout << "ListInterfacesCommand::finish_cb()" << std::endl;
+  std::cout << "Ifaces: " << this->_ifs.size() << std::endl;
   this->_count.Post();
   return (NL_OK);
 }
