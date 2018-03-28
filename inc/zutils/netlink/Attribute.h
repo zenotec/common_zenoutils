@@ -138,29 +138,25 @@ public:
   virtual bool
   Disassemble(struct nlattr* attr_, size_t len_ = 0);
 
+  const uint8_t*
+  GetData() const;
+
   virtual size_t
   GetLength() const;
 
   template<typename T>
     T
-    Get() const
-    {
-      T value;
-      this->Get(value);
-      return (value);
-    }
-
-  template<typename T>
-    bool
-    Get(T& value_) const
+    Get(T default_) const
     {
       bool status = false;
+      T value;
       size_t len = sizeof(T);
-      if (len == this->GetLength())
+      if ((len != this->GetLength()) || !this->Get((uint8_t*) &value, len))
       {
-        status = this->Get((uint8_t*) &value_, len);
+        value = default_;
       }
-      return (status);
+
+      return (value);
     }
 
   bool

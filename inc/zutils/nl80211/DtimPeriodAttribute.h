@@ -54,7 +54,7 @@ public:
   uint32_t
   operator()() const
   {
-    return (this->Get<uint32_t>());
+    return (this->Get(uint32_t(3)));
   }
 
   bool

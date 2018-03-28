@@ -84,7 +84,7 @@ public:
   uint32_t
   operator()() const
   {
-    return (this->Get<uint32_t>());
+    return (this->Get(uint32_t(NL80211_CHAN_WIDTH_20_NOHT)));
   }
 
   bool

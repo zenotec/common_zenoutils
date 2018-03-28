@@ -68,7 +68,7 @@ DelInterfaceCommand::Exec()
 
   if (!this->IfIndex())
   {
-    ZLOG_ERR("Error getting interface index for: " + this->IfName.Get<std::string>());
+    ZLOG_ERR("Error getting interface index for: " + this->IfName());
     return(false);
   }
 

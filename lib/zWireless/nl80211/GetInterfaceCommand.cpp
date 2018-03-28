@@ -69,9 +69,9 @@ GetInterfaceCommand::Display() const
   std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
   std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
   std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
-  std::cout << "\tFreq:  \t" << this->Frequency.Get<uint32_t>() << std::endl;
+  std::cout << "\tFreq:  \t" << this->Frequency() << std::endl;
   std::cout << "\tSSID:  \t" << this->Ssid() << std::endl;
-  std::cout << "\tPower: \t" << this->TxPowerLevel.Get<uint32_t>() << std::endl;
+  std::cout << "\tPower: \t" << this->TxPowerLevel() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 

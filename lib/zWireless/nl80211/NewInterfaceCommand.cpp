@@ -132,10 +132,14 @@ void
 NewInterfaceCommand::Display() const
 {
   std::cout << "New Interface: " << std::endl;
-  std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
-  std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
+  if (this->PhyIndex.IsValid())
+    std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:  \t" << this->IfName() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
+  if (this->IfType.IsValid())
+    std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
 }
 
 int
@@ -150,6 +154,7 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
+  msg.Display();
 
   if (!msg.GetAttribute(&this->PhyIndex))
   {

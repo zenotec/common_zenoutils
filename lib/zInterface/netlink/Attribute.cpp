@@ -35,6 +35,25 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 namespace netlink
 {
 
+void
+__dump_hex(const char* prefix_, const uint8_t* addr_, size_t len_, bool verbose_)
+{
+  unsigned long pad = ((unsigned long)addr_ & 0x07);
+
+  if (!verbose_)
+    len_ = std::min(int(len_), 8);
+
+  for (int cnt = 0, i = -pad; i < len_; cnt++, i++)
+  {
+    if (!cnt)
+      printf("%s%p: ", prefix_, &addr_[i]);
+    if (i < 0)
+      printf("-- ");
+    else
+      printf("%02x ", addr_[i]);
+  }
+  printf("\n");
+}
 
 //*****************************************************************************
 // Class: Attribute
@@ -70,7 +89,7 @@ AttributeValue::operator =(const Attribute* other_)
     else
     {
       AttributeValue* val = (AttributeValue*) other_;
-      this->_data = val->_data;
+      this->Set(val->GetData(), val->GetLength());
     }
   }
   return (*this);
@@ -91,7 +110,6 @@ bool
 AttributeValue::Disassemble(struct nlattr* attr_, size_t len)
 {
   bool status = false;
-  fprintf(stderr, "AttributeValue::Disassemble(): %p[%d]: %d\n", attr_, nla_type(attr_), nla_len(attr_));
   if (attr_ && this->SetId(nla_type(attr_)))
   {
     status = this->Set((const uint8_t*)nla_data(attr_), nla_len(attr_));
@@ -99,6 +117,11 @@ AttributeValue::Disassemble(struct nlattr* attr_, size_t len)
   return (status);
 }
 
+const uint8_t*
+AttributeValue::GetData() const
+{
+  return (this->_data.data());
+}
 size_t
 AttributeValue::GetLength() const
 {
@@ -109,7 +132,10 @@ bool
 AttributeValue::Get(std::string& str_) const
 {
   bool status = false;
-  str_ = std::string((char*)this->_data.data());
+  if (this->IsValid())
+  {
+    str_ = std::string((char*)this->_data.data());
+  }
   return (status);
 }
 
@@ -119,7 +145,11 @@ AttributeValue::Set(const std::string& str_)
   bool status = false;
   size_t len = strlen(str_.c_str());
   this->_data.resize(len);
-  status = (strcpy((char*)this->_data.data(), str_.c_str()));
+  if (strcpy((char*)this->_data.data(), str_.c_str()) == (char*)this->_data.data())
+  {
+    this->SetValid();
+    status = true;
+  }
   return (status);
 }
 
@@ -127,8 +157,11 @@ bool
 AttributeValue::Get(uint8_t* p_, size_t& len_) const
 {
   bool status = false;
-  len_ = std::min(this->_data.size(), len_);
-  status = (memcpy(p_, this->_data.data(), len_) == p_);
+  if (this->IsValid())
+  {
+    len_ = std::min(this->GetLength(), len_);
+    status = (memcpy(p_, this->_data.data(), len_) == p_);
+  }
   return (status);
 }
 
@@ -137,7 +170,11 @@ AttributeValue::Set(const uint8_t* p_, const size_t len_)
 {
   bool status = false;
   this->_data.resize(len_);
-  status = (memcpy(this->_data.data(), p_, len_) == this->_data.data());
+  if (memcpy(this->_data.data(), p_, len_) == this->_data.data())
+  {
+    this->SetValid();
+    status = true;
+  }
   return (status);
 }
 
@@ -145,6 +182,7 @@ void
 AttributeValue::Display(const std::string& prefix_) const
 {
   std::cout << prefix_ << "Value[" << this->GetId() << "]: " << this->GetLength() << std::endl;
+  __dump_hex((prefix_ + "\t").c_str(), this->GetData(), this->GetLength(), false);
 }
 
 //*****************************************************************************
@@ -183,8 +221,8 @@ AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
 
   for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
   {
-    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d %s\n",
-        pos, nla_type(pos), nla_len(pos), (nla_is_nested(pos) ? "+" : ""));
+//    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d %s\n",
+//        pos, nla_type(pos), nla_len(pos), (nla_is_nested(pos) ? "+" : ""));
     SHARED_PTR(Attribute) a;
     if (nla_is_nested(pos))
     {
@@ -230,7 +268,7 @@ bool
 AttributeTable::Put(Attribute* attr_)
 {
   bool status = false;
-  if (attr_)
+  if (attr_ && attr_->IsValid())
   {
     SHARED_PTR(Attribute) a;
     if (attr_->IsNested())

@@ -100,7 +100,7 @@ StartApCommand::Exec()
 
   if (!cmdmsg->PutAttribute(&this->BeaconInterval))
   {
-    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval.Get<uint32_t>()));
+    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval()));
     return (false);
   }
 
@@ -165,10 +165,10 @@ StartApCommand::Display() const
     std::cout << "\tBINT:   \t" << this->BeaconInterval() << std::endl;
   if (this->DtimPeriod.IsValid())
     std::cout << "\tDTIM:   \t" << this->DtimPeriod() << std::endl;
-  if (this->BeaconHead.IsValid())
-    std::cout << "\tBHEAD:  \t" << this->BeaconHead.Get<uint32_t>() << std::endl;
-  if (this->BeaconTail.IsValid())
-    std::cout << "\tBTAIL:  \t" << this->BeaconTail.Get<uint32_t>() << std::endl;
+//  if (this->BeaconHead.IsValid())
+//    std::cout << "\tBHEAD:  \t" << this->BeaconHead.Get<uint32_t>() << std::endl;
+//  if (this->BeaconTail.IsValid())
+//    std::cout << "\tBTAIL:  \t" << this->BeaconTail.Get<uint32_t>() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 

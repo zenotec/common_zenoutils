@@ -65,7 +65,7 @@ public:
   operator()() const
   {
     MODE mode = MODE_ERR;
-    switch (this->Get<uint32_t>())
+    switch (this->Get(uint32_t(0)))
     {
     case NL80211_TX_POWER_AUTOMATIC:
       mode = MODE_AUTO;

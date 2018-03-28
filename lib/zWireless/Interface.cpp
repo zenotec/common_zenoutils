@@ -544,8 +544,8 @@ Interface::Create()
 
   if (this->lock.Lock())
   {
-    NewInterfaceCommand *cmd =
-        new NewInterfaceCommand(this->stagingConfig.GetIfName(), this->stagingConfig.GetPhyIndex());
+    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->stagingConfig.GetIfName(),
+        this->stagingConfig.GetPhyIndex());
     cmd->IfType.Set(_opmode2nl(this->stagingConfig.GetOpMode()));
     this->addCommand(cmd);
     status = this->execCommands();

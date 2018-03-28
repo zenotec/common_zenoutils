@@ -127,10 +127,10 @@ SetBeaconCommand::Display() const
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tSsid:  \t" << this->Ssid() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval.Get<uint32_t>() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod.Get<uint32_t>() << std::endl;
-  std::cout << "\tBHEAD: \t" << this->BeaconHead.Get<uint32_t>()<< std::endl;
-  std::cout << "\tBTAIL: \t" << this->BeaconTail.Get<uint32_t>() << std::endl;
+  std::cout << "\tBINT:  \t" << this->BeaconInterval() << std::endl;
+  std::cout << "\tDTIM:  \t" << this->DtimPeriod() << std::endl;
+//  std::cout << "\tBHEAD: \t" << this->BeaconHead()<< std::endl;
+//  std::cout << "\tBTAIL: \t" << this->BeaconTail() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
