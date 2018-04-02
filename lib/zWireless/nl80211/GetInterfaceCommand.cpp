@@ -186,6 +186,9 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   msg.GetAttribute(&this->TxPowerMode);
   msg.GetAttribute(&this->TxPowerLevel);
 
+  msg.GetAttribute(&this->CenterFrequency1);		//RKB
+  msg.GetAttribute(&this->CenterFrequency2);		//RKB
+
   this->_status = true;
   this->_count.Post();
 

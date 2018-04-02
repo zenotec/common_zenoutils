@@ -283,6 +283,10 @@ const std::string ConfigPath::ConfigBssidPath("Bssid");
 const std::string ConfigPath::ConfigChannelPath("Channel");
 const std::string ConfigPath::ConfigTxPowerPath("TxPower");
 
+const std::string ConfigPath::ConfigCenterFrequency1Path("CenterFrequency1");
+const std::string ConfigPath::ConfigCenterFrequency2Path("CenterFrequency2");
+
+
 ConfigPath::ConfigPath(const std::string& root_)
 {
   this->Append(root_);
@@ -336,6 +340,10 @@ const std::string ConfigData::ConfigBssidDefault("");
 const unsigned int ConfigData::ConfigChannelDefault(0);
 
 const unsigned int ConfigData::ConfigTxPowerDefault(0);
+
+//RKB
+const unsigned int ConfigData::ConfigCenterFrequency1Default(0);
+const unsigned int ConfigData::ConfigCenterFrequency2Default(0);
 
 
 ConfigData::ConfigData(const std::string& name_) :
@@ -539,6 +547,48 @@ ConfigData::SetTxPower(const unsigned int power_)
   ConfigPath path(ConfigPath::ConfigTxPowerPath);
   return (this->GetData()->PutValue(path, power_));
 }
+
+
+//RKB
+unsigned int
+ConfigData::GetCenterFrequency1(const unsigned int center_freq_1_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  if (!this->GetData()->GetValue(path, val))
+  {
+    val = center_freq_1_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetCenterFrequency1(const unsigned int center_freq_1_)
+{
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  return (this->GetData()->PutValue(path, center_freq_1_));
+}
+
+unsigned int
+ConfigData::GetCenterFrequency2(const unsigned int center_freq_2_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  if (!this->GetData()->GetValue(path, val))
+  {
+    val = center_freq_2_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetCenterFrequency2(const unsigned int center_freq_2_)
+{
+  ConfigPath path(ConfigPath::ConfigCenterFrequency2Path);
+  return (this->GetData()->PutValue(path, center_freq_2_));
+}
+
+
 
 }
 }

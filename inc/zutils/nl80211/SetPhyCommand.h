@@ -48,6 +48,8 @@ using namespace netlink;
 #include <zutils/nl80211/TxPowerModeAttribute.h>
 #include <zutils/nl80211/TxPowerLevelAttribute.h>
 
+#include <zutils/nl80211/CenterFrequency1Attribute.h>
+
 namespace nl80211
 {
 
@@ -71,6 +73,9 @@ public:
   ChannelWidthAttribute ChannelWidth;
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel;
+
+  CenterFrequency1Attribute CenterFrequency1;		//RKB
+  CenterFrequency1Attribute CenterFrequency2;		//RKB
 
   SetPhyCommand(int ifindex_);
 

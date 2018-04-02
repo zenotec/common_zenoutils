@@ -50,6 +50,10 @@ public:
   static const std::string ConfigBeaconIntervalPath;
   static const std::string ConfigDtimIntervalPath;
 
+  //RKB
+  static const std::string ConfigCenterFrequency1Path;
+  static const std::string ConfigCenterFrequency2Path;
+
   ConfigPath(const std::string& root_ = std::string(""));
 
   virtual
@@ -152,6 +156,10 @@ public:
   static const unsigned int ConfigChannelDefault;
   static const unsigned int ConfigTxPowerDefault;
 
+  //RKB
+  static const unsigned int ConfigCenterFrequency1Default;
+  static const unsigned int ConfigCenterFrequency2Default;
+
   ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
   ConfigData(zInterface::ConfigData config_);
@@ -214,6 +222,23 @@ public:
 
   bool
   SetTxPower(const unsigned int power_ = ConfigTxPowerDefault);
+
+
+
+  //RKB	Why do the Get methods of the configuration take defaulted parameters?
+  unsigned int
+  GetCenterFrequency1(const unsigned int center_freq_1 = ConfigCenterFrequency1Default) const;
+
+  bool
+  SetCenterFrequency1(const unsigned int center_freq_1 = ConfigCenterFrequency1Default);
+
+  unsigned int
+  GetCenterFrequency2(const unsigned int center_freq_2 = ConfigCenterFrequency2Default) const;
+
+  bool
+  SetCenterFrequency2(const unsigned int center_freq_2 = ConfigCenterFrequency2Default);
+
+
 
 protected:
 
@@ -356,6 +381,18 @@ public:
   std::map<int, Capabilities>
   GetCapabilities() const;
 
+  unsigned int
+  GetCenterFrequency1() const;
+
+  bool
+  SetCenterFrequency1(const unsigned int center_freq_1_);
+
+  unsigned int
+  GetCenterFrequency2() const;
+
+  bool
+  SetCenterFrequency2(const unsigned int center_freq_2_);
+
   virtual bool
   Refresh();
 
@@ -422,6 +459,18 @@ private:
 
   std::map<int, Capabilities>
   _getCapabilities() const;
+
+  unsigned int
+  _getCenterFrequency1() const;
+
+  bool
+  _setCenterFrequency1(const unsigned int center_frequency_1_);
+
+  unsigned int
+  _getCenterFrequency2() const;
+
+  bool
+  _setCenterFrequency2(const unsigned int center_frequency_2_);
 
 };
 
