@@ -16,6 +16,7 @@
  */
 
 // libc includes
+#include <string.h>
 
 // libc++ includes
 #include <iostream>
@@ -31,12 +32,6 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace nl80211
 {
-
-static std::string
-__errstr(int code)
-{
-  return(std::string(nl_geterror(code)));
-}
 
 //*****************************************************************************
 // Class: NewInterfaceCommand
@@ -133,13 +128,13 @@ NewInterfaceCommand::Display() const
 {
   std::cout << "New Interface: " << std::endl;
   if (this->PhyIndex.IsValid())
-    std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
+    std::cout << "\tPhyIndex:\t" << this->PhyIndex() << std::endl;
   if (this->IfName.IsValid())
-    std::cout << "\tName:  \t" << this->IfName() << std::endl;
+    std::cout << "\tIfName:  \t" << this->IfName() << std::endl;
   if (this->IfIndex.IsValid())
-    std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
+    std::cout << "\tIfIndex: \t" << this->IfIndex() << std::endl;
   if (this->IfType.IsValid())
-    std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
+    std::cout << "\tIfType:  \t" << this->IfType.ToString() << std::endl;
 }
 
 int
@@ -154,7 +149,9 @@ NewInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg)
     ZLOG_ERR("Error parsing generic message");
     return (NL_SKIP);
   }
-  msg.Display();
+
+//  std::cout << "NewInterfaceCommand::valid_cb()" << std::endl;
+//  msg.Display();
 
   if (!msg.GetAttribute(&this->PhyIndex))
   {
@@ -191,7 +188,7 @@ int
 NewInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
   ZLOG_ERR("Error executing NewInterfaceCommand");
-  ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + strerror(nlerr->error));
   this->_status = false;
   this->_count.Post();
   return(NL_SKIP);

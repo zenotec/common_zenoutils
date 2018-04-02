@@ -70,11 +70,17 @@ zInterfaceTest_InterfaceMacVlan(void* arg)
       continue;
     }
 
-    Master->Display();
-
     MyInterface = new MacVlan("uTestVif-" + link.second.IfName());
     TEST_ISNOT_NULL(MyInterface);
+
+    // Cleanup from any previous failed tests
+    if (MyInterface->Refresh())
+    {
+      TEST_TRUE(MyInterface->Destroy());
+    }
+
     TEST_FALSE(MyInterface->Refresh());
+
     TEST_EQ(0, MyInterface->GetIfIndex());
     TEST_EQ(ConfigData::IFTYPE_DEF, MyInterface->GetIfType());
     TEST_EQ(ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
@@ -89,7 +95,7 @@ zInterfaceTest_InterfaceMacVlan(void* arg)
     TEST_TRUE(MyInterface->Create());
     TEST_EQ(ConfigData::IFTYPE_IEEE8023, MyInterface->GetIfType());
     TEST_EQ(std::string("46:67:3d:e8:f2:7a"), MyInterface->GetHwAddress());
-    TEST_EQ(ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+    TEST_NEQ(ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
     TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
     TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
     TEST_EQ(ConfigData::STATE_DOWN, MyInterface->GetAdminState());

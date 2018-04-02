@@ -64,8 +64,8 @@ public:
   bool
   PutAttribute(Attribute* attr_);
 
-  void
-  Display() const;
+  virtual void
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 

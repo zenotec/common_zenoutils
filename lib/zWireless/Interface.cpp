@@ -224,14 +224,14 @@ Interface::Interface(const std::string& ifname_) :
     stagingConfig(zInterface::Interface::stagingConfig),
     workingConfig(zInterface::Interface::workingConfig)
 {
-  this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
+  this->SetIfType(ConfigData::IFTYPE_IEEE80211);
 }
 
 Interface::~Interface()
 {
 }
 
-zWireless::ConfigData
+ConfigData
 Interface::GetConfig() const
 {
   return (this->workingConfig);
@@ -458,10 +458,6 @@ Interface::Refresh()
   status &= this->workingConfig.SetOpMode(this->GetOpMode());
   status &= this->workingConfig.SetChannel(this->GetChannel());
   status &= this->workingConfig.SetTxPower(this->GetTxPower());
-  if (status)
-  {
-    *this->stagingConfig.GetData() = *this->workingConfig.GetData();
-  }
   return (status);
 }
 
@@ -474,57 +470,67 @@ Interface::Commit()
     status = true; // Innocent until proven guilty
 
     // Always make this command first to ensure all commands are executed while the interface is down
-    if (zInterface::ConfigData::STATE_UP != this->workingConfig.GetAdminState())
+    if (ConfigData::STATE_UP != this->workingConfig.GetAdminState())
     {
-      if (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName())
+      if ((this->stagingConfig.GetIfName() != ConfigData::ConfigIfNameDefault) &&
+          (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName()))
       {
         status &= this->setIfName(this->stagingConfig.GetIfName());
       }
 
-      if (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType())
+      if ((this->stagingConfig.GetIfType() != ConfigData::IFTYPE_DEF) &&
+          (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType()))
       {
         status &= this->setIfType(this->stagingConfig.GetIfType());
       }
 
-      if (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress())
+      if ((this->stagingConfig.GetHwAddress() != ConfigData::ConfigHwAddressDefault) &&
+          (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress()))
       {
         status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
       }
     }
 
     // The following commands can be executed regardless of the interfaces' administrative state
-    if (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu())
+    if ((this->stagingConfig.GetMtu() != ConfigData::ConfigMtuDefault) &&
+        (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu()))
     {
       status &= this->setMtu(this->stagingConfig.GetMtu());
     }
 
-    if (this->stagingConfig.GetIpAddress() != this->workingConfig.GetIpAddress())
+    if ((this->stagingConfig.GetIpAddress() != ConfigData::ConfigIpAddressDefault) &&
+        (this->stagingConfig.GetIpAddress() != this->workingConfig.GetIpAddress()))
     {
       status &= this->setIpAddress(this->stagingConfig.GetIpAddress());
     }
 
-    if (this->stagingConfig.GetNetmask() != this->workingConfig.GetNetmask())
+    if ((this->stagingConfig.GetNetmask() != ConfigData::ConfigNetmaskDefault) &&
+        (this->stagingConfig.GetNetmask() != this->workingConfig.GetNetmask()))
     {
       status &= this->setNetmask(this->stagingConfig.GetNetmask());
     }
 
     // Always make this command last to ensure all above commands are executed while the interface is down
-    if (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState())
+    if ((this->stagingConfig.GetAdminState() != ConfigData::STATE_DEF) &&
+        (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState()))
     {
       status &= this->setAdminState(this->stagingConfig.GetAdminState());
     }
 
-    if (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode())
+    if ((this->stagingConfig.GetPromiscuousMode() != ConfigData::PROMODE_DEF) &&
+        (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode()))
     {
       status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
     }
 
-    if (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel())
+    if ((this->stagingConfig.GetChannel() != ConfigData::ConfigChannelDefault) &&
+        (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel()))
     {
       status &= this->_setChannel(this->stagingConfig.GetChannel());
     }
 
-    if (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower())
+    if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
+        (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower()))
     {
       status &= this->_setTxPower(this->stagingConfig.GetTxPower());
     }
@@ -533,6 +539,12 @@ Interface::Commit()
 
     this->lock.Unlock();
   }
+
+  if (status && this->Refresh())
+  {
+    *this->stagingConfig.GetData() = *this->workingConfig.GetData();
+  }
+
   return (status);
 }
 
@@ -552,17 +564,9 @@ Interface::Create()
     this->lock.Unlock();
   }
 
-  if (status && this->GetIfIndex())
+  if (status && this->Refresh())
   {
-    this->workingConfig.SetIfIndex(this->GetIfIndex());
-    this->workingConfig.SetOpMode(this->GetOpMode());
-    status &= this->Commit();
-    status &= this->Refresh();
-  }
-
-  if (status)
-  {
-    *this->stagingConfig.GetData() = *this->workingConfig.GetData();
+    status = this->Commit();
   }
 
   return (status);

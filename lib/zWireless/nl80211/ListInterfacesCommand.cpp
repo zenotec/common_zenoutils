@@ -74,8 +74,6 @@ bool
 ListInterfacesCommand::Exec()
 {
 
-  std::cout << "ListInterfacesCommand::Exec()" << std::endl;
-
   this->_status = false;
   this->_count.Reset();
   this->_ifs.clear();
@@ -127,8 +125,6 @@ int
 ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
-
   IfIndexAttribute ifindex;
   IfNameAttribute ifname;
 
@@ -139,7 +135,8 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  msg.Display();
+//  std::cout << "ListInterfacesCommand::valid_cb()" << std::endl;
+//  msg.Display();
 
   if (!msg.GetAttribute(&ifindex))
   {
@@ -147,15 +144,11 @@ ListInterfacesCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  std::cout << "IfIndex: " << ifindex() << std::endl;
-
   if (!msg.GetAttribute(&ifname))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(ifname.GetId()));
     return(NL_SKIP);
   }
-
-  std::cout << "IfName: " << ifname() << std::endl;
 
   // Add interface to map
   this->_ifs[ifindex()] = ifname();
@@ -168,8 +161,6 @@ int
 ListInterfacesCommand::finish_cb(struct nl_msg* msg_, void* arg_)
 {
   this->_status = true;
-  std::cout << "ListInterfacesCommand::finish_cb()" << std::endl;
-  std::cout << "Ifaces: " << this->_ifs.size() << std::endl;
   this->_count.Post();
   return (NL_OK);
 }

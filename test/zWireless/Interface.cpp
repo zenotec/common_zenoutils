@@ -198,37 +198,38 @@ zWirelessTest_MonitorInterface(void* arg)
       TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
       TEST_EQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
       TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
-//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+      TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+      TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
       TEST_EQ(zInterface::ConfigData::STATE_DEF, MyInterface->GetAdminState());
       TEST_EQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
       TEST_EQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
-      TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyInterface->GetHwMode());
-      TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
-      TEST_NEQ(zWireless::ConfigData::OPMODE_ERR, MyInterface->GetOpMode());
+      TEST_EQ(zWireless::ConfigData::HWMODE_DEF, MyInterface->GetHwMode());
+      TEST_EQ(zWireless::ConfigData::HTMODE_DEF, MyInterface->GetHtMode());
+      TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyInterface->GetOpMode());
       TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
       TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
 
       TEST_TRUE(MyInterface->SetPhyIndex(phy.first));
+      TEST_TRUE(MyInterface->SetOpMode(zWireless::ConfigData::OPMODE_MONITOR));
       TEST_TRUE(MyInterface->Create());
     }
 
-    // Force a refresh to retrieve interface attributes and verify
-    TEST_TRUE(MyInterface->Refresh());
+    // Verify
     TEST_NEQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
     TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
     TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
-    TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
-//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
-    TEST_NEQ(zInterface::ConfigData::STATE_DEF, MyInterface->GetAdminState());
-    TEST_NEQ(zInterface::ConfigData::STATE_ERR, MyInterface->GetAdminState());
+    TEST_NEQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+    TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+    TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+    TEST_EQ(zInterface::ConfigData::STATE_DOWN, MyInterface->GetAdminState());
     TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
     TEST_EQ(phy.first, MyInterface->GetPhyIndex());
     TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
+//    TEST_NEQ(zWireless::ConfigData::HWMODE_DEF, MyInterface->GetHwMode());
     TEST_NEQ(zWireless::ConfigData::HWMODE_ERR, MyInterface->GetHwMode());
+    TEST_NEQ(zWireless::ConfigData::HTMODE_DEF, MyInterface->GetHtMode());
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
     TEST_EQ(zWireless::ConfigData::OPMODE_MONITOR, MyInterface->GetOpMode());
 //    TEST_NEQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
@@ -248,9 +249,9 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
-    TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
-//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+    TEST_NEQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+    TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+    TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
     TEST_EQ(zInterface::ConfigData::STATE_UP, MyInterface->GetAdminState());
     TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
     TEST_EQ(phy.first, MyInterface->GetPhyIndex());
@@ -313,8 +314,8 @@ zWirelessTest_AccessPointInterface(void* arg)
       TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
       TEST_EQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
       TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
-//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+      TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+      TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
       TEST_EQ(zInterface::ConfigData::STATE_DEF, MyInterface->GetAdminState());
       TEST_EQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
       TEST_EQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
@@ -331,12 +332,12 @@ zWirelessTest_AccessPointInterface(void* arg)
     // Verify
     TEST_NEQ(zInterface::ConfigData::ConfigIfIndexDefault, MyInterface->GetIfIndex());
     TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
-//    TEST_EQ(ifname, MyInterface->GetIfName());
+    TEST_EQ(ifname, MyInterface->GetIfName());
     TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE8023, MyInterface->GetIfType());
     TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
-    TEST_EQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
-//    TEST_NEQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
-//    TEST_NEQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
+    TEST_NEQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
+    TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
+    TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
     TEST_EQ(zInterface::ConfigData::STATE_DOWN, MyInterface->GetAdminState());
     TEST_NEQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
     TEST_EQ(phy.first, MyInterface->GetPhyIndex());
@@ -345,7 +346,7 @@ zWirelessTest_AccessPointInterface(void* arg)
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
     TEST_NEQ(zWireless::ConfigData::OPMODE_ERR, MyInterface->GetOpMode());
 //    TEST_NEQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
-    TEST_NEQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
+//    TEST_NEQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
 
     // Setup and verify; commit each independently so we know which one failed, if any
     TEST_TRUE(MyInterface->SetIfName(ifname));

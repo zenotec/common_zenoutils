@@ -115,8 +115,10 @@ public:
   enum PROMODE
   {
     PROMODE_ERR = -1,
-    PROMODE_DISABLED = 0,
-    PROMODE_ENABLED = 1,
+    PROMODE_NONE = 0,
+    PROMODE_DEF = 0,
+    PROMODE_DISABLED = 1,
+    PROMODE_ENABLED = 2,
     PROMODE_LAST
   };
 
@@ -154,7 +156,10 @@ public:
   static const std::string ConfigAdminStateDown;
   static const std::string ConfigAdminStateDefault;
 
-  static const ConfigData::PROMODE ConfigPromiscuousModeDefault;
+  static const std::string ConfigPromiscuousModeNone;
+  static const std::string ConfigPromiscuousModeEnable;
+  static const std::string ConfigPromiscuousModeDisable;
+  static const std::string ConfigPromiscuousModeDefault;
 
   ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
@@ -233,10 +238,10 @@ public:
   SetAdminState(const ConfigData::STATE state_ = ConfigData::STATE_DEF);
 
   ConfigData::PROMODE
-  GetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigPromiscuousModeDefault) const;
+  GetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigData::PROMODE_DEF) const;
 
   bool
-  SetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigPromiscuousModeDefault);
+  SetPromiscuousMode(const ConfigData::PROMODE mode_ = ConfigData::PROMODE_DEF);
 
 protected:
 

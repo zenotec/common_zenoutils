@@ -62,6 +62,10 @@ StopApCommand::~StopApCommand()
 bool
 StopApCommand::Exec()
 {
+
+  this->_status = false;
+  this->_count.Reset();
+
   if (!this->_sock.Connect())
   {
     ZLOG_ERR("Error connecting NL80211 socket");
@@ -88,20 +92,20 @@ StopApCommand::Exec()
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
-    ZLOG_ERR("Error sending get_interface netlink message");
+    ZLOG_ERR("Error sending netlink message");
     return(false);
   }
 
   // Wait for the response
   if (!this->_sock.RecvMsg())
   {
-    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    ZLOG_ERR("Error receiving response for netlink message");
     return(false);
   }
 
   if (!this->_count.TimedWait(100))
   {
-    ZLOG_ERR("Error receiving response for del_interface netlink message");
+    ZLOG_ERR("Error receiving response for netlink message");
     return(false);
   }
 
@@ -114,37 +118,20 @@ StopApCommand::Exec()
 void
 StopApCommand::Display() const
 {
-  std::cout << "Set BSS: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid() << std::endl;
+  std::cout << "##################################################" << std::endl;
+  std::cout << "StartApCommand: " << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:   \t" << this->IfName() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex:  \t" << this->IfIndex() << std::endl;
+  std::cout << "##################################################" << std::endl;
 }
 
 int
-StopApCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+StopApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
-  GenericMessage msg;
-  if (!msg.Disassemble(msg_))
-  {
-    ZLOG_ERR("Error parsing generic message");
-    return (NL_SKIP);
-  }
-
-  msg.Display();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
-    return(NL_SKIP);
-  }
-
+  this->_status = true;
+  this->_count.Post();
   return (NL_OK);
 }
 
@@ -153,6 +140,8 @@ StopApCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg
 {
   ZLOG_ERR("Error executing StopApCommand");
   ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
+  this->_status = false;
+  this->_count.Post();
   return(NL_SKIP);
 }
 

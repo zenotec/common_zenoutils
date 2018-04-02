@@ -175,10 +175,8 @@ StartApCommand::Display() const
 int
 StartApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 

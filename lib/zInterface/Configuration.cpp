@@ -155,6 +155,51 @@ _state2str(const ConfigData::STATE state_)
   return (str);
 }
 
+static ConfigData::PROMODE
+_str2promode(const std::string& str_)
+{
+  ConfigData::PROMODE mode = ConfigData::PROMODE_ERR;
+  if (str_ == ConfigData::ConfigPromiscuousModeEnable)
+  {
+    mode = ConfigData::PROMODE_ENABLED;
+  }
+  else if (str_ == ConfigData::ConfigPromiscuousModeDisable)
+  {
+    mode = ConfigData::PROMODE_DISABLED;
+  }
+  else if (str_ == ConfigData::ConfigPromiscuousModeNone)
+  {
+    mode = ConfigData::PROMODE_NONE;
+  }
+  else
+  {
+    mode = ConfigData::PROMODE_DEF;
+  }
+  return (mode);
+}
+
+static std::string
+_promode2str(const ConfigData::PROMODE state_)
+{
+  std::string str;
+  switch (state_)
+  {
+  case ConfigData::PROMODE_ENABLED:
+    str = ConfigData::ConfigPromiscuousModeEnable;
+    break;
+  case ConfigData::PROMODE_DISABLED:
+    str = ConfigData::ConfigPromiscuousModeDisable;
+    break;
+  case ConfigData::PROMODE_NONE:
+    str = ConfigData::ConfigPromiscuousModeNone;
+    break;
+  default:
+    str = ConfigData::ConfigPromiscuousModeDefault;
+    break;
+  }
+  return (str);
+}
+
 // ****************************************************************************
 // Class: ConfigPath
 // ****************************************************************************
@@ -218,20 +263,23 @@ const std::string ConfigData::ConfigTypeDefault(ConfigData::ConfigTypeNone);
 
 const std::string ConfigData::ConfigHwAddressDefault("");
 
-const unsigned int ConfigData::ConfigMtuDefault(1500);
+const unsigned int ConfigData::ConfigMtuDefault(0);
 
 const std::string ConfigData::ConfigIpAddressDefault("");
 
 const std::string ConfigData::ConfigBroadcastDefault("");
 
-const std::string ConfigData::ConfigNetmaskDefault("255.255.255.0");
+const std::string ConfigData::ConfigNetmaskDefault("");
 
 const std::string ConfigData::ConfigAdminStateNone("");
 const std::string ConfigData::ConfigAdminStateUp("UP");
 const std::string ConfigData::ConfigAdminStateDown("DOWN");
 const std::string ConfigData::ConfigAdminStateDefault(ConfigData::ConfigAdminStateNone);
 
-const ConfigData::PROMODE ConfigData::ConfigPromiscuousModeDefault(ConfigData::PROMODE_DISABLED);
+const std::string ConfigData::ConfigPromiscuousModeNone("");
+const std::string ConfigData::ConfigPromiscuousModeEnable("ENABLE");
+const std::string ConfigData::ConfigPromiscuousModeDisable("DISABLE");
+const std::string ConfigData::ConfigPromiscuousModeDefault(ConfigData::ConfigPromiscuousModeNone);
 
 ConfigData::ConfigData(const std::string& name_) :
     _data(NULL)
@@ -475,19 +523,21 @@ ConfigData::SetAdminState(const ConfigData::STATE state_)
 ConfigData::PROMODE
 ConfigData::GetPromiscuousMode(const ConfigData::PROMODE mode_) const
 {
-  unsigned int val = 0;
+  ConfigData::PROMODE mode = mode_;
   ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
-  if (!this->_data->GetValue(path, val))
+  std::string str;
+  if (this->_data->GetValue(path, str))
   {
-    val = mode_;
+    mode = _str2promode(str);
   }
-  return (ConfigData::PROMODE(val));
+  return (mode);
 }
 
 bool
 ConfigData::SetPromiscuousMode(const ConfigData::PROMODE mode_)
 {
   ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
+  std::string str = _promode2str(mode_);
   return (this->_data->PutValue(path, mode_));
 }
 

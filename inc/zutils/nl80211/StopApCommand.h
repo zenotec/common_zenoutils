@@ -35,7 +35,6 @@ using namespace netlink;
 #include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/SsidAttribute.h>
 
 namespace nl80211
 {
@@ -51,7 +50,6 @@ public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  SsidAttribute Ssid;
 
   StopApCommand(int index_);
 
@@ -69,7 +67,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg, void* arg);
+  ack_cb(struct nl_msg* msg, void* arg);
 
   virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);

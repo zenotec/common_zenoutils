@@ -38,19 +38,24 @@ namespace netlink
 void
 __dump_hex(const char* prefix_, const uint8_t* addr_, size_t len_, bool verbose_)
 {
+  const char* nl = "";
   unsigned long pad = ((unsigned long)addr_ & 0x07);
 
+  if (!len_)
+    return;
+
   if (!verbose_)
-    len_ = std::min(int(len_), 8);
+    len_ = std::min(int(len_), 16);
 
   for (int cnt = 0, i = -pad; i < len_; cnt++, i++)
   {
-    if (!cnt)
-      printf("%s%p: ", prefix_, &addr_[i]);
+    if (!(cnt % 8))
+      printf("%s%s%p: ", nl, prefix_, &addr_[i]);
     if (i < 0)
       printf("-- ");
     else
       printf("%02x ", addr_[i]);
+    nl = "\n";
   }
   printf("\n");
 }
@@ -132,9 +137,9 @@ bool
 AttributeValue::Get(std::string& str_) const
 {
   bool status = false;
-  if (this->IsValid())
+  if (this->IsValid() && this->GetData() && this->GetLength())
   {
-    str_ = std::string((char*)this->_data.data());
+    str_ = std::string((char*)this->GetData());
   }
   return (status);
 }
@@ -144,8 +149,8 @@ AttributeValue::Set(const std::string& str_)
 {
   bool status = false;
   size_t len = strlen(str_.c_str());
-  this->_data.resize(len);
-  if (strcpy((char*)this->_data.data(), str_.c_str()) == (char*)this->_data.data())
+  this->_data.resize(len + 1); // add null terminator
+  if (strncpy((char*)this->GetData(), str_.c_str(), this->GetLength()) == (char*)this->GetData())
   {
     this->SetValid();
     status = true;

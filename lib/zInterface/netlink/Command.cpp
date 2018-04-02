@@ -39,10 +39,6 @@ namespace netlink
 Command::Command(const unsigned int ifindex_) :
   _status(false), _ifindex(ifindex_)
 {
-  if (!ifindex_)
-  {
-    ZLOG_WARN("Interface index is NULL");
-  }
 }
 
 
@@ -52,10 +48,6 @@ Command::Command(const std::string& ifname_) :
   if (!ifname_.empty())
   {
     this->_ifindex = if_nametoindex(ifname_.c_str());
-    if (!this->_ifindex)
-    {
-      ZLOG_WARN("Error retrieving interface index for: " + ifname_);
-    }
   }
   else
   {

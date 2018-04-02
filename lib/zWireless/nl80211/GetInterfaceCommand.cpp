@@ -148,9 +148,6 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return (NL_SKIP);
   }
 
-  std::cout << "GetInterfaceCommand::valid_cb()" << std::endl;
-  msg.Display();
-
   if (!msg.GetAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));

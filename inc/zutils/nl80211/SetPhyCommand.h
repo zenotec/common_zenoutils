@@ -55,7 +55,9 @@ namespace nl80211
 // Class: SetPhyCommand
 //*****************************************************************************
 
-class SetPhyCommand : public netlink::Command, public netlink::Handler
+class SetPhyCommand :
+    public netlink::Command,
+    public netlink::Handler
 {
 
 public:

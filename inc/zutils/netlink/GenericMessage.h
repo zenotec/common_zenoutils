@@ -64,6 +64,9 @@ public:
   bool
   SetCommand(const int command_);
 
+  virtual void
+  Display(const std::string& prefix_ = "") const;
+
 protected:
 
 private:

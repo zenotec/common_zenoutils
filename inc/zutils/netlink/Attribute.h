@@ -42,7 +42,7 @@ class Attribute
 public:
 
   Attribute(const uint32_t id_ = 0, const bool nested_ = false) :
-    _id(id_), _nested(nested_)
+    _valid(false), _id(id_), _nested(nested_)
   {
   }
 

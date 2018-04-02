@@ -67,7 +67,6 @@ GenericMessage::Assemble(struct nl_msg* msg_)
   else
   {
     status = this->_attrs.Assemble(msg_);
-    this->Display();
   }
   return (status);
 }
@@ -115,6 +114,14 @@ GenericMessage::SetCommand(const int command_)
 {
   this->_command = command_;
   return (true);
+}
+
+void
+GenericMessage::Display(const std::string& prefix_) const
+{
+  printf("%sGeneric Message[%d]: %d (0x%x)\n",
+      prefix_.c_str(), this->_family, this->_command, this->_flags);
+  Message::Display();
 }
 
 }

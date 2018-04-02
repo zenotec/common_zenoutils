@@ -83,7 +83,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_EQ(ifname, MyBss->GetIfName());
     TEST_EQ(zWireless::ConfigData::IFTYPE_IEEE8023, MyBss->GetIfType());
     TEST_EQ(std::string("00:08:d0:d0:50:00"), MyBss->GetHwAddress());
-    TEST_EQ(zWireless::ConfigData::ConfigMtuDefault, MyBss->GetMtu());
+    TEST_NEQ(zWireless::ConfigData::ConfigMtuDefault, MyBss->GetMtu());
 //    TEST_NEQ(zWireless::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
 //    TEST_NEQ(zWireless::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
     TEST_EQ(zWireless::ConfigData::STATE_UP, MyBss->GetAdminState());

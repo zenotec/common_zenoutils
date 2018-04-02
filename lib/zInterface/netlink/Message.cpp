@@ -78,9 +78,9 @@ Message::PutAttribute(Attribute* attr_)
 }
 
 void
-Message::Display() const
+Message::Display(const std::string& prefix_) const
 {
-  this->_attrs.Display();
+  this->_attrs.Display(std::string(prefix_ + "\t"));
 }
 
 }

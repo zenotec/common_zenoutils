@@ -51,7 +51,9 @@ namespace nl80211
 // Class: StartApCommand
 //*****************************************************************************
 
-class StartApCommand : public netlink::Command, public netlink::Handler
+class StartApCommand :
+    public netlink::Command,
+    public netlink::Handler
 {
 
 public:

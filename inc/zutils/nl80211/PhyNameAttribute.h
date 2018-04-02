@@ -37,7 +37,8 @@ namespace nl80211
 // Class: PhyNameAttribute
 //*****************************************************************************
 
-class PhyNameAttribute : public AttributeValue
+class PhyNameAttribute :
+    public AttributeValue
 {
 
 public:
