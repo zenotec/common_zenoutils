@@ -917,7 +917,7 @@ Interface::_getCenterFrequency1() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      center_frequency_1 = cmd.CenterFrequency1.GetValue();
+      center_frequency_1 = cmd.CenterFrequency1();
     }
   }
   return (center_frequency_1);
@@ -931,7 +931,7 @@ Interface::_setCenterFrequency1(const unsigned int center_frequency_1_)
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->CenterFrequency1.SetValue(center_frequency_1_);
+    cmd->CenterFrequency1(center_frequency_1_);
     this->addCommand(cmd);
     status = true;
   }
@@ -948,7 +948,7 @@ Interface::_getCenterFrequency2() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      center_frequency_2 = cmd.CenterFrequency2.GetValue();
+      center_frequency_2 = cmd.CenterFrequency2();
     }
   }
   return (center_frequency_2);
@@ -962,7 +962,7 @@ Interface::_setCenterFrequency2(const unsigned int center_frequency_2_)
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->CenterFrequency2.SetValue(center_frequency_2_);
+    cmd->CenterFrequency2(center_frequency_2_);
     this->addCommand(cmd);
     status = true;
   }

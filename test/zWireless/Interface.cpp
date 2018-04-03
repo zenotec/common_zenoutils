@@ -254,7 +254,7 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
     TEST_TRUE(MyInterface->Commit());
 	TEST_TRUE(MyInterface->SetChannel(36));
-	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT80) );
+//	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT80) ); //TODO RKB
     TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
     TEST_TRUE(MyInterface->Commit());
     TEST_TRUE(MyInterface->SetTxPower(2000));

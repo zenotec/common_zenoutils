@@ -63,7 +63,8 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/Socket.h \
-        ${top_srcdir}/inc/zutils/nl80211/CenterFrequency1Attribute.h 
+        ${top_srcdir}/inc/zutils/nl80211/CenterFrequency1Attribute.h \
+        ${top_srcdir}/inc/zutils/nl80211/CenterFrequency2Attribute.h 
 
 libnl80211_la_SOURCES = \
 	Socket.cpp \

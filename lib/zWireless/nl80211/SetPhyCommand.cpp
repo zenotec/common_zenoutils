@@ -144,10 +144,10 @@ SetPhyCommand::Exec()
   cmdmsg->PutAttribute(&this->TxPowerLevel);
 
 #if 1	//RKB
-  if( 0 != this->CenterFrequency1.GetValue() )
-	cmdmsg.PutAttribute(&this->CenterFrequency1);
-  if( 0 != this->CenterFrequency2.GetValue() )
-	cmdmsg.PutAttribute(&this->CenterFrequency2);
+  if( 0 != this->CenterFrequency1() )
+	cmdmsg->PutAttribute(&this->CenterFrequency1);
+  if( 0 != this->CenterFrequency2() )
+	cmdmsg->PutAttribute(&this->CenterFrequency2);
 #endif
 
   // Send message

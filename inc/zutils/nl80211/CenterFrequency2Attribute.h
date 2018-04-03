@@ -37,21 +37,31 @@ namespace nl80211
 // Class: CenterFrequency2Attribute
 //*****************************************************************************
 
-class CenterFrequency2Attribute : public Attribute<uint32_t>
+class CenterFrequency2Attribute : public AttributeValue
 {
 
 public:
 
   CenterFrequency2Attribute() :
-      Attribute(NL80211_ATTR_CENTER_FREQ2)
+      AttributeValue(NL80211_ATTR_CENTER_FREQ2)
   {
-    this->SetValue(0);
-    this->ClrValid();
   }
 
   virtual
   ~CenterFrequency2Attribute()
   {
+  }
+
+  uint32_t
+  operator()() const
+  {
+    return (this->Get(uint32_t(0)));
+  }
+
+  bool
+  operator()(const uint32_t frequency_)
+  {
+    return (this->Set(frequency_));
   }
 
 protected:
