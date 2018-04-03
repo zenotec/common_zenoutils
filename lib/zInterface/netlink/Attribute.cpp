@@ -334,6 +334,11 @@ AttributeNested::operator =(const Attribute* other_)
     {
       // TODO:
       std::cerr << "AttributeNested::operator=(): Not implemented" << std::endl;
+      AttributeValue* val = (AttributeValue*) other_;
+      if (!this->Disassemble((struct nlattr*)val->GetData(), val->GetLength()))
+      {
+        std::cerr << "AttributeNested::operator=(): Error disassembling value" << std::endl;
+      }
     }
   }
   return (*this);

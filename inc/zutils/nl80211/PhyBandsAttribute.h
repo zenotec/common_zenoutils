@@ -33,41 +33,16 @@ namespace nl80211
 {
 
 //*****************************************************************************
-// Class: PhyBandAttribute
-//*****************************************************************************
-
-class PhyBandAttribute : public Attribute<AttributeBuffer>
-{
-
-public:
-
-  PhyBandAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_BANDS)
-  {
-  }
-
-  virtual
-  ~PhyBandAttribute()
-  {
-  }
-
-protected:
-
-private:
-
-};
-
-//*****************************************************************************
 // Class: PhyBandsAttribute
 //*****************************************************************************
 
-class PhyBandsAttribute : public AttributeNested<PhyBandAttribute>
+class PhyBandsAttribute : public AttributeNested
 {
 
 public:
 
   PhyBandsAttribute() :
-      Attribute(NL80211_ATTR_WIPHY_BANDS)
+    AttributeNested(NL80211_ATTR_WIPHY_BANDS)
   {
   }
 

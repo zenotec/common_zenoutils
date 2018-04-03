@@ -42,13 +42,7 @@ using namespace netlink;
 #include <zutils/nl80211/PhyNameAttribute.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/MacAttribute.h>
-#include <zutils/nl80211/SsidAttribute.h>
-#include <zutils/nl80211/FrequencyAttribute.h>
-#include <zutils/nl80211/ChannelTypeAttribute.h>
-#include <zutils/nl80211/ChannelWidthAttribute.h>
-#include <zutils/nl80211/TxPowerModeAttribute.h>
-#include <zutils/nl80211/TxPowerLevelAttribute.h>
+#include <zutils/nl80211/PhyBandsAttribute.h>
 
 namespace nl80211
 {
@@ -68,11 +62,7 @@ public:
   IfNameAttribute IfName;
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
-  FrequencyAttribute Frequency;
-  ChannelTypeAttribute ChannelType;
-  ChannelWidthAttribute ChannelWidth;
-  TxPowerModeAttribute TxPowerMode;
-  TxPowerLevelAttribute TxPowerLevel;
+  PhyBandsAttribute PhyBands;
 
   GetPhyCommand(int ifindex_);
 

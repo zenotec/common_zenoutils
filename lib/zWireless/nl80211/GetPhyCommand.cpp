@@ -63,10 +63,6 @@ GetPhyCommand::Display() const
   std::cout << "Phy:" << std::endl;
   std::cout << "\tIndex: \t" << this->PhyIndex() << std::endl;
   std::cout << "\tName:  \t" << this->PhyName() << std::endl;
-  if (this->Frequency.IsValid())
-  {
-    std::cout << "\tChannel:  \t" << this->Frequency.GetChannel() << std::endl;
-  }
 }
 
 bool
@@ -136,8 +132,8 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-//  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
-//  msg.Display();
+  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
+  msg.Display();
 
   if (!msg.GetAttribute(&this->PhyIndex))
   {
@@ -151,11 +147,8 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  msg.GetAttribute(&this->Frequency);
-  msg.GetAttribute(&this->ChannelType);
-  msg.GetAttribute(&this->ChannelWidth);
-  msg.GetAttribute(&this->TxPowerMode);
-  msg.GetAttribute(&this->TxPowerLevel);
+  msg.GetAttribute(&this->PhyBands);
+  this->PhyBands.Display();
 
   this->_status = true;
   this->_count.Post();
