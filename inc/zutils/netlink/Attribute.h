@@ -210,7 +210,7 @@ public:
   Disassemble(struct nlattr* attr_, size_t len_);
 
   bool
-  Get(Attribute* attr_);
+  Get(Attribute* attr_) const;
 
   bool
   Put(Attribute* attr_);
@@ -246,7 +246,7 @@ public:
   virtual
   ~AttributeNested();
 
-  AttributeNested&
+  virtual AttributeNested&
   operator=(const Attribute* other_);
 
   virtual bool
@@ -256,7 +256,7 @@ public:
   Disassemble(struct nlattr* attr_, size_t len_ = 0);
 
   bool
-  Get(Attribute* attr_);
+  Get(Attribute* attr_) const;
 
   bool
   Put(Attribute* attr_);

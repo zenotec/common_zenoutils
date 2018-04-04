@@ -226,8 +226,6 @@ AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
 
   for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
   {
-//    fprintf(stderr, "AttributeTable::Disassemble(): %p[%d]: %d %s\n",
-//        pos, nla_type(pos), nla_len(pos), (nla_is_nested(pos) ? "+" : ""));
     SHARED_PTR(Attribute) a;
     if (nla_is_nested(pos))
     {
@@ -247,11 +245,16 @@ AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
 size_t
 AttributeTable::GetLength() const
 {
-  return (this->_attrs.size());
+  size_t len = 0;
+  FOREACH (auto& attr, this->_attrs)
+  {
+    len += sizeof(struct nlattr) + attr.second->GetLength();
+  }
+  return (len);
 }
 
 bool
-AttributeTable::Get(Attribute* attr_)
+AttributeTable::Get(Attribute* attr_) const
 {
   bool status = false;
   if (attr_ && this->_attrs.count(attr_->GetId()))
@@ -292,7 +295,7 @@ AttributeTable::Put(Attribute* attr_)
 void
 AttributeTable::Display(const std::string& prefix_) const
 {
-  std::cout << prefix_ << "Table: " << this->_attrs.size() << std::endl;
+  std::cout << prefix_ << "Table: " << this->GetLength() << std::endl;
   FOREACH (auto& attr, this->_attrs)
   {
     attr.second->Display(prefix_ + std::string("\t"));
@@ -322,8 +325,9 @@ AttributeNested::~AttributeNested()
 AttributeNested&
 AttributeNested::operator =(const Attribute* other_)
 {
-  if (other_)
+  if (other_ && other_->IsValid())
   {
+    this->SetValid();
     this->SetId(other_->GetId());
     if (other_->IsNested())
     {
@@ -332,13 +336,8 @@ AttributeNested::operator =(const Attribute* other_)
     }
     else
     {
-      // TODO:
-      std::cerr << "AttributeNested::operator=(): Not implemented" << std::endl;
       AttributeValue* val = (AttributeValue*) other_;
-      if (!this->Disassemble((struct nlattr*)val->GetData(), val->GetLength()))
-      {
-        std::cerr << "AttributeNested::operator=(): Error disassembling value" << std::endl;
-      }
+      this->_attrs.Disassemble((struct nlattr*)val->GetData(), val->GetLength());
     }
   }
   return (*this);
@@ -364,13 +363,10 @@ AttributeNested::Assemble(struct nl_msg* msg_)
 bool
 AttributeNested::Disassemble(struct nlattr* attr_, size_t len_)
 {
-  bool status = true;
-  struct nlattr* pos = NULL;
-  int rem = 0;
-  for (pos = (struct nlattr*)nla_data(attr_), rem = nla_len(attr_);
-      nla_ok(pos, rem); pos = nla_next(pos, &rem))
+  bool status = this->_attrs.Disassemble((struct nlattr*)nla_data(attr_), nla_len(attr_));
+  if (status)
   {
-    status &= this->_attrs.Disassemble((struct nlattr*)nla_data(pos), nla_len(pos));
+    this->SetValid();
   }
   return (status);
 }
@@ -382,7 +378,7 @@ AttributeNested::GetLength() const
 }
 
 bool
-AttributeNested::Get(Attribute* attr_)
+AttributeNested::Get(Attribute* attr_) const
 {
   return (this->_attrs.Get(attr_));
 }
