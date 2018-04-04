@@ -49,6 +49,7 @@ using namespace netlink;
 #include <zutils/nl80211/TxPowerLevelAttribute.h>
 
 #include <zutils/nl80211/CenterFrequency1Attribute.h>
+#include <zutils/nl80211/CenterFrequency2Attribute.h>
 
 namespace nl80211
 {

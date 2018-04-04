@@ -604,6 +604,20 @@ Interface::Commit()
       status &= this->_setTxPower(this->stagingConfig.GetTxPower());
     }
 
+#if 0	//RKB	Crash bug in the Getter
+    if ((this->stagingConfig.GetCenterFrequency1() != ConfigData::ConfigCenterFrequency1Default) &&
+        (this->stagingConfig.GetCenterFrequency1() != this->workingConfig.GetCenterFrequency1()))
+    {
+      status &= this->_setCenterFrequency1(this->stagingConfig.GetCenterFrequency1());
+    }
+
+    if ((this->stagingConfig.GetCenterFrequency2() != ConfigData::ConfigCenterFrequency2Default) &&
+        (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2()))
+    {
+      status &= this->_setCenterFrequency2(this->stagingConfig.GetCenterFrequency2());
+    }
+#endif
+
     status &= this->execCommands();
 
     this->lock.Unlock();
