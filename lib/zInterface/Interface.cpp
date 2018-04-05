@@ -605,7 +605,7 @@ Interface::execCommands()
   while (!this->_cmds.empty())
   {
     Command* cmd = this->_cmds.front();
-//    cmd->Display();
+    cmd->Display();
     if (!cmd->Exec())
     {
       status = false;

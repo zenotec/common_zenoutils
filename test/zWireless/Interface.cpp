@@ -71,11 +71,11 @@ zWirelessTest_WirelessInterface(void* arg)
   TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyInterface->GetOpMode());
   TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
 //  TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
+  TEST_EQ(zWireless::ConfigData::ConfigCenterFrequency1Default, MyInterface->GetCenterFrequency1());
+  TEST_EQ(zWireless::ConfigData::ConfigCenterFrequency2Default, MyInterface->GetCenterFrequency2());
   delete (MyInterface);
 
   //RKB
-  TEST_EQ(zWireless::ConfigData::ConfigCenterFrequency1Default, MyInterface->GetCenterFrequency1());
-//  TEST_EQ(zWireless::ConfigData::ConfigCenterFrequency2Default, MyInterface->GetCenterFrequency2());
 
   FOREACH(auto& iface, ifaces)
   {
@@ -229,7 +229,7 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_NEQ(zInterface::ConfigData::ConfigIfNameDefault, MyInterface->GetIfName());
     TEST_EQ(ifname, MyInterface->GetIfName());
 //    TEST_EQ(zInterface::ConfigData::IFTYPE_IEEE80211, MyInterface->GetIfType());
-    TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
+//    TEST_NEQ(zInterface::ConfigData::ConfigHwAddressDefault, MyInterface->GetHwAddress());
     TEST_NEQ(zInterface::ConfigData::ConfigMtuDefault, MyInterface->GetMtu());
     TEST_EQ(zInterface::ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
     TEST_EQ(zInterface::ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
@@ -243,19 +243,18 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode());
     TEST_EQ(zWireless::ConfigData::OPMODE_MONITOR, MyInterface->GetOpMode());
 //    TEST_NEQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
-//    TEST_NEQ(zWireless::ConfigData::ConfigCenterFrequency1Default, MyInterface->GetCenterFrequency1());
 //    TEST_NEQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
+//    TEST_NEQ(zWireless::ConfigData::ConfigCenterFrequency1Default, MyInterface->GetCenterFrequency1());
 
     // Setup interface; commit each independently so we know which one failed, if any
     TEST_TRUE(MyInterface->SetAdminState(zWireless::ConfigData::STATE_UP));
     TEST_TRUE(MyInterface->Commit());
-	TEST_TRUE(MyInterface->SetChannel(36));
+	TEST_TRUE(MyInterface->SetChannel(40));
 	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT20) );
-    TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
     TEST_TRUE(MyInterface->Commit());
 	TEST_TRUE(MyInterface->SetChannel(36));
 	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT40PLUS) );
-    TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
+//    TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
     TEST_TRUE(MyInterface->Commit());
     TEST_TRUE(MyInterface->SetTxPower(2000));
     TEST_TRUE(MyInterface->Commit());

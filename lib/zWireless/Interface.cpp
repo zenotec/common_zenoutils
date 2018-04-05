@@ -419,6 +419,7 @@ Interface::SetChannel(const unsigned int channel_)
   return (status);
 }
 
+
 unsigned int
 Interface::GetTxPower() const
 {
@@ -591,11 +592,20 @@ Interface::Commit()
     {
       status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
     }
-
+#if 1
+    unsigned int stagingChannel = stagingConfig.GetChannel();
+	unsigned int workingChannel = workingConfig.GetChannel();
+	printf("Interface::Commit(): stagingChannel = %d\n", stagingChannel);
+	printf("Interface::Commit(): workingChannel = %d\n", workingChannel);
+#endif
     if ((this->stagingConfig.GetChannel() != ConfigData::ConfigChannelDefault) &&
         (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel()))
     {
+#if 1	//TODO	RKB	Combine _setChannel and _setHtMode
+      status &= this->_setChannel(this->stagingConfig.GetChannel(), this->stagingConfig.GetHtMode());
+#else
       status &= this->_setChannel(this->stagingConfig.GetChannel());
+#endif
     }
 
     if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
@@ -809,7 +819,20 @@ Interface::_getHtMode() const
 bool
 Interface::_setHtMode(const ConfigData::HTMODE mode_)
 {
+#if 0	//RKB	//Can't be set in seperate message from frequency
+  bool status = false;
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && mode_)
+  {
+    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
+    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
+    cmd->HtMode(mode_);
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
+#else
   return (true); // TODO
+#endif
 }
 
 ConfigData::OPMODE
@@ -856,6 +879,40 @@ Interface::_getChannel() const
   return (channel);
 }
 
+#if 1	//RKB	Combine _setChannel and _setHtMode
+bool
+Interface::_setChannel(const unsigned int channel_, const ConfigData::HTMODE mode_)
+{
+  bool status = false;
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && channel_)
+  {
+    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
+    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
+    cmd->Frequency.SetChannel(channel_);
+	switch(mode_)	//	Set either ChannelType OR ChannelWidth
+	{
+	  case ConfigData::HTMODE_NOHT:
+      case ConfigData::HTMODE_HT20:
+      case ConfigData::HTMODE_HT40MINUS:
+      case ConfigData::HTMODE_HT40PLUS:
+	    cmd->ChannelType(mode_);
+        break;
+      case ConfigData::HTMODE_VHT20:
+      case ConfigData::HTMODE_VHT40:
+      case ConfigData::HTMODE_VHT80:
+      case ConfigData::HTMODE_VHT80PLUS80:
+      case ConfigData::HTMODE_VHT160:
+		cmd->ChannelWidth(mode_);
+        break;
+      default:
+        break;
+	}
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
+}
+#else
 bool
 Interface::_setChannel(const unsigned int channel_)
 {
@@ -870,6 +927,7 @@ Interface::_setChannel(const unsigned int channel_)
   }
   return (status);
 }
+#endif
 
 unsigned int
 Interface::_getTxPower() const

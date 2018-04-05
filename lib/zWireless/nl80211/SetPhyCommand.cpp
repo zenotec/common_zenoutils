@@ -89,6 +89,7 @@ SetPhyCommand::Display(const std::string& prefix_) const
   {
     std::cout << "\tPowerLevel:\t" << this->TxPowerLevel() << std::endl;
   }
+  //TODO RKB	Add debug output for CenterFrequency 1 & 2
   std::cout << "##################################################" << std::endl;
 }
 
@@ -142,12 +143,9 @@ SetPhyCommand::Exec()
   cmdmsg->PutAttribute(&this->ChannelWidth);
   cmdmsg->PutAttribute(&this->TxPowerMode);
   cmdmsg->PutAttribute(&this->TxPowerLevel);
-
 #if 1	//RKB
-  if( 0 != this->CenterFrequency1() )
-	cmdmsg->PutAttribute(&this->CenterFrequency1);
-  if( 0 != this->CenterFrequency2() )
-	cmdmsg->PutAttribute(&this->CenterFrequency2);
+  cmdmsg->PutAttribute(&this->CenterFrequency1);
+  cmdmsg->PutAttribute(&this->CenterFrequency2);
 #endif
 
   // Send message

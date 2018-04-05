@@ -224,8 +224,7 @@ public:
   SetTxPower(const unsigned int power_ = ConfigTxPowerDefault);
 
 
-
-  //RKB	Why do the Get methods of the configuration take defaulted parameters?
+  //RKB
   unsigned int
   GetCenterFrequency1(const unsigned int center_freq_1 = ConfigCenterFrequency1Default) const;
 
@@ -447,9 +446,13 @@ private:
 
   unsigned int
   _getChannel() const;
-
+#if 0	//RKB
   bool
   _setChannel(const unsigned int channel_);
+#else
+  bool
+  _setChannel(const unsigned int channel_, const ConfigData::HTMODE mode_);	//RKB
+#endif
 
   unsigned int
   _getTxPower() const;
