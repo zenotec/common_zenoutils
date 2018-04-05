@@ -23,6 +23,7 @@
 #include <linux/nl80211.h>
 
 // libc++ includes
+#include <map>
 
 // libzutils includes
 #include <zutils/netlink/Attribute.h>
@@ -593,6 +594,7 @@ public:
   ~PhyBandsRateAttribute()
   {
   }
+
   virtual AttributeNested&
   operator=(const Attribute* other_)
   {
@@ -608,6 +610,18 @@ public:
     if (this->_rate.IsValid())
       len += sizeof(struct nlattr) + this->_rate.GetLength();
     return (len);
+  }
+
+  uint8_t
+  GetRate() const
+  {
+    return (this->_rate.operator ()());
+  }
+
+  bool
+  SetRate(const uint8_t rate_)
+  {
+    return (this->_rate.operator ()());
   }
 
   virtual void
@@ -662,6 +676,29 @@ public:
       }
     }
     return (*this);
+  }
+
+  std::vector<uint8_t>
+  GetRates() const
+  {
+    std::vector<uint8_t> rates;
+    FOREACH(auto& rate, this->_rates)
+    {
+      rates.push_back(rate.GetRate());
+    }
+    return (rates);
+  }
+
+  bool
+  SetRates(const std::vector<uint8_t>& rates_)
+  {
+    this->_rates.clear();
+    for (int rate = 0; rate < rates_.size(); rate++)
+    {
+      this->_rates.emplace_back(rate);
+      this->_rates[rate].SetRate(rates_[rate]);
+    }
+    return (!this->_rates.empty());
   }
 
   virtual void
@@ -770,7 +807,7 @@ class PhyBandAttribute :
 
 public:
 
-  PhyBandAttribute(const int band_) :
+  PhyBandAttribute(const int band_ = 0) :
     AttributeNested(band_)
   {
   }
@@ -792,29 +829,28 @@ public:
   }
 
   const PhyBandsFreqsAttribute&
-  GetFrequency() const
+  GetChannels() const
   {
     return (this->_freqs);
   }
 
   bool
-  SetFrequency(const PhyBandsFreqsAttribute& attr_)
+  SetChannels(const PhyBandsFreqsAttribute& attr_)
   {
     this->_freqs = attr_;
     return (true);
   }
 
-  const PhyBandsRatesAttribute&
-  GetRate() const
+  std::vector<uint8_t>
+  GetRates () const
   {
-    return (this->_rates);
+    return (this->_rates.GetRates());
   }
 
   bool
-  SetRate(const PhyBandsRatesAttribute& attr_)
+  SetRates(const std::vector<uint8_t>& rates_)
   {
-    this->_rates = attr_;
-    return (true);
+    return (this->_rates.SetRates(rates_));
   }
 
   virtual size_t
@@ -867,8 +903,7 @@ class PhyBandsAttribute :
 public:
 
   PhyBandsAttribute() :
-    AttributeNested(NL80211_ATTR_WIPHY_BANDS), _band2(NL80211_BAND_2GHZ),
-    _band5(NL80211_BAND_5GHZ)
+    AttributeNested(NL80211_ATTR_WIPHY_BANDS)
   {
   }
 
@@ -881,17 +916,51 @@ public:
   operator=(const Attribute* other_)
   {
     AttributeNested::operator =(other_);
-    this->Get(&this->_band2);
-    this->Get(&this->_band5);
+    for (int band; band <= NL80211_BAND_60GHZ; band++)
+    {
+      if (this->Get(&this->_bands[band]))
+      {
+        this->_bands[band].SetId(band);
+      }
+      else
+      {
+        this->_bands.erase(band);
+      }
+    }
     return (*this);
   }
 
-  virtual bool
-  Disassemble(struct nlattr* attr_, size_t len_)
+  std::vector<uint8_t>
+  GetBands() const
   {
-    bool status = AttributeNested::Disassemble(attr_, len_);
-    status &= this->Get(&this->_band2);
-    status &= this->Get(&this->_band5);
+    std::vector<uint8_t> bands;
+    FOREACH(auto& band, this->_bands)
+    {
+      bands.push_back(band.first);
+    }
+    return (bands);
+  }
+
+  PhyBandAttribute
+  GetPhyBand(const int id_)
+  {
+    PhyBandAttribute band;
+    if (this->_bands.count(id_) > 0)
+    {
+      band = this->_bands.at(id_);
+    }
+    return (band);
+  }
+
+  bool
+  SetPhyBand(const int id_, const PhyBandAttribute& band_)
+  {
+    bool status = false;
+    if (id_ <= NL80211_BAND_60GHZ)
+    {
+      this->_bands[id_] = band_;
+      status = true;
+    }
     return (status);
   }
 
@@ -899,16 +968,17 @@ public:
   Display(const std::string& prefix_ = "") const
   {
     std::cout << prefix_ << "PhyBands:" << std::endl;
-    this->_band2.Display(std::string(prefix_ + "\t"));
-    this->_band5.Display(std::string(prefix_ + "\t"));
+    FOREACH(auto& band, this->_bands)
+    {
+      band.second.Display(std::string(prefix_ + "\t"));
+    }
   }
 
 protected:
 
 private:
 
-  PhyBandAttribute _band2;
-  PhyBandAttribute _band5;
+  std::map<int, PhyBandAttribute> _bands;
 
 };
 

@@ -224,6 +224,75 @@ private:
 };
 
 // ****************************************************************************
+// Class: zWireless::Capabilities
+// ****************************************************************************
+
+class Capabilities
+{
+
+public:
+
+  enum BAND
+  {
+    BAND_ERR = -1,
+    BAND_NONE = 0,
+    BAND_2_4 = 1,
+    BAND_5 = 2,
+    BAND_60 = 3,
+    BAND_LAST
+  };
+
+  Capabilities();
+
+  virtual
+  ~Capabilities();
+
+  bool
+  IsValid() const
+  {
+    return (this->_valid);
+  }
+
+  bool
+  SetValid()
+  {
+    this->_valid = true;
+    return (this->_valid);
+  }
+
+  bool
+  ClrValid()
+  {
+    this->_valid = false;
+    return (!this->_valid);
+  }
+
+  std::vector<uint8_t>
+  GetChannels() const;
+
+  bool
+  SetChannels(const std::vector<uint8_t>& channels_);
+
+  std::vector<uint8_t>
+  GetRates() const;
+
+  bool
+  SetRates(const std::vector<uint8_t>& rates_);
+
+  void
+  Display() const;
+
+protected:
+
+private:
+
+  bool _valid;
+  std::vector <uint8_t> _channels;
+  std::vector <uint8_t> _rates;
+
+};
+
+// ****************************************************************************
 // Class: zWireless::Interface
 // ****************************************************************************
 
@@ -283,6 +352,9 @@ public:
 
   bool
   SetTxPower(unsigned int txpower_);
+
+  std::map<int, Capabilities>
+  GetCapabilities() const;
 
   virtual bool
   Refresh();
@@ -347,6 +419,9 @@ private:
 
   bool
   _setTxPower(unsigned int txpower_);
+
+  std::map<int, Capabilities>
+  _getCapabilities() const;
 
 };
 

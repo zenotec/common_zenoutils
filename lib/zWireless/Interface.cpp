@@ -447,6 +447,18 @@ Interface::SetTxPower(const unsigned int txpower_)
   return (status);
 }
 
+std::map<int, Capabilities>
+Interface::GetCapabilities() const
+{
+  std::map<int, Capabilities> capa;
+  if (this->lock.Lock())
+  {
+    capa = this->_getCapabilities();
+    this->lock.Unlock();
+  }
+  return (capa);
+}
+
 bool
 Interface::Refresh()
 {
@@ -817,6 +829,26 @@ Interface::_setTxPower(unsigned int txpower_)
     status = true;
   }
   return (status);
+}
+
+std::map<int, Capabilities>
+Interface::_getCapabilities() const
+{
+  std::map<int, Capabilities> capa;
+  if (this->workingConfig.GetPhyIndex() >= 0)
+  {
+    GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
+    cmd.PhyIndex(this->workingConfig.GetPhyIndex());
+    if (cmd.Exec())
+    {
+      std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
+      FOREACH(auto& band, bands)
+      {
+        capa[band].SetRates(cmd.PhyBands.GetPhyBand(band).GetRates());
+      }
+    }
+  }
+  return (capa);
 }
 
 }

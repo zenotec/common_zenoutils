@@ -63,6 +63,7 @@ GetPhyCommand::Display() const
   std::cout << "Phy:" << std::endl;
   std::cout << "\tIndex: \t" << this->PhyIndex() << std::endl;
   std::cout << "\tName:  \t" << this->PhyName() << std::endl;
+  this->PhyBands.Display("\t");
 }
 
 bool
@@ -148,7 +149,6 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 
   msg.GetAttribute(&this->PhyBands);
-  this->PhyBands.Display();
 
   this->_status = true;
   this->_count.Post();

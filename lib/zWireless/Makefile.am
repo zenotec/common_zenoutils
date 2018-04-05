@@ -43,6 +43,7 @@ libzWireless_la_LDFLAGS = \
 
 libzWireless_la_SOURCES = \
     Configuration.cpp \
+    Capabilities.cpp \
     Interface.cpp \
     WirelessSocket.cpp \
     AccessPointInterface.cpp \
