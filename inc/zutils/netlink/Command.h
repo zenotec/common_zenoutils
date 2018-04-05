@@ -51,7 +51,7 @@ public:
   Exec() = 0;
 
   virtual void
-  Display() const = 0;
+  Display(const std::string& prefix_ = "") const = 0;
 
 protected:
 

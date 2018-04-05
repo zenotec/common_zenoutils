@@ -60,7 +60,7 @@ ListInterfacesCommand::operator() ()
 }
 
 void
-ListInterfacesCommand::Display() const
+ListInterfacesCommand::Display(const std::string& prefix_) const
 {
   FOREACH(auto& iface, this->_ifs)
   {

@@ -834,16 +834,21 @@ Interface::_setTxPower(unsigned int txpower_)
 std::map<int, Capabilities>
 Interface::_getCapabilities() const
 {
+  std::cerr << "<<<<<<<< Interface::_getCapabilities(): 1" << std::endl;
   std::map<int, Capabilities> capa;
   if (this->workingConfig.GetPhyIndex() >= 0)
   {
+    std::cerr << "<<<<<<<< Interface::_getCapabilities(): 2" << std::endl;
     GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
     cmd.PhyIndex(this->workingConfig.GetPhyIndex());
     if (cmd.Exec())
     {
+      std::cerr << "<<<<<<<< Interface::_getCapabilities(): 3" << std::endl;
+      cmd.Display("++++++++ ");
       std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
       FOREACH(auto& band, bands)
       {
+        std::cerr << "<<<<<<<< Interface::_getCapabilities(): 4" << std::endl;
         capa[band].SetRates(cmd.PhyBands.GetPhyBand(band).GetRates());
       }
     }

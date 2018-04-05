@@ -112,7 +112,7 @@ DelStationCommand::Exec()
 }
 
 void
-DelStationCommand::Display() const
+DelStationCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "DelStationCommand: " << std::endl;

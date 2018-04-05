@@ -116,7 +116,7 @@ StopApCommand::Exec()
 }
 
 void
-StopApCommand::Display() const
+StopApCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "StartApCommand: " << std::endl;

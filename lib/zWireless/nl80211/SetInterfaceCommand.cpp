@@ -137,7 +137,7 @@ SetInterfaceCommand::Exec()
 }
 
 void
-SetInterfaceCommand::Display() const
+SetInterfaceCommand::Display(const std::string& prefix_) const
 {
   std::cout << "Set Interface: " << std::endl;
   if (this->IfName.IsValid())

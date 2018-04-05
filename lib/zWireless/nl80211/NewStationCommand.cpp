@@ -109,7 +109,7 @@ NewStationCommand::Exec()
 }
 
 void
-NewStationCommand::Display() const
+NewStationCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "NewStationCommand: " << std::endl;

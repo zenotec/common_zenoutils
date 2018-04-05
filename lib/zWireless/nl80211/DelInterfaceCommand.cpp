@@ -121,7 +121,7 @@ DelInterfaceCommand::Exec()
 }
 
 void
-DelInterfaceCommand::Display() const
+DelInterfaceCommand::Display(const std::string& prefix_) const
 {
   std::cout << "Delete Interface: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;

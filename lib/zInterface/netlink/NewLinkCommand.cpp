@@ -135,7 +135,7 @@ NewLinkCommand::Exec()
 }
 
 void
-NewLinkCommand::Display() const
+NewLinkCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "NewLinkCommand: " << std::endl;

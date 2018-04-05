@@ -65,8 +65,8 @@ public:
   virtual bool
   Exec();
 
-  void
-  Display() const;
+  virtual void
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 

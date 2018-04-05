@@ -115,7 +115,7 @@ GetLinkCommand::Exec()
 }
 
 void
-GetLinkCommand::Display() const
+GetLinkCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "GetLinkCommand: " << std::endl;

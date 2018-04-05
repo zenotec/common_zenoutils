@@ -60,7 +60,7 @@ ListPhysCommand::operator() ()
 }
 
 void
-ListPhysCommand::Display() const
+ListPhysCommand::Display(const std::string& prefix_) const
 {
   FOREACH(auto& phy, this->_phys)
   {

@@ -102,7 +102,7 @@ ListLinksCommand::Exec()
 }
 
 void
-ListLinksCommand::Display() const
+ListLinksCommand::Display(const std::string& prefix_) const
 {
   FOREACH(auto& link, this->LinkMap)
   {

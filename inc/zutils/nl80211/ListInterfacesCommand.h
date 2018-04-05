@@ -55,8 +55,8 @@ public:
   virtual std::map<uint32_t, std::string>
   operator() ();
 
-  void
-  Display() const;
+  virtual void
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 

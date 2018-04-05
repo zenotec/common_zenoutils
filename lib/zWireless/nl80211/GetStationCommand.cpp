@@ -110,7 +110,7 @@ GetStationCommand::Exec()
 }
 
 void
-GetStationCommand::Display() const
+GetStationCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "GetStationCommand: " << std::endl;

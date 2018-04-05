@@ -788,7 +788,7 @@ public:
   Display(const std::string& prefix_ = "") const
   {
     std::cout << prefix_ << "HT Capabilities: " << this->GetLength() << std::endl;
-    std::cout << prefix_ << "0x" << std::hex << this->operator ()() << std::endl;
+    std::cout << prefix_ << "0x" << std::hex << this->operator ()() << std::dec << std::endl;
   }
 
 protected:

@@ -124,7 +124,7 @@ NewInterfaceCommand::Exec()
 }
 
 void
-NewInterfaceCommand::Display() const
+NewInterfaceCommand::Display(const std::string& prefix_) const
 {
   std::cout << "New Interface: " << std::endl;
   if (this->PhyIndex.IsValid())

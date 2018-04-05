@@ -59,7 +59,7 @@ ListStationsCommand::operator() ()
 }
 
 void
-ListStationsCommand::Display() const
+ListStationsCommand::Display(const std::string& prefix_) const
 {
   FOREACH(auto& sta, this->_stas)
   {

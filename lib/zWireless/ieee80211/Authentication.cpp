@@ -184,7 +184,7 @@ Authentication::Display() const
   std::cout << "----- IEEE802.11 Authentication  -----------" << std::endl;
   cout << "Algorithm: " << Authentication::ToString(ALGORITHM_TYPE(this->_algorithm)) << endl;
   cout << "Sequence Number: " << int(_sequenceNumber) << endl;
-  cout << "Status Code: " << int(_statusCode) << " (0x" << hex << setw(2) << setfill('0') << int(_statusCode) << ")" << endl;
+  cout << "Status Code: " << int(_statusCode) << " (0x" << std::hex << setw(2) << setfill('0') << int(_statusCode) << ")" << std::dec << endl;
 }
 
 

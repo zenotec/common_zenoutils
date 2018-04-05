@@ -120,7 +120,7 @@ SetBeaconCommand::Exec()
 }
 
 void
-SetBeaconCommand::Display() const
+SetBeaconCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetBeaconCommand: " << std::endl;

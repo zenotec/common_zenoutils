@@ -117,7 +117,7 @@ SetLinkCommand::Exec()
 }
 
 void
-SetLinkCommand::Display() const
+SetLinkCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetLinkCommand: " << std::endl;

@@ -106,7 +106,7 @@ DelLinkCommand::Exec()
 }
 
 void
-DelLinkCommand::Display() const
+DelLinkCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "DelLinkCommand: " << std::endl;

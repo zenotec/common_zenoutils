@@ -117,7 +117,7 @@ SetChannelCommand::Exec()
 }
 
 void
-SetChannelCommand::Display() const
+SetChannelCommand::Display(const std::string& prefix_) const
 {
   std::cout << "Set Channel: " << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;

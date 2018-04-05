@@ -60,7 +60,7 @@ SetPhyCommand::~SetPhyCommand()
 }
 
 void
-SetPhyCommand::Display() const
+SetPhyCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetPhyCommand:" << std::endl;

@@ -149,7 +149,7 @@ StartApCommand::Exec()
 }
 
 void
-StartApCommand::Display() const
+StartApCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "StartApCommand: " << std::endl;

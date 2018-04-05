@@ -58,12 +58,12 @@ GetPhyCommand::~GetPhyCommand()
 }
 
 void
-GetPhyCommand::Display() const
+GetPhyCommand::Display(const std::string& prefix_) const
 {
-  std::cout << "Phy:" << std::endl;
-  std::cout << "\tIndex: \t" << this->PhyIndex() << std::endl;
-  std::cout << "\tName:  \t" << this->PhyName() << std::endl;
-  this->PhyBands.Display("\t");
+  std::cout << prefix_ << "Phy:" << std::endl;
+  std::cout << prefix_ << "\tIndex: \t" << this->PhyIndex() << std::endl;
+  std::cout << prefix_ << "\tName:  \t" << this->PhyName() << std::endl;
+  this->PhyBands.Display(std::string(prefix_ + "\t"));
 }
 
 bool
@@ -148,7 +148,12 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  msg.GetAttribute(&this->PhyBands);
+  if (!msg.GetAttribute(&this->PhyBands))
+  {
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyBands.GetId()));
+    return(NL_SKIP);
+  }
+  this->PhyBands.Display("<<<<<<<<<< ");
 
   this->_status = true;
   this->_count.Post();
