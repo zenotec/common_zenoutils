@@ -566,7 +566,7 @@ public:
   Display(const std::string& prefix_ = "") const
   {
     std::cout << prefix_ << "Rate: " << this->GetLength() << std::endl;
-    std::cout << prefix_ << "\t" << this->GetMbps() << " Mbps" << std::endl;
+    std::cout << prefix_ << "\t" << this->GetKbps() << " Kbps" << std::endl;
   }
 
 protected:
@@ -615,13 +615,13 @@ public:
   uint8_t
   GetRate() const
   {
-    return (this->_rate.operator ()());
+    return (this->_rate.GetKbps() / 500); // convert units to 500 Kbps
   }
 
   bool
   SetRate(const uint8_t rate_)
   {
-    return (this->_rate.operator ()());
+    return (this->_rate.SetKbps(rate_ * 500)); // convert units from 500 Kbps
   }
 
   virtual void
@@ -916,8 +916,9 @@ public:
   operator=(const Attribute* other_)
   {
     AttributeNested::operator =(other_);
-    for (int band; band <= NL80211_BAND_60GHZ; band++)
+    for (int band = 0; band <= NL80211_BAND_60GHZ; band++)
     {
+      this->_bands.emplace(band, band);
       if (this->Get(&this->_bands[band]))
       {
         this->_bands[band].SetId(band);

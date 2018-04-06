@@ -133,8 +133,8 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
-  msg.Display();
+//  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
+//  msg.Display();
 
   if (!msg.GetAttribute(&this->PhyIndex))
   {
@@ -153,7 +153,6 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyBands.GetId()));
     return(NL_SKIP);
   }
-  this->PhyBands.Display("<<<<<<<<<< ");
 
   this->_status = true;
   this->_count.Post();

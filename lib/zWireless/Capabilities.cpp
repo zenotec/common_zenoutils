@@ -41,7 +41,8 @@ namespace zWireless
 // Class: zWireless::Capabilities
 // ****************************************************************************
 
-Capabilities::Capabilities()
+Capabilities::Capabilities() :
+    _valid(false)
 {
 }
 
