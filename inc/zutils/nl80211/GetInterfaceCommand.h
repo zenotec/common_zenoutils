@@ -34,6 +34,7 @@
 using namespace netlink;
 #include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/PhyIndexAttribute.h>
+#include <zutils/nl80211/PhyDevAttribute.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
 #include <zutils/nl80211/IfTypeAttribute.h>
@@ -62,19 +63,19 @@ class GetInterfaceCommand : public netlink::Command, public Handler
 public:
 
   PhyIndexAttribute PhyIndex;
+  PhyDevAttribute PhyDev;
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
   IfTypeAttribute IfType;
   MacAttribute Mac;
   SsidAttribute Ssid;
-  FrequencyAttribute Frequency;
   ChannelTypeAttribute ChannelType;
   ChannelWidthAttribute ChannelWidth;
+  FrequencyAttribute Frequency;
+  CenterFrequency1Attribute CenterFrequency1;
+  CenterFrequency1Attribute CenterFrequency2;
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel;
-
-  CenterFrequency1Attribute CenterFrequency1;		//RKB
-  CenterFrequency1Attribute CenterFrequency2;		//RKB
 
   GetInterfaceCommand(int index_);
 

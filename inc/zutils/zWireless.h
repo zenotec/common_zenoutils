@@ -38,21 +38,19 @@ class ConfigPath : public zInterface::ConfigPath
 public:
 
   static const std::string ConfigPhyIndexPath;
+  static const std::string ConfigPhyDevPath;
   static const std::string ConfigPhyNamePath;
-  static const std::string ConfigHwModePath;
-  static const std::string ConfigHtModePath;
   static const std::string ConfigOpModePath;
   static const std::string ConfigSsidPath;
   static const std::string ConfigBssidPath;
-  static const std::string ConfigChannelPath;
-  static const std::string ConfigTxPowerPath;
   static const std::string ConfigHiddenSsidPath;
   static const std::string ConfigBeaconIntervalPath;
   static const std::string ConfigDtimIntervalPath;
-
-  //RKB
+  static const std::string ConfigHtModePath;
+  static const std::string ConfigFrequencyPath;
   static const std::string ConfigCenterFrequency1Path;
   static const std::string ConfigCenterFrequency2Path;
+  static const std::string ConfigTxPowerPath;
 
   ConfigPath(const std::string& root_ = std::string(""));
 
@@ -73,34 +71,35 @@ class ConfigData : public zInterface::ConfigData
 {
 
 public:
+
   static const int ConfigPhyIndexDefault;
+  static const int ConfigPhyDevDefault;
 
   static const std::string ConfigPhyNameDefault;
 
-  static const std::string ConfigHwModeNone;
-  static const std::string ConfigHwModeA;
-  static const std::string ConfigHwModeB;
-  static const std::string ConfigHwModeG;
-  static const std::string ConfigHwModeN;
-  static const std::string ConfigHwModeAC;
-  static const std::string ConfigHwModeAD;
-  static const std::string ConfigHwModeAX;
-  static const std::string ConfigHwModeDefault;
+  static const std::string ConfigOpModeNone;
+  static const std::string ConfigOpModeSTA;
+  static const std::string ConfigOpModeAP;
+  static const std::string ConfigOpModeAdhoc;
+  static const std::string ConfigOpModeMonitor;
+  static const std::string ConfigOpModeMesh;
+  static const std::string ConfigOpModeDefault;
 
-  enum HWMODE
+  enum OPMODE
   {
-    HWMODE_ERR = -1,
-    HWMODE_NONE = 0,
-    HWMODE_DEF = 0,
-    HWMODE_A = 1,
-    HWMODE_B = 2,
-    HWMODE_G = 3,
-    HWMODE_N = 4,
-    HWMODE_AC = 5,
-    HWMODE_AD = 6,
-    HWMODE_AX = 7,
-    HWMODE_LAST
+    OPMODE_ERR = -1,
+    OPMODE_NONE = 0,
+    OPMODE_STA = 1,
+    OPMODE_DEF = 1,
+    OPMODE_AP = 2,
+    OPMODE_ADHOC = 3,
+    OPMODE_MONITOR = 4,
+    OPMODE_MESH = 5,
+    OPMODE_LAST
   };
+
+  static const std::string ConfigSsidDefault;
+  static const std::string ConfigBssidDefault;
 
   static const std::string ConfigHtModeNone;
   static const std::string ConfigHtModeHT20;
@@ -130,35 +129,10 @@ public:
     HTMODE_LAST
   };
 
-  static const std::string ConfigOpModeNone;
-  static const std::string ConfigOpModeSTA;
-  static const std::string ConfigOpModeAP;
-  static const std::string ConfigOpModeAdhoc;
-  static const std::string ConfigOpModeMonitor;
-  static const std::string ConfigOpModeMesh;
-  static const std::string ConfigOpModeDefault;
-
-  enum OPMODE
-  {
-    OPMODE_ERR = -1,
-    OPMODE_NONE = 0,
-    OPMODE_STA = 1,
-    OPMODE_DEF = 1,
-    OPMODE_AP = 2,
-    OPMODE_ADHOC = 3,
-    OPMODE_MONITOR = 4,
-    OPMODE_MESH = 5,
-    OPMODE_LAST
-  };
-
-  static const std::string ConfigSsidDefault;
-  static const std::string ConfigBssidDefault;
-  static const unsigned int ConfigChannelDefault;
+  static const unsigned int ConfigFrequencyDefault;
+  static const unsigned int ConfigCenterFrequency1Default; // VHT only
+  static const unsigned int ConfigCenterFrequency2Default; // VHT only
   static const unsigned int ConfigTxPowerDefault;
-
-  //RKB
-  static const unsigned int ConfigCenterFrequency1Default;
-  static const unsigned int ConfigCenterFrequency2Default;
 
   ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
@@ -175,23 +149,17 @@ public:
   bool
   SetPhyIndex(const int index_ = ConfigPhyIndexDefault);
 
+  int
+  GetPhyDev(const int index_ = ConfigPhyDevDefault) const;
+
+  bool
+  SetPhyDev(const int index_ = ConfigPhyDevDefault);
+
   std::string
   GetPhyName(const std::string& name_ = ConfigPhyNameDefault) const;
 
   bool
   SetPhyName(const std::string& name_ = ConfigPhyNameDefault);
-
-  ConfigData::HWMODE
-  GetHwMode(const ConfigData::HWMODE mode_ = HWMODE_DEF) const;
-
-  bool
-  SetHwMode(const ConfigData::HWMODE mode_ = HWMODE_DEF);
-
-  ConfigData::HTMODE
-  GetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF) const;
-
-  bool
-  SetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF);
 
   ConfigData::OPMODE
   GetOpMode(const ConfigData::OPMODE mode_ = OPMODE_DEF) const;
@@ -211,33 +179,35 @@ public:
   bool
   SetBssid(const std::string& bssid_ = ConfigBssidDefault);
 
-  unsigned int
-  GetChannel(const unsigned int channel_ = ConfigChannelDefault) const;
+  ConfigData::HTMODE
+  GetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF) const;
 
   bool
-  SetChannel(const unsigned int channel_ = ConfigChannelDefault);
+  SetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF);
+
+  unsigned int
+  GetFrequency(const unsigned int freq_ = ConfigFrequencyDefault) const;
+
+  bool
+  SetFrequency(const unsigned int freq_ = ConfigFrequencyDefault);
+
+  unsigned int
+  GetCenterFrequency1(const unsigned int freq_ = ConfigCenterFrequency1Default) const;
+
+  bool
+  SetCenterFrequency1(const unsigned int freq_ = ConfigCenterFrequency1Default);
+
+  unsigned int
+  GetCenterFrequency2(const unsigned int freq_ = ConfigCenterFrequency2Default) const;
+
+  bool
+  SetCenterFrequency2(const unsigned int freq_ = ConfigCenterFrequency2Default);
 
   unsigned int
   GetTxPower(const unsigned int power_ = ConfigTxPowerDefault) const;
 
   bool
   SetTxPower(const unsigned int power_ = ConfigTxPowerDefault);
-
-
-  //RKB
-  unsigned int
-  GetCenterFrequency1(const unsigned int center_freq_1 = ConfigCenterFrequency1Default) const;
-
-  bool
-  SetCenterFrequency1(const unsigned int center_freq_1 = ConfigCenterFrequency1Default);
-
-  unsigned int
-  GetCenterFrequency2(const unsigned int center_freq_2 = ConfigCenterFrequency2Default) const;
-
-  bool
-  SetCenterFrequency2(const unsigned int center_freq_2 = ConfigCenterFrequency2Default);
-
-
 
 protected:
 
@@ -341,23 +311,17 @@ public:
   bool
   SetPhyIndex(const int index_);
 
+  int
+  GetPhyDev() const;
+
+  bool
+  SetPhyDev(const int dev_);
+
   std::string
   GetPhyName() const;
 
   bool
   SetPhyName(const std::string& name_);
-
-  ConfigData::HWMODE
-  GetHwMode() const;
-
-  bool
-  SetHwMode(const ConfigData::HWMODE mode_);
-
-  ConfigData::HTMODE
-  GetHtMode() const;
-
-  bool
-  SetHtMode(const ConfigData::HTMODE mode_);
 
   ConfigData::OPMODE
   GetOpMode() const;
@@ -365,32 +329,38 @@ public:
   bool
   SetOpMode(const ConfigData::OPMODE mode_);
 
-  unsigned int
-  GetChannel() const;
+  ConfigData::HTMODE
+  GetHtMode() const;
 
   bool
-  SetChannel(const unsigned int channel_);
+  SetHtMode(const ConfigData::HTMODE mode_);
+
+  unsigned int
+  GetFrequency() const;
+
+  bool
+  SetFrequency(const unsigned int freq_);
+
+  unsigned int
+  GetCenterFrequency1() const;
+
+  bool
+  SetCenterFrequency1(const unsigned int freq_);
+
+  std::map<int, Capabilities>
+  GetCapabilities() const;
+
+  unsigned int
+  GetCenterFrequency2() const;
+
+  bool
+  SetCenterFrequency2(const unsigned int freq_);
 
   unsigned int
   GetTxPower() const;
 
   bool
   SetTxPower(unsigned int txpower_);
-
-  std::map<int, Capabilities>
-  GetCapabilities() const;
-
-  unsigned int
-  GetCenterFrequency1() const;
-
-  bool
-  SetCenterFrequency1(const unsigned int center_freq_1_);
-
-  unsigned int
-  GetCenterFrequency2() const;
-
-  bool
-  SetCenterFrequency2(const unsigned int center_freq_2_);
 
   virtual bool
   Refresh();
@@ -418,44 +388,31 @@ private:
   _getPhyIndex() const;
 
   bool
-  _setPhyIndex(const int index_);
+  _setPhyIndex();
+
+  int
+  _getPhyDev() const;
+
+  bool
+  _setPhyDev();
 
   std::string
   _getPhyName() const;
 
   bool
-  _setPhyName(const std::string& name_);
-
-  ConfigData::HWMODE
-  _getHwMode() const;
-
-  bool
-  _setHwMode(const ConfigData::HWMODE mode_);
-
-  ConfigData::HTMODE
-  _getHtMode() const;
-
-  bool
-  _setHtMode(const ConfigData::HTMODE mode_);
+  _setPhyName();
 
   ConfigData::OPMODE
   _getOpMode() const;
 
   bool
-  _setOpMode(const ConfigData::OPMODE mode_);
+  _setOpMode();
+
+  ConfigData::HTMODE
+  _getHtMode() const;
 
   unsigned int
-  _getChannel() const;
-#if 0	//RKB
-  bool
-  _setChannel(const unsigned int channel_);
-#else
-  bool
-  _setChannel(const unsigned int channel_, const ConfigData::HTMODE mode_);	//RKB
-#endif
-
-  unsigned int
-  _getTxPower() const;
+  _getFrequency() const;
 
   bool
   _setTxPower(unsigned int txpower_);
@@ -466,14 +423,17 @@ private:
   unsigned int
   _getCenterFrequency1() const;
 
-  bool
-  _setCenterFrequency1(const unsigned int center_frequency_1_);
-
   unsigned int
   _getCenterFrequency2() const;
 
   bool
-  _setCenterFrequency2(const unsigned int center_frequency_2_);
+  _setChannel();
+
+  unsigned int
+  _getTxPower() const;
+
+  bool
+  _setTxPower();
 
 };
 

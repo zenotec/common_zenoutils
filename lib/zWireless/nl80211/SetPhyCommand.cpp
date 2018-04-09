@@ -79,7 +79,16 @@ SetPhyCommand::Display(const std::string& prefix_) const
   }
   if (this->Frequency.IsValid())
   {
-    std::cout << "\tChannel:  \t" << this->Frequency.GetChannel() << std::endl;
+    std::cout << "\tChannel:  \t" << this->Frequency.GetChannel();
+    std::cout << " [" << this->Frequency() << "]" << std::endl;
+  }
+  if (this->CenterFrequency1.IsValid())
+  {
+    std::cout << "\tCenter 1:  \t" << this->CenterFrequency1() << std::endl;
+  }
+  if (this->CenterFrequency2.IsValid())
+  {
+    std::cout << "\tCenter 1:  \t" << this->CenterFrequency2() << std::endl;
   }
   if (this->TxPowerMode.IsValid())
   {
@@ -89,7 +98,6 @@ SetPhyCommand::Display(const std::string& prefix_) const
   {
     std::cout << "\tPowerLevel:\t" << this->TxPowerLevel() << std::endl;
   }
-  //TODO RKB	Add debug output for CenterFrequency 1 & 2
   std::cout << "##################################################" << std::endl;
 }
 
@@ -138,15 +146,13 @@ SetPhyCommand::Exec()
 
   // Set optional phy name attribute
   cmdmsg->PutAttribute(&this->PhyName);
+  cmdmsg->PutAttribute(&this->TxPowerMode);
+  cmdmsg->PutAttribute(&this->TxPowerLevel);
   cmdmsg->PutAttribute(&this->Frequency);
   cmdmsg->PutAttribute(&this->ChannelType);
   cmdmsg->PutAttribute(&this->ChannelWidth);
-  cmdmsg->PutAttribute(&this->TxPowerMode);
-  cmdmsg->PutAttribute(&this->TxPowerLevel);
-#if 1	//RKB
   cmdmsg->PutAttribute(&this->CenterFrequency1);
   cmdmsg->PutAttribute(&this->CenterFrequency2);
-#endif
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))

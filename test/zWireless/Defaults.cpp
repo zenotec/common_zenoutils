@@ -51,12 +51,11 @@ zWirelessTest_WirelessConfigurationDefaults(void* arg)
   TEST_EQ(zWireless::ConfigData::STATE_DEF, MyConfig->GetAdminState());
   TEST_EQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyConfig->GetPhyIndex());
   TEST_EQ(zWireless::ConfigData::ConfigPhyNameDefault, MyConfig->GetPhyName());
-  TEST_EQ(zWireless::ConfigData::HWMODE_DEF, MyConfig->GetHwMode());
   TEST_EQ(zWireless::ConfigData::HTMODE_DEF, MyConfig->GetHtMode());
   TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyConfig->GetOpMode());
   TEST_EQ(zWireless::ConfigData::ConfigSsidDefault, MyConfig->GetSsid());
   TEST_EQ(zWireless::ConfigData::ConfigBssidDefault, MyConfig->GetBssid());
-  TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyConfig->GetChannel());
+  TEST_EQ(zWireless::ConfigData::ConfigFrequencyDefault, MyConfig->GetFrequency());
   TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyConfig->GetTxPower());
 
   // Cleanup
@@ -89,10 +88,9 @@ zWirelessTest_WirelessDefaults(void* arg)
   TEST_EQ(zWireless::ConfigData::STATE_DEF, MyInterface->GetAdminState());
   TEST_EQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex());
   TEST_EQ(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName());
-  TEST_EQ(zWireless::ConfigData::HWMODE_DEF, MyInterface->GetHwMode());
   TEST_EQ(zWireless::ConfigData::HTMODE_DEF, MyInterface->GetHtMode());
   TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyInterface->GetOpMode());
-  TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyInterface->GetChannel());
+  TEST_EQ(zWireless::ConfigData::ConfigFrequencyDefault, MyInterface->GetFrequency());
   TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyInterface->GetTxPower());
 
   // Cleanup

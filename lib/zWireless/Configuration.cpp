@@ -39,86 +39,6 @@ namespace zUtils
 namespace zWireless
 {
 
-static std::string
-_hwmode2str(const ConfigData::HWMODE mode_)
-{
-  std::string str;
-  switch (mode_)
-  {
-  case ConfigData::HWMODE_NONE:
-    str = ConfigData::ConfigHwModeNone;
-    break;
-  case ConfigData::HWMODE_A:
-    str = ConfigData::ConfigHwModeA;
-    break;
-  case ConfigData::HWMODE_B:
-    str = ConfigData::ConfigHwModeB;
-    break;
-  case ConfigData::HWMODE_G:
-    str = ConfigData::ConfigHwModeG;
-    break;
-  case ConfigData::HWMODE_N:
-    str = ConfigData::ConfigHwModeN;
-    break;
-  case ConfigData::HWMODE_AC:
-    str = ConfigData::ConfigHwModeAC;
-    break;
-  case ConfigData::HWMODE_AD:
-    str = ConfigData::ConfigHwModeAD;
-    break;
-  case ConfigData::HWMODE_AX:
-    str = ConfigData::ConfigHwModeAX;
-    break;
-  default:
-    str = ConfigData::ConfigHwModeDefault;
-    break;
-  }
-  return (str);
-}
-
-static ConfigData::HWMODE
-_str2hwmode(const std::string& str)
-{
-  ConfigData::HWMODE mode = ConfigData::HWMODE_ERR;
-
-  if (str == ConfigData::ConfigHwModeNone)
-  {
-    mode = ConfigData::HWMODE_NONE;
-  }
-  else if (str == ConfigData::ConfigHwModeA)
-  {
-    mode = ConfigData::HWMODE_A;
-  }
-  else if (str == ConfigData::ConfigHwModeB)
-  {
-    mode = ConfigData::HWMODE_B;
-  }
-  else if (str == ConfigData::ConfigHwModeG)
-  {
-    mode = ConfigData::HWMODE_G;
-  }
-  else if (str == ConfigData::ConfigHwModeN)
-  {
-    mode = ConfigData::HWMODE_N;
-  }
-  else if (str == ConfigData::ConfigHwModeAC)
-  {
-    mode = ConfigData::HWMODE_AC;
-  }
-  else if (str == ConfigData::ConfigHwModeAD)
-  {
-    mode = ConfigData::HWMODE_AD;
-  }
-  else if (str == ConfigData::ConfigHwModeAX)
-  {
-    mode = ConfigData::HWMODE_AX;
-  }
-  else
-  {
-    mode = ConfigData::HWMODE_DEF;
-  }
-  return (mode);
-}
 
 static std::string
 _htmode2str(const ConfigData::HTMODE mode_)
@@ -274,18 +194,16 @@ _str2opmode(const std::string& str)
 // ****************************************************************************
 
 const std::string ConfigPath::ConfigPhyIndexPath("PhyIndex");
+const std::string ConfigPath::ConfigPhyDevPath("PhyDev");
 const std::string ConfigPath::ConfigPhyNamePath("PhyName");
-const std::string ConfigPath::ConfigHwModePath("HwMode");
-const std::string ConfigPath::ConfigHtModePath("HtMode");
 const std::string ConfigPath::ConfigOpModePath("OpMode");
 const std::string ConfigPath::ConfigSsidPath("Ssid");
 const std::string ConfigPath::ConfigBssidPath("Bssid");
-const std::string ConfigPath::ConfigChannelPath("Channel");
-const std::string ConfigPath::ConfigTxPowerPath("TxPower");
-
+const std::string ConfigPath::ConfigHtModePath("HtMode");
+const std::string ConfigPath::ConfigFrequencyPath("Frequency");
 const std::string ConfigPath::ConfigCenterFrequency1Path("CenterFrequency1");
 const std::string ConfigPath::ConfigCenterFrequency2Path("CenterFrequency2");
-
+const std::string ConfigPath::ConfigTxPowerPath("TxPower");
 
 ConfigPath::ConfigPath(const std::string& root_)
 {
@@ -301,29 +219,9 @@ ConfigPath::~ConfigPath()
 // ****************************************************************************
 
 const int ConfigData::ConfigPhyIndexDefault(-1);
+const int ConfigData::ConfigPhyDevDefault(-1);
 
 const std::string ConfigData::ConfigPhyNameDefault("");
-
-const std::string ConfigData::ConfigHwModeNone("");
-const std::string ConfigData::ConfigHwModeA("A");
-const std::string ConfigData::ConfigHwModeB("B");
-const std::string ConfigData::ConfigHwModeG("G");
-const std::string ConfigData::ConfigHwModeN("N");
-const std::string ConfigData::ConfigHwModeAC("AC");
-const std::string ConfigData::ConfigHwModeAD("AD");
-const std::string ConfigData::ConfigHwModeAX("AX");
-const std::string ConfigData::ConfigHwModeDefault(ConfigHwModeNone);
-
-const std::string ConfigData::ConfigHtModeNone("");
-const std::string ConfigData::ConfigHtModeHT20("HT20");
-const std::string ConfigData::ConfigHtModeHT40Minus("HT40-");
-const std::string ConfigData::ConfigHtModeHT40Plus("HT40+");
-const std::string ConfigData::ConfigHtModeVHT20("VHT20");
-const std::string ConfigData::ConfigHtModeVHT40("VHT40");
-const std::string ConfigData::ConfigHtModeVHT80("VHT80");
-const std::string ConfigData::ConfigHtModeVHT80Plus80("VHT80+80");
-const std::string ConfigData::ConfigHtModeVHT160("VHT160");
-const std::string ConfigData::ConfigHtModeDefault(ConfigHtModeNone);
 
 const std::string ConfigData::ConfigOpModeNone("");
 const std::string ConfigData::ConfigOpModeSTA("STATION");
@@ -337,14 +235,22 @@ const std::string ConfigData::ConfigSsidDefault("");
 
 const std::string ConfigData::ConfigBssidDefault("");
 
-const unsigned int ConfigData::ConfigChannelDefault(0);
+const std::string ConfigData::ConfigHtModeNone("");
+const std::string ConfigData::ConfigHtModeHT20("HT20");
+const std::string ConfigData::ConfigHtModeHT40Minus("HT40-");
+const std::string ConfigData::ConfigHtModeHT40Plus("HT40+");
+const std::string ConfigData::ConfigHtModeVHT20("VHT20");
+const std::string ConfigData::ConfigHtModeVHT40("VHT40");
+const std::string ConfigData::ConfigHtModeVHT80("VHT80");
+const std::string ConfigData::ConfigHtModeVHT80Plus80("VHT80+80");
+const std::string ConfigData::ConfigHtModeVHT160("VHT160");
+const std::string ConfigData::ConfigHtModeDefault(ConfigHtModeNone);
 
-const unsigned int ConfigData::ConfigTxPowerDefault(0);
-
-//RKB
+const unsigned int ConfigData::ConfigFrequencyDefault(0);
 const unsigned int ConfigData::ConfigCenterFrequency1Default(0);
 const unsigned int ConfigData::ConfigCenterFrequency2Default(0);
 
+const unsigned int ConfigData::ConfigTxPowerDefault(0);
 
 ConfigData::ConfigData(const std::string& name_) :
     zInterface::ConfigData(name_)
@@ -390,6 +296,25 @@ ConfigData::SetPhyIndex(const int index_)
   return (this->GetData()->PutValue(path, index_));
 }
 
+int
+ConfigData::GetPhyDev(const int index_) const
+{
+  int val = -1;
+  ConfigPath path(ConfigPath::ConfigPhyDevPath);
+  if (!this->GetData()->GetValue(path, val))
+  {
+    val = index_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetPhyDev(const int dev_)
+{
+  ConfigPath path(ConfigPath::ConfigPhyDevPath);
+  return (this->GetData()->PutValue(path, dev_));
+}
+
 std::string
 ConfigData::GetPhyName(const std::string& name_) const
 {
@@ -407,48 +332,6 @@ ConfigData::SetPhyName(const std::string& name_)
 {
   ConfigPath path(ConfigPath::ConfigPhyNamePath);
   return (this->GetData()->PutValue(path, name_));
-}
-
-ConfigData::HWMODE
-ConfigData::GetHwMode(const ConfigData::HWMODE mode_) const
-{
-  ConfigData::HWMODE mode = mode_;
-  ConfigPath path(ConfigPath::ConfigHwModePath);
-  std::string str;
-  if (this->GetData()->GetValue(path, str))
-  {
-    mode = _str2hwmode(str);
-  }
-  return (mode);
-}
-
-bool
-ConfigData::SetHwMode(const ConfigData::HWMODE mode_)
-{
-  ConfigPath path(ConfigPath::ConfigHwModePath);
-  std::string str = _hwmode2str(mode_);
-  return (this->GetData()->PutValue(path, str));
-}
-
-ConfigData::HTMODE
-ConfigData::GetHtMode(const ConfigData::HTMODE mode_) const
-{
-  ConfigData::HTMODE mode = mode_;
-  ConfigPath path(ConfigPath::ConfigHtModePath);
-  std::string str;
-  if (this->GetData()->GetValue(path, str))
-  {
-    mode = _str2htmode(str);
-  }
-  return (mode);
-}
-
-bool
-ConfigData::SetHtMode(const ConfigData::HTMODE mode_)
-{
-  ConfigPath path(ConfigPath::ConfigHtModePath);
-  std::string str = _htmode2str(mode_);
-  return (this->GetData()->PutValue(path, str));
 }
 
 ConfigData::OPMODE
@@ -510,23 +393,82 @@ ConfigData::SetBssid(const std::string& bssid_)
   return (this->GetData()->PutValue(path, bssid_));
 }
 
+ConfigData::HTMODE
+ConfigData::GetHtMode(const ConfigData::HTMODE mode_) const
+{
+  ConfigData::HTMODE mode = mode_;
+  ConfigPath path(ConfigPath::ConfigHtModePath);
+  std::string str;
+  if (this->GetData()->GetValue(path, str))
+  {
+    mode = _str2htmode(str);
+  }
+  return (mode);
+}
+
+bool
+ConfigData::SetHtMode(const ConfigData::HTMODE mode_)
+{
+  ConfigPath path(ConfigPath::ConfigHtModePath);
+  std::string str = _htmode2str(mode_);
+  return (this->GetData()->PutValue(path, str));
+}
+
 unsigned int
-ConfigData::GetChannel(const unsigned int channel_) const
+ConfigData::GetFrequency(const unsigned int freq_) const
 {
   unsigned int val = 0;
-  ConfigPath path(ConfigPath::ConfigChannelPath);
+  ConfigPath path(ConfigPath::ConfigFrequencyPath);
   if (!this->GetData()->GetValue(path, val))
   {
-    val = channel_;
+    val = freq_;
   }
   return (val);
 }
 
 bool
-ConfigData::SetChannel(const unsigned int channel_)
+ConfigData::SetFrequency(const unsigned int freq_)
 {
-  ConfigPath path(ConfigPath::ConfigChannelPath);
-  return (this->GetData()->PutValue(path, channel_));
+  ConfigPath path(ConfigPath::ConfigFrequencyPath);
+  return (this->GetData()->PutValue(path, freq_));
+}
+
+unsigned int
+ConfigData::GetCenterFrequency1(const unsigned int freq_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  if (!this->GetData()->GetValue(path, val))
+  {
+    val = freq_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetCenterFrequency1(const unsigned int freq_)
+{
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  return (this->GetData()->PutValue(path, freq_));
+}
+
+unsigned int
+ConfigData::GetCenterFrequency2(const unsigned int freq_) const
+{
+  unsigned int val = 0;
+  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  if (!this->GetData()->GetValue(path, val))
+  {
+    val = freq_;
+  }
+  return (val);
+}
+
+bool
+ConfigData::SetCenterFrequency2(const unsigned int freq_)
+{
+  ConfigPath path(ConfigPath::ConfigCenterFrequency2Path);
+  return (this->GetData()->PutValue(path, freq_));
 }
 
 unsigned int
@@ -547,48 +489,6 @@ ConfigData::SetTxPower(const unsigned int power_)
   ConfigPath path(ConfigPath::ConfigTxPowerPath);
   return (this->GetData()->PutValue(path, power_));
 }
-
-
-//RKB
-unsigned int
-ConfigData::GetCenterFrequency1(const unsigned int center_freq_1_) const
-{
-  unsigned int val = 0;
-  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
-  if (!this->GetData()->GetValue(path, val))
-  {
-    val = center_freq_1_;
-  }
-  return (val);
-}
-
-bool
-ConfigData::SetCenterFrequency1(const unsigned int center_freq_1_)
-{
-  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
-  return (this->GetData()->PutValue(path, center_freq_1_));
-}
-
-unsigned int
-ConfigData::GetCenterFrequency2(const unsigned int center_freq_2_) const
-{
-  unsigned int val = 0;
-  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
-  if (!this->GetData()->GetValue(path, val))
-  {
-    val = center_freq_2_;
-  }
-  return (val);
-}
-
-bool
-ConfigData::SetCenterFrequency2(const unsigned int center_freq_2_)
-{
-  ConfigPath path(ConfigPath::ConfigCenterFrequency2Path);
-  return (this->GetData()->PutValue(path, center_freq_2_));
-}
-
-
 
 }
 }

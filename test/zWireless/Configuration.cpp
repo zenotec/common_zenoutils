@@ -44,12 +44,11 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_EQ(zWireless::ConfigData::STATE_DEF, MyConfig->GetAdminState());
   TEST_EQ(zWireless::ConfigData::ConfigPhyIndexDefault, MyConfig->GetPhyIndex());
   TEST_EQ(zWireless::ConfigData::ConfigPhyNameDefault, MyConfig->GetPhyName());
-  TEST_EQ(zWireless::ConfigData::HWMODE_DEF, MyConfig->GetHwMode());
   TEST_EQ(zWireless::ConfigData::HTMODE_DEF, MyConfig->GetHtMode());
   TEST_EQ(zWireless::ConfigData::OPMODE_DEF, MyConfig->GetOpMode());
   TEST_EQ(zWireless::ConfigData::ConfigSsidDefault, MyConfig->GetSsid());
   TEST_EQ(zWireless::ConfigData::ConfigBssidDefault, MyConfig->GetBssid());
-  TEST_EQ(zWireless::ConfigData::ConfigChannelDefault, MyConfig->GetChannel());
+  TEST_EQ(zWireless::ConfigData::ConfigFrequencyDefault, MyConfig->GetFrequency());
   TEST_EQ(zWireless::ConfigData::ConfigTxPowerDefault, MyConfig->GetTxPower());
 
   // Set
@@ -63,12 +62,11 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_TRUE(MyConfig->SetAdminState(zInterface::ConfigData::STATE_UP));
   TEST_TRUE(MyConfig->SetPhyIndex(1));
   TEST_TRUE(MyConfig->SetPhyName("phy1"));
-  TEST_TRUE(MyConfig->SetHwMode(zWireless::ConfigData::HWMODE_N));
   TEST_TRUE(MyConfig->SetHtMode(zWireless::ConfigData::HTMODE_HT40PLUS));
   TEST_TRUE(MyConfig->SetOpMode(zWireless::ConfigData::OPMODE_MONITOR));
   TEST_TRUE(MyConfig->SetSsid("TestSsid1"));
   TEST_TRUE(MyConfig->SetBssid("11:22:33:44:55:66"));
-  TEST_TRUE(MyConfig->SetChannel(6));
+  TEST_TRUE(MyConfig->SetFrequency(6));
   TEST_TRUE(MyConfig->SetTxPower(23));
 
   // Get
@@ -91,8 +89,6 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_EQ(1, MyConfig->GetPhyIndex());
   TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyConfig->GetPhyName());
   TEST_EQ(std::string("phy1"), MyConfig->GetPhyName());
-  TEST_NEQ(zWireless::ConfigData::HWMODE_DEF, MyConfig->GetHwMode());
-  TEST_EQ(zWireless::ConfigData::HWMODE_N, MyConfig->GetHwMode());
   TEST_NEQ(zWireless::ConfigData::HTMODE_DEF, MyConfig->GetHtMode());
   TEST_EQ(zWireless::ConfigData::HTMODE_HT40PLUS, MyConfig->GetHtMode());
   TEST_NEQ(zWireless::ConfigData::OPMODE_DEF, MyConfig->GetOpMode());
@@ -101,8 +97,8 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_EQ(std::string("TestSsid1"), MyConfig->GetSsid());
   TEST_NEQ(zWireless::ConfigData::ConfigBssidDefault, MyConfig->GetBssid());
   TEST_EQ(std::string("11:22:33:44:55:66"), MyConfig->GetBssid());
-  TEST_NEQ(zWireless::ConfigData::ConfigChannelDefault, MyConfig->GetChannel());
-  TEST_EQ(6, MyConfig->GetChannel());
+  TEST_NEQ(zWireless::ConfigData::ConfigFrequencyDefault, MyConfig->GetFrequency());
+  TEST_EQ(6, MyConfig->GetFrequency());
   TEST_NEQ(zWireless::ConfigData::ConfigTxPowerDefault, MyConfig->GetTxPower());
   TEST_EQ(23, MyConfig->GetTxPower());
 

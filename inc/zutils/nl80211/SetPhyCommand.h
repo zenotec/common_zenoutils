@@ -69,14 +69,14 @@ public:
   IfNameAttribute IfName;
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
-  FrequencyAttribute Frequency;
-  ChannelTypeAttribute ChannelType;
-  ChannelWidthAttribute ChannelWidth;
   TxPowerModeAttribute TxPowerMode;
-  TxPowerLevelAttribute TxPowerLevel;
+  TxPowerLevelAttribute TxPowerLevel; // only set for non-auto power mode
+  FrequencyAttribute Frequency;
+  ChannelTypeAttribute ChannelType; // only set for non-HT and HT
+  ChannelWidthAttribute ChannelWidth; // only set for VHT
+  CenterFrequency1Attribute CenterFrequency1; // only set for VHT 20/40/80/160 MHz
+  CenterFrequency1Attribute CenterFrequency2; // only set for VHT 80 plus 80 Mhz
 
-  CenterFrequency1Attribute CenterFrequency1;		//RKB
-  CenterFrequency1Attribute CenterFrequency2;		//RKB
 
   SetPhyCommand(int ifindex_);
 

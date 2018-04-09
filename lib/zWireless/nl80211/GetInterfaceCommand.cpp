@@ -67,6 +67,7 @@ GetInterfaceCommand::Display(const std::string& prefix_) const
   std::cout << "\tIndex: \t" << int(this->IfIndex()) << std::endl;
   std::cout << "\tName:  \t" << this->IfName() << std::endl;
   std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
+  std::cout << "\tDev:   \t0x" << std::hex << this->PhyDev() << std::dec << std::endl;
   std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
   std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
   std::cout << "\tFreq:  \t" << this->Frequency() << std::endl;
@@ -154,6 +155,12 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
+  if (!msg.GetAttribute(&this->PhyDev))
+  {
+    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyDev.GetId()));
+    return(NL_SKIP);
+  }
+
   if (!msg.GetAttribute(&this->IfIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
@@ -180,14 +187,13 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 
   // Optional attributes
   msg.GetAttribute(&this->Ssid);
-  msg.GetAttribute(&this->Frequency);
   msg.GetAttribute(&this->ChannelType);
   msg.GetAttribute(&this->ChannelWidth);
+  msg.GetAttribute(&this->Frequency);
+  msg.GetAttribute(&this->CenterFrequency1);
+  msg.GetAttribute(&this->CenterFrequency2);
   msg.GetAttribute(&this->TxPowerMode);
   msg.GetAttribute(&this->TxPowerLevel);
-
-  msg.GetAttribute(&this->CenterFrequency1);		//RKB
-  msg.GetAttribute(&this->CenterFrequency2);		//RKB
 
   this->_status = true;
   this->_count.Post();

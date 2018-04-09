@@ -61,45 +61,47 @@ namespace zUtils
 {
 namespace zWireless
 {
-
-static std::string
-_hwmode2str(ConfigData::HWMODE mode_)
+static uint32_t
+_htmode2nl(ConfigData::HTMODE mode_)
 {
-  std::string str;
+  uint32_t val = 0;
   switch (mode_)
   {
-  case ConfigData::HWMODE_NONE:
-    str = "None";
+  case ConfigData::HTMODE_NONE:
+    // no break
+  case ConfigData::HTMODE_NOHT:
+    val = NL80211_CHAN_NO_HT;
     break;
-  case ConfigData::HWMODE_ERR:
-    str = "Error";
+  case ConfigData::HTMODE_HT20:
+    val = NL80211_CHAN_HT20;
     break;
-  case ConfigData::HWMODE_A:
-    str = "A";
+  case ConfigData::HTMODE_HT40MINUS:
+    val = NL80211_CHAN_HT40MINUS;
     break;
-  case ConfigData::HWMODE_B:
-    str = "B";
+  case ConfigData::HTMODE_HT40PLUS:
+    val = NL80211_CHAN_HT40PLUS;
     break;
-  case ConfigData::HWMODE_G:
-    str = "G";
+  case ConfigData::HTMODE_VHT20:
+    val = NL80211_CHAN_WIDTH_20;
     break;
-  case ConfigData::HWMODE_N:
-    str = "N";
+  case ConfigData::HTMODE_VHT40:
+    val = NL80211_CHAN_WIDTH_40;
     break;
-  case ConfigData::HWMODE_AC:
-    str = "AC";
+  case ConfigData::HTMODE_VHT80:
+    val = NL80211_CHAN_WIDTH_80;
     break;
-  case ConfigData::HWMODE_AD:
-    str = "AD";
+  case ConfigData::HTMODE_VHT80PLUS80:
+    val = NL80211_CHAN_WIDTH_80P80;
     break;
-  case ConfigData::HWMODE_AX:
-    str = "AX";
+  case ConfigData::HTMODE_VHT160:
+    val = NL80211_CHAN_WIDTH_160;
     break;
+  case ConfigData::HTMODE_ERR:
+    // no break
   default:
-    str = "Unknown";
     break;
   }
-  return (str);
+  return (val);
 }
 
 static std::string
@@ -125,6 +127,21 @@ _htmode2str(ConfigData::HTMODE mode_)
     break;
   case ConfigData::HTMODE_HT40PLUS:
     str = "HT40+";
+    break;
+  case ConfigData::HTMODE_VHT20:
+    str = "VHT20";
+    break;
+  case ConfigData::HTMODE_VHT40:
+    str = "VHT40";
+    break;
+  case ConfigData::HTMODE_VHT80:
+    str = "VHT80";
+    break;
+  case ConfigData::HTMODE_VHT80PLUS80:
+    str = "VHT80+80";
+    break;
+  case ConfigData::HTMODE_VHT160:
+    str = "VHT160";
     break;
   default:
     str = "Unknown";
@@ -243,10 +260,11 @@ Interface::SetConfig(zWireless::ConfigData config_)
   bool status = zInterface::Interface::SetConfig(config_);
   status &= this->SetPhyIndex(config_.GetPhyIndex(this->workingConfig.GetPhyIndex()));
   status &= this->SetPhyName(config_.GetPhyName(this->workingConfig.GetPhyName()));
-  status &= this->SetHwMode(config_.GetHwMode(this->workingConfig.GetHwMode()));
-  status &= this->SetHtMode(config_.GetHtMode(this->workingConfig.GetHtMode()));
   status &= this->SetOpMode(config_.GetOpMode(this->workingConfig.GetOpMode()));
-  status &= this->SetChannel(config_.GetChannel(this->workingConfig.GetChannel()));
+  status &= this->SetHtMode(config_.GetHtMode(this->workingConfig.GetHtMode()));
+  status &= this->SetFrequency(config_.GetFrequency(this->workingConfig.GetFrequency()));
+  status &= this->SetCenterFrequency1(config_.GetCenterFrequency1(this->workingConfig.GetCenterFrequency1()));
+  status &= this->SetCenterFrequency2(config_.GetCenterFrequency2(this->workingConfig.GetCenterFrequency2()));
   status &= this->SetTxPower(config_.GetTxPower(this->workingConfig.GetTxPower()));
   return (status);
 }
@@ -279,6 +297,34 @@ Interface::SetPhyIndex(const int index_)
   return (status);
 }
 
+int
+Interface::GetPhyDev() const
+{
+  int index = -1;
+  if (this->lock.Lock())
+  {
+    index = this->_getPhyDev();
+    if (index == -1)
+    {
+      index = this->stagingConfig.GetPhyIndex();
+    }
+    this->lock.Unlock();
+  }
+  return (index);
+}
+
+bool
+Interface::SetPhyDev(const int dev_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetPhyDev(dev_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
 std::string
 Interface::GetPhyName() const
 {
@@ -302,62 +348,6 @@ Interface::SetPhyName(const std::string& name_)
   if (this->lock.Lock())
   {
     status = this->stagingConfig.SetPhyName(name_);
-    this->lock.Unlock();
-  }
-  return (status);
-}
-
-ConfigData::HWMODE
-Interface::GetHwMode() const
-{
-  ConfigData::HWMODE mode = ConfigData::HWMODE_ERR;
-  if (this->lock.Lock())
-  {
-    mode = this->_getHwMode();
-    if (mode == ConfigData::HWMODE_ERR)
-    {
-      mode = this->stagingConfig.GetHwMode();
-    }
-    this->lock.Unlock();
-  }
-  return (mode);
-}
-
-bool
-Interface::SetHwMode(const ConfigData::HWMODE mode_)
-{
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->stagingConfig.SetHwMode(mode_);
-    this->lock.Unlock();
-  }
-  return (status);
-}
-
-ConfigData::HTMODE
-Interface::GetHtMode() const
-{
-  ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
-  if (this->lock.Lock())
-  {
-    mode = this->_getHtMode();
-    if (mode == ConfigData::HTMODE_ERR)
-    {
-      mode = this->stagingConfig.GetHtMode();
-    }
-    this->lock.Unlock();
-  }
-  return (mode);
-}
-
-bool
-Interface::SetHtMode(const ConfigData::HTMODE mode_)
-{
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->stagingConfig.SetHtMode(mode_);
     this->lock.Unlock();
   }
   return (status);
@@ -392,35 +382,6 @@ Interface::SetOpMode(const ConfigData::OPMODE mode_)
 }
 
 unsigned int
-Interface::GetChannel() const
-{
-  unsigned int channel = 0;
-  if (this->lock.Lock())
-  {
-    channel = this->_getChannel();
-    if (channel == 0)
-    {
-      channel = this->stagingConfig.GetChannel();
-    }
-    this->lock.Unlock();
-  }
-  return (channel);
-}
-
-bool
-Interface::SetChannel(const unsigned int channel_)
-{
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->stagingConfig.SetChannel(channel_);
-    this->lock.Unlock();
-  }
-  return (status);
-}
-
-
-unsigned int
 Interface::GetTxPower() const
 {
   unsigned int power = 0;
@@ -448,6 +409,62 @@ Interface::SetTxPower(const unsigned int txpower_)
   return (status);
 }
 
+ConfigData::HTMODE
+Interface::GetHtMode() const
+{
+  ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
+  if (this->lock.Lock())
+  {
+    mode = this->_getHtMode();
+    if (mode == ConfigData::HTMODE_ERR)
+    {
+      mode = this->stagingConfig.GetHtMode();
+    }
+    this->lock.Unlock();
+  }
+  return (mode);
+}
+
+bool
+Interface::SetHtMode(const ConfigData::HTMODE mode_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetHtMode(mode_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+unsigned int
+Interface::GetFrequency() const
+{
+  unsigned int freq = 0;
+  if (this->lock.Lock())
+  {
+    freq = this->_getFrequency();
+    if (freq == 0)
+    {
+      freq = this->stagingConfig.GetFrequency();
+    }
+    this->lock.Unlock();
+  }
+  return (freq);
+}
+
+bool
+Interface::SetFrequency(const unsigned int channel_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetFrequency(channel_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
 std::map<int, Capabilities>
 Interface::GetCapabilities() const
 {
@@ -463,26 +480,26 @@ Interface::GetCapabilities() const
 unsigned int
 Interface::GetCenterFrequency1() const
 {
-  unsigned int center_frequency_1 = 0;
+  unsigned int freq = 0;
   if (this->lock.Lock())
   {
-    center_frequency_1 = this->_getCenterFrequency1();
-    if (center_frequency_1 == 0)
+    freq = this->_getCenterFrequency1();
+    if (freq == 0)
     {
-      center_frequency_1 = this->stagingConfig.GetCenterFrequency1();
+      freq = this->stagingConfig.GetCenterFrequency1();
     }
     this->lock.Unlock();
   }
-  return (center_frequency_1);
+  return (freq);
 }
 
 bool
-Interface::SetCenterFrequency1(const unsigned int center_frequency_)
+Interface::SetCenterFrequency1(const unsigned int freq_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->stagingConfig.SetCenterFrequency1(center_frequency_);
+    status = this->stagingConfig.SetCenterFrequency1(freq_);
     this->lock.Unlock();
   }
   return (status);
@@ -491,26 +508,26 @@ Interface::SetCenterFrequency1(const unsigned int center_frequency_)
 unsigned int
 Interface::GetCenterFrequency2() const
 {
-  unsigned int center_frequency_2 = 0;
+  unsigned int freq = 0;
   if (this->lock.Lock())
   {
-    center_frequency_2 = this->_getCenterFrequency2();
-    if (center_frequency_2 == 0)
+    freq = this->_getCenterFrequency2();
+    if (freq == 0)
     {
-      center_frequency_2 = this->stagingConfig.GetCenterFrequency2();
+      freq = this->stagingConfig.GetCenterFrequency2();
     }
     this->lock.Unlock();
   }
-  return (center_frequency_2);
+  return (freq);
 }
 
 bool
-Interface::SetCenterFrequency2(const unsigned int center_frequency_)
+Interface::SetCenterFrequency2(const unsigned int freq_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->stagingConfig.SetCenterFrequency1(center_frequency_);
+    status = this->stagingConfig.SetCenterFrequency2(freq_);
     this->lock.Unlock();
   }
   return (status);
@@ -522,10 +539,11 @@ Interface::Refresh()
   bool status = zInterface::Interface::Refresh();
   status &= this->workingConfig.SetPhyIndex(this->GetPhyIndex());
   status &= this->workingConfig.SetPhyName(this->GetPhyName());
-  status &= this->workingConfig.SetHwMode(this->GetHwMode());
-  status &= this->workingConfig.SetHtMode(this->GetHtMode());
   status &= this->workingConfig.SetOpMode(this->GetOpMode());
-  status &= this->workingConfig.SetChannel(this->GetChannel());
+  status &= this->workingConfig.SetHtMode(this->GetHtMode());
+  status &= this->workingConfig.SetFrequency(this->GetFrequency());
+  status &= this->workingConfig.SetCenterFrequency1(this->GetCenterFrequency1());
+  status &= this->workingConfig.SetCenterFrequency2(this->GetCenterFrequency2());
   status &= this->workingConfig.SetTxPower(this->GetTxPower());
   return (status);
 }
@@ -559,7 +577,6 @@ Interface::Commit()
         status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
       }
     }
-	//TODO	Adderror handling - values don't match but can't change them!
 
     // The following commands can be executed regardless of the interfaces' administrative state
     if ((this->stagingConfig.GetMtu() != ConfigData::ConfigMtuDefault) &&
@@ -592,41 +609,36 @@ Interface::Commit()
     {
       status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
     }
-#if 1
-    unsigned int stagingChannel = stagingConfig.GetChannel();
-	unsigned int workingChannel = workingConfig.GetChannel();
-	printf("Interface::Commit(): stagingChannel = %d\n", stagingChannel);
-	printf("Interface::Commit(): workingChannel = %d\n", workingChannel);
-#endif
-    if ((this->stagingConfig.GetChannel() != ConfigData::ConfigChannelDefault) &&
-        (this->stagingConfig.GetChannel() != this->workingConfig.GetChannel()))
-    {
-#if 1	//TODO	RKB	Combine _setChannel and _setHtMode
-      status &= this->_setChannel(this->stagingConfig.GetChannel(), this->stagingConfig.GetHtMode());
-#else
-      status &= this->_setChannel(this->stagingConfig.GetChannel());
-#endif
-    }
 
     if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
         (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower()))
     {
-      status &= this->_setTxPower(this->stagingConfig.GetTxPower());
+      status &= this->_setTxPower();
     }
 
-#if 0	//RKB	Crash bug in the Getter
-    if ((this->stagingConfig.GetCenterFrequency1() != ConfigData::ConfigCenterFrequency1Default) &&
-        (this->stagingConfig.GetCenterFrequency1() != this->workingConfig.GetCenterFrequency1()))
+    if ((this->stagingConfig.GetHtMode() != ConfigData::HTMODE_DEF) &&
+           (this->stagingConfig.GetHtMode() != this->workingConfig.GetHtMode()))
     {
-      status &= this->_setCenterFrequency1(this->stagingConfig.GetCenterFrequency1());
+      status &= this->_setChannel();
+    }
+
+    if ((this->stagingConfig.GetFrequency() != ConfigData::ConfigFrequencyDefault) &&
+           (this->stagingConfig.GetFrequency() != this->workingConfig.GetFrequency()))
+    {
+      status &= this->_setChannel();
+    }
+
+    if ((this->stagingConfig.GetCenterFrequency1() != ConfigData::ConfigCenterFrequency1Default) &&
+           (this->stagingConfig.GetCenterFrequency1() != this->workingConfig.GetCenterFrequency1()))
+    {
+      status &= this->_setChannel();
     }
 
     if ((this->stagingConfig.GetCenterFrequency2() != ConfigData::ConfigCenterFrequency2Default) &&
-        (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2()))
+           (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2()))
     {
-      status &= this->_setCenterFrequency2(this->stagingConfig.GetCenterFrequency2());
+      status &= this->_setChannel();
     }
-#endif
 
     status &= this->execCommands();
 
@@ -691,10 +703,11 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "--------- Wireless Interface -----------" << std::endl;
   std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName()
       << std::endl;
-  std::cout << prefix_ << "HWMODE: \t" << _hwmode2str(this->GetHwMode()) << std::endl;
-  std::cout << prefix_ << "HTMODE: \t" << _htmode2str(this->GetHtMode()) << std::endl;
   std::cout << prefix_ << "OPMODE: \t" << _opmode2str(this->GetOpMode()) << std::endl;
-  std::cout << prefix_ << "Channel:\t" << this->GetChannel() << std::endl;
+  std::cout << prefix_ << "HtMode: \t" << _htmode2str(this->GetHtMode()) << std::endl;
+  std::cout << prefix_ << "Freq:   \t" << this->GetFrequency() << std::endl;
+  std::cout << prefix_ << "Center1:\t" << this->GetCenterFrequency1() << std::endl;
+  std::cout << prefix_ << "Center2:\t" << this->GetCenterFrequency2() << std::endl;
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
 
@@ -714,7 +727,28 @@ Interface::_getPhyIndex() const
 }
 
 bool
-Interface::_setPhyIndex(const int index_)
+Interface::_setPhyIndex()
+{
+  return (true);
+}
+
+int
+Interface::_getPhyDev() const
+{
+  int index = -1;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      index = cmd.PhyIndex();
+    }
+  }
+  return (index);
+}
+
+bool
+Interface::_setPhyDev()
 {
   return (true);
 }
@@ -736,30 +770,49 @@ Interface::_getPhyName() const
 }
 
 bool
-Interface::_setPhyName(const std::string& name_)
+Interface::_setPhyName()
 {
   bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && !name_.empty())
+  if (this->workingConfig.GetIfIndex() &&
+      (this->workingConfig.GetPhyIndex() >= 0) &&
+      !this->GetPhyName().empty())
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->PhyName(name_);
+    cmd->PhyName(this->stagingConfig.GetPhyName());
     this->addCommand(cmd);
     status = true;
   }
   return (status);
 }
 
-ConfigData::HWMODE
-Interface::_getHwMode() const
+ConfigData::OPMODE
+Interface::_getOpMode() const
 {
-  return (ConfigData::HWMODE_ERR);
+  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      mode = _nl2opmode(cmd.IfType());
+    }
+  }
+  return (mode);
 }
 
 bool
-Interface::_setHwMode(const ConfigData::HWMODE mode_)
+Interface::_setOpMode()
 {
-  return (true);
+  bool status = false;
+  if (this->workingConfig.GetIfIndex())
+  {
+    SetInterfaceCommand* cmd = new SetInterfaceCommand(this->workingConfig.GetIfIndex());
+    cmd->IfType(_opmode2nl(this->stagingConfig.GetOpMode()));
+    this->addCommand(cmd);
+    status = true;
+  }
+  return (status);
 }
 
 ConfigData::HTMODE
@@ -816,118 +869,95 @@ Interface::_getHtMode() const
   return (mode);
 }
 
-bool
-Interface::_setHtMode(const ConfigData::HTMODE mode_)
+unsigned int
+Interface::_getFrequency() const
 {
-#if 0	//RKB	//Can't be set in seperate message from frequency
-  bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && mode_)
-  {
-    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
-    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->HtMode(mode_);
-    this->addCommand(cmd);
-    status = true;
-  }
-  return (status);
-#else
-  return (true); // TODO
-#endif
-}
-
-ConfigData::OPMODE
-Interface::_getOpMode() const
-{
-  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
+  unsigned int freq = 0;
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      mode = _nl2opmode(cmd.IfType());
+      freq = cmd.Frequency();
     }
   }
-  return (mode);
-}
-
-bool
-Interface::_setOpMode(const ConfigData::OPMODE mode_)
-{
-  bool status = false;
-  if (this->workingConfig.GetIfIndex())
-  {
-    SetInterfaceCommand* cmd = new SetInterfaceCommand(this->workingConfig.GetIfIndex());
-    cmd->IfType(_opmode2nl(mode_));
-    this->addCommand(cmd);
-    status = true;
-  }
-  return (status);
+  return (freq);
 }
 
 unsigned int
-Interface::_getChannel() const
+Interface::_getCenterFrequency1() const
 {
-  unsigned int channel = 0;
+  unsigned int freq = 0;
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      channel = cmd.Frequency.GetChannel();
+      freq = cmd.CenterFrequency1();
     }
   }
-  return (channel);
+  return (freq);
 }
 
-#if 1	//RKB	Combine _setChannel and _setHtMode
+
+unsigned int
+Interface::_getCenterFrequency2() const
+{
+  unsigned int freq = 0;
+  if (this->workingConfig.GetIfIndex())
+  {
+    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
+    if (cmd.Exec())
+    {
+      freq = cmd.CenterFrequency2();
+    }
+  }
+  return (freq);
+}
+
 bool
-Interface::_setChannel(const unsigned int channel_, const ConfigData::HTMODE mode_)
+Interface::_setChannel()
 {
   bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && channel_)
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0))
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->Frequency.SetChannel(channel_);
-	switch(mode_)	//	Set either ChannelType OR ChannelWidth
-	{
-	  case ConfigData::HTMODE_NOHT:
+    cmd->Frequency(this->stagingConfig.GetFrequency());
+
+    //  Set either ChannelType OR ChannelWidth based on HT mode
+    switch(this->stagingConfig.GetHtMode())
+    {
+      case ConfigData::HTMODE_NOHT:
+        // no break
       case ConfigData::HTMODE_HT20:
+        // no break
       case ConfigData::HTMODE_HT40MINUS:
+        // no break
       case ConfigData::HTMODE_HT40PLUS:
-	    cmd->ChannelType(mode_);
+        cmd->ChannelType(_htmode2nl(this->stagingConfig.GetHtMode()));
         break;
-      case ConfigData::HTMODE_VHT20:
-      case ConfigData::HTMODE_VHT40:
-      case ConfigData::HTMODE_VHT80:
       case ConfigData::HTMODE_VHT80PLUS80:
+        cmd->CenterFrequency2(this->GetCenterFrequency2());
+        // no break
+      case ConfigData::HTMODE_VHT20:
+        // no break
+      case ConfigData::HTMODE_VHT40:
+        // no break
+      case ConfigData::HTMODE_VHT80:
+        // no break
       case ConfigData::HTMODE_VHT160:
-		cmd->ChannelWidth(mode_);
+        cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
+        cmd->CenterFrequency1(this->GetCenterFrequency1());
         break;
       default:
         break;
-	}
+    }
     this->addCommand(cmd);
     status = true;
   }
   return (status);
 }
-#else
-bool
-Interface::_setChannel(const unsigned int channel_)
-{
-  bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && channel_)
-  {
-    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
-    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->Frequency.SetChannel(channel_);
-    this->addCommand(cmd);
-    status = true;
-  }
-  return (status);
-}
-#endif
 
 unsigned int
 Interface::_getTxPower() const
@@ -945,10 +975,10 @@ Interface::_getTxPower() const
 }
 
 bool
-Interface::_setTxPower(unsigned int txpower_)
+Interface::_setTxPower()
 {
   bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && txpower_)
+  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0))
   {
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
