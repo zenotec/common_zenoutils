@@ -72,7 +72,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_TRUE(MyBss->Create());
 
     // Setup interface; commit each independently so we know which one failed, if any
-    TEST_TRUE(MyBss->SetFrequency(1));
+    TEST_TRUE(MyBss->SetFrequency(2412));
     TEST_TRUE(MyBss->Commit());
     TEST_TRUE(MyBss->SetTxPower(1000));
     TEST_TRUE(MyBss->Commit());
@@ -92,7 +92,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyBss->GetPhyName());
     TEST_NEQ(zWireless::ConfigData::HTMODE_ERR, MyBss->GetHtMode());
     TEST_EQ(zWireless::ConfigData::OPMODE_AP, MyBss->GetOpMode());
-    TEST_EQ(1, MyBss->GetFrequency());
+    TEST_EQ(2412, MyBss->GetFrequency());
     TEST_EQ(1000, MyBss->GetTxPower());
 
     // Cleanup
