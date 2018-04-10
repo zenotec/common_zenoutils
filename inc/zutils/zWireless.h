@@ -347,9 +347,6 @@ public:
   bool
   SetCenterFrequency1(const unsigned int freq_);
 
-  std::map<int, Capabilities>
-  GetCapabilities() const;
-
   unsigned int
   GetCenterFrequency2() const;
 
@@ -361,6 +358,9 @@ public:
 
   bool
   SetTxPower(unsigned int txpower_);
+
+  std::map<int, Capabilities>
+  GetCapabilities() const;
 
   virtual bool
   Refresh();
@@ -414,12 +414,6 @@ private:
   unsigned int
   _getFrequency() const;
 
-  bool
-  _setTxPower(unsigned int txpower_);
-
-  std::map<int, Capabilities>
-  _getCapabilities() const;
-
   unsigned int
   _getCenterFrequency1() const;
 
@@ -434,6 +428,9 @@ private:
 
   bool
   _setTxPower();
+
+  std::map<int, Capabilities>
+  _getCapabilities() const;
 
 };
 

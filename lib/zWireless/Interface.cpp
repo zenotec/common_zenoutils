@@ -381,34 +381,6 @@ Interface::SetOpMode(const ConfigData::OPMODE mode_)
   return (status);
 }
 
-unsigned int
-Interface::GetTxPower() const
-{
-  unsigned int power = 0;
-  if (this->lock.Lock())
-  {
-    power = this->_getTxPower();
-    if (power == 0)
-    {
-      power = this->stagingConfig.GetTxPower();
-    }
-    this->lock.Unlock();
-  }
-  return (power);
-}
-
-bool
-Interface::SetTxPower(const unsigned int txpower_)
-{
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->stagingConfig.SetTxPower(txpower_);
-    this->lock.Unlock();
-  }
-  return (status);
-}
-
 ConfigData::HTMODE
 Interface::GetHtMode() const
 {
@@ -465,18 +437,6 @@ Interface::SetFrequency(const unsigned int channel_)
   return (status);
 }
 
-std::map<int, Capabilities>
-Interface::GetCapabilities() const
-{
-  std::map<int, Capabilities> capa;
-  if (this->lock.Lock())
-  {
-    capa = this->_getCapabilities();
-    this->lock.Unlock();
-  }
-  return (capa);
-}
-
 unsigned int
 Interface::GetCenterFrequency1() const
 {
@@ -531,6 +491,46 @@ Interface::SetCenterFrequency2(const unsigned int freq_)
     this->lock.Unlock();
   }
   return (status);
+}
+
+unsigned int
+Interface::GetTxPower() const
+{
+  unsigned int power = 0;
+  if (this->lock.Lock())
+  {
+    power = this->_getTxPower();
+    if (power == 0)
+    {
+      power = this->stagingConfig.GetTxPower();
+    }
+    this->lock.Unlock();
+  }
+  return (power);
+}
+
+bool
+Interface::SetTxPower(const unsigned int txpower_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetTxPower(txpower_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+std::map<int, Capabilities>
+Interface::GetCapabilities() const
+{
+  std::map<int, Capabilities> capa;
+  if (this->lock.Lock())
+  {
+    capa = this->_getCapabilities();
+    this->lock.Unlock();
+  }
+  return (capa);
 }
 
 bool
@@ -983,7 +983,7 @@ Interface::_setTxPower()
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
     cmd->TxPowerMode(nl80211::TxPowerModeAttribute::MODE_FIXED);
-    cmd->TxPowerLevel(txpower_);
+    cmd->TxPowerLevel(this->stagingConfig.GetTxPower());
     this->addCommand(cmd);
     status = true;
   }
@@ -1008,67 +1008,6 @@ Interface::_getCapabilities() const
     }
   }
   return (capa);
-}
-
-unsigned int
-Interface::_getCenterFrequency1() const
-{
-  unsigned int center_frequency_1 = 0;
-  if (this->workingConfig.GetIfIndex())
-  {
-    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
-    {
-      center_frequency_1 = cmd.CenterFrequency1();
-    }
-  }
-  return (center_frequency_1);
-}
-
-bool
-Interface::_setCenterFrequency1(const unsigned int center_frequency_1_)
-{
-  bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && center_frequency_1_)
-  {
-    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
-    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->CenterFrequency1(center_frequency_1_);
-    this->addCommand(cmd);
-    status = true;
-  }
-  return (status);
-}
-
-
-unsigned int
-Interface::_getCenterFrequency2() const
-{
-  unsigned int center_frequency_2 = 0;
-  if (this->workingConfig.GetIfIndex())
-  {
-    GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
-    {
-      center_frequency_2 = cmd.CenterFrequency2();
-    }
-  }
-  return (center_frequency_2);
-}
-
-bool
-Interface::_setCenterFrequency2(const unsigned int center_frequency_2_)
-{
-  bool status = false;
-  if (this->workingConfig.GetIfIndex() && (this->workingConfig.GetPhyIndex() >= 0) && center_frequency_2_)
-  {
-    SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
-    cmd->PhyIndex(this->workingConfig.GetPhyIndex());
-    cmd->CenterFrequency2(center_frequency_2_);
-    this->addCommand(cmd);
-    status = true;
-  }
-  return (status);
 }
 
 }
