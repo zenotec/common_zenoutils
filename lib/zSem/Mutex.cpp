@@ -52,11 +52,6 @@ Mutex::Lock()
     this->_mutex_lock.lock();
     this->_set_owner(tid);
   }
-  else
-  {
-    // TODO: Debug code to be removed later
-    fprintf(stderr, "(%p) BUG: Deadlock avoided: %p\n", this, tid);
-  }
   this->_refcnt++;
   return (true);
 }
@@ -98,11 +93,6 @@ Mutex::Unlock()
       this->_mutex_lock.unlock();
     }
     status = true;
-  }
-  else if (this->_mutex_owner != std::thread::id(0))
-  {
-    // TODO: Debug code to be removed later
-    fprintf(stderr, "(%p) BUG: Unlock not by owner: %p\n", this, tid);
   }
   return (status);
 }
