@@ -72,7 +72,7 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
     this->_beacon->ExtRates.AddRateMbsp(36);
     this->_beacon->ExtRates.AddRateMbsp(48);
     this->_beacon->ExtRates.AddRateMbsp(54);
-//    this->_beacon->Display();
+    this->_beacon->Display();
   }
 }
 
@@ -109,6 +109,74 @@ BasicServiceSet::SetBssid(const std::string& bssid_)
   bool status = this->SetHwAddress(bssid_);
   status &= this->_beacon->TransmitterAddress(bssid_);
   status &= this->_beacon->Bssid(bssid_);
+  return (status);
+}
+
+std::vector<uint8_t>
+BasicServiceSet::GetRates()
+{
+  return (this->_beacon->Rates());
+}
+
+bool
+BasicServiceSet::SetRates(std::vector<uint8_t> rates_)
+{
+  bool status = this->_beacon->Rates(rates_);
+  return (status);
+}
+
+uint8_t
+BasicServiceSet::GetDsss()
+{
+  return (this->_beacon->Dsss());
+}
+
+bool
+BasicServiceSet::SetDsss(uint8_t channel_)
+{
+  bool status = this->_beacon->Dsss(channel_);
+  return (status);
+}
+
+std::vector<uint8_t>
+BasicServiceSet::GetPowerCaps()
+{
+  return (this->_beacon->PowerCaps());
+}
+
+//bool
+//BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_);
+
+bool
+BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_)
+{
+  bool status = this->_beacon->PowerCaps(min_, max_);
+  return (status);
+}
+
+std::vector<uint8_t>
+BasicServiceSet::GetHtCaps()
+{
+  return (this->_beacon->HtCaps());
+}
+
+bool
+BasicServiceSet::SetHtCaps(std::vector<uint8_t> caps_)
+{
+  bool status = this->_beacon->HtCaps(caps_);
+  return (status);
+}
+  
+std::vector<uint8_t>
+BasicServiceSet::GetExtRates()
+{
+  return (this->_beacon->ExtRates());
+}
+
+bool
+BasicServiceSet::SetExtRates(std::vector<uint8_t> exrates_)
+{
+  bool status = this->_beacon->ExtRates(exrates_);
   return (status);
 }
 
@@ -168,6 +236,8 @@ BasicServiceSet::Create()
   this->_beacon->TransmitterAddress(this->GetHwAddress());
   this->_beacon->Bssid(this->GetHwAddress());
 
+  this->_beacon->Dsss(_freq2chan(this->GetFrequency()));
+
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
@@ -181,11 +251,11 @@ BasicServiceSet::Create()
     StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
     cmd->BeaconHead.Set(this->_beacon->Head(), this->_beacon->HeadSize());
     cmd->BeaconTail.Set(this->_beacon->Tail(), this->_beacon->TailSize());
-    cmd->BeaconInterval(100);
+    cmd->BeaconInterval(this->_beacon->Interval());
     cmd->DtimPeriod(this->_beacon->Tim.Period());
     cmd->Ssid(this->_beacon->Ssid());
-    cmd->Channel.SetChannel(1);
-//    cmd->Display();
+    cmd->Channel.SetChannel(_freq2chan(this->GetFrequency()));
+    cmd->Display();
     this->addCommand(cmd);
   }
 

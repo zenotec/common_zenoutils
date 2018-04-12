@@ -60,6 +60,36 @@ public:
   bool
   SetBssid(const std::string& bssid_);
 
+  std::vector<uint8_t>
+  GetRates();
+
+  bool
+  SetRates(const std::vector<uint8_t> rates_);
+
+  uint8_t
+  GetDsss();
+
+  bool
+  SetDsss(const uint8_t channel_);
+
+  std::vector<uint8_t>
+  GetPowerCaps();
+  
+  bool
+  SetPowerCaps(const uint8_t min_, const uint8_t max_);
+
+  std::vector<uint8_t>
+  GetHtCaps();
+
+  bool
+  SetHtCaps(const std::vector<uint8_t> caps_);
+  
+  std::vector<uint8_t>
+  GetExtRates();
+
+  bool
+  SetExtRates(const std::vector<uint8_t> exrates_);
+
   bool
   AddStation(const std::string& addr_);
 
