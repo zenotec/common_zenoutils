@@ -82,6 +82,14 @@ SetPhyCommand::Display(const std::string& prefix_) const
     std::cout << "\tChannel:  \t" << this->Frequency.GetChannel();
     std::cout << " [" << this->Frequency() << "]" << std::endl;
   }
+  if (this->ChannelType.IsValid())
+  {
+    std::cout << "\tChannelType:  \t" << this->ChannelType() << std::endl;
+  }
+  if (this->ChannelWidth.IsValid())
+  {
+    std::cout << "\tChannelWidth:  \t" << this->ChannelWidth() << std::endl;
+  }
   if (this->CenterFrequency1.IsValid())
   {
     std::cout << "\tCenter 1:  \t" << this->CenterFrequency1() << std::endl;

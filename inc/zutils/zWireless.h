@@ -377,6 +377,9 @@ public:
   virtual void
   Display(const std::string &prefix_ = std::string(""));
 
+  static uint16_t Freq2Chan(uint16_t freq_);
+  static uint16_t Chan2Freq(uint16_t chan_);
+  
 protected:
 
 private:
