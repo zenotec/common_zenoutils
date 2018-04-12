@@ -236,12 +236,13 @@ BasicServiceSet::Create()
   this->_beacon->TransmitterAddress(this->GetHwAddress());
   this->_beacon->Bssid(this->GetHwAddress());
 
-  this->_beacon->Dsss(_freq2chan(this->GetFrequency()));
+//this->_beacon->Dsss(1);
+  this->_beacon->Dsss(Interface::Freq2Chan(this->GetFrequency()));
 
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
-//  this->SetChannel(1);
+//this->SetChannel(1);
   this->Commit();
 
   uint8_t buf[512] = { 0 };
@@ -254,7 +255,7 @@ BasicServiceSet::Create()
     cmd->BeaconInterval(this->_beacon->Interval());
     cmd->DtimPeriod(this->_beacon->Tim.Period());
     cmd->Ssid(this->_beacon->Ssid());
-    cmd->Channel.SetChannel(_freq2chan(this->GetFrequency()));
+    cmd->Channel.SetChannel(Interface::Freq2Chan(this->GetFrequency()));
     cmd->Display();
     this->addCommand(cmd);
   }
