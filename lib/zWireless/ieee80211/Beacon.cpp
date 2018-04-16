@@ -264,7 +264,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
   this->GetTag(this->ExtRates);
-//  this->GetTag(this->WmmWme);
+//this->GetTag(this->WmmWme);
 
   return (p_);
 }
