@@ -54,16 +54,16 @@ public:
   {
   }
 
-  uint32_t
+  struct tim_tag
   operator()() const
   {
-    uint32_t val = 0;
+    struct tim_tag val = { 0 };
     this->GetValue(val);
     return(val);
   }
 
   bool
-  operator()(const uint32_t dtim_)
+  operator()(const struct tim_tag dtim_)
   {
     return(this->PutValue(dtim_));
   }
@@ -71,35 +71,29 @@ public:
   uint8_t
   Count() const
   {
-    uint32_t val = this->operator ()();
-    struct tim_tag* dtim = (struct tim_tag*)&val;
-    return (dtim->dtim_count);
+    return (this->operator ()().dtim_count);
   }
 
   bool
   Count(const uint8_t count_)
   {
-    uint32_t val = this->operator ()();
-    struct tim_tag* dtim = (struct tim_tag*)&val;
-    dtim->dtim_count = count_;
-    return (this->operator ()(val));
+    struct tim_tag tim = this->operator ()();
+    tim.dtim_count = count_;
+    return (this->operator ()(tim));
   }
 
   uint8_t
   Period() const
   {
-    uint32_t val = this->operator ()();
-    struct tim_tag* dtim = (struct tim_tag*)&val;
-    return (dtim->dtim_period);
+    return (this->operator ()().dtim_period);
   }
 
   bool
   Period(const uint8_t period_)
   {
-    uint32_t val = this->operator ()();
-    struct tim_tag* dtim = (struct tim_tag*)&val;
-    dtim->dtim_period = period_;
-    return (this->operator ()(val));
+    struct tim_tag tim = this->operator ()();
+    tim.dtim_period = period_;
+    return (this->operator ()(tim));
   }
 
   virtual void

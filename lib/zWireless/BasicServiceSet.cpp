@@ -66,7 +66,7 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& 
     this->_beacon->Rates.AddRateMbsp(12);
     this->_beacon->Rates.AddRateMbsp(18);
     this->_beacon->Dsss(1);
-//    this->_beacon->Tim.Period(2);
+    this->_beacon->Tim.Period(1);
     this->_beacon->Country("US");
     this->_beacon->ExtRates.AddRateMbsp(24);
     this->_beacon->ExtRates.AddRateMbsp(36);
