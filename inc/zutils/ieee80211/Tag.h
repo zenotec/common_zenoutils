@@ -48,6 +48,7 @@ public:
     ID_POWER_CAPS = 33, // 0x21
     ID_CHANNELS = 36, // 0x24
     ID_HT_CAPS = 45, // 0x2D
+	ID_HT_INFORMATION = 61, // 0x3D
     ID_EXT_RATES = 50, // 0x32
     ID_VENDOR_SPECIFIC = 221, // 0xDD
     ID_LAST

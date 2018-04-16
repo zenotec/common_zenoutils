@@ -27,6 +27,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/DsssTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/ExtRatesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/HtCapsTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/HtInfoTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/PowerCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/RatesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/SsidTag.h \

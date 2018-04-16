@@ -131,7 +131,7 @@ ProbeRequest::Display() const
 
 ProbeResponse::ProbeResponse() :
     ManagementFrame(ManagementFrame::SUBTYPE_PROBERESP), _ts(0), _interval(0),
-    _capabilities(0)
+    _capabilities(0), BeaconParameters()
 {
 }
 
@@ -172,16 +172,30 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   f->capabilities = htole16(this->Capabilities());
 
+  if (!this->PutTag(this->Ssid))
+  {
+    ZLOG_ERR("Error assembling probe response frame: Missing SSID");
+    return(NULL);
+  }
+
+  if (!this->PutTag(this->Rates))
+  {
+    ZLOG_ERR("Error assembling probe response frame: Missing Rates");
+    return(NULL);
+  }
+
   // Inserted in map sorted by ID
-  this->PutTag(this->Ssid);
-  this->PutTag(this->Rates);
+//this->PutTag(this->Ssid);		//Required
+//this->PutTag(this->Rates);	//Required
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
   this->PutTag(this->PowerCaps);
   this->PutTag(this->HtCaps);
+  this->PutTag(this->HtInfo);
   this->PutTag(this->ExtRates);
 //this->PutTag(this->WmmWme);
+
 
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
@@ -230,13 +244,23 @@ ProbeResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  this->GetTag(this->Ssid);
-  this->GetTag(this->Rates);
+  if (!this->GetTag(this->Ssid))
+  {
+    return (NULL);
+  }
+
+  if (!this->GetTag(this->Rates))
+  {
+    return (NULL);
+  }
+//this->GetTag(this->Ssid);
+//this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
   this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
+  this->GetTag(this->HtInfo);
   this->GetTag(this->ExtRates);
 //this->GetTag(this->WmmWme);
 

@@ -34,6 +34,7 @@
 #include <zutils/ieee80211/HtCapsTag.h>
 #include <zutils/ieee80211/ExtRatesTag.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/HtInfoTag.h>
 
 // local includes
 
@@ -56,8 +57,9 @@ public:
   CountryTag Country;
   PowerCapsTag PowerCaps;
   HtCapsTag HtCaps;
+  HtInfoTag HtInfo;
   ExtRatesTag ExtRates;
-//  WmmWmeTag WmmWme;
+  WmmWmeTag WmmWme;
 
   BeaconParameters();
   

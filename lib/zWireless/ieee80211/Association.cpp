@@ -234,8 +234,9 @@ AssociationResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Country);
   this->PutTag(this->PowerCaps);
   this->PutTag(this->HtCaps);
+  this->PutTag(this->HtInfo);
   this->PutTag(this->ExtRates);
-//  this->PutTag(this->WmmWme);
+//this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
@@ -291,6 +292,7 @@ AssociationResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Country);
   this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
+  this->GetTag(this->HtInfo);
   this->GetTag(this->ExtRates);
 //this->GetTag(this->WmmWme);
 

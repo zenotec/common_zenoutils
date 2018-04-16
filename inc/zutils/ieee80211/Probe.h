@@ -77,9 +77,6 @@ class ProbeResponse : public ManagementFrame, public BeaconParameters
 
 public:
 
-  SsidTag Ssid;
-  RatesTag Rates;
-
   ProbeResponse();
 
   virtual
