@@ -538,7 +538,7 @@ ConfigData::SetPromiscuousMode(const ConfigData::PROMODE mode_)
 {
   ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
   std::string str = _promode2str(mode_);
-  return (this->_data->PutValue(path, mode_));
+  return (this->_data->PutValue(path, str));
 }
 
 }
