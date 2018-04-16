@@ -25,8 +25,7 @@
 // libzutils includes
 #include <zutils/ieee80211/Frame.h>
 #include <zutils/ieee80211/ManagementFrame.h>
-#include <zutils/ieee80211/SsidTag.h>
-#include <zutils/ieee80211/RatesTag.h>
+#include <zutils/ieee80211/BeaconParameters.h>
 
 // local includes
 
@@ -73,7 +72,7 @@ private:
 // Class: ProbeResponse
 //*****************************************************************************
 
-class ProbeResponse : public ManagementFrame
+class ProbeResponse : public ManagementFrame, public BeaconParameters
 {
 
 public:

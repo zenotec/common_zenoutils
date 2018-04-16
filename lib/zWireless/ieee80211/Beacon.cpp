@@ -39,13 +39,24 @@ namespace zWireless
 namespace ieee80211
 {
 
+BeaconParameters::BeaconParameters()
+{
+}
+
+BeaconParameters::~BeaconParameters()
+{
+}
+
+
+
+
 //*****************************************************************************
 // Class: Beacon
 //*****************************************************************************
 
 Beacon::Beacon() :
     ManagementFrame(ManagementFrame::SUBTYPE_BEACON), _ts(0), _interval(0),
-    _capabilities(0), _head(NULL), _tail(NULL), _end(NULL)
+    _capabilities(0), _head(NULL), _tail(NULL), _end(NULL), BeaconParameters()
 {
   this->ReceiverAddress("ff:ff:ff:ff:ff:ff");
 }

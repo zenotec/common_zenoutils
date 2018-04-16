@@ -25,15 +25,7 @@
 // libzutils includes
 #include <zutils/ieee80211/Frame.h>
 #include <zutils/ieee80211/ManagementFrame.h>
-#include <zutils/ieee80211/SsidTag.h>
-#include <zutils/ieee80211/RatesTag.h>
-#include <zutils/ieee80211/DsssTag.h>
-#include <zutils/ieee80211/TimTag.h>
-#include <zutils/ieee80211/CountryTag.h>
-#include <zutils/ieee80211/PowerCapsTag.h>
-#include <zutils/ieee80211/HtCapsTag.h>
-#include <zutils/ieee80211/ExtRatesTag.h>
-#include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/BeaconParameters.h>
 
 // local includes
 
@@ -48,20 +40,10 @@ namespace ieee80211
 // Class: Beacon
 //*****************************************************************************
 
-class Beacon : public ManagementFrame
+class Beacon : public ManagementFrame, public BeaconParameters
 {
 
 public:
-
-  SsidTag Ssid;
-  RatesTag Rates;
-  DsssTag Dsss;
-  TimTag Tim;
-  CountryTag Country;
-  PowerCapsTag PowerCaps;
-  HtCapsTag HtCaps;
-  ExtRatesTag ExtRates;
-//  WmmWmeTag WmmWme;
 
   Beacon();
 
