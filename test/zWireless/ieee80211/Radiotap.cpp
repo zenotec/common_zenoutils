@@ -37,6 +37,7 @@ Ieee80211Test_RadiotapGetSet(void* arg_)
   RadioTapFieldTsft tsft;
   RadioTapFieldFlags flags;
   RadioTapFieldRate rate;
+  RadioTapFieldMcs mcs;
   RadioTapFieldChannel channel;
   RadioTapFieldSignalLevel level;
   RadioTapFieldSignalNoise noise;
@@ -56,6 +57,10 @@ Ieee80211Test_RadiotapGetSet(void* arg_)
   TEST_FALSE(flags.FCS());
   TEST_FALSE(rtaphdr.GetField(rate));
   TEST_EQ(0, rate());
+  TEST_FALSE(rtaphdr.GetField(mcs));
+  TEST_EQ(0.0, mcs.RateBps());
+  TEST_EQ(0.0, mcs.RateKbps());
+  TEST_EQ(0.0, mcs.RateMbps());
   TEST_FALSE(rtaphdr.GetField(channel));
   TEST_EQ(0, channel());
   TEST_FALSE(rtaphdr.GetField(level));
@@ -84,6 +89,7 @@ Ieee80211Test_RadiotapAssemble(void* arg_)
   RadioTapFieldTsft tsft;
   RadioTapFieldFlags flags;
   RadioTapFieldRate rate;
+  RadioTapFieldMcs mcs;
   RadioTapFieldChannel channel;
   RadioTapFieldSignalLevel level[3];
   RadioTapFieldSignalNoise noise;
@@ -103,6 +109,10 @@ Ieee80211Test_RadiotapAssemble(void* arg_)
   TEST_FALSE(flags.FCS());
   TEST_FALSE(rtaphdr.GetField(rate));
   TEST_EQ(0, rate());
+  TEST_FALSE(rtaphdr.GetField(mcs));
+  TEST_EQ(0.0, mcs.RateBps());
+  TEST_EQ(0.0, mcs.RateKbps());
+  TEST_EQ(0.0, mcs.RateMbps());
   TEST_FALSE(rtaphdr.GetField(channel));
   TEST_EQ(0, channel());
   TEST_FALSE(rtaphdr.GetField(level[0], 0));
@@ -140,6 +150,11 @@ Ieee80211Test_RadiotapAssemble(void* arg_)
   TEST_EQ(6000, rate.RateKbps());
   TEST_EQ(6, rate.RateMbps());
   TEST_TRUE(rtaphdr.PutField(rate));
+
+  TEST_TRUE(mcs.Width(RadioTapFieldMcs::WIDTH_40));
+  TEST_TRUE(mcs.GuardInterval(RadioTapFieldMcs::GUARD_INT_SHORT));
+  TEST_TRUE(mcs.Index(14));
+  TEST_TRUE(rtaphdr.PutField(mcs));
 
   TEST_TRUE(channel(0x0140143c));
   TEST_EQ(0x0140143c, channel());
@@ -181,8 +196,8 @@ Ieee80211Test_RadiotapAssemble(void* arg_)
   TEST_ISNOT_NULL(p);
   TEST_EQ(radiotap_len, (sizeof(buf) - buflen));
   TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(38, rtaphdr.GetLength());
-  TEST_EQ(0xA000402F, rtaphdr.GetPresent(0));
+  TEST_EQ(41, rtaphdr.GetLength());
+  TEST_EQ(0xA008402F, rtaphdr.GetPresent(0));
   TEST_EQ(0xA0000820, rtaphdr.GetPresent(1));
   TEST_EQ(0x00000820, rtaphdr.GetPresent(2));
   TEST_IS_ZERO(memcmp(buf, radiotap, radiotap_len));
@@ -252,8 +267,8 @@ Ieee80211Test_RadiotapDisassemble(void* arg_)
 //  rtaphdr.Display();
   TEST_ISNOT_NULL(p);
   TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(38, rtaphdr.GetLength());
-  TEST_EQ(0xA000402F, rtaphdr.GetPresent(0));
+  TEST_EQ(41, rtaphdr.GetLength());
+  TEST_EQ(0xA008402F, rtaphdr.GetPresent(0));
   TEST_EQ(0xA0000820, rtaphdr.GetPresent(1));
   TEST_EQ(0x00000820, rtaphdr.GetPresent(2));
   TEST_TRUE(rtaphdr.GetField(tsft));

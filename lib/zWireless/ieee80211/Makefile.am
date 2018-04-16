@@ -51,6 +51,7 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldTsft.cpp \
 	RadioTapFieldFlags.cpp \
 	RadioTapFieldRate.cpp \
+	RadioTapFieldMcs.cpp \
 	RadioTapFieldChannel.cpp \
 	RadioTapFieldSignalLevel.cpp \
 	RadioTapFieldSignalNoise.cpp \

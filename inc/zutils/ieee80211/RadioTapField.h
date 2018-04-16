@@ -280,6 +280,80 @@ public:
 };
 
 //*****************************************************************************
+// Class: RadioTapFieldMcs
+//*****************************************************************************
+
+struct mcs;
+
+class RadioTapFieldMcs : public RadioTapField
+{
+
+public:
+
+  enum WIDTH
+  {
+    WIDTH_ERR = -1,
+    WIDTH_NONE = 0,
+    WIDTH_20 = 1,
+    WIDTH_40 = 2,
+    WIDTH_20L = 3,
+    WIDTH_20U = 4,
+    WIDTH_LAST
+  };
+
+  enum GUARD_INT
+  {
+    GUARD_INT_ERR = -1,
+    GUARD_INT_NONE = 0,
+    GUARD_INT_LONG = 1,
+    GUARD_INT_SHORT = 2,
+    GUARD_INT_LAST
+  };
+
+  RadioTapFieldMcs();
+
+  virtual
+  ~RadioTapFieldMcs();
+
+  virtual struct mcs
+  operator()() const;
+
+  virtual bool
+  operator()(const struct mcs val_);
+
+  WIDTH
+  Width() const;
+
+  bool
+  Width(const WIDTH width_);
+
+  RadioTapFieldMcs::GUARD_INT
+  GuardInterval() const;
+
+  bool
+  GuardInterval(const RadioTapFieldMcs::GUARD_INT gi_);
+
+  uint8_t
+  Index() const;
+
+  bool
+  Index( const uint8_t index_);
+
+  float
+  RateBps() const;
+
+  float
+  RateKbps() const;
+
+  float
+  RateMbps() const;
+
+  virtual void
+  Display() const;
+
+};
+
+//*****************************************************************************
 // Class: RadioTapFieldChannel
 //*****************************************************************************
 
