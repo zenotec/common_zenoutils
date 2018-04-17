@@ -619,7 +619,7 @@ Interface::Commit()
   {
     status = true; // Innocent until proven guilty
 
-    // Always make this command first to ensure all commands are executed while the interface is down
+    // These commands have to be executed while the interface is not up
     if (ConfigData::STATE_UP != this->workingConfig.GetAdminState())
     {
       if ((this->stagingConfig.GetIfName() != ConfigData::ConfigIfNameDefault) &&
@@ -639,6 +639,13 @@ Interface::Commit()
       {
         status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
       }
+
+      if ((this->stagingConfig.GetOpMode() != ConfigData::OPMODE_DEF) &&
+          (this->stagingConfig.GetOpMode() != this->workingConfig.GetOpMode()))
+      {
+        status &= this->_setOpMode();
+      }
+
     }
 
     // The following commands can be executed regardless of the interfaces' administrative state
@@ -660,6 +667,12 @@ Interface::Commit()
       status &= this->setNetmask(this->stagingConfig.GetNetmask());
     }
 
+    if ((this->stagingConfig.GetPromiscuousMode() != ConfigData::PROMODE_DEF) &&
+        (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode()))
+    {
+      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
+    }
+
     // Always make this command last to ensure all above commands are executed while the interface is down
     if ((this->stagingConfig.GetAdminState() != ConfigData::STATE_DEF) &&
         (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState()))
@@ -667,40 +680,26 @@ Interface::Commit()
       status &= this->setAdminState(this->stagingConfig.GetAdminState());
     }
 
-    if ((this->stagingConfig.GetPromiscuousMode() != ConfigData::PROMODE_DEF) &&
-        (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode()))
+    // These commands have to be executed while the interface is up
+    if (ConfigData::STATE_UP == this->stagingConfig.GetAdminState())
     {
-      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
-    }
+      if (((this->stagingConfig.GetHtMode() != ConfigData::HTMODE_DEF) &&
+             (this->stagingConfig.GetHtMode() != this->workingConfig.GetHtMode())) ||
+          ((this->stagingConfig.GetFrequency() != ConfigData::ConfigFrequencyDefault) &&
+             (this->stagingConfig.GetFrequency() != this->workingConfig.GetFrequency())) ||
+          ((this->stagingConfig.GetCenterFrequency1() != ConfigData::ConfigCenterFrequency1Default) &&
+             (this->stagingConfig.GetCenterFrequency1() != this->workingConfig.GetCenterFrequency1())) ||
+          ((this->stagingConfig.GetCenterFrequency2() != ConfigData::ConfigCenterFrequency2Default) &&
+             (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2())))
+      {
+        status &= this->_setChannel();
+      }
 
-    if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
-        (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower()))
-    {
-      status &= this->_setTxPower();
-    }
-
-    if ((this->stagingConfig.GetHtMode() != ConfigData::HTMODE_DEF) &&
-           (this->stagingConfig.GetHtMode() != this->workingConfig.GetHtMode()))
-    {
-      status &= this->_setChannel();
-    }
-
-    if ((this->stagingConfig.GetFrequency() != ConfigData::ConfigFrequencyDefault) &&
-           (this->stagingConfig.GetFrequency() != this->workingConfig.GetFrequency()))
-    {
-      status &= this->_setChannel();
-    }
-
-    if ((this->stagingConfig.GetCenterFrequency1() != ConfigData::ConfigCenterFrequency1Default) &&
-           (this->stagingConfig.GetCenterFrequency1() != this->workingConfig.GetCenterFrequency1()))
-    {
-      status &= this->_setChannel();
-    }
-
-    if ((this->stagingConfig.GetCenterFrequency2() != ConfigData::ConfigCenterFrequency2Default) &&
-           (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2()))
-    {
-      status &= this->_setChannel();
+      if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
+          (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower()))
+      {
+        status &= this->_setTxPower();
+      }
     }
 
     status &= this->execCommands();
@@ -989,32 +988,33 @@ Interface::_setChannel()
     cmd->Frequency(this->stagingConfig.GetFrequency());
 
     //  Set either ChannelType OR ChannelWidth based on HT mode
-    switch(this->stagingConfig.GetHtMode())
+    switch (this->stagingConfig.GetHtMode())
     {
-      case ConfigData::HTMODE_NOHT:
-        // no break
-      case ConfigData::HTMODE_HT20:
-        // no break
-      case ConfigData::HTMODE_HT40MINUS:
-        // no break
-      case ConfigData::HTMODE_HT40PLUS:
-        cmd->ChannelType(_htmode2nl(this->stagingConfig.GetHtMode()));
-        break;
-      case ConfigData::HTMODE_VHT80PLUS80:
-        cmd->CenterFrequency2(this->GetCenterFrequency2());
-        // no break
-      case ConfigData::HTMODE_VHT20:
-        // no break
-      case ConfigData::HTMODE_VHT40:
-        // no break
-      case ConfigData::HTMODE_VHT80:
-        // no break
-      case ConfigData::HTMODE_VHT160:
-        cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
-        cmd->CenterFrequency1(this->GetCenterFrequency1());
-        break;
-      default:
-        break;
+    case ConfigData::HTMODE_HT40MINUS:
+      // no break
+    case ConfigData::HTMODE_HT40PLUS:
+      // no break
+      cmd->CenterFrequency1(this->GetCenterFrequency1());
+    case ConfigData::HTMODE_NOHT:
+      // no break
+    case ConfigData::HTMODE_HT20:
+      cmd->ChannelType(_htmode2nl(this->stagingConfig.GetHtMode()));
+      break;
+    case ConfigData::HTMODE_VHT80PLUS80:
+      cmd->CenterFrequency2(this->GetCenterFrequency2());
+      // no break
+    case ConfigData::HTMODE_VHT20:
+      // no break
+    case ConfigData::HTMODE_VHT40:
+      // no break
+    case ConfigData::HTMODE_VHT80:
+      // no break
+    case ConfigData::HTMODE_VHT160:
+      cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
+      cmd->CenterFrequency1(this->GetCenterFrequency1());
+      break;
+    default:
+      break;
     }
     this->addCommand(cmd);
     status = true;
