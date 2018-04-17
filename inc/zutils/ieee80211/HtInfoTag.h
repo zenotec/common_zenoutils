@@ -40,10 +40,10 @@ public:
 
   struct rx_mcs
   {
-    uint64_t rx_mcs_bitmask;
+    uint8_t rx_mcs_bitmask[10];
     uint16_t rx_highest_data_rate;
     uint8_t rx_tx_mcs;
-
+    uint8_t padding[3];
   } __attribute__ ((packed));
 
   struct ht_info
