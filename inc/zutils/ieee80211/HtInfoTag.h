@@ -55,8 +55,8 @@ public:
 	struct rx_mcs ht_rx_mcs;
   } __attribute__ ((packed));
 
-  HtInfoTag(const Tag::ID id_ = ID_HT_INFORMATION, const size_t len_ = 0) :
-    Tag(id_)
+  HtInfoTag() :
+    Tag(Tag::ID_HT_INFORMATION, sizeof(struct ht_info))
   {
   }
 
@@ -65,33 +65,88 @@ public:
   {
   }
 
-  virtual std::vector<uint8_t>
+  ht_info
   operator()() const
   {
-    std::vector<uint8_t> info;
-    info.resize(this->Length());
-    this->GetValue(info.data(), info.size());
+    ht_info info;
+    this->GetValue(info);
     return(info);
-  }
-
-  virtual bool
-  operator()(const std::vector<uint8_t>& info_)
-  {
-    return(this->PutValue(info_.data(), info_.size()));
   }
 
   bool
   operator()(ht_info& info_)
   {
-    return(this->PutValue<ht_info>(info_));
+    return(this->PutValue(info_));
   }
 
-  ht_info
-  HtInfo() const
+  uint8_t
+  PrimaryChannel() const
   {
-    ht_info info;
-    GetValue<ht_info>(info);
-    return info;
+    return (this->operator ()().ht_primary_channel);
+  }
+
+  bool
+  PrimaryChannel(const uint8_t PrimaryChannel_)
+  {
+    struct ht_info info = this->operator ()();
+    info.ht_primary_channel = PrimaryChannel_;
+    return (this->operator ()(info));
+  }
+
+  uint8_t
+  HtSubset1() const
+  {
+    return (this->operator ()().ht_subset_1);
+  }
+
+  bool
+  HtSubset1(const uint8_t HtSubset1_)
+  {
+    struct ht_info info = this->operator ()();
+    info.ht_subset_1 = HtSubset1_;
+    return (this->operator ()(info));
+  }
+
+  uint16_t
+  HtSubset2() const
+  {
+    return (this->operator ()().ht_subset_2);
+  }
+
+  bool
+  HtSubset2(const uint16_t HtSubset2_)
+  {
+    struct ht_info info = this->operator ()();
+    info.ht_subset_2 = HtSubset2_;
+    return (this->operator ()(info));
+  }
+
+  uint16_t
+  HtSubset3() const
+  {
+    return (this->operator ()().ht_subset_3);
+  }
+
+  bool
+  HtSubset3(const uint16_t HtSubset3_)
+  {
+    struct ht_info info = this->operator ()();
+    info.ht_subset_3 = HtSubset3_;
+    return (this->operator ()(info));
+  }
+
+  rx_mcs
+  RxMcs() const
+  {
+    return (this->operator ()().ht_rx_mcs);
+  }
+
+  bool
+  RxMcs(const rx_mcs mcs_)
+  {
+    struct ht_info info = this->operator ()();
+    info.ht_rx_mcs = mcs_;
+    return (this->operator ()(info));
   }
 
   virtual void
