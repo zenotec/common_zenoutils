@@ -336,6 +336,12 @@ public:
   SetHtMode(const ConfigData::HTMODE mode_);
 
   unsigned int
+  GetChannel() const;
+
+  bool
+  SetChannel(const unsigned int channel_);
+
+  unsigned int
   GetFrequency() const;
 
   bool
@@ -377,9 +383,6 @@ public:
   virtual void
   Display(const std::string &prefix_ = std::string(""));
 
-  static uint16_t Freq2Chan(uint16_t freq_);
-  static uint16_t Chan2Freq(uint16_t chan_);
-  
 protected:
 
 private:

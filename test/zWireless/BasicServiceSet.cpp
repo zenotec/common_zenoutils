@@ -87,7 +87,7 @@ zWirelessTest_BasicServiceSet(void* arg)
 	};
 
     TEST_TRUE(MyBss->SetRates(rates_));
-    TEST_TRUE(MyBss->SetDsss(zWireless::Interface::Freq2Chan(MyBss->GetFrequency())));
+    TEST_TRUE(MyBss->SetDsss(MyBss->GetChannel()));
     TEST_TRUE(MyBss->SetPowerCaps(10, 17));
     TEST_TRUE(MyBss->SetHtCaps(htcaps_));
     TEST_TRUE(MyBss->SetExtRates(exrates_));
@@ -109,7 +109,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_EQ(zWireless::ConfigData::OPMODE_AP, MyBss->GetOpMode());
     TEST_EQ(2412, MyBss->GetFrequency());
     TEST_EQ(1000, MyBss->GetTxPower());
-	//TODO RKB Verift beacon properties
+	//TODO RKB Verify beacon properties
 
     // Cleanup
     TEST_TRUE(MyBss->Destroy());

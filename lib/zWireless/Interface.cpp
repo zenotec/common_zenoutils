@@ -62,8 +62,8 @@ namespace zUtils
 namespace zWireless
 {
 
-uint16_t
-Interface::Freq2Chan(uint16_t freq_)
+static uint16_t
+_freq2chan(uint16_t freq_)
 {
 
   uint16_t channel = 0;
@@ -97,8 +97,8 @@ Interface::Freq2Chan(uint16_t freq_)
 
 }
 
-uint16_t
-Interface::Chan2Freq(uint16_t chan_)
+static uint16_t
+_chan2freq(uint16_t chan_)
 {
   uint16_t freq = 0;
   if ((chan_ >= 1) && (chan_ <=13))
@@ -473,6 +473,34 @@ Interface::SetHtMode(const ConfigData::HTMODE mode_)
 }
 
 unsigned int
+Interface::GetChannel() const
+{
+  unsigned int freq = 0;
+  if (this->lock.Lock())
+  {
+    freq = this->_getFrequency();
+    if (freq == 0)
+    {
+      freq = this->stagingConfig.GetFrequency();
+    }
+    this->lock.Unlock();
+  }
+  return (_freq2chan(freq));
+}
+
+bool
+Interface::SetChannel(const unsigned int channel_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetFrequency(_chan2freq(channel_));
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+unsigned int
 Interface::GetFrequency() const
 {
   unsigned int freq = 0;
@@ -489,12 +517,12 @@ Interface::GetFrequency() const
 }
 
 bool
-Interface::SetFrequency(const unsigned int channel_)
+Interface::SetFrequency(const unsigned int freq_)
 {
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->stagingConfig.SetFrequency(channel_);
+    status = this->stagingConfig.SetFrequency(freq_);
     this->lock.Unlock();
   }
   return (status);
