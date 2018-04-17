@@ -154,19 +154,32 @@ BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_)
   return (status);
 }
 
-std::vector<uint8_t>
+ieee80211::HtCapsTag::ht_caps
 BasicServiceSet::GetHtCaps()
 {
   return (this->_beacon->HtCaps());
 }
 
 bool
-BasicServiceSet::SetHtCaps(std::vector<uint8_t> caps_)
+BasicServiceSet::SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_)
 {
   bool status = this->_beacon->HtCaps(caps_);
   return (status);
 }
   
+ieee80211::HtInfoTag::ht_info
+BasicServiceSet::GetHtInfo()
+{
+	  return (this->_beacon->HtInfo());
+}
+
+bool
+BasicServiceSet::SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_)
+{
+	  bool status = this->_beacon->HtInfo(info_);
+	  return (status);
+}
+
 std::vector<uint8_t>
 BasicServiceSet::GetExtRates()
 {

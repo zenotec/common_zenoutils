@@ -74,7 +74,7 @@ public:
   }
 
   bool
-  operator()(ht_info& info_)
+  operator()(const ht_info& info_)
   {
     return(this->PutValue(info_));
   }

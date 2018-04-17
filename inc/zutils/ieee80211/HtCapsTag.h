@@ -72,31 +72,24 @@ public:
   {
   }
 
-  virtual std::vector<uint8_t>
+  struct ht_caps
   operator()() const
   {
-    std::vector<uint8_t> caps;
-    caps.resize(this->Length());
-    this->GetValue(caps.data(), caps.size());
+    ht_caps caps;
+    this->GetValue(caps);
     return(caps);
   }
 
   virtual bool
-  operator()(const std::vector<uint8_t>& caps_)
+  operator()(const struct ht_caps& caps_)
   {
-    return(this->PutValue(caps_.data(), caps_.size()));
+    return(this->PutValue(caps_));
   }
 
-  bool
-  operator()(ht_caps& caps_)
-  {
-    return(this->PutValue<ht_caps>(caps_));
-  }
-
-  ht_caps
+  struct ht_caps
   HtCaps() const
   {
-    ht_caps caps;
+    struct ht_caps caps;
     GetValue<ht_caps>(caps);
     return caps;
   }

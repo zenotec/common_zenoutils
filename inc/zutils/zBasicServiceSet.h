@@ -23,6 +23,8 @@
 #include <string>
 
 #include <zutils/zAccessPointInterface.h>
+#include <zutils/ieee80211/HtCapsTag.h>
+#include <zutils/ieee80211/HtInfoTag.h>
 
 namespace zUtils
 {
@@ -78,11 +80,17 @@ public:
   bool
   SetPowerCaps(const uint8_t min_, const uint8_t max_);
 
-  std::vector<uint8_t>
+  ieee80211::HtCapsTag::ht_caps
   GetHtCaps();
 
   bool
-  SetHtCaps(const std::vector<uint8_t> caps_);
+  SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
+
+  ieee80211::HtInfoTag::ht_info
+  GetHtInfo();
+
+  bool
+  SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_);
   
   std::vector<uint8_t>
   GetExtRates();
