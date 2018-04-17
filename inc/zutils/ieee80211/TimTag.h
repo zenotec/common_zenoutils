@@ -63,7 +63,7 @@ public:
   }
 
   bool
-  operator()(const struct tim_tag dtim_)
+  operator()(const struct tim_tag& dtim_)
   {
     return(this->PutValue(dtim_));
   }
