@@ -43,6 +43,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/Deauthentication.h \
 	${top_srcdir}/inc/zutils/ieee80211/Association.h \
 	${top_srcdir}/inc/zutils/ieee80211/Disassociation.h \
+	${top_srcdir}/inc/zutils/ieee80211/BeaconParameters.h \
 	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h
 
 libieee80211_la_SOURCES = \
