@@ -70,7 +70,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg, void* arg);
+  ack_cb(struct nl_msg* msg, void* arg);
 
   virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);

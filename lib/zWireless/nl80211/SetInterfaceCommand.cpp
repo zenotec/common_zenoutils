@@ -149,42 +149,10 @@ SetInterfaceCommand::Display(const std::string& prefix_) const
 }
 
 int
-SetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+SetInterfaceCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
-  std::cout << "SetInterfaceCommand::valid_cb()" << std::endl;
-
-  GenericMessage msg;
-  if (!msg.Disassemble(msg_))
-  {
-    ZLOG_ERR("Error parsing generic message");
-    return (NL_SKIP);
-  }
-
-  // Debug prints, comment out when not needed
-  msg.Display();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
-    return (NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
-    return (NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfType))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfType.GetId()));
-    return (NL_SKIP);
-  }
-
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 
