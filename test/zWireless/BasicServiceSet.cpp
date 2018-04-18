@@ -89,7 +89,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     TEST_TRUE(MyBss->SetRates(rates_));
     TEST_TRUE(MyBss->SetDsss(MyBss->GetChannel()));
     TEST_TRUE(MyBss->SetPowerCaps(10, 17));
-    TEST_TRUE(MyBss->SetHtCaps(htcaps_));
+//    TEST_TRUE(MyBss->SetHtCaps(htcaps_));
     TEST_TRUE(MyBss->SetExtRates(exrates_));
 
     // Verify
