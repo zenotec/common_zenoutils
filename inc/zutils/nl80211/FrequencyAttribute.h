@@ -120,9 +120,9 @@ public:
   }
 
   bool
-  operator()(const uint32_t interval_)
+  operator()(const uint32_t freq_)
   {
-    return (this->Set(interval_));
+    return (this->Set(freq_));
   }
 
   uint32_t
