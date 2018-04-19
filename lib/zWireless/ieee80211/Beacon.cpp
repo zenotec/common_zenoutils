@@ -300,9 +300,9 @@ Beacon::Display() const
 {
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Beacon ------------------" << std::endl;
-  std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::endl;
+  std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
-  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
+  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->Dsss.Valid()) this->Dsss.Display();

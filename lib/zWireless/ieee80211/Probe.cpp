@@ -185,8 +185,6 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   // Inserted in map sorted by ID
-//this->PutTag(this->Ssid);		//Required
-//this->PutTag(this->Rates);	//Required
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
@@ -195,7 +193,6 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->HtInfo);
   this->PutTag(this->ExtRates);
 //this->PutTag(this->WmmWme);
-
 
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
@@ -246,15 +243,16 @@ ProbeResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   if (!this->GetTag(this->Ssid))
   {
+    ZLOG_ERR("Error disassembling probe response frame: Missing SSID");
     return (NULL);
   }
 
   if (!this->GetTag(this->Rates))
   {
+    ZLOG_ERR("Error disassembling probe response frame: Missing Rates");
     return (NULL);
   }
-//this->GetTag(this->Ssid);
-//this->GetTag(this->Rates);
+
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
@@ -311,9 +309,17 @@ ProbeResponse::Display() const
 {
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Probe Response ----------" << std::endl;
-  std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::endl;
+  std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
-  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
+  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
+  if (this->Dsss.Valid()) this->Dsss.Display();
+  if (this->Tim.Valid()) this->Tim.Display();
+  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->ExtRates.Valid()) this->ExtRates.Display();
+//  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

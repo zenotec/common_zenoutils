@@ -47,9 +47,12 @@ public:
     ID_COUNTRY = 7,
     ID_POWER_CAPS = 33, // 0x21
     ID_CHANNELS = 36, // 0x24
+    ID_ERP_INFO = 42, // 2A
     ID_HT_CAPS = 45, // 0x2D
-	ID_HT_INFORMATION = 61, // 0x3D
     ID_EXT_RATES = 50, // 0x32
+    ID_SUPP_OP_CLASSES = 59, // 0x3B
+    ID_HT_INFORMATION = 61, // 0x3D
+    ID_EXT_CAPS = 127, // 0x7f
     ID_VENDOR_SPECIFIC = 221, // 0xDD
     ID_LAST
   };
@@ -74,8 +77,12 @@ public:
       case ID_COUNTRY: { return "ID_COUNTRY"; break; }
       case ID_POWER_CAPS: { return "ID_POWER_CAPS"; break; }
       case ID_CHANNELS: { return "ID_CHANNELS"; break; }
+      case ID_ERP_INFO: { return "ID_ERP_INFO"; break; }
       case ID_HT_CAPS: { return "ID_HT_CAPS"; break; }
       case ID_EXT_RATES: { return "ID_EXT_RATES"; break; }
+      case ID_SUPP_OP_CLASSES: { return "ID_SUPP_OP_CLASSES"; break; }
+      case ID_HT_INFORMATION: { return "ID_HT_INFORMATION"; break; }
+      case ID_EXT_CAPS: { return "ID_EXT_CAPS"; break; }
       case ID_VENDOR_SPECIFIC: { return "ID_VENDOR_SPECIFIC"; break; }
       default: { return "UNKNOWN"; break; }
     }

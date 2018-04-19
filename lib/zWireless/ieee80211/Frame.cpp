@@ -570,8 +570,8 @@ Frame::Display() const
   std::cout << "------------------------------------------" << std::endl;
   std::cout << "----- IEEE802.11 Header ------------------" << std::endl;
   std::cout << "\tVersion:  \t" << (int) this->Version() << std::endl;
-  std::cout << "\tType:     \t" << std::hex << (int) this->Type() << std::endl;
-  std::cout << "\tSubtype:  \t" << std::hex << (int) this->Subtype() << std::endl;
+  std::cout << "\tType:     \t" << std::hex << (int) this->Type() << std::dec << std::endl;
+  std::cout << "\tSubtype:  \t" << std::hex << (int) this->Subtype() << std::dec << std::endl;
   std::cout << "\tToDS:     \t" << (this->ToDS() ? "true" : "false") << std::endl;
   std::cout << "\tFromDS:   \t" << (this->FromDS() ? "true" : "false") << std::endl;
   std::cout << "\tFrag:     \t" << (this->MoreFragments() ? "true" : "false") << std::endl;

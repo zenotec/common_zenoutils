@@ -343,8 +343,16 @@ AssociationResponse::Display() const
 {
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Association Response ----------" << std::endl;
-  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::endl;
+  std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tStatus:   \t" << (int) this->Status() << std::endl;
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
+  if (this->Dsss.Valid()) this->Dsss.Display();
+  if (this->Tim.Valid()) this->Tim.Display();
+  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->ExtRates.Valid()) this->ExtRates.Display();
+//  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

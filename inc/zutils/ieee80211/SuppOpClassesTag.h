@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __IEEE80211_HTCAPSTAG_H__
-#define __IEEE80211_HTCAPSTAG_H__
-#include <array>
-using namespace std;
+#ifndef __IEEE80211_SUPPOPCLASSESTAG_H__
+#define __IEEE80211_SUPPOPCLASSESTAG_H__
 
 #include <zutils/ieee80211/Tag.h>
 
@@ -30,64 +28,56 @@ namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: HtCapsTag
+// Class: SuppOpClassesTag
 //*****************************************************************************
 
-class HtCapsTag : public Tag
+class SuppOpClassesTag : public Tag
 {
 
 public:
 
-  struct tx_mcs
-  {
-    uint8_t tx_bits;
-    uint16_t reserved1;
-    uint8_t reserved2;
-  } __attribute__ ((packed));
-
-  struct mcs_set
-  {
-    std::array<uint8_t,10> rx_mcs_bitmask;
-    uint16_t rx_highest_rate;
-    tx_mcs tx_mcs_fields;
-  } __attribute__ ((packed));
-
-  struct ht_caps
-  {
-    uint16_t ht_cap_info;
-    uint8_t ampdu_parms;
-    mcs_set supported_mcs_set;
-    uint16_t ht_ext_cap;
-    uint32_t trans_beam_cap;
-    uint8_t asel_cap;
-  } __attribute__ ((packed));
-
-  HtCapsTag() :
-    Tag(Tag::ID_HT_CAPS, sizeof(struct ht_caps))
+  SuppOpClassesTag() :
+    Tag(Tag::ID_SUPP_OP_CLASSES)
   {
   }
 
   virtual
-  ~HtCapsTag()
+  ~SuppOpClassesTag()
   {
   }
 
-  struct ht_caps
+  uint8_t
   operator()() const
   {
-    ht_caps caps;
-    this->GetValue(caps);
-    return(caps);
+    uint8_t val = 0;
+    this->GetValue(val);
+    return(val);
   }
 
-  virtual bool
-  operator()(const struct ht_caps& caps_)
+  bool
+  operator()(const uint8_t class_)
   {
-    return(this->PutValue(caps_));
+    return(this->PutValue(class_));
+  }
+
+  uint8_t
+  CurrentOpClass() const
+  {
+    return (this->operator ()());
+  }
+
+  bool
+  CurrentOpClass(const uint8_t class_)
+  {
+    return (this->operator ()(class_));
   }
 
   virtual void
-  Display() const;
+  Display() const
+  {
+    Tag::Display();
+    std::cout << "\t" << this->operator()() << std::endl;
+  }
 
 protected:
 
@@ -99,4 +89,4 @@ private:
 }
 }
 
-#endif /* __IEEE80211_HTCAPSTAG_H__ */
+#endif /* __IEEE80211_SUPPOPCLASSESTAG_H__ */

@@ -31,6 +31,7 @@
 #include <zutils/ieee80211/TimTag.h>
 #include <zutils/ieee80211/CountryTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
+#include <zutils/ieee80211/ErpInfoTag.h>
 #include <zutils/ieee80211/HtCapsTag.h>
 #include <zutils/ieee80211/ExtRatesTag.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
@@ -56,6 +57,7 @@ public:
   TimTag Tim;
   CountryTag Country;
   PowerCapsTag PowerCaps;
+  ErpInfoTag ErpInfo;
   HtCapsTag HtCaps;
   HtInfoTag HtInfo;
   ExtRatesTag ExtRates;
