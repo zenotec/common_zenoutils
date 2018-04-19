@@ -48,6 +48,31 @@ _get_ts()
   return (ts);
 }
 
+void
+__dump_hex(const char* prefix_, const uint8_t* addr_, size_t len_, bool verbose_)
+{
+  const char* nl = "";
+  unsigned long pad = ((unsigned long)addr_ & 0x07);
+
+  if (!len_)
+    return;
+
+  if (!verbose_)
+    len_ = std::min(int(len_), 16);
+
+  for (int cnt = 0, i = -pad; i < len_; cnt++, i++)
+  {
+    if (!(cnt % 8))
+      printf("%s%s%p: ", nl, prefix_, &addr_[i]);
+    if (i < 0)
+      printf("-- ");
+    else
+      printf("%02x ", addr_[i]);
+    nl = "\n";
+  }
+  printf("\n");
+}
+
 //*****************************************************************************
 // Class: Buffer
 //*****************************************************************************
@@ -214,6 +239,11 @@ void
 Buffer::Display() const
 {
   printf("zSocket::Buffer(): %p\n", this);
+  printf("\tHead: %p\n", this->Head());
+  printf("\tData: %p (%zd)\n", this->Data(), this->_data);
+  printf("\tTail: %p (%zd)\n", this->Tail(), this->_tail);
+  printf("\tEnd:  %p (%zd)\n", this->End(), this->_end);
+  __dump_hex("", this->Head(), this->Size(), true);
 }
 
 void
