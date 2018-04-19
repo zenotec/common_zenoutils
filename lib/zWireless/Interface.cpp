@@ -914,45 +914,55 @@ Interface::_getHtMode() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      switch (cmd.ChannelType())
+      if (cmd.ChannelType.IsValid())
       {
-      case NL80211_CHAN_NO_HT:
-        mode = ConfigData::HTMODE_NOHT;
-        break;
-      case NL80211_CHAN_HT20:
-        mode = ConfigData::HTMODE_HT20;
-        break;
-      case NL80211_CHAN_HT40MINUS:
-        mode = ConfigData::HTMODE_HT40MINUS;
-        break;
-      case NL80211_CHAN_HT40PLUS:
-        mode = ConfigData::HTMODE_HT40PLUS;
-        break;
-      default:
-        break;
+        switch (cmd.ChannelType())
+        {
+        case NL80211_CHAN_NO_HT:
+          mode = ConfigData::HTMODE_NOHT;
+          break;
+        case NL80211_CHAN_HT20:
+          mode = ConfigData::HTMODE_HT20;
+          break;
+        case NL80211_CHAN_HT40MINUS:
+          mode = ConfigData::HTMODE_HT40MINUS;
+          break;
+        case NL80211_CHAN_HT40PLUS:
+          mode = ConfigData::HTMODE_HT40PLUS;
+          break;
+        default:
+          break;
+        }
       }
-      switch (cmd.ChannelWidth())
+      else if (cmd.ChannelWidth.IsValid())
       {
-      case NL80211_CHAN_WIDTH_20_NOHT:
-        mode = ConfigData::HTMODE_NOHT;
-        break;
-      case NL80211_CHAN_WIDTH_20:
-        mode = ConfigData::HTMODE_VHT20;
-        break;
-      case NL80211_CHAN_WIDTH_40:
-        mode = ConfigData::HTMODE_VHT40;
-        break;
-      case NL80211_CHAN_WIDTH_80:
-        mode = ConfigData::HTMODE_VHT80;
-        break;
-      case NL80211_CHAN_WIDTH_80P80:
-        mode = ConfigData::HTMODE_VHT80PLUS80;
-        break;
-      case NL80211_CHAN_WIDTH_160:
-        mode = ConfigData::HTMODE_VHT160;
-        break;
-      default:
-        break;
+        switch (cmd.ChannelWidth())
+        {
+        case NL80211_CHAN_WIDTH_20_NOHT:
+          mode = ConfigData::HTMODE_NOHT;
+          break;
+        case NL80211_CHAN_WIDTH_20:
+          mode = ConfigData::HTMODE_VHT20;
+          break;
+        case NL80211_CHAN_WIDTH_40:
+          mode = ConfigData::HTMODE_VHT40;
+          break;
+        case NL80211_CHAN_WIDTH_80:
+          mode = ConfigData::HTMODE_VHT80;
+          break;
+        case NL80211_CHAN_WIDTH_80P80:
+          mode = ConfigData::HTMODE_VHT80PLUS80;
+          break;
+        case NL80211_CHAN_WIDTH_160:
+          mode = ConfigData::HTMODE_VHT160;
+          break;
+        default:
+          break;
+        }
+      }
+      else
+      {
+        mode = ConfigData::HTMODE_ERR;
       }
     }
   }
