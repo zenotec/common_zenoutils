@@ -140,7 +140,7 @@ BasicServiceSet::SetDsss(uint8_t channel_)
 std::vector<uint8_t>
 BasicServiceSet::GetPowerCaps()
 {
-  return (this->_beacon->PowerCaps());
+//  return (this->_beacon->PowerCaps());
 }
 
 //bool
@@ -149,8 +149,9 @@ BasicServiceSet::GetPowerCaps()
 bool
 BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_)
 {
-  bool status = this->_beacon->PowerCaps(min_, max_);
-  return (status);
+//  bool status = this->_beacon->PowerCaps(min_, max_);
+//  return (status);
+  return (false);
 }
 
 ieee80211::HtCapsTag::ht_caps

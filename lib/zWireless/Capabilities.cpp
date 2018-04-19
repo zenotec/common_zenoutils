@@ -64,13 +64,13 @@ Capabilities::SetChannels(const std::vector<uint8_t>& channels_)
 }
 
 std::vector<uint8_t>
-Capabilities::GetRates() const
+Capabilities::GetBitRates() const
 {
   return (this->_rates);
 }
 
 bool
-Capabilities::SetRates(const std::vector<uint8_t>& rates_)
+Capabilities::SetBitRates(const std::vector<uint8_t>& rates_)
 {
   this->_rates = rates_;
   return (true);

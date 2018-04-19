@@ -268,10 +268,10 @@ public:
   SetChannels(const std::vector<uint8_t>& channels_);
 
   std::vector<uint8_t>
-  GetRates() const;
+  GetBitRates() const;
 
   bool
-  SetRates(const std::vector<uint8_t>& rates_);
+  SetBitRates(const std::vector<uint8_t>& rates_);
 
   void
   Display() const;
