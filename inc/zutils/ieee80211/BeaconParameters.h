@@ -33,9 +33,11 @@
 #include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/ErpInfoTag.h>
 #include <zutils/ieee80211/HtCapsTag.h>
-#include <zutils/ieee80211/ExtRatesTag.h>
-#include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/SuppOpClassesTag.h>
 #include <zutils/ieee80211/HtInfoTag.h>
+#include <zutils/ieee80211/ExtRatesTag.h>
+#include <zutils/ieee80211/ExtCapsTag.h>
+#include <zutils/ieee80211/WmmWmeTag.h>
 
 // local includes
 
@@ -59,8 +61,10 @@ public:
   PowerCapsTag PowerCaps;
   ErpInfoTag ErpInfo;
   HtCapsTag HtCaps;
+  SuppOpClassesTag SuppOpClass;
   HtInfoTag HtInfo;
   ExtRatesTag ExtRates;
+  ExtCapsTag ExtCaps;
   WmmWmeTag WmmWme;
 
   BeaconParameters();

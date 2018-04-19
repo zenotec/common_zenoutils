@@ -15,60 +15,40 @@
  * limitations under the License.
  */
 
-#ifndef __IEEE80211_EXTENDEDCAPSTAG_H__
-#define __IEEE80211_EXTENDEDCAPSTAG_H__
+#ifndef __NL80211_PROBERESPONSEATTRIBUTE_H__
+#define __NL80211_PROBERESPONSEATTRIBUTE_H__
 
-#include <zutils/ieee80211/Tag.h>
+// libc includes
+#include <stdint.h>
+#include <linux/nl80211.h>
 
-namespace zUtils
-{
-namespace zWireless
-{
-namespace ieee80211
+// libc++ includes
+
+// libzutils includes
+#include <zutils/netlink/Attribute.h>
+
+// local includes
+
+namespace nl80211
 {
 
 //*****************************************************************************
-// Class: ExtCapsTag
+// Class: ProbeResponseAttribute
 //*****************************************************************************
 
-class ExtCapsTag : public Tag
+class ProbeResponseAttribute : public AttributeValue
 {
 
 public:
 
-  struct ext_caps_tag
-  {
-    uint8_t caps[8];
-  };
-
-  ExtCapsTag() :
-    Tag(Tag::ID_DSSS, sizeof(struct ext_caps_tag))
+  ProbeResponseAttribute() :
+      AttributeValue(NL80211_ATTR_PROBE_RESP)
   {
   }
 
   virtual
-  ~ExtCapsTag()
+  ~ProbeResponseAttribute()
   {
-  }
-
-  struct ext_caps_tag
-  operator()() const
-  {
-    struct ext_caps_tag val = { 0 };
-    this->GetValue(val);
-    return(val);
-  }
-
-  bool
-  operator()(const struct ext_caps_tag caps_)
-  {
-    return(this->PutValue(caps_));
-  }
-
-  virtual void
-  Display() const
-  {
-    Tag::Display();
   }
 
 protected:
@@ -78,7 +58,5 @@ private:
 };
 
 }
-}
-}
 
-#endif /* __IEEE80211_EXTENDEDCAPSTAG_H__ */
+#endif /* __NL80211_PROBERESPONSEATTRIBUTE_H__ */

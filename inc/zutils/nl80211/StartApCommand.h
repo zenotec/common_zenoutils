@@ -46,6 +46,7 @@ using namespace netlink;
 #include <zutils/nl80211/DtimPeriodAttribute.h>
 #include <zutils/nl80211/BeaconHeadAttribute.h>
 #include <zutils/nl80211/BeaconTailAttribute.h>
+#include <zutils/nl80211/ProbeResponseAttribute.h>
 
 namespace nl80211
 {
@@ -72,6 +73,7 @@ public:
   DtimPeriodAttribute DtimPeriod;
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
+  ProbeResponseAttribute ProbeResp;
 
   StartApCommand(const unsigned int ifindex_);
 

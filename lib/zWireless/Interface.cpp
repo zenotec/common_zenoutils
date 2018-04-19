@@ -1104,7 +1104,7 @@ Interface::_getCapabilities() const
       std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
       FOREACH(auto& band, bands)
       {
-        capa[band].SetRates(cmd.PhyBands.GetPhyBand(band).GetRates());
+        capa[band].SetBitRates(cmd.PhyBands.GetPhyBand(band).GetRates());
       }
     }
   }

@@ -39,8 +39,14 @@ class PowerCapsTag : public Tag
 
 public:
 
+  struct power_caps_tag
+  {
+    uint8_t min;
+    uint8_t max;
+  };
+
   PowerCapsTag() :
-    Tag(Tag::ID_POWER_CAPS)
+    Tag(Tag::ID_POWER_CAPS, sizeof(struct power_caps_tag))
   {
   }
 
@@ -49,30 +55,54 @@ public:
   {
   }
 
-  vector<uint8_t>
+  struct power_caps_tag
   operator()() const
   {
-    vector<uint8_t> minmax;
-    minmax.resize(this->Length());
-    this->GetValue(minmax.data(), minmax.size());
-    return (minmax);
+    struct power_caps_tag caps;
+    this->GetValue(caps);
+    return (caps);
   }
 
   bool
-  operator()(const uint8_t min_, const uint8_t max_)
+  operator()(const struct power_caps_tag& caps_)
   {
-    std::vector<uint8_t> minmax;
-    minmax.push_back(min_);
-    minmax.push_back(max_);
-    return (this->PutValue(minmax.data(), 2));
+    return (this->PutValue(caps_));
+  }
+
+  uint8_t
+  Min() const
+  {
+    return (this->operator ()().min);
+  }
+
+  bool
+  Min(const uint8_t min_)
+  {
+    struct power_caps_tag caps = this->operator ()();
+    caps.min = min_;
+    return (this->operator ()(caps));
+  }
+
+  uint8_t
+  Max() const
+  {
+    return (this->operator ()().max);
+  }
+
+  bool
+  Max(const uint8_t max_)
+  {
+    struct power_caps_tag caps = this->operator ()();
+    caps.max = max_;
+    return (this->operator ()(caps));
   }
 
   virtual void
   Display() const
   {
+    struct power_caps_tag caps = this->operator()();
     Tag::Display();
-    vector<uint8_t> minmax = this->operator()();
-    std::cout << "\tMin Pwr: " << int(minmax.front()) << ", Max Pwr: " << int(minmax.back()) << endl;
+    std::cout << "\tMin Pwr: " << int(caps.min) << ", Max Pwr: " << int(caps.max) << std::endl;
   }
 
 protected:
