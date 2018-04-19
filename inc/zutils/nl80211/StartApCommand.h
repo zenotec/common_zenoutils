@@ -39,6 +39,9 @@ using namespace netlink;
 #include <zutils/nl80211/IfNameAttribute.h>
 #include <zutils/nl80211/SsidAttribute.h>
 #include <zutils/nl80211/FrequencyAttribute.h>
+#include <zutils/nl80211/CenterFrequency1Attribute.h>
+#include <zutils/nl80211/ChannelTypeAttribute.h>
+#include <zutils/nl80211/ChannelWidthAttribute.h>
 #include <zutils/nl80211/BeaconIntervalAttribute.h>
 #include <zutils/nl80211/DtimPeriodAttribute.h>
 #include <zutils/nl80211/BeaconHeadAttribute.h>
@@ -62,6 +65,9 @@ public:
   IfNameAttribute IfName;
   SsidAttribute Ssid;
   FrequencyAttribute Channel;
+  ChannelTypeAttribute ChannelType;
+  ChannelWidthAttribute ChannelWidth;
+  CenterFrequency1Attribute CenterFrequency1;
   BeaconIntervalAttribute BeaconInterval;
   DtimPeriodAttribute DtimPeriod;
   BeaconHeadAttribute BeaconHead;

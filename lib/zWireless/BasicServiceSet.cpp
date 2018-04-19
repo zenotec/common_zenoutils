@@ -247,7 +247,9 @@ BasicServiceSet::Create()
 
   this->_beacon->TransmitterAddress(this->GetHwAddress());
   this->_beacon->Bssid(this->GetHwAddress());
+
   this->_beacon->Dsss(this->GetChannel());
+
 
   // Set interface state to UP
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
@@ -269,6 +271,9 @@ BasicServiceSet::Create()
     cmd->DtimPeriod(this->_beacon->Tim.Period());
     cmd->Ssid(this->_beacon->Ssid());
     cmd->Channel(this->GetFrequency());
+    cmd->ChannelType(NL80211_CHAN_HT40PLUS); // SJL
+    cmd->ChannelWidth(NL80211_CHAN_WIDTH_40); // SJL
+    cmd->CenterFrequency1(2447); // SJL
     cmd->Display();
     this->addCommand(cmd);
   }
