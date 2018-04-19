@@ -341,7 +341,7 @@ Ieee80211Test_BeaconAssemble(void* arg_)
   //frame.PowerCaps.Display();
 
   caps = {};
-  caps = frame.HtCaps.HtCaps();
+  caps = frame.HtCaps();
   TEST_EQ(caps.ht_cap_info, 0x1234);
   TEST_EQ(caps.ampdu_parms, 0x56);
   TEST_EQ(int(caps.supported_mcs_set.rx_mcs_bitmask.size()), 10);

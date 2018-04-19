@@ -36,6 +36,12 @@ void
 HtCapsTag::Display() const
 {
   Tag::Display();
+  struct ht_caps caps = this->operator ()();
+  printf("\tht_cap_info: \t0x%04x\n", caps.ht_cap_info);
+  printf("\tampdu_parms:  \t0x%02x\n", caps.ampdu_parms);
+  printf("\tht_ext_cap: \t0x%04x\n", caps.ht_ext_cap);
+  printf("\ttrans_beam_cap: \t0x%08x\n", caps.trans_beam_cap);
+  printf("\tasel_cap: \t0x%02x\n", caps.asel_cap);
 }
 
 
