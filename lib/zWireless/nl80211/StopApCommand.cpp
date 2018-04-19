@@ -119,7 +119,7 @@ void
 StopApCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
-  std::cout << "StartApCommand: " << std::endl;
+  std::cout << "StopApCommand: " << std::endl;
   if (this->IfName.IsValid())
     std::cout << "\tName:   \t" << this->IfName() << std::endl;
   if (this->IfIndex.IsValid())
