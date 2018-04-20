@@ -155,17 +155,19 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->_tail = p_;
   this->_end = p_;
 
-  // Inserted in map sorted by ID
+  // NOTE: ORDER MATTERS!!!
   this->PutTag(this->Ssid);
   this->PutTag(this->Rates);
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
-  this->PutTag(this->PowerCaps);
+  this->PutTag(this->ErpInfo);
+  this->PutTag(this->ExtRates);
+//  this->PutTag(this->SuppOpClass);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
-  this->PutTag(this->ExtRates);
-//this->PutTag(this->WmmWme);
+  this->PutTag(this->ExtCaps);
+//  this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
@@ -257,16 +259,19 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   this->_end = p_;
 
+  // NOTE: ORDER MATTERS!!!
   this->GetTag(this->Ssid);
   this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
-  this->GetTag(this->PowerCaps);
+  this->GetTag(this->ErpInfo);
+  this->GetTag(this->ExtRates);
+//  this->GetTag(this->SuppOpClass);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
-  this->GetTag(this->ExtRates);
-//this->GetTag(this->WmmWme);
+  this->GetTag(this->ExtCaps);
+//  this->GetTag(this->WmmWme);
 
   return (p_);
 }
@@ -307,7 +312,6 @@ Beacon::Display() const
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->Dsss.Valid()) this->Dsss.Display();
   if (this->Tim.Valid()) this->Tim.Display();
-  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->HtInfo.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();

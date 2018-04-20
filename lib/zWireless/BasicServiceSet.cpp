@@ -220,7 +220,8 @@ BasicServiceSet::_update_beacon()
   this->_beacon.SuppOpClass(81);
   this->_beacon.HtCaps(caps[band].GetHtCaps());
   this->_beacon.HtInfo(caps[band].GetHtInfo());
-  this->_beacon.ExtCaps = this->ExtCaps;
+  this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
+  this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
   this->_beacon.Display();
 
 }
@@ -254,7 +255,8 @@ BasicServiceSet::_update_probe()
   this->_probe.SuppOpClass(81);
   this->_probe.HtCaps(caps[band].GetHtCaps());
   this->_probe.HtInfo(caps[band].GetHtInfo());
-  this->_probe.ExtCaps = this->ExtCaps;
+  this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
+  this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
   this->_probe.Display();
 
 }

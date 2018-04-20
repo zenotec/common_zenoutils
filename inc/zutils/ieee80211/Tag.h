@@ -131,7 +131,7 @@ public:
   uint8_t
   Type() const
   {
-    return ((this->_id < ID_TIM) ? TYPE_HEAD : TYPE_TAIL); // HEAD TAG = 0, TAIL TAG = 1
+    return ((this->_id <= ID_TIM) ? TYPE_HEAD : TYPE_TAIL); // HEAD TAG = 0, TAIL TAG = 1
   }
 
   size_t

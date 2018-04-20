@@ -37,7 +37,7 @@ class SuppOpClassesTag : public Tag
 public:
 
   SuppOpClassesTag() :
-    Tag(Tag::ID_SUPP_OP_CLASSES)
+    Tag(Tag::ID_SUPP_OP_CLASSES, sizeof(uint8_t))
   {
   }
 

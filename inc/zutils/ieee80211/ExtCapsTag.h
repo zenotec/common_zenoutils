@@ -35,7 +35,8 @@ class ExtCapsTag : public Tag
 {
 
 public:
-//	The the first 4 bits indicate which byte, the second which bit in the byte
+
+  //	The the first 4 bits indicate which byte, the second which bit in the byte
   enum EXTCAPSBIT 
   { 
     EXCAP_20_40_BSS_COEXISTENCE_MANAGEMENT_SUPPORT = 0x00,
@@ -93,7 +94,7 @@ public:
   };
 
   ExtCapsTag() :
-    Tag(Tag::ID_DSSS, sizeof(struct ext_caps_tag))
+    Tag(Tag::ID_EXT_CAPS, sizeof(struct ext_caps_tag))
   {
   }
 

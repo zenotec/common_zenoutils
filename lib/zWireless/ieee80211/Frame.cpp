@@ -131,9 +131,7 @@ Frame::AssembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
 
   for (int i = type_begin; i < type_end; i++)
   {
-    FOREACH(auto& tagmap, this->_tags[i])
-    {
-      FOREACH(auto& tag, tagmap.second)
+      FOREACH(auto& tag, this->_tags[i])
       {
         if (tag.Valid())
         {
@@ -149,7 +147,6 @@ Frame::AssembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
           t = (struct ieee80211_tag*) p_;
         }
       }
-    }
   }
   return (p_);
 }
@@ -191,7 +188,7 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
       if (type & tagtype_)
       {
         tag.PutValue(t->val, t->len);
-        this->_tags[tag.Type()][tag.Id()].push_back(tag);
+        this->_tags[tag.Type()].push_back(tag);
         p_ = tmp_p;
         rem_ = tmp_rem;
         t = (struct ieee80211_tag*)p_;
@@ -494,11 +491,19 @@ bool
 Frame::GetTag(Tag& tag_, const int index_)
 {
   bool status = false;
+  int cnt = 0;
 
-  if (this->_tags[tag_.Type()].count(tag_.Id()))
+  FOREACH (auto& tag, this->_tags[tag_.Type()])
   {
-    tag_ = this->_tags[tag_.Type()][tag_.Id()][index_];
-    status = true;
+    if (tag.Id() == tag_.Id())
+    {
+      if (cnt++ == index_)
+      {
+        tag_ = tag;
+        status = true;
+        break;
+      }
+    }
   }
 
   return (status);
@@ -507,20 +512,8 @@ Frame::GetTag(Tag& tag_, const int index_)
 bool
 Frame::PutTag(const Tag& tag_, const int index_)
 {
-  // Conditionally resize map to account for additional tag
-  if (index_ >= this->_tags[tag_.Type()][tag_.Id()].size())
-  {
-    this->_tags[tag_.Type()][tag_.Id()].resize(index_ + 1);
-  }
   // Copy tag
-  this->_tags[tag_.Type()][tag_.Id()][index_] = tag_;
-  return (true);
-}
-
-bool
-Frame::AddTag(const Tag& tag_)
-{
-  this->_tags[tag_.Type()][tag_.Id()].push_back(tag_);
+  this->_tags[tag_.Type()].emplace_back(tag_);
   return (true);
 }
 

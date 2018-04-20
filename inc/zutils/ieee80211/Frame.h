@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 // libc++ includes
-#include <map>
+#include <list>
 
 // libzutils includes
 #include <zutils/ieee80211/Tag.h>
@@ -249,9 +249,6 @@ public:
   bool
   PutTag(const Tag& tag_, const int index_ = 0);
 
-  bool
-  AddTag(const Tag& tag_);
-
   size_t
   GetPayload(uint8_t* buf_, const size_t len_) const;
 
@@ -286,7 +283,7 @@ private:
   uint16_t _seqcntl;
   uint16_t _qoscntl;
   uint32_t _htcntl;
-  std::map<int, std::vector<Tag> > _tags[Tag::TYPE_LAST];
+  std::list<Tag> _tags[Tag::TYPE_LAST];
   uint8_t _payload[FRAME_PAYLOAD_MAXLEN];
   size_t _psize;
   uint32_t _fcs;
