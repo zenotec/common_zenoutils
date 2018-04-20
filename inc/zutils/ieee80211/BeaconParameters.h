@@ -66,6 +66,7 @@ public:
   ExtRatesTag ExtRates;
   ExtCapsTag ExtCaps;
   WmmWmeTag WmmWme;
+  ExtCapsTag ExtCaps;
 
   BeaconParameters();
   
