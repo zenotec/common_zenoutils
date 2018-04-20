@@ -42,7 +42,7 @@ namespace zWireless
 // ****************************************************************************
 
 Capabilities::Capabilities() :
-    _valid(false)
+    _valid(false), _power_caps { 0 }, _ht_caps { 0 }, _ht_info { 0 }
 {
 }
 

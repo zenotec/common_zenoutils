@@ -37,7 +37,7 @@ class ErpInfoTag : public Tag
 public:
 
   ErpInfoTag() :
-    Tag(Tag::ID_EXT_RATES, sizeof(uint8_t))
+    Tag(Tag::ID_ERP_INFO, sizeof(uint8_t))
   {
   }
 

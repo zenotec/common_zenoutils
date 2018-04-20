@@ -149,7 +149,7 @@ BasicServiceSet::Create()
   }
   cmd->ProbeResp.Set(buf, blen); // copies buffer
 
-  cmd->DtimPeriod(this->_beacon.Tim.Period());
+  cmd->DtimPeriod(1);
   cmd->Ssid(this->_ssid);
   cmd->Channel(this->GetFrequency());
   cmd->ChannelType(NL80211_CHAN_HT20);
@@ -209,7 +209,17 @@ BasicServiceSet::_update_beacon()
   this->_beacon.Interval(100);
   this->_beacon.Capabilities(0x0421);
   this->_beacon.Ssid(this->_ssid);
-  this->_beacon.Rates(caps[band].GetBitRates());
+  std::vector<uint8_t> rates;
+  rates.push_back(0x82);
+  rates.push_back(0x84);
+  rates.push_back(0x8b);
+  rates.push_back(0x96);
+  rates.push_back(0x0c);
+  rates.push_back(0x12);
+  rates.push_back(0x18);
+  rates.push_back(0x24);
+  this->_beacon.Rates(rates);
+//  this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->GetChannel());
   this->_beacon.Country("US");
   this->_beacon.ErpInfo(0);
@@ -217,9 +227,11 @@ BasicServiceSet::_update_beacon()
   {
     this->_beacon.ExtRates(caps[band].GetExtBitRates());
   }
-  this->_beacon.SuppOpClass(81);
-  this->_beacon.HtCaps(caps[band].GetHtCaps());
-  this->_beacon.HtInfo(caps[band].GetHtInfo());
+//  this->_beacon.SuppOpClass(81);
+  this->_beacon.HtCaps = this->HtCaps;
+//  this->_beacon.HtCaps(caps[band].GetHtCaps());
+  this->_beacon.HtInfo = this->HtInfo;
+//  this->_beacon.HtInfo(caps[band].GetHtInfo());
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
   this->_beacon.Display();
@@ -252,9 +264,11 @@ BasicServiceSet::_update_probe()
   {
     this->_probe.ExtRates(caps[band].GetExtBitRates());
   }
-  this->_probe.SuppOpClass(81);
-  this->_probe.HtCaps(caps[band].GetHtCaps());
-  this->_probe.HtInfo(caps[band].GetHtInfo());
+  //  this->_beacon.SuppOpClass(81);
+    this->_probe.HtCaps = this->HtCaps;
+  //  this->_beacon.HtCaps(caps[band].GetHtCaps());
+    this->_probe.HtInfo = this->HtInfo;
+  //  this->_beacon.HtInfo(caps[band].GetHtInfo());
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
   this->_probe.Display();
