@@ -309,6 +309,7 @@ Beacon::Display() const
   if (this->Tim.Valid()) this->Tim.Display();
   if (this->PowerCaps.Valid()) this->PowerCaps.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->HtInfo.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
 //  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }

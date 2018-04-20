@@ -110,6 +110,20 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_TRUE(frame.PowerCaps(20,30));
   TEST_TRUE(frame.ExtRates(17));
   TEST_TRUE(frame.ExtRates(18));
+
+  std::vector<uint8_t> rates_ = {0x82, 0x84, 0x8B, 0x96, 6*2, 9*2, 12*2, 18*2};
+  std::vector<uint8_t> exrates_ = {24, 36, 48, 54};
+  HtCapsTag::ht_caps htcaps_ = { 0xaaaa, 0xee, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44 }, 0x4444, 0x55555555L, 0x66 };
+  //                         Chan s1    s2      s3      mcs mask                             hdr     mcs   padding - move to ht_caps
+  HtInfoTag::ht_info info_ = { 6, 0x11, 0x2222, 0x3333, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44, { 0xff, 0xfe, 0xfd } } };
+
+  TEST_TRUE(frame.Dsss(6));
+  TimTag:tim_tag tim_ = { 1, 2, 3, 4 };
+  TEST_TRUE(frame.Tim(tim_));
+  TEST_TRUE(frame.HtCaps(htcaps_));
+  TEST_TRUE(frame.HtInfo(info_));
+//  TEST_TRUE(frame.Country("US"));	//RKBNot Really a Beacon Parameter...
+
 //  TEST_TRUE(frame.WmmWme(wmmwme));
 
   // Verify
@@ -143,6 +157,7 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_EQ(30, frame.PowerCaps()[1]);
   TEST_EQ(17, frame.ExtRates()[0]);
   TEST_EQ(18, frame.ExtRates()[1]);
+
 //  TEST_EQ(1, frame.WmmWme.WmmWme().wme_subtype);
 //  TEST_EQ(2, frame.WmmWme.WmmWme().wme_version);
 //  TEST_EQ(3, frame.WmmWme.WmmWme().wme_qos_info);
