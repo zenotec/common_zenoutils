@@ -86,6 +86,91 @@ public:
     return(this->PutValue(caps_));
   }
 
+
+  uint16_t
+  HtCapInfo() const
+  {
+    return (this->operator ()().ht_cap_info);
+  }
+
+  bool
+  HtCapInfo(const uint16_t HtCapInfo_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.ht_cap_info = HtCapInfo_;
+    return (this->operator ()(caps));
+  }
+
+  uint8_t
+  HtAmpduParms() const
+  {
+    return (this->operator ()().ampdu_parms);
+  }
+
+  bool
+  HtAmpduParms(const uint8_t HtAmpduParms_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.ampdu_parms = HtAmpduParms_;
+    return (this->operator ()(caps));
+  }
+
+  mcs_set
+  HtSupportedMcsSet() const
+  {
+    return (this->operator ()().supported_mcs_set);
+  }
+
+  bool
+  HtSupportedMcsSet(const mcs_set & HtSupportedMcsSet_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.supported_mcs_set = HtSupportedMcsSet_;
+    return (this->operator ()(caps));
+  }
+
+  uint16_t
+  HtExtCaps() const
+  {
+    return (this->operator ()().ht_ext_cap);
+  }
+
+  bool
+  HtExtCaps(const uint16_t HtExtCaps_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.ht_ext_cap = HtExtCaps_;
+    return (this->operator ()(caps));
+  }
+
+  uint32_t
+  HtTransBeamCap() const
+  {
+    return (this->operator ()().trans_beam_cap);
+  }
+
+  bool
+  HtAselCap(const uint32_t HtAselCap_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.asel_cap = HtAselCap_;
+    return (this->operator ()(caps));
+  }
+
+  uint32_t
+  HtAselCap() const
+  {
+    return (this->operator ()().trans_beam_cap);
+  }
+
+  bool
+  HtTransBeamCap(const uint32_t HtTransBeamCap_)
+  {
+    struct ht_caps caps = this->operator ()();
+    caps.asel_cap = HtTransBeamCap_;
+    return (this->operator ()(caps));
+  }
+
   virtual void
   Display() const;
 

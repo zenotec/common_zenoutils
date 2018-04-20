@@ -123,7 +123,7 @@ public:
   }
 
   bool
-  GetFlag(const ieee80211::ExtCapsTag::EXTCAPSBIT bit_)
+  GetFlag(const ExtCapsTag::EXTCAPSBIT bit_)
   {
       struct ext_caps_tag val = { 0 };
       this->GetValue(val);
@@ -131,7 +131,7 @@ public:
   }
 
   bool
-  SetFlag(const ieee80211::ExtCapsTag::EXTCAPSBIT bit_)
+  SetFlag(const ExtCapsTag::EXTCAPSBIT bit_)
   {
     struct ext_caps_tag val = { 0 };
     this->GetValue(val);
@@ -140,7 +140,7 @@ public:
   }
 
   bool
-  ClearFlag(const ieee80211::ExtCapsTag::EXTCAPSBIT bit_)
+  ClearFlag(const ExtCapsTag::EXTCAPSBIT bit_)
   {
     struct ext_caps_tag val = { 0 };
     this->GetValue(val);
