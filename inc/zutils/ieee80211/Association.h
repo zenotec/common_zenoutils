@@ -93,8 +93,6 @@ class AssociationResponse : public ManagementFrame, public BeaconParameters
 
 public:
 
-  RatesTag Rates;
-
   AssociationResponse();
 
   virtual
