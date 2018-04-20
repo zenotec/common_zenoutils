@@ -23,8 +23,20 @@
 #include <string>
 
 #include <zutils/zAccessPointInterface.h>
+#include <zutils/ieee80211/Beacon.h>
+#include <zutils/ieee80211/Probe.h>
+#include <zutils/ieee80211/SsidTag.h>
+#include <zutils/ieee80211/RatesTag.h>
+#include <zutils/ieee80211/DsssTag.h>
+#include <zutils/ieee80211/TimTag.h>
+#include <zutils/ieee80211/CountryTag.h>
+#include <zutils/ieee80211/PowerCapsTag.h>
+#include <zutils/ieee80211/ErpInfoTag.h>
 #include <zutils/ieee80211/HtCapsTag.h>
+#include <zutils/ieee80211/ExtRatesTag.h>
+#include <zutils/ieee80211/ExtCapsTag.h>
 #include <zutils/ieee80211/HtInfoTag.h>
+#include <zutils/ieee80211/WmmWmeTag.h>
 
 namespace zUtils
 {
@@ -43,7 +55,21 @@ namespace ieee80211
 
 class BasicServiceSet : public AccessPointInterface
 {
+
 public:
+
+  ieee80211::RatesTag Rates;
+  ieee80211::DsssTag Dsss;
+  ieee80211::TimTag Tim;
+  ieee80211::CountryTag Country;
+  ieee80211::PowerCapsTag PowerCaps;
+  ieee80211::ErpInfoTag ErpInfo;
+  ieee80211::HtCapsTag HtCaps;
+  ieee80211::SuppOpClassesTag SuppOpClass;
+  ieee80211::HtInfoTag HtInfo;
+  ieee80211::ExtRatesTag ExtRates;
+  ieee80211::ExtCapsTag ExtCaps;
+  ieee80211::WmmWmeTag WmmWme;
 
   BasicServiceSet(const std::string& ifname_, const std::string &ssid_);
 
@@ -61,42 +87,6 @@ public:
 
   bool
   SetBssid(const std::string& bssid_);
-
-  std::vector<uint8_t>
-  GetRates();
-
-  bool
-  SetRates(const std::vector<uint8_t> rates_);
-
-  uint8_t
-  GetDsss();
-
-  bool
-  SetDsss(const uint8_t channel_);
-
-  std::vector<uint8_t>
-  GetPowerCaps();
-  
-  bool
-  SetPowerCaps(const uint8_t min_, const uint8_t max_);
-
-  ieee80211::HtCapsTag::ht_caps
-  GetHtCaps();
-
-  bool
-  SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
-
-  ieee80211::HtInfoTag::ht_info
-  GetHtInfo();
-
-  bool
-  SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_);
-  
-  std::vector<uint8_t>
-  GetExtRates();
-
-  bool
-  SetExtRates(const std::vector<uint8_t> exrates_);
 
   bool
   AddStation(const std::string& addr_);
@@ -120,7 +110,16 @@ protected:
 
 private:
 
-  ieee80211::Beacon* _beacon;
+  std::string _ssid;
+  std::string _bssid;
+  ieee80211::Beacon _beacon;
+  ieee80211::ProbeResponse _probe;
+
+  void
+  _update_beacon();
+
+  void
+  _update_probe();
 
 };
 

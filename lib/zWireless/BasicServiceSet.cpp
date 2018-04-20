@@ -23,9 +23,8 @@
 #include <zutils/zLog.h>
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/zBasicServiceSet.h>
-
 #include <zutils/ieee80211/Beacon.h>
-
+#include <zutils/ieee80211/Probe.h>
 #include <zutils/nl80211/GetPhyCommand.h>
 #include <zutils/nl80211/SetPhyCommand.h>
 #include <zutils/nl80211/NewStationCommand.h>
@@ -46,187 +45,50 @@ namespace zWireless
 // ****************************************************************************
 
 BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& ssid_) :
-    AccessPointInterface(ifname_), _beacon(NULL)
+    AccessPointInterface(ifname_), _ssid(ssid_)
 {
-  this->_beacon = new ieee80211::Beacon();
-  if (this->_beacon)
-  {
-    this->_beacon->ReceiverAddress("ff:ff:ff:ff:ff:ff");
-    this->_beacon->TransmitterAddress(this->GetHwAddress());
-    this->_beacon->Bssid(this->GetHwAddress());
-    this->_beacon->Interval(100);
-    this->_beacon->Capabilities(0x0001);
-    this->_beacon->Ssid(ssid_);
-    this->_beacon->Rates(0x82); // 1(B)
-    this->_beacon->Rates(0x84); // 2(B)
-    this->_beacon->Rates(0x8B); // 5.5(B)
-    this->_beacon->Rates(0x96); // 11(B)
-    this->_beacon->Rates.AddRateMbsp(6);
-    this->_beacon->Rates.AddRateMbsp(9);
-    this->_beacon->Rates.AddRateMbsp(12);
-    this->_beacon->Rates.AddRateMbsp(18);
-    this->_beacon->Dsss(1);
-    this->_beacon->Country("US");
-    this->_beacon->ExtRates.AddRateMbsp(24);
-    this->_beacon->ExtRates.AddRateMbsp(36);
-    this->_beacon->ExtRates.AddRateMbsp(48);
-    this->_beacon->ExtRates.AddRateMbsp(54);
-    this->_beacon->Display();
-  }
 }
 
 BasicServiceSet::~BasicServiceSet()
 {
-  if (this->_beacon)
-  {
-    delete (this->_beacon);
-    this->_beacon = NULL;
-  }
 }
 
 std::string
 BasicServiceSet::GetSsid()
 {
-  return (this->_beacon->Ssid());
+  return (this->_ssid);
 }
 
 bool
 BasicServiceSet::SetSsid(const std::string& ssid_)
 {
-  return (this->_beacon->Ssid(ssid_));
+  this->_ssid = ssid_;
+  return (true);
 }
 
 std::string
 BasicServiceSet::GetBssid()
 {
-  return (this->_beacon->Bssid());
+  return (this->_bssid);
 }
 
 bool
 BasicServiceSet::SetBssid(const std::string& bssid_)
 {
-  bool status = this->SetHwAddress(bssid_);
-  status &= this->_beacon->TransmitterAddress(bssid_);
-  status &= this->_beacon->Bssid(bssid_);
-  return (status);
-}
-
-std::vector<uint8_t>
-BasicServiceSet::GetRates()
-{
-  return (this->_beacon->Rates());
-}
-
-bool
-BasicServiceSet::SetRates(std::vector<uint8_t> rates_)
-{
-  bool status = this->_beacon->Rates(rates_);
-  return (status);
-}
-
-uint8_t
-BasicServiceSet::GetDsss()
-{
-  return (this->_beacon->Dsss());
-}
-
-bool
-BasicServiceSet::SetDsss(uint8_t channel_)
-{
-  bool status = this->_beacon->Dsss(channel_);
-  return (status);
-}
-
-std::vector<uint8_t>
-BasicServiceSet::GetPowerCaps()
-{
-//  return (this->_beacon->PowerCaps());
-}
-
-//bool
-//BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_);
-
-bool
-BasicServiceSet::SetPowerCaps(const uint8_t min_, const uint8_t max_)
-{
-//  bool status = this->_beacon->PowerCaps(min_, max_);
-//  return (status);
-  return (false);
-}
-
-ieee80211::HtCapsTag::ht_caps
-BasicServiceSet::GetHtCaps()
-{
-  return (this->_beacon->HtCaps());
-}
-
-bool
-BasicServiceSet::SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_)
-{
-  bool status = this->_beacon->HtCaps(caps_);
-  return (status);
-}
-  
-ieee80211::HtInfoTag::ht_info
-BasicServiceSet::GetHtInfo()
-{
-	  return (this->_beacon->HtInfo());
-}
-
-bool
-BasicServiceSet::SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_)
-{
-	  bool status = this->_beacon->HtInfo(info_);
-	  return (status);
-}
-
-std::vector<uint8_t>
-BasicServiceSet::GetExtRates()
-{
-  return (this->_beacon->ExtRates());
-}
-
-bool
-BasicServiceSet::SetExtRates(std::vector<uint8_t> exrates_)
-{
-  bool status = this->_beacon->ExtRates(exrates_);
-  return (status);
+  this->_bssid = bssid_;
+  return (true);
 }
 
 bool
 BasicServiceSet::AddStation(const std::string& addr_)
 {
-  bool status = true;
-
-  if (!this->GetIfIndex())
-  {
-    ZLOG_ERR("Error adding stations, interface does not exist: " + this->GetIfName());
-    return (false);
-  }
-
-  NewStationCommand* cmd = new NewStationCommand(this->GetIfIndex());
-  cmd->Mac(addr_);
-  this->addCommand(cmd);
-
-  return (status);
+  return (true);
 }
 
 bool
 BasicServiceSet::DelStation(const std::string& addr_)
 {
-  bool status = true;
-
-  if (!this->GetIfIndex())
-  {
-    ZLOG_ERR("Error deleting station, interface does not exist: " + this->GetIfName());
-    return (false);
-  }
-
-  DelStationCommand* cmd = new DelStationCommand(this->GetIfIndex());
-  cmd->Mac(addr_);
-  this->addCommand(cmd);
-
-  return (status);
+  return (true);
 }
 
 bool
@@ -239,6 +101,8 @@ bool
 BasicServiceSet::Create()
 {
   bool status = false;
+  uint8_t buf[512] = { 0 };
+  size_t blen = 0;
 
   if (!this->GetIfIndex() && !AccessPointInterface::Create())
   {
@@ -246,13 +110,8 @@ BasicServiceSet::Create()
     return (false);
   }
 
-  this->_beacon->TransmitterAddress(this->GetHwAddress());
-  this->_beacon->Bssid(this->GetHwAddress());
-
-  this->_beacon->Dsss(this->GetChannel());
-
-
   // Set interface state to UP
+  this->SetHwAddress(this->_bssid);
   this->SetAdminState(zWireless::ConfigData::STATE_UP);
   this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
   if (!AccessPointInterface::Commit())
@@ -261,23 +120,39 @@ BasicServiceSet::Create()
     return (false);
   }
 
-  uint8_t buf[512] = { 0 };
-  size_t blen = sizeof(buf);
-  if (this->_beacon->Assemble(buf, blen) != NULL)
+  // Create new Start AP command
+  StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
+
+  // Update beacon
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  _update_beacon();
+  if (this->_beacon.Assemble(buf, blen) == NULL)
   {
-    StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
-    cmd->BeaconHead.Set(this->_beacon->Head(), this->_beacon->HeadSize());
-    cmd->BeaconTail.Set(this->_beacon->Tail(), this->_beacon->TailSize());
-    cmd->BeaconInterval(this->_beacon->Interval());
-    cmd->DtimPeriod(this->_beacon->Tim.Period());
-    cmd->Ssid(this->_beacon->Ssid());
-    cmd->Channel(this->GetFrequency());
-    cmd->ChannelType(NL80211_CHAN_HT40PLUS); // SJL
-    cmd->ChannelWidth(NL80211_CHAN_WIDTH_40); // SJL
-    cmd->CenterFrequency1(2447); // SJL
-    cmd->Display();
-    this->addCommand(cmd);
+    return (false);
   }
+  cmd->BeaconHead.Set(this->_beacon.Head(), this->_beacon.HeadSize());
+  cmd->BeaconTail.Set(this->_beacon.Tail(), this->_beacon.TailSize());
+  cmd->BeaconInterval(this->_beacon.Interval());
+
+  // Update probe
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  _update_probe();
+  if (this->_probe.Assemble(buf, blen) == NULL)
+  {
+    return (false);
+  }
+  cmd->ProbeResp.Set(buf, blen);
+
+  cmd->DtimPeriod(this->_beacon.Tim.Period());
+  cmd->Ssid(this->_ssid);
+  cmd->Channel(this->GetFrequency());
+  cmd->ChannelType(NL80211_CHAN_HT20); // SJL
+  cmd->ChannelWidth(NL80211_CHAN_WIDTH_20); // SJL
+  cmd->CenterFrequency1(this->GetCenterFrequency1()); // SJL
+  this->addCommand(cmd);
+  cmd->Display();
 
   return (AccessPointInterface::Commit());
 }
@@ -310,6 +185,71 @@ BasicServiceSet::Display(const std::string& prefix_)
 {
   AccessPointInterface::Display(prefix_);
   std::cout << prefix_ << "---------- Basic Service Set -----------" << std::endl;
+}
+
+void
+BasicServiceSet::_update_beacon()
+{
+
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+
+  std::map<int, Capabilities> caps = this->GetCapabilities();
+  if (caps.empty() || !caps.count(band))
+  {
+    return;
+  }
+
+  this->_beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
+  this->_beacon.TransmitterAddress(this->_bssid);
+  this->_beacon.Bssid(this->_bssid);
+  this->_beacon.Interval(100);
+  this->_beacon.Capabilities(0x0421);
+  this->_beacon.Ssid(this->_ssid);
+  this->_beacon.Rates(caps[band].GetBitRates());
+  this->_beacon.Dsss(this->GetChannel());
+  this->_beacon.Country("US");
+//  this->_beacon.PowerCaps(caps[band].GetPowerCapabilities());
+//  this->_beacon.ErpInfo(0);
+//  this->_beacon.HtCaps(caps[band].GetHtCapabilities());
+//  this->_beacon.SuppOpClass(81);
+//  this->_beacon.HtInfo = this->HtInfo;
+//  this->_beacon.ExtRates = this->ExtRates;
+//  this->_beacon.ExtCaps = this->ExtCaps;
+  this->_beacon.Display();
+
+}
+
+void
+BasicServiceSet::_update_probe()
+{
+
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+
+  std::map<int, Capabilities> caps = this->GetCapabilities();
+  if (caps.empty() || !caps.count(band))
+  {
+    return;
+  }
+
+  this->_probe.ReceiverAddress("00:00:00:00:00:00");
+  this->_probe.TransmitterAddress(this->_bssid);
+  this->_probe.Bssid(this->_bssid);
+  this->_probe.Interval(100);
+  this->_probe.Capabilities(0x0421);
+  this->_probe.Ssid(this->_ssid);
+  this->_probe.Rates(caps[band].GetBitRates());
+  this->_probe.Dsss(this->GetChannel());
+  this->_probe.Country("US");
+//  this->_probe.PowerCaps.Min(caps[band].GetPowerMin());
+//  this->_probe.PowerCaps.Max(caps[band].GetPowerMax());
+//  this->_probe.ErpInfo(0);
+//  this->_probe.HtCaps(caps[band].GetHtCapabilities());
+//  this->_probe.SuppOpClass(81);
+//  this->_probe.HtInfo = this->HtInfo;
+//  this->_probe.ExtRates(caps[band].GetExtBitRates());
+//  this->_probe.ExtCaps = this->ExtCaps;
+  this->_probe.Display();
+
 }
 
 }
