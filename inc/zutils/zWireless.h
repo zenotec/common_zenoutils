@@ -23,6 +23,10 @@
 #include <zutils/zConfig.h>
 #include <zutils/zInterface.h>
 
+#include <zutils/ieee80211/PowerCapsTag.h>
+#include <zutils/ieee80211/HtCapsTag.h>
+#include <zutils/ieee80211/HtInfoTag.h>
+
 namespace zUtils
 {
 namespace zWireless
@@ -229,10 +233,9 @@ public:
   enum BAND
   {
     BAND_ERR = -1,
-    BAND_NONE = 0,
-    BAND_2_4 = 1,
-    BAND_5 = 2,
-    BAND_60 = 3,
+    BAND_2_4 = 0,
+    BAND_5 = 1,
+    BAND_60 = 2,
     BAND_LAST
   };
 
@@ -242,24 +245,31 @@ public:
   ~Capabilities();
 
   bool
-  IsValid() const
-  {
-    return (this->_valid);
-  }
+  IsValid() const;
 
   bool
-  SetValid()
-  {
-    this->_valid = true;
-    return (this->_valid);
-  }
+  SetValid();
 
   bool
-  ClrValid()
-  {
-    this->_valid = false;
-    return (!this->_valid);
-  }
+  ClrValid();
+
+  ieee80211::PowerCapsTag::power_caps_tag
+  GetPowerCaps() const;
+
+  bool
+  SetPowerCaps(const ieee80211::PowerCapsTag::power_caps_tag& caps_);
+
+  ieee80211::HtCapsTag::ht_caps
+  GetHtCaps() const;
+
+  bool
+  SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
+
+  ieee80211::HtInfoTag::ht_info
+  GetHtInfo() const;
+
+  bool
+  SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_);
 
   std::vector<uint8_t>
   GetChannels() const;
@@ -273,6 +283,18 @@ public:
   bool
   SetBitRates(const std::vector<uint8_t>& rates_);
 
+  std::vector<uint8_t>
+  GetExtBitRates() const;
+
+  bool
+  SetExtBitRates(const std::vector<uint8_t>& rates_);
+
+  std::vector<uint8_t>
+  GetMcsRates() const;
+
+  bool
+  SetMcsRates(const std::vector<uint8_t>& rates_);
+
   void
   Display() const;
 
@@ -281,8 +303,13 @@ protected:
 private:
 
   bool _valid;
+  ieee80211::PowerCapsTag::power_caps_tag _power_caps;
+  ieee80211::HtCapsTag::ht_caps _ht_caps;
+  ieee80211::HtInfoTag::ht_info _ht_info;
   std::vector <uint8_t> _channels;
   std::vector <uint8_t> _rates;
+  std::vector <uint8_t> _ext_rates;
+  std::vector <uint8_t> _mcs_rates;
 
 };
 

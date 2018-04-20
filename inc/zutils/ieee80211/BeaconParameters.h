@@ -30,7 +30,6 @@
 #include <zutils/ieee80211/DsssTag.h>
 #include <zutils/ieee80211/TimTag.h>
 #include <zutils/ieee80211/CountryTag.h>
-#include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/ErpInfoTag.h>
 #include <zutils/ieee80211/HtCapsTag.h>
 #include <zutils/ieee80211/SuppOpClassesTag.h>
@@ -58,7 +57,6 @@ public:
   DsssTag Dsss;
   TimTag Tim;
   CountryTag Country;
-  PowerCapsTag PowerCaps;
   ErpInfoTag ErpInfo;
   HtCapsTag HtCaps;
   SuppOpClassesTag SuppOpClass;
@@ -66,7 +64,6 @@ public:
   ExtRatesTag ExtRates;
   ExtCapsTag ExtCaps;
   WmmWmeTag WmmWme;
-  ExtCapsTag ExtCaps;
 
   BeaconParameters();
   

@@ -27,6 +27,7 @@
 #include <zutils/ieee80211/ManagementFrame.h>
 #include <zutils/ieee80211/SsidTag.h>
 #include <zutils/ieee80211/RatesTag.h>
+#include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/BeaconParameters.h>
 
 // local includes
@@ -49,6 +50,7 @@ public:
 
   SsidTag Ssid;
   RatesTag Rates;
+  PowerCapsTag PowerCaps;
 
   AssociationRequest();
 

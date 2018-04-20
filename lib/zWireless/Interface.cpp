@@ -1094,7 +1094,7 @@ Interface::_setTxPower()
 std::map<int, Capabilities>
 Interface::_getCapabilities() const
 {
-  std::map<int, Capabilities> capa;
+  std::map<int, Capabilities> caps;
   if (this->workingConfig.GetPhyIndex() >= 0)
   {
     GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
@@ -1104,11 +1104,19 @@ Interface::_getCapabilities() const
       std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
       FOREACH(auto& band, bands)
       {
-        capa[band].SetBitRates(cmd.PhyBands.GetPhyBand(band).GetRates());
+        // Split bit rates into bit rates (no more than 8 rates) and extended rates
+        std::vector<uint8_t> rates = cmd.PhyBands.GetPhyBand(band).GetRates();
+        size_t rate_len = std::min(size_t(8), rates.size());
+        std::vector<uint8_t> bitrates(rates.begin(), (rates.begin() + rate_len));
+        std::cout << "BITRATES: " << bitrates.size() << std::endl;
+        std::vector<uint8_t> extrates((rates.begin() + rate_len), rates.end());
+        std::cout << "EXTBITRATES: " << extrates.size() << std::endl;
+        caps[band].SetBitRates(bitrates);
+        caps[band].SetExtBitRates(extrates);
       }
     }
   }
-  return (capa);
+  return (caps);
 }
 
 }

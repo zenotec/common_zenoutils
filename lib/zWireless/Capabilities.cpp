@@ -50,6 +50,65 @@ Capabilities::~Capabilities()
 {
 }
 
+bool
+Capabilities::IsValid() const
+{
+  return (this->_valid);
+}
+
+bool
+Capabilities::SetValid()
+{
+  this->_valid = true;
+  return (this->_valid);
+}
+
+bool
+Capabilities::ClrValid()
+{
+  this->_valid = false;
+  return (!this->_valid);
+}
+
+ieee80211::PowerCapsTag::power_caps_tag
+Capabilities::GetPowerCaps() const
+{
+  return (this->_power_caps);
+}
+
+bool
+Capabilities::SetPowerCaps(const ieee80211::PowerCapsTag::power_caps_tag& caps_)
+{
+  this->_power_caps = caps_;
+  return (true);
+}
+
+ieee80211::HtCapsTag::ht_caps
+Capabilities::GetHtCaps() const
+{
+  return (this->_ht_caps);
+}
+
+bool
+Capabilities::SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_)
+{
+  this->_ht_caps = caps_;
+  return (true);
+}
+
+ieee80211::HtInfoTag::ht_info
+Capabilities::GetHtInfo() const
+{
+  return (this->_ht_info);
+}
+
+bool
+Capabilities::SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_)
+{
+  this->_ht_info = info_;
+  return (true);
+}
+
 std::vector<uint8_t>
 Capabilities::GetChannels() const
 {
@@ -73,6 +132,32 @@ bool
 Capabilities::SetBitRates(const std::vector<uint8_t>& rates_)
 {
   this->_rates = rates_;
+  return (true);
+}
+
+std::vector<uint8_t>
+Capabilities::GetExtBitRates() const
+{
+  return (this->_ext_rates);
+}
+
+bool
+Capabilities::SetExtBitRates(const std::vector<uint8_t>& rates_)
+{
+  this->_ext_rates = rates_;
+  return (true);
+}
+
+std::vector<uint8_t>
+Capabilities::GetMcsRates() const
+{
+  return (this->_mcs_rates);
+}
+
+bool
+Capabilities::SetMcsRates(const std::vector<uint8_t>& rates_)
+{
+  this->_mcs_rates = rates_;
   return (true);
 }
 

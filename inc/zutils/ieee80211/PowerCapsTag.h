@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef INC_IEEE80211_POWERCAPSTAG_H_
-#define INC_IEEE80211_POWERCAPSTAG_H_
+#ifndef __IEEE80211_POWERCAPSTAG_H__
+#define __IEEE80211_POWERCAPSTAG_H__
 
 #include <vector>
 using namespace std;
@@ -115,4 +115,4 @@ private:
 }
 }
 
-#endif /* INC_IEEE80211_POWERCAPSTAG_H_ */
+#endif /* __IEEE80211_POWERCAPSTAG_H__ */

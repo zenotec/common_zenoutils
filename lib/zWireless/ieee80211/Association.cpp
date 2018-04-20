@@ -98,6 +98,8 @@ AssociationRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
+  this->PutTag(this->PowerCaps);
+
   return (p_);
 }
 
@@ -142,6 +144,8 @@ AssociationRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   {
     return (NULL);
   }
+
+  this->GetTag(this->PowerCaps);
 
   return (p_);
 }
@@ -232,7 +236,6 @@ AssociationResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
-  this->PutTag(this->PowerCaps);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
   this->PutTag(this->ExtRates);
@@ -290,7 +293,6 @@ AssociationResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
-  this->GetTag(this->PowerCaps);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
   this->GetTag(this->ExtRates);

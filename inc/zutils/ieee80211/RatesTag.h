@@ -37,7 +37,7 @@ class RatesTag : public Tag
 public:
 
   RatesTag(const Tag::ID id_ = ID_RATES, const size_t len_ = 0) :
-    Tag(id_)
+    Tag(id_, len_)
   {
   }
 

@@ -124,33 +124,37 @@ BasicServiceSet::Create()
   StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
 
   // Update beacon
+  _update_beacon();
+
+  // Write beacon
   memset(buf, 0, sizeof(buf));
   blen = sizeof(buf);
-  _update_beacon();
   if (this->_beacon.Assemble(buf, blen) == NULL)
   {
     return (false);
   }
-  cmd->BeaconHead.Set(this->_beacon.Head(), this->_beacon.HeadSize());
-  cmd->BeaconTail.Set(this->_beacon.Tail(), this->_beacon.TailSize());
+  cmd->BeaconHead.Set(this->_beacon.Head(), this->_beacon.HeadSize()); // copies buffer
+  cmd->BeaconTail.Set(this->_beacon.Tail(), this->_beacon.TailSize()); // copies buffer
   cmd->BeaconInterval(this->_beacon.Interval());
 
   // Update probe
+  _update_probe();
+
+  // Write out probe
   memset(buf, 0, sizeof(buf));
   blen = sizeof(buf);
-  _update_probe();
   if (this->_probe.Assemble(buf, blen) == NULL)
   {
     return (false);
   }
-  cmd->ProbeResp.Set(buf, blen);
+  cmd->ProbeResp.Set(buf, blen); // copies buffer
 
   cmd->DtimPeriod(this->_beacon.Tim.Period());
   cmd->Ssid(this->_ssid);
   cmd->Channel(this->GetFrequency());
-  cmd->ChannelType(NL80211_CHAN_HT20); // SJL
-  cmd->ChannelWidth(NL80211_CHAN_WIDTH_20); // SJL
-  cmd->CenterFrequency1(this->GetCenterFrequency1()); // SJL
+  cmd->ChannelType(NL80211_CHAN_HT20);
+  cmd->ChannelWidth(NL80211_CHAN_WIDTH_20);
+  cmd->CenterFrequency1(this->GetCenterFrequency1());
   this->addCommand(cmd);
   cmd->Display();
 
@@ -191,7 +195,7 @@ void
 BasicServiceSet::_update_beacon()
 {
 
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4; // TODO: Should be based on the configured channel
 
   std::map<int, Capabilities> caps = this->GetCapabilities();
   if (caps.empty() || !caps.count(band))
@@ -208,13 +212,15 @@ BasicServiceSet::_update_beacon()
   this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->GetChannel());
   this->_beacon.Country("US");
-//  this->_beacon.PowerCaps(caps[band].GetPowerCapabilities());
-//  this->_beacon.ErpInfo(0);
-//  this->_beacon.HtCaps(caps[band].GetHtCapabilities());
-//  this->_beacon.SuppOpClass(81);
-//  this->_beacon.HtInfo = this->HtInfo;
-//  this->_beacon.ExtRates = this->ExtRates;
-//  this->_beacon.ExtCaps = this->ExtCaps;
+  this->_beacon.ErpInfo(0);
+  if (!caps[band].GetExtBitRates().empty())
+  {
+    this->_beacon.ExtRates(caps[band].GetExtBitRates());
+  }
+  this->_beacon.SuppOpClass(81);
+  this->_beacon.HtCaps(caps[band].GetHtCaps());
+  this->_beacon.HtInfo(caps[band].GetHtInfo());
+  this->_beacon.ExtCaps = this->ExtCaps;
   this->_beacon.Display();
 
 }
@@ -223,7 +229,7 @@ void
 BasicServiceSet::_update_probe()
 {
 
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4; // TODO: Should be based on the configured channel
 
   std::map<int, Capabilities> caps = this->GetCapabilities();
   if (caps.empty() || !caps.count(band))
@@ -240,14 +246,15 @@ BasicServiceSet::_update_probe()
   this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->GetChannel());
   this->_probe.Country("US");
-//  this->_probe.PowerCaps.Min(caps[band].GetPowerMin());
-//  this->_probe.PowerCaps.Max(caps[band].GetPowerMax());
-//  this->_probe.ErpInfo(0);
-//  this->_probe.HtCaps(caps[band].GetHtCapabilities());
-//  this->_probe.SuppOpClass(81);
-//  this->_probe.HtInfo = this->HtInfo;
-//  this->_probe.ExtRates(caps[band].GetExtBitRates());
-//  this->_probe.ExtCaps = this->ExtCaps;
+  this->_probe.ErpInfo(0);
+  if (!caps[band].GetExtBitRates().empty())
+  {
+    this->_probe.ExtRates(caps[band].GetExtBitRates());
+  }
+  this->_probe.SuppOpClass(81);
+  this->_probe.HtCaps(caps[band].GetHtCaps());
+  this->_probe.HtInfo(caps[band].GetHtInfo());
+  this->_probe.ExtCaps = this->ExtCaps;
   this->_probe.Display();
 
 }
