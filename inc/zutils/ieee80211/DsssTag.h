@@ -64,7 +64,7 @@ public:
   Display() const
   {
     Tag::Display();
-    std::cout << "\t" << this->operator()() << std::endl;
+    std::cout << "\t" << int(this->operator()()) << std::endl;
   }
 
 protected:
