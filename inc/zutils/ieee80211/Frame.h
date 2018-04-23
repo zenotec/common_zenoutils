@@ -126,6 +126,9 @@ public:
   uint8_t*
   DisassembleTags(uint8_t* tag_, size_t& rem_, uint8_t tagtype_ = TAGTYPE_ALL);
 
+  void
+  ClearTags(uint8_t tagtype_ = TAGTYPE_ALL);
+
   uint8_t
   Version() const;
 

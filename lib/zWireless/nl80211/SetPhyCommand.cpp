@@ -82,10 +82,6 @@ SetPhyCommand::Display(const std::string& prefix_) const
     std::cout << "\tChannel:  \t" << this->Frequency.GetChannel();
     std::cout << " [" << this->Frequency() << "]" << std::endl;
   }
-  if (this->ChannelType.IsValid())
-  {
-    std::cout << "\tChannelType:  \t" << this->ChannelType() << std::endl;
-  }
   if (this->ChannelWidth.IsValid())
   {
     std::cout << "\tChannelWidth:  \t" << this->ChannelWidth() << std::endl;
@@ -157,10 +153,12 @@ SetPhyCommand::Exec()
   cmdmsg->PutAttribute(&this->TxPowerMode);
   cmdmsg->PutAttribute(&this->TxPowerLevel);
   cmdmsg->PutAttribute(&this->Frequency);
-  cmdmsg->PutAttribute(&this->ChannelType);
   cmdmsg->PutAttribute(&this->ChannelWidth);
   cmdmsg->PutAttribute(&this->CenterFrequency1);
   cmdmsg->PutAttribute(&this->CenterFrequency2);
+
+//  std::cout << "SetPhyCommand::Exec()" << std::endl;
+//  cmdmsg->Display();
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -192,6 +190,8 @@ SetPhyCommand::Exec()
 int
 SetPhyCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
+//  std::cout << "SetPhyCommand::ack_cb()" << std::endl;
+//  this->Display();
   this->_status = true;
   this->_count.Post();
   return (NL_OK);

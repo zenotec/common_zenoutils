@@ -123,6 +123,8 @@ ProbeRequest::Display() const
 {
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Probe Request -----------" << std::endl;
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
 }
 
 //*****************************************************************************
@@ -185,8 +187,6 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   // NOTE: ORDER MATTERS!!!
-  this->PutTag(this->Ssid);
-  this->PutTag(this->Rates);
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
@@ -258,8 +258,6 @@ ProbeResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   // NOTE: ORDER MATTERS!!!
-  this->GetTag(this->Ssid);
-  this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
@@ -325,8 +323,13 @@ ProbeResponse::Display() const
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->Dsss.Valid()) this->Dsss.Display();
   if (this->Tim.Valid()) this->Tim.Display();
-  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->Country.Valid()) this->Country.Display();
+  if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->HtInfo.Valid()) this->HtInfo.Display();
+  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
 //  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 

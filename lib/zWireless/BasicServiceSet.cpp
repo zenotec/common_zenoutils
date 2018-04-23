@@ -256,7 +256,17 @@ BasicServiceSet::_update_probe()
   this->_probe.Interval(100);
   this->_probe.Capabilities(0x0421);
   this->_probe.Ssid(this->_ssid);
-  this->_probe.Rates(caps[band].GetBitRates());
+  std::vector<uint8_t> rates;
+  rates.push_back(0x82);
+  rates.push_back(0x84);
+  rates.push_back(0x8b);
+  rates.push_back(0x96);
+  rates.push_back(0x0c);
+  rates.push_back(0x12);
+  rates.push_back(0x18);
+  rates.push_back(0x24);
+  this->_probe.Rates(rates);
+//  this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->GetChannel());
   this->_probe.Country("US");
   this->_probe.ErpInfo(0);

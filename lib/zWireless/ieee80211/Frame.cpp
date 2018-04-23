@@ -158,12 +158,7 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
   struct ieee80211_tag* t = (struct ieee80211_tag*)p_;
 
   // Clear out any previously "put/added" tags
-  int type_begin = (tagtype_ & TAGTYPE_HEAD) ? Tag::TYPE_HEAD : Tag::TYPE_TAIL;
-  int type_end = (tagtype_ & TAGTYPE_TAIL) ? Tag::TYPE_LAST : Tag::TYPE_TAIL;
-  for (int i = type_begin; i < type_end; i++)
-  {
-    this->_tags[i].clear();
-  }
+  this->ClearTags(tagtype_);
 
   // Loop until the end of the specified buffer; rem_ should be zero when finished
   while (p_ && rem_)
@@ -206,6 +201,20 @@ Frame::DisassembleTags(uint8_t* p_, size_t& rem_, uint8_t tagtype_)
 
   // Return pointer to end of buffer; NULL on error
   return(p_);
+}
+
+void
+Frame::ClearTags(uint8_t tagtype_)
+{
+
+  // Clear out any previously "put/added" tags
+  int type_begin = (tagtype_ & TAGTYPE_HEAD) ? Tag::TYPE_HEAD : Tag::TYPE_TAIL;
+  int type_end = (tagtype_ & TAGTYPE_TAIL) ? Tag::TYPE_LAST : Tag::TYPE_TAIL;
+  for (int i = type_begin; i < type_end; i++)
+  {
+    this->_tags[i].clear();
+  }
+
 }
 
 uint8_t
@@ -493,13 +502,15 @@ Frame::GetTag(Tag& tag_, const int index_)
   bool status = false;
   int cnt = 0;
 
-  FOREACH (auto& tag, this->_tags[tag_.Type()])
+  std::list<Tag>::iterator it = this->_tags[tag_.Type()].begin();
+  std::list<Tag>::iterator end = this->_tags[tag_.Type()].end();
+  for (; it != end; ++it)
   {
-    if (tag.Id() == tag_.Id())
+    if (it->Id() == tag_.Id())
     {
       if (cnt++ == index_)
       {
-        tag_ = tag;
+        tag_ = *it;
         status = true;
         break;
       }
@@ -512,9 +523,32 @@ Frame::GetTag(Tag& tag_, const int index_)
 bool
 Frame::PutTag(const Tag& tag_, const int index_)
 {
-  // Copy tag
-  this->_tags[tag_.Type()].emplace_back(tag_);
-  return (true);
+  bool status = false;
+  int cnt = 0;
+
+  std::list<Tag>::iterator it = this->_tags[tag_.Type()].begin();
+  std::list<Tag>::iterator end = this->_tags[tag_.Type()].end();
+  for (; it != end; ++it)
+  {
+    if (it->Id() == tag_.Id())
+    {
+      if (cnt++ == index_)
+      {
+        *it = tag_;
+        status = true;
+        break;
+      }
+    }
+  }
+
+  if (!status)
+  {
+    // Create new tag at end of list
+    this->_tags[tag_.Type()].emplace_back(tag_);
+    status = true;
+  }
+
+  return (status);
 }
 
 uint32_t

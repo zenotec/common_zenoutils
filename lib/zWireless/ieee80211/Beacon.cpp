@@ -155,9 +155,19 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->_tail = p_;
   this->_end = p_;
 
+  if (!this->PutTag(this->Ssid))
+  {
+    ZLOG_ERR("Error assembling beacon frame: Missing SSID");
+    return(NULL);
+  }
+
+  if (!this->PutTag(this->Rates))
+  {
+    ZLOG_ERR("Error assembling beacon frame: Missing Rates");
+    return(NULL);
+  }
+
   // NOTE: ORDER MATTERS!!!
-  this->PutTag(this->Ssid);
-  this->PutTag(this->Rates);
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
@@ -259,9 +269,19 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   this->_end = p_;
 
+  if (!this->GetTag(this->Ssid))
+  {
+    ZLOG_ERR("Error disassembling beacon frame: Missing SSID");
+    return (NULL);
+  }
+
+  if (!this->GetTag(this->Rates))
+  {
+    ZLOG_ERR("Error disassembling beacon frame: Missing Rates");
+    return (NULL);
+  }
+
   // NOTE: ORDER MATTERS!!!
-  this->GetTag(this->Ssid);
-  this->GetTag(this->Rates);
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
@@ -312,9 +332,13 @@ Beacon::Display() const
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->Dsss.Valid()) this->Dsss.Display();
   if (this->Tim.Valid()) this->Tim.Display();
-  if (this->HtCaps.Valid()) this->HtCaps.Display();
-  if (this->HtInfo.Valid()) this->HtCaps.Display();
+  if (this->Country.Valid()) this->Country.Display();
+  if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->HtInfo.Valid()) this->HtInfo.Display();
+  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
 //  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 

@@ -42,14 +42,12 @@ using namespace netlink;
 #include <zutils/nl80211/PhyNameAttribute.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/FrequencyAttribute.h>
-#include <zutils/nl80211/ChannelTypeAttribute.h>
 #include <zutils/nl80211/ChannelWidthAttribute.h>
-#include <zutils/nl80211/TxPowerModeAttribute.h>
-#include <zutils/nl80211/TxPowerLevelAttribute.h>
-
+#include <zutils/nl80211/FrequencyAttribute.h>
 #include <zutils/nl80211/CenterFrequency1Attribute.h>
 #include <zutils/nl80211/CenterFrequency2Attribute.h>
+#include <zutils/nl80211/TxPowerModeAttribute.h>
+#include <zutils/nl80211/TxPowerLevelAttribute.h>
 
 namespace nl80211
 {
@@ -72,9 +70,8 @@ public:
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel; // only set for non-auto power mode
   FrequencyAttribute Frequency;
-  ChannelTypeAttribute ChannelType; // only set for non-HT and HT
-  ChannelWidthAttribute ChannelWidth; // only set for VHT
-  CenterFrequency1Attribute CenterFrequency1; // only set for VHT 20/40/80/160 MHz
+  ChannelWidthAttribute ChannelWidth;
+  CenterFrequency1Attribute CenterFrequency1; // only set for HT 40 / VHT 40/80/160 MHz
   CenterFrequency1Attribute CenterFrequency2; // only set for VHT 80 plus 80 Mhz
 
 

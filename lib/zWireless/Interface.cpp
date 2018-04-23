@@ -1028,34 +1028,32 @@ Interface::_setChannel()
     //  Set either ChannelType OR ChannelWidth based on HT mode
     switch (this->stagingConfig.GetHtMode())
     {
-    case ConfigData::HTMODE_HT40MINUS:
-      // no break
-    case ConfigData::HTMODE_HT40PLUS:
-      // no break
-      cmd->CenterFrequency1(this->GetCenterFrequency1());
-    case ConfigData::HTMODE_NOHT:
-      // no break
-    case ConfigData::HTMODE_HT20:
-      cmd->ChannelType(_htmode2nl(this->stagingConfig.GetHtMode()));
-      break;
     case ConfigData::HTMODE_VHT80PLUS80:
       cmd->CenterFrequency2(this->GetCenterFrequency2());
       // no break
-    case ConfigData::HTMODE_VHT20:
+    case ConfigData::HTMODE_HT40MINUS:
+      // no break
+    case ConfigData::HTMODE_HT40PLUS:
       // no break
     case ConfigData::HTMODE_VHT40:
       // no break
     case ConfigData::HTMODE_VHT80:
       // no break
     case ConfigData::HTMODE_VHT160:
-      cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
       cmd->CenterFrequency1(this->GetCenterFrequency1());
+      // no break
+    case ConfigData::HTMODE_HT20:
+      // no break
+    case ConfigData::HTMODE_VHT20:
+      cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
+      // no break
+    case ConfigData::HTMODE_NOHT:
+      this->addCommand(cmd);
+      status = true;
       break;
     default:
       break;
     }
-    this->addCommand(cmd);
-    status = true;
   }
   return (status);
 }
@@ -1108,9 +1106,7 @@ Interface::_getCapabilities() const
         std::vector<uint8_t> rates = cmd.PhyBands.GetPhyBand(band).GetRates();
         size_t rate_len = std::min(size_t(8), rates.size());
         std::vector<uint8_t> bitrates(rates.begin(), (rates.begin() + rate_len));
-        std::cout << "BITRATES: " << bitrates.size() << std::endl;
         std::vector<uint8_t> extrates((rates.begin() + rate_len), rates.end());
-        std::cout << "EXTBITRATES: " << extrates.size() << std::endl;
         caps[band].SetBitRates(bitrates);
         caps[band].SetExtBitRates(extrates);
       }
