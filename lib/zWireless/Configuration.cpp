@@ -52,11 +52,8 @@ _htmode2str(const ConfigData::HTMODE mode_)
   case ConfigData::HTMODE_HT20:
     str = ConfigData::ConfigHtModeHT20;
     break;
-  case ConfigData::HTMODE_HT40MINUS:
-    str = ConfigData::ConfigHtModeHT40Minus;
-    break;
-  case ConfigData::HTMODE_HT40PLUS:
-    str = ConfigData::ConfigHtModeHT40Plus;
+  case ConfigData::HTMODE_HT40:
+    str = ConfigData::ConfigHtModeHT40;
     break;
   case ConfigData::HTMODE_VHT20:
     str = ConfigData::ConfigHtModeVHT20;
@@ -92,13 +89,9 @@ _str2htmode(const std::string& str)
   {
     mode = ConfigData::HTMODE_HT20;
   }
-  else if (str == ConfigData::ConfigHtModeHT40Minus)
+  else if (str == ConfigData::ConfigHtModeHT40)
   {
-    mode = ConfigData::HTMODE_HT40MINUS;
-  }
-  else if (str == ConfigData::ConfigHtModeHT40Plus)
-  {
-    mode = ConfigData::HTMODE_HT40PLUS;
+    mode = ConfigData::HTMODE_HT40;
   }
   else if (str == ConfigData::ConfigHtModeVHT20)
   {
@@ -237,8 +230,7 @@ const std::string ConfigData::ConfigBssidDefault("");
 
 const std::string ConfigData::ConfigHtModeNone("");
 const std::string ConfigData::ConfigHtModeHT20("HT20");
-const std::string ConfigData::ConfigHtModeHT40Minus("HT40-");
-const std::string ConfigData::ConfigHtModeHT40Plus("HT40+");
+const std::string ConfigData::ConfigHtModeHT40("HT40");
 const std::string ConfigData::ConfigHtModeVHT20("VHT20");
 const std::string ConfigData::ConfigHtModeVHT40("VHT40");
 const std::string ConfigData::ConfigHtModeVHT80("VHT80");

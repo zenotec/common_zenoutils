@@ -107,8 +107,7 @@ public:
 
   static const std::string ConfigHtModeNone;
   static const std::string ConfigHtModeHT20;
-  static const std::string ConfigHtModeHT40Minus;
-  static const std::string ConfigHtModeHT40Plus;
+  static const std::string ConfigHtModeHT40;
   static const std::string ConfigHtModeVHT20;
   static const std::string ConfigHtModeVHT40;
   static const std::string ConfigHtModeVHT80;
@@ -123,13 +122,12 @@ public:
     HTMODE_DEF = 0,
     HTMODE_NOHT = 1,
     HTMODE_HT20 = 2,
-    HTMODE_HT40MINUS = 3,
-    HTMODE_HT40PLUS = 4,
-    HTMODE_VHT20 = 5,
-    HTMODE_VHT40 = 6,
-    HTMODE_VHT80 = 7,
-    HTMODE_VHT80PLUS80 = 8,
-    HTMODE_VHT160 = 9,
+    HTMODE_HT40 = 3,
+    HTMODE_VHT20 = 4,
+    HTMODE_VHT40 = 5,
+    HTMODE_VHT80 = 6,
+    HTMODE_VHT80PLUS80 = 7,
+    HTMODE_VHT160 = 8,
     HTMODE_LAST
   };
 

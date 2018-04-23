@@ -69,10 +69,23 @@ GetInterfaceCommand::Display(const std::string& prefix_) const
   std::cout << "\tPhy:   \t" << this->PhyIndex() << std::endl;
   std::cout << "\tDev:   \t0x" << std::hex << this->PhyDev() << std::dec << std::endl;
   std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
-  std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
-  std::cout << "\tFreq:  \t" << this->Frequency() << std::endl;
-  std::cout << "\tSSID:  \t" << this->Ssid() << std::endl;
-  std::cout << "\tPower: \t" << this->TxPowerLevel() << std::endl;
+  if (this->Mac.IsValid())
+    std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
+  if (this->Frequency.IsValid())
+  {
+    std::cout << "\tChannel:  \t" << this->Frequency.GetChannel();
+    std::cout << " [" << this->Frequency() << "]" << std::endl;
+  }
+  if (this->ChannelWidth.IsValid())
+    std::cout << "\tChannelWidth:  \t" << this->ChannelWidth() << std::endl;
+  if (this->CenterFrequency1.IsValid())
+    std::cout << "\tCenter 1:  \t" << this->CenterFrequency1() << std::endl;
+  if (this->CenterFrequency2.IsValid())
+    std::cout << "\tCenter 1:  \t" << this->CenterFrequency2() << std::endl;
+  if (this->Ssid.IsValid())
+    std::cout << "\tSSID:  \t" << this->Ssid() << std::endl;
+  if (this->TxPowerLevel.IsValid())
+    std::cout << "\tPower: \t" << this->TxPowerLevel() << std::endl;
   std::cout << "##################################################" << std::endl;
 }
 
@@ -187,7 +200,6 @@ GetInterfaceCommand::valid_cb(struct nl_msg* msg_, void* arg_)
 
   // Optional attributes
   msg.GetAttribute(&this->Ssid);
-  msg.GetAttribute(&this->ChannelType);
   msg.GetAttribute(&this->ChannelWidth);
   msg.GetAttribute(&this->Frequency);
   msg.GetAttribute(&this->CenterFrequency1);

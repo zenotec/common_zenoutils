@@ -57,7 +57,6 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/SetStationCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/NewStationCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/DelStationCommand.h \
-	${top_srcdir}/inc/zutils/nl80211/SetChannelCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/SetBeaconCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h \
@@ -80,7 +79,6 @@ libnl80211_la_SOURCES = \
 	SetStationCommand.cpp \
 	NewStationCommand.cpp \
 	DelStationCommand.cpp \
-	SetChannelCommand.cpp \
 	SetBeaconCommand.cpp \
 	StartApCommand.cpp \
 	StopApCommand.cpp

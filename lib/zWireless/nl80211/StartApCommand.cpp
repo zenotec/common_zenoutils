@@ -104,12 +104,6 @@ StartApCommand::Exec()
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(&this->ChannelType))
-  {
-    ZLOG_ERR("Error putting channel type attribute: " + zToStr(this->ChannelType()));
-    return (false);
-  }
-
   if (!cmdmsg->PutAttribute(&this->ChannelWidth))
   {
     ZLOG_ERR("Error putting channel width attribute: " + zToStr(this->ChannelWidth()));
@@ -183,8 +177,6 @@ StartApCommand::Display(const std::string& prefix_) const
     std::cout << "\tCenter Freq 1:\t" << this->CenterFrequency1() << std::endl;
   if (this->Channel.IsValid())
     std::cout << "\tChannel:\t" << this->Channel.GetChannel() << " [" << this->Channel() << "]" << std::endl;
-  if (this->ChannelType.IsValid())
-    std::cout << "\tChannelType:\t" << this->ChannelType() << std::endl;
   if (this->ChannelWidth.IsValid())
     std::cout << "\tChannelWidth:\t" << this->ChannelWidth() << std::endl;
   if (this->BeaconInterval.IsValid())

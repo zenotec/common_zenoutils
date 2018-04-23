@@ -40,6 +40,46 @@ namespace zUtils
 namespace zWireless
 {
 
+static uint32_t
+_htmode2nl(ConfigData::HTMODE mode_)
+{
+  uint32_t val = 0;
+  switch (mode_)
+  {
+  case ConfigData::HTMODE_NONE:
+    // no break
+  case ConfigData::HTMODE_NOHT:
+    val = NL80211_CHAN_NO_HT;
+    break;
+  case ConfigData::HTMODE_HT20:
+    val = NL80211_CHAN_WIDTH_20;
+    break;
+  case ConfigData::HTMODE_HT40:
+    val = NL80211_CHAN_WIDTH_40;
+    break;
+  case ConfigData::HTMODE_VHT20:
+    val = NL80211_CHAN_WIDTH_20;
+    break;
+  case ConfigData::HTMODE_VHT40:
+    val = NL80211_CHAN_WIDTH_40;
+    break;
+  case ConfigData::HTMODE_VHT80:
+    val = NL80211_CHAN_WIDTH_80;
+    break;
+  case ConfigData::HTMODE_VHT80PLUS80:
+    val = NL80211_CHAN_WIDTH_80P80;
+    break;
+  case ConfigData::HTMODE_VHT160:
+    val = NL80211_CHAN_WIDTH_160;
+    break;
+  case ConfigData::HTMODE_ERR:
+    // no break
+  default:
+    break;
+  }
+  return (val);
+}
+
 // ****************************************************************************
 // Class: BasicServiceSet
 // ****************************************************************************
@@ -152,8 +192,7 @@ BasicServiceSet::Create()
   cmd->DtimPeriod(1);
   cmd->Ssid(this->_ssid);
   cmd->Channel(this->GetFrequency());
-  cmd->ChannelType(NL80211_CHAN_HT20);
-  cmd->ChannelWidth(NL80211_CHAN_WIDTH_20);
+  cmd->ChannelWidth(_htmode2nl(this->GetHtMode()));
   cmd->CenterFrequency1(this->GetCenterFrequency1());
   this->addCommand(cmd);
   cmd->Display();

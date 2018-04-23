@@ -136,13 +136,10 @@ _htmode2nl(ConfigData::HTMODE mode_)
     val = NL80211_CHAN_NO_HT;
     break;
   case ConfigData::HTMODE_HT20:
-    val = NL80211_CHAN_HT20;
+    val = NL80211_CHAN_WIDTH_20;
     break;
-  case ConfigData::HTMODE_HT40MINUS:
-    val = NL80211_CHAN_HT40MINUS;
-    break;
-  case ConfigData::HTMODE_HT40PLUS:
-    val = NL80211_CHAN_HT40PLUS;
+  case ConfigData::HTMODE_HT40:
+    val = NL80211_CHAN_WIDTH_40;
     break;
   case ConfigData::HTMODE_VHT20:
     val = NL80211_CHAN_WIDTH_20;
@@ -185,11 +182,8 @@ _htmode2str(ConfigData::HTMODE mode_)
   case ConfigData::HTMODE_HT20:
     str = "HT20";
     break;
-  case ConfigData::HTMODE_HT40MINUS:
-    str = "HT40-";
-    break;
-  case ConfigData::HTMODE_HT40PLUS:
-    str = "HT40+";
+  case ConfigData::HTMODE_HT40:
+    str = "HT40";
     break;
   case ConfigData::HTMODE_VHT20:
     str = "VHT20";
@@ -914,55 +908,28 @@ Interface::_getHtMode() const
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
     if (cmd.Exec())
     {
-      if (cmd.ChannelType.IsValid())
+      switch (cmd.ChannelWidth())
       {
-        switch (cmd.ChannelType())
-        {
-        case NL80211_CHAN_NO_HT:
-          mode = ConfigData::HTMODE_NOHT;
-          break;
-        case NL80211_CHAN_HT20:
-          mode = ConfigData::HTMODE_HT20;
-          break;
-        case NL80211_CHAN_HT40MINUS:
-          mode = ConfigData::HTMODE_HT40MINUS;
-          break;
-        case NL80211_CHAN_HT40PLUS:
-          mode = ConfigData::HTMODE_HT40PLUS;
-          break;
-        default:
-          break;
-        }
-      }
-      else if (cmd.ChannelWidth.IsValid())
-      {
-        switch (cmd.ChannelWidth())
-        {
-        case NL80211_CHAN_WIDTH_20_NOHT:
-          mode = ConfigData::HTMODE_NOHT;
-          break;
-        case NL80211_CHAN_WIDTH_20:
-          mode = ConfigData::HTMODE_VHT20;
-          break;
-        case NL80211_CHAN_WIDTH_40:
-          mode = ConfigData::HTMODE_VHT40;
-          break;
-        case NL80211_CHAN_WIDTH_80:
-          mode = ConfigData::HTMODE_VHT80;
-          break;
-        case NL80211_CHAN_WIDTH_80P80:
-          mode = ConfigData::HTMODE_VHT80PLUS80;
-          break;
-        case NL80211_CHAN_WIDTH_160:
-          mode = ConfigData::HTMODE_VHT160;
-          break;
-        default:
-          break;
-        }
-      }
-      else
-      {
-        mode = ConfigData::HTMODE_ERR;
+      case NL80211_CHAN_WIDTH_20_NOHT:
+        mode = ConfigData::HTMODE_NOHT;
+        break;
+      case NL80211_CHAN_WIDTH_20:
+        mode = ConfigData::HTMODE_HT20;
+        break;
+      case NL80211_CHAN_WIDTH_40:
+        mode = ConfigData::HTMODE_HT40;
+        break;
+      case NL80211_CHAN_WIDTH_80:
+        mode = ConfigData::HTMODE_VHT80;
+        break;
+      case NL80211_CHAN_WIDTH_80P80:
+        mode = ConfigData::HTMODE_VHT80PLUS80;
+        break;
+      case NL80211_CHAN_WIDTH_160:
+        mode = ConfigData::HTMODE_VHT160;
+        break;
+      default:
+        break;
       }
     }
   }
@@ -1024,23 +991,22 @@ Interface::_setChannel()
     SetPhyCommand* cmd = new SetPhyCommand(this->workingConfig.GetIfIndex());
     cmd->PhyIndex(this->workingConfig.GetPhyIndex());
     cmd->Frequency(this->stagingConfig.GetFrequency());
+    cmd->CenterFrequency1(this->stagingConfig.GetFrequency());
 
     //  Set either ChannelType OR ChannelWidth based on HT mode
     switch (this->stagingConfig.GetHtMode())
     {
     case ConfigData::HTMODE_VHT80PLUS80:
-      cmd->CenterFrequency2(this->GetCenterFrequency2());
+      cmd->CenterFrequency2(this->stagingConfig.GetCenterFrequency2());
       // no break
-    case ConfigData::HTMODE_HT40MINUS:
-      // no break
-    case ConfigData::HTMODE_HT40PLUS:
+    case ConfigData::HTMODE_HT40:
       // no break
     case ConfigData::HTMODE_VHT40:
       // no break
     case ConfigData::HTMODE_VHT80:
       // no break
     case ConfigData::HTMODE_VHT160:
-      cmd->CenterFrequency1(this->GetCenterFrequency1());
+      cmd->CenterFrequency1(this->stagingConfig.GetCenterFrequency1());
       // no break
     case ConfigData::HTMODE_HT20:
       // no break

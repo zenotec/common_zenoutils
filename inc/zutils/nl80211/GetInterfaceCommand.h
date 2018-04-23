@@ -41,7 +41,6 @@ using namespace netlink;
 #include <zutils/nl80211/MacAttribute.h>
 #include <zutils/nl80211/SsidAttribute.h>
 #include <zutils/nl80211/FrequencyAttribute.h>
-#include <zutils/nl80211/ChannelTypeAttribute.h>
 #include <zutils/nl80211/ChannelWidthAttribute.h>
 #include <zutils/nl80211/TxPowerModeAttribute.h>
 #include <zutils/nl80211/TxPowerLevelAttribute.h>
@@ -69,7 +68,6 @@ public:
   IfTypeAttribute IfType;
   MacAttribute Mac;
   SsidAttribute Ssid;
-  ChannelTypeAttribute ChannelType;
   ChannelWidthAttribute ChannelWidth;
   FrequencyAttribute Frequency;
   CenterFrequency1Attribute CenterFrequency1;
