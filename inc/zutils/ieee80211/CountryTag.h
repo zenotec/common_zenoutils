@@ -54,25 +54,28 @@ public:
   {
   }
 
-  std::string
+  struct country_tag
   operator()() const
   {
-    std::string str;
-    return(str);
+    struct country_tag val = { 0 };
+    this->GetValue(val);
+    return (val);
   }
 
   bool
-  operator()(const std::string& ssid_)
+  operator()(const struct country_tag& tag_)
   {
     struct country_tag t = { 'U', 'S', 0x20, 1, 11, 30 }; // TODO:
-    return(this->PutValue((uint8_t*)&t, sizeof(t)));
+    return(this->PutValue(t));
   }
 
   virtual void
   Display() const
   {
+    struct country_tag tag = this->operator()();
     Tag::Display();
-    std::cout << "\t" << this->operator()() << std::endl;
+    printf("\t%c%c [%d:%d]\n", tag.country_str[0], tag.country_str[1],
+        tag.first_channel, (tag.first_channel + tag.num_channels));
   }
 
 protected:

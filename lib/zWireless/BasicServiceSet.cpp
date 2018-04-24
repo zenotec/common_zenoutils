@@ -260,7 +260,8 @@ BasicServiceSet::_update_beacon()
   this->_beacon.Rates(rates);
 //  this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->GetChannel());
-  this->_beacon.Country("US");
+  ieee80211::country_tag country; // TODO: Country tag is hardcoded for now
+  this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
   {
@@ -307,7 +308,8 @@ BasicServiceSet::_update_probe()
   this->_probe.Rates(rates);
 //  this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->GetChannel());
-  this->_probe.Country("US");
+  ieee80211::country_tag country; // TODO: Country tag is hardcoded for now
+  this->_probe.Country(country);
   this->_probe.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
   {

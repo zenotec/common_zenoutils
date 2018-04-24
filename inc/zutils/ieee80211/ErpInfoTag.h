@@ -37,7 +37,7 @@ class ErpInfoTag : public Tag
 public:
 
   ErpInfoTag() :
-    Tag(Tag::ID_ERP_INFO, sizeof(uint8_t))
+      Tag(Tag::ID_ERP_INFO, sizeof(uint8_t))
   {
   }
 
@@ -51,13 +51,13 @@ public:
   {
     uint8_t val = 0;
     this->GetValue(val);
-    return(val);
+    return (val);
   }
 
   bool
   operator()(const uint8_t params_)
   {
-    return(this->PutValue(params_));
+    return (this->PutValue(params_));
   }
 
   bool
@@ -127,7 +127,7 @@ public:
   Display() const
   {
     Tag::Display();
-    std::cout << "\t" << this->operator()() << std::endl;
+    printf("\t0x%02x\n", this->operator()());
   }
 
 protected:
