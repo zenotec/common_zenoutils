@@ -65,8 +65,7 @@ public:
   bool
   operator()(const struct country_tag& tag_)
   {
-    struct country_tag t = { 'U', 'S', 0x20, 1, 11, 30 }; // TODO:
-    return(this->PutValue(t));
+    return(this->PutValue(tag_));
   }
 
   virtual void

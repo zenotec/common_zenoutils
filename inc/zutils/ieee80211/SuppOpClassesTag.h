@@ -37,7 +37,7 @@ class SuppOpClassesTag : public Tag
 public:
 
   SuppOpClassesTag() :
-    Tag(Tag::ID_SUPP_OP_CLASSES, sizeof(uint8_t))
+    Tag(Tag::ID_SUPP_OP_CLASSES, sizeof(uint16_t))
   {
   }
 
@@ -46,16 +46,16 @@ public:
   {
   }
 
-  uint8_t
+  uint16_t
   operator()() const
   {
-    uint8_t val = 0;
+	  uint16_t val = 0;
     this->GetValue(val);
     return(val);
   }
 
   bool
-  operator()(const uint8_t class_)
+  operator()(const uint16_t class_)
   {
     return(this->PutValue(class_));
   }
@@ -67,7 +67,7 @@ public:
   }
 
   bool
-  CurrentOpClass(const uint8_t class_)
+  CurrentOpClass(const uint16_t class_)
   {
     return (this->operator ()(class_));
   }

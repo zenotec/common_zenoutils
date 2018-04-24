@@ -191,8 +191,10 @@ BasicServiceSet::Create()
 
   cmd->DtimPeriod(1);
   cmd->Ssid(this->_ssid);
-  cmd->Channel(this->GetFrequency());
-  cmd->ChannelWidth(_htmode2nl(this->GetHtMode()));
+//  cmd->Channel(this->GetFrequency()); // SJL
+  cmd->Channel(2437);
+//  cmd->ChannelWidth(_htmode2nl(this->GetHtMode())); // SJL
+  cmd->ChannelWidth(_htmode2nl(ConfigData::HTMODE_HT20));
   cmd->CenterFrequency1(this->GetCenterFrequency1());
   this->addCommand(cmd);
   cmd->Display();

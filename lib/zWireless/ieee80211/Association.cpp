@@ -233,15 +233,12 @@ AssociationResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   f->aid = htole16(this->AssociationIdentifier());
 
-  // Inserted in map sorted by ID
-  this->PutTag(this->Ssid);
+  // Order matters - check 802.11 spec
   this->PutTag(this->Rates);
-  this->PutTag(this->Dsss);
-  this->PutTag(this->Tim);
-  this->PutTag(this->Country);
+  this->PutTag(this->ExtRates);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
-  this->PutTag(this->ExtRates);
+  this->PutTag(this->ExtCaps);
 //this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_);
@@ -291,14 +288,11 @@ AssociationResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  this->GetTag(this->Ssid);
   this->GetTag(this->Rates);
-  this->GetTag(this->Dsss);
-  this->GetTag(this->Tim);
-  this->GetTag(this->Country);
+  this->GetTag(this->ExtRates);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
-  this->GetTag(this->ExtRates);
+  this->GetTag(this->ExtCaps);
 //this->GetTag(this->WmmWme);
 
   return (p_);
@@ -352,7 +346,6 @@ AssociationResponse::Display() const
   std::cout << "\tStatus:   \t" << (int) this->Status() << std::endl;
   if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->Rates.Valid()) this->Rates.Display();
-  if (this->Dsss.Valid()) this->Dsss.Display();
   if (this->Tim.Valid()) this->Tim.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();

@@ -187,12 +187,12 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   // NOTE: ORDER MATTERS!!!
+
   this->PutTag(this->Dsss);
-  this->PutTag(this->Tim);
   this->PutTag(this->Country);
   this->PutTag(this->ErpInfo);
   this->PutTag(this->ExtRates);
-//  this->PutTag(this->SuppOpClass);
+  this->PutTag(this->SuppOpClass);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
   this->PutTag(this->ExtCaps);
@@ -259,11 +259,10 @@ ProbeResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // NOTE: ORDER MATTERS!!!
   this->GetTag(this->Dsss);
-  this->GetTag(this->Tim);
   this->GetTag(this->Country);
   this->GetTag(this->ErpInfo);
   this->GetTag(this->ExtRates);
-//  this->GetTag(this->SuppOpClass);
+  this->GetTag(this->SuppOpClass);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
   this->GetTag(this->ExtCaps);
