@@ -51,7 +51,6 @@
 #include <zutils/nl80211/SetInterfaceCommand.h>
 #include <zutils/nl80211/NewInterfaceCommand.h>
 #include <zutils/nl80211/DelInterfaceCommand.h>
-#include <zutils/nl80211/SetChannelCommand.h>
 
 using namespace nl80211;
 
