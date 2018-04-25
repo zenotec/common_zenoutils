@@ -70,15 +70,11 @@ Timer::Timer(const std::string& name_) :
     this->_fd = 0;
   } // end if
 
-  fprintf(stderr, "(%d) Creating timer: %s\n", this->_fd, this->_name.c_str());
-
   this->_lock.Unlock();
 }
 
 Timer::~Timer()
 {
-
-  fprintf(stderr, "(%d) Destroying timer: %s\n", this->_fd, this->_name.c_str());
 
   // Make sure the timer is stopped
   this->Stop();
