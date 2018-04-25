@@ -38,7 +38,7 @@
 
 // libzutils includes
 #include <zutils/zLog.h>
-#include <zutils/nl80211/GetInterfaceCommand.h>
+#include <zutils/nl80211/NewInterfaceCommand.h>
 #include <zutils/nl80211/StartApCommand.h>
 #include <zutils/nl80211/StopApCommand.h>
 using namespace nl80211;
@@ -66,11 +66,172 @@ AccessPointInterface::~AccessPointInterface()
 {
 }
 
+std::string
+AccessPointInterface::GetSsid() const
+{
+  std::string ssid;
+  if (this->lock.Lock())
+  {
+    ssid = this->_getSsid();
+    if (ssid.empty())
+    {
+      ssid = this->stagingConfig.GetSsid();
+    }
+    this->lock.Unlock();
+  }
+  return (ssid);
+}
+
+bool
+AccessPointInterface::SetSsid(const std::string& ssid_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetSsid(ssid_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+std::string
+AccessPointInterface::GetBssid() const
+{
+  std::string bssid;
+  if (this->lock.Lock())
+  {
+    bssid = this->_getBssid();
+    if (bssid.empty())
+    {
+      bssid = this->stagingConfig.GetBssid();
+    }
+    this->lock.Unlock();
+  }
+  return (bssid);
+}
+
+bool
+AccessPointInterface::SetBssid(const std::string& bssid_)
+{
+  bool status = false;
+  if (this->lock.Lock())
+  {
+    status = this->stagingConfig.SetBssid(bssid_);
+    this->lock.Unlock();
+  }
+  return (status);
+}
+
+bool
+AccessPointInterface::Create()
+{
+
+  bool status = false;
+
+  if (this->lock.Lock())
+  {
+    NewInterfaceCommand *cmd = new NewInterfaceCommand(this->stagingConfig.GetIfName(),
+        this->stagingConfig.GetPhyIndex());
+    cmd->IfType.Set(this->opmode2nl(this->stagingConfig.GetOpMode()));
+    this->addCommand(cmd);
+    status = this->execCommands();
+    this->lock.Unlock();
+  }
+
+  return (status && this->Refresh());
+
+}
+
+bool
+AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_)
+{
+
+  bool status = false;
+  uint8_t buf[512] = { 0 };
+  size_t blen = 0;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error starting AP interface, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  // Create new Start AP command
+  StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
+
+  // Write beacon
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  if (beacon_.Assemble(buf, blen) == NULL)
+  {
+    return (false);
+  }
+  cmd->BeaconHead.Set(beacon_.Head(), beacon_.HeadSize()); // copies buffer
+  cmd->BeaconTail.Set(beacon_.Tail(), beacon_.TailSize()); // copies buffer
+  cmd->BeaconInterval(beacon_.Interval());
+
+  // Write out probe
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  if (probe_.Assemble(buf, blen) == NULL)
+  {
+    return (false);
+  }
+  cmd->ProbeResp.Set(buf, blen); // copies buffer
+
+  cmd->DtimPeriod(1);
+  cmd->Ssid(this->GetSsid());
+  cmd->Channel(this->GetFrequency());
+  cmd->ChannelWidth(this->htmode2nl(this->GetHtMode()));
+  cmd->CenterFrequency1(this->GetCenterFrequency1());
+  this->addCommand(cmd);
+  cmd->Display();
+
+  return (this->Commit());
+}
+
+bool
+AccessPointInterface::Stop()
+{
+  bool status = false;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error stopping AP interface, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  if (this->GetAdminState() == zInterface::ConfigData::STATE_UP)
+  {
+    this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_DISABLED);
+    this->SetAdminState(zWireless::ConfigData::STATE_DOWN);
+    StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
+    this->addCommand(cmd);
+  }
+
+  // Call base destroy which will eventually execute all commands in order
+  return (this->Destroy());
+}
+
 void
 AccessPointInterface::Display(const std::string& prefix_)
 {
   Interface::Display(prefix_);
   std::cout << prefix_ << "------ Access Point Interface ----------" << std::endl;
+}
+
+std::string
+AccessPointInterface::_getSsid() const
+{
+  std::string ssid;
+  return (ssid);
+}
+
+std::string
+AccessPointInterface::_getBssid() const
+{
+  std::string bssid;
+  return (bssid);
 }
 
 }

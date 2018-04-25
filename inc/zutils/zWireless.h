@@ -410,10 +410,28 @@ public:
 
 protected:
 
-private:
-
   zWireless::ConfigData stagingConfig;
   zWireless::ConfigData workingConfig;
+
+  inline uint16_t
+  freq2chan(const uint16_t freq_) const;
+
+  inline uint16_t
+  chan2freq(const uint16_t chan_) const;
+
+  inline ConfigData::HTMODE
+  nl2htmode(const uint32_t nl_) const;
+
+  inline uint32_t
+  htmode2nl(const ConfigData::HTMODE mode_) const;
+
+  inline ConfigData::OPMODE
+  nl2opmode(const uint32_t iftype_) const;
+
+  inline uint32_t
+  opmode2nl(const ConfigData::OPMODE mode_) const;
+
+private:
 
   int
   _getPhyIndex() const;

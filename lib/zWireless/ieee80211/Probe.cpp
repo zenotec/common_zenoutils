@@ -321,7 +321,6 @@ ProbeResponse::Display() const
   if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->Dsss.Valid()) this->Dsss.Display();
-  if (this->Tim.Valid()) this->Tim.Display();
   if (this->Country.Valid()) this->Country.Display();
   if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
@@ -329,7 +328,7 @@ ProbeResponse::Display() const
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->HtInfo.Valid()) this->HtInfo.Display();
   if (this->ExtCaps.Valid()) this->ExtCaps.Display();
-//  if (this->WmmWme.Valid()) this->WmmWme.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

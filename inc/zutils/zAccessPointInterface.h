@@ -24,6 +24,8 @@
 using namespace zUtils::zInterface;
 
 #include <zutils/zWireless.h>
+#include <zutils/ieee80211/Beacon.h>
+#include <zutils/ieee80211/Probe.h>
 
 namespace zUtils
 {
@@ -43,12 +45,39 @@ public:
   virtual
   ~AccessPointInterface();
 
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  virtual bool
+  Create();
+
+  bool
+  Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_);
+
+  bool
+  Stop();
+
   virtual void
   Display(const std::string &prefix_ = std::string(""));
 
 protected:
 
 private:
+
+  std::string
+  _getSsid() const;
+
+  std::string
+  _getBssid() const;
 
 };
 

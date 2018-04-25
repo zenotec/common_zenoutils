@@ -448,7 +448,7 @@ unsigned int
 ConfigData::GetCenterFrequency2(const unsigned int freq_) const
 {
   unsigned int val = 0;
-  ConfigPath path(ConfigPath::ConfigCenterFrequency1Path);
+  ConfigPath path(ConfigPath::ConfigCenterFrequency2Path);
   if (!this->GetData()->GetValue(path, val))
   {
     val = freq_;

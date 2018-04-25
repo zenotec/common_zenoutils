@@ -61,108 +61,6 @@ namespace zUtils
 namespace zWireless
 {
 
-static uint16_t
-_freq2chan(uint16_t freq_)
-{
-
-  uint16_t channel = 0;
-  // Channels 1 - 13
-  if ((freq_ >= 2412) && (freq_ <= 2472))
-  {
-    channel = (1 + ((freq_ - 2412) / 5));
-  }
-  // Channels 36 - 64
-  else if ((freq_ >= 5170) && (freq_ <= 5320))
-  {
-    channel = (34 + ((freq_ - 5170) / 5));
-  }
-  // Channels 100 - 144
-  else if ((freq_ >= 5500) && (freq_ <= 5720))
-  {
-    channel = (100 + ((freq_ - 5500) / 5));
-  }
-  // Channels 149 - 161
-  else if ((freq_ >= 5745) && (freq_ <= 5805))
-  {
-    channel = (149 + ((freq_ - 5745) / 5));
-  }
-  // Channel 165
-  else if (freq_ == 5825)
-  {
-    channel = 165;
-  }
-
-  return (channel);
-
-}
-
-static uint16_t
-_chan2freq(uint16_t chan_)
-{
-  uint16_t freq = 0;
-  if ((chan_ >= 1) && (chan_ <=13))
-  {
-    freq = (((chan_ - 1) * 5) + 2412);
-  }
-  else if ((chan_ >= 36) && (chan_ <= 64))
-  {
-    freq = (((chan_ - 34) * 5) + 5170);
-  }
-  else if ((chan_ >= 100) && (chan_ <= 144))
-  {
-    freq = (((chan_ - 100) * 5) + 5500);
-  }
-  else if ((chan_ >= 149) && (chan_ <= 161))
-  {
-    freq = (((chan_ - 149) * 5) + 5745);
-  }
-  else if (chan_ == 165)
-  {
-    freq = 5825;
-  }
-  return (freq);
-}
-
-static uint32_t
-_htmode2nl(ConfigData::HTMODE mode_)
-{
-  uint32_t val = 0;
-  switch (mode_)
-  {
-  case ConfigData::HTMODE_NONE:
-    // no break
-  case ConfigData::HTMODE_NOHT:
-    val = NL80211_CHAN_NO_HT;
-    break;
-  case ConfigData::HTMODE_HT20:
-    val = NL80211_CHAN_WIDTH_20;
-    break;
-  case ConfigData::HTMODE_HT40:
-    val = NL80211_CHAN_WIDTH_40;
-    break;
-  case ConfigData::HTMODE_VHT20:
-    val = NL80211_CHAN_WIDTH_20;
-    break;
-  case ConfigData::HTMODE_VHT40:
-    val = NL80211_CHAN_WIDTH_40;
-    break;
-  case ConfigData::HTMODE_VHT80:
-    val = NL80211_CHAN_WIDTH_80;
-    break;
-  case ConfigData::HTMODE_VHT80PLUS80:
-    val = NL80211_CHAN_WIDTH_80P80;
-    break;
-  case ConfigData::HTMODE_VHT160:
-    val = NL80211_CHAN_WIDTH_160;
-    break;
-  case ConfigData::HTMODE_ERR:
-    // no break
-  default:
-    break;
-  }
-  return (val);
-}
-
 static std::string
 _htmode2str(ConfigData::HTMODE mode_)
 {
@@ -204,57 +102,6 @@ _htmode2str(ConfigData::HTMODE mode_)
     break;
   }
   return (str);
-}
-
-static ConfigData::OPMODE
-_nl2opmode(const uint32_t iftype_)
-{
-  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
-  switch (iftype_)
-  {
-  case NL80211_IFTYPE_STATION:
-    mode = ConfigData::OPMODE_STA;
-    break;
-  case NL80211_IFTYPE_AP:
-    mode = ConfigData::OPMODE_AP;
-    break;
-  case NL80211_IFTYPE_MONITOR:
-    mode = ConfigData::OPMODE_MONITOR;
-    break;
-  case NL80211_IFTYPE_ADHOC:
-    mode = ConfigData::OPMODE_ADHOC;
-    break;
-  default:
-    mode = ConfigData::OPMODE_DEF;
-    break;
-  }
-  return (mode);
-}
-
-static uint32_t
-_opmode2nl(const ConfigData::OPMODE mode_)
-{
-  uint32_t iftype = 0;
-  // Translate operational mode to NL80211 interface type
-  switch (mode_)
-  {
-  case ConfigData::OPMODE_STA:
-    iftype = NL80211_IFTYPE_STATION;
-    break;
-  case ConfigData::OPMODE_AP:
-    iftype = NL80211_IFTYPE_AP;
-    break;
-  case ConfigData::OPMODE_MONITOR:
-    iftype = NL80211_IFTYPE_MONITOR;
-    break;
-  case ConfigData::OPMODE_ADHOC:
-    iftype = NL80211_IFTYPE_ADHOC;
-    break;
-  default:
-    iftype = NL80211_IFTYPE_UNSPECIFIED;
-    break;
-  }
-  return (iftype);
 }
 
 static std::string
@@ -478,7 +325,7 @@ Interface::GetChannel() const
     }
     this->lock.Unlock();
   }
-  return (_freq2chan(freq));
+  return (this->freq2chan(freq));
 }
 
 bool
@@ -487,7 +334,7 @@ Interface::SetChannel(const unsigned int channel_)
   bool status = false;
   if (this->lock.Lock())
   {
-    status = this->stagingConfig.SetFrequency(_chan2freq(channel_));
+    status = this->stagingConfig.SetFrequency(this->chan2freq(channel_));
     this->lock.Unlock();
   }
   return (status);
@@ -746,7 +593,7 @@ Interface::Create()
   {
     NewInterfaceCommand *cmd = new NewInterfaceCommand(this->stagingConfig.GetIfName(),
         this->stagingConfig.GetPhyIndex());
-    cmd->IfType.Set(_opmode2nl(this->stagingConfig.GetOpMode()));
+    cmd->IfType.Set(this->opmode2nl(this->stagingConfig.GetOpMode()));
     this->addCommand(cmd);
     status = this->execCommands();
     this->lock.Unlock();
@@ -794,6 +641,189 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
 
+inline uint16_t
+Interface::freq2chan(const uint16_t freq_) const
+{
+
+  uint16_t channel = 0;
+  // Channels 1 - 13
+  if ((freq_ >= 2412) && (freq_ <= 2472))
+  {
+    channel = (1 + ((freq_ - 2412) / 5));
+  }
+  // Channels 36 - 64
+  else if ((freq_ >= 5170) && (freq_ <= 5320))
+  {
+    channel = (34 + ((freq_ - 5170) / 5));
+  }
+  // Channels 100 - 144
+  else if ((freq_ >= 5500) && (freq_ <= 5720))
+  {
+    channel = (100 + ((freq_ - 5500) / 5));
+  }
+  // Channels 149 - 161
+  else if ((freq_ >= 5745) && (freq_ <= 5805))
+  {
+    channel = (149 + ((freq_ - 5745) / 5));
+  }
+  // Channel 165
+  else if (freq_ == 5825)
+  {
+    channel = 165;
+  }
+
+  return (channel);
+
+}
+
+inline uint16_t
+Interface::chan2freq(const uint16_t chan_) const
+{
+  uint16_t freq = 0;
+  if ((chan_ >= 1) && (chan_ <=13))
+  {
+    freq = (((chan_ - 1) * 5) + 2412);
+  }
+  else if ((chan_ >= 36) && (chan_ <= 64))
+  {
+    freq = (((chan_ - 34) * 5) + 5170);
+  }
+  else if ((chan_ >= 100) && (chan_ <= 144))
+  {
+    freq = (((chan_ - 100) * 5) + 5500);
+  }
+  else if ((chan_ >= 149) && (chan_ <= 161))
+  {
+    freq = (((chan_ - 149) * 5) + 5745);
+  }
+  else if (chan_ == 165)
+  {
+    freq = 5825;
+  }
+  return (freq);
+}
+
+inline ConfigData::HTMODE
+Interface::nl2htmode(const uint32_t nl_) const
+{
+  ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
+  switch (nl_)
+  {
+  case NL80211_CHAN_WIDTH_20_NOHT:
+    mode = ConfigData::HTMODE_NOHT;
+    break;
+  case NL80211_CHAN_WIDTH_20:
+    mode = ConfigData::HTMODE_HT20;
+    break;
+  case NL80211_CHAN_WIDTH_40:
+    mode = ConfigData::HTMODE_HT40;
+    break;
+  case NL80211_CHAN_WIDTH_80:
+    mode = ConfigData::HTMODE_VHT80;
+    break;
+  case NL80211_CHAN_WIDTH_80P80:
+    mode = ConfigData::HTMODE_VHT80PLUS80;
+    break;
+  case NL80211_CHAN_WIDTH_160:
+    mode = ConfigData::HTMODE_VHT160;
+    break;
+  default:
+    break;
+  }
+  return (mode);
+}
+
+inline uint32_t
+Interface::htmode2nl(const ConfigData::HTMODE mode_) const
+{
+  uint32_t val = 0;
+  switch (mode_)
+  {
+  case ConfigData::HTMODE_NONE:
+    // no break
+  case ConfigData::HTMODE_NOHT:
+    val = NL80211_CHAN_NO_HT;
+    break;
+  case ConfigData::HTMODE_HT20:
+    val = NL80211_CHAN_WIDTH_20;
+    break;
+  case ConfigData::HTMODE_HT40:
+    val = NL80211_CHAN_WIDTH_40;
+    break;
+  case ConfigData::HTMODE_VHT20:
+    val = NL80211_CHAN_WIDTH_20;
+    break;
+  case ConfigData::HTMODE_VHT40:
+    val = NL80211_CHAN_WIDTH_40;
+    break;
+  case ConfigData::HTMODE_VHT80:
+    val = NL80211_CHAN_WIDTH_80;
+    break;
+  case ConfigData::HTMODE_VHT80PLUS80:
+    val = NL80211_CHAN_WIDTH_80P80;
+    break;
+  case ConfigData::HTMODE_VHT160:
+    val = NL80211_CHAN_WIDTH_160;
+    break;
+  case ConfigData::HTMODE_ERR:
+    // no break
+  default:
+    break;
+  }
+  return (val);
+}
+
+inline ConfigData::OPMODE
+Interface::nl2opmode(const uint32_t nl_) const
+{
+  ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
+  switch (nl_)
+  {
+  case NL80211_IFTYPE_STATION:
+    mode = ConfigData::OPMODE_STA;
+    break;
+  case NL80211_IFTYPE_AP:
+    mode = ConfigData::OPMODE_AP;
+    break;
+  case NL80211_IFTYPE_MONITOR:
+    mode = ConfigData::OPMODE_MONITOR;
+    break;
+  case NL80211_IFTYPE_ADHOC:
+    mode = ConfigData::OPMODE_ADHOC;
+    break;
+  default:
+    mode = ConfigData::OPMODE_DEF;
+    break;
+  }
+  return (mode);
+}
+
+inline uint32_t
+Interface::opmode2nl(const ConfigData::OPMODE mode_) const
+{
+  uint32_t iftype = 0;
+  // Translate operational mode to NL80211 interface type
+  switch (mode_)
+  {
+  case ConfigData::OPMODE_STA:
+    iftype = NL80211_IFTYPE_STATION;
+    break;
+  case ConfigData::OPMODE_AP:
+    iftype = NL80211_IFTYPE_AP;
+    break;
+  case ConfigData::OPMODE_MONITOR:
+    iftype = NL80211_IFTYPE_MONITOR;
+    break;
+  case ConfigData::OPMODE_ADHOC:
+    iftype = NL80211_IFTYPE_ADHOC;
+    break;
+  default:
+    iftype = NL80211_IFTYPE_UNSPECIFIED;
+    break;
+  }
+  return (iftype);
+}
+
 int
 Interface::_getPhyIndex() const
 {
@@ -801,7 +831,7 @@ Interface::_getPhyIndex() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.PhyIndex.IsValid())
     {
       index = cmd.PhyIndex();
     }
@@ -822,9 +852,9 @@ Interface::_getPhyDev() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.PhyDev.IsValid())
     {
-      index = cmd.PhyIndex();
+      index = cmd.PhyDev();
     }
   }
   return (index);
@@ -844,7 +874,7 @@ Interface::_getPhyName() const
   {
     GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
     cmd.PhyIndex(this->workingConfig.GetPhyIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.PhyName.IsValid())
     {
       name = cmd.PhyName();
     }
@@ -876,9 +906,9 @@ Interface::_getOpMode() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.IfType.IsValid())
     {
-      mode = _nl2opmode(cmd.IfType());
+      mode = this->nl2opmode(cmd.IfType());
     }
   }
   return (mode);
@@ -891,7 +921,7 @@ Interface::_setOpMode()
   if (this->workingConfig.GetIfIndex())
   {
     SetInterfaceCommand* cmd = new SetInterfaceCommand(this->workingConfig.GetIfIndex());
-    cmd->IfType(_opmode2nl(this->stagingConfig.GetOpMode()));
+    cmd->IfType(this->opmode2nl(this->stagingConfig.GetOpMode()));
     this->addCommand(cmd);
     status = true;
   }
@@ -905,31 +935,9 @@ Interface::_getHtMode() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.ChannelWidth.IsValid())
     {
-      switch (cmd.ChannelWidth())
-      {
-      case NL80211_CHAN_WIDTH_20_NOHT:
-        mode = ConfigData::HTMODE_NOHT;
-        break;
-      case NL80211_CHAN_WIDTH_20:
-        mode = ConfigData::HTMODE_HT20;
-        break;
-      case NL80211_CHAN_WIDTH_40:
-        mode = ConfigData::HTMODE_HT40;
-        break;
-      case NL80211_CHAN_WIDTH_80:
-        mode = ConfigData::HTMODE_VHT80;
-        break;
-      case NL80211_CHAN_WIDTH_80P80:
-        mode = ConfigData::HTMODE_VHT80PLUS80;
-        break;
-      case NL80211_CHAN_WIDTH_160:
-        mode = ConfigData::HTMODE_VHT160;
-        break;
-      default:
-        break;
-      }
+      mode = this->nl2htmode(cmd.ChannelWidth());
     }
   }
   return (mode);
@@ -942,7 +950,7 @@ Interface::_getFrequency() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.Frequency.IsValid())
     {
       freq = cmd.Frequency();
     }
@@ -957,7 +965,7 @@ Interface::_getCenterFrequency1() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.CenterFrequency1.IsValid())
     {
       freq = cmd.CenterFrequency1();
     }
@@ -973,7 +981,7 @@ Interface::_getCenterFrequency2() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.CenterFrequency2.IsValid())
     {
       freq = cmd.CenterFrequency2();
     }
@@ -1010,7 +1018,7 @@ Interface::_setChannel()
     case ConfigData::HTMODE_HT20:
       // no break
     case ConfigData::HTMODE_VHT20:
-      cmd->ChannelWidth(_htmode2nl(this->stagingConfig.GetHtMode()));
+      cmd->ChannelWidth(this->htmode2nl(this->stagingConfig.GetHtMode()));
       // no break
     case ConfigData::HTMODE_NOHT:
       this->addCommand(cmd);
@@ -1030,7 +1038,7 @@ Interface::_getTxPower() const
   if (this->workingConfig.GetIfIndex())
   {
     GetInterfaceCommand cmd(this->workingConfig.GetIfIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.TxPowerLevel.IsValid())
     {
       power = cmd.TxPowerLevel();
     }
@@ -1062,7 +1070,7 @@ Interface::_getCapabilities() const
   {
     GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
     cmd.PhyIndex(this->workingConfig.GetPhyIndex());
-    if (cmd.Exec())
+    if (cmd.Exec() && cmd.PhyBands.IsValid())
     {
       std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
       FOREACH(auto& band, bands)

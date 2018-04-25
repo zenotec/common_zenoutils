@@ -183,6 +183,7 @@ AssociationRequest::Display() const
   std::cout << "----- IEEE802.11 Association Request -----------" << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
+  if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->PowerCaps.Valid()) this->PowerCaps.Display();
 }
 
@@ -343,13 +344,14 @@ AssociationResponse::Display() const
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Association Response ----------" << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
-  std::cout << "\tStatus:   \t" << (int) this->Status() << std::endl;
+  std::cout << "\tStatus:   \t" << int(this->Status()) << std::endl;
+  std::cout << "\tAID:      \t" << int(this->AssociationIdentifier()) << std::endl;
   if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->Rates.Valid()) this->Rates.Display();
-  if (this->Tim.Valid()) this->Tim.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
-//  if (this->WmmWme.Valid()) this->WmmWme.Display();
+  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

@@ -71,17 +71,17 @@ GetInterfaceCommand::Display(const std::string& prefix_) const
   std::cout << "\tType:  \t" << this->IfType.ToString() << std::endl;
   if (this->Mac.IsValid())
     std::cout << "\tMAC:   \t" << this->Mac() << std::endl;
+  if (this->ChannelWidth.IsValid())
+    std::cout << "\tChannelWidth:  \t" << this->ChannelWidth() << std::endl;
   if (this->Frequency.IsValid())
   {
     std::cout << "\tChannel:  \t" << this->Frequency.GetChannel();
     std::cout << " [" << this->Frequency() << "]" << std::endl;
   }
-  if (this->ChannelWidth.IsValid())
-    std::cout << "\tChannelWidth:  \t" << this->ChannelWidth() << std::endl;
   if (this->CenterFrequency1.IsValid())
     std::cout << "\tCenter 1:  \t" << this->CenterFrequency1() << std::endl;
   if (this->CenterFrequency2.IsValid())
-    std::cout << "\tCenter 1:  \t" << this->CenterFrequency2() << std::endl;
+    std::cout << "\tCenter 2:  \t" << this->CenterFrequency2() << std::endl;
   if (this->Ssid.IsValid())
     std::cout << "\tSSID:  \t" << this->Ssid() << std::endl;
   if (this->TxPowerLevel.IsValid())

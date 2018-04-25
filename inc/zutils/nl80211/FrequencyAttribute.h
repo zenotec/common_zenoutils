@@ -32,68 +32,6 @@
 namespace nl80211
 {
 
-static uint16_t
-_freq2chan(uint16_t freq_)
-{
-
-  uint16_t channel = 0;
-  // Channels 1 - 13
-  if ((freq_ >= 2412) && (freq_ <= 2472))
-  {
-    channel = (1 + ((freq_ - 2412) / 5));
-  }
-  // Channels 36 - 64
-  else if ((freq_ >= 5170) && (freq_ <= 5320))
-  {
-    channel = (34 + ((freq_ - 5170) / 5));
-  }
-  // Channels 100 - 144
-  else if ((freq_ >= 5500) && (freq_ <= 5720))
-  {
-    channel = (100 + ((freq_ - 5500) / 5));
-  }
-  // Channels 149 - 161
-  else if ((freq_ >= 5745) && (freq_ <= 5805))
-  {
-    channel = (149 + ((freq_ - 5745) / 5));
-  }
-  // Channel 165
-  else if (freq_ == 5825)
-  {
-    channel = 165;
-  }
-
-  return (channel);
-
-}
-
-static uint16_t
-_chan2freq(uint16_t chan_)
-{
-  uint16_t freq = 0;
-  if ((chan_ >= 1) && (chan_ <=13))
-  {
-    freq = (((chan_ - 1) * 5) + 2412);
-  }
-  else if ((chan_ >= 36) && (chan_ <= 64))
-  {
-    freq = (((chan_ - 34) * 5) + 5170);
-  }
-  else if ((chan_ >= 100) && (chan_ <= 144))
-  {
-    freq = (((chan_ - 100) * 5) + 5500);
-  }
-  else if ((chan_ >= 149) && (chan_ <= 161))
-  {
-    freq = (((chan_ - 149) * 5) + 5745);
-  }
-  else if (chan_ == 165)
-  {
-    freq = 5825;
-  }
-  return (freq);
-}
-
 //*****************************************************************************
 // Class: FrequencyAttribute
 //*****************************************************************************
@@ -140,6 +78,68 @@ public:
 protected:
 
 private:
+
+  static uint16_t
+  _freq2chan(uint16_t freq_)
+  {
+
+    uint16_t channel = 0;
+    // Channels 1 - 13
+    if ((freq_ >= 2412) && (freq_ <= 2472))
+    {
+      channel = (1 + ((freq_ - 2412) / 5));
+    }
+    // Channels 36 - 64
+    else if ((freq_ >= 5170) && (freq_ <= 5320))
+    {
+      channel = (34 + ((freq_ - 5170) / 5));
+    }
+    // Channels 100 - 144
+    else if ((freq_ >= 5500) && (freq_ <= 5720))
+    {
+      channel = (100 + ((freq_ - 5500) / 5));
+    }
+    // Channels 149 - 161
+    else if ((freq_ >= 5745) && (freq_ <= 5805))
+    {
+      channel = (149 + ((freq_ - 5745) / 5));
+    }
+    // Channel 165
+    else if (freq_ == 5825)
+    {
+      channel = 165;
+    }
+
+    return (channel);
+
+  }
+
+  static uint16_t
+  _chan2freq(uint16_t chan_)
+  {
+    uint16_t freq = 0;
+    if ((chan_ >= 1) && (chan_ <=13))
+    {
+      freq = (((chan_ - 1) * 5) + 2412);
+    }
+    else if ((chan_ >= 36) && (chan_ <= 64))
+    {
+      freq = (((chan_ - 34) * 5) + 5170);
+    }
+    else if ((chan_ >= 100) && (chan_ <= 144))
+    {
+      freq = (((chan_ - 100) * 5) + 5500);
+    }
+    else if ((chan_ >= 149) && (chan_ <= 161))
+    {
+      freq = (((chan_ - 149) * 5) + 5745);
+    }
+    else if (chan_ == 165)
+    {
+      freq = 5825;
+    }
+    return (freq);
+  }
 
 };
 

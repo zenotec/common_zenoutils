@@ -40,12 +40,13 @@ using namespace netlink;
 #include <zutils/nl80211/IfTypeAttribute.h>
 #include <zutils/nl80211/MacAttribute.h>
 #include <zutils/nl80211/SsidAttribute.h>
-#include <zutils/nl80211/FrequencyAttribute.h>
 #include <zutils/nl80211/ChannelWidthAttribute.h>
+#include <zutils/nl80211/FrequencyAttribute.h>
+#include <zutils/nl80211/CenterFrequency1Attribute.h>
+#include <zutils/nl80211/CenterFrequency2Attribute.h>
 #include <zutils/nl80211/TxPowerModeAttribute.h>
 #include <zutils/nl80211/TxPowerLevelAttribute.h>
 
-#include <zutils/nl80211/CenterFrequency1Attribute.h>	//RKB
 
 // local includes
 
@@ -71,7 +72,7 @@ public:
   ChannelWidthAttribute ChannelWidth;
   FrequencyAttribute Frequency;
   CenterFrequency1Attribute CenterFrequency1;
-  CenterFrequency1Attribute CenterFrequency2;
+  CenterFrequency2Attribute CenterFrequency2;
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel;
 

@@ -53,7 +53,7 @@ namespace ieee80211
 // Class: BasicServiceSet
 // ****************************************************************************
 
-class BasicServiceSet : public AccessPointInterface
+class BasicServiceSet : public zWireless::ConfigData
 {
 
 public:
@@ -76,68 +76,17 @@ public:
   virtual
   ~BasicServiceSet();
 
-  std::string
-  GetSsid();
+  bool
+  Start();
 
   bool
-  SetSsid(const std::string& ssid_);
+  Stop();
 
-  std::string
-  GetBssid();
-
-  bool
-  SetBssid(const std::string& bssid_);
-#if 0	//	Now directly accessed through tags
-  std::vector<uint8_t>
-  GetRates();
-
-  bool
-  SetRates(const std::vector<uint8_t> rates_);
-
-  uint8_t
-  GetDsss();
-
-  bool
-  SetDsss(const uint8_t channel_);
-
-  std::vector<uint8_t>
-  GetPowerCaps();
-  
-  bool
-  SetPowerCaps(const uint8_t min_, const uint8_t max_);
-
-  ieee80211::HtCapsTag::ht_caps
-  GetHtCaps();
-
-  bool
-  SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
-
-  ieee80211::HtInfoTag::ht_info
-  GetHtInfo();
-
-  bool
-  SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_);
-
-  std::vector<uint8_t>
-  GetExtRates();
-
-  bool
-  SetExtRates(const std::vector<uint8_t> exrates_);
-#endif
   bool
   AddStation(const std::string& addr_);
 
   bool
   DelStation(const std::string& addr_);
-
-  virtual bool
-  Commit();
-
-  virtual bool
-  Create();
-
-  virtual bool
-  Destroy();
 
   virtual void
   Display(const std::string &prefix_ = std::string(""));
@@ -146,8 +95,7 @@ protected:
 
 private:
 
-  std::string _ssid;
-  std::string _bssid;
+  AccessPointInterface _iface;
   ieee80211::Beacon _beacon;
   ieee80211::ProbeResponse _probe;
 
