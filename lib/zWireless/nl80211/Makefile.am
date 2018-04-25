@@ -32,6 +32,7 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/BeaconHeadAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/BeaconIntervalAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/BeaconTailAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/ProbeResponseAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ChannelWidthAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/DtimPeriodAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/FrequencyAttribute.h \
@@ -40,7 +41,9 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/IfTypeAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/MacAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/PhyIndexAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/PhyDevAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/PhyNameAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/PhyBandsAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/SsidAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerLevelAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerModeAttribute.h \

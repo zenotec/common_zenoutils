@@ -413,23 +413,29 @@ protected:
   zWireless::ConfigData stagingConfig;
   zWireless::ConfigData workingConfig;
 
-  inline uint16_t
-  freq2chan(const uint16_t freq_) const;
+  static uint16_t
+  freq2chan(const uint16_t freq_);
 
-  inline uint16_t
-  chan2freq(const uint16_t chan_) const;
+  static uint16_t
+  chan2freq(const uint16_t chan_);
 
-  inline ConfigData::HTMODE
-  nl2htmode(const uint32_t nl_) const;
+  static ConfigData::HTMODE
+  nl2htmode(const uint32_t nl_);
 
-  inline uint32_t
-  htmode2nl(const ConfigData::HTMODE mode_) const;
+  static uint32_t
+  htmode2nl(const ConfigData::HTMODE mode_);
 
-  inline ConfigData::OPMODE
-  nl2opmode(const uint32_t iftype_) const;
+  static std::string
+  htmode2str(ConfigData::HTMODE mode_);
 
-  inline uint32_t
-  opmode2nl(const ConfigData::OPMODE mode_) const;
+  static ConfigData::OPMODE
+  nl2opmode(const uint32_t iftype_);
+
+  static uint32_t
+  opmode2nl(const ConfigData::OPMODE mode_);
+
+  static std::string
+  opmode2str(const ConfigData::OPMODE mode_);
 
 private:
 

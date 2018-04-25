@@ -61,80 +61,6 @@ namespace zUtils
 namespace zWireless
 {
 
-static std::string
-_htmode2str(ConfigData::HTMODE mode_)
-{
-  std::string str;
-  switch (mode_)
-  {
-  case ConfigData::HTMODE_NONE:
-    str = "None";
-    break;
-  case ConfigData::HTMODE_ERR:
-    str = "Error";
-    break;
-  case ConfigData::HTMODE_NOHT:
-    str = "Non-HT";
-    break;
-  case ConfigData::HTMODE_HT20:
-    str = "HT20";
-    break;
-  case ConfigData::HTMODE_HT40:
-    str = "HT40";
-    break;
-  case ConfigData::HTMODE_VHT20:
-    str = "VHT20";
-    break;
-  case ConfigData::HTMODE_VHT40:
-    str = "VHT40";
-    break;
-  case ConfigData::HTMODE_VHT80:
-    str = "VHT80";
-    break;
-  case ConfigData::HTMODE_VHT80PLUS80:
-    str = "VHT80+80";
-    break;
-  case ConfigData::HTMODE_VHT160:
-    str = "VHT160";
-    break;
-  default:
-    str = "Unknown";
-    break;
-  }
-  return (str);
-}
-
-static std::string
-_opmode2str(const ConfigData::OPMODE mode_)
-{
-  std::string str;
-  switch (mode_)
-  {
-  case ConfigData::OPMODE_NONE:
-    str = "None";
-    break;
-  case ConfigData::OPMODE_ERR:
-    str = "Error";
-    break;
-  case ConfigData::OPMODE_STA:
-    str = "Station";
-    break;
-  case ConfigData::OPMODE_AP:
-    str = "AP";
-    break;
-  case ConfigData::OPMODE_MONITOR:
-    str = "Monitor";
-    break;
-  case ConfigData::OPMODE_ADHOC:
-    str = "AdHoc";
-    break;
-  default:
-    str = "Unknown";
-    break;
-  }
-  return (str);
-}
-
 // ****************************************************************************
 // Class: zWireless::Interface
 // ****************************************************************************
@@ -633,16 +559,16 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "--------- Wireless Interface -----------" << std::endl;
   std::cout << prefix_ << "PHY:    \t[" << this->GetPhyIndex() << "]: " << this->GetPhyName()
       << std::endl;
-  std::cout << prefix_ << "OPMODE: \t" << _opmode2str(this->GetOpMode()) << std::endl;
-  std::cout << prefix_ << "HtMode: \t" << _htmode2str(this->GetHtMode()) << std::endl;
+  std::cout << prefix_ << "OPMODE: \t" << this->opmode2str(this->GetOpMode()) << std::endl;
+  std::cout << prefix_ << "HtMode: \t" << this->htmode2str(this->GetHtMode()) << std::endl;
   std::cout << prefix_ << "Freq:   \t" << this->GetFrequency() << std::endl;
   std::cout << prefix_ << "Center1:\t" << this->GetCenterFrequency1() << std::endl;
   std::cout << prefix_ << "Center2:\t" << this->GetCenterFrequency2() << std::endl;
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
 
-inline uint16_t
-Interface::freq2chan(const uint16_t freq_) const
+uint16_t
+Interface::freq2chan(const uint16_t freq_)
 {
 
   uint16_t channel = 0;
@@ -676,8 +602,8 @@ Interface::freq2chan(const uint16_t freq_) const
 
 }
 
-inline uint16_t
-Interface::chan2freq(const uint16_t chan_) const
+uint16_t
+Interface::chan2freq(const uint16_t chan_)
 {
   uint16_t freq = 0;
   if ((chan_ >= 1) && (chan_ <=13))
@@ -703,8 +629,8 @@ Interface::chan2freq(const uint16_t chan_) const
   return (freq);
 }
 
-inline ConfigData::HTMODE
-Interface::nl2htmode(const uint32_t nl_) const
+ConfigData::HTMODE
+Interface::nl2htmode(const uint32_t nl_)
 {
   ConfigData::HTMODE mode = ConfigData::HTMODE_ERR;
   switch (nl_)
@@ -733,8 +659,8 @@ Interface::nl2htmode(const uint32_t nl_) const
   return (mode);
 }
 
-inline uint32_t
-Interface::htmode2nl(const ConfigData::HTMODE mode_) const
+uint32_t
+Interface::htmode2nl(const ConfigData::HTMODE mode_)
 {
   uint32_t val = 0;
   switch (mode_)
@@ -773,8 +699,51 @@ Interface::htmode2nl(const ConfigData::HTMODE mode_) const
   return (val);
 }
 
-inline ConfigData::OPMODE
-Interface::nl2opmode(const uint32_t nl_) const
+std::string
+Interface::htmode2str(ConfigData::HTMODE mode_)
+{
+  std::string str;
+  switch (mode_)
+  {
+  case ConfigData::HTMODE_NONE:
+    str = "None";
+    break;
+  case ConfigData::HTMODE_ERR:
+    str = "Error";
+    break;
+  case ConfigData::HTMODE_NOHT:
+    str = "Non-HT";
+    break;
+  case ConfigData::HTMODE_HT20:
+    str = "HT20";
+    break;
+  case ConfigData::HTMODE_HT40:
+    str = "HT40";
+    break;
+  case ConfigData::HTMODE_VHT20:
+    str = "VHT20";
+    break;
+  case ConfigData::HTMODE_VHT40:
+    str = "VHT40";
+    break;
+  case ConfigData::HTMODE_VHT80:
+    str = "VHT80";
+    break;
+  case ConfigData::HTMODE_VHT80PLUS80:
+    str = "VHT80+80";
+    break;
+  case ConfigData::HTMODE_VHT160:
+    str = "VHT160";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
+}
+
+ConfigData::OPMODE
+Interface::nl2opmode(const uint32_t nl_)
 {
   ConfigData::OPMODE mode = ConfigData::OPMODE_ERR;
   switch (nl_)
@@ -798,8 +767,8 @@ Interface::nl2opmode(const uint32_t nl_) const
   return (mode);
 }
 
-inline uint32_t
-Interface::opmode2nl(const ConfigData::OPMODE mode_) const
+uint32_t
+Interface::opmode2nl(const ConfigData::OPMODE mode_)
 {
   uint32_t iftype = 0;
   // Translate operational mode to NL80211 interface type
@@ -822,6 +791,37 @@ Interface::opmode2nl(const ConfigData::OPMODE mode_) const
     break;
   }
   return (iftype);
+}
+
+std::string
+Interface::opmode2str(const ConfigData::OPMODE mode_)
+{
+  std::string str;
+  switch (mode_)
+  {
+  case ConfigData::OPMODE_NONE:
+    str = "None";
+    break;
+  case ConfigData::OPMODE_ERR:
+    str = "Error";
+    break;
+  case ConfigData::OPMODE_STA:
+    str = "Station";
+    break;
+  case ConfigData::OPMODE_AP:
+    str = "AP";
+    break;
+  case ConfigData::OPMODE_MONITOR:
+    str = "Monitor";
+    break;
+  case ConfigData::OPMODE_ADHOC:
+    str = "AdHoc";
+    break;
+  default:
+    str = "Unknown";
+    break;
+  }
+  return (str);
 }
 
 int
