@@ -128,7 +128,7 @@ public:
   {
       struct ext_caps_tag val = { 0 };
       this->GetValue(val);
-      return( val.caps[(bit_ >> 4)] >> (bit_ & 0xf) );
+      return( val.caps[(bit_ >> 4)] >> (bit_ & 0xf) & 1 );
   }
 
   bool
