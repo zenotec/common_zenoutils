@@ -173,11 +173,11 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Country);
   this->PutTag(this->ErpInfo);
   this->PutTag(this->ExtRates);
-//  this->PutTag(this->SuppOpClass);
+  this->PutTag(this->SuppOpClass);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
   this->PutTag(this->ExtCaps);
-//  this->PutTag(this->WmmWme);
+  this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
@@ -287,11 +287,11 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Country);
   this->GetTag(this->ErpInfo);
   this->GetTag(this->ExtRates);
-//  this->GetTag(this->SuppOpClass);
+  this->GetTag(this->SuppOpClass);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
   this->GetTag(this->ExtCaps);
-//  this->GetTag(this->WmmWme);
+  this->GetTag(this->WmmWme);
 
   return (p_);
 }

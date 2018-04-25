@@ -196,7 +196,7 @@ ProbeResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
   this->PutTag(this->ExtCaps);
-//  this->PutTag(this->WmmWme);
+  this->PutTag(this->WmmWme);
 
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
@@ -266,7 +266,7 @@ ProbeResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
   this->GetTag(this->ExtCaps);
-//  this->GetTag(this->WmmWme);
+  this->GetTag(this->WmmWme);
 
   return (p_);
 }

@@ -25,6 +25,7 @@
 #include <zutils/zBasicServiceSet.h>
 #include <zutils/ieee80211/Beacon.h>
 #include <zutils/ieee80211/Probe.h>
+#include <zutils/ieee80211/WmmWmeTag.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
@@ -144,20 +145,30 @@ BasicServiceSet::_update_beacon()
   this->_beacon.Rates(rates);
 //  this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->_iface.GetChannel());
-  ieee80211::country_tag country; // TODO: Country tag is hardcoded for now
+//  ieee80211::country_tag country; // TODO: Country tag is hardcoded for now
+
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
   {
     this->_beacon.ExtRates(caps[band].GetExtBitRates());
   }
-//  this->_beacon.SuppOpClass(81);
+  this->_beacon.SuppOpClass(81);
   this->_beacon.HtCaps = this->HtCaps;
 //  this->_beacon.HtCaps(caps[band].GetHtCaps());
   this->_beacon.HtInfo = this->HtInfo;
 //  this->_beacon.HtInfo(caps[band].GetHtInfo());
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
+
+  ieee80211::WmmWmeTag::ac_parms ac0 = {0x03, 0xa4, 0x0000};
+  ieee80211::WmmWmeTag::ac_parms ac1 = {0x27, 0xa4, 0x0000};
+  ieee80211::WmmWmeTag::ac_parms ac2 = {0x42, 0x43, 0x5e00};
+  ieee80211::WmmWmeTag::ac_parms ac3 = {0x62, 0x32, 0x2f00};
+  ieee80211::WmmWmeTag::wmm_wme wmmwme = {0x01, 0x01, 0x84, 0x00, ac0, ac1, ac2, ac3};
+  this->_beacon.WmmWme(wmmwme);
+
   this->_beacon.Display();
 
 }
