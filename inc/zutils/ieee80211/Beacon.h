@@ -45,6 +45,8 @@ class Beacon : public ManagementFrame, public BeaconParameters
 
 public:
 
+  TimTag Tim;
+
   Beacon();
 
   virtual

@@ -55,7 +55,6 @@ public:
   SsidTag Ssid;
   RatesTag Rates;
   DsssTag Dsss;
-  TimTag Tim;
   CountryTag Country;
   ErpInfoTag ErpInfo;
   HtCapsTag HtCaps;
