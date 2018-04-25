@@ -164,9 +164,9 @@ BasicServiceSet::_update_beacon()
 
   ieee80211::WmmWmeTag::ac_parms ac0 = {0x03, 0xa4, 0x0000};
   ieee80211::WmmWmeTag::ac_parms ac1 = {0x27, 0xa4, 0x0000};
-  ieee80211::WmmWmeTag::ac_parms ac2 = {0x42, 0x43, 0x5e00};
-  ieee80211::WmmWmeTag::ac_parms ac3 = {0x62, 0x32, 0x2f00};
-  ieee80211::WmmWmeTag::wmm_wme wmmwme = {0x01, 0x01, 0x84, 0x00, ac0, ac1, ac2, ac3};
+  ieee80211::WmmWmeTag::ac_parms ac2 = {0x42, 0x43, 0x005e};
+  ieee80211::WmmWmeTag::ac_parms ac3 = {0x62, 0x32, 0x002f};
+  ieee80211::WmmWmeTag::wmm_wme wmmwme = {0x01, 0x01, 0x80, 0x00, ac0, ac1, ac2, ac3};
   this->_beacon.WmmWme(wmmwme);
 
   this->_beacon.Display();
