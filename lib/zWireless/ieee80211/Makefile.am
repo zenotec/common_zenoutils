@@ -47,7 +47,8 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/ExtCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/SuppOpClassesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/BeaconParameters.h \
-	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h
+	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h \
+	${top_srcdir}/inc/zutils/ieee80211/QosData.h
 
 libieee80211_la_SOURCES = \
 	ieee80211.h \
@@ -74,5 +75,6 @@ libieee80211_la_SOURCES = \
 	Deauthentication.cpp \
 	Association.cpp \
 	Disassociation.cpp \
-	DataFrame.cpp
+	DataFrame.cpp \
+	QosData.cpp
 	
