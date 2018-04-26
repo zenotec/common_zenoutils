@@ -39,24 +39,13 @@ namespace zWireless
 namespace ieee80211
 {
 
-BeaconParameters::BeaconParameters()
-{
-}
-
-BeaconParameters::~BeaconParameters()
-{
-}
-
-
-
-
 //*****************************************************************************
 // Class: Beacon
 //*****************************************************************************
 
 Beacon::Beacon() :
     ManagementFrame(ManagementFrame::SUBTYPE_BEACON), _ts(0), _interval(0),
-    _capabilities(0), _head(NULL), _tail(NULL), _end(NULL), BeaconParameters()
+    _capabilities(0), _head(NULL), _tail(NULL), _end(NULL)
 {
   this->ReceiverAddress("ff:ff:ff:ff:ff:ff");
 }
@@ -281,7 +270,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  // NOTE: ORDER MATTERS!!!
+  // NOTE: ORDER MATTERS!!!	  //RKB Frame::GetTag(Tag& tag_, const int index_) appears to iterate all tags on each call - how do we verify order?
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);

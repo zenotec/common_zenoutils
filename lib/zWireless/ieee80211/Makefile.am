@@ -46,7 +46,6 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/ErpInfoTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/ExtCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/SuppOpClassesTag.h \
-	${top_srcdir}/inc/zutils/ieee80211/BeaconParameters.h \
 	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h \
 	${top_srcdir}/inc/zutils/ieee80211/QosData.h
 

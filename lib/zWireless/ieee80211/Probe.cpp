@@ -133,7 +133,7 @@ ProbeRequest::Display() const
 
 ProbeResponse::ProbeResponse() :
     ManagementFrame(ManagementFrame::SUBTYPE_PROBERESP), _ts(0), _interval(0),
-    _capabilities(0), BeaconParameters()
+    _capabilities(0)
 {
 }
 

@@ -27,8 +27,18 @@
 #include <zutils/ieee80211/ManagementFrame.h>
 #include <zutils/ieee80211/SsidTag.h>
 #include <zutils/ieee80211/RatesTag.h>
+#include <zutils/ieee80211/DsssTag.h>
+#include <zutils/ieee80211/TimTag.h>
+#include <zutils/ieee80211/CountryTag.h>
+#include <zutils/ieee80211/ErpInfoTag.h>
+#include <zutils/ieee80211/HtCapsTag.h>
+#include <zutils/ieee80211/SuppOpClassesTag.h>
+#include <zutils/ieee80211/HtInfoTag.h>
+#include <zutils/ieee80211/ExtRatesTag.h>
+#include <zutils/ieee80211/ExtCapsTag.h>
+#include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/ChannelsTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
-#include <zutils/ieee80211/BeaconParameters.h>
 
 // local includes
 
@@ -47,10 +57,14 @@ class AssociationRequest : public ManagementFrame
 {
 
 public:
-
+  //ORDER MATTERS - Declare in the order they are rendered
   SsidTag Ssid;
   RatesTag Rates;
+  ExtRatesTag ExtRates;
   PowerCapsTag PowerCaps;
+  ChannelsTag Channels;
+  HtCapsTag HtCaps;
+  WmmWmeTag WmmWme;
 
   AssociationRequest();
 
@@ -90,10 +104,17 @@ private:
 // Class: AssociationResponse
 //*****************************************************************************
 
-class AssociationResponse : public ManagementFrame, public BeaconParameters
+class AssociationResponse : public ManagementFrame
 {
 
 public:
+  //ORDER MATTERS - Declare in the order they are rendered
+  RatesTag Rates;
+  ExtRatesTag ExtRates;
+  HtCapsTag HtCaps;
+  HtInfoTag HtInfo;
+  ExtCapsTag ExtCaps;
+  WmmWmeTag WmmWme;
 
   AssociationResponse();
 

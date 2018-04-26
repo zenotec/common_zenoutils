@@ -25,7 +25,6 @@
 // libzutils includes
 #include <zutils/zLog.h>
 #include <zutils/ieee80211/Association.h>
-#include <zutils/ieee80211/BeaconParameters.h>
 using namespace zUtils;
 
 // local includes
@@ -91,6 +90,30 @@ AssociationRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
+  //ORDER MATTERS - Declare in the order they are rendered
+  if (!this->PutTag(this->ExtRates))
+  {
+    return(NULL);
+  }
+  if (!this->PutTag(this->PowerCaps))
+  {
+    return(NULL);
+  }
+  if (!this->PutTag(this->Channels))
+  {
+    return(NULL);
+  }
+  if (!this->PutTag(this->HtCaps))
+  {
+    return(NULL);
+  }
+#if 0 //TODO
+  if (!this->PutTag(this->WmmWme))
+  {
+    return(NULL);
+  }
+#endif
+
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
   {
@@ -145,7 +168,12 @@ AssociationRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  this->GetTag(this->PowerCaps);
+  //ORDER MATTERS - Declare in the order they are rendered - don't think it matters here since GetTag itterates
+  this->GetTag(ExtRates);
+  this->GetTag(PowerCaps);
+  this->GetTag(Channels);
+  this->GetTag(HtCaps);
+  this->GetTag(WmmWme);
 
   return (p_);
 }
@@ -193,7 +221,7 @@ AssociationRequest::Display() const
 
 AssociationResponse::AssociationResponse() :
     ManagementFrame(ManagementFrame::SUBTYPE_ASSRESP),
-    _capabilities(0), _status(0), _aid(0), BeaconParameters()
+    _capabilities(0), _status(0), _aid(0)
 {
 }
 
@@ -346,7 +374,6 @@ AssociationResponse::Display() const
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tStatus:   \t" << int(this->Status()) << std::endl;
   std::cout << "\tAID:      \t" << int(this->AssociationIdentifier()) << std::endl;
-  if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->Rates.Valid()) this->Rates.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();

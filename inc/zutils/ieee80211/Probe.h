@@ -25,7 +25,17 @@
 // libzutils includes
 #include <zutils/ieee80211/Frame.h>
 #include <zutils/ieee80211/ManagementFrame.h>
-#include <zutils/ieee80211/BeaconParameters.h>
+#include <zutils/ieee80211/SsidTag.h>
+#include <zutils/ieee80211/RatesTag.h>
+#include <zutils/ieee80211/DsssTag.h>
+#include <zutils/ieee80211/CountryTag.h>
+#include <zutils/ieee80211/ErpInfoTag.h>
+#include <zutils/ieee80211/HtCapsTag.h>
+#include <zutils/ieee80211/SuppOpClassesTag.h>
+#include <zutils/ieee80211/HtInfoTag.h>
+#include <zutils/ieee80211/ExtRatesTag.h>
+#include <zutils/ieee80211/ExtCapsTag.h>
+#include <zutils/ieee80211/WmmWmeTag.h>
 
 // local includes
 
@@ -44,9 +54,13 @@ class ProbeRequest : public ManagementFrame
 {
 
 public:
-
+  //ORDER MATTERS - Declare in the order they are rendered
   SsidTag Ssid;
   RatesTag Rates;
+  ExtRatesTag ExtRates;
+  DsssTag Dsss;
+  HtCapsTag HtCaps;
+  ExtCapsTag ExtCaps;
 
   ProbeRequest();
 
@@ -72,10 +86,22 @@ private:
 // Class: ProbeResponse
 //*****************************************************************************
 
-class ProbeResponse : public ManagementFrame, public BeaconParameters
+class ProbeResponse : public ManagementFrame
 {
 
 public:
+  //ORDER MATTERS - Declare in the order they are rendered
+  SsidTag Ssid;
+  RatesTag Rates;
+  DsssTag Dsss;
+  CountryTag Country;
+  ErpInfoTag ErpInfo;
+  ExtRatesTag ExtRates;
+  SuppOpClassesTag SuppOpClass;
+  HtCapsTag HtCaps;
+  HtInfoTag HtInfo;
+  ExtCapsTag ExtCaps;
+  WmmWmeTag WmmWme;
 
   ProbeResponse();
 
