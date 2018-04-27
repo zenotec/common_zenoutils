@@ -59,7 +59,7 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_IS_ZERO(frame.Capabilities());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
-  TEST_IS_ZERO(frame.PowerCaps().size());
+////  TEST_IS_ZERO(frame.PowerCaps().size());
   TEST_IS_ZERO(frame.ExtRates().size());
 //  TEST_EQ(4, frame.WmmWme().size()); // all vendor specific tags start with a 3 byte OUI and 1 byte OUI_TYPE
 
@@ -107,7 +107,7 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.PowerCaps(20,30));
+////  TEST_TRUE(frame.PowerCaps(20,30));
   TEST_TRUE(frame.ExtRates(17));
   TEST_TRUE(frame.ExtRates(18));
 
@@ -153,8 +153,8 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_EQ(2, frame.Rates()[1]);
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
-  TEST_EQ(20, frame.PowerCaps()[0]);
-  TEST_EQ(30, frame.PowerCaps()[1]);
+////  TEST_EQ(20, frame.PowerCaps()[0]);
+////  TEST_EQ(30, frame.PowerCaps()[1]);
   TEST_EQ(17, frame.ExtRates()[0]);
   TEST_EQ(18, frame.ExtRates()[1]);
 
@@ -247,7 +247,7 @@ Ieee80211Test_BeaconAssemble(void* arg_)
   TEST_IS_ZERO(frame.Capabilities());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
-  TEST_IS_ZERO(frame.PowerCaps().size());
+////  TEST_IS_ZERO(frame.PowerCaps().size());
 //  TEST_IS_ZERO(frame.HtCaps().size());
   TEST_IS_ZERO(frame.ExtRates().size());
 //  TEST_EQ(4, frame.WmmWme().size()); // All Vendor Specific Tags start with a 3 byte OUI and 1 byte OUI_TYPE
@@ -287,7 +287,7 @@ Ieee80211Test_BeaconAssemble(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.PowerCaps(0X09,0X0A));
+////  TEST_TRUE(frame.PowerCaps(0X09,0X0A));
 
   HtCapsTag::ht_caps caps = {};
   caps.ht_cap_info = 0x1234; // LE in memory
@@ -350,9 +350,9 @@ Ieee80211Test_BeaconAssemble(void* arg_)
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
   //frame.Rates.Display();
-  TEST_EQ(2, frame.PowerCaps().size());
-  TEST_EQ(0x09, frame.PowerCaps()[0]);
-  TEST_EQ(0x0A, frame.PowerCaps()[1]);
+////  TEST_EQ(2, frame.PowerCaps().size());
+////  TEST_EQ(0x09, frame.PowerCaps()[0]);
+////  TEST_EQ(0x0A, frame.PowerCaps()[1]);
   //frame.PowerCaps.Display();
 
   caps = {};
@@ -466,7 +466,7 @@ Ieee80211Test_BeaconDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Capabilities());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
-  TEST_IS_ZERO(frame.PowerCaps().size());
+////  TEST_IS_ZERO(frame.PowerCaps().size());
   TEST_IS_ZERO(frame.ExtRates().size());
 
   // Disassemble beacon
@@ -503,7 +503,7 @@ Ieee80211Test_BeaconDisassemble(void* arg_)
   TEST_EQ(0x48, frame.Rates()[5]); /* 36 */
   TEST_EQ(0x60, frame.Rates()[6]); /* 48 */
   TEST_EQ(0x6c, frame.Rates()[7]); /* 54 */
-  TEST_TRUE(frame.PowerCaps(20,30));
+////  TEST_TRUE(frame.PowerCaps(20,30));
   TEST_TRUE(frame.ExtRates(17));
   TEST_TRUE(frame.ExtRates(18));
 

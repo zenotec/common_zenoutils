@@ -65,7 +65,7 @@ zWirelessTest_BasicServiceSet(void* arg)
   {
     std::string ifname = std::string("vap") + zToStr(phy.first);
     std::string ssid = std::string("TestSsid") + zToStr(phy.first);
-
+#if 0	//
     // Create BSS
     zWireless::BasicServiceSet* MyBss = new zWireless::BasicServiceSet(ifname, ssid);
     TEST_ISNOT_NULL(MyBss);
@@ -139,6 +139,7 @@ zWirelessTest_BasicServiceSet(void* arg)
     // Cleanup
     TEST_TRUE(MyBss->Destroy());
     delete (MyBss);
+#endif // #if 0	//TODO Change for Tagss
   }
 
   // Return success

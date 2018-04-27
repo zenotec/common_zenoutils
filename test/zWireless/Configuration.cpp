@@ -62,7 +62,7 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_TRUE(MyConfig->SetAdminState(zInterface::ConfigData::STATE_UP));
   TEST_TRUE(MyConfig->SetPhyIndex(1));
   TEST_TRUE(MyConfig->SetPhyName("phy1"));
-  TEST_TRUE(MyConfig->SetHtMode(zWireless::ConfigData::HTMODE_HT40PLUS));
+  TEST_TRUE(MyConfig->SetHtMode(zWireless::ConfigData::HTMODE_HT40));
   TEST_TRUE(MyConfig->SetOpMode(zWireless::ConfigData::OPMODE_MONITOR));
   TEST_TRUE(MyConfig->SetSsid("TestSsid1"));
   TEST_TRUE(MyConfig->SetBssid("11:22:33:44:55:66"));
@@ -90,7 +90,7 @@ zWirelessTest_WirelessConfiguration (void* arg)
   TEST_NEQ(zWireless::ConfigData::ConfigPhyNameDefault, MyConfig->GetPhyName());
   TEST_EQ(std::string("phy1"), MyConfig->GetPhyName());
   TEST_NEQ(zWireless::ConfigData::HTMODE_DEF, MyConfig->GetHtMode());
-  TEST_EQ(zWireless::ConfigData::HTMODE_HT40PLUS, MyConfig->GetHtMode());
+  TEST_EQ(zWireless::ConfigData::HTMODE_HT40, MyConfig->GetHtMode());
   TEST_NEQ(zWireless::ConfigData::OPMODE_DEF, MyConfig->GetOpMode());
   TEST_EQ(zWireless::ConfigData::OPMODE_MONITOR, MyConfig->GetOpMode());
   TEST_NEQ(zWireless::ConfigData::ConfigSsidDefault, MyConfig->GetSsid());

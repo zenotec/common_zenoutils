@@ -248,7 +248,7 @@ zWirelessTest_MonitorInterface(void* arg)
     TEST_TRUE(MyInterface->Commit());
 
     TEST_TRUE(MyInterface->SetFrequency(5180));
-	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT40PLUS) );
+	TEST_TRUE(MyInterface->SetHtMode(zWireless::ConfigData::HTMODE::HTMODE_HT40) );
     TEST_TRUE(MyInterface->Commit());
 
     TEST_TRUE(MyInterface->SetCenterFrequency1(5210));
