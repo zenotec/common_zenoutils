@@ -38,8 +38,8 @@ _pfreq2chan(uint16_t freq_)
 {
 
   uint16_t channel = 0;
-  // Channels 1 - 13
-  if ((freq_ >= 2412) && (freq_ <= 2472))
+  // Channels 1 - 14
+  if ((freq_ >= 2412) && (freq_ <= 2477))
   {
     channel = (1 + ((freq_ - 2412) / 5));
   }
@@ -679,7 +679,7 @@ public:
   }
 
   std::vector<uint8_t>
-  GetRates() const
+  operator()() const
   {
     std::vector<uint8_t> rates;
     FOREACH(auto& rate, this->_rates)
@@ -690,7 +690,7 @@ public:
   }
 
   bool
-  SetRates(const std::vector<uint8_t>& rates_)
+  operator()(const std::vector<uint8_t>& rates_)
   {
     this->_rates.clear();
     for (int rate = 0; rate < rates_.size(); rate++)
@@ -729,6 +729,20 @@ class PhyBandsHtMcsAttribute :
 
 public:
 
+  struct tx_mcs
+  {
+    uint8_t tx_bits;
+    uint16_t reserved1;
+    uint8_t reserved2;
+  } __attribute__ ((packed));
+
+  struct mcs_set
+  {
+    std::array<uint8_t,10> rx_mcs_bitmask;
+    uint16_t rx_highest_rate;
+    tx_mcs tx_mcs_fields;
+  } __attribute__ ((packed));
+
   PhyBandsHtMcsAttribute() :
     AttributeValue(NL80211_BAND_ATTR_HT_MCS_SET)
   {
@@ -737,6 +751,19 @@ public:
   virtual
   ~PhyBandsHtMcsAttribute()
   {
+  }
+
+  struct mcs_set
+  operator()() const
+  {
+    struct mcs_set mcs = { 0 };
+    return (this->Get(mcs));
+  }
+
+  bool
+  operator()(const struct mcs_set& rate_)
+  {
+    return (this->Set(rate_));
   }
 
   virtual void
@@ -772,23 +799,113 @@ public:
   {
   }
 
-  uint32_t
+  uint16_t
   operator()() const
   {
     return (this->Get(uint16_t(0)));
   }
 
   bool
-  operator()(const uint16_t rate_)
+  operator()(const uint16_t caps_)
   {
-    return (this->Set(rate_));
+    return (this->Set(caps_));
   }
 
   virtual void
   Display(const std::string& prefix_ = "") const
   {
     std::cout << prefix_ << "HT Capabilities: " << this->GetLength() << std::endl;
-    std::cout << prefix_ << "0x" << std::hex << this->operator ()() << std::dec << std::endl;
+    printf("%s0x%04x\n", prefix_.c_str(), this->operator ()());
+  }
+
+protected:
+
+private:
+
+};
+
+//*****************************************************************************
+// Class: PhyBandsAmpduFactorAttribute
+//*****************************************************************************
+
+class PhyBandsAmpduFactorAttribute :
+    public AttributeValue
+{
+
+public:
+
+  PhyBandsAmpduFactorAttribute() :
+    AttributeValue(NL80211_BAND_ATTR_HT_AMPDU_FACTOR)
+  {
+  }
+
+  virtual
+  ~PhyBandsAmpduFactorAttribute()
+  {
+  }
+
+  uint8_t
+  operator()() const
+  {
+    return (this->Get(uint8_t(0)));
+  }
+
+  bool
+  operator()(const uint8_t ampdu_)
+  {
+    return (this->Set(ampdu_));
+  }
+
+  virtual void
+  Display(const std::string& prefix_ = "") const
+  {
+    std::cout << prefix_ << "A-MPDU Factor: " << this->GetLength() << std::endl;
+    printf("%s0x%02x\n", prefix_.c_str(), this->operator ()());
+  }
+
+protected:
+
+private:
+
+};
+
+//*****************************************************************************
+// Class: PhyBandsAmpduDensityAttribute
+//*****************************************************************************
+
+class PhyBandsAmpduDensityAttribute :
+    public AttributeValue
+{
+
+public:
+
+  PhyBandsAmpduDensityAttribute() :
+    AttributeValue(NL80211_BAND_ATTR_HT_AMPDU_DENSITY)
+  {
+  }
+
+  virtual
+  ~PhyBandsAmpduDensityAttribute()
+  {
+  }
+
+  uint8_t
+  operator()() const
+  {
+    return (this->Get(uint8_t(0)));
+  }
+
+  bool
+  operator()(const uint8_t ampdu_)
+  {
+    return (this->Set(ampdu_));
+  }
+
+  virtual void
+  Display(const std::string& prefix_ = "") const
+  {
+    std::cout << prefix_ << "A-MPDU Density: " << this->GetLength() << std::endl;
+    printf("%s0x%02x\n", prefix_.c_str(), this->operator ()());
   }
 
 protected:
@@ -800,7 +917,24 @@ private:
 //*****************************************************************************
 // Class: PhyBandAttribute
 //*****************************************************************************
-
+/**
+ * enum nl80211_band_attr - band attributes
+ * @__NL80211_BAND_ATTR_INVALID: attribute number 0 is reserved
+ * @NL80211_BAND_ATTR_FREQS: supported frequencies in this band,
+ *  an array of nested frequency attributes
+ * @NL80211_BAND_ATTR_RATES: supported bitrates in this band,
+ *  an array of nested bitrate attributes
+ * @NL80211_BAND_ATTR_HT_MCS_SET: 16-byte attribute containing the MCS set as
+ *  defined in 802.11n
+ * @NL80211_BAND_ATTR_HT_CAPA: HT capabilities, as in the HT information IE
+ * @NL80211_BAND_ATTR_HT_AMPDU_FACTOR: A-MPDU factor, as in 11n
+ * @NL80211_BAND_ATTR_HT_AMPDU_DENSITY: A-MPDU density, as in 11n
+ * @NL80211_BAND_ATTR_VHT_MCS_SET: 32-byte attribute containing the MCS set as
+ *  defined in 802.11ac
+ * @NL80211_BAND_ATTR_VHT_CAPA: VHT capabilities, as in the HT information IE
+ * @NL80211_BAND_ATTR_MAX: highest band attribute currently defined
+ * @__NL80211_BAND_ATTR_AFTER_LAST: internal use
+ */
 class PhyBandAttribute :
     public AttributeNested
 {
@@ -824,7 +958,9 @@ public:
     this->Get(&this->_freqs);
     this->Get(&this->_rates);
     this->Get(&this->_htmcs);
-    this->Get(&this->_htcapa);
+    this->Get(&this->_htcaps);
+    this->Get(&this->_ampdu_factor);
+    this->Get(&this->_ampdu_density);
     return (*this);
   }
 
@@ -841,16 +977,69 @@ public:
     return (true);
   }
 
-  std::vector<uint8_t>
+  const PhyBandsRatesAttribute&
   GetRates () const
   {
-    return (this->_rates.GetRates());
+    return (this->_rates);
   }
 
   bool
-  SetRates(const std::vector<uint8_t>& rates_)
+  SetRates(const PhyBandsRatesAttribute& attr_)
   {
-    return (this->_rates.SetRates(rates_));
+    this->_rates = attr_;
+    return (true);
+  }
+
+  const PhyBandsHtMcsAttribute&
+  GetMcsSet () const
+  {
+    return (this->_htmcs);
+  }
+
+  bool
+  SetMcsSet(const PhyBandsHtMcsAttribute& attr_)
+  {
+    this->_htmcs = attr_;
+    return (true);
+  }
+
+  const PhyBandsHtCapabiltiesAttribute&
+  GetHtCaps () const
+  {
+    return (this->_htcaps);
+  }
+
+  bool
+  SetHtCaps(const PhyBandsHtCapabiltiesAttribute& attr_)
+  {
+    this->_htcaps = attr_;
+    return (true);
+  }
+
+  const PhyBandsAmpduFactorAttribute&
+  GetAmpduFactor () const
+  {
+    return (this->_ampdu_factor);
+  }
+
+  bool
+  SetAmpduFactor(const PhyBandsAmpduFactorAttribute& attr_)
+  {
+    this->_ampdu_factor = attr_;
+    return (true);
+  }
+
+  const PhyBandsAmpduDensityAttribute&
+  GetAmpduDensity () const
+  {
+    return (this->_ampdu_density);
+  }
+
+  bool
+  SetAmpduDensity(const PhyBandsAmpduDensityAttribute& attr_)
+  {
+    this->_ampdu_density = attr_;
+    return (true);
   }
 
   virtual size_t
@@ -863,8 +1052,12 @@ public:
       len += sizeof(struct nlattr) + this->_rates.GetLength();
     if (this->_htmcs.IsValid())
       len += sizeof(struct nlattr) + this->_htmcs.GetLength();
-    if (this->_htcapa.IsValid())
-      len += sizeof(struct nlattr) + this->_htcapa.GetLength();
+    if (this->_htcaps.IsValid())
+      len += sizeof(struct nlattr) + this->_htcaps.GetLength();
+    if (this->_ampdu_factor.IsValid())
+      len += sizeof(struct nlattr) + this->_ampdu_factor.GetLength();
+    if (this->_ampdu_density.IsValid())
+      len += sizeof(struct nlattr) + this->_ampdu_density.GetLength();
     return (len);
   }
 
@@ -878,8 +1071,12 @@ public:
       this->_rates.Display(std::string(prefix_ + "\t"));
     if (this->_htmcs.IsValid())
       this->_htmcs.Display(std::string(prefix_ + "\t"));
-    if (this->_htcapa.IsValid())
-      this->_htcapa.Display(std::string(prefix_ + "\t"));
+    if (this->_htcaps.IsValid())
+      this->_htcaps.Display(std::string(prefix_ + "\t"));
+    if (this->_ampdu_factor.IsValid())
+      this->_ampdu_factor.Display(std::string(prefix_ + "\t"));
+    if (this->_ampdu_density.IsValid())
+      this->_ampdu_density.Display(std::string(prefix_ + "\t"));
   }
 
 protected:
@@ -889,7 +1086,9 @@ private:
   PhyBandsFreqsAttribute _freqs;
   PhyBandsRatesAttribute _rates;
   PhyBandsHtMcsAttribute _htmcs;
-  PhyBandsHtCapabiltiesAttribute _htcapa;
+  PhyBandsHtCapabiltiesAttribute _htcaps;
+  PhyBandsAmpduFactorAttribute _ampdu_factor;
+  PhyBandsAmpduDensityAttribute _ampdu_density;
 };
 
 //*****************************************************************************

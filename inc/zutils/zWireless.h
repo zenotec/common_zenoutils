@@ -188,6 +188,12 @@ public:
   SetHtMode(const ConfigData::HTMODE mode_ = HTMODE_DEF);
 
   unsigned int
+  GetChannel(const unsigned int channel_ = ConfigData::freq2chan(ConfigFrequencyDefault)) const;
+
+  bool
+  SetChannel(const unsigned int channel_ = ConfigData::freq2chan(ConfigFrequencyDefault));
+
+  unsigned int
   GetFrequency(const unsigned int freq_ = ConfigFrequencyDefault) const;
 
   bool
@@ -210,6 +216,12 @@ public:
 
   bool
   SetTxPower(const unsigned int power_ = ConfigTxPowerDefault);
+
+  static uint16_t
+  freq2chan(const uint16_t freq_);
+
+  static uint16_t
+  chan2freq(const uint16_t chan_);
 
 protected:
 
@@ -412,12 +424,6 @@ protected:
 
   zWireless::ConfigData stagingConfig;
   zWireless::ConfigData workingConfig;
-
-  static uint16_t
-  freq2chan(const uint16_t freq_);
-
-  static uint16_t
-  chan2freq(const uint16_t chan_);
 
   static ConfigData::HTMODE
   nl2htmode(const uint32_t nl_);

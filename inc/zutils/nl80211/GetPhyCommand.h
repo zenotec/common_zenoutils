@@ -58,15 +58,11 @@ class GetPhyCommand :
 
 public:
 
-  IfIndexAttribute IfIndex;
-  IfNameAttribute IfName;
   PhyIndexAttribute PhyIndex;
   PhyNameAttribute PhyName;
   PhyBandsAttribute PhyBands;
 
-  GetPhyCommand(int ifindex_);
-
-  GetPhyCommand(const std::string& ifname_);
+  GetPhyCommand(const int phyifindex_ = -1);
 
   virtual
   ~GetPhyCommand();

@@ -85,12 +85,35 @@ SetBeaconCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_SET_BEACON);
 
-  cmdmsg->PutAttribute(&this->IfIndex);
-  cmdmsg->PutAttribute(&this->Ssid);
-  cmdmsg->PutAttribute(&this->BeaconInterval);
-  cmdmsg->PutAttribute(&this->DtimPeriod);
-  cmdmsg->PutAttribute(&this->BeaconHead);
-  cmdmsg->PutAttribute(&this->BeaconTail);
+  if (!cmdmsg->PutAttribute(&this->IfIndex))
+  {
+    ZLOG_ERR("Error putting interface index attribute");
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->BeaconInterval))
+  {
+    ZLOG_ERR("Error putting beacon interval attribute: " + zToStr(this->BeaconInterval()));
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->BeaconHead))
+  {
+    ZLOG_ERR("Error putting beacon head attribute");
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->BeaconTail))
+  {
+    ZLOG_ERR("Error putting beacon tail attribute");
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->ProbeResp))
+  {
+    ZLOG_ERR("Error putting probe response attribute");
+    return (false);
+  }
 
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
@@ -124,49 +147,27 @@ SetBeaconCommand::Display(const std::string& prefix_) const
 {
   std::cout << "##################################################" << std::endl;
   std::cout << "SetBeaconCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tSsid:  \t" << this->Ssid() << std::endl;
-  std::cout << "\tBINT:  \t" << this->BeaconInterval() << std::endl;
-  std::cout << "\tDTIM:  \t" << this->DtimPeriod() << std::endl;
-//  std::cout << "\tBHEAD: \t" << this->BeaconHead()<< std::endl;
-//  std::cout << "\tBTAIL: \t" << this->BeaconTail() << std::endl;
+  if (this->IfName.IsValid())
+    std::cout << "\tName:   \t" << this->IfName() << std::endl;
+  if (this->IfIndex.IsValid())
+    std::cout << "\tIndex:  \t" << this->IfIndex() << std::endl;
+  if (this->BeaconInterval.IsValid())
+    std::cout << "\tBINT:   \t" << this->BeaconInterval() << std::endl;
+  if (this->BeaconHead.IsValid())
+    printf("\tBHEAD:  \t%p: %zd\n", this->BeaconHead.GetData(), this->BeaconHead.GetLength());
+  if (this->BeaconTail.IsValid())
+    printf("\tBTAIL:  \t%p: %zd\n", this->BeaconTail.GetData(), this->BeaconTail.GetLength());
+  if (this->ProbeResp.IsValid())
+    printf("\tPROBE:  \t%p: %zd\n", this->ProbeResp.GetData(), this->ProbeResp.GetLength());
   std::cout << "##################################################" << std::endl;
 }
 
 int
-SetBeaconCommand::valid_cb(struct nl_msg* msg_, void* arg_)
+SetBeaconCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-
-  GenericMessage msg;
-  if (!msg.Disassemble(msg_))
-  {
-    ZLOG_ERR("Error parsing generic message");
-    return (NL_SKIP);
-  }
-//  msg.DisplayAttributes();
-
-  if (!msg.GetAttribute(&this->IfIndex))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfIndex.GetId()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->IfName))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->IfName.GetId()));
-    return(NL_SKIP);
-  }
-
-  if (!msg.GetAttribute(&this->Ssid))
-  {
-    ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->Ssid.GetId()));
-    return(NL_SKIP);
-  }
-
+  this->Display();
   this->_status = true;
   this->_count.Post();
-
   return (NL_OK);
 }
 

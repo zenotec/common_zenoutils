@@ -25,18 +25,7 @@
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/ieee80211/Beacon.h>
 #include <zutils/ieee80211/Probe.h>
-#include <zutils/ieee80211/SsidTag.h>
-#include <zutils/ieee80211/RatesTag.h>
-#include <zutils/ieee80211/DsssTag.h>
-#include <zutils/ieee80211/TimTag.h>
-#include <zutils/ieee80211/CountryTag.h>
-#include <zutils/ieee80211/PowerCapsTag.h>
-#include <zutils/ieee80211/ErpInfoTag.h>
-#include <zutils/ieee80211/HtCapsTag.h>
-#include <zutils/ieee80211/ExtRatesTag.h>
-#include <zutils/ieee80211/ExtCapsTag.h>
-#include <zutils/ieee80211/HtInfoTag.h>
-#include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/Association.h>
 
 namespace zUtils
 {
@@ -53,31 +42,75 @@ namespace ieee80211
 // Class: BasicServiceSet
 // ****************************************************************************
 
-class BasicServiceSet : public zWireless::ConfigData
+class BasicServiceSet
 {
 
 public:
 
-  ieee80211::RatesTag Rates;
-  ieee80211::DsssTag Dsss;
-  ieee80211::TimTag Tim;
-  ieee80211::CountryTag Country;
-  ieee80211::PowerCapsTag PowerCaps;
-  ieee80211::ErpInfoTag ErpInfo;
-  ieee80211::HtCapsTag HtCaps;
-  ieee80211::SuppOpClassesTag SuppOpClass;
-  ieee80211::HtInfoTag HtInfo;
-  ieee80211::ExtRatesTag ExtRates;
-  ieee80211::ExtCapsTag ExtCaps;
-  ieee80211::WmmWmeTag WmmWme;
-
-  BasicServiceSet(const std::string& ifname_, const std::string &ssid_);
+  BasicServiceSet(AccessPointInterface& iface_);
 
   virtual
   ~BasicServiceSet();
 
+  std::string
+  GetSsid() const;
+
+  bool
+  SetSsid(const std::string& ssid_);
+
+  std::string
+  GetBssid() const;
+
+  bool
+  SetBssid(const std::string& bssid_);
+
+  ConfigData::HTMODE
+  GetHtMode() const;
+
+  bool
+  SetHtMode(const ConfigData::HTMODE mode_);
+
+  unsigned int
+  GetChannel() const;
+
+  bool
+  SetChannel(const unsigned int channel_);
+
+  unsigned int
+  GetFrequency() const;
+
+  bool
+  SetFrequency(const unsigned int freq_);
+
+  unsigned int
+  GetCenterFrequency1() const;
+
+  bool
+  SetCenterFrequency1(const unsigned int freq_);
+
+  unsigned int
+  GetCenterFrequency2() const;
+
+  bool
+  SetCenterFrequency2(const unsigned int freq_);
+
+  zWireless::Capabilities&
+  Capabilities(zWireless::Capabilities::BAND band_);
+
+  ieee80211::Beacon&
+  Beacon();
+
+  ieee80211::ProbeResponse&
+  ProbeResponse();
+
+  ieee80211::AssociationResponse&
+  AssociationResponse();
+
   bool
   Start();
+
+  bool
+  Update();
 
   bool
   Stop();
@@ -95,15 +128,18 @@ protected:
 
 private:
 
-  AccessPointInterface _iface;
+  zWireless::AccessPointInterface& _iface;
+  zWireless::ConfigData _config;
+  std::map<int, zWireless::Capabilities> _caps;
   ieee80211::Beacon _beacon;
   ieee80211::ProbeResponse _probe;
+  ieee80211::AssociationResponse _assoc;
 
   void
-  _update_beacon();
+  _init_beacon();
 
   void
-  _update_probe();
+  _init_probe();
 
 };
 

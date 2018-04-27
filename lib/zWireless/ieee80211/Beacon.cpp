@@ -328,7 +328,7 @@ Beacon::Display() const
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->HtInfo.Valid()) this->HtInfo.Display();
   if (this->ExtCaps.Valid()) this->ExtCaps.Display();
-//  if (this->WmmWme.Valid()) this->WmmWme.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

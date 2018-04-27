@@ -92,6 +92,12 @@ StartApCommand::Exec()
     return (false);
   }
 
+  if (!cmdmsg->PutAttribute(&this->ChannelWidth))
+  {
+    ZLOG_ERR("Error putting channel width attribute: " + zToStr(this->ChannelWidth()));
+    return (false);
+  }
+
   if (!cmdmsg->PutAttribute(&this->Channel))
   {
     ZLOG_ERR("Error putting channel attribute: " + zToStr(this->Channel.GetChannel()));
@@ -104,9 +110,9 @@ StartApCommand::Exec()
     return (false);
   }
 
-  if (!cmdmsg->PutAttribute(&this->ChannelWidth))
+  if ((this->ChannelWidth() == NL80211_CHAN_WIDTH_80P80) && !cmdmsg->PutAttribute(&this->CenterFrequency2))
   {
-    ZLOG_ERR("Error putting channel width attribute: " + zToStr(this->ChannelWidth()));
+    ZLOG_ERR("Error putting center frequency 2 attribute: " + zToStr(this->CenterFrequency2()));
     return (false);
   }
 
@@ -131,6 +137,12 @@ StartApCommand::Exec()
   if (!cmdmsg->PutAttribute(&this->BeaconTail))
   {
     ZLOG_ERR("Error putting beacon tail attribute");
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->ProbeResp))
+  {
+    ZLOG_ERR("Error putting probe response attribute");
     return (false);
   }
 
@@ -173,12 +185,14 @@ StartApCommand::Display(const std::string& prefix_) const
     std::cout << "\tIndex:  \t" << this->IfIndex() << std::endl;
   if (this->Ssid.IsValid())
     std::cout << "\tSsid:   \t" << this->Ssid() << std::endl;
-  if (this->CenterFrequency1.IsValid())
-    std::cout << "\tCenter Freq 1:\t" << this->CenterFrequency1() << std::endl;
-  if (this->Channel.IsValid())
-    std::cout << "\tChannel:\t" << this->Channel.GetChannel() << " [" << this->Channel() << "]" << std::endl;
   if (this->ChannelWidth.IsValid())
     std::cout << "\tChannelWidth:\t" << this->ChannelWidth() << std::endl;
+  if (this->Channel.IsValid())
+    std::cout << "\tChannel:\t" << this->Channel.GetChannel() << " [" << this->Channel() << "]" << std::endl;
+  if (this->CenterFrequency1.IsValid())
+    std::cout << "\tCenter Freq 1:\t" << this->CenterFrequency1() << std::endl;
+  if (this->CenterFrequency2.IsValid())
+    std::cout << "\tCenter Freq 2:\t" << this->CenterFrequency2() << std::endl;
   if (this->BeaconInterval.IsValid())
     std::cout << "\tBINT:   \t" << this->BeaconInterval() << std::endl;
   if (this->DtimPeriod.IsValid())
@@ -186,15 +200,16 @@ StartApCommand::Display(const std::string& prefix_) const
   if (this->BeaconHead.IsValid())
     printf("\tBHEAD:  \t%p: %zd\n", this->BeaconHead.GetData(), this->BeaconHead.GetLength());
   if (this->BeaconTail.IsValid())
-  {
     printf("\tBTAIL:  \t%p: %zd\n", this->BeaconTail.GetData(), this->BeaconTail.GetLength());
-  }
+  if (this->ProbeResp.IsValid())
+    printf("\tPROBE:  \t%p: %zd\n", this->ProbeResp.GetData(), this->ProbeResp.GetLength());
   std::cout << "##################################################" << std::endl;
 }
 
 int
 StartApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
+  this->Display();
   this->_status = true;
   this->_count.Post();
   return (NL_OK);

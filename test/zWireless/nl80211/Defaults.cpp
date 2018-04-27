@@ -44,9 +44,9 @@ Nl80211Test_Phy(void* arg_)
 
   FOREACH(auto& phy, phys)
   {
-    nl80211::GetPhyCommand phycmd(0);
-    phycmd.PhyIndex(phy.first);
+    nl80211::GetPhyCommand phycmd(phy.first);
     TEST_TRUE(phycmd.Exec());
+    TEST_EQ(phycmd.PhyIndex(), phy.first);
   }
 
   // Return success

@@ -35,12 +35,10 @@ using namespace netlink;
 #include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/SsidAttribute.h>
-#include <zutils/nl80211/FrequencyAttribute.h>
-#include <zutils/nl80211/BeaconIntervalAttribute.h>
-#include <zutils/nl80211/DtimPeriodAttribute.h>
 #include <zutils/nl80211/BeaconHeadAttribute.h>
 #include <zutils/nl80211/BeaconTailAttribute.h>
+#include <zutils/nl80211/BeaconIntervalAttribute.h>
+#include <zutils/nl80211/ProbeResponseAttribute.h>
 
 namespace nl80211
 {
@@ -56,12 +54,10 @@ public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  SsidAttribute Ssid;
-  FrequencyAttribute Channel;
-  BeaconIntervalAttribute BeaconInterval;
-  DtimPeriodAttribute DtimPeriod;
   BeaconHeadAttribute BeaconHead;
   BeaconTailAttribute BeaconTail;
+  BeaconIntervalAttribute BeaconInterval;
+  ProbeResponseAttribute ProbeResp;
 
   SetBeaconCommand(int index_);
 
@@ -79,7 +75,7 @@ public:
 protected:
 
   virtual int
-  valid_cb(struct nl_msg* msg, void* arg);
+  ack_cb(struct nl_msg* msg, void* arg);
 
   virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);

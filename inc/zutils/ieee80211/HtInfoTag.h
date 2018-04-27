@@ -38,12 +38,18 @@ class HtInfoTag : public Tag
 
 public:
 
-  struct rx_mcs
+  struct tx_mcs
   {
-    uint8_t rx_mcs_bitmask[10];
-    uint16_t rx_highest_data_rate;
-    uint8_t rx_tx_mcs;
-    uint8_t padding[3];
+    uint8_t tx_bits;
+    uint16_t reserved1;
+    uint8_t reserved2;
+  } __attribute__ ((packed));
+
+  struct mcs_set
+  {
+    std::array<uint8_t,10> rx_mcs_bitmask;
+    uint16_t rx_highest_rate;
+    tx_mcs tx_mcs_fields;
   } __attribute__ ((packed));
 
   struct ht_info
@@ -52,7 +58,7 @@ public:
     uint8_t ht_subset_1;
     uint16_t ht_subset_2;
     uint16_t ht_subset_3;
-	struct rx_mcs ht_rx_mcs;
+	struct mcs_set ht_rx_mcs;
   } __attribute__ ((packed));
 
   HtInfoTag() :
@@ -135,14 +141,14 @@ public:
     return (this->operator ()(info));
   }
 
-  rx_mcs
+  struct mcs_set
   RxMcs() const
   {
     return (this->operator ()().ht_rx_mcs);
   }
 
   bool
-  RxMcs(const rx_mcs mcs_)
+  RxMcs(const struct mcs_set mcs_)
   {
     struct ht_info info = this->operator ()();
     info.ht_rx_mcs = mcs_;

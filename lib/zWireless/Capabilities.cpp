@@ -131,7 +131,26 @@ Capabilities::GetBitRates() const
 bool
 Capabilities::SetBitRates(const std::vector<uint8_t>& rates_)
 {
+  // Copy rates
   this->_rates = rates_;
+  // Update basic rates (set MSB)
+  for (int i = 0; i < rates_.size(); i++)
+  {
+    switch (this->_rates[i])
+    {
+    case 2:
+      // no break
+    case 4:
+      // no break
+    case 10:
+      // no break
+    case 22:
+      this->_rates[i] |= 0x80;
+      break;
+    default:
+      break;
+    }
+  }
   return (true);
 }
 

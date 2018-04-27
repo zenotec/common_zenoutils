@@ -241,29 +241,13 @@ Interface::SetHtMode(const ConfigData::HTMODE mode_)
 unsigned int
 Interface::GetChannel() const
 {
-  unsigned int freq = 0;
-  if (this->lock.Lock())
-  {
-    freq = this->_getFrequency();
-    if (freq == 0)
-    {
-      freq = this->stagingConfig.GetFrequency();
-    }
-    this->lock.Unlock();
-  }
-  return (this->freq2chan(freq));
+  return (ConfigData::freq2chan(this->GetFrequency()));
 }
 
 bool
 Interface::SetChannel(const unsigned int channel_)
 {
-  bool status = false;
-  if (this->lock.Lock())
-  {
-    status = this->stagingConfig.SetFrequency(this->chan2freq(channel_));
-    this->lock.Unlock();
-  }
-  return (status);
+  return (this->SetFrequency(ConfigData::chan2freq(channel_)));
 }
 
 unsigned int
@@ -567,68 +551,6 @@ Interface::Display(const std::string &prefix_)
   std::cout << prefix_ << "Power:  \t" << this->GetTxPower() << std::endl;
 }
 
-uint16_t
-Interface::freq2chan(const uint16_t freq_)
-{
-
-  uint16_t channel = 0;
-  // Channels 1 - 13
-  if ((freq_ >= 2412) && (freq_ <= 2472))
-  {
-    channel = (1 + ((freq_ - 2412) / 5));
-  }
-  // Channels 36 - 64
-  else if ((freq_ >= 5170) && (freq_ <= 5320))
-  {
-    channel = (34 + ((freq_ - 5170) / 5));
-  }
-  // Channels 100 - 144
-  else if ((freq_ >= 5500) && (freq_ <= 5720))
-  {
-    channel = (100 + ((freq_ - 5500) / 5));
-  }
-  // Channels 149 - 161
-  else if ((freq_ >= 5745) && (freq_ <= 5805))
-  {
-    channel = (149 + ((freq_ - 5745) / 5));
-  }
-  // Channel 165
-  else if (freq_ == 5825)
-  {
-    channel = 165;
-  }
-
-  return (channel);
-
-}
-
-uint16_t
-Interface::chan2freq(const uint16_t chan_)
-{
-  uint16_t freq = 0;
-  if ((chan_ >= 1) && (chan_ <=13))
-  {
-    freq = (((chan_ - 1) * 5) + 2412);
-  }
-  else if ((chan_ >= 36) && (chan_ <= 64))
-  {
-    freq = (((chan_ - 34) * 5) + 5170);
-  }
-  else if ((chan_ >= 100) && (chan_ <= 144))
-  {
-    freq = (((chan_ - 100) * 5) + 5500);
-  }
-  else if ((chan_ >= 149) && (chan_ <= 161))
-  {
-    freq = (((chan_ - 149) * 5) + 5745);
-  }
-  else if (chan_ == 165)
-  {
-    freq = 5825;
-  }
-  return (freq);
-}
-
 ConfigData::HTMODE
 Interface::nl2htmode(const uint32_t nl_)
 {
@@ -872,8 +794,7 @@ Interface::_getPhyName() const
   std::string name;
   if (this->workingConfig.GetPhyIndex() >= 0)
   {
-    GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
-    cmd.PhyIndex(this->workingConfig.GetPhyIndex());
+    GetPhyCommand cmd(this->workingConfig.GetPhyIndex());
     if (cmd.Exec() && cmd.PhyName.IsValid())
     {
       name = cmd.PhyName();
@@ -1068,20 +989,46 @@ Interface::_getCapabilities() const
   std::map<int, Capabilities> caps;
   if (this->workingConfig.GetPhyIndex() >= 0)
   {
-    GetPhyCommand cmd(0); // Interface index is ignored; only PHY index is used
-    cmd.PhyIndex(this->workingConfig.GetPhyIndex());
+    GetPhyCommand cmd(this->workingConfig.GetPhyIndex());
     if (cmd.Exec() && cmd.PhyBands.IsValid())
     {
       std::vector<uint8_t> bands = cmd.PhyBands.GetBands();
       FOREACH(auto& band, bands)
       {
+
         // Split bit rates into bit rates (no more than 8 rates) and extended rates
-        std::vector<uint8_t> rates = cmd.PhyBands.GetPhyBand(band).GetRates();
+        std::vector<uint8_t> rates = cmd.PhyBands.GetPhyBand(band).GetRates()();
         size_t rate_len = std::min(size_t(8), rates.size());
         std::vector<uint8_t> bitrates(rates.begin(), (rates.begin() + rate_len));
         std::vector<uint8_t> extrates((rates.begin() + rate_len), rates.end());
         caps[band].SetBitRates(bitrates);
         caps[band].SetExtBitRates(extrates);
+
+        // Get HT capabilities
+        ieee80211::HtCapsTag::ht_caps htcaps = { 0 };
+        htcaps.ht_cap_info = cmd.PhyBands.GetPhyBand(band).GetHtCaps()();
+        htcaps.ampdu_parms = cmd.PhyBands.GetPhyBand(band).GetAmpduFactor()();
+        htcaps.ampdu_parms |= (cmd.PhyBands.GetPhyBand(band).GetAmpduDensity()() << 2);
+        PhyBandsHtMcsAttribute::mcs_set mcs = cmd.PhyBands.GetPhyBand(band).GetMcsSet()();
+        htcaps.supported_mcs_set.rx_mcs_bitmask = mcs.rx_mcs_bitmask;
+        htcaps.supported_mcs_set.rx_highest_rate = mcs.rx_highest_rate;
+        htcaps.supported_mcs_set.tx_mcs_fields.tx_bits = mcs.tx_mcs_fields.tx_bits;
+        htcaps.ht_ext_cap = 0x0000;
+        htcaps.trans_beam_cap = 0x00000000;
+        htcaps.asel_cap = 0x00;
+        caps[band].SetHtCaps(htcaps);
+
+        // Get HT information
+        ieee80211::HtInfoTag::ht_info htinfo = { 0 };
+        htinfo.ht_primary_channel = this->GetChannel();
+        htinfo.ht_subset_1 = 0x00;
+        htinfo.ht_subset_2 = 0x0000;
+        htinfo.ht_subset_3 = 0x0000;
+        htinfo.ht_rx_mcs.rx_mcs_bitmask = { 0 };
+        htinfo.ht_rx_mcs.rx_highest_rate = 0x0000;
+        htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
+        caps[band].SetHtInfo(htinfo);
+
       }
     }
   }

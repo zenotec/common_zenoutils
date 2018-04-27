@@ -40,17 +40,10 @@ __errstr(int code)
 // Class: GetPhyCommand
 //*****************************************************************************
 
-GetPhyCommand::GetPhyCommand(int ifindex_) :
-    Command(ifindex_)
+GetPhyCommand::GetPhyCommand(const int phyindex_) :
+    Command(0)
 {
-  this->IfIndex(this->GetIfIndex());
-}
-
-GetPhyCommand::GetPhyCommand(const std::string& ifname_) :
-    Command(ifname_)
-{
-  this->IfIndex(this->GetIfIndex());
-  this->IfName(ifname_);
+  this->PhyIndex(phyindex_);
 }
 
 GetPhyCommand::~GetPhyCommand()
@@ -133,9 +126,6 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     return(NL_SKIP);
   }
 
-//  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
-//  msg.Display();
-
   if (!msg.GetAttribute(&this->PhyIndex))
   {
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyIndex.GetId()));
@@ -153,6 +143,10 @@ GetPhyCommand::valid_cb(struct nl_msg* msg_, void* arg_)
     ZLOG_ERR("Missing attribute: " + zLog::IntStr(this->PhyBands.GetId()));
     return(NL_SKIP);
   }
+
+//  std::cout << "GetPhyCommand::valid_cb()" << std::endl;
+//  msg.Display();
+//  this->Display();
 
   this->_status = true;
   this->_count.Post();

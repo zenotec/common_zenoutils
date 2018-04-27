@@ -41,6 +41,7 @@
 #include <zutils/nl80211/NewInterfaceCommand.h>
 #include <zutils/nl80211/StartApCommand.h>
 #include <zutils/nl80211/StopApCommand.h>
+#include <zutils/nl80211/SetBeaconCommand.h>
 using namespace nl80211;
 #include <zutils/zAccessPointInterface.h>
 
@@ -57,7 +58,7 @@ namespace zWireless
 // ****************************************************************************
 
 AccessPointInterface::AccessPointInterface(const std::string& name_) :
-    Interface(name_)
+    Interface(name_), _running(false)
 {
   this->SetOpMode(ConfigData::OPMODE_AP);
 }
@@ -179,15 +180,59 @@ AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse
   }
   cmd->ProbeResp.Set(buf, blen); // copies buffer
 
-  cmd->DtimPeriod(1);
+  cmd->DtimPeriod(2);
   cmd->Ssid(this->GetSsid());
   cmd->Channel(this->GetFrequency());
   cmd->ChannelWidth(this->htmode2nl(this->GetHtMode()));
   cmd->CenterFrequency1(this->GetCenterFrequency1());
+  cmd->CenterFrequency2(this->GetCenterFrequency2());
   this->addCommand(cmd);
-  cmd->Display();
 
   return (this->Commit());
+
+}
+
+bool
+AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_)
+{
+
+  bool status = false;
+  uint8_t buf[512] = { 0 };
+  size_t blen = 0;
+
+  if (!this->GetIfIndex())
+  {
+    ZLOG_ERR("Error starting AP interface, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  // Create new Start AP command
+  SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
+
+  // Write beacon
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  if (beacon_.Assemble(buf, blen) == NULL)
+  {
+    return (false);
+  }
+  cmd->BeaconHead.Set(beacon_.Head(), beacon_.HeadSize()); // copies buffer
+  cmd->BeaconTail.Set(beacon_.Tail(), beacon_.TailSize()); // copies buffer
+  cmd->BeaconInterval(beacon_.Interval());
+
+  // Write out probe
+  memset(buf, 0, sizeof(buf));
+  blen = sizeof(buf);
+  if (probe_.Assemble(buf, blen) == NULL)
+  {
+    return (false);
+  }
+  cmd->ProbeResp.Set(buf, blen); // copies buffer
+
+  this->addCommand(cmd);
+
+  return (this->Commit());
+
 }
 
 bool
@@ -207,10 +252,11 @@ AccessPointInterface::Stop()
     this->SetAdminState(zWireless::ConfigData::STATE_DOWN);
     StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
     this->addCommand(cmd);
+    status = true;
   }
 
   // Call base destroy which will eventually execute all commands in order
-  return (this->Destroy());
+  return (status);
 }
 
 void
@@ -224,6 +270,10 @@ std::string
 AccessPointInterface::_getSsid() const
 {
   std::string ssid;
+  if (this->_running)
+  {
+
+  }
   return (ssid);
 }
 
@@ -231,6 +281,10 @@ std::string
 AccessPointInterface::_getBssid() const
 {
   std::string bssid;
+  if (this->_running)
+  {
+
+  }
   return (bssid);
 }
 

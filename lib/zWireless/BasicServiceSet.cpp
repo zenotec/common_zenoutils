@@ -38,52 +38,205 @@ namespace zWireless
 // Class: BasicServiceSet
 // ****************************************************************************
 
-BasicServiceSet::BasicServiceSet(const std::string& ifname_, const std::string& ssid_) :
-    _iface(ifname_)
+BasicServiceSet::BasicServiceSet(AccessPointInterface& iface_) :
+    _iface(iface_), _config(iface_.GetConfig())
 {
-  this->SetSsid(ssid_);
+  this->_caps = this->_iface.GetCapabilities();
+
+  // Update beacon and probe
+  _init_beacon();
+  _init_probe();
+
 }
 
 BasicServiceSet::~BasicServiceSet()
 {
 }
 
+std::string
+BasicServiceSet::GetSsid() const
+{
+  return (this->_config.GetSsid());
+}
+
+bool
+BasicServiceSet::SetSsid(const std::string& ssid_)
+{
+  bool status = this->_config.SetSsid(ssid_);
+  if (status)
+  {
+    this->_iface.SetSsid(ssid_);
+    this->_beacon.Ssid(ssid_);
+    this->_probe.Ssid(ssid_);
+  }
+  return (status);
+}
+
+std::string
+BasicServiceSet::GetBssid() const
+{
+  return (this->_config.GetBssid());
+}
+
+bool
+BasicServiceSet::SetBssid(const std::string& bssid_)
+{
+  bool status = this->_config.SetBssid(bssid_);
+  if (status)
+  {
+    this->_iface.SetBssid(bssid_);
+    this->_iface.SetHwAddress(bssid_);
+    this->_beacon.Bssid(bssid_);
+    this->_beacon.TransmitterAddress(this->_config.GetBssid());
+    this->_probe.Bssid(bssid_);
+    this->_probe.TransmitterAddress(this->_config.GetBssid());
+    this->_assoc.Bssid(bssid_);
+    this->_assoc.TransmitterAddress(this->_config.GetBssid());
+  }
+  return (status);
+}
+
+ConfigData::HTMODE
+BasicServiceSet::GetHtMode() const
+{
+  return (this->_config.GetHtMode());
+}
+
+bool
+BasicServiceSet::SetHtMode(const ConfigData::HTMODE mode_)
+{
+  bool status = this->_config.SetHtMode(mode_);
+  if (status)
+  {
+    this->_iface.SetHtMode(mode_);
+  }
+  return (status);
+}
+
+unsigned int
+BasicServiceSet::GetChannel() const
+{
+  return (this->_config.GetChannel());
+}
+
+bool
+BasicServiceSet::SetChannel(const unsigned int channel_)
+{
+  bool status = this->_config.SetChannel(channel_);
+  if (status)
+  {
+    this->_iface.SetChannel(channel_);
+    this->_beacon.Dsss(channel_);
+    this->_probe.Dsss(channel_);
+  }
+  return (status);
+}
+
+unsigned int
+BasicServiceSet::GetFrequency() const
+{
+  return (this->_config.GetFrequency());
+}
+
+bool
+BasicServiceSet::SetFrequency(const unsigned int freq_)
+{
+  bool status = this->_config.SetFrequency(freq_);
+  if (status)
+  {
+    this->_iface.SetFrequency(freq_);
+    this->_beacon.Dsss(this->_config.GetChannel());
+    this->_probe.Dsss(this->_config.GetChannel());
+  }
+  return (status);
+}
+
+unsigned int
+BasicServiceSet::GetCenterFrequency1() const
+{
+  return (this->_config.GetCenterFrequency1());
+}
+
+bool
+BasicServiceSet::SetCenterFrequency1(const unsigned int freq_)
+{
+  bool status = this->_config.SetCenterFrequency1(freq_);
+  if (status)
+  {
+    this->_iface.SetCenterFrequency1(freq_);
+  }
+  return (status);
+}
+
+unsigned int
+BasicServiceSet::GetCenterFrequency2() const
+{
+  return (this->_config.GetCenterFrequency2());
+}
+
+bool
+BasicServiceSet::SetCenterFrequency2(const unsigned int freq_)
+{
+  bool status = this->_config.SetCenterFrequency2(freq_);
+  if (status)
+  {
+    this->_iface.SetCenterFrequency1(freq_);
+  }
+  return (status);
+}
+
+zWireless::Capabilities&
+BasicServiceSet::Capabilities(zWireless::Capabilities::BAND band_)
+{
+  return (this->_caps[band_]);
+}
+
+ieee80211::Beacon&
+BasicServiceSet::Beacon()
+{
+  return (this->_beacon);
+}
+
+ieee80211::ProbeResponse&
+BasicServiceSet::ProbeResponse()
+{
+  return (this->_probe);
+}
+
+ieee80211::AssociationResponse&
+BasicServiceSet::AssociationResponse()
+{
+  return (this->_assoc);
+}
+
 bool
 BasicServiceSet::Start()
 {
 
-  // Configure interface
-  this->_iface.SetPhyIndex(this->GetPhyIndex());
-
-  // Create interface if it does not already exist
-  if (!this->_iface.GetIfIndex() && !this->_iface.Create())
+  // Verify interface exists
+  if (!this->_iface.GetIfIndex())
   {
-    ZLOG_ERR("Error creating AP interface: " + this->_iface.GetIfName());
+    ZLOG_ERR("Error starting AP interface: interface does not exist: " + this->_iface.GetIfName());
     return (false);
   }
 
   // Configure interface
-  this->_iface.SetHwAddress(this->GetBssid());
+  this->_iface.SetHwAddress(this->_config.GetBssid());
   this->_iface.SetAdminState(zWireless::ConfigData::STATE_UP);
   this->_iface.SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
   if (!this->_iface.Commit())
   {
-    ZLOG_ERR("Error creating AP interface: " + this->_iface.GetIfName());
+    ZLOG_ERR("Error starting AP interface: cannot UP interface" + this->_iface.GetIfName());
     return (false);
   }
 
   // Update configuration
-  this->_iface.SetSsid(this->GetSsid());
-  this->_iface.SetBssid(this->GetBssid());
-  this->_iface.SetHtMode(this->GetHtMode());
-  this->_iface.SetFrequency(this->GetFrequency());
-  this->_iface.SetCenterFrequency1(this->GetCenterFrequency1());
-  this->_iface.SetCenterFrequency2(this->GetCenterFrequency2());
-
-
-  // Update beacon and probe
-  _update_beacon();
-  _update_probe();
+  this->_iface.SetSsid(this->_config.GetSsid());
+  this->_iface.SetBssid(this->_config.GetBssid());
+  this->_iface.SetHtMode(this->_config.GetHtMode());
+  this->_iface.SetFrequency(this->_config.GetFrequency());
+  this->_iface.SetCenterFrequency1(this->_config.GetCenterFrequency1());
+  this->_iface.SetCenterFrequency2(this->_config.GetCenterFrequency2());
 
   // Start AP and return status
   return (this->_iface.Start(this->_beacon, this->_probe));
@@ -94,6 +247,22 @@ bool
 BasicServiceSet::Stop()
 {
   return (this->_iface.Stop());
+}
+
+bool
+BasicServiceSet::Update()
+{
+
+  // Update configuration
+  this->_iface.SetSsid(this->_config.GetSsid());
+  this->_iface.SetBssid(this->_config.GetBssid());
+  this->_iface.SetHtMode(this->_config.GetHtMode());
+  this->_iface.SetFrequency(this->_config.GetFrequency());
+  this->_iface.SetCenterFrequency1(this->_config.GetCenterFrequency1());
+  this->_iface.SetCenterFrequency2(this->_config.GetCenterFrequency2());
+
+  // Update AP and return status
+  return (this->_iface.Update(this->_beacon, this->_probe));
 }
 
 bool
@@ -113,52 +282,39 @@ BasicServiceSet::Display(const std::string& prefix_)
 {
   this->_iface.Display(prefix_);
   std::cout << prefix_ << "---------- Basic Service Set -----------" << std::endl;
+  this->_iface.Display();
+  this->_beacon.Display();
+  this->_probe.Display();
+  this->_assoc.Display();
 }
 
 void
-BasicServiceSet::_update_beacon()
+BasicServiceSet::_init_beacon()
 {
-
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4; // TODO: Should be based on the configured channel
-
-  std::map<int, Capabilities> caps = this->_iface.GetCapabilities();
-  if (caps.empty() || !caps.count(band))
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  if (this->_config.GetFrequency() >= 5000)
   {
-    return;
+    zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
   }
 
   this->_beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
-  this->_beacon.TransmitterAddress(this->GetBssid());
-  this->_beacon.Bssid(this->GetBssid());
+  this->_beacon.TransmitterAddress(this->_config.GetBssid());
+  this->_beacon.Bssid(this->_config.GetBssid());
   this->_beacon.Interval(100);
   this->_beacon.Capabilities(0x0421);
-  this->_beacon.Ssid(this->GetSsid());
-  std::vector<uint8_t> rates;
-  rates.push_back(0x82);
-  rates.push_back(0x84);
-  rates.push_back(0x8b);
-  rates.push_back(0x96);
-  rates.push_back(0x0c);
-  rates.push_back(0x12);
-  rates.push_back(0x18);
-  rates.push_back(0x24);
-  this->_beacon.Rates(rates);
-//  this->_beacon.Rates(caps[band].GetBitRates());
-  this->_beacon.Dsss(this->_iface.GetChannel());
-//  ieee80211::country_tag country; // TODO: Country tag is hardcoded for now
-
+  this->_beacon.Ssid(this->_config.GetSsid());
+  this->_beacon.Rates(this->_caps[band].GetBitRates());
+  this->_beacon.Dsss(this->_config.GetChannel());
   ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
-  if (!caps[band].GetExtBitRates().empty())
+  if (!this->_caps[band].GetExtBitRates().empty())
   {
-    this->_beacon.ExtRates(caps[band].GetExtBitRates());
+    this->_beacon.ExtRates(this->_caps[band].GetExtBitRates());
   }
   this->_beacon.SuppOpClass(81);
-  this->_beacon.HtCaps = this->HtCaps;
-//  this->_beacon.HtCaps(caps[band].GetHtCaps());
-  this->_beacon.HtInfo = this->HtInfo;
-//  this->_beacon.HtInfo(caps[band].GetHtInfo());
+  this->_beacon.HtCaps(this->_caps[band].GetHtCaps());
+  this->_beacon.HtInfo(this->_caps[band].GetHtInfo());
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
 
@@ -169,55 +325,44 @@ BasicServiceSet::_update_beacon()
   ieee80211::WmmWmeTag::wmm_wme wmmwme = {0x01, 0x01, 0x80, 0x00, ac0, ac1, ac2, ac3};
   this->_beacon.WmmWme(wmmwme);
 
-  this->_beacon.Display();
-
 }
 
 void
-BasicServiceSet::_update_probe()
+BasicServiceSet::_init_probe()
 {
-
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4; // TODO: Should be based on the configured channel
-
-  std::map<int, Capabilities> caps = this->_iface.GetCapabilities();
-  if (caps.empty() || !caps.count(band))
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  if (this->_config.GetFrequency() >= 5000)
   {
-    return;
+    zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
   }
 
   this->_probe.ReceiverAddress("00:00:00:00:00:00");
-  this->_probe.TransmitterAddress(this->GetBssid());
-  this->_probe.Bssid(this->GetBssid());
+  this->_probe.TransmitterAddress(this->_config.GetBssid());
+  this->_probe.Bssid(this->_config.GetBssid());
   this->_probe.Interval(100);
   this->_probe.Capabilities(0x0421);
-  this->_probe.Ssid(this->GetSsid());
-  std::vector<uint8_t> rates;
-  rates.push_back(0x82);
-  rates.push_back(0x84);
-  rates.push_back(0x8b);
-  rates.push_back(0x96);
-  rates.push_back(0x0c);
-  rates.push_back(0x12);
-  rates.push_back(0x18);
-  rates.push_back(0x24);
-  this->_probe.Rates(rates);
-//  this->_probe.Rates(caps[band].GetBitRates());
-  this->_probe.Dsss(this->_iface.GetChannel());
+  this->_probe.Ssid(this->_config.GetSsid());
+  this->_probe.Rates(this->_caps[band].GetBitRates());
+  this->_probe.Dsss(this->_config.GetChannel());
   ieee80211::country_tag country; // TODO: Country tag is hard coded for now
   this->_probe.Country(country);
   this->_probe.ErpInfo(0);
-  if (!caps[band].GetExtBitRates().empty())
+  if (!this->_caps[band].GetExtBitRates().empty())
   {
-    this->_probe.ExtRates(caps[band].GetExtBitRates());
+    this->_probe.ExtRates(this->_caps[band].GetExtBitRates());
   }
-  //  this->_beacon.SuppOpClass(81);
-    this->_probe.HtCaps = this->HtCaps;
-  //  this->_beacon.HtCaps(caps[band].GetHtCaps());
-    this->_probe.HtInfo = this->HtInfo;
-  //  this->_beacon.HtInfo(caps[band].GetHtInfo());
+  this->_probe.SuppOpClass(81);
+  this->_probe.HtCaps(this->_caps[band].GetHtCaps());
+  this->_probe.HtInfo(this->_caps[band].GetHtInfo());
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
-  this->_probe.Display();
+
+  ieee80211::WmmWmeTag::ac_parms ac0 = {0x03, 0xa4, 0x0000};
+  ieee80211::WmmWmeTag::ac_parms ac1 = {0x27, 0xa4, 0x0000};
+  ieee80211::WmmWmeTag::ac_parms ac2 = {0x42, 0x43, 0x005e};
+  ieee80211::WmmWmeTag::ac_parms ac3 = {0x62, 0x32, 0x002f};
+  ieee80211::WmmWmeTag::wmm_wme wmmwme = {0x01, 0x01, 0x80, 0x00, ac0, ac1, ac2, ac3};
+  this->_probe.WmmWme(wmmwme);
 
 }
 

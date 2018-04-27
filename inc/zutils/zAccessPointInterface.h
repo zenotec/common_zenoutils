@@ -64,6 +64,9 @@ public:
   Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_);
 
   bool
+  Update(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_);
+
+  bool
   Stop();
 
   virtual void
@@ -72,6 +75,8 @@ public:
 protected:
 
 private:
+
+  bool _running;
 
   std::string
   _getSsid() const;
