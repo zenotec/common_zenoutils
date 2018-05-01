@@ -48,6 +48,10 @@ Frame::Frame(const Frame::TYPE type_) :
     _fccntl(0), _durationid(0), _seqcntl(0), _qoscntl(0), _htcntl(0),
     _payload{ 0 }, _psize(0), _fcs(0)
 {
+   if (!this->Type(type_))
+   {
+     ZLOG_WARN("Error constructing frame: Unknown frame type: " + ZLOG_INT(type_));
+   }
 }
 
 Frame::~Frame()
