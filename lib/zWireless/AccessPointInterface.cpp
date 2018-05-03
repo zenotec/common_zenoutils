@@ -178,7 +178,7 @@ AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse
   {
     return (false);
   }
-  cmd->ProbeResp.Set(buf, blen); // copies buffer
+  cmd->ProbeResp.Set(buf, (sizeof(buf) - blen)); // copies buffer
 
   cmd->DtimPeriod(2);
   cmd->Ssid(this->GetSsid());
@@ -227,7 +227,7 @@ AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeRespons
   {
     return (false);
   }
-  cmd->ProbeResp.Set(buf, blen); // copies buffer
+  cmd->ProbeResp.Set(buf, (sizeof(buf) - blen)); // copies buffer
 
   this->addCommand(cmd);
 
