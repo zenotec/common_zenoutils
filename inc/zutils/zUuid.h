@@ -54,6 +54,12 @@ public:
     this->Regenerate();
   }
 
+  Uuid(const struct Uuid::uuid& uuid_) :
+    _uuid { 0 }
+  {
+    this->operator =(uuid_);
+  }
+
   Uuid(const uint8_t uuid_[16]) :
     _uuid { 0 }
   {
@@ -75,6 +81,13 @@ public:
   virtual
   ~Uuid()
   {
+  }
+
+  Uuid&
+  operator=(const struct Uuid::uuid& uuid_)
+  {
+    memcpy(&this->_uuid, &uuid_, 16);
+    return (*this);
   }
 
   Uuid&
@@ -105,33 +118,45 @@ public:
   }
 
   bool
-  operator>(const Uuid& other) const
+  operator>(const Uuid& other_) const
   {
-    return (uuid_compare(this->_uuid.u.uuid, other._uuid.u.uuid) > 0);
+    return (uuid_compare(this->_uuid.u.uuid, other_._uuid.u.uuid) > 0);
   }
 
   bool
-  operator<=(const Uuid& other) const
+  operator<=(const Uuid& other_) const
   {
-    return (!(*this > other));
+    return (!(*this > other_));
   }
 
   bool
-  operator>=(const Uuid& other) const
+  operator>=(const Uuid& other_) const
   {
-    return (!(*this < other));
+    return (!(*this < other_));
   }
 
   bool
-  operator==(const Uuid& other) const
+  operator==(const struct Uuid::uuid& other_) const
   {
-    return (uuid_compare(this->_uuid.u.uuid, other._uuid.u.uuid) == 0);
+    return (uuid_compare(this->_uuid.u.uuid, other_.u.uuid) == 0);
   }
 
   bool
-  operator!=(const Uuid& other) const
+  operator!=(const struct Uuid::uuid& other_) const
   {
-    return (uuid_compare(this->_uuid.u.uuid, other._uuid.u.uuid) != 0);
+    return (uuid_compare(this->_uuid.u.uuid, other_.u.uuid) != 0);
+  }
+
+  bool
+  operator==(const Uuid& other_) const
+  {
+    return (uuid_compare(this->_uuid.u.uuid, other_._uuid.u.uuid) == 0);
+  }
+
+  bool
+  operator!=(const Uuid& other_) const
+  {
+    return (uuid_compare(this->_uuid.u.uuid, other_._uuid.u.uuid) != 0);
   }
 
   const uuid&
