@@ -42,7 +42,7 @@ namespace zWireless
 // ****************************************************************************
 
 Capabilities::Capabilities() :
-    _valid(false), _power_caps { 0 }, _ht_caps { 0 }, _ht_info { 0 }
+    _valid(false), _power_caps { 0 }, _ht_caps { 0 }
 {
 }
 
@@ -93,19 +93,6 @@ bool
 Capabilities::SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_)
 {
   this->_ht_caps = caps_;
-  return (true);
-}
-
-ieee80211::HtInfoTag::ht_info
-Capabilities::GetHtInfo() const
-{
-  return (this->_ht_info);
-}
-
-bool
-Capabilities::SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_)
-{
-  this->_ht_info = info_;
   return (true);
 }
 

@@ -1018,17 +1018,6 @@ Interface::_getCapabilities() const
         htcaps.asel_cap = 0x00;
         caps[band].SetHtCaps(htcaps);
 
-        // Get HT information
-        ieee80211::HtInfoTag::ht_info htinfo = { 0 };
-        htinfo.ht_primary_channel = this->GetChannel();
-        htinfo.ht_subset_1 = 0x00;
-        htinfo.ht_subset_2 = 0x0000;
-        htinfo.ht_subset_3 = 0x0000;
-        htinfo.ht_rx_mcs.rx_mcs_bitmask = { 0 };
-        htinfo.ht_rx_mcs.rx_highest_rate = 0x0000;
-        htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
-        caps[band].SetHtInfo(htinfo);
-
       }
     }
   }

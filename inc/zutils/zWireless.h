@@ -275,12 +275,6 @@ public:
   bool
   SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
 
-  ieee80211::HtInfoTag::ht_info
-  GetHtInfo() const;
-
-  bool
-  SetHtInfo(const ieee80211::HtInfoTag::ht_info& info_);
-
   std::vector<uint8_t>
   GetChannels() const;
 
@@ -315,7 +309,6 @@ private:
   bool _valid;
   ieee80211::PowerCapsTag::power_caps_tag _power_caps;
   ieee80211::HtCapsTag::ht_caps _ht_caps;
-  ieee80211::HtInfoTag::ht_info _ht_info;
   std::vector <uint8_t> _channels;
   std::vector <uint8_t> _rates;
   std::vector <uint8_t> _ext_rates;

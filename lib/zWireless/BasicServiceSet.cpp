@@ -41,9 +41,11 @@ namespace zWireless
 BasicServiceSet::BasicServiceSet(AccessPointInterface& iface_) :
     _iface(iface_), _config(iface_.GetConfig())
 {
+
+  // Retrieve interface capabilities
   this->_caps = this->_iface.GetCapabilities();
 
-  // Update beacon and probe
+  // Initialize beacon and probe frame templates
   _init_beacon();
   _init_probe();
 
@@ -125,9 +127,13 @@ BasicServiceSet::SetChannel(const unsigned int channel_)
   bool status = this->_config.SetChannel(channel_);
   if (status)
   {
+    ieee80211::HtInfoTag::ht_info htinfo = this->_probe.HtInfo();
+    htinfo.ht_primary_channel = channel_;
     this->_iface.SetChannel(channel_);
     this->_beacon.Dsss(channel_);
+    this->_beacon.HtInfo(htinfo);
     this->_probe.Dsss(channel_);
+    this->_probe.HtInfo(htinfo);
   }
   return (status);
 }
@@ -144,9 +150,13 @@ BasicServiceSet::SetFrequency(const unsigned int freq_)
   bool status = this->_config.SetFrequency(freq_);
   if (status)
   {
+    ieee80211::HtInfoTag::ht_info htinfo = this->_probe.HtInfo();
+    htinfo.ht_primary_channel = this->_config.GetChannel();
     this->_iface.SetFrequency(freq_);
     this->_beacon.Dsss(this->_config.GetChannel());
+    this->_beacon.HtInfo(htinfo);
     this->_probe.Dsss(this->_config.GetChannel());
+    this->_probe.HtInfo(htinfo);
   }
   return (status);
 }
@@ -314,7 +324,19 @@ BasicServiceSet::_init_beacon()
   }
   this->_beacon.SuppOpClass(81);
   this->_beacon.HtCaps(this->_caps[band].GetHtCaps());
-  this->_beacon.HtInfo(this->_caps[band].GetHtInfo());
+
+  // Get HT information
+  ieee80211::HtInfoTag::ht_info htinfo = { 0 };
+  htinfo.ht_primary_channel = this->_config.GetChannel();
+  htinfo.ht_primary_channel = 6;
+  htinfo.ht_subset_1 = 0x00;
+  htinfo.ht_subset_2 = 0x0000;
+  htinfo.ht_subset_3 = 0x0000;
+  htinfo.ht_rx_mcs.rx_mcs_bitmask = { 0 };
+  htinfo.ht_rx_mcs.rx_highest_rate = 0x0000;
+  htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
+  this->_beacon.HtInfo(htinfo);
+
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
 
@@ -353,7 +375,18 @@ BasicServiceSet::_init_probe()
   }
   this->_probe.SuppOpClass(81);
   this->_probe.HtCaps(this->_caps[band].GetHtCaps());
-  this->_probe.HtInfo(this->_caps[band].GetHtInfo());
+
+  // Get HT information
+  ieee80211::HtInfoTag::ht_info htinfo = { 0 };
+  htinfo.ht_primary_channel = this->_config.GetChannel();
+  htinfo.ht_subset_1 = 0x00;
+  htinfo.ht_subset_2 = 0x0000;
+  htinfo.ht_subset_3 = 0x0000;
+  htinfo.ht_rx_mcs.rx_mcs_bitmask = { 0 };
+  htinfo.ht_rx_mcs.rx_highest_rate = 0x0000;
+  htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
+  this->_probe.HtInfo(htinfo);
+
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
   this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
 
