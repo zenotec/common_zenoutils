@@ -142,7 +142,7 @@ Capabilities::SetBitRates(const std::vector<uint8_t>& rates_)
       // no break
     case 4:
       // no break
-    case 10:
+    case 11:
       // no break
     case 22:
       this->_rates[i] |= 0x80;

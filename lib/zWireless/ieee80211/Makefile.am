@@ -42,6 +42,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/Authentication.h \
 	${top_srcdir}/inc/zutils/ieee80211/Deauthentication.h \
 	${top_srcdir}/inc/zutils/ieee80211/Association.h \
+	${top_srcdir}/inc/zutils/ieee80211/Reassociation.h \
 	${top_srcdir}/inc/zutils/ieee80211/Disassociation.h \
 	${top_srcdir}/inc/zutils/ieee80211/ErpInfoTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/ExtCapsTag.h \
@@ -73,6 +74,7 @@ libieee80211_la_SOURCES = \
 	Authentication.cpp \
 	Deauthentication.cpp \
 	Association.cpp \
+	Reassociation.cpp \
 	Disassociation.cpp \
 	DataFrame.cpp \
 	QosData.cpp

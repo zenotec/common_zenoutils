@@ -55,6 +55,14 @@ struct ieee80211_assreq
   ieee80211_tag tags;
 } __attribute__ ((packed));
 
+struct ieee80211_rassreq
+{
+  uint16_t capabilities;
+  uint16_t interval;
+  uint64_t currentApMac;
+  ieee80211_tag tags;
+} __attribute__ ((packed));
+
 struct ieee80211_disass
 {
   uint16_t reasonCode;
@@ -76,6 +84,14 @@ struct ieee80211_auth
 } __attribute__ ((packed));
 
 struct ieee80211_assresp
+{
+  uint16_t capabilities;
+  uint16_t status;
+  uint16_t aid;
+  ieee80211_tag tags;
+} __attribute__ ((packed));
+
+struct ieee80211_rassresp
 {
   uint16_t capabilities;
   uint16_t status;
