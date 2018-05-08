@@ -38,16 +38,21 @@ namespace zWireless
 // Class: BasicServiceSet
 // ****************************************************************************
 
-BasicServiceSet::BasicServiceSet(AccessPointInterface& iface_) :
-    _iface(iface_), _config(iface_.GetConfig())
+BasicServiceSet::BasicServiceSet(const std::string& iface_) :
+    _iface(iface_)
 {
 
-  // Retrieve interface capabilities
-  this->_caps = this->_iface.GetCapabilities();
-
   // Initialize beacon and probe frame templates
-  _init_beacon();
-  _init_probe();
+  if (this->_iface.Refresh())
+  {
+    _init_beacon();
+    _init_probe();
+  }
+  else
+  {
+    ZLOG_CRIT("Error creating BSS, interface does not exist: " + iface_);
+  }
+  return;
 
 }
 
@@ -195,12 +200,6 @@ BasicServiceSet::SetCenterFrequency2(const unsigned int freq_)
   return (status);
 }
 
-zWireless::Capabilities&
-BasicServiceSet::Capabilities(zWireless::Capabilities::BAND band_)
-{
-  return (this->_caps[band_]);
-}
-
 ieee80211::Beacon&
 BasicServiceSet::Beacon()
 {
@@ -301,6 +300,8 @@ BasicServiceSet::Display(const std::string& prefix_)
 void
 BasicServiceSet::_init_beacon()
 {
+  std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
+
   zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
   if (this->_config.GetFrequency() >= 5000)
   {
@@ -313,22 +314,21 @@ BasicServiceSet::_init_beacon()
   this->_beacon.Interval(100);
   this->_beacon.Capabilities(0x0421);
   this->_beacon.Ssid(this->_config.GetSsid());
-  this->_beacon.Rates(this->_caps[band].GetBitRates());
+  this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->_config.GetChannel());
   ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
-  if (!this->_caps[band].GetExtBitRates().empty())
+  if (!caps[band].GetExtBitRates().empty())
   {
-    this->_beacon.ExtRates(this->_caps[band].GetExtBitRates());
+    this->_beacon.ExtRates(caps[band].GetExtBitRates());
   }
   this->_beacon.SuppOpClass(81);
-  this->_beacon.HtCaps(this->_caps[band].GetHtCaps());
+  this->_beacon.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
   ieee80211::HtInfoTag::ht_info htinfo = { 0 };
   htinfo.ht_primary_channel = this->_config.GetChannel();
-  htinfo.ht_primary_channel = 6;
   htinfo.ht_subset_1 = 0x00;
   htinfo.ht_subset_2 = 0x0000;
   htinfo.ht_subset_3 = 0x0000;
@@ -352,6 +352,8 @@ BasicServiceSet::_init_beacon()
 void
 BasicServiceSet::_init_probe()
 {
+  std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
+
   zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
   if (this->_config.GetFrequency() >= 5000)
   {
@@ -364,17 +366,17 @@ BasicServiceSet::_init_probe()
   this->_probe.Interval(100);
   this->_probe.Capabilities(0x0421);
   this->_probe.Ssid(this->_config.GetSsid());
-  this->_probe.Rates(this->_caps[band].GetBitRates());
+  this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->_config.GetChannel());
-  ieee80211::country_tag country; // TODO: Country tag is hard coded for now
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
   this->_probe.Country(country);
   this->_probe.ErpInfo(0);
-  if (!this->_caps[band].GetExtBitRates().empty())
+  if (!caps[band].GetExtBitRates().empty())
   {
-    this->_probe.ExtRates(this->_caps[band].GetExtBitRates());
+    this->_probe.ExtRates(caps[band].GetExtBitRates());
   }
   this->_probe.SuppOpClass(81);
-  this->_probe.HtCaps(this->_caps[band].GetHtCaps());
+  this->_probe.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
   ieee80211::HtInfoTag::ht_info htinfo = { 0 };

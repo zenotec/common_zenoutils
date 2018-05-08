@@ -47,7 +47,7 @@ class BasicServiceSet
 
 public:
 
-  BasicServiceSet(AccessPointInterface& iface_);
+  BasicServiceSet(const std::string& iface_);
 
   virtual
   ~BasicServiceSet();
@@ -94,9 +94,6 @@ public:
   bool
   SetCenterFrequency2(const unsigned int freq_);
 
-  zWireless::Capabilities&
-  Capabilities(zWireless::Capabilities::BAND band_);
-
   ieee80211::Beacon&
   Beacon();
 
@@ -128,9 +125,8 @@ protected:
 
 private:
 
-  zWireless::AccessPointInterface& _iface;
+  zWireless::AccessPointInterface _iface;
   zWireless::ConfigData _config;
-  std::map<int, zWireless::Capabilities> _caps;
   ieee80211::Beacon _beacon;
   ieee80211::ProbeResponse _probe;
   ieee80211::AssociationResponse _assoc;
