@@ -86,6 +86,12 @@ public:
     return(this->PutValue(caps_));
   }
 
+  virtual HtCapsTag&
+  operator=(const struct ht_caps& caps_)
+  {
+    this->PutValue(caps_);
+    return(*this);
+  }
 
   uint16_t
   HtCapInfo() const
