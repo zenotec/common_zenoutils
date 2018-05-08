@@ -18,6 +18,7 @@
 #ifndef __IEEE80211_RATESTAG_H__
 #define __IEEE80211_RATESTAG_H__
 
+#include <zutils/zCompatibility.h>
 #include <zutils/ieee80211/Tag.h>
 
 namespace zUtils
