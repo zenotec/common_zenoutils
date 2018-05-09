@@ -209,7 +209,6 @@ StartApCommand::Display(const std::string& prefix_) const
 int
 StartApCommand::ack_cb(struct nl_msg* msg_, void* arg_)
 {
-  this->Display();
   this->_status = true;
   this->_count.Post();
   return (NL_OK);
