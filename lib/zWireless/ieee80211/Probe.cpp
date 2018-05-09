@@ -77,6 +77,11 @@ ProbeRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
+  this->PutTag(this->ExtRates);
+  this->PutTag(this->Dsss);
+  this->PutTag(this->HtCaps);
+  this->PutTag(this->ExtCaps);
+
   p_ = this->AssembleTags(p_, rem_);
   if (!p_)
   {
@@ -114,6 +119,10 @@ ProbeRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   this->GetTag(this->Ssid); // Optional - ignore return value
+  this->GetTag(this->Dsss); // Optional - ignore return value
+  this->GetTag(this->ExtRates); // Optional - ignore return value
+  this->GetTag(this->HtCaps); // Optional - ignore return value
+  this->GetTag(this->ExtCaps); // Optional - ignore return value
 
   return (p_);
 }
