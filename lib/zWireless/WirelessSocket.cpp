@@ -33,6 +33,7 @@
 #include <zutils/ieee80211/DataFrame.h>
 #include <zutils/ieee80211/Association.h>
 #include <zutils/ieee80211/Disassociation.h>
+#include <zutils/ieee80211/Reassociation.h>
 #include <zutils/ieee80211/Authentication.h>
 #include <zutils/ieee80211/Deauthentication.h>
 #include <zutils/zWirelessSocket.h>
@@ -146,6 +147,16 @@ Notification::Notification(const zSocket::Notification& noti_) :
       if (f == 0)
       {
         ZLOG_WARN("Cannot decode association request frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+    }
+    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_RASSREQ))
+    {
+      this->Frame(SHARED_PTR(ieee80211::ReassociationRequest)(new ieee80211::ReassociationRequest));
+      f = this->Frame()->Disassemble(f, rem, fcsflag);
+      if (f == 0)
+      {
+        ZLOG_WARN("Cannot decode reassociation request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
