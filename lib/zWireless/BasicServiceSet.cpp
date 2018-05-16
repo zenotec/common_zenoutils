@@ -302,28 +302,33 @@ BasicServiceSet::_init_beacon()
 {
   std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
 
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
-  if (this->_config.GetFrequency() >= 5000)
-  {
+//  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+//  if (this->_config.GetFrequency() >= 5000)
+//  {
+	  cout << "\nBasicServiceSet::_init_beacon() - Using 5ghz bit rates" << endl;
     zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
-  }
+//  }
 
   this->_beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
   this->_beacon.TransmitterAddress(this->_config.GetBssid());
   this->_beacon.Bssid(this->_config.GetBssid());
   this->_beacon.Interval(100);
-  this->_beacon.Capabilities(0x0421);
+//  this->_beacon.Capabilities(0x0421);
+#warning "hard coded capabilities to 0x0021"
+  this->_beacon.Capabilities(0x0021);
   this->_beacon.Ssid(this->_config.GetSsid());
   this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->_config.GetChannel());
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
+//  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 8, 23 };
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
   {
     this->_beacon.ExtRates(caps[band].GetExtBitRates());
   }
-  this->_beacon.SuppOpClass(81);
+//  this->_beacon.SuppOpClass(81);
+  this->_beacon.SuppOpClass(115);
   this->_beacon.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
@@ -354,28 +359,33 @@ BasicServiceSet::_init_probe()
 {
   std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
 
-  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
-  if (this->_config.GetFrequency() >= 5000)
-  {
+//  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+//  if (this->_config.GetFrequency() >= 5000)
+//  {
+	  cout << "\nBasicServiceSet::_init_probe() - Using 5ghz bit rates" << endl;
     zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
-  }
+//  }
 
   this->_probe.ReceiverAddress("00:00:00:00:00:00");
   this->_probe.TransmitterAddress(this->_config.GetBssid());
   this->_probe.Bssid(this->_config.GetBssid());
   this->_probe.Interval(100);
-  this->_probe.Capabilities(0x0421);
+//  this->_probe.Capabilities(0x0421);
+#warning "hard coded capabilities to 0x0021"
+  this->_probe.Capabilities(0x0021);
   this->_probe.Ssid(this->_config.GetSsid());
   this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->_config.GetChannel());
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
+//  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 8, 23 };
   this->_probe.Country(country);
   this->_probe.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
   {
     this->_probe.ExtRates(caps[band].GetExtBitRates());
   }
-  this->_probe.SuppOpClass(81);
+//  this->_probe.SuppOpClass(81);
+  this->_probe.SuppOpClass(115);
   this->_probe.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
