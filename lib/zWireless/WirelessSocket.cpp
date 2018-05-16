@@ -36,6 +36,7 @@
 #include <zutils/ieee80211/Reassociation.h>
 #include <zutils/ieee80211/Authentication.h>
 #include <zutils/ieee80211/Deauthentication.h>
+#include <zutils/ieee80211/Action.h>
 #include <zutils/zWirelessSocket.h>
 
 // local includes
@@ -197,6 +198,18 @@ Notification::Notification(const zSocket::Notification& noti_) :
       if (f == 0)
       {
         ZLOG_WARN("Cannot decode deauthentication frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+    }
+    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_ACTION))
+    {
+      this->Frame(SHARED_PTR(ieee80211::ActionRequest)(new ieee80211::ActionRequest));
+      f = this->Frame()->Disassemble(f, rem, fcsflag);
+      if (f == 0)
+      {
+    	 cout << "Notification::Notification() couldn't disassemble ActionRequest:" << endl;
+    	 this->Frame()->Display();
+        ZLOG_WARN("Cannot decode action request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }

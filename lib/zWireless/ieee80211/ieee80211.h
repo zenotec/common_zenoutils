@@ -63,6 +63,26 @@ struct ieee80211_rassreq
   ieee80211_tag tags;
 } __attribute__ ((packed));
 
+struct ieee80211_actionreq
+{
+	uint8_t _categoryCode;
+	uint8_t _actionCode;
+	uint8_t _dialogToken;
+	uint16_t _blockAckparms;
+	uint16_t _blockAckTimeout;
+	uint16_t _blockStartingSequence;
+} __attribute__ ((packed));
+
+struct ieee80211_actionresp
+{
+	uint8_t _categoryCode;
+	uint8_t _actionCode;
+	uint8_t _dialogToken;
+	uint16_t _status;
+	uint16_t _blockAckparms;
+	uint16_t _blockAckTimeout;
+} __attribute__ ((packed));
+
 struct ieee80211_disass
 {
   uint16_t reasonCode;
