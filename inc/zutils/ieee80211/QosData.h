@@ -48,6 +48,12 @@ public:
   virtual
   ~QosData();
 
+  uint8_t
+  TID() const;
+
+  bool
+  TID(const uint8_t id_);
+
   virtual void
   Display() const;
 

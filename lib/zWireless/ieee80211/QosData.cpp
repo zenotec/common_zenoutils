@@ -53,6 +53,21 @@ QosData::~QosData()
 {
 }
 
+uint8_t
+QosData::TID() const
+{
+  return (this->QosControl() & 0x0f);
+}
+
+bool
+QosData::TID(const uint8_t id_)
+{
+  uint16_t qoscntl = this->QosControl();
+  qoscntl &= ~0x000f;
+  qoscntl |= (id_ & 0x000f);
+  return (this->QosControl(qoscntl));
+}
+
 void
 QosData::Display() const
 {

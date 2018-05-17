@@ -174,6 +174,86 @@ ActionRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   return (p_);
 }
 
+uint8_t
+ActionRequest::Category() const
+{
+  return (this->_categoryCode);
+}
+
+bool
+ActionRequest::Category(const uint8_t code_)
+{
+  this->_categoryCode = code_;
+  return (true);
+}
+
+uint8_t
+ActionRequest::Action() const
+{
+  return (this->_actionCode);
+}
+
+bool
+ActionRequest::Action(const uint8_t code_)
+{
+  this->_actionCode = code_;
+  return (true);
+}
+
+uint8_t
+ActionRequest::Dialog() const
+{
+  return (this->_dialogToken);
+}
+
+bool
+ActionRequest::Dialog(const uint8_t token_)
+{
+  this->_dialogToken = token_;
+  return (true);
+}
+
+uint8_t
+ActionRequest::TID() const
+{
+  return ((this->_blockAckparms >> 2) & 0x0f);
+}
+
+bool
+ActionRequest::TID(const uint8_t id_)
+{
+  this->_blockAckparms &= ~0x003c;
+  this->_blockAckparms |= ((id_<< 2) & 0x3c);
+}
+
+uint16_t
+ActionRequest::Buffers() const
+{
+  return (this->_blockAckparms >> 6);
+}
+
+bool
+ActionRequest::Buffers(const uint16_t num_)
+{
+  this->_blockAckparms &= ~0xffc0;
+  this->_blockAckparms |= ((num_ << 6) & 0xffc0);
+  return (true);
+}
+
+uint16_t
+ActionRequest::StartingSequence() const
+{
+  return (this->_blockStartingSequence >> 4);
+}
+
+bool
+ActionRequest::StartingSequence(const uint16_t seq_)
+{
+  this->_blockStartingSequence &= ~0xfff0;
+  this->_blockStartingSequence |= ((seq_ << 4) & 0xfff0);
+  return (true);
+}
+
 void
 ActionRequest::Display() const
 {

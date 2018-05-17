@@ -55,6 +55,42 @@ public:
   virtual uint8_t*
   Disassemble(uint8_t* p_, size_t& len_, bool fcs_ = false);
 
+  uint8_t
+  Category() const;
+
+  bool
+  Category(const uint8_t code_);
+
+  uint8_t
+  Action() const;
+
+  bool
+  Action(const uint8_t code_);
+
+  uint8_t
+  Dialog() const;
+
+  bool
+  Dialog(const uint8_t token_);
+
+  uint8_t
+  TID() const;
+
+  bool
+  TID(const uint8_t id_);
+
+  uint16_t
+  Buffers() const;
+
+  bool
+  Buffers(const uint16_t num_);
+
+  uint16_t
+  StartingSequence() const;
+
+  bool
+  StartingSequence(const uint16_t seq_);
+
   virtual void
   Display() const;
 

@@ -207,8 +207,6 @@ Notification::Notification(const zSocket::Notification& noti_) :
       f = this->Frame()->Disassemble(f, rem, fcsflag);
       if (f == 0)
       {
-    	 cout << "Notification::Notification() couldn't disassemble ActionRequest:" << endl;
-    	 this->Frame()->Display();
         ZLOG_WARN("Cannot decode action request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
