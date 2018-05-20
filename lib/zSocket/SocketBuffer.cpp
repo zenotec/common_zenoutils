@@ -33,19 +33,34 @@ namespace zSocket
 
 #define SKBMEM_DATA_LEN     (8 * 1024)
 
-struct skbmem
-{
-  zSem::Mutex lock;
-  struct timespec ts;
-  uint8_t data[SKBMEM_DATA_LEN];
-};
-
-struct timespec
+static struct timespec
 _get_ts()
 {
   struct timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
   return (ts);
+}
+
+static double
+_diff_time(const struct timespec& ts1_, const struct timespec& ts2_)
+{
+
+  double t1 = double(ts1_.tv_sec) + (double(ts1_.tv_nsec) / 1000000000.0);
+  double t2 = double(ts2_.tv_sec) + (double(ts2_.tv_nsec) / 1000000000.0);
+  return (t1 - t2);
+}
+
+static void
+_display_time(const struct timespec& ts_, const char* prefix_ = "Time")
+{
+  double t = double(ts_.tv_sec) + (double(ts_.tv_nsec) / 1000000000.0);
+  fprintf(stdout, "%s: %f\n", prefix_, t);
+}
+
+static void
+_display_time(const double ts_, const char* prefix_ = "Time")
+{
+  fprintf(stdout, "%s: %f\n", prefix_, ts_);
 }
 
 void
@@ -73,26 +88,49 @@ __dump_hex(const char* prefix_, const uint8_t* addr_, size_t len_, bool verbose_
   printf("\n");
 }
 
+struct skbmem
+{
+  zSem::Mutex lock;
+  struct timespec ts;
+  uint8_t data[SKBMEM_DATA_LEN];
+
+  skbmem()
+  {
+    ts = _get_ts();
+    memset(data, 0, SKBMEM_DATA_LEN);
+    lock.Unlock();
+  }
+
+  ~skbmem()
+  {
+    double diff = _diff_time(_get_ts(), this->ts);
+    if (diff > 0.1)
+    {
+      fprintf(stderr, "Stale socket buffer: %f\n", diff);
+    }
+  }
+
+};
+
 //*****************************************************************************
 // Class: Buffer
 //*****************************************************************************
 
 Buffer::Buffer(size_t size_) :
-    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
+    _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
   this->_init(size_);
-  this->_skbmem->lock.Unlock();
 }
 
 Buffer::Buffer(const std::string &str_) :
-    _ts{ 0 }, _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
+    _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
   this->_init(str_.size());
   this->Str(str_);
 }
 
 Buffer::Buffer(const Buffer &other_) :
-    _ts(_get_ts()), _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
+    _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
   this->_copy(other_);
 }
@@ -180,24 +218,23 @@ Buffer::Reset()
   return true;
 }
 
-uint8_t *
+uint8_t*
 Buffer::Data() const
 {
   return (this->_head + this->_data);
 }
 
-uint8_t *
+uint8_t*
 Buffer::Tail() const
 {
   return (this->_head + this->_tail);
 }
 
-uint8_t *
+uint8_t*
 Buffer::End() const
 {
   return (this->_head + this->_end);
 }
-
 
 size_t
 Buffer::Length() const
@@ -215,6 +252,19 @@ size_t
 Buffer::TotalSize() const
 {
   return (this->_end);
+}
+
+const struct timespec&
+Buffer::Timestamp() const
+{
+  return (this->_skbmem->ts);
+}
+
+bool
+Buffer::Timestamp(const struct timespec& ts_)
+{
+  this->_skbmem->ts = ts_;
+  return (true);
 }
 
 std::string
@@ -243,6 +293,7 @@ Buffer::Display() const
   printf("\tData: %p (%zd)\n", this->Data(), this->_data);
   printf("\tTail: %p (%zd)\n", this->Tail(), this->_tail);
   printf("\tEnd:  %p (%zd)\n", this->End(), this->_end);
+  printf("\tTS:   %ld.%ld\n", this->Timestamp().tv_sec, this->Timestamp().tv_nsec);
   __dump_hex("", this->Head(), this->Size(), true);
 }
 
@@ -256,11 +307,8 @@ Buffer::_init(const size_t size_)
     ZLOG_CRIT(errMsg);
     throw errMsg;
   }
-  this->_ts = _get_ts();
-  this->_skbmem->ts = this->_ts;
   this->_head = &this->_skbmem->data[0];
   this->_end = ((size_ < SKBMEM_DATA_LEN) ? size_ : SKBMEM_DATA_LEN);
-  memset(this->_head, 0, this->_end);
 }
 
 void

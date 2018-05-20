@@ -333,6 +333,9 @@ EthSocket::Recv()
       nbytes = recvfrom(this->_fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb.Put(nbytes))
       {
+        struct timespec ts = { 0 };
+        ioctl(this->_fd, SIOCGSTAMPNS, &ts);
+        sb.Timestamp(ts);
         EthAddress addr(src);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
         n->SetSrcAddress(addr);

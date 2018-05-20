@@ -113,6 +113,12 @@ public:
   size_t
   TotalSize() const;
 
+  const struct timespec&
+  Timestamp() const;
+
+  bool
+  Timestamp(const struct timespec& ts_);
+
   std::string
   Str() const;
 
@@ -126,7 +132,6 @@ protected:
 
 private:
 
-  struct timespec _ts;
   SHARED_PTR(struct skbmem) _skbmem;
   uint8_t *_head;
   size_t _data;
