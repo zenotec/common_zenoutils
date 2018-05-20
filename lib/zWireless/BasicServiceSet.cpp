@@ -320,7 +320,7 @@ BasicServiceSet::_init_beacon()
   this->_beacon.Rates(caps[band].GetBitRates());
   this->_beacon.Dsss(this->_config.GetChannel());
 //  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 8, 23 };
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 24, 23 };
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
@@ -377,7 +377,7 @@ BasicServiceSet::_init_probe()
   this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->_config.GetChannel());
 //  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 8, 23 };
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 24, 23 };
   this->_probe.Country(country);
   this->_probe.ErpInfo(0);
   if (!caps[band].GetExtBitRates().empty())
