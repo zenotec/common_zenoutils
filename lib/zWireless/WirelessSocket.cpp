@@ -207,7 +207,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
       f = this->Frame()->Disassemble(f, rem, fcsflag);
       if (f == 0)
       {
-        ZLOG_WARN("Cannot decode action request frame");
+//        ZLOG_WARN("Cannot decode action request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
