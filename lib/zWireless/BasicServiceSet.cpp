@@ -132,13 +132,66 @@ BasicServiceSet::SetChannel(const unsigned int channel_)
   bool status = this->_config.SetChannel(channel_);
   if (status)
   {
-    ieee80211::HtInfoTag::ht_info htinfo = this->_probe.HtInfo();
-    htinfo.ht_primary_channel = channel_;
     this->_iface.SetChannel(channel_);
+
+    std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
+    zWireless::Capabilities::BAND band = (channel_ <= 11) ? zWireless::Capabilities::BAND_2_4 : zWireless::Capabilities::BAND_5;
+    ieee80211::HtInfoTag::ht_info htinfo = this->_beacon.HtInfo();
+    ieee80211::country_tag country = this->_beacon.Country();
+    uint16_t supOp = 0;
+
+    htinfo.ht_primary_channel = channel_;
+    country.first_channel = channel_;
+
+    if (channel_ < 36)
+    {
+    	  country.first_channel = 1;
+      	  country.num_channels = 11;
+  		  country.max_power = 21;
+      	  supOp = 81;
+    }
+    else
+    {
+  	  country.first_channel = 36;
+  	  country.num_channels = 24;
+  	  supOp = 115;
+  	  if (channel_ <= 104)
+  	  {
+  		  country.max_power = 20;
+  	  }
+  	  else if (channel_ <= 120)
+  	  {
+  		  country.max_power = 19;
+  	  }
+  	  else if (channel_ <= 149)
+  	  {
+  		  country.max_power = 18;
+  	  }
+  	  else
+  	  {
+  		  country.max_power = 17;
+  	  }
+    }
+
+    if (!caps[band].GetExtBitRates().empty())
+    {
+    	this->_beacon.ExtRates(caps[band].GetExtBitRates());
+    	this->_probe.ExtRates(caps[band].GetExtBitRates());
+    }
+
     this->_beacon.Dsss(channel_);
     this->_beacon.HtInfo(htinfo);
+    this->_beacon.HtCaps(caps[band].GetHtCaps());
+    this->_beacon.Country(country);
+    this->_beacon.SuppOpClass(supOp);
+    this->_beacon.Rates(caps[band].GetBitRates());
+
     this->_probe.Dsss(channel_);
     this->_probe.HtInfo(htinfo);
+    this->_probe.HtCaps(caps[band].GetHtCaps());
+    this->_probe.Country(country);
+    this->_probe.SuppOpClass(supOp);
+    this->_probe.Rates(caps[band].GetBitRates());
   }
   return (status);
 }
@@ -155,13 +208,7 @@ BasicServiceSet::SetFrequency(const unsigned int freq_)
   bool status = this->_config.SetFrequency(freq_);
   if (status)
   {
-    ieee80211::HtInfoTag::ht_info htinfo = this->_probe.HtInfo();
-    htinfo.ht_primary_channel = this->_config.GetChannel();
-    this->_iface.SetFrequency(freq_);
-    this->_beacon.Dsss(this->_config.GetChannel());
-    this->_beacon.HtInfo(htinfo);
-    this->_probe.Dsss(this->_config.GetChannel());
-    this->_probe.HtInfo(htinfo);
+	status = SetChannel(this->_config.GetChannel());
   }
   return (status);
 }
@@ -300,40 +347,35 @@ BasicServiceSet::Display(const std::string& prefix_)
 void
 BasicServiceSet::_init_beacon()
 {
+	// Initialize for 2.4ghz, channel 1
+
   std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
 
-//  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
-//  if (this->_config.GetFrequency() >= 5000)
-//  {
-	  cout << "\nBasicServiceSet::_init_beacon() - Using 5ghz bit rates" << endl;
-    zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
-//  }
+  uint8_t channel = 1;
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  uint16_t supportedOpClass = 81;
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 21 };
 
   this->_beacon.ReceiverAddress("ff:ff:ff:ff:ff:ff");
   this->_beacon.TransmitterAddress(this->_config.GetBssid());
   this->_beacon.Bssid(this->_config.GetBssid());
   this->_beacon.Interval(100);
-//  this->_beacon.Capabilities(0x0421);
-#warning "hard coded capabilities to 0x0021"
   this->_beacon.Capabilities(0x0021);
   this->_beacon.Ssid(this->_config.GetSsid());
   this->_beacon.Rates(caps[band].GetBitRates());
-  this->_beacon.Dsss(this->_config.GetChannel());
-//  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 24, 23 };
+  this->_beacon.Dsss(channel);
   this->_beacon.Country(country);
   this->_beacon.ErpInfo(0);
+  this->_beacon.SuppOpClass(supportedOpClass);
+  this->_beacon.HtCaps(caps[band].GetHtCaps());
   if (!caps[band].GetExtBitRates().empty())
   {
     this->_beacon.ExtRates(caps[band].GetExtBitRates());
   }
-//  this->_beacon.SuppOpClass(81);
-  this->_beacon.SuppOpClass(115);
-  this->_beacon.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
   ieee80211::HtInfoTag::ht_info htinfo = { 0 };
-  htinfo.ht_primary_channel = this->_config.GetChannel();
+  htinfo.ht_primary_channel = channel;
   htinfo.ht_subset_1 = 0x00;
   htinfo.ht_subset_2 = 0x0000;
   htinfo.ht_subset_3 = 0x0000;
@@ -359,38 +401,31 @@ BasicServiceSet::_init_probe()
 {
   std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
 
-//  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
-//  if (this->_config.GetFrequency() >= 5000)
-//  {
-	  cout << "\nBasicServiceSet::_init_probe() - Using 5ghz bit rates" << endl;
-    zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_5;
-//  }
+  uint8_t channel = 1;
+  zWireless::Capabilities::BAND band = zWireless::Capabilities::BAND_2_4;
+  uint16_t supportedOpClass = 81;
+  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 21 };
 
   this->_probe.ReceiverAddress("00:00:00:00:00:00");
   this->_probe.TransmitterAddress(this->_config.GetBssid());
   this->_probe.Bssid(this->_config.GetBssid());
   this->_probe.Interval(100);
-//  this->_probe.Capabilities(0x0421);
-#warning "hard coded capabilities to 0x0021"
   this->_probe.Capabilities(0x0021);
   this->_probe.Ssid(this->_config.GetSsid());
   this->_probe.Rates(caps[band].GetBitRates());
   this->_probe.Dsss(this->_config.GetChannel());
-//  ieee80211::country_tag country = { 'U', 'S', 0x20, 1, 11, 30 };
-  ieee80211::country_tag country = { 'U', 'S', 0x20, 36, 24, 23 };
   this->_probe.Country(country);
   this->_probe.ErpInfo(0);
+  this->_probe.SuppOpClass(supportedOpClass);
+  this->_probe.HtCaps(caps[band].GetHtCaps());
   if (!caps[band].GetExtBitRates().empty())
   {
     this->_probe.ExtRates(caps[band].GetExtBitRates());
   }
-//  this->_probe.SuppOpClass(81);
-  this->_probe.SuppOpClass(115);
-  this->_probe.HtCaps(caps[band].GetHtCaps());
 
   // Get HT information
   ieee80211::HtInfoTag::ht_info htinfo = { 0 };
-  htinfo.ht_primary_channel = this->_config.GetChannel();
+  htinfo.ht_primary_channel = channel;
   htinfo.ht_subset_1 = 0x00;
   htinfo.ht_subset_2 = 0x0000;
   htinfo.ht_subset_3 = 0x0000;
@@ -410,6 +445,7 @@ BasicServiceSet::_init_probe()
   this->_probe.WmmWme(wmmwme);
 
 }
+
 
 }
 }
