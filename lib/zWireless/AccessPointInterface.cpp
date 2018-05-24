@@ -180,7 +180,7 @@ AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse
   }
   cmd->ProbeResp.Set(buf, (sizeof(buf) - blen)); // copies buffer
 
-  cmd->DtimPeriod(2);
+  cmd->DtimPeriod(1);
   cmd->Ssid(this->GetSsid());
   cmd->Channel(this->GetFrequency());
   cmd->ChannelWidth(this->htmode2nl(this->GetHtMode()));
