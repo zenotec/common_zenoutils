@@ -1011,6 +1011,9 @@ Interface::_getCapabilities() const
         htcaps.ampdu_parms |= (cmd.PhyBands.GetPhyBand(band).GetAmpduDensity()() << 2);
         PhyBandsHtMcsAttribute::mcs_set mcs = cmd.PhyBands.GetPhyBand(band).GetMcsSet()();
         htcaps.supported_mcs_set.rx_mcs_bitmask = mcs.rx_mcs_bitmask;
+        //// TODO: Temp debug
+        htcaps.supported_mcs_set.rx_mcs_bitmask[1] = 0;
+        htcaps.supported_mcs_set.rx_mcs_bitmask[2] = 0;
         htcaps.supported_mcs_set.rx_highest_rate = mcs.rx_highest_rate;
         htcaps.supported_mcs_set.tx_mcs_fields.tx_bits = mcs.tx_mcs_fields.tx_bits;
         htcaps.ht_ext_cap = 0x0000;
