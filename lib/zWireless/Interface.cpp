@@ -1012,7 +1012,7 @@ Interface::_getCapabilities() const
         PhyBandsHtMcsAttribute::mcs_set mcs = cmd.PhyBands.GetPhyBand(band).GetMcsSet()();
         htcaps.supported_mcs_set.rx_mcs_bitmask = mcs.rx_mcs_bitmask;
         //// TODO: Temp debug
-        htcaps.supported_mcs_set.rx_mcs_bitmask[0] = 0x3f;
+        htcaps.supported_mcs_set.rx_mcs_bitmask[0] = 0x3c;
         htcaps.supported_mcs_set.rx_mcs_bitmask[1] = 0;
         htcaps.supported_mcs_set.rx_mcs_bitmask[2] = 0;
         htcaps.supported_mcs_set.rx_highest_rate = mcs.rx_highest_rate;
