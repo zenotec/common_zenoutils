@@ -97,17 +97,17 @@ struct skbmem
   skbmem()
   {
     ts = _get_ts();
-    memset(data, 0, SKBMEM_DATA_LEN);
+//    memset(data, 0, SKBMEM_DATA_LEN);
     lock.Unlock();
   }
 
   ~skbmem()
   {
-    double diff = _diff_time(_get_ts(), this->ts);
-    if (diff > 0.1)
-    {
-      fprintf(stderr, "Stale socket buffer: %f\n", diff);
-    }
+//    double diff = _diff_time(_get_ts(), this->ts);
+//    if (diff > 0.1)
+//    {
+//      fprintf(stderr, "Stale socket buffer: %f\n", diff);
+//    }
   }
 
 };

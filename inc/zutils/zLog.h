@@ -67,6 +67,7 @@ namespace zLog
 	  } \
   } while(false);
 
+#ifdef DEBUG
 #define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_CRIT,(x))
 #define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_ERROR,(x))
 #define ZLOG_WARN(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_WARN,(x))
@@ -75,6 +76,16 @@ namespace zLog
 #define ZLOG_DEBUG1(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG1,(x))
 #define ZLOG_DEBUG2(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG2,(x))
 #define ZLOG_DEBUG3(x)   ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_DEBUG3,(x))
+#else
+#define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_CRIT,(x))
+#define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_ERROR,(x))
+#define ZLOG_WARN(x)
+#define ZLOG_INFO(x)
+#define ZLOG_DEBUG(x)
+#define ZLOG_DEBUG1(x)
+#define ZLOG_DEBUG2(x)
+#define ZLOG_DEBUG3(x)
+#endif
 
 inline std::string
 CharStr(char n_)
