@@ -160,6 +160,7 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->Dsss);
   this->PutTag(this->Tim);
   this->PutTag(this->Country);
+  this->PutTag(this->ChannelSwitch);
   this->PutTag(this->ErpInfo);
   this->PutTag(this->ExtRates);
   this->PutTag(this->SuppOpClass);
@@ -274,6 +275,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->GetTag(this->Dsss);
   this->GetTag(this->Tim);
   this->GetTag(this->Country);
+  this->GetTag(this->ChannelSwitch);
   this->GetTag(this->ErpInfo);
   this->GetTag(this->ExtRates);
   this->GetTag(this->SuppOpClass);
@@ -322,6 +324,7 @@ Beacon::Display() const
   if (this->Dsss.Valid()) this->Dsss.Display();
   if (this->Tim.Valid()) this->Tim.Display();
   if (this->Country.Valid()) this->Country.Display();
+  if (this->ChannelSwitch.Valid()) this->ChannelSwitch.Display();
   if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
   if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();

@@ -41,6 +41,7 @@
 #include <zutils/ieee80211/WmmWmeTag.h>
 #include <zutils/ieee80211/ChannelsTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
+#include <zutils/ieee80211/ChannelSwitchTag.h>
 
 // local includes
 
@@ -65,6 +66,7 @@ public:
   DsssTag Dsss;
   TimTag Tim;
   CountryTag Country;
+  ChannelSwitchTag ChannelSwitch;
   ErpInfoTag ErpInfo;
   ExtRatesTag ExtRates;
   SuppOpClassesTag SuppOpClass;

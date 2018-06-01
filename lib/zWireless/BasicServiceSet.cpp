@@ -26,6 +26,7 @@
 #include <zutils/ieee80211/Beacon.h>
 #include <zutils/ieee80211/Probe.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/ChannelSwitchTag.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
@@ -194,6 +195,18 @@ BasicServiceSet::SetChannel(const unsigned int channel_)
     this->_probe.Rates(caps[band].GetBitRates());
   }
   return (status);
+}
+
+bool
+BasicServiceSet::AnnounceChannelSwitch(const unsigned int mode_, const unsigned int channel_, const unsigned int count_)
+{
+    ieee80211::ChannelSwitchTag::channel_switch_tag chanSwitch = {mode_, channel_, count_};
+    this->_beacon.ChannelSwitch(chanSwitch);
+    this->_probe.ChannelSwitch(chanSwitch);
+
+    // TODO: need to remove the channel switch tag from the probe & beacon after we switch...
+
+    return true;
 }
 
 unsigned int

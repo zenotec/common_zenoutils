@@ -36,6 +36,7 @@
 #include <zutils/ieee80211/ExtRatesTag.h>
 #include <zutils/ieee80211/ExtCapsTag.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
+#include <zutils/ieee80211/ChannelSwitchTag.h>
 
 // local includes
 
@@ -95,6 +96,7 @@ public:
   RatesTag Rates;
   DsssTag Dsss;
   CountryTag Country;
+  ChannelSwitchTag ChannelSwitch;
   ErpInfoTag ErpInfo;
   ExtRatesTag ExtRates;
   SuppOpClassesTag SuppOpClass;

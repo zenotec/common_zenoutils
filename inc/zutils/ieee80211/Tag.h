@@ -47,6 +47,7 @@ public:
     ID_COUNTRY = 7,
     ID_POWER_CAPS = 33, // 0x21
     ID_CHANNELS = 36, // 0x24
+    ID_CHANNEL_SWITCH = 37, // 0x25
     ID_ERP_INFO = 42, // 2A
     ID_HT_CAPS = 45, // 0x2D
     ID_EXT_RATES = 50, // 0x32
@@ -77,6 +78,7 @@ public:
       case ID_COUNTRY: { return "ID_COUNTRY"; break; }
       case ID_POWER_CAPS: { return "ID_POWER_CAPS"; break; }
       case ID_CHANNELS: { return "ID_CHANNELS"; break; }
+      case ID_CHANNEL_SWITCH: { return "ID_CHANNEL_SWITCH"; break; }
       case ID_ERP_INFO: { return "ID_ERP_INFO"; break; }
       case ID_HT_CAPS: { return "ID_HT_CAPS"; break; }
       case ID_EXT_RATES: { return "ID_EXT_RATES"; break; }

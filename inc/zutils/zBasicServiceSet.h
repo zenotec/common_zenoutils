@@ -76,6 +76,9 @@ public:
   bool
   SetChannel(const unsigned int channel_);
 
+  bool
+  AnnounceChannelSwitch(const unsigned int mode_, const unsigned int channel_, const unsigned int count_);
+
   unsigned int
   GetFrequency() const;
 
