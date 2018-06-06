@@ -115,7 +115,7 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   std::vector<uint8_t> exrates_ = {24, 36, 48, 54};
   HtCapsTag::ht_caps htcaps_ = { 0xaaaa, 0xee, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44 }, 0x4444, 0x55555555L, 0x66 };
   //                         Chan s1    s2      s3      mcs mask                             hdr     mcs   padding - move to ht_caps
-  HtInfoTag::ht_info info_ = { 6, 0x11, 0x2222, 0x3333, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44, { 0xff, 0xfe, 0xfd } } };
+  HtInfoTag::ht_info info_ = { 6, 0x11, 0x2222, 0x3333, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },  0x44, { 0xff, 0xfe, 0xfd } } };
 
   TEST_TRUE(frame.Dsss(6));
   TimTag:tim_tag tim_ = { 1, 2, 3, 4 };
