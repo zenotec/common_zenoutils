@@ -33,6 +33,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/SsidTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/TimTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/VendorSpecificTag.h \
+    $(top_srcdir)/inc/zutils/ieee80211/ChannelSwitchTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/WmmWmeTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/Frame.h \
 	${top_srcdir}/inc/zutils/ieee80211/ControlFrame.h \
