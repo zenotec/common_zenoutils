@@ -34,7 +34,8 @@ int
 zWirelessTest_MonitorInterface(void* arg);
 int
 zWirelessTest_AccessPointInterface(void* arg);
-
+int
+zWirelessTest_setFrequency(void* arg);
 int
 zWirelessTest_BasicServiceSet(void* arg);
 

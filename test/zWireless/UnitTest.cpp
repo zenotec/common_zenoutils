@@ -49,6 +49,7 @@ main(int argc, const char **argv)
   UTEST_TEST(zWirelessTest_WirelessInterface, 0);
   UTEST_TEST(zWirelessTest_MonitorInterface, 0);
   UTEST_TEST(zWirelessTest_AccessPointInterface, 0);
+  UTEST_TEST(zWirelessTest_setFrequency, 0);
 
   UTEST_TEST(zWirelessTest_BasicServiceSet, 0);
 
