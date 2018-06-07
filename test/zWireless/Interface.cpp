@@ -284,6 +284,22 @@ zWirelessTest_MonitorInterface(void* arg)
   //TODO:	Clean-up resource leaks
 }
 
+int
+zWirelessTest_getCenterFrequency1(void* arg){
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zWirelessTest_getCenterFrequency1()");
+  ZLOG_DEBUG("#############################################################");
+  unsigned int frequency = 1;
+  
+  std::string ifname = std::string("vap");
+  zWireless::AccessPointInterface *MyInterface = new zWireless::AccessPointInterface(ifname);
+  MyInterface->SetFrequency(frequency);
+  TEST_EQ(frequency, MyInterface->GetFrequency());
+  
+  delete MyInterface;
+  UTEST_RETURN
+}
+
 
 int
 zWirelessTest_setFrequency(void* arg){
@@ -302,6 +318,9 @@ zWirelessTest_setFrequency(void* arg){
   // Return success
   UTEST_RETURN;
 }
+
+
+
 
 int
 zWirelessTest_AccessPointInterface(void* arg)
