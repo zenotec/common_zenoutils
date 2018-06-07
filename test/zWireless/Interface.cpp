@@ -289,12 +289,12 @@ zWirelessTest_getCenterFrequency1(void* arg){
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zWirelessTest_getCenterFrequency1()");
   ZLOG_DEBUG("#############################################################");
-  unsigned int frequency = 1;
+  unsigned int frequency = 0;
   
   std::string ifname = std::string("vap");
   zWireless::AccessPointInterface *MyInterface = new zWireless::AccessPointInterface(ifname);
-  MyInterface->SetFrequency(frequency);
-  TEST_EQ(frequency, MyInterface->GetCenterFrequency1());
+  MyInterface->GetCenterFrequency1();
+  TEST_EQ(frequency, MyInterface->GetFrequency());
   
   delete MyInterface;
   UTEST_RETURN
