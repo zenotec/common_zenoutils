@@ -294,7 +294,7 @@ zWirelessTest_getCenterFrequency1(void* arg){
   std::string ifname = std::string("vap");
   zWireless::AccessPointInterface *MyInterface = new zWireless::AccessPointInterface(ifname);
   MyInterface->SetFrequency(frequency);
-  TEST_EQ(frequency, MyInterface->GetFrequency());
+  TEST_EQ(frequency, MyInterface->GetCenterFrequency1());
   
   delete MyInterface;
   UTEST_RETURN
