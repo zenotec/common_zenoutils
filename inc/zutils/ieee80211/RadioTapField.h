@@ -280,6 +280,37 @@ public:
 };
 
 //*****************************************************************************
+// Class: RadioTapFieldTxPower
+//*****************************************************************************
+
+class RadioTapFieldTxPower : public RadioTapField
+{
+
+public:
+
+	RadioTapFieldTxPower();
+
+  virtual
+  ~RadioTapFieldTxPower();
+
+  virtual uint8_t
+  operator()() const;
+
+  virtual bool
+  operator()(const uint8_t val_);
+
+  float
+  TxPower() const;
+
+  bool
+  TxPower(const float txPower_);
+
+  virtual void
+  Display() const;
+
+};
+
+//*****************************************************************************
 // Class: RadioTapFieldMcs
 //*****************************************************************************
 
