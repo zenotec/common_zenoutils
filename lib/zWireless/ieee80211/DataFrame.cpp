@@ -232,8 +232,8 @@ uint8_t*
 DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
+  ieee80211_hdr* f = (ieee80211_hdr*) p_;
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  ieee80211_datahdr* f = (ieee80211_datahdr*) p_;
 
   if (f == NULL)
   {
@@ -247,15 +247,15 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->addr3), rem_);
-  if (!p_ || !this->Address(ADDRESS_3, f->addr3))
+  p_ = this->chklen(p_, sizeof(f->u.data.addr3), rem_);
+  if (!p_ || !this->Address(ADDRESS_3, f->u.data.addr3))
   {
     ZLOG_ERR("Error disassembling address field 3: " + ZLOG_P(p_));
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
-  if (!p_ || !this->SequenceControl(le16toh(f->seqcntl)))
+  p_ = this->chklen(p_, sizeof(f->u.data.seqcntl), rem_);
+  if (!p_ || !this->SequenceControl(le16toh(f->u.data.seqcntl)))
   {
     ZLOG_ERR("Error disassembling sequence control field: " + ZLOG_P(p_));
     return(NULL);
@@ -263,8 +263,8 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   if (this->Subtype() == Frame::SUBTYPE_DATAQOS)
   {
-    p_ = this->chklen(p_, sizeof(f->u.qosdata.qoscntl), rem_);
-    if (!p_ || !this->QosControl(le16toh(f->u.qosdata.qoscntl)))
+    p_ = this->chklen(p_, sizeof(f->u.data.u.qosdata.qoscntl), rem_);
+    if (!p_ || !this->QosControl(le16toh(f->u.data.u.qosdata.qoscntl)))
     {
       ZLOG_ERR("Error disassembling QoS control field: " + ZLOG_P(p_));
       return(NULL);
@@ -273,8 +273,8 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   if (this->ToDS() && this->FromDS())
   {
-    p_ = this->chklen(p_, sizeof(f->u.data4addr.addr4), rem_);
-    if (!p_ || !this->Address(ADDRESS_4, f->u.data4addr.addr4))
+    p_ = this->chklen(p_, sizeof(f->u.data.u.data4addr.addr4), rem_);
+    if (!p_ || !this->Address(ADDRESS_4, f->u.data.u.data4addr.addr4))
     {
       ZLOG_ERR("Error disassembling address field 4: " + ZLOG_P(p_));
       return (NULL);

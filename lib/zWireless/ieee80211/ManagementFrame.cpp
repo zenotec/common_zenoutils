@@ -106,8 +106,8 @@ uint8_t*
 ManagementFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
+  ieee80211_hdr* f = (ieee80211_hdr*) p_;
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  ieee80211_mgmthdr* f = (ieee80211_mgmthdr*) p_;
 
   if (f == NULL)
   {
@@ -121,15 +121,15 @@ ManagementFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->bssid), rem_);
-  if (!p_ || !this->Address(ADDRESS_3, f->bssid))
+  p_ = this->chklen(p_, sizeof(f->u.mgmt.bssid), rem_);
+  if (!p_ || !this->Address(ADDRESS_3, f->u.mgmt.bssid))
   {
     ZLOG_ERR("Missing address field: 3");
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->seqcntl), rem_);
-  if (!p_ || !this->SequenceControl(le16toh(f->seqcntl)))
+  p_ = this->chklen(p_, sizeof(f->u.mgmt.seqcntl), rem_);
+  if (!p_ || !this->SequenceControl(le16toh(f->u.mgmt.seqcntl)))
   {
     ZLOG_ERR("Missing sequence control field");
     return(NULL);
