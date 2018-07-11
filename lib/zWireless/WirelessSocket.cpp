@@ -114,14 +114,13 @@ Notification::Notification(const zSocket::Notification& noti_) :
     if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_BEACON))
     {
 
-        this->SetSubType(Notification::SUBTYPE_PKT_DROP);
-//      this->Frame(SHARED_PTR(ieee80211::Beacon)(new ieee80211::Beacon));
-//      f = this->Frame()->Disassemble(f, rem, fcsflag);
-//      if (f == 0)
-//      {
-//        ZLOG_WARN("Cannot decode beacon frame");
-//        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
-//      }
+      this->Frame(SHARED_PTR(ieee80211::Beacon)(new ieee80211::Beacon));
+      f = this->Frame()->Disassemble(f, rem, fcsflag);
+      if (f == 0)
+      {
+        ZLOG_WARN("Cannot decode beacon frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
     }
     else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_PROBEREQ))
     {
