@@ -67,7 +67,7 @@ Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(p_, (sizeof(f->fc) + sizeof(f->duration)), rem_);
   if (!p_)
   {
-    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+    ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
 
@@ -110,6 +110,24 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   this->_durationid = le16toh(f->duration);
+
+  // Address 1 (Receiver address) field
+  p_ = this->chklen(p_, sizeof(f->u.gen.addr1), rem_);
+  if (!p_ || !this->Address(ADDRESS_1, f->u.gen.addr1))
+  {
+    ZLOG_ERR("Missing address field: 1");
+    return (NULL);
+  }
+
+  if (rem_)
+  {
+    p_ = this->chklen(p_, sizeof(f->u.gen.addr2), rem_);
+    if (!p_ || !this->Address(ADDRESS_2, f->u.gen.addr2))
+    {
+      ZLOG_ERR("Missing address field: 2");
+      return (NULL);
+    }
+  }
 
   return (p_);
 }

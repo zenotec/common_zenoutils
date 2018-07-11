@@ -247,20 +247,6 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->addr1), rem_);
-  if (!p_ || !this->Address(ADDRESS_1, f->addr1))
-  {
-    ZLOG_ERR("Error disassembling address field 1: " + ZLOG_P(p_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->addr2), rem_);
-  if (!p_ || !this->Address(ADDRESS_2, f->addr2))
-  {
-    ZLOG_ERR("Error disassembling address field 2: " + ZLOG_P(p_));
-    return (NULL);
-  }
-
   p_ = this->chklen(p_, sizeof(f->addr3), rem_);
   if (!p_ || !this->Address(ADDRESS_3, f->addr3))
   {

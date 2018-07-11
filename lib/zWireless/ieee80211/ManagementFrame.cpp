@@ -121,20 +121,6 @@ ManagementFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->ra), rem_);
-  if (!p_ || !this->Address(ADDRESS_1, f->ra))
-  {
-    ZLOG_ERR("Missing address field: 1");
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->ta), rem_);
-  if (!p_ || !this->Address(ADDRESS_2, f->ta))
-  {
-    ZLOG_ERR("Missing address field: 2");
-    return (NULL);
-  }
-
   p_ = this->chklen(p_, sizeof(f->bssid), rem_);
   if (!p_ || !this->Address(ADDRESS_3, f->bssid))
   {

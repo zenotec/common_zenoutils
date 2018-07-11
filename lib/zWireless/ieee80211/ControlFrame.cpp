@@ -68,21 +68,6 @@ ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->chklen(p_, sizeof(f->ra), rem_);
-  if (!p_ || this->Address(ADDRESS_1).empty() || !this->str2mac(this->Address(ADDRESS_1), f->ra))
-  {
-    return (NULL);
-  }
-
-  if (this->Subtype() == Frame::SUBTYPE_RTS)
-  {
-    p_ = this->chklen(p_, sizeof(f->ta), rem_);
-    if (!p_ || this->Address(ADDRESS_2).empty() || !this->str2mac(this->Address(ADDRESS_2), f->ta))
-    {
-      return (NULL);
-    }
-  }
-
   return (p_);
 }
 
