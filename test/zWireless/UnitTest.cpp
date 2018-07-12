@@ -52,7 +52,7 @@ main(int argc, const char **argv)
   UTEST_TEST(zWirelessTest_setFrequency, 0);
   UTEST_TEST(zWirelessTest_getCenterFrequency1, 0);
   UTEST_TEST(zWirelessTest_BasicServiceSet, 0);
-  UTEST_TEST(zWirelessTest_GetSsid, 0);
+  //UTEST_TEST(zWirelessTest_GetSsid, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
