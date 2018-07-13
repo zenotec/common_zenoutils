@@ -119,6 +119,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
+  // Address 2 (Transmitter address) field
   if (rem_)
   {
     p_ = this->chklen(p_, sizeof(f->u.gen.addr2), rem_);
@@ -136,7 +137,7 @@ uint8_t*
 Frame::Peek(uint8_t* p_, size_t len_, bool fcs_)
 {
   size_t rem = len_;
-  uint8_t* p = this->Disassemble(p_, rem);
+  uint8_t* p = this->Disassemble(p_, rem, fcs_);
   return((p == NULL) ? NULL : p_);
 }
 
