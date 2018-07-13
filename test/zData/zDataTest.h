@@ -54,6 +54,9 @@ zDataTest_DataCopy(void* arg);
 
 int
 zDataTest_Array(void* arg);
-
+int
+zDataTest_PopFront(void* arg);
+int
+zDataTest_PopBack(void* arg);
 #endif /* _ZDATATEST_H_ */
 

@@ -423,8 +423,9 @@ zDataTest_AddChild(void* arg_)
   // Put the child and validate
   TEST_TRUE_MSG(ParentData.AddChild(NameData[0]), ParentData.GetJson());
   TEST_TRUE_MSG(ParentData.AddChild(NameData[1]), ParentData.GetJson());
+  //TEST_TRUE_MSG(ParentData.AddChild(,NameData[1]) 
 //  ParentData.DisplayPath();
-//  ParentData.DisplayJson();
+//  ParentData.DisplayJson();  ////////////////
 
   // Get first child
   Data = ParentData[0];

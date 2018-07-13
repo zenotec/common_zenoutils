@@ -51,8 +51,11 @@ zEventTest_EventHandlerTest(void* arg_)
   TEST_EQ(MyObserver->Size(), 1);
   TEST_FALSE(MyObserver->Empty());
   TEST_TRUE(MyObserver->Front()->GetType() == zEvent::Event::TYPE_TEST);
+  std::shared_ptr<zUtils::zEvent::Notification> MyNotification = MyObserver->Front();
+  //TEST_ISNOT_NULL(MyNotification);
+  TEST_EQ(zEvent::Event::TYPE_TEST, MyNotification->GetEvent().GetType());
+  //MyNotification.GetEvent(); 
   MyObserver->Pop();
-
   // Unregister observer with handler
   MyHandler->UnregisterObserver(MyObserver);
   TEST_FALSE(MyObserver->TryWait());
@@ -66,7 +69,7 @@ zEventTest_EventHandlerTest(void* arg_)
   delete (MyObserver);
   delete (MyHandler);
   delete (MyEvent);
-
+  // delete (MyNotification); //
   // Return success
   return (0);
 }

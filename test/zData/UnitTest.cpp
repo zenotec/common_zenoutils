@@ -54,7 +54,9 @@ main(int argc, const char **argv)
   UTEST_TEST(zDataTest_DataCopy, 0);
 
   UTEST_TEST(zDataTest_Array, 0);
-
+  
+  UTEST_TEST(zDataTest_PopFront, 0);
+  UTEST_TEST(zDataTest_PopBack, 0);
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 
   UTEST_FINI();

@@ -141,6 +141,7 @@ zProgramTest_ParseCommandLine(void* arg_)
   TEST_EQ(std::string("filename_1.txt"), MyProg->GetOption("file").GetArguments()[0]);
   TEST_EQ(std::string("filename_2.txt"), MyProg->GetOption("file").GetArguments()[1]);
   TEST_EQ(std::string("addr"), MyProg->GetArgument(0).GetValue());
+  MyProg->Usage();
 
   delete (MyProg);
 

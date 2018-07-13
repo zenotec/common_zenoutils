@@ -98,7 +98,44 @@ zDataTest_PathPrepend(void* arg)
   TEST_EQ(std::string("key"), MyPath.Key());
   TEST_EQ((zData::DataPath::DataRoot + std::string(".root.base.key")), MyPath.Path());
 
-  // Return success
+  return (0);
+}
+
+
+int zDataTest_PopFront(void* arg) /////
+{
+  
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zDataTest_PopFront()");
+  ZLOG_DEBUG("#############################################################");
+
+  zData::DataPath MyPath;
+  TEST_TRUE(MyPath.Append(std::string("root")));
+  TEST_TRUE(MyPath.Append(std::string("base")));
+  TEST_TRUE(MyPath.Append(std::string("key")));
+  MyPath.PopFront();
+  //std::cout <<std::endl<<MyPath.Path() << std::endl;
+  
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".base.key")), MyPath.Path());
+
+  return (0);
+
+}
+
+int
+zDataTest_PopBack(void* arg)
+{
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zDataTest_PopBack()");
+  ZLOG_DEBUG("#############################################################");
+   
+  zData::DataPath MyPath;
+  TEST_TRUE(MyPath.Append(std::string("root")));
+  TEST_TRUE(MyPath.Append(std::string("base")));
+  TEST_TRUE(MyPath.Append(std::string("key")));
+  MyPath.PopBack();
+  TEST_EQ((zData::DataPath::DataRoot + std::string(".root.base")), MyPath.Path());
+
   return (0);
 }
 

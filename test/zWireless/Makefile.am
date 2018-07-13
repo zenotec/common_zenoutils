@@ -45,8 +45,8 @@ zWirelessUnitTest_SOURCES = \
     Defaults.cpp \
     Configuration.cpp \
     Interface.cpp \
-    BasicServiceSet.cpp 
-#    AccessPointInterface.cpp
+    BasicServiceSet.cpp \
+    AccessPointInterface.cpp
 
 zWirelessUnitTest_LDADD = \
     ${top_builddir}/lib/zWireless/libzWireless.la \

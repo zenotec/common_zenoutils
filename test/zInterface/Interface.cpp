@@ -44,7 +44,28 @@ zInterfaceTest_InterfaceLoop(void* arg)
   TEST_EQ(ConfigData::ConfigIpAddressDefault, MyInterface->GetIpAddress());
   TEST_EQ(ConfigData::ConfigNetmaskDefault, MyInterface->GetNetmask());
   TEST_EQ(ConfigData::STATE_DEF, MyInterface->GetAdminState());
+  TEST_EQ(1 , MyInterface->GetIfIndex()); 
+  TEST_TRUE(MyInterface->SetIfIndex(3));
+  //TEST_EQ(3, MyInterface->GetIfIndex()); 
+  std::string ifname1 = "interface";
+  const std::string& pass = ifname1;
+  TEST_TRUE(MyInterface->SetIfName(pass)); 
+  TEST_EQ(ConfigData::ConfigMasterIfIndexDefault, 0); 
+  TEST_EQ(ConfigData::ConfigMasterIfIndexDefault, MyInterface->GetMasterIfIndex()); 
+  TEST_TRUE(MyInterface->SetMasterIfIndex(1)); 
+  TEST_EQ(1, MyInterface->GetMasterIfIndex()); 
+  TEST_TRUE(MyInterface->SetMasterIfName("f")); 
+  TEST_EQ(std::string("f"), MyInterface->GetMasterIfName()); 
+  TEST_TRUE(MyInterface->SetMtu(1));
+  std::string hwaddr1 = "00:00:00:00:00:00";
+  const std::string& passadd = hwaddr1;
+  TEST_TRUE(MyInterface->SetHwAddress(passadd));
 
+  ConfigData* MyConfig = NULL;
+  MyConfig = new ConfigData;
+  MyInterface->GetConfig();
+  //TEST_TRUE(MyInterface->SetConfig(MyConfig));
+  
   // Refresh
   TEST_TRUE(MyInterface->Refresh());
   TEST_EQ(1, MyInterface->GetIfIndex());
@@ -53,10 +74,22 @@ zInterfaceTest_InterfaceLoop(void* arg)
   TEST_EQ(std::string("00:00:00:00:00:00"), MyInterface->GetHwAddress());
   TEST_EQ(65536, MyInterface->GetMtu());
   TEST_EQ(ConfigData::STATE_UP, MyInterface->GetAdminState());
-  //  TEST_EQ(std::string("127.0.0.1"), MyInterface->GetIpAddress());
-  //  TEST_EQ(std::string("255.255.255.0"), MyInterface->GetNetmask());
+  std::string ipadd = MyInterface->GetIpAddress();//
+  TEST_TRUE(MyInterface->SetIpAddress(ipadd));
 
-  // Cleanup
+  std::string netmask1 = "255.255.255.0";
+  const std::string& passnetmask = netmask1;
+  TEST_TRUE(MyInterface->SetNetmask(passnetmask));
+  TEST_EQ(std::string("255.255.255.0"), MyInterface->GetNetmask());//
+  
+  TEST_TRUE(MyInterface->SetAdminState(ConfigData::STATE_UP));
+  TEST_EQ(ConfigData::STATE_UP, MyInterface->GetAdminState());
+  MyInterface->Commit(); 
+  TEST_TRUE(MyInterface->SetAdminState(ConfigData::STATE_DOWN));
+  MyInterface->Commit();
+
+ // Cleanup
+  delete (MyConfig);
   delete (MyInterface);
 
   // Return success

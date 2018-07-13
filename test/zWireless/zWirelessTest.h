@@ -40,10 +40,14 @@ int
 zWirelessTest_BasicServiceSet(void* arg);
 int
 zWirelessTest_GetSsid(void* arg);
-
-
-
-
+int
+zWirelessTest_SetSsid(void* arg);
+int
+zWirelessTest_GetBssid(void* arg);
+int
+zWirelessTest_SetBssid(void* arg);
+int
+zWirelessTest_TestInterface(void* arg); //
 int
 zWirelessTest_getCenterFrequency1(void* arg);
 #endif /* __ZWIRELESSTEST_H__ */
