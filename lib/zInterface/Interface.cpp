@@ -609,6 +609,7 @@ Interface::execCommands()
     if (!cmd->Exec())
     {
       status = false;
+      ZLOG_ERR("Cannot execute interface command");
       std::cout << "Error executing command: " << std::endl;
       cmd->Display();
     }

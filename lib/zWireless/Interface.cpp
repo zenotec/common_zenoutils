@@ -403,25 +403,41 @@ Interface::Commit()
       if ((this->stagingConfig.GetIfName() != ConfigData::ConfigIfNameDefault) &&
           (this->stagingConfig.GetIfName() != this->workingConfig.GetIfName()))
       {
-        status &= this->setIfName(this->stagingConfig.GetIfName());
+        if (!this->setIfName(this->stagingConfig.GetIfName()))
+        {
+          ZLOG_ERR("Cannot set interface name: " + this->stagingConfig.GetIfName());
+          status = false;
+        }
       }
 
       if ((this->stagingConfig.GetIfType() != ConfigData::IFTYPE_DEF) &&
           (this->stagingConfig.GetIfType() != this->workingConfig.GetIfType()))
       {
-        status &= this->setIfType(this->stagingConfig.GetIfType());
+        if (!this->setIfType(this->stagingConfig.GetIfType()))
+        {
+          ZLOG_ERR("Cannot set interface type: ");
+          status = false;
+        }
       }
 
       if ((this->stagingConfig.GetHwAddress() != ConfigData::ConfigHwAddressDefault) &&
           (this->stagingConfig.GetHwAddress() != this->workingConfig.GetHwAddress()))
       {
-        status &= this->setHwAddress(this->stagingConfig.GetHwAddress());
+        if (!this->setHwAddress(this->stagingConfig.GetHwAddress()))
+        {
+          ZLOG_ERR("Cannot set interface address: " + this->stagingConfig.GetHwAddress());
+          status = false;
+        }
       }
 
       if ((this->stagingConfig.GetOpMode() != ConfigData::OPMODE_DEF) &&
           (this->stagingConfig.GetOpMode() != this->workingConfig.GetOpMode()))
       {
-        status &= this->_setOpMode();
+        if (!this->_setOpMode())
+        {
+          ZLOG_ERR("Cannot set interface operational mode: ");
+          status = false;
+        }
       }
 
     }
@@ -430,32 +446,52 @@ Interface::Commit()
     if ((this->stagingConfig.GetMtu() != ConfigData::ConfigMtuDefault) &&
         (this->stagingConfig.GetMtu() != this->workingConfig.GetMtu()))
     {
-      status &= this->setMtu(this->stagingConfig.GetMtu());
+      if (!this->setMtu(this->stagingConfig.GetMtu()))
+      {
+        ZLOG_ERR("Cannot set interface MTU");
+        status = false;
+      }
     }
 
     if ((this->stagingConfig.GetIpAddress() != ConfigData::ConfigIpAddressDefault) &&
         (this->stagingConfig.GetIpAddress() != this->workingConfig.GetIpAddress()))
     {
-      status &= this->setIpAddress(this->stagingConfig.GetIpAddress());
+      if (!this->setIpAddress(this->stagingConfig.GetIpAddress()))
+      {
+        ZLOG_ERR("Cannot set interface IP address");
+        status = false;
+      }
     }
 
     if ((this->stagingConfig.GetNetmask() != ConfigData::ConfigNetmaskDefault) &&
         (this->stagingConfig.GetNetmask() != this->workingConfig.GetNetmask()))
     {
-      status &= this->setNetmask(this->stagingConfig.GetNetmask());
+      if (!this->setNetmask(this->stagingConfig.GetNetmask()))
+      {
+        ZLOG_ERR("Cannot set interface netmask");
+        status = false;
+      }
     }
 
     if ((this->stagingConfig.GetPromiscuousMode() != ConfigData::PROMODE_DEF) &&
         (this->stagingConfig.GetPromiscuousMode() != this->workingConfig.GetPromiscuousMode()))
     {
-      status &= this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode());
+      if (!this->setPromiscuousMode(this->stagingConfig.GetPromiscuousMode()))
+      {
+        ZLOG_ERR("Cannot set interface promiscuous mode");
+        status = false;
+      }
     }
 
     // Always make this command last to ensure all above commands are executed while the interface is down
     if ((this->stagingConfig.GetAdminState() != ConfigData::STATE_DEF) &&
         (this->stagingConfig.GetAdminState() != this->workingConfig.GetAdminState()))
     {
-      status &= this->setAdminState(this->stagingConfig.GetAdminState());
+      if (!this->setAdminState(this->stagingConfig.GetAdminState()))
+      {
+        ZLOG_ERR("Cannot set interface administration state");
+        status = false;
+      }
     }
 
     // These commands have to be executed while the interface is up
@@ -470,13 +506,21 @@ Interface::Commit()
           ((this->stagingConfig.GetCenterFrequency2() != ConfigData::ConfigCenterFrequency2Default) &&
              (this->stagingConfig.GetCenterFrequency2() != this->workingConfig.GetCenterFrequency2())))
       {
-        status &= this->_setChannel();
+        if (!this->_setChannel())
+        {
+          ZLOG_ERR("Cannot set interface channel parameters");
+          status = false;
+        }
       }
 
       if ((this->stagingConfig.GetTxPower() != ConfigData::ConfigTxPowerDefault) &&
           (this->stagingConfig.GetTxPower() != this->workingConfig.GetTxPower()))
       {
-        status &= this->_setTxPower();
+        if (!this->_setTxPower())
+        {
+          ZLOG_ERR("Cannot set interface transmit power");
+          status = false;
+        }
       }
     }
 
