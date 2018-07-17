@@ -229,14 +229,14 @@
 <option id="program-prefix" value=""/>
 <option id="program-suffix" value=""/>
 <option id="program-transform-name" value=""/>
-<option id="env_vars" value="CXXFLAGS=&quot;-I$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include -I$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include -std=gnu++11 -g&quot; LDFLAGS=&quot;-L$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/lib&quot; STAGING_DIR=&quot;$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi&quot; PATH=&quot;$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/bin:$PATH&quot;"/>
+<option id="env_vars" value="CXXFLAGS=&quot;-I$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-7.3.0_musl_eabi/include -I$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl_eabi/usr/include -std=gnu++11 -g&quot; LDFLAGS=&quot;-L$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl_eabi/usr/lib&quot; STAGING_DIR=&quot;$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-7.3.0_musl_eabi&quot; PATH=&quot;$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-7.3.0_musl_eabi/bin:$PATH&quot;"/>
 <option id="enable-maintainer-mode" value="false"/>
 <flag id="CFLAGS" value="CFLAGS|CXXFLAGS">
 <flagvalue id="cflags-debug" value="false"/>
 <flagvalue id="cflags-gprof" value="false"/>
 <flagvalue id="cflags-gcov" value="false"/>
 </flag>
-<option id="user" value="--with-boost=$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include"/>
+<option id="user" value="--with-boost=$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl_eabi/usr/include"/>
 <option id="autogen" value="autogen.sh"/>
 <option id="autogenOpts" value=""/>
 </configuration>

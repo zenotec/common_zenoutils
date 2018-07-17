@@ -307,16 +307,16 @@
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1370395464" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
 									<listOptionValue builtIn="false" value="__cplusplus=201103L"/>
-									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include"/>
-									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include"/>
+									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl_eabi/usr/include"/>
+									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-7.3.0_musl_eabi/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.791956449" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.322602260" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
 								<option id="gnu.cpp.compiler.option.include.paths.1351293717" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/zenoutils/inc}&quot;"/>
-									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl-1.1.16_eabi/usr/include"/>
-									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-5.4.0_musl-1.1.16_eabi/include"/>
+									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/target-arm_cortex-a9+neon_musl_eabi/usr/include"/>
+									<listOptionValue builtIn="false" value="../$LEDE_ROOT/staging_dir/toolchain-arm_cortex-a9+neon_gcc-7.3.0_musl_eabi/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/libnl3"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.289602140" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
