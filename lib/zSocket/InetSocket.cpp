@@ -449,7 +449,7 @@ InetSocket::Recv()
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
         n->SetSrcAddress(addr);
         n->SetBuffer(sb);
-        ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + addr.GetAddress());
       }
       else
@@ -487,7 +487,7 @@ InetSocket::Send(const Address& to_, const Buffer& sb_)
     nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+      ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
           " bytes to: " + addr.GetAddress());
       n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }
