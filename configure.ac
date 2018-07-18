@@ -325,6 +325,7 @@ num_cpus='$(grep -c ^processor /proc/cpuinfo)'
 AC_SUBST([num_cpus])
 
 AC_CONFIG_FILES([Makefile lib/Makefile test/Makefile])
+AC_CONFIG_FILES([lib/zVersion/Makefile])
 AC_CONFIG_FILES([lib/zLog/Makefile test/zLog/Makefile])
 AC_CONFIG_FILES([lib/zSem/Makefile test/zSem/Makefile])
 AC_CONFIG_FILES([lib/zData/Makefile test/zData/Makefile])

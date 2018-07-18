@@ -196,6 +196,7 @@ GCOV_LDFLAGS = -lgcov
 endif
 
 SUBDIRS = \
+	zVersion \
 	$(ZSEM_SUBDIRS) \
 	$(ZQUEUE_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
@@ -266,6 +267,7 @@ libzutils_ladir = $(includedir)/zutils
 # Headers to install
 libzutils_la_HEADERS = \
 	$(top_srcdir)/inc/zutils/zCompatibility.h \
+	$(top_srcdir)/inc/zutils/zVersion.h \
 	$(top_srcdir)/inc/zutils/zUtils.h \
 	$(top_srcdir)/inc/zutils/zUuid.h \
 	$(ZLOG_SOURCE) \
@@ -292,6 +294,7 @@ libzutils_la_SOURCES = \
     $(libzutils_la_HEADERS)
 
 libzutils_la_LIBADD = \
+	${top_builddir}/lib/zVersion/libzVersion.la \
 	$(ZLOG_LIBS) \
 	$(ZSEM_LIBS) \
 	$(ZQUEUE_LIBS) \
