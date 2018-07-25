@@ -341,6 +341,25 @@ public:
     GUARD_INT_LAST
   };
 
+  enum HT_FORMAT
+  {
+    HT_FORMAT_ERR = -1,
+    HT_FORMAT_NONE = 0,
+    HT_FORMAT_MIXED = 1,
+    HT_FORMAT_GREEN = 2,
+    HT_FORMAT_LAST
+  };
+
+  enum STBC_STREAMS
+  {
+    STBC_STREAMS_ERR = -1,
+    STBC_STREAMS_NONE = 0,
+    STBC_STREAMS_ONE = 1,
+    STBC_STREAMS_TWO = 2,
+    STBC_STREAMS_THREE = 3,
+    STBC_STREAMS_LAST
+  };
+
   RadioTapFieldMcs();
 
   virtual
@@ -363,6 +382,18 @@ public:
 
   bool
   GuardInterval(const RadioTapFieldMcs::GUARD_INT gi_);
+
+  RadioTapFieldMcs::HT_FORMAT
+  HtFormat() const;
+
+  bool
+  HtFormat(const RadioTapFieldMcs::HT_FORMAT ht_);
+
+  RadioTapFieldMcs::STBC_STREAMS
+  Streams() const;
+
+  bool
+  Streams(const RadioTapFieldMcs::STBC_STREAMS streams_);
 
   uint8_t
   Index() const;

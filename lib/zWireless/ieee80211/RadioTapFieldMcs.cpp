@@ -231,6 +231,110 @@ RadioTapFieldMcs::GuardInterval(const RadioTapFieldMcs::GUARD_INT gi_)
   return (this->operator ()(mcs));
 }
 
+RadioTapFieldMcs::HT_FORMAT
+RadioTapFieldMcs::HtFormat() const
+{
+  RadioTapFieldMcs::HT_FORMAT ht = HT_FORMAT_NONE;
+  uint8_t known = this->operator ()().known;
+  uint8_t flags = this->operator ()().flags;
+
+  if (known & 0x08)
+  {
+    switch ((flags >> 3) & 0x01)
+    {
+    case 0:
+      ht = HT_FORMAT_MIXED;
+      break;
+    case 1:
+      ht = HT_FORMAT_GREEN;
+      break;
+    default:
+      ht = HT_FORMAT_ERR;
+      break;
+    }
+  }
+
+  return (ht);
+}
+
+bool
+RadioTapFieldMcs::HtFormat(const RadioTapFieldMcs::HT_FORMAT ht_)
+{
+  struct mcs mcs = this->operator ()();
+  mcs.known |= 0x08;
+  mcs.flags &= ~0x08;
+  switch (ht_)
+  {
+  case HT_FORMAT_MIXED:
+    mcs.flags |= (0x00 << 3);
+    break;
+  case HT_FORMAT_GREEN:
+    mcs.flags |= (0x01 << 3);
+    break;
+  default:
+    return (false);
+  }
+  return (this->operator ()(mcs));
+}
+
+RadioTapFieldMcs::STBC_STREAMS
+RadioTapFieldMcs::Streams() const
+{
+  RadioTapFieldMcs::STBC_STREAMS streams = STBC_STREAMS_NONE;
+  uint8_t known = this->operator ()().known;
+  uint8_t flags = this->operator ()().flags;
+
+  if (known & 0x20)
+  {
+    switch ((flags >> 5) & 0x03)
+    {
+    case 0:
+      streams = STBC_STREAMS_NONE;
+      break;
+    case 1:
+      streams = STBC_STREAMS_ONE;
+      break;
+    case 2:
+      streams = STBC_STREAMS_TWO;
+      break;
+    case 3:
+      streams = STBC_STREAMS_THREE;
+      break;
+    default:
+      streams = STBC_STREAMS_ERR;
+      break;
+    }
+  }
+
+  return (streams);
+}
+
+bool
+RadioTapFieldMcs::Streams(const RadioTapFieldMcs::STBC_STREAMS streams_)
+{
+  struct mcs mcs = this->operator ()();
+  mcs.known |= 0x20;
+  mcs.flags &= ~0x60;
+  switch (streams_)
+  {
+  case STBC_STREAMS_NONE:
+    mcs.flags |= (0x00 << 5);
+    break;
+  case STBC_STREAMS_ONE:
+    mcs.flags |= (0x01 << 5);
+    break;
+  case STBC_STREAMS_TWO:
+    mcs.flags |= (0x02 << 5);
+    break;
+  case STBC_STREAMS_THREE:
+    mcs.flags |= (0x03 << 5);
+    break;
+  default:
+    return (false);
+  }
+  return (this->operator ()(mcs));
+}
+
 uint8_t
 RadioTapFieldMcs::Index() const
 {
