@@ -314,7 +314,7 @@ AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+#AC_FUNC_MALLOC # this was causing cross compilation errors - SJL
 AC_CHECK_FUNCS([memset mkdir pow floor rmdir socket strtol strerror getpid])
 
 # Common variables
