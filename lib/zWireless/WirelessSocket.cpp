@@ -307,13 +307,6 @@ Socket::Recv()
   zSocket::Address saddr(zSocket::Socket::GetType(), n->Frame()->Address(ieee80211::Frame::ADDRESS_2));
   n->SetSrcAddress(saddr);
 
-  if ((n->Frame()->Type() == ieee80211::Frame::TYPE_CNTL) &&
-      (n->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_RTS) &&
-      (n->Frame()->Address(ieee80211::Frame::ADDRESS_1) == this->socket.GetAddress().GetAddress()))
-  {
-    n->Frame()->Display();
-  }
-
   // Return wireless notification
   return (n);
 }

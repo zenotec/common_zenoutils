@@ -67,6 +67,7 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldAntenna.cpp \
 	RadioTapFieldRxFlags.cpp \
 	RadioTapFieldTxFlags.cpp \
+	RadioTapFieldDataRetries.cpp \
 	HtCapsTag.cpp \
 	HtInfoTag.cpp \
 	Frame.cpp \

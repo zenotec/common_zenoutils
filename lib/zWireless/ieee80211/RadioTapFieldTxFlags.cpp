@@ -57,6 +57,94 @@ RadioTapFieldTxFlags::operator ()(const uint16_t val_)
   return(this->PutValue(val_));
 }
 
+bool
+RadioTapFieldTxFlags::Failed() const
+{
+  uint16_t flags = this->operator ()();
+  return (!!(flags & 0x0001));
+}
+
+bool
+RadioTapFieldTxFlags::Failed(const bool flag_)
+{
+  uint16_t flags = this->operator ()();
+  if (flag_)
+  {
+    flags |= 0x0001;
+  }
+  else
+  {
+    flags &= ~0x0001;
+  }
+  return (this->operator ()(flags));
+}
+
+bool
+RadioTapFieldTxFlags::UseRtsCts() const
+{
+  uint16_t flags = this->operator ()();
+  return (!!(flags & 0x0004));
+}
+
+bool
+RadioTapFieldTxFlags::UseRtsCts(const bool flag_)
+{
+  uint16_t flags = this->operator ()();
+  if (flag_)
+  {
+    flags |= 0x0004;
+  }
+  else
+  {
+    flags &= ~0x0004;
+  }
+  return (this->operator ()(flags));
+}
+
+bool
+RadioTapFieldTxFlags::NoAck() const
+{
+  uint16_t flags = this->operator ()();
+  return (!!(flags & 0x0008));
+}
+
+bool
+RadioTapFieldTxFlags::NoAck(const bool flag_)
+{
+  uint16_t flags = this->operator ()();
+  if (flag_)
+  {
+    flags |= 0x0008;
+  }
+  else
+  {
+    flags &= ~0x0008;
+  }
+  return (this->operator ()(flags));
+}
+
+bool
+RadioTapFieldTxFlags::NoSeqNum() const
+{
+  uint16_t flags = this->operator ()();
+  return (!(flags & 0x0010));
+}
+
+bool
+RadioTapFieldTxFlags::NoSeqNum(const bool flag_)
+{
+  uint16_t flags = this->operator ()();
+  if (flag_)
+  {
+    flags &= ~0x0010;
+  }
+  else
+  {
+    flags |= 0x0010;
+  }
+  return (this->operator ()(flags));
+}
+
 void
 RadioTapFieldTxFlags::Display() const
 {

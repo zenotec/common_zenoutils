@@ -647,7 +647,7 @@ public:
 };
 
 //*****************************************************************************
-// Class: RadioTapFieldRxFlags
+// Class: RadioTapFieldTxFlags
 //*****************************************************************************
 
 class RadioTapFieldTxFlags : public RadioTapField
@@ -665,6 +665,55 @@ public:
 
   virtual bool
   operator()(const uint16_t val_);
+
+  bool
+  Failed() const;
+
+  bool
+  Failed(const bool flag_);
+
+  bool
+  UseRtsCts() const;
+
+  bool
+  UseRtsCts(const bool flag_);
+
+  bool
+  NoAck() const;
+
+  bool
+  NoAck(const bool flag_);
+
+  bool
+  NoSeqNum() const;
+
+  bool
+  NoSeqNum(const bool flag_);
+
+  virtual void
+  Display() const;
+
+};
+
+//*****************************************************************************
+// Class: RadioTapFieldDataRetries
+//*****************************************************************************
+
+class RadioTapFieldDataRetries : public RadioTapField
+{
+
+public:
+
+  RadioTapFieldDataRetries();
+
+  virtual
+  ~RadioTapFieldDataRetries();
+
+  virtual uint8_t
+  operator()() const;
+
+  virtual bool
+  operator()(const uint8_t val_);
 
   virtual void
   Display() const;
