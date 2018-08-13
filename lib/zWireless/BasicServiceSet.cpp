@@ -27,6 +27,10 @@
 #include <zutils/ieee80211/Probe.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
 #include <zutils/ieee80211/ChannelSwitchTag.h>
+#include <zutils/zStation.h>
+#include <zutils/nl80211/NewStationCommand.h>
+#include <zutils/nl80211/DelStationCommand.h>
+using namespace nl80211;
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
@@ -335,15 +339,61 @@ BasicServiceSet::Update()
 }
 
 bool
-BasicServiceSet::AddStation(const std::string& addr_)
+BasicServiceSet::AddSta(zWireless::Station& station_)
 {
-  return (true);
+  bool status = true;
+  if (!this->_iface.GetIfIndex())
+  {
+    ZLOG_ERR("Error adding Sta: interface does not exist: " + this->_iface.GetIfName());
+    std::cout << "sam..................erro sta interface does not exist" <<std::endl;
+    return (false);
+  }
+  
+// Create add STA command
+  NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
+
+  cmd->IfIndex(this->_iface.GetIfIndex());
+  cmd->IfName(this->_iface.GetIfName());
+  cmd->ListenInterval(station_.ListenInterval());
+  cmd->Mac(station_.MacAddress());
+  cmd->StaAid(station_.AssociationId());
+  cmd->StaSupportedRates(station_.SupportedRates());
+
+  if (!cmd->Exec())
+  {
+    status = false;
+    ZLOG_ERR("Cannot execute AddStation command");
+    std::cout << "Error executing AddStation command: " << std::endl;
+    cmd->Display();
+  }
+  delete (cmd);
+  return (status);
 }
 
 bool
-BasicServiceSet::DelStation(const std::string& addr_)
+BasicServiceSet::DelSta(zWireless::Station& station_)
 {
-  return (true);
+  bool status = true;
+  if (!this->_iface.GetIfIndex())
+  {
+    ZLOG_ERR("Error deleting Sta: interface does not exist: " + this->_iface.GetIfName());
+    return (false);
+  }
+
+  // Create del STA command
+  DelStationCommand* cmd = new DelStationCommand(this->_iface.GetIfIndex());
+
+  cmd->Mac(station_.MacAddress());
+
+  if (!cmd->Exec())
+  {
+    status = false;
+    ZLOG_ERR("Cannot execute AddStation command");
+    std::cout << "Error executing AddStation command: " << std::endl;
+    cmd->Display();
+  }
+  delete (cmd);
+  return (status);
 }
 
 void

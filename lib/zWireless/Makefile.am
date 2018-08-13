@@ -47,7 +47,8 @@ libzWireless_la_SOURCES = \
     Interface.cpp \
     WirelessSocket.cpp \
     AccessPointInterface.cpp \
-    BasicServiceSet.cpp
+    BasicServiceSet.cpp \
+    Station.cpp
 
 libzWireless_la_LIBADD = \
     ${top_builddir}/lib/zWireless/nl80211/libnl80211.la \

@@ -36,6 +36,9 @@ using namespace netlink;
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
 #include <zutils/nl80211/MacAttribute.h>
+#include <zutils/nl80211/ListenIntervalAttribute.h>
+#include <zutils/nl80211/StaSupportedRatesAttribute.h>
+#include <zutils/nl80211/StaAidAttribute.h>
 
 namespace nl80211
 {
@@ -54,6 +57,9 @@ public:
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
   MacAttribute Mac;
+  ListenIntervalAttribute ListenInterval;
+  StaSupportedRatesAttribute StaSupportedRates;
+  StaAidAttribute StaAid;
 
   NewStationCommand(const unsigned int ifindex_);
 
@@ -67,6 +73,9 @@ public:
   Display(const std::string& prefix_ = "") const;
 
 protected:
+
+  int
+  ack_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
   valid_cb(struct nl_msg* msg, void* arg);

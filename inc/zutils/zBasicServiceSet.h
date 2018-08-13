@@ -26,6 +26,7 @@
 #include <zutils/ieee80211/Beacon.h>
 #include <zutils/ieee80211/Probe.h>
 #include <zutils/ieee80211/Association.h>
+#include <zutils/zStation.h>
 
 namespace zUtils
 {
@@ -116,10 +117,10 @@ public:
   Stop();
 
   bool
-  AddStation(const std::string& addr_);
+  AddSta(zWireless::Station& station_);
 
   bool
-  DelStation(const std::string& addr_);
+  DelSta(zWireless::Station& station_);
 
   virtual void
   Display(const std::string &prefix_ = std::string(""));

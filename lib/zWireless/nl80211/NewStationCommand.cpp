@@ -80,7 +80,35 @@ NewStationCommand::Exec()
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   cmdmsg->SetCommand(NL80211_CMD_NEW_STATION);
   cmdmsg->PutAttribute(&this->IfIndex);
+  cmdmsg->PutAttribute(&this->IfName);
 
+  if (!cmdmsg->PutAttribute(&this->Mac))
+  {
+    ZLOG_ERR("Error putting Mac attribute: ");
+    std::cout << "sam..................errro putting Mac attribute" <<std::endl;
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->ListenInterval))
+  {
+    ZLOG_ERR("Error putting Listen Interval attribute: ");
+    std::cout << "sam..................errro putting listen interval" <<std::endl;
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->StaSupportedRates))
+  {
+    ZLOG_ERR("Error putting StaSupportedRates attribute: ");
+    return (false);
+  }
+
+  if (!cmdmsg->PutAttribute(&this->StaAid))
+  {
+    ZLOG_ERR("Error putting StaAid attribute: ");
+    std::cout << "sam..................errro putting staaid" <<std::endl;
+    return (false);
+  }
+  std::cout << "8" << std::endl;
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
@@ -117,6 +145,14 @@ NewStationCommand::Display(const std::string& prefix_) const
   std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
   std::cout << "\tMac:   \t" << this->Mac() << std::endl;
   std::cout << "##################################################" << std::endl;
+}
+
+int
+NewStationCommand::ack_cb(struct nl_msg* msg_, void* arg_)
+{
+  this->_status = true;
+  this->_count.Post();
+  return (NL_OK);
 }
 
 int

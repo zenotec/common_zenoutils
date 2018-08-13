@@ -69,7 +69,7 @@ class MacAttribute : public AttributeValue
 public:
 
   MacAttribute() :
-      AttributeValue(NL80211_ATTR_IFTYPE)
+      AttributeValue(NL80211_ATTR_MAC)
   {
   }
 
