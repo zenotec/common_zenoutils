@@ -108,6 +108,13 @@ NewStationCommand::Exec()
     std::cout << "sam..................errro putting staaid" <<std::endl;
     return (false);
   }
+
+  if (!cmdmsg->PutAttribute(&this->StaFlags))
+  {
+	ZLOG_ERR("Error putting Station Flags attribute: ");
+	std::cout << "sam..................errro putting station flags" <<std::endl;
+	return (false);
+  }
   std::cout << "8" << std::endl;
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))

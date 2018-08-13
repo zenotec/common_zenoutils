@@ -68,7 +68,8 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/CenterFrequency2Attribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ListenIntervalAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/StaAidAttribute.h \
-	${top_srcdir}/inc/zutils/nl80211/StaSupportedRatesAttribute.h
+	${top_srcdir}/inc/zutils/nl80211/StaSupportedRatesAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/StationFlagsAttribute.h
 
 libnl80211_la_SOURCES = \
 	Socket.cpp \

@@ -39,6 +39,7 @@ using namespace netlink;
 #include <zutils/nl80211/ListenIntervalAttribute.h>
 #include <zutils/nl80211/StaSupportedRatesAttribute.h>
 #include <zutils/nl80211/StaAidAttribute.h>
+#include <zutils/nl80211/StationFlagsAttribute.h>
 
 namespace nl80211
 {
@@ -60,6 +61,7 @@ public:
   ListenIntervalAttribute ListenInterval;
   StaSupportedRatesAttribute StaSupportedRates;
   StaAidAttribute StaAid;
+  StaionFlagsAttribute StaFlags;
 
   NewStationCommand(const unsigned int ifindex_);
 

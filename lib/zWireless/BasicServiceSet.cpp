@@ -342,14 +342,19 @@ bool
 BasicServiceSet::AddSta(zWireless::Station& station_)
 {
   bool status = true;
+  struct nl80211_sta_flag_update sta_flags;
+
   if (!this->_iface.GetIfIndex())
   {
     ZLOG_ERR("Error adding Sta: interface does not exist: " + this->_iface.GetIfName());
     std::cout << "sam..................erro sta interface does not exist" <<std::endl;
     return (false);
   }
-  
-// Create add STA command
+
+  sta_flags.mask = station_.Flags();
+  sta_flags.set = station_.Flags();
+
+  // Create add STA command
   NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
 
   cmd->IfIndex(this->_iface.GetIfIndex());
@@ -358,7 +363,8 @@ BasicServiceSet::AddSta(zWireless::Station& station_)
   cmd->Mac(station_.MacAddress());
   cmd->StaAid(station_.AssociationId());
   cmd->StaSupportedRates(station_.SupportedRates());
-
+  cmd->StaFlags(&sta_flags);
+	
   if (!cmd->Exec())
   {
     status = false;
