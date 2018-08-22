@@ -38,7 +38,7 @@
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
-#include <zutils/zEthSocket.h>
+#include <zutils/zRawSocket.h>
 
 #include "zSocketTest.h"
 

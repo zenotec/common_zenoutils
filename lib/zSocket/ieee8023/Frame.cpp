@@ -34,7 +34,7 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
-namespace zWireless
+namespace zSocket
 {
 namespace ieee8023
 {
@@ -44,7 +44,7 @@ namespace ieee8023
 //*****************************************************************************
 
 Frame::Frame(const TYPE type_) :
-    _type(type_), _proto(PROTO_NONE), _fcs(0)
+    _type(type_), _proto(Frame::PROTO_NONE), _fcs(0)
 {
 }
 
@@ -106,24 +106,44 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
-  if (rem_ < sizeof(f->u.type))
+  if (rem_ < (sizeof(f->u.type) + 46)) // check for minimum frame size
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
 
   uint16_t type = be16toh(f->u.type);
-  if (type < PROTO_IPv4)
+
+  if (type == PROTO_VLAN)
   {
-    this->_type = TYPE_LLC;
-  }
-  else if (type < PROTO_LAST)
-  {
-    this->_type = TYPE_ETHER;
+    p_ = this->chklen(p_, sizeof(f->u.vlan), rem_);
+    if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.vlan.proto))))
+    {
+      ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+      return(NULL);
+    }
   }
   else
   {
-    this->_type = TYPE_ERR;
+    p_ = this->chklen(p_, sizeof(f->u.type), rem_);
+    if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+    {
+      ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+      return(NULL);
+    }
+  }
+
+  if (type < Frame::PROTO_IPv4)
+  {
+    this->_type = Frame::TYPE_LLC;
+  }
+  else if (type < Frame::PROTO_LAST)
+  {
+    this->_type = Frame::TYPE_ETHER2;
+  }
+  else
+  {
+    this->_type = Frame::TYPE_ERR;
   }
 
   return (p_);
@@ -135,6 +155,28 @@ Frame::Peek(uint8_t* p_, size_t len_, bool fcs_)
   size_t rem = len_;
   uint8_t* p = this->Disassemble(p_, rem);
   return((p == NULL) ? NULL : p_);
+}
+
+Frame::TYPE
+Frame::GetType() const
+{
+  return (this->_type);
+}
+
+bool
+Frame::SetType(const Frame::TYPE type_)
+{
+  bool status = false;
+  switch (type_)
+  {
+  case TYPE_NONE ... TYPE_LAST:
+    this->_type = type_;
+    status = true;
+    break;
+  default:
+    break;
+  }
+  return (true);
 }
 
 Frame::PROTO
@@ -149,15 +191,7 @@ Frame::SetProto(const Frame::PROTO proto_)
   bool status = false;
   switch (proto_)
   {
-  case PROTO_IPv4:
-    // no break
-  case PROTO_ARP:
-    // no break
-  case PROTO_VLAN:
-    // no break
-  case PROTO_IPv6:
-    // no break
-  case PROTO_VLAN2:
+  case PROTO_IPv4 ... PROTO_LAST:
     this->_proto = proto_;
     status = true;
     break;

@@ -37,7 +37,7 @@
 #include <zutils/ieee80211/Authentication.h>
 #include <zutils/ieee80211/Deauthentication.h>
 #include <zutils/ieee80211/Action.h>
-#include <zutils/zWirelessSocket.h>
+#include <zutils/ieee80211/Socket.h>
 
 // local includes
 
@@ -47,9 +47,11 @@ namespace zUtils
 {
 namespace zWireless
 {
+namespace ieee80211
+{
 
 //*****************************************************************************
-// Class: zWireless::Notification
+// Class: ieee80211::Notification
 //*****************************************************************************
 
 Notification::Notification(Socket& sock_) :
@@ -280,7 +282,7 @@ Notification::Frame(SHARED_PTR(ieee80211::Frame)frame_)
 }
 
 //*****************************************************************************
-// Class: zWireless::Socket
+// Class: ieee80211::Socket
 //*****************************************************************************
 
 Socket::Socket(zSocket::Socket& sock_) :
@@ -360,5 +362,6 @@ Socket::Display()
   return;
 }
 
+}
 }
 }

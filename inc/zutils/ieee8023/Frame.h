@@ -32,7 +32,7 @@
 
 namespace zUtils
 {
-namespace zWireless
+namespace zSocket
 {
 namespace ieee8023
 {
@@ -51,6 +51,8 @@ public:
     TYPE_ERR = -1,
     TYPE_NONE = 0,
     TYPE_ETHER,
+    TYPE_ETHER2,
+    TYPE_VLAN,
     TYPE_LLC,
     TYPE_LAST
   };
@@ -67,7 +69,7 @@ public:
     PROTO_LAST
   };
 
-  Frame(const TYPE type_ = TYPE_ERR);
+  Frame(const TYPE type_ = TYPE_NONE);
 
   virtual
   ~Frame();

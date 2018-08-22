@@ -30,7 +30,7 @@ namespace zUtils
 namespace zSocket
 {
 
-class EthSocket;
+class RawSocket;
 
 //**********************************************************************
 // Class: zSocket::EthAddress
@@ -40,7 +40,7 @@ class EthAddress :
     public Address
 {
 
-  friend EthSocket;
+  friend RawSocket;
 
 public:
 
@@ -74,7 +74,7 @@ private:
 // Class: zSocket::EthSocket
 //**********************************************************************
 
-class EthSocket :
+class RawSocket :
     public Socket
 {
 
@@ -91,10 +91,10 @@ public:
     PROTO_LAST
   };
 
-  EthSocket(const EthSocket::PROTO proto_ = PROTO_ALL);
+  RawSocket(const RawSocket::PROTO proto_ = PROTO_ALL);
 
   virtual
-  ~EthSocket();
+  ~RawSocket();
 
   virtual int
   GetId() const;

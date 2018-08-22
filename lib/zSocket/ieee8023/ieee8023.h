@@ -25,6 +25,12 @@ struct ieee8023_addr
   uint8_t addr[ETH_ALEN];
 };
 
+struct ether_hdr
+{
+  uint16_t length;
+  uint8_t data[0];
+} __attribute__ ((packed));
+
 struct ether2_hdr
 {
   uint16_t proto;
@@ -70,6 +76,7 @@ struct ieee8023_hdr
   union
   {
     uint16_t type;
+    struct ether_hdr ether;
     struct ether2_hdr ether2;
     struct ieee8021q_hdr vlan;
     struct ieee8021ad_hdr vlan2;

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __ZWIRELESS_WIRELESSSOCKET_H__
-#define __ZWIRELESS_WIRELESSSOCKET_H__
+#ifndef __IEEE80211_SOCKET_H__
+#define __IEEE80211_SOCKET_H__
 
 // libc includes
 
@@ -37,11 +37,13 @@ namespace zUtils
 {
 namespace zWireless
 {
+namespace ieee80211
+{
 
 class Socket;
 
 //*****************************************************************************
-// Class: zWireless::Notification
+// Class: ieee80211::Notification
 //*****************************************************************************
 
 class Notification :
@@ -79,7 +81,7 @@ private:
 };
 
 //*****************************************************************************
-// Class: zWireless::Socket
+// Class: ieee80211::Socket
 //*****************************************************************************
 
 class Socket :
@@ -113,5 +115,6 @@ private:
 
 }
 }
+}
 
-#endif /* __ZWIRELESS_WIRELESSSOCKET_H__ */
+#endif /* __IEEE80211_SOCKET_H__ */

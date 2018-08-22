@@ -17,7 +17,7 @@ if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
 ZSOCKET_SOURCE = \
 	$(top_srcdir)/inc/zutils/zSocket.h \
-	$(top_srcdir)/inc/zutils/zEthSocket.h \
+	$(top_srcdir)/inc/zutils/zRawSocket.h \
 	$(top_srcdir)/inc/zutils/zInetSocket.h \
 	$(top_srcdir)/inc/zutils/zLoopSocket.h \
 	$(top_srcdir)/inc/zutils/zUnixSocket.h
@@ -40,7 +40,6 @@ if COND_ZWIRELESS
 ZWIRELESS_SUBDIRS = zWireless
 ZWIRELESS_SOURCE = \
 	$(top_srcdir)/inc/zutils/zWireless.h \
-	$(top_srcdir)/inc/zutils/zWirelessSocket.h \
 	$(top_srcdir)/inc/zutils/zAccessPointInterface.h \
 	$(top_srcdir)/inc/zutils/zBasicServiceSet.h \
 	$(top_srcdir)/inc/zutils/zStation.h

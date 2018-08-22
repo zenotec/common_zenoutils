@@ -10,7 +10,9 @@ endif
 
 if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
-ZSOCKET_TESTS = zSocket/zSocketUnitTest
+ZSOCKET_TESTS = \
+	zSocket/zSocketUnitTest \
+	zSocket/ieee8023/Ieee8023UnitTest
 if COND_VALGRIND
 ZSOCKET_TESTS += zSocket/valgrind.sh
 endif

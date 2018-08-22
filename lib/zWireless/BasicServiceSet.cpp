@@ -204,7 +204,7 @@ BasicServiceSet::SetChannel(const unsigned int channel_)
 bool
 BasicServiceSet::AnnounceChannelSwitch(const unsigned int mode_, const unsigned int channel_, const unsigned int count_)
 {
-    ieee80211::ChannelSwitchTag::channel_switch_tag chanSwitch = {mode_, channel_, count_};
+    ieee80211::ChannelSwitchTag::channel_switch_tag chanSwitch = { uint8_t(mode_), uint8_t(channel_), uint8_t(count_)};
     this->_beacon.ChannelSwitch(chanSwitch);
     this->_probe.ChannelSwitch(chanSwitch);
 

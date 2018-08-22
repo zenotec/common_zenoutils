@@ -3,6 +3,9 @@ CPPFLAGS_GCOV = -g -O0 -fprofile-arcs -ftest-coverage --no-inline
 LDFLAGS_GCOV = -lgcov
 endif
 
+SUBDIRS = \
+	ieee8023
+
 AM_CPPFLAGS := \
 	$(CPPFLAGS_GCOV) \
 	$(com_incdir) \
@@ -29,12 +32,13 @@ zSocketUnitTest_SOURCES = \
     UnixAddress.cpp \
     UnixSocket.cpp \
 	EthAddress.cpp \
-	EthSocket.cpp \
+	RawSocket.cpp \
     InetAddress.cpp \
     InetSocket.cpp
 
 zSocketUnitTest_LDADD = \
     ${top_builddir}/lib/zSocket/libzSocket.la \
+    ${top_builddir}/lib/zSocket/ieee8023/libieee8023.la \
     ${top_builddir}/lib/zLog/libzLog.la \
     ${top_builddir}/lib/zThread/libzThread.la \
     ${top_builddir}/lib/zSignal/libzSignal.la \

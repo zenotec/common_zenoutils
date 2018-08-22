@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libzutils], [1.14.0], [kevin.mahoney@zenotec.net])
+AC_INIT([libzutils], [2.0.0], [kevin.mahoney@zenotec.net])
 AM_INIT_AUTOMAKE([foreign parallel-tests color-tests])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -351,12 +351,16 @@ AC_CONFIG_FILES([
 	lib/zWireless/Makefile
 	lib/zWireless/nl80211/Makefile
 	lib/zWireless/ieee80211/Makefile
-	lib/zWireless/ieee8023/Makefile
 	test/zWireless/Makefile
 	test/zWireless/nl80211/Makefile
 	test/zWireless/ieee80211/Makefile
 ])
-AC_CONFIG_FILES([lib/zSocket/Makefile test/zSocket/Makefile])
+AC_CONFIG_FILES([
+	lib/zSocket/Makefile
+	lib/zSocket/ieee8023/Makefile
+	test/zSocket/Makefile
+	test/zSocket/ieee8023/Makefile
+])
 AC_CONFIG_FILES([lib/zMessage/Makefile test/zMessage/Makefile])
 #AC_CONFIG_FILES([lib/zCommand/Makefile test/zCommand/Makefile])
 #AC_CONFIG_FILES([lib/zSwitch/Makefile test/zSwitch/Makefile])

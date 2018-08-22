@@ -50,7 +50,8 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/ExtCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/SuppOpClassesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h \
-	${top_srcdir}/inc/zutils/ieee80211/QosData.h
+	${top_srcdir}/inc/zutils/ieee80211/QosData.h \
+	${top_srcdir}/inc/zutils/ieee80211/Socket.h
 
 libieee80211_la_SOURCES = \
 	ieee80211.h \
@@ -82,5 +83,6 @@ libieee80211_la_SOURCES = \
 	Reassociation.cpp \
 	Disassociation.cpp \
 	DataFrame.cpp \
-	QosData.cpp
+	QosData.cpp \
+	Socket.cpp
 	

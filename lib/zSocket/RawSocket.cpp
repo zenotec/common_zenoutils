@@ -31,7 +31,7 @@
 
 #include <zutils/zUtils.h>
 #include <zutils/zLog.h>
-#include <zutils/zEthSocket.h>
+#include <zutils/zRawSocket.h>
 #include <zutils/zSocket.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
@@ -180,10 +180,10 @@ EthAddress::Display() const
 }
 
 //**********************************************************************
-// Class: zSocket::EthSocket
+// Class: zSocket::RawSocket
 //**********************************************************************
 
-EthSocket::EthSocket(const EthSocket::PROTO proto_) :
+RawSocket::RawSocket(const RawSocket::PROTO proto_) :
     Socket(SOCKET_TYPE::TYPE_RAW), _fd(0)
 {
   // Create a AF_INET socket
@@ -199,7 +199,7 @@ EthSocket::EthSocket(const EthSocket::PROTO proto_) :
   }
 }
 
-EthSocket::~EthSocket()
+RawSocket::~RawSocket()
 {
   // Make sure the socket is unregistered from all handlers
   if (!this->_handler_list.empty())
@@ -219,19 +219,19 @@ EthSocket::~EthSocket()
 }
 
 int
-EthSocket::GetId() const
+RawSocket::GetId() const
 {
   return (this->_fd);
 }
 
 const Address&
-EthSocket::GetAddress() const
+RawSocket::GetAddress() const
 {
   return (this->_addr);
 }
 
 bool
-EthSocket::Getopt(Socket::OPTIONS opt_)
+RawSocket::Getopt(Socket::OPTIONS opt_)
 {
   bool status = false;
   switch (opt_)
@@ -258,7 +258,7 @@ EthSocket::Getopt(Socket::OPTIONS opt_)
 }
 
 bool
-EthSocket::Setopt(Socket::OPTIONS opt_)
+RawSocket::Setopt(Socket::OPTIONS opt_)
 {
   bool status = false;
   switch (opt_)
@@ -280,7 +280,7 @@ EthSocket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
-EthSocket::Bind(const Address& addr_)
+RawSocket::Bind(const Address& addr_)
 {
 
   if (!this->_fd)
@@ -312,7 +312,7 @@ EthSocket::Bind(const Address& addr_)
 }
 
 SHARED_PTR(zSocket::Notification)
-EthSocket::Recv()
+RawSocket::Recv()
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
@@ -355,7 +355,7 @@ EthSocket::Recv()
 }
 
 SHARED_PTR(zSocket::Notification)
-EthSocket::Send(const Address& to_, const Buffer& sb_)
+RawSocket::Send(const Address& to_, const Buffer& sb_)
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));

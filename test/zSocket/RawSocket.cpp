@@ -38,7 +38,7 @@
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
-#include <zutils/zEthSocket.h>
+#include <zutils/zRawSocket.h>
 
 #include "zSocketTest.h"
 
@@ -77,7 +77,7 @@ zSocketTest_EthSocketDefault(void* arg_)
   TEST_EQ(std::string("00:00:00:00:00:00"), MyAddr.GetAddress());
 
   // Create new socket and validate
-  zSocket::EthSocket *MySock = new zSocket::EthSocket;
+  zSocket::RawSocket *MySock = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock);
 
   // Cleanup
@@ -132,7 +132,7 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   TEST_TRUE(MyHandler->RegisterObserver(MyObserver));
 
   // Create new socket and validate
-  zSocket::EthSocket *MySock = new zSocket::EthSocket;
+  zSocket::RawSocket *MySock = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock);
   TEST_TRUE(MySock->Bind(*SrcAddr));
 
@@ -227,7 +227,7 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MyHandler->RegisterObserver(MyObserver));
 
   // Create new socket and validate
-  zSocket::EthSocket *MySock1 = new zSocket::EthSocket;
+  zSocket::RawSocket *MySock1 = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock1);
   TEST_TRUE(MySock1->Bind(*SrcAddr));
 
@@ -235,7 +235,7 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MyHandler->RegisterSocket(MySock1));
 
   // Create new socket and validate
-  zSocket::EthSocket *MySock2 = new zSocket::EthSocket;
+  zSocket::RawSocket *MySock2 = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock2);
   TEST_TRUE(MySock2->Bind(*DstAddr));
 

@@ -7,7 +7,7 @@ AM_CPPFLAGS := \
 	$(CPPFLAGS_GCOV) \
 	$(com_incdir) \
 	$(BOOST_CPPFLAGS) \
-	-I${top_srcdir}/lib/zWireless/ieee8023 \
+	-I${top_srcdir}/lib/zSocket/ieee8023 \
 	-I$(srcdir)
 
 AM_LDFLAGS := $(LDFLAGS_GCOV)
@@ -19,8 +19,10 @@ libieee8023_ladir = $(includedir)/zutils/ieee8023
 
 # Headers to install
 libieee8023_la_HEADERS = \
-	${top_srcdir}/inc/zutils/ieee8023/Frame.h
+	${top_srcdir}/inc/zutils/ieee8023/Frame.h \
+	${top_srcdir}/inc/zutils/ieee8023/Socket.h
 
 libieee8023_la_SOURCES = \
 	ieee8023.h \
-	Frame.cpp
+	Frame.cpp \
+	Socket.cpp
