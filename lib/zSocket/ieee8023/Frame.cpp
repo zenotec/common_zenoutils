@@ -30,6 +30,8 @@ using namespace zUtils;
 
 // local includes
 
+#include "ieee8023.h"
+
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
@@ -92,6 +94,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     }
   }
 
+  // Read destination address
   p_ = this->chklen(p_, sizeof(f->dst), rem_);
   if (!p_ || !mac2str(f->dst.addr, this->_dst))
   {
@@ -99,6 +102,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
+  // Read source address
   p_ = this->chklen(p_, sizeof(f->src), rem_);
   if (!p_ || !mac2str(f->src.addr, this->_src))
   {
@@ -106,45 +110,38 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return(NULL);
   }
 
-  if (rem_ < (sizeof(f->u.type) + 46)) // check for minimum frame size
+  // Check for minimum frame size
+  if (rem_ < (sizeof(f->u.type) + 46))
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
 
+  // Determine frame type
   uint16_t type = be16toh(f->u.type);
-
-  if (type == PROTO_VLAN)
+  if (type < Frame::PROTO_IPv4)
   {
+    this->_type = Frame::TYPE_ETHER;
+  }
+  else if (type == PROTO_VLAN)
+  {
+    this->_type = Frame::TYPE_VLAN;
     p_ = this->chklen(p_, sizeof(f->u.vlan), rem_);
     if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.vlan.proto))))
     {
       ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
       return(NULL);
     }
-  }
-  else
-  {
-    p_ = this->chklen(p_, sizeof(f->u.type), rem_);
-    if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+    if (!this->PutPayload(f->u.vlan.data, rem_))
     {
-      ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
-      return(NULL);
+      p_ = NULL;
     }
   }
-
-  if (type < Frame::PROTO_IPv4)
-  {
-    this->_type = Frame::TYPE_LLC;
-  }
-  else if (type < Frame::PROTO_LAST)
+  else
   {
     this->_type = Frame::TYPE_ETHER2;
   }
-  else
-  {
-    this->_type = Frame::TYPE_ERR;
-  }
+
 
   return (p_);
 }
@@ -201,6 +198,32 @@ Frame::SetProto(const Frame::PROTO proto_)
   return (status);
 }
 
+std::string
+Frame::GetDestination() const
+{
+  return (this->_dst);
+}
+
+bool
+Frame::SetDestination(const std::string& dst_)
+{
+  this->_dst = dst_;
+  return (true);
+}
+
+std::string
+Frame::GetSource() const
+{
+  return (this->_src);
+}
+
+bool
+Frame::SetSource(const std::string& src_)
+{
+  this->_src = src_;
+  return (true);
+}
+
 size_t
 Frame::GetPayload(uint8_t*& buf_, const size_t len_) const
 {
@@ -239,6 +262,8 @@ Frame::Display() const
 {
   std::cout << "------------------------------------------" << std::endl;
   std::cout << "----- IEEE802.3 Header ------------------" << std::endl;
+  std::cout << "\tDest:  \t" << this->GetDestination() << std::endl;
+  std::cout << "\tSource:  \t" << this->GetSource() << std::endl;
 }
 
 bool

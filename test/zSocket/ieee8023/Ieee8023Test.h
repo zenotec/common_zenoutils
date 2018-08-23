@@ -19,6 +19,9 @@
 
 #include "UnitTest.h"
 
+extern const uint8_t arp_pkt[];
+extern const size_t arp_pkt_len;
+
 int
 Ieee8023Test_Defaults(void* arg_);
 int

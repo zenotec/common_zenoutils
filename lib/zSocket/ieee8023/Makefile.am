@@ -20,9 +20,11 @@ libieee8023_ladir = $(includedir)/zutils/ieee8023
 # Headers to install
 libieee8023_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee8023/Frame.h \
+	${top_srcdir}/inc/zutils/ieee8023/Ether2Frame.h \
 	${top_srcdir}/inc/zutils/ieee8023/Socket.h
 
 libieee8023_la_SOURCES = \
 	ieee8023.h \
 	Frame.cpp \
+	Ether2Frame.cpp \
 	Socket.cpp
