@@ -26,6 +26,7 @@
 // libzutils includes
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
+#include <zutils/zRawSocket.h>
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
 #include <zutils/ieee8023/Socket.h>
@@ -54,6 +55,31 @@ Notification::Notification(Socket& sock_) :
 Notification::Notification(const zSocket::Notification& noti_) :
     zSocket::Notification(noti_)
 {
+  this->Frame(SHARED_PTR(ieee8023::Frame)(new ieee8023::Frame));
+  uint8_t* f = this->GetBuffer().Data();
+  size_t rem = this->GetBuffer().Length();
+
+  // Peek at the 802.3 frame to determine its type & protocol
+  f = this->Frame()->Peek(f, rem, false);
+  if (f == 0)
+  {
+    ZLOG_WARN("Cannot decode IEEE8023 frame");
+    this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    return;
+  }
+
+  // Complete parsing of frame based on type
+  switch (this->Frame()->GetType())
+  {
+  case Frame::TYPE_ETHER:
+    break;
+  case Frame::TYPE_ETHER2:
+    break;
+  case Frame::TYPE_VLAN:
+    break;
+  default:
+    break;
+  }
 
 }
 
@@ -91,6 +117,12 @@ Socket::~Socket()
 SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
+
+  // Receive frame and convert to wireless notification
+  SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
+
+  // Return wireless notification
+  return (n);
 }
 
 SHARED_PTR(zSocket::Notification)
@@ -102,11 +134,34 @@ Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
 SHARED_PTR(zSocket::Notification)
 Socket::Send(Frame& frame_)
 {
+  zSocket::Buffer sb;
+  uint8_t* sbptr = sb.Head();
+  size_t sbsize = sb.TotalSize();
+
+  // Assemble frame (writes buffer)
+  if (!(sbptr = frame_.Assemble(sbptr, sbsize)))
+  {
+    ZLOG_ERR("Error assembling IEEE80211 header");
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    return (n);
+  }
+
+  if (!sb.Put(sb.TotalSize() - sbsize))
+  {
+    ZLOG_ERR("Error updating socket buffer size");
+    SHARED_PTR(Notification) n(new Notification(*this));
+    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    return (n);
+  }
+
+  return (this->Send(zSocket::EthAddress(frame_.GetDestination()), sb));
 }
 
 void
 Socket::Display()
 {
+  return;
 }
 
 }

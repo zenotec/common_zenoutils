@@ -28,8 +28,6 @@
 
 // local includes
 
-#include "ieee8023.h"
-
 namespace zUtils
 {
 namespace zSocket
@@ -94,6 +92,18 @@ public:
 
   bool
   SetProto(const Frame::PROTO proto_);
+
+  std::string
+  GetDestination() const;
+
+  bool
+  SetDestination(const std::string& dst_);
+
+  std::string
+  GetSource() const;
+
+  bool
+  SetSource(const std::string& src_);
 
   size_t
   GetPayload(uint8_t*& buf_, const size_t len_) const;

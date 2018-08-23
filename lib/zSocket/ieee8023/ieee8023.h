@@ -42,6 +42,7 @@ struct ieee8021q_hdr
   uint16_t tpid;
   uint16_t tci;
   uint16_t proto;
+  uint8_t data[0];
 } __attribute__ ((packed));
 
 struct ieee8021ad_hdr
@@ -51,6 +52,7 @@ struct ieee8021ad_hdr
   uint16_t tpid2;
   uint16_t tci2;
   uint16_t proto;
+  uint8_t data[0];
 } __attribute__ ((packed));
 
 struct ieee8022_llc_hdr
