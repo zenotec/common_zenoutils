@@ -32,7 +32,7 @@ using namespace zUtils;
 
 #include "ieee8023.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
 namespace zUtils
 {
@@ -119,9 +119,13 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Determine frame type
   uint16_t type = be16toh(f->u.type);
-  if (type < Frame::PROTO_IPv4)
+  if (type < 1500)
   {
     this->_type = Frame::TYPE_ETHER;
+    if ((f->u.llc.dst_sap == 0xaa) && (f->u.llc.src_sap == 0xaa))
+    {
+      this->_type = Frame::TYPE_LLC;
+    }
   }
   else if (type == PROTO_VLAN)
   {

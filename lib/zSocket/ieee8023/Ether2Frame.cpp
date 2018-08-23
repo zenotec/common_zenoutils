@@ -34,7 +34,7 @@ using namespace zSocket;
 
 #include "ieee8023.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
 namespace zUtils
 {

@@ -27,7 +27,7 @@
 #include <zutils/zLog.h>
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
-#include <zutils/ieee8023/EtherFrame.h>
+#include <zutils/ieee8023/LlcFrame.h>
 using namespace zSocket;
 
 // local includes
@@ -44,20 +44,20 @@ namespace ieee8023
 {
 
 //*****************************************************************************
-// Class: EtherFrame
+// Class: LlcFrame
 //*****************************************************************************
 
-EtherFrame::EtherFrame() :
-    Frame(Frame::TYPE_ETHER)
+LlcFrame::LlcFrame() :
+    Frame(Frame::TYPE_LLC)
 {
 }
 
-EtherFrame::~EtherFrame()
+LlcFrame::~LlcFrame()
 {
 }
 
 uint8_t*
-EtherFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
+LlcFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
 
@@ -70,6 +70,21 @@ EtherFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return (NULL);
   }
+
+  // Write protocol identifier
+  p_ = this->chklen(p_, sizeof(f->u.llc), rem_);
+  if (!p_)
+  {
+    ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
+    return(NULL);
+  }
+  f->u.llc.dst_sap = 0xaa;
+  f->u.llc.src_sap = 0xaa;
+  f->u.llc.cntl = 0x03;
+  f->u.llc.oui[0] = 0x00;
+  f->u.llc.oui[1] = 0x00;
+  f->u.llc.oui[2] = 0x00;
+  f->u.llc.proto = htobe16(uint16_t(this->GetProto()));
 
   // Write payload
   uint8_t* pay = p_;
@@ -89,7 +104,7 @@ EtherFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 uint8_t*
-EtherFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
+LlcFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
   struct ieee8023_hdr* f = (struct ieee8023_hdr*) p_;
@@ -101,6 +116,14 @@ EtherFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return (NULL);
   }
+
+//  // Read and save protocol identifier
+//  p_ = this->chklen(p_, sizeof(f->u.ether2.proto), rem_);
+//  if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+//  {
+//    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+//    return(NULL);
+//  }
 
   // Copy out the frame payload
   uint8_t* pay = p_;
@@ -116,9 +139,9 @@ EtherFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-EtherFrame::Display() const
+LlcFrame::Display() const
 {
-  std::cout << "----- Ether Header ----------------------" << std::endl;
+  std::cout << "----- Ether2 Header ----------------------" << std::endl;
 }
 
 }

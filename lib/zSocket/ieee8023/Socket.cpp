@@ -30,6 +30,7 @@
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
 #include <zutils/ieee8023/EtherFrame.h>
+#include <zutils/ieee8023/LlcFrame.h>
 #include <zutils/ieee8023/Ether2Frame.h>
 #include <zutils/ieee8023/VlanFrame.h>
 #include <zutils/ieee8023/Socket.h>
@@ -81,6 +82,17 @@ Notification::Notification(const zSocket::Notification& noti_) :
     if (f == 0)
     {
       ZLOG_WARN("Cannot decode ether frame");
+      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    }
+    break;
+  }
+  case Frame::TYPE_LLC:
+  {
+    this->Frame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
+    f = this->Frame()->Disassemble(f, rem, false);
+    if (f == 0)
+    {
+      ZLOG_WARN("Cannot decode LLC frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
     }
     break;
