@@ -28,7 +28,7 @@
 
 // local includes
 
-#include "ieee8023.h"
+#include "../lib/zSocket/ieee8023/ieee8023.h"
 
 namespace zUtils
 {
