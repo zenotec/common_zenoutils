@@ -29,6 +29,10 @@
 #include <zutils/zRawSocket.h>
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
+#include <zutils/ieee8023/EtherFrame.h>
+#include <zutils/ieee8023/LlcFrame.h>
+#include <zutils/ieee8023/Ether2Frame.h>
+#include <zutils/ieee8023/VlanFrame.h>
 #include <zutils/ieee8023/Socket.h>
 
 // local includes
@@ -61,7 +65,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
 
   // Peek at the 802.3 frame to determine its type & protocol
   f = this->Frame()->Peek(f, rem, false);
-  if (f == 0)
+  if (f == NULL)
   {
     ZLOG_WARN("Cannot decode IEEE8023 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -72,11 +76,49 @@ Notification::Notification(const zSocket::Notification& noti_) :
   switch (this->Frame()->GetType())
   {
   case Frame::TYPE_ETHER:
+  {
+    this->Frame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
+    f = this->Frame()->Disassemble(f, rem, false);
+    if (f == 0)
+    {
+      ZLOG_WARN("Cannot decode ether frame");
+      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    }
     break;
+  }
+  case Frame::TYPE_LLC:
+  {
+    this->Frame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
+    f = this->Frame()->Disassemble(f, rem, false);
+    if (f == 0)
+    {
+      ZLOG_WARN("Cannot decode LLC frame");
+      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    }
+    break;
+  }
   case Frame::TYPE_ETHER2:
+  {
+    this->Frame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
+    f = this->Frame()->Disassemble(f, rem, false);
+    if (f == 0)
+    {
+      ZLOG_WARN("Cannot decode ether2 frame");
+      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    }
     break;
+  }
   case Frame::TYPE_VLAN:
+  {
+    this->Frame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
+    f = this->Frame()->Disassemble(f, rem, false);
+    if (f == 0)
+    {
+      ZLOG_WARN("Cannot decode VLAN frame");
+      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    }
     break;
+  }
   default:
     break;
   }

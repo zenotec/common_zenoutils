@@ -26,5 +26,8 @@ libieee8023_la_HEADERS = \
 libieee8023_la_SOURCES = \
 	ieee8023.h \
 	Frame.cpp \
+	EtherFrame.cpp \
+	LlcFrame.cpp \
 	Ether2Frame.cpp \
+	VlanFrame.cpp \
 	Socket.cpp

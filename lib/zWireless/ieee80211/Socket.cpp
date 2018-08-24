@@ -101,7 +101,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
 
   // Peek at the 802.11 frame to determine its type/subtype
   f = this->Frame()->Peek(f, rem, fcsflag);
-  if (f == 0)
+  if (f == NULL)
   {
     ZLOG_WARN("Cannot decode IEEE80211 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);

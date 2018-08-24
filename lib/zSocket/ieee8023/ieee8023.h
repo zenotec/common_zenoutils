@@ -61,6 +61,8 @@ struct ieee8022_llc_hdr
   uint8_t dst_sap;
   uint8_t src_sap;
   uint8_t cntl;
+  uint8_t oui[3];
+  uint16_t proto;
   uint8_t data[0];
 } __attribute__ ((packed));
 

@@ -27,14 +27,14 @@
 #include <zutils/zLog.h>
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
-#include <zutils/ieee8023/Ether2Frame.h>
+#include <zutils/ieee8023/VlanFrame.h>
 using namespace zSocket;
 
 // local includes
 
 #include "ieee8023.h"
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace zUtils
 {
@@ -44,20 +44,20 @@ namespace ieee8023
 {
 
 //*****************************************************************************
-// Class: Ether2Frame
+// Class: VlanFrame
 //*****************************************************************************
 
-Ether2Frame::Ether2Frame() :
-    Frame(Frame::TYPE_ETHER2)
+VlanFrame::VlanFrame() :
+    Frame(Frame::TYPE_VLAN)
 {
 }
 
-Ether2Frame::~Ether2Frame()
+VlanFrame::~VlanFrame()
 {
 }
 
 uint8_t*
-Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
+VlanFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
 
@@ -98,7 +98,7 @@ Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 uint8_t*
-Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
+VlanFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
   struct ieee8023_hdr* f = (struct ieee8023_hdr*) p_;
@@ -133,9 +133,9 @@ Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-Ether2Frame::Display() const
+VlanFrame::Display() const
 {
-  std::cout << "----- Ether2 Header ----------------------" << std::endl;
+  std::cout << "----- VLAN Header ----------------------" << std::endl;
 }
 
 }

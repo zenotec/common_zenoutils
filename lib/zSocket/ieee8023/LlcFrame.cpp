@@ -27,7 +27,7 @@
 #include <zutils/zLog.h>
 using namespace zUtils;
 #include <zutils/ieee8023/Frame.h>
-#include <zutils/ieee8023/Ether2Frame.h>
+#include <zutils/ieee8023/LlcFrame.h>
 using namespace zSocket;
 
 // local includes
@@ -44,20 +44,20 @@ namespace ieee8023
 {
 
 //*****************************************************************************
-// Class: Ether2Frame
+// Class: LlcFrame
 //*****************************************************************************
 
-Ether2Frame::Ether2Frame() :
-    Frame(Frame::TYPE_ETHER2)
+LlcFrame::LlcFrame() :
+    Frame(Frame::TYPE_LLC)
 {
 }
 
-Ether2Frame::~Ether2Frame()
+LlcFrame::~LlcFrame()
 {
 }
 
 uint8_t*
-Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
+LlcFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
 
@@ -65,20 +65,26 @@ Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Assemble lower level frame and validate
   p_ = Frame::Assemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
   {
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return (NULL);
   }
 
   // Write protocol identifier
-  p_ = this->chklen(p_, sizeof(f->u.ether2.proto), rem_);
+  p_ = this->chklen(p_, sizeof(f->u.llc), rem_);
   if (!p_)
   {
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return(NULL);
   }
-  f->u.ether2.proto = htobe16(uint16_t(this->GetProto()));
+  f->u.llc.dst_sap = 0xaa;
+  f->u.llc.src_sap = 0xaa;
+  f->u.llc.cntl = 0x03;
+  f->u.llc.oui[0] = 0x00;
+  f->u.llc.oui[1] = 0x00;
+  f->u.llc.oui[2] = 0x00;
+  f->u.llc.proto = htobe16(uint16_t(this->GetProto()));
 
   // Write payload
   uint8_t* pay = p_;
@@ -98,26 +104,26 @@ Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 uint8_t*
-Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
+LlcFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
 
   struct ieee8023_hdr* f = (struct ieee8023_hdr*) p_;
 
   // Disassemble lower level frame and validate
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return (NULL);
   }
 
-  // Read and save protocol identifier
-  p_ = this->chklen(p_, sizeof(f->u.ether2.proto), rem_);
-  if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
-  {
-    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
-    return(NULL);
-  }
+//  // Read and save protocol identifier
+//  p_ = this->chklen(p_, sizeof(f->u.ether2.proto), rem_);
+//  if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+//  {
+//    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+//    return(NULL);
+//  }
 
   // Copy out the frame payload
   uint8_t* pay = p_;
@@ -133,7 +139,7 @@ Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-Ether2Frame::Display() const
+LlcFrame::Display() const
 {
   std::cout << "----- Ether2 Header ----------------------" << std::endl;
 }

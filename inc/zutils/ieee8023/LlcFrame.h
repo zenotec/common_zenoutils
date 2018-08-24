@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __IEEE8023_ETHER2FRAME_H__
-#define __IEEE8023_ETHER2FRAME_H__
+#ifndef __IEEE8023_LLCFRAME_H__
+#define __IEEE8023_LLCFRAME_H__
 
 // libc includes
 #include <stdio.h>
@@ -38,19 +38,19 @@ namespace ieee8023
 {
 
 //*****************************************************************************
-// Class: Ether2Frame
+// Class: LlcFrame
 //*****************************************************************************
 
-class Ether2Frame :
+class LlcFrame :
     public Frame
 {
 
 public:
 
-  Ether2Frame();
+  LlcFrame();
 
   virtual
-  ~Ether2Frame();
+  ~LlcFrame();
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
@@ -71,4 +71,4 @@ private:
 }
 }
 
-#endif /* __IEEE8023_ETHER2FRAME_H__ */
+#endif /* __IEEE8023_LLCFRAME_H__ */
