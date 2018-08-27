@@ -28,6 +28,8 @@
 
 // local includes
 
+#include <zutils/ieee8023/Frame.h>
+
 namespace zUtils
 {
 namespace zSocket
