@@ -36,27 +36,32 @@ Ieee8023Test_Defaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   zSocket::ieee8023::Frame f;
-  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_NONE);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_NONE);
   TEST_EQ(f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(f.GetPayloadLength());
 
   zSocket::ieee8023::EtherFrame ether_f;
-  TEST_EQ(ether_f.GetType(), zSocket::ieee8023::Frame::TYPE_ETHER);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(ether_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_ETHER);
   TEST_EQ(ether_f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(ether_f.GetPayloadLength());
 
   zSocket::ieee8023::LlcFrame llc_f;
-  TEST_EQ(llc_f.GetType(), zSocket::ieee8023::Frame::TYPE_LLC);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(llc_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_LLC);
   TEST_EQ(llc_f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(llc_f.GetPayloadLength());
 
   zSocket::ieee8023::Ether2Frame ether2_f;
-  TEST_EQ(ether2_f.GetType(), zSocket::ieee8023::Frame::TYPE_ETHER2);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(ether2_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_ETHER2);
   TEST_EQ(ether2_f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(ether2_f.GetPayloadLength());
 
   zSocket::ieee8023::VlanFrame vlan_f;
-  TEST_EQ(vlan_f.GetType(), zSocket::ieee8023::Frame::TYPE_VLAN);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(vlan_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_VLAN);
   TEST_EQ(vlan_f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(vlan_f.GetPayloadLength());
 
@@ -73,7 +78,8 @@ Ieee8023Test_GetSet(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   zSocket::ieee8023::Frame f;
-  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_NONE);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_NONE);
   TEST_EQ(f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(f.GetPayloadLength());
 
@@ -90,7 +96,8 @@ Ieee8023Test_Assemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   zSocket::ieee8023::Frame f;
-  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_NONE);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_NONE);
   TEST_EQ(f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(f.GetPayloadLength());
 
@@ -102,11 +109,14 @@ Ieee8023Test_Assemble(void* arg_)
   // Set up ARP frame contents
   TEST_TRUE(f.SetDestination(std::string("ff:ff:ff:ff:ff:ff")));
   TEST_TRUE(f.SetSource(std::string("00:01:02:03:04:05")));
-  TEST_TRUE(f.SetType(zSocket::ieee8023::Frame::TYPE_ETHER2));
+  TEST_TRUE(f.SetSubtype(zSocket::ieee8023::Frame::SUBTYPE_ETHER2));
   TEST_TRUE(f.SetProto(zSocket::ieee8023::Frame::PROTO_ARP));
 
+  // Create empty buffer for assembling ARP frame
+  zSocket::Buffer sb;
+
   // Assemble frame
-  TEST_ISNOT_NULL(f.Assemble(p, buflen));
+  TEST_TRUE(f.Assemble(sb));
 
 //  // Validate frame
 //  for (int i = 0; i < arp_pkt_len; i++)
@@ -127,20 +137,21 @@ Ieee8023Test_Disassemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   zSocket::ieee8023::Ether2Frame f;
-  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_ETHER2);
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_ETHER2);
   TEST_EQ(f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(f.GetPayloadLength());
 
   // Make copy of raw ARP frame
-  uint8_t buf[4096] = { 0 };
+  zSocket::Buffer sb;
   size_t buflen = arp_pkt_len;
-  memcpy(buf, arp_pkt, arp_pkt_len);
-  uint8_t* p = buf;
+  memcpy(sb.Head(), arp_pkt, arp_pkt_len);
+  sb.Put(arp_pkt_len);
 
-  TEST_ISNOT_NULL(f.Disassemble(p, buflen));
+  TEST_TRUE(f.Disassemble(sb));
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), f.GetDestination());
   TEST_EQ(std::string("00:01:02:03:04:05"), f.GetSource());
-  TEST_EQ(zSocket::ieee8023::Frame::TYPE_ETHER2, f.GetType());
+  TEST_EQ(zSocket::ieee8023::Frame::SUBTYPE_ETHER2, f.GetSubtype());
   TEST_EQ(zSocket::ieee8023::Frame::PROTO_ARP, f.GetProto());
 
   // Return success

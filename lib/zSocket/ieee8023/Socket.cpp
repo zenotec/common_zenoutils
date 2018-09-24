@@ -73,9 +73,9 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
 
   // Complete parsing of frame based on type
-  switch (this->Frame()->GetType())
+  switch (this->Frame()->GetSubtype())
   {
-  case Frame::TYPE_ETHER:
+  case Frame::SUBTYPE_ETHER:
   {
     this->Frame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
     f = this->Frame()->Disassemble(f, rem, false);
@@ -86,7 +86,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
     }
     break;
   }
-  case Frame::TYPE_LLC:
+  case Frame::SUBTYPE_LLC:
   {
     this->Frame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
     f = this->Frame()->Disassemble(f, rem, false);
@@ -97,7 +97,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
     }
     break;
   }
-  case Frame::TYPE_ETHER2:
+  case Frame::SUBTYPE_ETHER2:
   {
     this->Frame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
     f = this->Frame()->Disassemble(f, rem, false);
@@ -108,7 +108,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
     }
     break;
   }
-  case Frame::TYPE_VLAN:
+  case Frame::SUBTYPE_VLAN:
   {
     this->Frame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
     f = this->Frame()->Disassemble(f, rem, false);

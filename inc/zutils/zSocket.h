@@ -231,6 +231,80 @@ private:
 };
 
 //**********************************************************************
+// Class: zSocket::Frame
+//**********************************************************************
+
+class Frame
+{
+
+public:
+
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_8023,
+    TYPE_80211,
+    TYPE_LAST
+  };
+
+  Frame(const Frame::TYPE);
+
+  virtual
+  ~Frame();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_) = 0;
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_) = 0;
+
+  virtual bool
+  Peek(const zSocket::Buffer& sb_) = 0;
+
+  Frame::TYPE
+  GetType() const;
+
+  bool
+  SetType(const Frame::TYPE type_);
+
+  std::string
+  GetDestination() const;
+
+  bool
+  SetDestination(const std::string& dst_);
+
+  std::string
+  GetSource() const;
+
+  bool
+  SetSource(const std::string& src_);
+
+  size_t
+  GetPayload(uint8_t* buf_, const size_t len_) const;
+
+  size_t
+  GetPayloadLength() const;
+
+  bool
+  PutPayload(const uint8_t* buf_, const size_t len_);
+
+  virtual void
+  Display(const std::string& prefix_ = "") const;
+
+protected:
+
+private:
+
+  Frame::TYPE _type;
+  std::string _src;
+  std::string _dst;
+  std::vector<uint8_t> _payload;
+
+
+};
+
+//**********************************************************************
 // Class: zSocket::Socket
 //**********************************************************************
 

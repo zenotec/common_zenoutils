@@ -48,12 +48,101 @@ namespace ieee8023
 //*****************************************************************************
 
 Ether2Frame::Ether2Frame() :
-    Frame(Frame::TYPE_ETHER2)
+    Frame(Frame::SUBTYPE_ETHER2)
 {
 }
 
 Ether2Frame::~Ether2Frame()
 {
+}
+
+bool
+Ether2Frame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  // Assemble lower level frame and validate
+  if (!Frame::Assemble(sb_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Write protocol field
+  if (sb_.Put(sizeof(f->u.ether2.proto)))
+  {
+    f->u.ether2.proto = htobe16(uint16_t(this->GetProto()));
+    sb_.Pull(sizeof(f->u.ether2.proto));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Write payload
+  uint8_t* pay = f->u.ether2.data;
+  size_t len = this->GetPayloadLength();
+  if (sb_.Put(len) && this->GetPayload(pay, len))
+  {
+    sb_.Pull(len);
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  return (true);
+
+}
+
+bool
+Ether2Frame::Disassemble(zSocket::Buffer& sb_)
+{
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  // Disassemble lower level frame and validate
+  if (!Frame::Disassemble(sb_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
+  {
+    ZLOG_ERR("Error disassembling frame: " + ZLOG_INT(this->GetSubtype()));
+    return (false);
+  }
+
+  // Read out protocol field
+  if (this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+  {
+    sb_.Pull(sizeof(f->u.ether2.proto));
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return(false);
+  }
+
+  // Copy out the frame payload (use length of socket buffer, not length field)
+  uint8_t* pay = f->u.ether2.data;
+  size_t len = sb_.Length();
+  if (this->PutPayload(pay, len))
+  {
+    sb_.Pull(len);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return(false);
+  }
+
+  return (true);
+
 }
 
 uint8_t*
@@ -65,7 +154,7 @@ Ether2Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Assemble lower level frame and validate
   p_ = Frame::Assemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
   {
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -105,7 +194,7 @@ Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Disassemble lower level frame and validate
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -133,9 +222,10 @@ Ether2Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-Ether2Frame::Display() const
+Ether2Frame::Display(const std::string& prefix_) const
 {
-  std::cout << "----- Ether2 Header ----------------------" << std::endl;
+  Frame::Display(prefix_);
+  std::cout << prefix_ << "----- Ether2 Header ----------------------" << std::endl;
 }
 
 }

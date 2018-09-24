@@ -52,18 +52,32 @@ public:
   virtual
   ~EtherFrame();
 
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
 
   virtual uint8_t*
   Disassemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
 
+  uint16_t
+  GetLength() const;
+
+  bool
+  SetLength(const uint16_t len_);
+
   virtual void
-  Display() const;
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 
 private:
+
+  uint16_t _length;
 
 };
 

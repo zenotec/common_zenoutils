@@ -45,13 +45,133 @@ namespace ieee8023
 // Class: Frame
 //*****************************************************************************
 
-Frame::Frame(const TYPE type_) :
-    _type(type_), _proto(Frame::PROTO_NONE), _fcs(0)
+Frame::Frame(const Frame::SUBTYPE subtype_, const Frame::PROTO proto_) :
+    zSocket::Frame(zSocket::Frame::TYPE_8023),
+    _subtype(subtype_),
+    _proto(proto_)
 {
 }
 
 Frame::~Frame()
 {
+}
+
+bool
+Frame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  // Write destination address
+  if (sb_.Put(sizeof(f->dst)) && this->str2mac(this->GetDestination(), (uint8_t*)&f->dst))
+  {
+    sb_.Pull(sizeof(f->dst));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Write source address
+  if (sb_.Put(sizeof(f->src)) && this->str2mac(this->GetSource(), (uint8_t*)&f->src))
+  {
+    sb_.Pull(sizeof(f->src));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  return (true);
+
+}
+
+bool
+Frame::Disassemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+  // NOTE: Returns socket buffer data pointer set to start of subtype header
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  // Read destination address
+  std::string dst;
+  if (sb_.Pull(sizeof(f->dst)) && this->mac2str((uint8_t*)&f->dst, dst))
+  {
+    this->SetDestination(dst);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  // Read source address
+  std::string src;
+  if (sb_.Pull(sizeof(f->src)) && this->mac2str((uint8_t*)&f->src, src))
+  {
+    this->SetSource(src);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  // Verify presence of type field
+  if (sb_.Length() < sizeof(f->u.type))
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  // Determine frame type
+  uint16_t type = be16toh(f->u.type);
+  if (type < 1500)
+  {
+    if ((f->u.llc.dst_sap == 0xaa) && (f->u.llc.src_sap == 0xaa))
+    {
+      this->_subtype = Frame::SUBTYPE_LLC;
+    }
+    else
+    {
+      this->_subtype = Frame::SUBTYPE_ETHER;
+    }
+  }
+  else if (type == PROTO_VLAN)
+  {
+    this->_subtype = Frame::SUBTYPE_VLAN;
+  }
+  else
+  {
+    this->_subtype = Frame::SUBTYPE_ETHER2;
+  }
+
+  return (true);
+
+}
+
+bool
+Frame::Peek(const zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+  // NOTE: Does not alter caller's buffer
+
+  // Create copy of caller's buffer to avoid modifying pointers
+  Buffer tmp(sb_);
+
+  // Disassemble frame using temporary local buffer
+  return (this->Disassemble(tmp));
 }
 
 uint8_t*
@@ -121,15 +241,15 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   uint16_t type = be16toh(f->u.type);
   if (type < 1500)
   {
-    this->_type = Frame::TYPE_ETHER;
+    this->_subtype = Frame::SUBTYPE_ETHER;
     if ((f->u.llc.dst_sap == 0xaa) && (f->u.llc.src_sap == 0xaa))
     {
-      this->_type = Frame::TYPE_LLC;
+      this->_subtype = Frame::SUBTYPE_LLC;
     }
   }
   else if (type == PROTO_VLAN)
   {
-    this->_type = Frame::TYPE_VLAN;
+    this->_subtype = Frame::SUBTYPE_VLAN;
     p_ = this->chklen(p_, sizeof(f->u.vlan), rem_);
     if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.vlan.proto))))
     {
@@ -143,7 +263,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   else
   {
-    this->_type = Frame::TYPE_ETHER2;
+    this->_subtype = Frame::SUBTYPE_ETHER2;
   }
 
 
@@ -158,26 +278,26 @@ Frame::Peek(uint8_t* p_, size_t len_, bool fcs_)
   return((p == NULL) ? NULL : p_);
 }
 
-Frame::TYPE
-Frame::GetType() const
+Frame::SUBTYPE
+Frame::GetSubtype() const
 {
-  return (this->_type);
+  return (this->_subtype);
 }
 
 bool
-Frame::SetType(const Frame::TYPE type_)
+Frame::SetSubtype(const Frame::SUBTYPE subtype_)
 {
   bool status = false;
-  switch (type_)
+  switch (subtype_)
   {
-  case TYPE_NONE ... TYPE_LAST:
-    this->_type = type_;
+  case Frame::SUBTYPE_NONE ... Frame::SUBTYPE_LAST:
+    this->_subtype = subtype_;
     status = true;
     break;
   default:
     break;
   }
-  return (true);
+  return (status);
 }
 
 Frame::PROTO
@@ -262,12 +382,12 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 }
 
 void
-Frame::Display() const
+Frame::Display(const std::string& prefix_) const
 {
-  std::cout << "------------------------------------------" << std::endl;
-  std::cout << "----- IEEE802.3 Header ------------------" << std::endl;
-  std::cout << "\tDest:  \t" << this->GetDestination() << std::endl;
-  std::cout << "\tSource:  \t" << this->GetSource() << std::endl;
+  std::cout << prefix_ << "------------------------------------------" << std::endl;
+  std::cout << prefix_ <<  "----- IEEE802.3 Header ------------------" << std::endl;
+  std::cout << prefix_ <<  "\tDest:  \t" << this->GetDestination() << std::endl;
+  std::cout << prefix_ <<  "\tSource:  \t" << this->GetSource() << std::endl;
 }
 
 bool

@@ -48,12 +48,38 @@ namespace ieee8023
 //*****************************************************************************
 
 VlanFrame::VlanFrame() :
-    Frame(Frame::TYPE_VLAN)
+    Frame(Frame::SUBTYPE_VLAN)
 {
 }
 
 VlanFrame::~VlanFrame()
 {
+}
+
+bool
+VlanFrame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  return (false); // TODO
+
+}
+
+bool
+VlanFrame::Disassemble(zSocket::Buffer& sb_)
+{
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  return (false); // TODO
+
 }
 
 uint8_t*
@@ -65,7 +91,7 @@ VlanFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Assemble lower level frame and validate
   p_ = Frame::Assemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_VLAN))
   {
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -105,7 +131,7 @@ VlanFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Disassemble lower level frame and validate
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER2))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_VLAN))
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -133,9 +159,10 @@ VlanFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-VlanFrame::Display() const
+VlanFrame::Display(const std::string& prefix_) const
 {
-  std::cout << "----- VLAN Header ----------------------" << std::endl;
+  Frame::Display(prefix_);
+  std::cout << prefix_ << "----- VLAN Header ----------------------" << std::endl;
 }
 
 }

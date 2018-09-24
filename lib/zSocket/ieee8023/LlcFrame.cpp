@@ -48,12 +48,101 @@ namespace ieee8023
 //*****************************************************************************
 
 LlcFrame::LlcFrame() :
-    Frame(Frame::TYPE_LLC)
+    Frame(Frame::SUBTYPE_LLC)
 {
 }
 
 LlcFrame::~LlcFrame()
 {
+}
+
+bool
+LlcFrame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  return (false); // TODO
+
+//  // Assemble lower level frame and validate
+//  p_ = Frame::Assemble(p_, rem_, fcs_);
+//  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
+//  {
+//    ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
+//    return (NULL);
+//  }
+//
+//  // Write protocol identifier
+//  p_ = this->chklen(p_, sizeof(f->u.llc), rem_);
+//  if (!p_)
+//  {
+//    ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
+//    return(NULL);
+//  }
+//  f->u.llc.dst_sap = 0xaa;
+//  f->u.llc.src_sap = 0xaa;
+//  f->u.llc.cntl = 0x03;
+//  f->u.llc.oui[0] = 0x00;
+//  f->u.llc.oui[1] = 0x00;
+//  f->u.llc.oui[2] = 0x00;
+//  f->u.llc.proto = htobe16(uint16_t(this->GetProto()));
+//
+//  // Write payload
+//  uint8_t* pay = p_;
+//  size_t len = this->GetPayloadLength();
+//
+//  if (!(p_ = this->chklen(pay, len, rem_)))
+//  {
+//    ZLOG_ERR("Buffer overrun");
+//    return (NULL);
+//  }
+//  if (this->GetPayload(pay, len) != len)
+//  {
+//    ZLOG_WARN("Missing or invalid payload");
+//  }
+
+}
+
+bool
+LlcFrame::Disassemble(zSocket::Buffer& sb_)
+{
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+
+  // Initialize frame pointer to start of data
+  struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
+
+  return (false); // TODO
+
+//  // Disassemble lower level frame and validate
+//  p_ = Frame::Disassemble(p_, rem_, fcs_);
+//  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
+//  {
+//    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+//    return (NULL);
+//  }
+//
+////  // Read and save protocol identifier
+////  p_ = this->chklen(p_, sizeof(f->u.ether2.proto), rem_);
+////  if (!p_ || !this->SetProto(Frame::PROTO(be16toh(f->u.ether2.proto))))
+////  {
+////    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+////    return(NULL);
+////  }
+//
+//  // Copy out the frame payload
+//  uint8_t* pay = p_;
+//  size_t len = rem_;
+//  p_ = this->chklen(pay, len, rem_);
+//  if (!p_ || !this->PutPayload(pay, len))
+//  {
+//    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
+//    return(NULL);
+//  }
+
 }
 
 uint8_t*
@@ -65,7 +154,7 @@ LlcFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Assemble lower level frame and validate
   p_ = Frame::Assemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_LLC))
   {
     ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -111,7 +200,7 @@ LlcFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Disassemble lower level frame and validate
   p_ = Frame::Disassemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetType() != Frame::TYPE_ETHER))
+  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_LLC))
   {
     ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
     return (NULL);
@@ -139,9 +228,10 @@ LlcFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 }
 
 void
-LlcFrame::Display() const
+LlcFrame::Display(const std::string& prefix_) const
 {
-  std::cout << "----- Ether2 Header ----------------------" << std::endl;
+  Frame::Display(prefix_);
+  std::cout << prefix_ << "----- LLC Header ----------------------" << std::endl;
 }
 
 }

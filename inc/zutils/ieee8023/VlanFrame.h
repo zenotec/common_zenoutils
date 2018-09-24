@@ -51,6 +51,12 @@ public:
   virtual
   ~VlanFrame();
 
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
 
@@ -58,7 +64,7 @@ public:
   Disassemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
 
   virtual void
-  Display() const;
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 

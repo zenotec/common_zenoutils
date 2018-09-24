@@ -19,12 +19,16 @@
 #define __IEEE8023_FRAME_H__
 
 // libc includes
+
 #include <stdio.h>
 
 // libc++ includes
+
 #include <map>
 
 // libzutils includes
+
+#include <zutils/zSocket.h>
 
 // local includes
 
@@ -39,20 +43,21 @@ namespace ieee8023
 // Class: Frame
 //*****************************************************************************
 
-class Frame
+class Frame :
+    public zSocket::Frame
 {
 
 public:
 
-  enum TYPE
+  enum SUBTYPE
   {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_ETHER,
-    TYPE_ETHER2,
-    TYPE_VLAN,
-    TYPE_LLC,
-    TYPE_LAST
+    SUBTYPE_ERR = -1,
+    SUBTYPE_NONE = 0,
+    SUBTYPE_ETHER,
+    SUBTYPE_ETHER2,
+    SUBTYPE_VLAN,
+    SUBTYPE_LLC,
+    SUBTYPE_LAST
   };
 
   enum PROTO
@@ -67,10 +72,20 @@ public:
     PROTO_LAST
   };
 
-  Frame(const TYPE type_ = TYPE_NONE);
+  Frame(const Frame::SUBTYPE subtype_ = Frame::SUBTYPE_NONE,
+      const Frame::PROTO proto_ = Frame::PROTO_NONE);
 
   virtual
   ~Frame();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Peek(const zSocket::Buffer& sb_);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
@@ -81,11 +96,11 @@ public:
   virtual uint8_t*
   Peek(uint8_t* p_, size_t len_, bool fcs_ = false);
 
-  Frame::TYPE
-  GetType() const;
+  Frame::SUBTYPE
+  GetSubtype() const;
 
   bool
-  SetType(const Frame::TYPE type_);
+  SetSubtype(const Frame::SUBTYPE subtype_);
 
   Frame::PROTO
   GetProto() const;
@@ -115,7 +130,7 @@ public:
   PutPayload(const uint8_t* buf_, const size_t len_);
 
   virtual void
-  Display() const;
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 
@@ -135,8 +150,8 @@ private:
 
   std::string _dst;
   std::string _src;
-  TYPE _type;
-  PROTO _proto;
+  Frame::SUBTYPE _subtype;
+  Frame::PROTO _proto;
   std::vector<uint8_t> _payload;
   uint32_t _fcs;
 
