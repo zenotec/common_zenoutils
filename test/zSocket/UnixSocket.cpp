@@ -146,7 +146,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Validate messages match
   TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
   TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
-  TEST_EQ(ExpStr, rxn->GetBuffer().Str());
+  TEST_EQ(ExpStr, rxn->GetBuffer().String());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySrcSock);

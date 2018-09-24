@@ -17,21 +17,28 @@
 #ifndef __ZSOCKET_H__
 #define __ZSOCKET_H__
 
+// libc includes
+
 #include <time.h>
 
+// libc++ includes
+
 #include <map>
+#include <vector>
+
+// libzutils includes
 
 #include <zutils/zCompatibility.h>
 #include <zutils/zEvent.h>
 #include <zutils/zThread.h>
+
+// local includes
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-class Buffer;
-class Address;
 class Socket;
 class Notification;
 class Tap;
@@ -62,9 +69,11 @@ class Buffer
 
 public:
 
-  Buffer(const size_t size_ = (8 * 1024));
+  Buffer(const size_t size_ = 0);
 
-  Buffer(const std::string &str_);
+  Buffer(const uint8_t* data_, const size_t len_);
+
+  Buffer(const std::string& str_);
 
   Buffer(const Buffer &other_);
 
@@ -83,18 +92,6 @@ public:
   uint8_t *
   Head() const;
 
-  bool
-  Put(off_t off_);
-
-  bool
-  Push(off_t off_);
-
-  bool
-  Pull(off_t off_);
-
-  bool
-  Reset();
-
   uint8_t *
   Data() const;
 
@@ -103,6 +100,30 @@ public:
 
   uint8_t *
   End() const;
+
+  bool
+  Reserve(off_t off_);
+
+  bool
+  Put(off_t off_);
+
+  bool
+  Pull(off_t off_);
+
+  bool
+  Pop(off_t off_);
+
+  bool
+  Push(off_t off_);
+
+  bool
+  Reset();
+
+  size_t
+  Headroom() const;
+
+  size_t
+  Tailroom() const;
 
   size_t
   Length() const;
@@ -119,11 +140,19 @@ public:
   bool
   Timestamp(const struct timespec& ts_);
 
+  // Read from data to caller's buffer 'len_' bytes
+  bool
+  Read(uint8_t* data_, const size_t len_);
+
+  // Write to data from caller's buffer 'len_' bytes
+  bool
+  Write(const uint8_t* p_, const size_t len_);
+
   std::string
-  Str() const;
+  String() const;
 
   bool
-  Str(const std::string &str_);
+  String(const std::string& str_);
 
   void
   Display() const;

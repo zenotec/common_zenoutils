@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include <stdint.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -45,23 +46,29 @@ zSocketTest_BufferDefaults(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Create new packet and validate
-  Buffer mySb1;
+  zSocket::Buffer mySb1;
   TEST_ISNOT_NULL(mySb1.Head());
   TEST_EQ(mySb1.Head(), mySb1.Data());
+  TEST_EQ(mySb1.Head(), mySb1.Tail());
+  TEST_ISNOT_NULL(mySb1.Data());
+  TEST_IS_ZERO(mySb1.Headroom());
+  TEST_EQ(mySb1.Tailroom(), sysconf(_SC_PAGESIZE));
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(mySb1.TotalSize(), 8192);
-  TEST_EQ(std::string(""), mySb1.Str());
+  TEST_EQ(mySb1.TotalSize(), sysconf(_SC_PAGESIZE));
 
   // Create new packet of set size and validate
   Buffer mySb2(500);
   TEST_ISNOT_NULL(mySb2.Head());
-  TEST_EQ(mySb1.Head(), mySb1.Data());
+  TEST_EQ(mySb2.Head(), mySb2.Data());
+  TEST_EQ(mySb2.Head(), mySb2.Tail());
   TEST_ISNOT_NULL(mySb2.Data());
+  TEST_IS_ZERO(mySb2.Headroom());
+  TEST_EQ(mySb2.Tailroom(), 500);
   TEST_IS_ZERO(mySb2.Length());
   TEST_IS_ZERO(mySb2.Size());
   TEST_EQ(mySb2.TotalSize(), 500);
-  TEST_EQ(std::string(""), mySb2.Str());
+  TEST_EQ(std::string(""), mySb2.String());
 
   // Return success
   return (0);

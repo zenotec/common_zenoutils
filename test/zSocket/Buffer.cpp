@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -53,7 +54,53 @@ zSocketTest_BufferString(void* arg_)
   TEST_EQ(int(expStr.size()), myBuffer.Length());
   TEST_EQ(int(expStr.size()), myBuffer.Size());
   TEST_EQ(int(expStr.size()), myBuffer.TotalSize());
-  TEST_EQ(expStr, myBuffer.Str());
+  TEST_EQ(expStr, myBuffer.String());
+
+  // Return success
+  UTEST_RETURN;
+
+}
+
+int
+zSocketTest_BufferReadWrite(void* arg_)
+{
+
+  uint8_t expBuf[8] = { 0xaa, 0x55, 0x11, 0xff, 0x22, 0x44, 0x88, 0xa5 };
+
+  // Create new buffer and validate
+  zSocket::Buffer mySb;
+  TEST_ISNOT_NULL(mySb.Head());
+  TEST_EQ(mySb.Head(), mySb.Data());
+  TEST_EQ(mySb.Head(), mySb.Tail());
+  TEST_ISNOT_NULL(mySb.Data());
+  TEST_IS_ZERO(mySb.Headroom());
+  TEST_EQ(mySb.Tailroom(), sysconf(_SC_PAGESIZE));
+  TEST_IS_ZERO(mySb.Length());
+  TEST_IS_ZERO(mySb.Size());
+  TEST_EQ(mySb.TotalSize(), sysconf(_SC_PAGESIZE));
+
+  // Write to buffer and validate
+  TEST_TRUE(mySb.Write(expBuf, sizeof(expBuf)));
+  TEST_ISNOT_NULL(mySb.Head());
+  TEST_EQ(sizeof(expBuf), mySb.Headroom());
+  TEST_EQ(mySb.Tailroom(), (sysconf(_SC_PAGESIZE) - sizeof(expBuf)));
+  TEST_NEQ(mySb.Head(), mySb.Data());
+  TEST_NEQ(mySb.Head(), mySb.Tail());
+  TEST_EQ(mySb.Data(), mySb.Tail());
+  TEST_ISNOT_NULL(mySb.Data());
+  TEST_IS_ZERO(mySb.Length());
+  TEST_EQ(sizeof(expBuf), mySb.Size());
+
+  uint8_t obsBuf[8] = { 0 };
+
+  // Read from buffer and validate
+  TEST_TRUE(mySb.Push(sizeof(expBuf)));
+  TEST_IS_ZERO(mySb.Headroom());
+  TEST_EQ(mySb.Tailroom(), (sysconf(_SC_PAGESIZE) - sizeof(expBuf)));
+  TEST_TRUE(mySb.Read(obsBuf, sizeof(expBuf)));
+  TEST_EQ(sizeof(expBuf), mySb.Headroom());
+  TEST_EQ(mySb.Tailroom(), (sysconf(_SC_PAGESIZE) - sizeof(expBuf)));
+  TEST_IS_ZERO(memcmp(expBuf, obsBuf, sizeof(expBuf)));
 
   // Return success
   UTEST_RETURN;
@@ -72,8 +119,8 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_ISNOT_NULL(mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(mySb1.TotalSize(), 8192);
-  TEST_EQ(std::string(""), mySb1.Str());
+  TEST_EQ(mySb1.TotalSize(), sysconf(_SC_PAGESIZE));
+  TEST_EQ(std::string(""), mySb1.String());
 
   // Create new buffer of set size and validate
   zSocket::Buffer mySb2;
@@ -83,29 +130,29 @@ zSocketTest_BufferCompare(void* arg_)
   TEST_ISNOT_NULL(mySb2.Data());
   TEST_IS_ZERO(mySb2.Length());
   TEST_IS_ZERO(mySb2.Size());
-  TEST_EQ(mySb2.TotalSize(), 8192);
-  TEST_EQ(std::string(""), mySb2.Str());
+  TEST_EQ(mySb2.TotalSize(), sysconf(_SC_PAGESIZE));
+  TEST_EQ(std::string(""), mySb2.String());
 
   // Validate
   TEST_TRUE((mySb1 == mySb2));
-  TEST_EQ(mySb1.Str(), mySb2.Str());
+  TEST_EQ(mySb1.String(), mySb2.String());
 
   // Write to first buffer and validate
   TEST_TRUE(mySb1.Data() == memset(mySb1.Data(), 0xed, 100));
   TEST_TRUE(mySb1.Put(100));
   TEST_TRUE((mySb1 != mySb2));
-  TEST_NEQ(mySb1.Str(), mySb2.Str());
+  TEST_NEQ(mySb1.String(), mySb2.String());
 
   // Write to second buffer and validate
   TEST_TRUE(mySb2.Data() == memset(mySb2.Data(), 0xde, 100));
   TEST_TRUE(mySb2.Put(100));
   TEST_TRUE((mySb1 != mySb2));
-  TEST_NEQ(mySb1.Str(), mySb2.Str());
+  TEST_NEQ(mySb1.String(), mySb2.String());
 
   // Write to second buffer and validate
   TEST_TRUE(mySb2.Data() == memset(mySb2.Data(), 0xed, 100));
   TEST_TRUE((mySb1 == mySb2));
-  TEST_EQ(mySb1.Str(), mySb2.Str());
+  TEST_EQ(mySb1.String(), mySb2.String());
 
   // Return success
   UTEST_RETURN;
@@ -126,8 +173,7 @@ zSocketTest_BufferCopy(void* arg_)
   TEST_ISNOT_NULL(mySb1.Data());
   TEST_IS_ZERO(mySb1.Length());
   TEST_IS_ZERO(mySb1.Size());
-  TEST_EQ(8192, mySb1.TotalSize());
-  TEST_EQ(std::string(""), mySb1.Str());
+  TEST_EQ(sysconf(_SC_PAGESIZE), mySb1.TotalSize());
 
   // Write to first buffer and validate
   TEST_TRUE(mySb1.Data() == memset(mySb1.Data(), 0xed, 100));
@@ -149,7 +195,7 @@ zSocketTest_BufferCopy(void* arg_)
   TEST_TRUE(mySb1.Tail() == mySb2.Tail());
   TEST_EQ(100, mySb2.Length());
   TEST_EQ(100, mySb2.Size());
-  TEST_EQ(8192, mySb2.TotalSize());
+  TEST_EQ(sysconf(_SC_PAGESIZE), mySb2.TotalSize());
   p = mySb2.Data();
   for (int i = 0; i < 100; i++)
   {

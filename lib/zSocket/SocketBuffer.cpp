@@ -16,6 +16,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include <string.h>
 #include <time.h>
 
@@ -30,8 +31,6 @@ namespace zUtils
 {
 namespace zSocket
 {
-
-#define SKBMEM_DATA_LEN     (8 * 1024)
 
 static struct timespec
 _get_ts()
@@ -90,19 +89,26 @@ __dump_hex(const char* prefix_, const uint8_t* addr_, size_t len_, bool verbose_
 
 struct skbmem
 {
-  zSem::Mutex lock;
   struct timespec ts;
-  uint8_t data[SKBMEM_DATA_LEN];
+  uint8_t* data;
+  size_t len;
 
-  skbmem()
+  skbmem(size_t len_ = 0) :
+    data(NULL), len(len_)
   {
     ts = _get_ts();
-//    memset(data, 0, SKBMEM_DATA_LEN);
-    lock.Unlock();
+    len = (len > 0) ? len : sysconf(_SC_PAGESIZE);
+    data = (uint8_t*)malloc(len);
+    memset(data, 0, len);
   }
 
   ~skbmem()
   {
+    if (data)
+    {
+      free(data);
+      data = NULL;
+    }
 //    double diff = _diff_time(_get_ts(), this->ts);
 //    if (diff > 0.1)
 //    {
@@ -122,11 +128,18 @@ Buffer::Buffer(size_t size_) :
   this->_init(size_);
 }
 
-Buffer::Buffer(const std::string &str_) :
+Buffer::Buffer(const uint8_t* data_, const size_t len_) :
+    _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
+{
+  this->_init(len_);
+  this->Write(data_, len_);
+}
+
+Buffer::Buffer(const std::string& str_) :
     _skbmem(NULL), _head(NULL), _data(0), _tail(0), _end(0)
 {
   this->_init(str_.size());
-  this->Str(str_);
+  this->String(str_);
 }
 
 Buffer::Buffer(const Buffer &other_) :
@@ -174,12 +187,43 @@ Buffer::Head() const
   return (this->_head);
 }
 
+size_t
+Buffer::Headroom() const
+{
+  return (this->_data);
+}
+
+uint8_t*
+Buffer::Data() const
+{
+  return (this->_head + this->_data);
+}
+
+uint8_t*
+Buffer::Tail() const
+{
+  return (this->_head + this->_tail);
+}
+
+size_t
+Buffer::Tailroom() const
+{
+  return (this->_end - this->_tail);
+}
+
+uint8_t*
+Buffer::End() const
+{
+  return (this->_head + this->_end);
+}
+
 bool
-Buffer::Put(off_t off_)
+Buffer::Reserve(off_t off_)
 {
   bool ret = false;
-  if ((this->_tail + off_) <= this->_end)
+  if (((this->_data + off_) <= this->_end) && ((this->_tail + off_) <= this->_end))
   {
+    this->_data += off_;
     this->_tail += off_;
     ret = true;
   } // end if
@@ -187,12 +231,12 @@ Buffer::Put(off_t off_)
 }
 
 bool
-Buffer::Push(off_t off_)
+Buffer::Put(off_t off_)
 {
   bool ret = false;
-  if ((this->_data - off_) >= 0)
+  if ((this->_tail + off_) <= this->_end)
   {
-    this->_data -= off_;
+    this->_tail += off_;
     ret = true;
   } // end if
   return (ret);
@@ -211,29 +255,35 @@ Buffer::Pull(off_t off_)
 }
 
 bool
+Buffer::Pop(off_t off_)
+{
+  bool ret = false;
+  if ((this->_tail - off_) >= 0)
+  {
+    this->_tail -= off_;
+    ret = true;
+  } // end if
+  return (ret);
+}
+
+bool
+Buffer::Push(off_t off_)
+{
+  bool ret = false;
+  if ((this->_data - off_) >= 0)
+  {
+    this->_data -= off_;
+    ret = true;
+  } // end if
+  return (ret);
+}
+
+bool
 Buffer::Reset()
 {
   this->_data = 0;
   this->_tail = 0;
   return true;
-}
-
-uint8_t*
-Buffer::Data() const
-{
-  return (this->_head + this->_data);
-}
-
-uint8_t*
-Buffer::Tail() const
-{
-  return (this->_head + this->_tail);
-}
-
-uint8_t*
-Buffer::End() const
-{
-  return (this->_head + this->_end);
 }
 
 size_t
@@ -267,20 +317,47 @@ Buffer::Timestamp(const struct timespec& ts_)
   return (true);
 }
 
-std::string
-Buffer::Str() const
+bool
+Buffer::Read(uint8_t* data_, const size_t len_)
 {
-  return (std::string((const char *) this->Head(), this->Size()));
+  bool status = false;
+  if (this->Length() >= len_)
+  {
+    memcpy(data_, this->Data(), len_);
+    status = this->Pull(len_);
+  }
+  return (status);
 }
 
 bool
-Buffer::Str(const std::string &str_)
+Buffer::Write(const uint8_t* data_, const size_t len_)
 {
   bool status = false;
-  void *ret = memcpy(this->Head(), str_.c_str(), str_.size());
-  if ((ret == this->Head()) && this->Put(str_.size()))
+  if (this->Put(len_))
   {
-    status = true;
+    memcpy(this->Data(), data_, len_);
+    status = this->Pull(len_);
+  }
+  return (status);
+}
+
+std::string
+Buffer::String() const
+{
+  std::string str;
+  str.resize(this->Length());
+  memcpy((uint8_t*)str.data(), this->Data(), this->Length());
+  return (str);
+}
+
+bool
+Buffer::String(const std::string& str_)
+{
+  bool status = false;
+  if (str_.size() <= this->Tailroom())
+  {
+    memcpy(this->Data(), (uint8_t*)str_.data(), str_.size());
+    status = this->Put(str_.size());
   }
   return (status);
 }
@@ -300,15 +377,15 @@ Buffer::Display() const
 void
 Buffer::_init(const size_t size_)
 {
-  this->_skbmem = SHARED_PTR(struct skbmem)(new skbmem);
+  this->_skbmem = SHARED_PTR(struct skbmem)(new skbmem(size_));
   if (!this->_skbmem.get())
   {
     std::string errMsg = "Error allocating memory for socket buffer";
     ZLOG_CRIT(errMsg);
     throw errMsg;
   }
-  this->_head = &this->_skbmem->data[0];
-  this->_end = ((size_ < SKBMEM_DATA_LEN) ? size_ : SKBMEM_DATA_LEN);
+  this->_head = this->_skbmem->data;
+  this->_end = this->_skbmem->len;
 }
 
 void
@@ -316,7 +393,7 @@ Buffer::_copy (const Buffer& other_)
 {
   this->_skbmem = other_._skbmem;
   this->_head = other_._head;
-  this->_data = 0;
+  this->_data = other_._data;
   this->_tail = other_._tail;
   this->_end = other_._end;
 }
