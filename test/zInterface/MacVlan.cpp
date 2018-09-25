@@ -42,8 +42,8 @@ zInterfaceTest_InterfaceMacVlan(void* arg)
   uid_t uid = getuid(), euid = geteuid();
   if (uid != 0 || uid != euid)
   {
-    //ZLOG_DEBUG("Test bypassed");
-    //UTEST_BYPASS;
+    ZLOG_DEBUG("Test bypassed");
+    UTEST_BYPASS;
   }
 
   // Second step is to find an interface we can test with, if none exist, bypass test
@@ -52,7 +52,7 @@ zInterfaceTest_InterfaceMacVlan(void* arg)
   std::map<int, netlink::RouteLink> links = ifacescmd.LinkMap;
   if (links.empty())
   {
-    //UTEST_BYPASS;
+    UTEST_BYPASS;
   }
 
   Interface *Master = NULL;
