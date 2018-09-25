@@ -68,6 +68,15 @@ int
 Ieee80211Test_FrameDisassemble(void* arg_);
 
 int
+Ieee80211Test_ControlFrameDefaults(void* arg_);
+int
+Ieee80211Test_ControlFrameGetSet(void* arg_);
+int
+Ieee80211Test_ControlFrameAssemble(void* arg_);
+int
+Ieee80211Test_ControlFrameDisassemble(void* arg_);
+
+int
 Ieee80211Test_ManagementFrameDefaults(void* arg_);
 int
 Ieee80211Test_ManagementFrameGetSet(void* arg_);
@@ -122,6 +131,33 @@ int
 Ieee80211Test_AssociationResponseDisassemble(void* arg_);
 
 int
+Ieee80211Test_ReassociationRequestDefaults(void* arg_);
+int
+Ieee80211Test_ReassociationRequestGetSet(void* arg_);
+int
+Ieee80211Test_ReassociationRequestAssemble(void* arg_);
+int
+Ieee80211Test_ReassociationRequestDisassemble(void* arg_);
+
+int
+Ieee80211Test_ReassociationResponseDefaults(void* arg_);
+int
+Ieee80211Test_ReassociationResponseGetSet(void* arg_);
+int
+Ieee80211Test_ReassociationResponseAssemble(void* arg_);
+int
+Ieee80211Test_ReassociationResponseDisassemble(void* arg_);
+
+int
+Ieee80211Test_DisassociationDefaults(void* arg_);
+int
+Ieee80211Test_DisassociationGetSet(void* arg_);
+int
+Ieee80211Test_DisassociationAssemble(void* arg_);
+int
+Ieee80211Test_DisassociationDisassemble(void* arg_);
+
+int
 Ieee80211Test_AuthenticationDefaults(void* arg_);
 int
 Ieee80211Test_AuthenticationGetSet(void* arg_);
@@ -129,5 +165,23 @@ int
 Ieee80211Test_AuthenticationAssemble(void* arg_);
 int
 Ieee80211Test_AuthenticationDisassemble(void* arg_);
+
+int
+Ieee80211Test_DeauthenticationDefaults(void* arg_);
+int
+Ieee80211Test_DeauthenticationGetSet(void* arg_);
+int
+Ieee80211Test_DeauthenticationAssemble(void* arg_);
+int
+Ieee80211Test_DeauthenticationDisassemble(void* arg_);
+
+int
+Ieee80211Test_DataFrameDefaults(void* arg_);
+int
+Ieee80211Test_DataFrameGetSet(void* arg_);
+int
+Ieee80211Test_DataFrameAssemble(void* arg_);
+int
+Ieee80211Test_DataFrameDisassemble(void* arg_);
 
 #endif /* _IEEE80211_IEEE80211TEST_H_ */

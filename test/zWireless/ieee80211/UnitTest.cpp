@@ -30,7 +30,8 @@ const uint8_t radiotap[] =
     0x20, 0x08, 0x00, 0xa0, 0x20, 0x08, 0x00, 0x00, /*  ... ... */
     0x55, 0x66, 0x96, 0x31, 0x00, 0x00, 0x00, 0x00, /* Uf.1.... */
     0x10, 0x0c, 0x3c, 0x14, 0x40, 0x01, 0xe2, 0x00, /* ..<.@... */
-    0x00, 0x00, 0x07, 0x05, 0x0e, 0xe2, 0x00, 0xc1, 0x01              /* ...... */
+    0x00, 0x00, 0x07, 0x05, 0x0e, 0xe2, 0x00, 0xc1, /* ........ */
+    0x01
 };
 const size_t radiotap_len = sizeof(radiotap);
 
@@ -264,6 +265,44 @@ const uint8_t auth[67] = {
 };
 const size_t auth_len = sizeof(auth);
 
+/* Frame (66 bytes) */
+const uint8_t data_null[66] = {
+    0x00, 0x00, 0x26, 0x00, 0x2f, 0x40, 0x00, 0xa0, /* ..&./@.. */
+    0x20, 0x08, 0x00, 0xa0, 0x20, 0x08, 0x00, 0x00, /*  ... ... */
+    0x63, 0x52, 0x6c, 0x0c, 0x00, 0x00, 0x00, 0x00, /* cRl..... */
+    0x10, 0x18, 0x50, 0x14, 0x40, 0x01, 0xb5, 0x00, /* ..P.@... */
+    0x00, 0x00, 0xb4, 0x00, 0xae, 0x01, 0x48, 0x11, /* ......H. */
+    0x30, 0x00, 0x88, 0xf0, 0x31, 0x7b, 0x8f, 0xef, /* 0...1{.. */
+    0xb8, 0xd7, 0xaf, 0xb1, 0x4d, 0xe6, 0x88, 0xf0, /* ....M... */
+    0x31, 0x7b, 0x8f, 0xef, 0x50, 0x9e, 0xe0, 0x0f, /* 1{..P... */
+    0x4f, 0x59                                      /* OY */
+};
+const size_t data_null_len = sizeof(data_null);
+
+/* Frame (146 bytes) */
+uint8_t data_data[146] = {
+    0x00, 0x00, 0x26, 0x00, 0x2f, 0x40, 0x00, 0xa0, /* ..&./@.. */
+    0x20, 0x08, 0x00, 0xa0, 0x20, 0x08, 0x00, 0x00, /*  ... ... */
+    0xf2, 0x74, 0xb0, 0x0c, 0x00, 0x00, 0x00, 0x00, /* .t...... */
+    0x10, 0x0c, 0x50, 0x14, 0x40, 0x01, 0xab, 0x00, /* ..P.@... */
+    0x00, 0x00, 0xa9, 0x00, 0xa7, 0x01, 0x08, 0x03, /* ........ */
+    0x00, 0x00, 0x01, 0x0b, 0x85, 0x00, 0x00, 0x00, /* ........ */
+    0x88, 0xf0, 0x31, 0x79, 0xe3, 0x6f, 0x01, 0x0b, /* ..1y.o.. */
+    0x85, 0x00, 0x00, 0x00, 0x30, 0x65, 0x88, 0xf0, /* ....0e.. */
+    0x31, 0x79, 0xe3, 0x60, 0xaa, 0xaa, 0x03, 0x00, /* 1y.`.... */
+    0x0b, 0x85, 0xcc, 0xcd, 0x01, 0x1b, 0x0a, 0x46, /* .......F */
+    0x38, 0x04, 0x05, 0xdc, 0x00, 0x0f, 0x0a, 0x46, /* 8......F */
+    0x38, 0x04, 0x28, 0x0f, 0x01, 0x2c, 0x07, 0x09, /* 8.(..,.. */
+    0x09, 0x00, 0xdf, 0x17, 0x69, 0x69, 0x86, 0x64, /* ....ii.d */
+    0x21, 0x95, 0xf1, 0x5f, 0x32, 0x3a, 0xcf, 0x23, /* !.._2:.# */
+    0x54, 0x15, 0x01, 0x01, 0x01, 0x02, 0x04, 0x55, /* T......U */
+    0x53, 0x20, 0x00, 0x03, 0x01, 0x00, 0x04, 0x03, /* S ...... */
+    0x41, 0x00, 0x00, 0x05, 0x03, 0x41, 0x00, 0x00, /* A....A.. */
+    0x06, 0x01, 0x00, 0x07, 0x01, 0x00, 0x39, 0xb1, /* ......9. */
+    0x89, 0xee                                      /* .. */
+};
+const size_t data_data_len = sizeof(data_data);
+
 int
 main(int argc, const char **argv)
 {
@@ -287,6 +326,12 @@ main(int argc, const char **argv)
   UTEST_TEST(Ieee80211Test_FrameGetSet, 0);
   UTEST_TEST(Ieee80211Test_FrameAssemble, 0);
   UTEST_TEST(Ieee80211Test_FrameDisassemble, 0);
+
+  // Control Frame class unit tests
+  UTEST_TEST(Ieee80211Test_ControlFrameDefaults, 0);
+  UTEST_TEST(Ieee80211Test_ControlFrameGetSet, 0);
+  UTEST_TEST(Ieee80211Test_ControlFrameAssemble, 0);
+  UTEST_TEST(Ieee80211Test_ControlFrameDisassemble, 0);
 
   // Management Frame class unit tests
   UTEST_TEST(Ieee80211Test_ManagementFrameDefaults, 0);
@@ -324,11 +369,41 @@ main(int argc, const char **argv)
   UTEST_TEST(Ieee80211Test_AssociationResponseAssemble, 0);
   UTEST_TEST(Ieee80211Test_AssociationResponseDisassemble, 0);
 
+  // Reassociation Request class unit tests
+  UTEST_TEST(Ieee80211Test_ReassociationRequestDefaults, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationRequestGetSet, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationRequestAssemble, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationRequestDisassemble, 0);
+
+  // Reassociation Response class unit tests
+  UTEST_TEST(Ieee80211Test_ReassociationResponseDefaults, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationResponseGetSet, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationResponseAssemble, 0);
+  UTEST_TEST(Ieee80211Test_ReassociationResponseDisassemble, 0);
+
+  // Disassociation class unit tests
+  UTEST_TEST(Ieee80211Test_DisassociationDefaults, 0);
+  UTEST_TEST(Ieee80211Test_DisassociationGetSet, 0);
+  UTEST_TEST(Ieee80211Test_DisassociationAssemble, 0);
+  UTEST_TEST(Ieee80211Test_DisassociationDisassemble, 0);
+
   // Authentication class unit tests
   UTEST_TEST(Ieee80211Test_AuthenticationDefaults, 0);
   UTEST_TEST(Ieee80211Test_AuthenticationGetSet, 0);
   UTEST_TEST(Ieee80211Test_AuthenticationAssemble, 0);
   UTEST_TEST(Ieee80211Test_AuthenticationDisassemble, 0);
+
+  // Authentication class unit tests
+  UTEST_TEST(Ieee80211Test_DeauthenticationDefaults, 0);
+  UTEST_TEST(Ieee80211Test_DeauthenticationGetSet, 0);
+  UTEST_TEST(Ieee80211Test_DeauthenticationAssemble, 0);
+  UTEST_TEST(Ieee80211Test_DeauthenticationDisassemble, 0);
+
+  // Data Frame class unit tests
+  UTEST_TEST(Ieee80211Test_DataFrameDefaults, 0);
+  UTEST_TEST(Ieee80211Test_DataFrameGetSet, 0);
+  UTEST_TEST(Ieee80211Test_DataFrameAssemble, 0);
+  UTEST_TEST(Ieee80211Test_DataFrameDisassemble, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

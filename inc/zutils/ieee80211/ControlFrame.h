@@ -48,6 +48,12 @@ public:
   virtual
   ~ControlFrame();
 
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& len_, bool fcs_ = false);
 

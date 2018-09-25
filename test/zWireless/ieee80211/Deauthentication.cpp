@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,34 +24,34 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include "Ieee80211Test.h"
 #include "UnitTest.h"
 #include <zutils/ieee80211/RadioTap.h>
-#include <zutils/ieee80211/Authentication.h>
+#include <zutils/ieee80211/Deauthentication.h>
 
 using namespace zWireless::ieee80211;
 
-/* Authentication Frame */
-const uint8_t auth_frame[] = {
-    0xb0, 0x00, 0x3a, 0x01, 0x04, 0xf0,
+/* Deauthentication  */
+const uint8_t deauth_frame[] = {
+	0xc0, 0x00, 0x3a, 0x01, 0x04, 0xf0,
     0x21, 0x37, 0xec, 0xb2, 0x4c, 0x66, 0x41, 0x52,
     0x22, 0xa5, 0x04, 0xf0, 0x21, 0x37, 0xec, 0xb2,
     0xb0, 0xd4, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
     0xdd, 0x09, 0x00, 0x10, 0x18, 0x02, 0x00, 0x00,
     0x10, 0x00, 0x00
 };
-const size_t auth_frame_len = sizeof(auth_frame);
+const size_t deauth_frame_len = sizeof(deauth_frame);
 
 
 int
-Ieee80211Test_AuthenticationGetSet(void* arg_)
+Ieee80211Test_DeauthenticationGetSet(void* arg_)
 {
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# Ieee80211Test_AuthenticationGetSet()");
+  ZLOG_DEBUG("# Ieee80211Test_DeauthenticationGetSet()");
   ZLOG_DEBUG("#############################################################");
 
   // Create frame and validate
-  Authentication frame;
+  Deauthentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -66,9 +66,7 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_EQ(std::string(""), frame.Bssid());
   TEST_IS_ZERO(frame.FragmentNum());
   TEST_IS_ZERO(frame.SequenceNum());
-  TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.AuthSequenceNumber());
-  TEST_IS_ZERO(frame.StatusCode());
+  TEST_IS_ZERO(frame.ReasonCode());
 
   // Set non default values
   TEST_TRUE(frame.Version(1));
@@ -88,9 +86,7 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
   TEST_TRUE(frame.FragmentNum(0x04));
   TEST_TRUE(frame.SequenceNum(0x0123));
-  TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
-  TEST_TRUE(frame.SequenceNumber(23));
-  TEST_TRUE(frame.StatusCode(10));
+  TEST_TRUE(frame.ReasonCode(10));
 
   // Verify
   TEST_EQ(frame.Version(), 1);
@@ -110,9 +106,7 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
   TEST_EQ(0x04, frame.FragmentNum());
   TEST_EQ(0x0123, frame.SequenceNum());
-  TEST_EQ(uint16_t(Authentication::TYPE_SHARED_KEY), frame.Algorithm());
-  TEST_EQ(23, frame.AuthSequenceNumber());
-  TEST_EQ(10, frame.StatusCode());
+  TEST_EQ(10, frame.ReasonCode());
 
   // Return success
   return (0);
@@ -120,27 +114,27 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
 
 
 int
-Ieee80211Test_AuthenticationAssemble(void* arg_)
+Ieee80211Test_DeauthenticationAssemble(void* arg_)
 {
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# Ieee80211Test_AuthenticationAssemble()");
+  ZLOG_DEBUG("# Ieee80211Test_DeauthenticationAssemble()");
   ZLOG_DEBUG("#############################################################");
 
   size_t len = 0;
   uint8_t frm_buf[64] = { 0 };
-  uint8_t frm_auth[] =
+  uint8_t frm_deauth[] =
   {
-      0xb0, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
+      0xc0, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
       0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12,
-      0x01, 0x00, 0x17, 0x00, 0x0a, 0x00
+      0x0a, 0x00
   };
 
   // Create frame and validate
-  Authentication frame;
+  Deauthentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -155,14 +149,12 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.Bssid());
   TEST_IS_ZERO(frame.FragmentNum());
   TEST_IS_ZERO(frame.SequenceNum());
-  TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.AuthSequenceNumber());
-  TEST_IS_ZERO(frame.StatusCode());
+  TEST_IS_ZERO(frame.ReasonCode());
 
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
   TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
-  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_AUTHENTICATE));
+  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_DEAUTH));
   TEST_TRUE(frame.ToDS(false));
   TEST_TRUE(frame.FromDS(false));
   TEST_TRUE(frame.MoreFragments(false));
@@ -177,14 +169,12 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
   TEST_TRUE(frame.FragmentNum(0x04));
   TEST_TRUE(frame.SequenceNum(0x0123));
-  TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
-  TEST_TRUE(frame.SequenceNumber(23));
-  TEST_TRUE(frame.StatusCode(10));
+  TEST_TRUE(frame.ReasonCode(10));
 
   // Verify
   TEST_EQ(0, frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -199,21 +189,19 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
   TEST_EQ(0x04, frame.FragmentNum());
   TEST_EQ(0x0123, frame.SequenceNum());
-  TEST_EQ(uint16_t(Authentication::TYPE_SHARED_KEY), frame.Algorithm());
-  TEST_EQ(23, frame.AuthSequenceNumber());
-  TEST_EQ(10, frame.StatusCode());
+  TEST_EQ(10, frame.ReasonCode());
 
   zSocket::Buffer sb;
 
   // Assemble and verify
   TEST_TRUE(frame.Assemble(sb));
 
-  TEST_EQ(sb.Size(), sizeof(frm_auth));
+  TEST_EQ(sb.Size(), sizeof(frm_deauth));
 
   uint8_t* p = sb.Head();
-  for (int i = 0; i < sizeof(frm_auth); i++)
+  for (int i = 0; i < sizeof(frm_deauth); i++)
   {
-    TEST_EQ_MSG((int)frm_auth[i], *p++, zLog::IntStr(i));
+    TEST_EQ_MSG((int)frm_deauth[i], *p++, zLog::IntStr(i));
   }
 
   // Return success
@@ -222,22 +210,22 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
 
 
 int
-Ieee80211Test_AuthenticationDisassemble(void* arg_)
+Ieee80211Test_DeauthenticationDisassemble(void* arg_)
 {
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# Ieee80211Test_AuthenticationDisassemble()");
+  ZLOG_DEBUG("# Ieee80211Test_DeauthenticationDisassemble()");
   ZLOG_DEBUG("#############################################################");
 
-  // Make copy of raw authenticate frame
+  // Make copy of raw deauthentication request frame
   zSocket::Buffer sb;
-  sb.Write(auth_frame, auth_frame_len);
-  sb.Push(auth_frame_len); // reset data ptr to start of buffer
+  sb.Write(deauth_frame, deauth_frame_len);
+  sb.Push(deauth_frame_len); // reset data ptr to start of buffer
 
   // Create frame and validate
-  Authentication frame;
+  Deauthentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -252,17 +240,15 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   TEST_EQ(std::string(""), frame.Bssid());
   TEST_IS_ZERO(frame.FragmentNum());
   TEST_IS_ZERO(frame.SequenceNum());
-  TEST_IS_ZERO(frame.Algorithm());
-  TEST_IS_ZERO(frame.AuthSequenceNumber());
-  TEST_IS_ZERO(frame.StatusCode());
+  TEST_IS_ZERO(frame.ReasonCode());
 
-  // Disassemble association request
+  // Disassemble deauthentication request
   TEST_TRUE(frame.Disassemble(sb));
 
   // Verify
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -275,9 +261,7 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   TEST_EQ(std::string("04:f0:21:37:ec:b2"), frame.ReceiverAddress());
   TEST_EQ(std::string("4c:66:41:52:22:a5"), frame.TransmitterAddress());
   TEST_EQ(std::string("04:f0:21:37:ec:b2"), frame.Bssid());
-  TEST_EQ(int(Authentication::TYPE_OPEN_SYSTEM), frame.Algorithm());
-  TEST_EQ(1, frame.AuthSequenceNumber());
-  TEST_EQ(0, frame.StatusCode());
+  TEST_EQ(0, frame.ReasonCode());
 
 
   // Return success

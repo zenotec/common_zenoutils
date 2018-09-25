@@ -49,15 +49,6 @@ zWirelessUnitTest_SOURCES = \
     AccessPointInterface.cpp
 
 zWirelessUnitTest_LDADD = \
-    ${top_builddir}/lib/zWireless/libzWireless.la \
-    ${top_builddir}/lib/zWireless/nl80211/libnl80211.la \
-    ${top_builddir}/lib/zInterface/libzInterface.la \
-    ${top_builddir}/lib/zInterface/netlink/libnetlink.la \
-    ${top_builddir}/lib/zLog/libzLog.la \
-    ${top_builddir}/lib/zThread/libzThread.la \
-    ${top_builddir}/lib/zSignal/libzSignal.la \
-    ${top_builddir}/lib/zConfig/libzConfig.la \
-    ${top_builddir}/lib/zEvent/libzEvent.la \
-    ${top_builddir}/lib/zData/libzData.la \
-    ${top_builddir}/lib/zSem/libzSem.la
+    ${top_builddir}/lib/libzutils.la
+
 

@@ -71,6 +71,12 @@ public:
   virtual
   ~ReassociationRequest();
 
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& len_, bool fcs_ = false);
 
@@ -89,11 +95,14 @@ public:
   bool
   Interval(const uint16_t int_);
 
-  uint64_t
+  std::string
   CurrentApMac() const;
 
   bool
-  CurrentApMac(const uint64_t mac_);
+  CurrentApMac(const std::string mac_);
+
+  bool
+  CurrentApMac(const uint8_t* mac_);
 
   virtual void
   Display() const;
@@ -103,7 +112,7 @@ protected:
 private:
   uint16_t _capabilities;
   uint16_t _interval;
-  uint64_t _currentApMac;
+  std::string _currentApMac;
 
 };
 
@@ -127,6 +136,12 @@ public:
 
   virtual
   ~ReassociationResponse();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& len_, bool fcs_ = false);

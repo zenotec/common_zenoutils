@@ -101,11 +101,6 @@ Ieee8023Test_Assemble(void* arg_)
   TEST_EQ(f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(f.GetPayloadLength());
 
-  // Create empty buffer for assembling ARP frame
-  uint8_t buf[4096] = { 0 };
-  size_t buflen = sizeof(buf);
-  uint8_t* p = buf;
-
   // Set up ARP frame contents
   TEST_TRUE(f.SetDestination(std::string("ff:ff:ff:ff:ff:ff")));
   TEST_TRUE(f.SetSource(std::string("00:01:02:03:04:05")));

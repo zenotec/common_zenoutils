@@ -53,6 +53,121 @@ Authentication::~Authentication()
 {
 }
 
+bool
+Authentication::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_AUTHENTICATE)
+  {
+    ZLOG_ERR("Error assembling Authentication frame header");
+    return (false);
+  }
+
+  struct ieee80211_auth* f = (struct ieee80211_auth*) sb_.Data();
+
+  if (sb_.Put(sizeof(f->algorithm)))
+  {
+    f->algorithm = htole16(this->Algorithm());
+    sb_.Pull(sizeof(f->algorithm));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling Authentication frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->seqNumber)))
+  {
+    f->seqNumber = htole16(this->AuthSequenceNumber());
+    sb_.Pull(sizeof(f->seqNumber));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling Authentication frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->statusCode)))
+  {
+    f->statusCode = htole16(this->StatusCode());
+    sb_.Pull(sizeof(f->statusCode));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling Authentication frame");
+    return (false);
+  }
+
+  // Authentication doesn't implement any tags, but keep this for when we implement vendor specific tag
+  if (not AssembleTags(sb_))
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
+bool
+Authentication::Disassemble(zSocket::Buffer& sb_)
+{
+  struct ieee80211_auth* f = (ieee80211_auth*) sb_.Data();
+
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_))
+  {
+    ZLOG_ERR("Error disassembling Authentication frame header");
+    return false;
+  }
+
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_AUTHENTICATE)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
+
+  f = (ieee80211_auth*) sb_.Data();
+
+  if (sb_.Pull(sizeof(f->algorithm)))
+  {
+    this->Algorithm(le16toh(f->algorithm));
+  }
+  else
+  {
+    ZLOG_ERR("Missing algorithm field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->seqNumber)))
+  {
+    this->SequenceNumber(le16toh(f->seqNumber));
+  }
+  else
+  {
+    ZLOG_ERR("Missing seqNumber field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->statusCode)))
+  {
+    this->StatusCode(le16toh(f->statusCode));
+  }
+  else
+  {
+    ZLOG_ERR("Missing statusCode field");
+    return (false);
+  }
+
+  // Authentication doesn't implement any tags, but keep this for when we implement vendor specific tag
+  if (not this->DisassembleTags(sb_))
+  {
+    ZLOG_ERR("Error disassembling Authentication frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
 uint8_t*
 Authentication::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -87,7 +202,7 @@ Authentication::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   f->statusCode = htole16(this->StatusCode());
 
-  p_ = this->AssembleTags(p_, rem_);
+  p_ = this->Frame::AssembleTags(p_, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error assembling authentication frame tags: " + ZLOG_INT(rem_));
@@ -128,7 +243,7 @@ Authentication::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->DisassembleTags((uint8_t*)&f->tags, rem_);
+  p_ = this->Frame::DisassembleTags((uint8_t*)&f->tags, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling authentication frame tags: " + ZLOG_INT(rem_));

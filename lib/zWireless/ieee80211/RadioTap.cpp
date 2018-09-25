@@ -38,7 +38,7 @@ namespace ieee80211
 struct radiotap_header
 {
   uint8_t version;
-  uint8_t pad;
+  uint8_t pad; // header pad is unused, per the spec (just aligns the header to 32 bits)
   uint16_t length;
   uint32_t present[];
 } __attribute__ ((packed));
@@ -60,6 +60,178 @@ RadioTap::RadioTap() :
 
 RadioTap::~RadioTap()
 {
+}
+
+bool
+RadioTap::Assemble(zSocket::Buffer& sb_)
+{
+  struct radiotap_header* hdr = (struct radiotap_header*) sb_.Data();
+
+  if (sb_.Put(sizeof(hdr->version)))
+  {
+    hdr->version = this->GetVersion();
+    sb_.Pull(sizeof(hdr->version));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling RadioTap header - version");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(hdr->pad)))
+  {
+    hdr->pad = 0;
+    sb_.Pull(sizeof(hdr->pad)); // header pad is unused, per the spec (just aligns the header to 32 bits)
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling RadioTap header - pad");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(hdr->length)))
+  {
+    hdr->length = 0;
+    sb_.Pull(sizeof(hdr->length));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling RadioTap header - length");
+    return (false);
+  }
+
+  // Assemble header
+  this->_length = sizeof(struct radiotap_header);
+
+  // Loop through present vector and update header
+  int cnt = 0;
+  FOREACH (auto& present, this->_present) {
+  if (sb_.Put(sizeof(present)))
+  {
+    hdr->present[cnt++] = htole32(present);
+    this->_length += sizeof(present);
+    sb_.Pull(sizeof(present));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling RadioTap header - present flag");
+    return(false);
+  }
+}
+
+// Loop through all fields and update header
+  size_t pad = 0;
+  FOREACH (auto& field, this->_fields) {
+  if (field.second.Assemble(sb_, (uint8_t*)hdr, pad))
+  {
+    this->_length += (field.second.Size() + pad);
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling RadioTap header - fields");
+    return(false);
+  }
+}
+
+// Update header length
+  hdr->length = htole16(this->_length);
+
+  return true;
+
+}
+
+bool
+RadioTap::Disassemble(zSocket::Buffer& sb_)
+{
+  int cnt = 0;
+  radiotap_header *hdr = (radiotap_header *) sb_.Data();
+  size_t pad = 0;
+
+  // Validate version and length
+  if ((hdr->version != 0) || (le16toh(hdr->length) > sb_.Size()))
+  {
+    ZLOG_WARN("Invalid version or length: " + ZLOG_UINT(le16toh(hdr->length)));
+    return false;
+  }
+
+  // Save version and length and pad
+  if (sb_.Pull(sizeof(hdr->version)))
+  {
+    this->_version = hdr->version;
+  }
+  else
+  {
+    ZLOG_ERR("Missing version field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(hdr->pad)))
+  {
+    pad = hdr->pad; // header pad is unused, per the spec (just aligns the header to 32 bits)
+  }
+  else
+  {
+    ZLOG_ERR("Missing pad field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(hdr->length)))
+  {
+    this->_length = le16toh(hdr->length);
+  }
+  else
+  {
+    ZLOG_ERR("Missing length field");
+    return (false);
+  }
+
+  // Loop through the present field(s) and save
+  for (int cnt = 0; cnt < 8; cnt++)
+  {
+    uint32_t present = 0;
+    if (sb_.Pull(sizeof(uint32_t)))
+    {
+      present = le32toh(hdr->present[cnt]);
+      this->_present.push_back(present);
+    }
+    else
+    {
+      ZLOG_ERR("Missing present field");
+      return (false);
+    }
+
+    // Test for additional present fields
+    if (not (present & (1 << RadioTapField::ID_EXT)))
+    {
+      break;
+    }
+
+  }
+
+  for (int cnt = 0; cnt < this->_present.size(); cnt++)
+  {
+    uint32_t present = this->_present[cnt];
+    for (uint32_t bit = 1, id = 0; id < RadioTapField::ID_LAST; bit <<= 1, id++)
+    {
+      if (bit & present)
+      {
+        RadioTapField field((RadioTapField::ID) id);
+        if (not field.Disassemble(sb_, (uint8_t*) hdr, pad))
+        {
+          ZLOG_ERR("Missing extra present field");
+          return false;
+        }
+        if (not this->PutField(field, cnt))
+        {
+          ZLOG_ERR("Failed to PutField");
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+
 }
 
 uint8_t*

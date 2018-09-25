@@ -93,6 +93,182 @@ Beacon::Capabilities(const uint16_t cap_)
   return(true);
 }
 
+bool
+Beacon::Assemble(zSocket::Buffer& sb_)
+{
+
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_BEACON)
+  {
+    ZLOG_ERR("Error assembling beacon frame header");
+    return (false);
+  }
+
+  struct ieee80211_beacon* f = (struct ieee80211_beacon*) sb_.Data();
+
+  if (sb_.Put(sizeof(f->timestamp)))
+  {
+    f->timestamp = htole64(this->Timestamp());
+    sb_.Pull(sizeof(f->timestamp));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling beacon frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->interval)))
+  {
+    f->interval = htole16(this->Interval());
+    sb_.Pull(sizeof(f->interval));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling beacon frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->capabilities)))
+  {
+    f->capabilities = htole16(this->Capabilities());
+    sb_.Pull(sizeof(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling beacon frame");
+    return (false);
+  }
+
+  if (!this->PutTag(this->Ssid))
+  {
+    ZLOG_ERR("Error assembling beacon frame: Missing SSID");
+    return (false);
+  }
+
+  if (!this->PutTag(this->Rates))
+  {
+    ZLOG_ERR("Error assembling beacon frame: Missing Rates");
+    return (false);
+  }
+
+  // NOTE: ORDER MATTERS!!!
+  this->PutTag(this->Dsss);
+  this->PutTag(this->Tim);
+  this->PutTag(this->Country);
+  this->PutTag(this->ChannelSwitch);
+  this->PutTag(this->ErpInfo);
+  this->PutTag(this->ExtRates);
+  this->PutTag(this->SuppOpClass);
+  this->PutTag(this->HtCaps);
+  this->PutTag(this->HtInfo);
+  this->PutTag(this->ExtCaps);
+  this->PutTag(this->WmmWme);
+
+  if (not AssembleTags(sb_, TAGTYPE_HEAD))
+  {
+    ZLOG_ERR("Error assembling beacon frame tags");
+    return (false);
+  }
+
+  if (not AssembleTags(sb_, TAGTYPE_TAIL))
+  {
+    ZLOG_ERR("Error assembling beacon frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
+bool
+Beacon::Disassemble(zSocket::Buffer& sb_)
+{
+  struct ieee80211_beacon* f = (ieee80211_beacon*) sb_.Data();
+
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_))
+  {
+    ZLOG_ERR("Error disassembling beacon frame header");
+    return false;
+  }
+
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_BEACON)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
+
+  f = (ieee80211_beacon*) sb_.Data();
+
+  if (sb_.Pull(sizeof(f->timestamp)))
+  {
+    this->Timestamp(le64toh(f->timestamp));
+  }
+  else
+  {
+    ZLOG_ERR("Missing timestamp field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->interval)))
+  {
+    this->Interval(le16toh(f->interval));
+  }
+  else
+  {
+    ZLOG_ERR("Missing interval field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->capabilities)))
+  {
+    this->Capabilities(le16toh(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Missing capabilities field");
+    return (false);
+  }
+
+  if (not this->DisassembleTags(sb_, TAGTYPE_HEAD))
+  {
+    ZLOG_ERR("Error disassembling beacon frame tags");
+    return (false);
+  }
+
+  if (not this->DisassembleTags(sb_, TAGTYPE_TAIL))
+  {
+    ZLOG_ERR("Error disassembling beacon frame tags");
+    return (false);
+  }
+
+  if (!this->GetTag(this->Ssid))
+  {
+    ZLOG_ERR("Error disassembling beacon frame: Missing SSID");
+    return (false);
+  }
+
+  if (!this->GetTag(this->Rates))
+  {
+    ZLOG_ERR("Error disassembling beacon frame: Missing Rates");
+    return (false);
+  }
+
+  // NOTE: ORDER MATTERS!!!	  //RKB Frame::GetTag(Tag& tag_, const int index_) appears to iterate all tags on each call - how do we verify order?
+  this->GetTag(this->Dsss);
+  this->GetTag(this->Tim);
+  this->GetTag(this->Country);
+  this->GetTag(this->ChannelSwitch);
+  this->GetTag(this->ErpInfo);
+  this->GetTag(this->ExtRates);
+  this->GetTag(this->SuppOpClass);
+  this->GetTag(this->HtCaps);
+  this->GetTag(this->HtInfo);
+  this->GetTag(this->ExtCaps);
+  this->GetTag(this->WmmWme);
+
+  return true;
+}
+
 uint8_t*
 Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -169,7 +345,7 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->ExtCaps);
   this->PutTag(this->WmmWme);
 
-  p_ = this->AssembleTags(p_, rem_, TAGTYPE_HEAD);
+  p_ = this->Frame::AssembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
   {
     ZLOG_ERR("Error assembling beacon frame tags: " + ZLOG_INT(rem_));
@@ -178,7 +354,7 @@ Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->_tail = p_;
   this->_end = p_;
 
-  p_ = this->AssembleTags(p_, rem_, TAGTYPE_TAIL);
+  p_ = this->Frame::AssembleTags(p_, rem_, TAGTYPE_TAIL);
   if (!p_)
   {
     ZLOG_ERR("Error assembling beacon frame tags: " + ZLOG_INT(rem_));
@@ -242,7 +418,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->_tail = p_;
   this->_end = p_;
 
-  p_ = this->DisassembleTags(p_, rem_, TAGTYPE_HEAD);
+  p_ = this->Frame::DisassembleTags(p_, rem_, TAGTYPE_HEAD);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));
@@ -251,7 +427,7 @@ Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->_tail = p_;
   this->_end = p_;
 
-  p_ = this->DisassembleTags(p_, rem_, TAGTYPE_TAIL);
+  p_ = this->Frame::DisassembleTags(p_, rem_, TAGTYPE_TAIL);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));

@@ -48,7 +48,7 @@ zWirelessTest_BasicServiceSet(void* arg)
   uid_t uid = getuid(), euid = geteuid();
   if (uid != 0 || uid != euid)
   {
-    //UTEST_BYPASS;
+    UTEST_BYPASS;
   }
 
   // Second step is to find an radio we can test with, if none exist, bypass test
@@ -57,9 +57,8 @@ zWirelessTest_BasicServiceSet(void* arg)
   std::map<int, std::string> phys = physcmd();
   if (phys.empty())
   {
-    //UTEST_BYPASS;
+    UTEST_BYPASS;
   }
-
 
   FOREACH(auto& phy, phys)
   {

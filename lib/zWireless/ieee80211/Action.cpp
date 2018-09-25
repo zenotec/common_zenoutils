@@ -45,18 +45,38 @@ namespace ieee80211
 
 ActionRequest::ActionRequest() :
     ManagementFrame(ManagementFrame::SUBTYPE_ACTION),
-	_categoryCode(3),
-	_actionCode(0),
-	_dialogToken(0),
-	_blockAckparms(0),
-	_blockAckTimeout(0),
-	_blockStartingSequence(0)
+    _categoryCode(3),
+    _actionCode(0),
+    _dialogToken(0),
+    _blockAckparms(0),
+    _blockAckTimeout(0),
+    _blockStartingSequence(0)
 
 {
 }
 
 ActionRequest::~ActionRequest()
 {
+}
+
+bool
+ActionRequest::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ACTION)
+  {
+    ZLOG_ERR("Error assembling ActionRequest frame header");
+    return (false);
+  }
+
+  struct ieee80211_actionreq* f = (struct ieee80211_actionreq*) sb_.Data();
+
+  return true;
+}
+
+bool
+ActionRequest::Disassemble(zSocket::Buffer& sb_)
+{
+  return true;
 }
 
 uint8_t*
@@ -223,7 +243,7 @@ bool
 ActionRequest::TID(const uint8_t id_)
 {
   this->_blockAckparms &= ~0x003c;
-  this->_blockAckparms |= ((id_<< 2) & 0x3c);
+  this->_blockAckparms |= ((id_ << 2) & 0x3c);
 }
 
 uint16_t
@@ -268,18 +288,38 @@ ActionRequest::Display() const
 //*****************************************************************************
 
 ActionResponse::ActionResponse() :
-    ManagementFrame(ManagementFrame::SUBTYPE_ACTION),
-	_categoryCode(3),
-	_actionCode(1),
-	_dialogToken(0),
-	_status(0),
-	_blockAckparms(0),
-	_blockAckTimeout(0)
+  ManagementFrame(ManagementFrame::SUBTYPE_ACTION),
+  _categoryCode(3),
+  _actionCode(1),
+  _dialogToken(0),
+  _status(0),
+  _blockAckparms(0),
+  _blockAckTimeout(0)
 {
 }
 
 ActionResponse::~ActionResponse()
 {
+}
+
+bool
+ActionResponse::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ACTION)
+  {
+    ZLOG_ERR("Error assembling ActionResponse frame header");
+    return (false);
+  }
+
+  struct ieee80211_actionresp* f = (struct ieee80211_actionresp*) sb_.Data();
+
+  return true;
+}
+
+bool
+ActionResponse::Disassemble(zSocket::Buffer& sb_)
+{
+  return true;
 }
 
 uint8_t*

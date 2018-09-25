@@ -60,7 +60,7 @@ _da_addrid(bool tods_, bool fromds_)
   {
     id = Frame::ADDRESS_3;
   }
-  return(id);
+  return (id);
 }
 
 static Frame::ADDRESS_ID
@@ -83,7 +83,7 @@ _sa_addrid(bool tods_, bool fromds_)
   {
     id = Frame::ADDRESS_4;
   }
-  return(id);
+  return (id);
 }
 
 static Frame::ADDRESS_ID
@@ -106,7 +106,7 @@ _bssid_addrid(bool tods_, bool fromds_)
   {
     id = Frame::ADDRESS_3;
   }
-  return(id);
+  return (id);
 }
 
 //*****************************************************************************
@@ -121,6 +121,214 @@ DataFrame::DataFrame(const Frame::SUBTYPE subtype_) :
 
 DataFrame::~DataFrame()
 {
+}
+
+bool
+DataFrame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
+
+  // Assemble lower level frame and validate
+  if (!Frame::Assemble(sb_) || (this->Type() != Frame::TYPE_DATA))
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Write address 3 (BSSID)
+  if (!this->GetAddress(Frame::ADDRESS_3).empty())
+  {
+    if (sb_.Put(sizeof(f->u.data.addr3))
+        && this->str2mac(this->GetAddress(Frame::ADDRESS_3), f->u.data.addr3))
+    {
+      sb_.Pull(sizeof(f->u.data.addr3));
+    }
+    else
+    {
+      ZLOG_ERR("Error assembling frame");
+      return (false);
+    }
+  }
+  else
+  {
+    ZLOG_ERR("Missing address field: 3");
+    return (false);
+  }
+
+  // Write sequence control field
+  if (sb_.Put(sizeof(f->u.data.seqcntl)))
+  {
+    f->u.data.seqcntl = htole16(this->SequenceControl());
+    sb_.Pull(sizeof(f->u.data.seqcntl));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Conditionally write QoS control field
+  if (this->Subtype() & Frame::SUBTYPE_DATAQOS)
+  {
+    if (sb_.Put(sizeof(f->u.data.u.qosdata.qoscntl)))
+    {
+      f->u.data.u.qosdata.qoscntl = htole16(this->QosControl());
+      sb_.Pull(sizeof(f->u.data.u.qosdata.qoscntl));
+    }
+    else
+    {
+      ZLOG_ERR("Error assembling frame");
+      return (false);
+    }
+  }
+
+  // Conditionally write address 4
+  if (this->ToDS() && this->FromDS())
+  {
+    if (sb_.Put(sizeof(f->u.data.u.data4addr.addr4))
+        && this->str2mac(this->GetAddress(Frame::ADDRESS_4), f->u.data.u.data4addr.addr4))
+    {
+      sb_.Pull(sizeof(f->u.data.u.data4addr.addr4));
+    }
+    else
+    {
+      ZLOG_ERR("Error assembling frame");
+      return (false);
+    }
+  }
+
+  // Get payload size
+  size_t len = this->GetPayloadLength();
+  if (len)
+  {
+    // Write LLC header
+    if (sb_.Put(sizeof(struct data_llc)))
+    {
+      memcpy(sb_.Data(), &this->_llc, sizeof(struct data_llc));
+      sb_.Pull(sizeof(struct data_llc));
+    }
+    else
+    {
+      ZLOG_ERR("Error assembling frame");
+      return (false);
+    }
+
+    // Write payload (catch-all for remaining unsupported fields)
+    if (sb_.Put(len) && (this->GetPayload(sb_.Data(), len) == len))
+    {
+      sb_.Pull(len);
+    }
+    else
+    {
+      ZLOG_ERR("Error assembling frame");
+      return (false);
+    }
+  }
+
+  return (true);
+
+}
+
+bool
+DataFrame::Disassemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
+
+  // Disassemble lower level frame and validate
+  if (!Frame::Disassemble(sb_) || (this->Type() != Frame::TYPE_DATA))
+  {
+    ZLOG_ERR("Error disassembling frame: " + ZLOG_INT(this->Type()));
+    return (false);
+  }
+
+  // Read address 3 (BSSID) field
+  if (sb_.Pull(sizeof(f->u.data.addr3)))
+  {
+    this->SetAddress(ADDRESS_3, f->u.data.addr3);
+  }
+  else
+  {
+    ZLOG_ERR("Missing address field: 3");
+    return (false);
+  }
+
+  // Read sequence control field
+  if (sb_.Pull(sizeof(f->u.data.seqcntl)))
+  {
+    this->SequenceControl(le16toh(f->u.data.seqcntl));
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  // Conditionally read QoS control field
+  if (this->Subtype() & Frame::SUBTYPE_DATAQOS)
+  {
+    if (sb_.Pull(sizeof(f->u.data.u.qosdata.qoscntl)))
+    {
+      this->QosControl(le16toh(f->u.data.u.qosdata.qoscntl));
+    }
+    else
+    {
+      ZLOG_ERR("Error disassembling frame");
+      return (false);
+    }
+  }
+
+  // Conditionally read address 4
+  if (this->ToDS() && this->FromDS())
+  {
+    if (sb_.Pull(sizeof(f->u.data.u.data4addr.addr4)))
+    {
+      this->SetAddress(ADDRESS_4, f->u.data.u.data4addr.addr4);
+    }
+    else
+    {
+      ZLOG_ERR("Missing address field: 4");
+      return (false);
+    }
+  }
+
+  // Read out LLC header
+  if (sb_.Length())
+  {
+    uint8_t* p = sb_.Data();
+    if (sb_.Pull(sizeof(struct data_llc)))
+    {
+      memcpy(&this->_llc, p, sizeof(struct data_llc));
+    }
+    else
+    {
+      ZLOG_ERR("Missing LLC header");
+      return (false);
+    }
+  }
+
+  // Read out the frame payload (catch-all for remaining unsupported fields)
+  size_t len = sb_.Length();
+  if (this->PutPayload(sb_.Data(), len))
+  {
+    sb_.Pull(len);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  return (true);
+
 }
 
 uint8_t*
@@ -148,7 +356,7 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  if (!this->str2mac(this->Address(ADDRESS_1), f->addr1))
+  if (!this->str2mac(this->GetAddress(ADDRESS_1), f->addr1))
   {
     ZLOG_WARN("Missing or invalid address field: 1");
   }
@@ -159,7 +367,7 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  if (!this->str2mac(this->Address(ADDRESS_2), f->addr2))
+  if (!this->str2mac(this->GetAddress(ADDRESS_2), f->addr2))
   {
     ZLOG_WARN("Missing or invalid address field: 2");
   }
@@ -170,7 +378,7 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  if (!this->str2mac(this->Address(ADDRESS_3), f->addr3))
+  if (!this->str2mac(this->GetAddress(ADDRESS_3), f->addr3))
   {
     ZLOG_WARN("Missing or invalid address field: 3");
   }
@@ -199,7 +407,7 @@ DataFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
       ZLOG_ERR("Buffer overrun");
       return (NULL);
     }
-    if (!this->str2mac(this->Address(ADDRESS_4), f->u.data4addr.addr4))
+    if (!this->str2mac(this->GetAddress(ADDRESS_4), f->u.data4addr.addr4))
     {
       ZLOG_WARN("Missing or invalid address field: 4");
     }
@@ -248,7 +456,7 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   p_ = this->chklen(p_, sizeof(f->u.data.addr3), rem_);
-  if (!p_ || !this->Address(ADDRESS_3, f->u.data.addr3))
+  if (!p_ || !this->SetAddress(ADDRESS_3, f->u.data.addr3))
   {
     ZLOG_ERR("Error disassembling address field 3: " + ZLOG_P(p_));
     return (NULL);
@@ -258,7 +466,7 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   if (!p_ || !this->SequenceControl(le16toh(f->u.data.seqcntl)))
   {
     ZLOG_ERR("Error disassembling sequence control field: " + ZLOG_P(p_));
-    return(NULL);
+    return (NULL);
   }
 
   if (this->Subtype() == Frame::SUBTYPE_DATAQOS)
@@ -267,14 +475,14 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     if (!p_ || !this->QosControl(le16toh(f->u.data.u.qosdata.qoscntl)))
     {
       ZLOG_ERR("Error disassembling QoS control field: " + ZLOG_P(p_));
-      return(NULL);
+      return (NULL);
     }
   }
 
   if (this->ToDS() && this->FromDS())
   {
     p_ = this->chklen(p_, sizeof(f->u.data.u.data4addr.addr4), rem_);
-    if (!p_ || !this->Address(ADDRESS_4, f->u.data.u.data4addr.addr4))
+    if (!p_ || !this->SetAddress(ADDRESS_4, f->u.data.u.data4addr.addr4))
     {
       ZLOG_ERR("Error disassembling address field 4: " + ZLOG_P(p_));
       return (NULL);
@@ -285,7 +493,7 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(llc, sizeof(struct data_llc), rem_);
   if (!p_)
   {
-    return(llc);
+    return (llc);
   }
   memcpy(&this->_llc, llc, sizeof(struct data_llc));
 
@@ -294,7 +502,7 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   p_ = this->chklen(pay, len, rem_);
   if (!p_ || !this->PutPayload(pay, len))
   {
-    return(pay);
+    return (pay);
   }
 
   return (p_);
@@ -303,67 +511,67 @@ DataFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 std::string
 DataFrame::ReceiverAddress() const
 {
-  return(this->Address(Frame::ADDRESS_1));
+  return (this->GetAddress(Frame::ADDRESS_1));
 }
 
 bool
 DataFrame::ReceiverAddress(const std::string& address_)
 {
-  return(this->Address(Frame::ADDRESS_1, address_));
+  return (this->SetAddress(Frame::ADDRESS_1, address_));
 }
 
 std::string
 DataFrame::TransmitterAddress() const
 {
-  return(this->Address(Frame::ADDRESS_2));
+  return (this->GetAddress(Frame::ADDRESS_2));
 }
 
 bool
 DataFrame::TransmitterAddress(const std::string& address_)
 {
-  return(this->Address(Frame::ADDRESS_2, address_));
+  return (this->SetAddress(Frame::ADDRESS_2, address_));
 }
 
 std::string
 DataFrame::DestinationAddress() const
 {
   Frame::ADDRESS_ID id = _da_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id));
+  return (this->GetAddress(id));
 }
 
 bool
 DataFrame::DestinationAddress(const std::string& address_)
 {
   Frame::ADDRESS_ID id = _da_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id, address_));
+  return (this->SetAddress(id, address_));
 }
 
 std::string
 DataFrame::SourceAddress() const
 {
   Frame::ADDRESS_ID id = _sa_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id));
+  return (this->GetAddress(id));
 }
 
 bool
 DataFrame::SourceAddress(const std::string& address_)
 {
   Frame::ADDRESS_ID id = _sa_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id, address_));
+  return (this->SetAddress(id, address_));
 }
 
 std::string
 DataFrame::Bssid() const
 {
   Frame::ADDRESS_ID id = _bssid_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id));
+  return (this->GetAddress(id));
 }
 
 bool
 DataFrame::Bssid(const std::string& address_)
 {
   Frame::ADDRESS_ID id = _bssid_addrid(this->ToDS(), this->FromDS());
-  return (this->Address(id, address_));
+  return (this->SetAddress(id, address_));
 }
 
 const data_llc&

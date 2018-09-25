@@ -49,15 +49,30 @@ public:
 
   enum REASON
   {
-    REASON_ERR = -1,
-    REASON_INVALID_AUTHENTICATION = 2,
-    REASON_LEAVING_NETWORK_DEAUTH = 3
+    // see 802.11 spec, section 9.4.1.7 for more codes
+    REASON_ERR = 0,
+    REASON_UNSPECIFIED = 1,
+    REASON_INVALID_AUTH = 2,
+    REASON_LEAVING_NETWORK_DEAUTH = 3,
+    REASON_INACTIVITY = 4,
+    REASON_NO_MORE_STAS = 5,
+    REASON_LEAVING_NETWORK_DISASSOC = 8,
+    REASON_BSS_TRANSITION_DISASSOC = 12,
+    REASON_SSP_REQUESTED_DISASSOC = 27,
+    REASON_STA_LEAVING = 36,
+    REASON_AP_INITIATED = 47
   };
 
   Deauthentication();
 
   virtual
   ~Deauthentication();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& len_, bool fcs_ = false);

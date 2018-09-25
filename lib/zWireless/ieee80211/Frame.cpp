@@ -45,8 +45,8 @@ namespace ieee80211
 //*****************************************************************************
 
 Frame::Frame(const Frame::TYPE type_) :
-    _fccntl(0), _durationid(0), _seqcntl(0), _qoscntl(0), _htcntl(0),
-    _payload{ 0 }, _psize(0), _fcs(0)
+    zSocket::Frame(zSocket::Frame::TYPE_80211),_fccntl(0), _durationid(0),
+    _seqcntl(0), _qoscntl(0), _htcntl(0), _payload{ 0 }, _psize(0), _fcs(0)
 {
    if (!this->Type(type_))
    {
@@ -58,6 +58,158 @@ Frame::~Frame()
 {
 }
 
+bool
+Frame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+  // NOTE: Returns socket buffer data pointer set to end of transmitter address field
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*)sb_.Data();
+
+  // Write frame control field
+  if (sb_.Put(sizeof(f->fc)))
+  {
+    f->fc = htole16(this->_fccntl);
+    sb_.Pull(sizeof(f->fc));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return(false);
+  }
+
+  // Write duration field
+  if (sb_.Put(sizeof(f->duration)))
+  {
+    f->duration = htole16(this->_durationid);
+    sb_.Pull(sizeof(f->duration));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return(false);
+  }
+
+  // Write address 1 (receiver address)
+  if (sb_.Put(sizeof(f->u.gen.addr1)) && this->str2mac(this->GetDestination(), f->u.gen.addr1))
+  {
+    sb_.Pull(sizeof(f->u.gen.addr1));
+  }
+  else
+  {
+    ZLOG_ERR("Missing address field: 1");
+    return(false);
+  }
+
+  // Conditionally write address 2 (transmitter address)
+  if (!this->GetSource().empty())
+  {
+    if (sb_.Put(sizeof(f->u.gen.addr2)) && this->str2mac(this->GetSource(), f->u.gen.addr2))
+    {
+      sb_.Pull(sizeof(f->u.gen.addr2));
+    }
+    else
+    {
+      ZLOG_ERR("Missing address field: 2");
+      return (false);
+    }
+  }
+
+  return (true);
+
+}
+
+bool
+Frame::Disassemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+  // NOTE: Returns socket buffer data pointer set to end of transmitter address field
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*)sb_.Data();
+
+  // Read frame control field
+  if (sb_.Pull(sizeof(f->fc)))
+  {
+    this->_fccntl = le16toh(f->fc);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return(false);
+  }
+
+  // Perform sanity check on version to determine if this is a valid frame
+  if (this->Version())
+  {
+    ZLOG_ERR("Invalid header version: " + ZLOG_INT(this->Version()))
+    return (NULL);
+  }
+
+  // Read duration field
+  if (sb_.Pull(sizeof(f->duration)))
+  {
+    this->DurationId(le16toh(f->duration));
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return(false);
+  }
+
+  // Read address 1 (Receiver address) field
+  if (sb_.Pull(sizeof(f->u.gen.addr1)))
+  {
+    this->SetAddress(ADDRESS_1, f->u.gen.addr1);
+    this->SetDestination(this->GetAddress(Frame::ADDRESS_1));
+  }
+  else
+  {
+    ZLOG_ERR("Missing address field: 1");
+    return(false);
+  }
+
+  // Verify presence of address 2 (transmitter address) field
+  if (sb_.Length())
+  {
+    if (sb_.Pull(sizeof(f->u.gen.addr2)))
+    {
+      this->SetAddress(ADDRESS_2, f->u.gen.addr2);
+      this->SetSource(this->GetAddress(Frame::ADDRESS_2));
+    }
+    else
+    {
+      ZLOG_ERR("Missing address field: 2");
+      return(false);
+    }
+  }
+
+  return (true);
+
+}
+
+bool
+Frame::Peek(const zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+  // NOTE: Does not alter caller's buffer
+
+  // Create copy of caller's buffer to avoid modifying pointers
+  // NOTE: Socket buffer copy only copies the pointers, not the buffer memory
+  zSocket::Buffer tmp(sb_);
+
+  // Disassemble frame using temporary local buffer
+  return (this->Disassemble(tmp));
+
+}
+
+// Deprecated - DO NOT USE
 uint8_t*
 Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -78,6 +230,7 @@ Frame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   return (p_);
 }
 
+// Deprecated - DO NOT USE
 uint8_t*
 Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -113,7 +266,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 
   // Address 1 (Receiver address) field
   p_ = this->chklen(p_, sizeof(f->u.gen.addr1), rem_);
-  if (!p_ || !this->Address(ADDRESS_1, f->u.gen.addr1))
+  if (!p_ || !this->SetAddress(ADDRESS_1, f->u.gen.addr1))
   {
     ZLOG_ERR("Missing address field: 1");
     return (NULL);
@@ -123,7 +276,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   if (rem_)
   {
     p_ = this->chklen(p_, sizeof(f->u.gen.addr2), rem_);
-    if (!p_ || !this->Address(ADDRESS_2, f->u.gen.addr2))
+    if (!p_ || !this->SetAddress(ADDRESS_2, f->u.gen.addr2))
     {
       ZLOG_ERR("Missing address field: 2");
       return (NULL);
@@ -264,7 +417,7 @@ bool
 Frame::Type(const Frame::TYPE type_)
 {
   bool status = false;
-  if (type_ < TYPE_LAST)
+  if ((type_ > TYPE_ERR) && (type_ < TYPE_LAST))
   {
     this->_fccntl &= ~(0x0003 << 2);
     this->_fccntl |= ((type_ & 0x0003) << 2);
@@ -283,7 +436,7 @@ bool
 Frame::Subtype(const Frame::SUBTYPE stype_)
 {
   bool status = false;
-  if (stype_ < SUBTYPE_LAST)
+  if ((stype_ > SUBTYPE_ERR) && (stype_ < SUBTYPE_LAST))
   {
     this->_fccntl &= ~(0x000f << 4);
     this->_fccntl |= ((stype_ & 0x000f) << 4);
@@ -418,7 +571,7 @@ Frame::DurationId(const uint16_t durid_)
 }
 
 std::string
-Frame::Address(const ADDRESS_ID id_) const
+Frame::GetAddress(const ADDRESS_ID id_) const
 {
   std::string addr = "Err";
   if ((id_ > Frame::ADDRESS_ERR) && (id_ < Frame::ADDRESS_LAST))
@@ -429,25 +582,51 @@ Frame::Address(const ADDRESS_ID id_) const
 }
 
 bool
-Frame::Address(const ADDRESS_ID id_, const std::string& address_)
+Frame::GetAddress(const ADDRESS_ID id_, uint8_t* address_)
 {
   bool status = false;
+  std::string addr;
   if ((id_ > Frame::ADDRESS_ERR) && (id_ < Frame::ADDRESS_LAST))
   {
-    this->_address[id_] = address_;
-    status = true;
+    status = this->str2mac(this->_address[id_], address_);
   }
   return (status);
 }
 
 bool
-Frame::Address(const ADDRESS_ID id_, const uint8_t* address_)
+Frame::SetAddress(const ADDRESS_ID id_, const std::string& address_)
+{
+  bool status = false;
+  switch (id_)
+  {
+  case Frame::ADDRESS_1:
+    this->SetDestination(address_); // TODO: this will go away
+    this->_address[id_] = address_;
+    status = true;
+    break;
+  case Frame::ADDRESS_2:
+    this->SetSource(address_);
+    this->_address[id_] = address_;
+    status = true;
+  case Frame::ADDRESS_3:
+    // no break
+  case Frame::ADDRESS_4:
+    this->_address[id_] = address_;
+    status = true;
+  default:
+    break;
+  }
+  return (status);
+}
+
+bool
+Frame::SetAddress(const ADDRESS_ID id_, const uint8_t* address_)
 {
   bool status = false;
   std::string addr;
   if (this->mac2str(address_, addr))
   {
-    status = this->Address(id_, addr);
+    status = this->SetAddress(id_, addr);
   }
   return (status);
 }

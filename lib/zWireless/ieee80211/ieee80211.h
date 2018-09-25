@@ -59,7 +59,7 @@ struct ieee80211_rassreq
 {
   uint16_t capabilities;
   uint16_t interval;
-  uint64_t currentApMac;
+  uint8_t currentApMac[ETH_ALEN];
   ieee80211_tag tags;
 } __attribute__ ((packed));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,6 +49,72 @@ ControlFrame::~ControlFrame()
 {
 }
 
+bool
+ControlFrame::Assemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
+
+  // Assemble lower level frame and validate
+  if (!Frame::Assemble(sb_) || (this->Type() != Frame::TYPE_CNTL))
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  // Write payload (catch-all for unsupported fields)
+  size_t len = this->GetPayloadLength();
+  if (sb_.Put(len) && (this->GetPayload(sb_.Data(), len) == len))
+  {
+    sb_.Pull(len);
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling frame");
+    return (false);
+  }
+
+  return (true);
+
+}
+
+bool
+ControlFrame::Disassemble(zSocket::Buffer& sb_)
+{
+
+  // NOTE: Assumes caller's socket buffer data is set to start of frame and
+  //   tail is set to end of frame (full)
+
+  // Initialize frame pointer to start of data
+  struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
+
+  // Disassemble lower level frame and validate
+  if (!Frame::Disassemble(sb_) || (this->Type() != Frame::TYPE_CNTL))
+  {
+    ZLOG_ERR("Error disassembling frame: " + ZLOG_INT(this->Type()));
+    return (false);
+  }
+
+  // Read out the frame payload (catch-all for unsupported fields)
+  size_t len = sb_.Length();
+  if (this->PutPayload(sb_.Data(), len))
+  {
+    sb_.Pull(len);
+  }
+  else
+  {
+    ZLOG_ERR("Error disassembling frame");
+    return (false);
+  }
+
+  return (true);
+
+}
+
+// Deprecated - DO NOT USE
 uint8_t*
 ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -69,7 +135,8 @@ ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   p_ = this->chklen(p_, sizeof(f->u.cntl.ra), rem_);
-  if (!p_ || this->Address(ADDRESS_1).empty() || !this->str2mac(this->Address(ADDRESS_1), f->u.cntl.ra))
+  if (!p_ || this->GetAddress(ADDRESS_1).empty()
+      || !this->str2mac(this->GetAddress(ADDRESS_1), f->u.cntl.ra))
   {
     return (NULL);
   }
@@ -77,7 +144,8 @@ ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   if (this->Subtype() == Frame::SUBTYPE_RTS)
   {
     p_ = this->chklen(p_, sizeof(f->u.cntl.ta), rem_);
-    if (!p_ || this->Address(ADDRESS_2).empty() || !this->str2mac(this->Address(ADDRESS_2), f->u.cntl.ta))
+    if (!p_ || this->GetAddress(ADDRESS_2).empty()
+        || !this->str2mac(this->GetAddress(ADDRESS_2), f->u.cntl.ta))
     {
       return (NULL);
     }
@@ -86,6 +154,7 @@ ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   return (p_);
 }
 
+// Deprecated - DO NOT USE
 uint8_t*
 ControlFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -111,25 +180,25 @@ ControlFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 std::string
 ControlFrame::ReceiverAddress() const
 {
-  return(this->Address(Frame::ADDRESS_1));
+  return (this->GetAddress(Frame::ADDRESS_1));
 }
 
 bool
 ControlFrame::ReceiverAddress(const std::string& address_)
 {
-  return(this->Address(Frame::ADDRESS_1, address_));
+  return (this->SetAddress(Frame::ADDRESS_1, address_));
 }
 
 std::string
 ControlFrame::TransmitterAddress() const
 {
-  return(this->Address(Frame::ADDRESS_2));
+  return (this->GetAddress(Frame::ADDRESS_2));
 }
 
 bool
 ControlFrame::TransmitterAddress(const std::string& address_)
 {
-  return(this->Address(Frame::ADDRESS_2, address_));
+  return (this->SetAddress(Frame::ADDRESS_2, address_));
 }
 
 void

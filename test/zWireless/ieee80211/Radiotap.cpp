@@ -190,17 +190,23 @@ Ieee80211Test_RadiotapAssemble(void* arg_)
 //  rtaphdr.Display();
 
   // Assemble and verify
-  uint8_t buf[1024] = { 0 };
-  size_t buflen = sizeof(buf);
-  uint8_t* p = rtaphdr.Assemble(buf, buflen);
-  TEST_ISNOT_NULL(p);
-  TEST_EQ(radiotap_len, (sizeof(buf) - buflen));
+  zSocket::Buffer sb;
+
+  // Assemble and verify
+  TEST_TRUE(rtaphdr.Assemble(sb));
+
+  TEST_EQ(sb.Size(), radiotap_len);
   TEST_EQ(0, rtaphdr.GetVersion());
   TEST_EQ(41, rtaphdr.GetLength());
   TEST_EQ(0xA008402F, rtaphdr.GetPresent(0));
   TEST_EQ(0xA0000820, rtaphdr.GetPresent(1));
   TEST_EQ(0x00000820, rtaphdr.GetPresent(2));
-  TEST_IS_ZERO(memcmp(buf, radiotap, radiotap_len));
+
+  uint8_t* p = sb.Head();
+  for (int i = 0; i < radiotap_len; i++)
+  {
+    TEST_EQ_MSG((int)radiotap[i], *p++, zLog::IntStr(i));
+  }
 
   // Return success
   return (0);
@@ -223,6 +229,11 @@ Ieee80211Test_RadiotapDisassemble(void* arg_)
   RadioTapFieldAntenna antenna[3];
   RadioTapFieldRxFlags rxflags;
   RadioTapFieldTxFlags txflags;
+
+  // Make copy of raw association request frame
+  zSocket::Buffer sb;
+  sb.Write(radiotap, radiotap_len);
+  sb.Push(radiotap_len); // reset data ptr to start of buffer
 
   // Create radiotap header and validate
   RadioTap rtaphdr;
@@ -257,15 +268,9 @@ Ieee80211Test_RadiotapDisassemble(void* arg_)
   TEST_FALSE(rtaphdr.GetField(txflags));
   TEST_EQ(0, txflags());
 
-  // Make copy of raw radiotap header
-  uint8_t buf[1024] = { 0 };
-  size_t buflen = sizeof(buf);
-  memcpy(buf, radiotap, radiotap_len);
-
   // Disassemble and verify
-  uint8_t* p = rtaphdr.Disassemble(buf, buflen);
+  TEST_TRUE(rtaphdr.Disassemble(sb));
 //  rtaphdr.Display();
-  TEST_ISNOT_NULL(p);
   TEST_EQ(0, rtaphdr.GetVersion());
   TEST_EQ(41, rtaphdr.GetLength());
   TEST_EQ(0xA008402F, rtaphdr.GetPresent(0));

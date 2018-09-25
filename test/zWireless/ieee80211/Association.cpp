@@ -27,6 +27,53 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 using namespace zWireless::ieee80211;
 
+const uint8_t ass_req_frame[] =
+{
+    0x00, 0x00, /* ........ */
+    0x3a, 0x01, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, /* :...!7.. */
+    0x01, 0x12, 0x23, 0x34, 0x45, 0x56, 0x00, 0x11, /* LfAR"... */
+    0x22, 0x33, 0x44, 0x55, 0x30, 0x77, 0x31, 0x04, /* !7..0w1. */
+    0x0a, 0x00, 0x00, 0x04, 0x47, 0x57, 0x30, 0x32, /* ....GW02 */
+    0x01, 0x08, 0x82, 0x84, 0x8b, 0x96, 0x24, 0x30, /* ......$0 */
+    0x48, 0x6c, 0x32, 0x04, 0x0c, 0x12, 0x18, 0x60, /* Hl2....` */
+    0x21, 0x02, 0x02, 0x14, 0x24, 0x02, 0x01, 0x0b, /* !...$... */
+    0x30, 0x14, 0x01, 0x00, 0x00, 0x0f, 0xac, 0x04, /* 0....... */
+    0x01, 0x00, 0x00, 0x0f, 0xac, 0x04, 0x01, 0x00, /* ........ */
+    0x00, 0x0f, 0xac, 0x02, 0x80, 0x00, 0x2d, 0x1a, /* ......-. */
+    0xad, 0x01, 0x17, 0xff, 0xff, 0x00, 0x00, 0x00, /* ........ */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ........ */
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, /* ........ */
+    0x00, 0x00, 0xdd, 0x09, 0x00, 0x10, 0x18, 0x02, /* ........ */
+    0x00, 0x00, 0x10, 0x00, 0x00, 0xdd, 0x07, 0x00, /* ........ */
+    0x50, 0xf2, 0x02, 0x00, 0x01, 0x00, 0x00, 0x41, /* P......A */
+    0x2d, 0x60                                      /* -` */
+};
+const size_t ass_req_frame_len = sizeof(ass_req_frame);
+
+const uint8_t ass_resp_frame[] =
+{
+	0x10, 0x00,
+    0x3a, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+    0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x21, 0x22,
+    0x23, 0x24, 0x25, 0x26, 0x50, 0x53, 0x31, 0x04,
+    0x00, 0x00, 0x01, 0xc0, 0x01, 0x08, 0x82, 0x84,
+    0x8b, 0x96, 0x0c, 0x12, 0x18, 0x24, 0x32, 0x04,
+    0x30, 0x48, 0x60, 0x6c, 0x2d, 0x1a, 0xed, 0x19,
+    0x1b, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x3d, 0x16, 0x01, 0x00, 0x15, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x7f, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x40, 0xdd, 0x18, 0x00, 0x50, 0xf2, 0x02,
+    0x01, 0x01, 0x80, 0x00, 0x03, 0xa4, 0x00, 0x00,
+    0x27, 0xa4, 0x00, 0x00, 0x42, 0x43, 0x5e, 0x00,
+    0x62, 0x32, 0x2f, 0x00, 0x05, 0xab, 0x23, 0x71
+};
+const size_t ass_resp_frame_len = sizeof(ass_resp_frame);
+
+
 int
 Ieee80211Test_AssociationRequestGetSet(void* arg_)
 {
@@ -160,15 +207,6 @@ Ieee80211Test_AssociationRequestAssemble(void* arg_)
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
 
-  // Assemble short frame and verify
-  len = 2;
-  TEST_IS_NULL(frame.Assemble(frm_buf, len, true));
-  TEST_EQ(2, len);
-  TEST_IS_ZERO(frm_buf[0]);
-  TEST_IS_ZERO(frm_buf[1]);
-  TEST_IS_ZERO(frm_buf[2]);
-  TEST_IS_ZERO(frm_buf[3]);
-
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
   TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
@@ -222,13 +260,17 @@ Ieee80211Test_AssociationRequestAssemble(void* arg_)
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
 
+  zSocket::Buffer sb;
+
   // Assemble and verify
-  memset(frm_buf, 0, sizeof(frm_buf));
-  len = sizeof(frm_buf);
-  TEST_ISNOT_NULL(frame.Assemble(frm_buf, len));
+  TEST_TRUE(frame.Assemble(sb));
+
+  TEST_EQ(sb.Size(), sizeof(frm_assreq));
+
+  uint8_t* p = sb.Head();
   for (int i = 0; i < sizeof(frm_assreq); i++)
   {
-    TEST_EQ_MSG((int)frm_assreq[i], frm_buf[i], zLog::IntStr(i));
+    TEST_EQ_MSG((int)frm_assreq[i], *p++, zLog::IntStr(i));
   }
 
   // Return success
@@ -244,25 +286,9 @@ Ieee80211Test_AssociationRequestDisassemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   // Make copy of raw association request frame
-  uint8_t buf[4096] = { 0 };
-  size_t buflen = ass_req_len;
-  memcpy(buf, ass_req, ass_req_len);
-  uint8_t* p = buf;
-
-  // Create radiotap header and validate
-  RadioTap rtaphdr;
-  TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(0, rtaphdr.GetLength());
-  TEST_EQ(0, rtaphdr.GetPresent());
-
-  // Disassemble and verify
-  p = rtaphdr.Disassemble(p, buflen);
-  TEST_ISNOT_NULL(p);
-  TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(38, rtaphdr.GetLength());
-  TEST_EQ(0xA000402F, rtaphdr.GetPresent(0));
-  TEST_EQ(0xA0000820, rtaphdr.GetPresent(1));
-  TEST_EQ(0x00000820, rtaphdr.GetPresent(2));
+  zSocket::Buffer sb;
+  sb.Write(ass_req_frame, ass_req_frame_len);
+  sb.Push(ass_req_frame_len); // reset data ptr to start of buffer
 
   // Create frame and validate
   AssociationRequest frame;
@@ -289,7 +315,7 @@ Ieee80211Test_AssociationRequestDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble association request
-  TEST_ISNOT_NULL(frame.Disassemble(p, buflen, true));
+  TEST_TRUE(frame.Disassemble(sb));
 
   // Verify
   TEST_IS_ZERO(frame.Version());
@@ -459,15 +485,6 @@ Ieee80211Test_AssociationResponseAssemble(void* arg_)
   TEST_IS_ZERO(frame.AssociationIdentifier());
   TEST_IS_ZERO(frame.Rates().size());
 
-  // Assemble short frame and verify
-  len = 2;
-  TEST_IS_NULL(frame.Assemble(frm_buf, len, true));
-  TEST_EQ(2, len);
-  TEST_IS_ZERO(frm_buf[0]);
-  TEST_IS_ZERO(frm_buf[1]);
-  TEST_IS_ZERO(frm_buf[2]);
-  TEST_IS_ZERO(frm_buf[3]);
-
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
   TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
@@ -521,13 +538,17 @@ Ieee80211Test_AssociationResponseAssemble(void* arg_)
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
 
+  zSocket::Buffer sb;
+
   // Assemble and verify
-  memset(frm_buf, 0, sizeof(frm_buf));
-  len = sizeof(frm_buf);
-  TEST_ISNOT_NULL(frame.Assemble(frm_buf, len));
+  TEST_TRUE(frame.Assemble(sb));
+
+  TEST_EQ(sb.Size(), sizeof(frm_assresp));
+
+  uint8_t* p = sb.Head();
   for (int i = 0; i < sizeof(frm_assresp); i++)
   {
-    TEST_EQ_MSG((int)frm_assresp[i], frm_buf[i], zLog::IntStr(i));
+    TEST_EQ_MSG((int)frm_assresp[i], *p++, zLog::IntStr(i));
   }
 
   // Return success
@@ -542,26 +563,10 @@ Ieee80211Test_AssociationResponseDisassemble(void* arg_)
   ZLOG_DEBUG("# Ieee80211Test_AssociationResponseDisassemble()");
   ZLOG_DEBUG("#############################################################");
 
-  // Make copy of raw beacon frame
-  uint8_t buf[4096] = { 0 };
-  size_t buflen = ass_resp_len;
-  memcpy(buf, ass_resp, ass_resp_len);
-  uint8_t* p = buf;
-
-  // Create radiotap header and validate
-  RadioTap rtaphdr;
-  TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(0, rtaphdr.GetLength());
-  TEST_EQ(0, rtaphdr.GetPresent());
-
-  // Disassemble and verify
-  p = rtaphdr.Disassemble(p, buflen);
-  TEST_ISNOT_NULL(p);
-  TEST_EQ(0, rtaphdr.GetVersion());
-  TEST_EQ(38, rtaphdr.GetLength());
-  TEST_EQ(0xA000402F, rtaphdr.GetPresent(0));
-  TEST_EQ(0xA0000820, rtaphdr.GetPresent(1));
-  TEST_EQ(0x00000820, rtaphdr.GetPresent(2));
+  // Make copy of raw AssociationResponse frame
+  zSocket::Buffer sb;
+  sb.Write(ass_resp_frame, ass_resp_frame_len);
+  sb.Push(ass_resp_frame_len); // reset data ptr to start of buffer
 
   // Create frame and validate
   AssociationResponse frame;
@@ -588,7 +593,7 @@ Ieee80211Test_AssociationResponseDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble beacon
-  TEST_ISNOT_NULL(frame.Disassemble(p, buflen, true));
+  TEST_TRUE(frame.Disassemble(sb));
 
   // Verify
   TEST_IS_ZERO(frame.Version());

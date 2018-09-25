@@ -25,6 +25,8 @@
 #include <list>
 
 // libzutils includes
+
+#include <zutils/zSocket.h>
 #include <zutils/ieee80211/Tag.h>
 
 // local includes
@@ -37,12 +39,14 @@ namespace ieee80211
 {
 
 #define FRAME_PAYLOAD_MAXLEN        2048
+#define IEEE80211_TYPE_SUBTYPE(t,s) (((t) << 2) | ((s) << 4))
 
 //*****************************************************************************
 // Class: Frame
 //*****************************************************************************
 
-class Frame
+class Frame :
+    public zSocket::Frame
 {
 
 public:
@@ -106,10 +110,19 @@ public:
     TAGTYPE_ALL = 0x03
   };
 
-  Frame(const TYPE type_ = TYPE_ERR);
+  Frame(const TYPE type_);
 
   virtual
   ~Frame();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Peek(const zSocket::Buffer& sb_);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
@@ -202,13 +215,16 @@ public:
   DurationId(const uint16_t durid_);
 
   std::string
-  Address(const ADDRESS_ID id_) const;
+  GetAddress(const ADDRESS_ID id_) const;
 
   bool
-  Address(const ADDRESS_ID id_, const std::string& address_);
+  GetAddress(const ADDRESS_ID id_, uint8_t* address_);
 
   bool
-  Address(const ADDRESS_ID id_, const uint8_t* address_);
+  SetAddress(const ADDRESS_ID id_, const std::string& address_);
+
+  bool
+  SetAddress(const ADDRESS_ID id_, const uint8_t* address_);
 
   uint8_t
   FragmentNum() const;
@@ -278,6 +294,8 @@ protected:
   static uint32_t
   chkfcs(uint8_t* f_, size_t& rem_);
 
+  std::list<Tag> _tags[Tag::TYPE_LAST];
+
 private:
 
   uint16_t _fccntl;
@@ -286,7 +304,6 @@ private:
   uint16_t _seqcntl;
   uint16_t _qoscntl;
   uint32_t _htcntl;
-  std::list<Tag> _tags[Tag::TYPE_LAST];
   uint8_t _payload[FRAME_PAYLOAD_MAXLEN];
   size_t _psize;
   uint32_t _fcs;

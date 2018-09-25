@@ -98,7 +98,7 @@ Ieee80211Test_FrameAssemble(void* arg_)
   uint8_t frm_type_err[]  = { 0x4c, 0x88, 0x90, 0x78, 0x00, 0x00, 0x00 };
 
   // Create frame and validate
-  Frame frame;
+  Frame frame(Frame::TYPE_NONE);
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_NONE, frame.Type());
   TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
@@ -248,14 +248,14 @@ Ieee80211Test_FrameDisassemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
 
   size_t len = 0;
-  uint8_t frm_type_mgmt[] = { 0x10, 0x11, 0x34, 0x12 };
-  uint8_t frm_type_cntl[] = { 0x24, 0x22, 0x56, 0x34, 0x00 };
-  uint8_t frm_type_data[] = { 0x38, 0x44, 0x78, 0x56, 0x00, 0x00 };
+  uint8_t frm_type_mgmt[] = { 0x10, 0x11, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  uint8_t frm_type_cntl[] = { 0x24, 0x22, 0x56, 0x34, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+  uint8_t frm_type_data[] = { 0x38, 0x44, 0x78, 0x56, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
   uint8_t frm_type_err[]  = { 0x4f, 0x88, 0x90, 0x78, 0x00, 0x00, 0x00 };
   uint8_t frm_short[]     = { 0x00, 0x00 };
 
   // Create frame
-  Frame frame;
+  Frame frame(Frame::TYPE_NONE);
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_NONE, frame.Type());
   TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
@@ -296,7 +296,7 @@ Ieee80211Test_FrameDisassemble(void* arg_)
   // Disassemble control frame
   len = sizeof(frm_type_cntl);
   TEST_ISNOT_NULL(frame.Disassemble(frm_type_cntl, len));
-  TEST_EQ(1, len);
+  TEST_EQ(0, len);
 
   // Verify
   TEST_IS_ZERO(frame.Version());
@@ -315,7 +315,7 @@ Ieee80211Test_FrameDisassemble(void* arg_)
   // Disassemble data frame
   len = sizeof(frm_type_data);
   TEST_ISNOT_NULL(frame.Disassemble(frm_type_data, len));
-  TEST_EQ(2, len);
+  TEST_EQ(0, len);
 
   // Verify
   TEST_IS_ZERO(frame.Version());

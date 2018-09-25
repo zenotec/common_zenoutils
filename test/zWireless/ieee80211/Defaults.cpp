@@ -22,11 +22,16 @@ using namespace zUtils;
 #include "UnitTest.h"
 
 #include <zutils/ieee80211/RadioTap.h>
+#include <zutils/ieee80211/ControlFrame.h>
 #include <zutils/ieee80211/ManagementFrame.h>
 #include <zutils/ieee80211/Beacon.h>
 #include <zutils/ieee80211/Probe.h>
 #include <zutils/ieee80211/Association.h>
+#include <zutils/ieee80211/Reassociation.h>
+#include <zutils/ieee80211/Disassociation.h>
 #include <zutils/ieee80211/Authentication.h>
+#include <zutils/ieee80211/Deauthentication.h>
+#include <zutils/ieee80211/DataFrame.h>
 using namespace zUtils::zWireless::ieee80211;
 
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
@@ -87,7 +92,7 @@ Ieee80211Test_FrameDefaults(void* arg_)
   ZLOG_DEBUG("# Ieee80211Test_FrameDefaults()");
   ZLOG_DEBUG("#############################################################");
 
-  Frame frame;
+  Frame frame(Frame::TYPE_NONE);
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_NONE, frame.Type());
   TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
@@ -100,6 +105,34 @@ Ieee80211Test_FrameDefaults(void* arg_)
   TEST_FALSE(frame.Protected());
   TEST_FALSE(frame.Order());
   TEST_IS_ZERO(frame.DurationId());
+
+  // Return success
+  return (0);
+}
+
+int
+Ieee80211Test_ControlFrameDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_ControlFrameDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  ControlFrame frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_CNTL, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
 
   // Return success
   return (0);
@@ -300,6 +333,105 @@ Ieee80211Test_AssociationResponseDefaults(void* arg_)
 }
 
 int
+Ieee80211Test_ReassociationRequestDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_ReassociationRequestDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  ReassociationRequest frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_RASSREQ, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.Capabilities());
+  TEST_IS_ZERO(frame.Interval());
+  TEST_EQ(std::string(""), frame.CurrentApMac());
+
+  // Return success
+  return (0);
+}
+
+int
+Ieee80211Test_ReassociationResponseDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_ReassociationResponseDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  ReassociationResponse frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_RASSRESP, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.Capabilities());
+  TEST_IS_ZERO(frame.Status());
+
+  // Return success
+  return (0);
+}
+
+int
+Ieee80211Test_DisassociationDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_DisassociationDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  Disassociation frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_DISASS, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.ReasonCode());
+
+  // Return success
+  return (0);
+}
+
+int
 Ieee80211Test_AuthenticationDefaults(void* arg_)
 {
 
@@ -328,6 +460,67 @@ Ieee80211Test_AuthenticationDefaults(void* arg_)
   TEST_IS_ZERO(frame.Algorithm());
   TEST_IS_ZERO(frame.AuthSequenceNumber());
   TEST_IS_ZERO(frame.StatusCode());
+
+  // Return success
+  return (0);
+}
+
+int
+Ieee80211Test_DeauthenticationDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_DeauthenticationDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  Deauthentication frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_DEAUTH, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.ReasonCode());
+
+  // Return success
+  return (0);
+}
+
+int
+Ieee80211Test_DataFrameDefaults(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_DataFrameDefaults()");
+  ZLOG_DEBUG("#############################################################");
+
+  DataFrame frame;
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_DATA, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_NONE, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
 
   // Return success
   return (0);

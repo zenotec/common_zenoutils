@@ -48,7 +48,7 @@ public:
     ID_POWER_CAPS = 33, // 0x21
     ID_CHANNELS = 36, // 0x24
     ID_CHANNEL_SWITCH = 37, // 0x25
-    ID_ERP_INFO = 42, // 2A
+    ID_ERP_INFO = 42, // 0x2A
     ID_HT_CAPS = 45, // 0x2D
     ID_EXT_RATES = 50, // 0x32
     ID_SUPP_OP_CLASSES = 59, // 0x3B

@@ -27,6 +27,15 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
 using namespace zWireless::ieee80211;
 
+
+// Partial beacon frame used for validating assemble / disassemble of management frames
+static uint8_t fbuf[] =
+{
+    0x80, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
+    0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
+    0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12
+};
+
 int
 Ieee80211Test_ManagementFrameGetSet(void* arg_)
 {
@@ -94,7 +103,8 @@ Ieee80211Test_ManagementFrameGetSet(void* arg_)
   TEST_EQ(0x0123, frame.SequenceNum());
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
+
 }
 
 int
@@ -104,15 +114,6 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# Ieee80211Test_ManagementFrameAssemble()");
   ZLOG_DEBUG("#############################################################");
-
-  size_t len = 0;
-  uint8_t frm_buf[32] = { 0 };
-  uint8_t frm_type_mgmt[] =
-  {
-      0x10, 0x11, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12
-  };
 
   // Create frame and validate
   ManagementFrame frame;
@@ -134,24 +135,18 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_IS_ZERO(frame.FragmentNum());
   TEST_IS_ZERO(frame.SequenceNum());
 
-  // Assemble short frame and verify
-  len = 2;
-  TEST_IS_NULL(frame.Assemble(frm_buf, len));
-  TEST_EQ(2, len);
-  TEST_IS_ZERO(frm_buf[0]);
-  TEST_IS_ZERO(frm_buf[1]);
-  TEST_IS_ZERO(frm_buf[2]);
-  TEST_IS_ZERO(frm_buf[3]);
+  // Create socket buffer to assemble to
+  zSocket::Buffer sb;
 
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
   TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
-  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_ASSRESP));
-  TEST_TRUE(frame.ToDS(true));
+  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_BEACON));
+  TEST_TRUE(frame.ToDS(false));
   TEST_TRUE(frame.FromDS(false));
   TEST_TRUE(frame.MoreFragments(false));
   TEST_TRUE(frame.Retry(false));
-  TEST_TRUE(frame.PowerManagement(true));
+  TEST_TRUE(frame.PowerManagement(false));
   TEST_TRUE(frame.MoreData(false));
   TEST_TRUE(frame.Protected(false));
   TEST_TRUE(frame.Order(false));
@@ -165,12 +160,12 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   // Verify
   TEST_EQ(0, frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ASSRESP, frame.Subtype());
-  TEST_TRUE(frame.ToDS());
+  TEST_EQ(Frame::SUBTYPE_BEACON, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
   TEST_FALSE(frame.Retry());
-  TEST_TRUE(frame.PowerManagement());
+  TEST_FALSE(frame.PowerManagement());
   TEST_FALSE(frame.MoreData());
   TEST_FALSE(frame.Protected());
   TEST_FALSE(frame.Order());
@@ -182,17 +177,19 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_EQ(0x0123, frame.SequenceNum());
 
   // Assemble and verify
-  memset(frm_buf, 0, sizeof(frm_buf));
-  len = sizeof(frm_buf);
-  TEST_ISNOT_NULL(frame.Assemble(frm_buf, len));
-  TEST_EQ((sizeof(frm_buf) - 24), len);
-  for (int i = 0; i < sizeof(frm_type_mgmt); i++)
+  TEST_TRUE(frame.Assemble(sb));
+  TEST_EQ(sb.Size(), sizeof(fbuf));
+
+  // Verify data matches expected
+  uint8_t* p = sb.Head();
+  for (int i = 0; i < sizeof(fbuf); i++)
   {
-    TEST_EQ_MSG((int)frm_type_mgmt[i], frm_buf[i], zLog::IntStr(i));
+    TEST_EQ_MSG((int)fbuf[i], *p++, zLog::IntStr(i));
   }
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
+
 }
 
 int
@@ -202,15 +199,6 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# Ieee80211Test_ManagementFrameDisassemble()");
   ZLOG_DEBUG("#############################################################");
-
-  size_t len = 0;
-  uint8_t frm_type_mgmt[] =
-  {
-      0x10, 0x11, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
-      0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
-      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12
-  };
-  uint8_t frm_short[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
   // Create frame and validate
   ManagementFrame frame;
@@ -232,25 +220,25 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   TEST_IS_ZERO(frame.FragmentNum());
   TEST_IS_ZERO(frame.SequenceNum());
 
-  // Disassemble short frame
-  len = sizeof(frm_short);
-  TEST_IS_NULL(frame.Disassemble(frm_short, len));
-  TEST_EQ(len, (sizeof(frm_short) - 4));
+  // Create socket buffer to disassemble from
+  zSocket::Buffer sb;
+  memcpy(sb.Head(), fbuf, sizeof(fbuf));
+  sb.Put(sizeof(fbuf));
+  TEST_EQ(sizeof(fbuf), sb.Length());
 
-  // Disassemble management frame
-  len = sizeof(frm_type_mgmt);
-  TEST_ISNOT_NULL(frame.Disassemble(frm_type_mgmt, len));
-  TEST_IS_ZERO(len);
+  // Disassemble Data frame
+  TEST_TRUE(frame.Disassemble(sb));
+  TEST_IS_ZERO(sb.Length());
 
   // Verify
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_ASSRESP, frame.Subtype());
-  TEST_TRUE(frame.ToDS());
+  TEST_EQ(Frame::SUBTYPE_BEACON, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
   TEST_FALSE(frame.Retry());
-  TEST_TRUE(frame.PowerManagement());
+  TEST_FALSE(frame.PowerManagement());
   TEST_FALSE(frame.MoreData());
   TEST_FALSE(frame.Protected());
   TEST_FALSE(frame.Order());
@@ -262,6 +250,7 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   TEST_EQ(0x0123, frame.SequenceNum());
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
+
 }
 

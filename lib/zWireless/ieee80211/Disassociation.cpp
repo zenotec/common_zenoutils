@@ -52,6 +52,83 @@ Disassociation::~Disassociation()
 {
 }
 
+bool
+Disassociation::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_DISASS)
+  {
+    ZLOG_ERR("Error assembling Disassociation frame header");
+    return (false);
+  }
+
+  struct ieee80211_disass* f = (struct ieee80211_disass*) sb_.Data();
+
+  if (sb_.Put(sizeof(f->reasonCode)))
+  {
+    f->reasonCode = htole16(this->ReasonCode());
+    sb_.Pull(sizeof(f->reasonCode));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling Disassociation frame");
+    return (false);
+  }
+
+  //TODO: Could have vendor specific elements
+#if 0
+  this->PutTag(this->WmmWme);
+#endif
+
+  if (not AssembleTags(sb_))
+  {
+    ZLOG_ERR("Error assembling Disassociation frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
+bool
+Disassociation::Disassemble(zSocket::Buffer& sb_)
+{
+  struct ieee80211_disass* f = (ieee80211_disass*) sb_.Data();
+
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_))
+  {
+    ZLOG_ERR("Error disassembling Disassociation frame header");
+    return false;
+  }
+
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_DISASS)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
+
+  f = (ieee80211_disass*) sb_.Data();
+
+  if (sb_.Pull(sizeof(f->reasonCode)))
+  {
+    this->ReasonCode(le16toh(f->reasonCode));
+  }
+  else
+  {
+    ZLOG_ERR("Missing reasonCode field");
+    return (false);
+  }
+
+  // Disassociation doesn't implement any tags, but keep this for when we implement vendor specific tag
+  if (not this->DisassembleTags(sb_))
+  {
+    ZLOG_ERR("Error disassembling Disassociation frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
 uint8_t*
 Disassociation::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
 {
@@ -72,11 +149,11 @@ Disassociation::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
   f->reasonCode = htole16(this->ReasonCode());
 
-  p_ = this->AssembleTags(p_, rem_);
+  p_ = this->Frame::AssembleTags(p_, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error assembling disassociation request frame tags: " + ZLOG_INT(rem_));
-    return(NULL);
+    return (NULL);
   }
 
   return (p_);
@@ -101,7 +178,7 @@ Disassociation::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->DisassembleTags((uint8_t*)&f->tags, rem_);
+  p_ = this->Frame::DisassembleTags((uint8_t*) &f->tags, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling disassociation frame tags: " + ZLOG_INT(rem_));
@@ -111,18 +188,17 @@ Disassociation::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   return (p_);
 }
 
-
 uint16_t
 Disassociation::ReasonCode() const
 {
-  return(this->_reasonCode);
+  return (this->_reasonCode);
 }
 
 bool
 Disassociation::ReasonCode(const uint16_t reasonCode_)
 {
   this->_reasonCode = reasonCode_;
-  return(true);
+  return (true);
 }
 
 void

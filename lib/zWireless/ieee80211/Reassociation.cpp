@@ -45,12 +45,165 @@ namespace ieee80211
 
 ReassociationRequest::ReassociationRequest() :
     ManagementFrame(ManagementFrame::SUBTYPE_RASSREQ), _capabilities(0),
-    _interval(0), _currentApMac(0)
+    _interval(0), _currentApMac("")
 {
 }
 
 ReassociationRequest::~ReassociationRequest()
 {
+}
+
+bool
+ReassociationRequest::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_RASSREQ)
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame header");
+    return (false);
+  }
+
+  struct ieee80211_rassreq* f = (struct ieee80211_rassreq*) sb_.Data();
+
+  if (sb_.Put(sizeof(f->capabilities)))
+  {
+    f->capabilities = htole16(this->Capabilities());
+    sb_.Pull(sizeof(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->interval)))
+  {
+    f->interval = htole16(this->Interval());
+    sb_.Pull(sizeof(f->interval));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->currentApMac)))
+  {
+    this->str2mac(this->CurrentApMac(), f->currentApMac);
+    sb_.Pull(sizeof(f->currentApMac));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame");
+    return (false);
+  }
+
+  if (!this->PutTag(this->Ssid))
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame: Missing SSID");
+    return (false);
+  }
+
+  if (!this->PutTag(this->Rates))
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame: Missing Rates");
+    return (false);
+  }
+
+  //ORDER MATTERS - Declare in the order they are rendered
+  this->PutTag(this->ExtRates);
+  this->PutTag(this->PowerCaps);
+  this->PutTag(this->Channels);
+  this->PutTag(this->HtCaps);
+#if 0 //TODO
+  this->PutTag(this->WmmWme);
+#endif
+
+  if (not AssembleTags(sb_))
+  {
+    ZLOG_ERR("Error assembling ReassociationRequest frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
+bool
+ReassociationRequest::Disassemble(zSocket::Buffer& sb_)
+{
+  struct ieee80211_rassreq* f = (ieee80211_rassreq*) sb_.Data();
+
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_))
+  {
+    ZLOG_ERR("Error disassembling ReassociationRequest frame header");
+    return false;
+  }
+
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_RASSREQ)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
+
+  f = (ieee80211_rassreq*) sb_.Data();
+
+  if (sb_.Pull(sizeof(f->capabilities)))
+  {
+    this->Capabilities(le16toh(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Missing capabilities field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->interval)))
+  {
+    this->Interval(le16toh(f->interval));
+  }
+  else
+  {
+    ZLOG_ERR("Missing interval field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->currentApMac)))
+  {
+    this->CurrentApMac(f->currentApMac);
+  }
+  else
+  {
+    ZLOG_ERR("Missing currentApMac field");
+    return (false);
+  }
+
+  if (not this->DisassembleTags(sb_))
+  {
+    ZLOG_ERR("Error disassembling AssociationRequest frame tags");
+    return (false);
+  }
+
+  if (!this->GetTag(this->Ssid))
+  {
+    ZLOG_ERR("Error disassembling AssociationRequest frame tags: missing SSID");
+    return (false);
+  }
+
+  if (!this->GetTag(this->Rates))
+  {
+    ZLOG_ERR("Error disassembling AssociationRequest frame tags: missing Rates");
+    return (false);
+  }
+
+  //ORDER MATTERS - Declare in the order they are rendered - don't think it matters here since GetTag itterates
+  this->GetTag(ExtRates);
+  this->GetTag(PowerCaps);
+  this->GetTag(Channels);
+  this->GetTag(HtCaps);
+  this->GetTag(WmmWme);
+
+  return true;
 }
 
 uint8_t*
@@ -85,34 +238,34 @@ ReassociationRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   {
     return (NULL);
   }
-  f->currentApMac = htole64(this->CurrentApMac());
+  this->str2mac(this->CurrentApMac(), f->currentApMac);
 
   if (!this->PutTag(this->Ssid))
   {
-    return(NULL);
+    return (NULL);
   }
 
   if (!this->PutTag(this->Rates))
   {
-    return(NULL);
+    return (NULL);
   }
 
   //ORDER MATTERS - Declare in the order they are rendered
   if (!this->PutTag(this->ExtRates))
   {
-    return(NULL);
+    return (NULL);
   }
   if (!this->PutTag(this->PowerCaps))
   {
-    return(NULL);
+    return (NULL);
   }
   if (!this->PutTag(this->Channels))
   {
-    return(NULL);
+    return (NULL);
   }
   if (!this->PutTag(this->HtCaps))
   {
-    return(NULL);
+    return (NULL);
   }
 #if 0 //TODO
   if (!this->PutTag(this->WmmWme))
@@ -121,11 +274,11 @@ ReassociationRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 #endif
 
-  p_ = this->AssembleTags(p_, rem_);
+  p_ = this->Frame::AssembleTags(p_, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error assembling reassociation request frame tags: " + ZLOG_INT(rem_));
-    return(NULL);
+    return (NULL);
   }
 
   this->PutTag(this->PowerCaps);
@@ -159,12 +312,12 @@ ReassociationRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
   }
 
   p_ = this->chklen(p_, sizeof(f->currentApMac), rem_);
-  if (!p_ || !this->Interval(le64toh(f->currentApMac)))
+  if (!p_ || !this->CurrentApMac(f->currentApMac))
   {
     return (NULL);
   }
 
-  p_ = this->DisassembleTags((uint8_t*)&f->tags, rem_);
+  p_ = this->Frame::DisassembleTags((uint8_t*) &f->tags, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling reassociation request frame tags: " + ZLOG_INT(rem_));
@@ -194,40 +347,52 @@ ReassociationRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 uint16_t
 ReassociationRequest::Capabilities() const
 {
-  return(this->_capabilities);
+  return (this->_capabilities);
 }
 
 bool
 ReassociationRequest::Capabilities(const uint16_t capabilities_)
 {
   this->_capabilities = capabilities_;
-  return(true);
+  return (true);
 }
 
 uint16_t
 ReassociationRequest::Interval() const
 {
-  return(this->_interval);
+  return (this->_interval);
 }
 
 bool
 ReassociationRequest::Interval(const uint16_t interval_)
 {
   this->_interval = interval_;
-  return(true);
+  return (true);
 }
 
-uint64_t
+std::string
 ReassociationRequest::CurrentApMac() const
 {
-	return (this->_currentApMac);
+  return (this->_currentApMac);
 }
 
 bool
-ReassociationRequest::CurrentApMac(const uint64_t mac_)
+ReassociationRequest::CurrentApMac(const std::string mac_)
 {
-	this->_currentApMac = mac_;
-	return (true);
+  this->_currentApMac = mac_;
+  return (true);
+}
+
+bool
+ReassociationRequest::CurrentApMac(const uint8_t* mac_)
+{
+  bool status = false;
+  std::string addr;
+  if (this->mac2str(mac_, addr))
+  {
+    status = this->CurrentApMac(addr);
+  }
+  return (status);
 }
 
 void
@@ -237,8 +402,10 @@ ReassociationRequest::Display() const
   std::cout << "----- IEEE802.11 Reassociation Request -----------" << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
-  if (this->Ssid.Valid()) this->Ssid.Display();
-  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
+  if (this->Ssid.Valid())
+    this->Ssid.Display();
+  if (this->PowerCaps.Valid())
+    this->PowerCaps.Display();
 }
 
 //*****************************************************************************
@@ -246,13 +413,142 @@ ReassociationRequest::Display() const
 //*****************************************************************************
 
 ReassociationResponse::ReassociationResponse() :
-    ManagementFrame(ManagementFrame::SUBTYPE_ASSRESP),
-    _capabilities(0), _status(0), _aid(0)
+    ManagementFrame(ManagementFrame::SUBTYPE_RASSRESP), _capabilities(0), _status(0), _aid(0)
 {
 }
 
 ReassociationResponse::~ReassociationResponse()
 {
+}
+
+bool
+ReassociationResponse::Assemble(zSocket::Buffer& sb_)
+{
+  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_RASSRESP)
+  {
+    ZLOG_ERR("Error assembling ReassociationResponse frame header");
+    return (false);
+  }
+
+  struct ieee80211_rassresp* f = (struct ieee80211_rassresp*) sb_.Data();
+
+  if (sb_.Put(sizeof(f->capabilities)))
+  {
+    f->capabilities = htole16(this->Capabilities());
+    sb_.Pull(sizeof(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationResponse frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->status)))
+  {
+    f->status = htole16(this->Status());
+    sb_.Pull(sizeof(f->status));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationResponse frame");
+    return (false);
+  }
+
+  if (sb_.Put(sizeof(f->aid)))
+  {
+    f->aid = htole16(this->ReassociationIdentifier());
+    sb_.Pull(sizeof(f->aid));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling ReassociationResponse frame");
+    return (false);
+  }
+
+  // Order matters - check 802.11 spec
+  this->PutTag(this->Rates);
+  this->PutTag(this->ExtRates);
+  this->PutTag(this->HtCaps);
+  this->PutTag(this->HtInfo);
+  this->PutTag(this->ExtCaps);
+#if 0
+  this->PutTag(this->WmmWme);
+#endif
+
+  if (not AssembleTags(sb_))
+  {
+    ZLOG_ERR("Error assembling ReassociationResponse frame tags");
+    return (false);
+  }
+
+  return true;
+}
+
+bool
+ReassociationResponse::Disassemble(zSocket::Buffer& sb_)
+{
+  struct ieee80211_rassresp* f = (ieee80211_rassresp*) sb_.Data();
+
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_))
+  {
+    ZLOG_ERR("Error disassembling ReassociationResponse frame header");
+    return false;
+  }
+
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_RASSRESP)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
+
+  f = (ieee80211_rassresp*) sb_.Data();
+
+  if (sb_.Pull(sizeof(f->capabilities)))
+  {
+    this->Capabilities(le16toh(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Missing capabilities field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->status)))
+  {
+    this->Status(le16toh(f->status));
+  }
+  else
+  {
+    ZLOG_ERR("Missing status field");
+    return (false);
+  }
+
+  if (sb_.Pull(sizeof(f->aid)))
+  {
+    this->ReassociationIdentifier(le16toh(f->aid));
+  }
+  else
+  {
+    ZLOG_ERR("Missing aid field");
+    return (false);
+  }
+
+  if (not this->DisassembleTags(sb_))
+  {
+    ZLOG_ERR("Error disassembling ReassociationResponse frame tags");
+    return (false);
+  }
+
+  this->GetTag(this->Rates);
+  this->GetTag(this->ExtRates);
+  this->GetTag(this->HtCaps);
+  this->GetTag(this->HtInfo);
+  this->GetTag(this->ExtCaps);
+  this->GetTag(this->WmmWme);
+
+  return true;
 }
 
 uint8_t*
@@ -296,11 +592,11 @@ ReassociationResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
   this->PutTag(this->ExtCaps);
   this->PutTag(this->WmmWme);
 
-  p_ = this->AssembleTags(p_, rem_);
+  p_ = this->Frame::AssembleTags(p_, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error assembling reassociation response frame tags: " + ZLOG_INT(rem_));
-    return(NULL);
+    return (NULL);
   }
 
   return (p_);
@@ -336,7 +632,7 @@ ReassociationResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     return (NULL);
   }
 
-  p_ = this->DisassembleTags((uint8_t*)&f->tags, rem_);
+  p_ = this->Frame::DisassembleTags((uint8_t*) &f->tags, rem_);
   if (!p_)
   {
     ZLOG_ERR("Error disassembling reassociation response frame tags: " + ZLOG_INT(rem_));
@@ -356,40 +652,40 @@ ReassociationResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
 uint16_t
 ReassociationResponse::Capabilities() const
 {
-  return(this->_capabilities);
+  return (this->_capabilities);
 }
 
 bool
 ReassociationResponse::Capabilities(const uint16_t capabilities_)
 {
   this->_capabilities = capabilities_;
-  return(true);
+  return (true);
 }
 
 uint16_t
 ReassociationResponse::Status() const
 {
-  return(this->_status);
+  return (this->_status);
 }
 
 bool
 ReassociationResponse::Status(const uint16_t status_)
 {
   this->_status = status_;
-  return(true);
+  return (true);
 }
 
 uint16_t
 ReassociationResponse::ReassociationIdentifier() const
 {
-  return(this->_aid);
+  return (this->_aid);
 }
 
 bool
 ReassociationResponse::ReassociationIdentifier(const uint16_t aid_)
 {
   this->_aid = aid_;
-  return(true);
+  return (true);
 }
 
 void
@@ -400,11 +696,16 @@ ReassociationResponse::Display() const
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tStatus:   \t" << int(this->Status()) << std::endl;
   std::cout << "\tAID:      \t" << int(this->ReassociationIdentifier()) << std::endl;
-  if (this->Rates.Valid()) this->Rates.Display();
-  if (this->HtCaps.Valid()) this->HtCaps.Display();
-  if (this->ExtRates.Valid()) this->ExtRates.Display();
-  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
-  if (this->WmmWme.Valid()) this->WmmWme.Display();
+  if (this->Rates.Valid())
+    this->Rates.Display();
+  if (this->HtCaps.Valid())
+    this->HtCaps.Display();
+  if (this->ExtRates.Valid())
+    this->ExtRates.Display();
+  if (this->ExtCaps.Valid())
+    this->ExtCaps.Display();
+  if (this->WmmWme.Valid())
+    this->WmmWme.Display();
 }
 
 }

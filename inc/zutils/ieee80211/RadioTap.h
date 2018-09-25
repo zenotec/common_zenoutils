@@ -22,7 +22,9 @@
 #include <vector>
 #include <map>
 
+#include <zutils/zSocket.h>
 #include <zutils/ieee80211/RadioTapField.h>
+using namespace zUtils;
 
 namespace zUtils
 {
@@ -44,6 +46,12 @@ public:
 
   virtual
   ~RadioTap();
+
+  virtual bool
+  Assemble(zSocket::Buffer& sb_);
+
+  virtual bool
+  Disassemble(zSocket::Buffer& sb_);
 
   uint8_t*
   Assemble(uint8_t* frame_, size_t& rem_);

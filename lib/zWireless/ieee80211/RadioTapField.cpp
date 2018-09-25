@@ -23,6 +23,11 @@
 
 #include <zutils/ieee80211/RadioTapField.h>
 
+#include <zutils/zLog.h>
+using namespace zUtils;
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
+
 namespace zUtils
 {
 namespace zWireless
@@ -72,6 +77,14 @@ _align(const uint8_t* hdr_, const uint8_t* addr_, const size_t align_, size_t& p
   return ((uint8_t*) (addr_ + pad_));
 }
 
+static size_t
+_pad(const uint8_t* hdr_, const uint8_t* addr_, const size_t align_)
+{
+  unsigned long mask = (align_ - 1);
+  unsigned long offset = ((addr_ - hdr_) & mask);
+  return ((offset > 0) ? (align_ - offset) : offset);
+}
+
 //*****************************************************************************
 // Class: RadioTapField
 //*****************************************************************************
@@ -84,6 +97,69 @@ RadioTapField::RadioTapField(const RadioTapField::ID id_) :
 
 RadioTapField::~RadioTapField()
 {
+}
+
+bool
+RadioTapField::Assemble(zSocket::Buffer& sb_, const uint8_t* hdr_, size_t& pad_)
+{
+	// Sanity check the field attributes
+	if (!this->Align() || !this->Size() || this->_value.empty())
+	{
+		return false;
+	}
+
+	// Calc amount of padding to align this field on it's size boundary, relative to the start of the hdr
+	pad_ = _pad(hdr_, sb_.Data(), Align());
+
+	// Verify there is enough room in the caller's buffer and copy the data to the aligned address
+	if (sb_.Put(Size() + pad_))
+	{
+		sb_.Pull(pad_); // move data ptr to aligned address
+		memcpy(sb_.Data(), this->_value.data(), this->Size());
+		sb_.Pull(Size()); // move data ptr up to tail
+	}
+	else
+	{
+		ZLOG_ERR("Error assembling RadioTap field");
+		return false;
+	}
+
+
+	return true;
+}
+
+bool
+RadioTapField::Disassemble(zSocket::Buffer& sb_, const uint8_t* hdr_, size_t& pad_)
+{
+	// Sanity check the field attributes
+	if (!this->Align() || !this->Size())
+	{
+		ZLOG_ERR("Error disassembling RadioTap field - undefined Align and/or Size");
+		return false;
+	}
+
+	// Calc amount of padding to align this field on it's size boundary, relative to the start of the hdr
+	pad_ = _pad(hdr_, sb_.Data(), Align());
+
+	// advance to start of field with respect to pad
+	if (not sb_.Pull(pad_))
+	{
+		ZLOG_ERR("Error disassembling RadioTap field - couldn't jump pad");
+		return false;
+	}
+
+	uint8_t* field = sb_.Data();
+	if (not sb_.Pull(this->Size()))
+	{
+		ZLOG_ERR("Error disassembling RadioTap field - couldn't Pull expected size");
+		return false;
+	}
+
+	this->_value.resize(this->Size());
+
+	memcpy(this->_value.data(), field, this->Size());
+
+	return true;
 }
 
 uint8_t*

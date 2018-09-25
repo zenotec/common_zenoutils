@@ -56,7 +56,6 @@ main(int argc, const char **argv)
   UTEST_TEST(zWirelessTest_SetSsid, 0);
   UTEST_TEST(zWirelessTest_GetBssid, 0);
   UTEST_TEST(zWirelessTest_SetBssid, 0);
-  UTEST_TEST(zWirelessTest_TestInterface, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

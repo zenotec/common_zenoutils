@@ -36,18 +36,18 @@ using namespace zUtils;
 //using namespace ieee80211;
 
 
-class TestAccessPointInterface : public zWireless::AccessPointInterface
+class TestAccessPointInterface :
+    public zWireless::AccessPointInterface
 {
-  bool _running;
-  bool commit(){
-    return 1;
-    }
+
 public:
+
   TestAccessPointInterface(const std::string& name_) :
-    AccessPointInterface(name_), _running(false)
+      AccessPointInterface(name_)
   {
-    this->SetOpMode(zWireless::ConfigData::OPMODE_AP);
   }
+
+  virtual
   ~TestAccessPointInterface()
   {
   }
@@ -55,12 +55,13 @@ public:
 
 
 int
-zWirelessTest_GetSsid(void* arg){
+zWirelessTest_GetSsid(void* arg)
+{
+
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zWirelessTest_GetSsid()");
   ZLOG_DEBUG("#############################################################");
 
-  
   std::string ssid;
   std::string ifname = std::string("vap");
   TestAccessPointInterface *MyInterface = new TestAccessPointInterface(ifname);
@@ -72,7 +73,9 @@ zWirelessTest_GetSsid(void* arg){
 }
 
 int
-zWirelessTest_SetSsid(void* arg){
+zWirelessTest_SetSsid(void* arg)
+{
+
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zWirelessTest_SetSsid()");
   ZLOG_DEBUG("#############################################################");
@@ -89,24 +92,12 @@ zWirelessTest_SetSsid(void* arg){
 }
 
 int
-zWirelessTest_TestInterface(void* arg)
+zWirelessTest_GetBssid(void* arg)
 {
-  std::string name1 = std::string("ap1");
-  TestAccessPointInterface * MyInterface = new TestAccessPointInterface(name1);
-  MyInterface->Create();
-  MyInterface->Stop();
 
-  delete MyInterface;
-  UTEST_RETURN;
-}
-
-
-int
-zWirelessTest_GetBssid(void* arg){
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zWirelessTest_GetBssid()");
   ZLOG_DEBUG("#############################################################");
-
   
   std::string bssid;
   std::string ifname = std::string("a");
@@ -119,7 +110,9 @@ zWirelessTest_GetBssid(void* arg){
 }
 
 int
-zWirelessTest_SetBssid(void* arg){
+zWirelessTest_SetBssid(void* arg)
+{
+
   ZLOG_DEBUG("#############################################################");
   ZLOG_DEBUG("# zWirelessTest_SetBssid()");
   ZLOG_DEBUG("#############################################################");
@@ -129,24 +122,8 @@ zWirelessTest_SetBssid(void* arg){
   std::string bssid1 = "hello2";
   const std::string& bssid_ = bssid1;
   MyInterface->SetBssid(bssid_);
-  TEST_EQ(bssid_ ,MyInterface->GetBssid());
-  
+  TEST_EQ(bssid_, MyInterface->GetBssid());
+
   delete MyInterface;
   UTEST_RETURN;
 }
-
-/*int
-zWirelessTest_Start(void* arg){
-  ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zWirelessTest_start()");
-  ZLOG_DEBUG("#############################################################");
-
-  ProbeRequest *MyProbeRequest = new ProbeRequest();
-  Beacon *MyBeacon = new Beacon();
-  
-
-  UTEST_RETURN;
-
-
-
-}*/

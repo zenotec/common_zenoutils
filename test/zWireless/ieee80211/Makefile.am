@@ -25,12 +25,18 @@ Ieee80211UnitTest_SOURCES = \
     Defaults.cpp \
     Radiotap.cpp \
     Frame.cpp \
+    ControlFrame.cpp \
     ManagementFrame.cpp \
     Beacon.cpp \
     Probe.cpp \
     Association.cpp \
-    Authentication.cpp
+    Reassociation.cpp \
+    Disassociation.cpp \
+    Authentication.cpp \
+    Deauthentication.cpp \
+    DataFrame.cpp
 
 Ieee80211UnitTest_LDADD = \
     ${top_builddir}/lib/libzutils.la
+
 
