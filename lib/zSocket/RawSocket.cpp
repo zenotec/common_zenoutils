@@ -31,6 +31,7 @@
 
 #include <zutils/zUtils.h>
 #include <zutils/zLog.h>
+#include <zutils/zRawAddress.h>
 #include <zutils/zRawSocket.h>
 #include <zutils/zSocket.h>
 
@@ -41,150 +42,12 @@ namespace zUtils
 namespace zSocket
 {
 
-static bool
-_str2mac(const std::string& addr_, uint8_t* mac_)
-{
-  return (sscanf(addr_.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
-      &mac_[0], &mac_[1], &mac_[2], &mac_[3], &mac_[4], &mac_[5]) == ETH_ALEN);
-}
-
-static bool
-_mac2str(const uint8_t* mac_, std::string& addr_)
-{
-  bool status = false;
-  char str[18] = { 0 };
-  int n = sprintf(str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
-      mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
-  if (n == 17)
-  {
-    addr_ = std::string(str);
-    status = true;
-  }
-  return (status);
-}
-
-
-static bool
-_addr2ifindex(const std::string& addr_, int& index_)
-{
-  char c = 0;
-  if (sscanf(addr_.c_str(), "%d%c", &index_, &c) != 1)
-  {
-    index_ = if_nametoindex(addr_.c_str());
-  }
-  return (!!index_);
-}
-
-static bool
-_addr2mac(const std::string& addr_, uint8_t* mac_)
-{
-  uint8_t mac[ETH_ALEN] = { 0 };
-  bool status = _str2mac(addr_, mac);
-  if (status)
-  {
-    memcpy(mac_, mac, ETH_ALEN);
-  }
-  return (status);
-}
-
-static bool
-_addr2sa(const std::string &addr_, struct sockaddr_ll &sa_)
-{
-  bool status = false;
-
-  // Initialize socket address
-  memset(&sa_, 0, sizeof(sa_));
-  sa_.sll_family = AF_PACKET;
-  sa_.sll_pkttype = PACKET_HOST;
-  sa_.sll_halen = ETH_ALEN;
-
-  if (!(status = _addr2mac(addr_, sa_.sll_addr)))
-  {
-    status = _addr2ifindex(addr_, sa_.sll_ifindex);
-  }
-  return (status);
-}
-
-static bool
-_sa2addr(const struct sockaddr_ll &sa_, std::string &addr_)
-{
-  char str[256] = { 0 };
-  if (!_mac2str(sa_.sll_addr, addr_) || addr_ == std::string(std::string("00:00:00:00:00:00")))
-  {
-    if ((sa_.sll_ifindex) && if_indextoname(sa_.sll_ifindex, str))
-    {
-      addr_ = std::string(str);
-    }
-  }
-  return (!addr_.empty());
-}
-
-//**********************************************************************
-// Class: zSocket::EthAddress
-//**********************************************************************
-
-EthAddress::EthAddress(const std::string &addr_) :
-    Address(SOCKET_TYPE::TYPE_RAW, addr_), sa { 0 }
-{
-  _addr2sa(addr_, this->sa);
-}
-
-EthAddress::EthAddress(const Address &addr_) :
-    Address(SOCKET_TYPE::TYPE_RAW), sa { 0 }
-{
-  if (addr_.GetType() == this->GetType())
-  {
-    this->SetAddress(addr_.GetAddress());
-  }
-}
-
-EthAddress::EthAddress(const struct sockaddr_ll& sa_) :
-        Address(SOCKET_TYPE::TYPE_RAW), sa (sa_)
-{
-  this->SetAddress(this->GetAddress());
-}
-
-EthAddress::~EthAddress()
-{
-}
-
-std::string
-EthAddress::GetAddress() const
-{
-  std::string addr;
-  _sa2addr(this->sa, addr);
-  return (addr);
-}
-
-bool
-EthAddress::SetAddress(const std::string& addr_)
-{
-  bool status = false;
-  if (_addr2sa(addr_, this->sa))
-  {
-    status = Address::SetAddress(addr_);
-  }
-  return (status);
-}
-
-void
-EthAddress::Display() const
-{
-  std::string mac;
-  _mac2str(this->sa.sll_addr, mac);
-  Address::Display();
-  std::cout << "----------------- Ethernet Address -----------------" << std::endl;
-  std::cout << "Family: \t" << this->sa.sll_family << std::endl;
-  std::cout << "IfIndex:\t" << this->sa.sll_ifindex << std::endl;
-  std::cout << "MAC:    \t" << mac << std::endl;
-}
-
 //**********************************************************************
 // Class: zSocket::RawSocket
 //**********************************************************************
 
-RawSocket::RawSocket(const RawSocket::PROTO proto_) :
-    Socket(SOCKET_TYPE::TYPE_RAW), _fd(0)
+RawSocket::RawSocket(const RawSocket::PROTO proto_, const RawSocket::PACKETTYPE ptype_) :
+    Socket(SOCKET_TYPE::TYPE_RAW), _fd(0), _proto(proto_), _ptype(ptype_)
 {
   // Create a AF_INET socket
   this->_fd = socket( PF_PACKET, SOCK_RAW, htons(proto_));
@@ -224,12 +87,6 @@ RawSocket::GetId() const
   return (this->_fd);
 }
 
-const Address&
-RawSocket::GetAddress() const
-{
-  return (this->_addr);
-}
-
 bool
 RawSocket::Getopt(Socket::OPTIONS opt_)
 {
@@ -246,9 +103,14 @@ RawSocket::Getopt(Socket::OPTIONS opt_)
     }
     else
     {
-      std::cerr << "OPTIONS_ALLOW_REUSE: " << optval << std::endl;
       status = (optval == 0);
     }
+    break;
+  }
+  case Socket::OPTIONS_PROMISC:
+  {
+    RawAddress raddr(this->GetAddress());
+    struct packet_mreq mr = { 0 };
     break;
   }
   default:
@@ -267,9 +129,29 @@ RawSocket::Setopt(Socket::OPTIONS opt_)
   {
     // Enable reuse of socket
     int optval = 0;
-    if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    if (setsockopt(this->_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == 0)
     {
-      ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
+      status = true;
+    }
+    else
+    {
+      ZLOG_ERR("Cannot set socket option: " + std::string(strerror(errno)));
+    }
+    break;
+  }
+  case Socket::OPTIONS_PROMISC:
+  {
+    RawAddress raddr(this->GetAddress());
+    struct packet_mreq mr = { 0 };
+    mr.mr_ifindex = raddr.GetSA().sll_ifindex;
+    mr.mr_type = PACKET_MR_PROMISC;
+    if (setsockopt(this->_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) == 0)
+    {
+      status = true;
+    }
+    else
+    {
+      ZLOG_ERR("Cannot set socket option: " + std::string(strerror(errno)));
     }
     break;
   }
@@ -283,31 +165,38 @@ bool
 RawSocket::Bind(const Address& addr_)
 {
 
+  bool status = false;
+
   if (!this->_fd)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (false);
   }
 
-  if (addr_.GetType() != SOCKET_TYPE::TYPE_RAW)
+  if (addr_.GetType() != Address::TYPE_RAW)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
   }
 
-  this->_addr = EthAddress(addr_);
+  // Initialize socket address of interface to bind to
+  RawAddress addr(addr_);
+  struct sockaddr_ll sa(addr.GetSA());
+  sa.sll_family = AF_PACKET;
+  sa.sll_protocol = htons(this->_proto);
+  sa.sll_pkttype = this->_ptype;
 
   // Bind address to socket
-  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr.sa, sizeof(this->_addr.sa));
+  int ret = bind(this->_fd, (struct sockaddr*) &sa, sizeof(sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
+    ZLOG_ERR("Cannot bind socket: " + addr_.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_fd));
+  ZLOG_INFO("Bind on socket: [" + ZLOG_INT(this->_fd) + "]" + addr_.GetAddress());
 
-  return (true);
+  return (this->SetAddress(addr_) && this->_addr.SetSA(sa));
 
 }
 
@@ -337,7 +226,7 @@ RawSocket::Recv()
         struct timespec ts = { 0 };
         ioctl(this->_fd, SIOCGSTAMPNS, &ts);
         sb.Timestamp(ts);
-        EthAddress addr(src);
+        RawAddress addr(src);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
         n->SetSrcAddress(addr);
         n->SetBuffer(sb);
@@ -375,9 +264,11 @@ RawSocket::Send(const Address& to_, const Buffer& sb_)
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
-    EthAddress addr(to_);
-    addr.sa.sll_ifindex = this->_addr.sa.sll_ifindex;
-    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &this->_addr.sa, sizeof(this->_addr.sa));
+    struct sockaddr_ll sa(this->_addr.GetSA());
+    sa.sll_family = AF_PACKET;
+    sa.sll_protocol = htons(this->_proto);
+    sa.sll_pkttype = this->_ptype;
+    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
     if (nbytes > 0)
     {
       ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
@@ -391,11 +282,12 @@ RawSocket::Send(const Address& to_, const Buffer& sb_)
   }
   else
   {
-    fprintf(stderr, "BUG: Timed out polling on TX\n");
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 
   return (n);
+
 }
 
 }

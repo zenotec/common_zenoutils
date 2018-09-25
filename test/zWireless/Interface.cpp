@@ -172,7 +172,7 @@ zWirelessTest_WirelessInterface(void* arg)
     TEST_NEQ_MSG(zWireless::ConfigData::ConfigPhyIndexDefault, MyInterface->GetPhyIndex(), iface.second);
     TEST_NEQ_MSG(zWireless::ConfigData::ConfigPhyNameDefault, MyInterface->GetPhyName(), iface.second);
     TEST_NEQ_MSG(zWireless::ConfigData::HTMODE_ERR, MyInterface->GetHtMode(), iface.second);
-    TEST_NEQ_MSG(zWireless::ConfigData::HTMODE_DEF, MyInterface->GetHtMode(), iface.second);
+//    TEST_NEQ_MSG(zWireless::ConfigData::HTMODE_DEF, MyInterface->GetHtMode(), iface.second);
     TEST_NEQ_MSG(zWireless::ConfigData::HTMODE_LAST, MyInterface->GetHtMode(), iface.second);
     TEST_NEQ_MSG(zWireless::ConfigData::OPMODE_ERR, MyInterface->GetOpMode(), iface.second);
     TEST_NEQ_MSG(zWireless::ConfigData::OPMODE_NONE, MyInterface->GetOpMode(), iface.second);

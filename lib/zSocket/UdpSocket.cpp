@@ -32,7 +32,7 @@
 
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
-#include <zutils/zInetSocket.h>
+#include <zutils/zUdpSocket.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
@@ -41,172 +41,11 @@ namespace zUtils
 namespace zSocket
 {
 
-static std::string
-_sa2ip(const struct sockaddr_in& sa_)
-{
-  char ip[INET_ADDRSTRLEN] = { 0 };
-  std::string str;
-
-  if ((char*) &ip == inet_ntop( AF_INET, &sa_.sin_addr, (char*) ip, INET_ADDRSTRLEN))
-  {
-    str = std::string(ip);
-  }
-
-  return (str);
-}
-
-static in_port_t
-_sa2port(const struct sockaddr_in& sa_)
-{
-  return (ntohs(sa_.sin_port));
-}
-
-static std::string
-_sa2portstr(const struct sockaddr_in& sa_)
-{
-  char port[10] = { 0 };
-  snprintf(port, 10, "%u", _sa2port(sa_));
-  std::string str(port);
-  return (port);
-}
-
-static std::string
-_str2ip(const std::string& addr_)
-{
-  int pos = 0;
-  int npos = 0;
-  std::string str;
-
-  if (!addr_.empty())
-  {
-    npos = addr_.find_first_of(":");
-    if (npos != addr_.npos)
-    {
-      str = addr_.substr(pos, npos);
-    }
-  }
-
-  return (str);
-}
-
-static std::string
-_str2port(const std::string& addr_)
-{
-  int pos = 0;
-  std::string str;
-
-  if (!addr_.empty())
-  {
-    pos = addr_.find_first_of(":");
-    if (pos != addr_.npos)
-    {
-      str = addr_.substr(++pos, addr_.npos);
-    }
-  }
-
-  return (str);
-}
-
-static bool
-_addr2sa(const std::string& addr_, struct sockaddr_in& sa_)
-{
-
-  bool status = false;
-  struct sockaddr_in sa = { 0 };
-  uint32_t port = 0;
-
-  sa.sin_family = AF_INET;
-  int ret = inet_pton( AF_INET, _str2ip(addr_).c_str(), &sa.sin_addr);
-  if (ret == 1)
-  {
-    if ((sscanf(_str2port(addr_).c_str(), "%u", &port) == 1) && (port < 0xffff))
-    {
-      sa.sin_port = htons(port);
-      sa_ = sa;
-      status = true;
-    }
-  }
-
-  return (status);
-}
-
-static bool
-_sa2addr(const struct sockaddr_in& sa_, std::string& addr_)
-{
-  bool status = false;
-  struct sockaddr_in sockaddr;
-  std::string addr = _sa2ip(sa_) + ":" + _sa2portstr(sa_);
-  if (_addr2sa(addr, sockaddr))
-  {
-    addr_ = addr;
-    status = true;
-  }
-  return (status);
-}
-
-//**********************************************************************
-// Class: zSocket::InetAddress
-//**********************************************************************
-
-InetAddress::InetAddress(const std::string &addr_) :
-    Address(Address::TYPE_IPv4, addr_), sa { 0 }
-{
-  _addr2sa(addr_, this->sa);
-}
-
-InetAddress::InetAddress(const Address &addr_) :
-    Address(Address::TYPE_IPv4), sa { 0 }
-{
-  if (addr_.GetType() == this->GetType())
-  {
-    this->SetAddress(addr_.GetAddress());
-  }
-}
-
-InetAddress::InetAddress(const struct sockaddr_in& sa_) :
-        Address(Address::TYPE_IPv4), sa (sa_)
-{
-  this->SetAddress(this->GetAddress());
-}
-
-InetAddress::~InetAddress()
-{
-}
-
-std::string
-InetAddress::GetAddress() const
-{
-  std::string addr;
-  _sa2addr(this->sa, addr);
-  return (addr);
-}
-
-bool
-InetAddress::SetAddress(const std::string& addr_)
-{
-  bool status = false;
-  if (_addr2sa(addr_, this->sa))
-  {
-    status = Address::SetAddress(addr_);
-  }
-  return (status);
-}
-
-void
-InetAddress::Display() const
-{
-  Address::Display();
-  std::cout << "----------------- INET4 Address -----------------" << std::endl;
-  std::cout << "Family: \t" << this->sa.sin_family << std::endl;
-  std::cout << "IP:     \t" << _sa2ip(this->sa) << std::endl;
-  std::cout << "Port:   \t" << _sa2portstr(this->sa) << std::endl;
-}
-
 //**********************************************************************
 // zSocket::InetSocket Class
 //**********************************************************************
 
-InetSocket::InetSocket() :
+UdpSocket::UdpSocket() :
     Socket(SOCKET_TYPE::TYPE_INET4)
 {
   // Create a AF_INET socket
@@ -222,7 +61,7 @@ InetSocket::InetSocket() :
   }
 }
 
-InetSocket::~InetSocket()
+UdpSocket::~UdpSocket()
 {
   // Make sure the socket is unregistered from all handlers
   if (!this->_handler_list.empty())
@@ -242,19 +81,13 @@ InetSocket::~InetSocket()
 }
 
 int
-InetSocket::GetId() const
+UdpSocket::GetId() const
 {
   return (this->_fd);
 }
 
-const Address&
-InetSocket::GetAddress() const
-{
-  return (this->_addr);
-}
-
 bool
-InetSocket::Getopt(Socket::OPTIONS opt_)
+UdpSocket::Getopt(Socket::OPTIONS opt_)
 {
   bool status = false;
   switch (opt_)
@@ -323,7 +156,7 @@ InetSocket::Getopt(Socket::OPTIONS opt_)
 }
 
 bool
-InetSocket::Setopt(Socket::OPTIONS opt_)
+UdpSocket::Setopt(Socket::OPTIONS opt_)
 {
   bool status = false;
   switch (opt_)
@@ -389,7 +222,7 @@ InetSocket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
-InetSocket::Bind(const Address& addr_)
+UdpSocket::Bind(const Address& addr_)
 {
 
   if (!this->_fd)
@@ -404,31 +237,29 @@ InetSocket::Bind(const Address& addr_)
     return (false);
   }
 
-  this->_addr = InetAddress(addr_);
+  Ipv4Address addr = Ipv4Address(addr_);
+  struct sockaddr_in sa(addr.GetSA());
 
   // Bind address to socket
-  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr.sa, sizeof(this->_addr.sa));
+  int ret = bind(this->_fd, (struct sockaddr*) &sa, sizeof(struct sockaddr_in));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot bind socket: " + this->GetAddress().GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
   ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_fd));
 
-  return (true);
+  return (this->SetAddress(addr_));
+
 }
 
 SHARED_PTR(zSocket::Notification)
-InetSocket::Recv()
+UdpSocket::Recv()
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   int nbytes = 0;
-
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetDstAddress(this->GetAddress());
 
   if (this->_fd)
   {
@@ -438,71 +269,80 @@ InetSocket::Recv()
     {
       struct sockaddr_in src;
       socklen_t len = sizeof(src);
-      Buffer sb(nbytes);
-      nbytes = recvfrom(this->_fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
-      if ((nbytes > 0) && sb.Put(nbytes))
+      SHARED_PTR(Buffer) sb(new Buffer(nbytes));
+
+      nbytes = recvfrom(this->_fd, sb->Head(), sb->Tailroom(), 0, (struct sockaddr *) &src, &len);
+      if ((nbytes > 0) && sb->Put(nbytes))
       {
         struct timespec ts = { 0 };
         ioctl(this->_fd, SIOCGSTAMPNS, &ts);
-        sb.Timestamp(ts);
-        InetAddress addr(src);
+        sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-        n->SetSrcAddress(addr);
-        n->SetBuffer(sb);
+#warning "TODO"
+//        n->SetDstAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
+//        n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(src)));
+//        n->SetBuffer(sb);
+        // NOTE: frame is initialized by optional adapter socket
         ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
-            " bytes from: " + addr.GetAddress());
+            " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
       {
+        n->SetSubType(Notification::SUBTYPE_PKT_ERR);
         ZLOG_ERR(std::string("Cannot receive packet: " + std::string(strerror(errno))));
       }
     }
   }
 
   return (n);
+
 }
 
 SHARED_PTR(zSocket::Notification)
-InetSocket::Send(const Address& to_, const Buffer& sb_)
+UdpSocket::Send(const Address& to_, const Buffer& sb_)
 {
 
+  // Initialize notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  ssize_t nbytes = -1;
+  SHARED_PTR(Ipv4Address) addr(new Ipv4Address(to_));
+#warning "TODO"
+//  n->SetDstAddress(addr);
+//  n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
+//  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  // NOTE: frame is initialized by optional adapter socket
 
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = this->_fd;
   fds[0].events = (POLLOUT | POLLERR);
 
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(this->GetAddress());
-  n->SetDstAddress(to_);
-  n->SetBuffer(sb_);
-
+  // Poll for transmit ready
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
-    InetAddress addr(to_);
-    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
+    // Send
+    struct sockaddr_in dst(addr->GetSA());
+    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
     if (nbytes > 0)
     {
       ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
-          " bytes to: " + addr.GetAddress());
+          " bytes to: " + addr->GetAddress());
       n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }
     else
     {
+      n->SetSubType(Notification::SUBTYPE_PKT_ERR);
       ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
     }
   }
   else
   {
-    fprintf(stderr, "BUG: Timed out polling on TX\n");
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 
   return (n);
+
 }
 
 }

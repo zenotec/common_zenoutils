@@ -302,11 +302,13 @@ Socket::Recv()
   SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
 
   // Update destination address from actual frame
-  zSocket::Address daddr(zSocket::Socket::GetType(), n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_1));
+  zSocket::Address daddr(zSocket::Socket::GetAddress().GetType(),
+      n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_1));
   n->SetDstAddress(daddr);
 
   // Update source address from actual frame
-  zSocket::Address saddr(zSocket::Socket::GetType(), n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_2));
+  zSocket::Address saddr(zSocket::Socket::GetAddress().GetType(),
+      n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_2));
   n->SetSrcAddress(saddr);
 
   // Return wireless notification
@@ -352,7 +354,7 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
     return (n);
   }
 
-  zSocket::Address daddr(zSocket::Socket::GetType(), frame_.GetAddress(ieee80211::Frame::ADDRESS_1));
+  zSocket::Address daddr(zSocket::Socket::GetAddress().GetType(), frame_.GetAddress(ieee80211::Frame::ADDRESS_1));
   return (this->Send(daddr, sb));
 }
 

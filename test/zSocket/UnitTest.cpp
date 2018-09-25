@@ -51,6 +51,7 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_SocketDefaults, 0);
 
   UTEST_TEST(zSocketTest_BufferString, 0);
+  UTEST_TEST(zSocketTest_BufferReadWrite, 0);
   UTEST_TEST(zSocketTest_BufferCompare, 0);
   UTEST_TEST(zSocketTest_BufferCopy, 0);
 
@@ -69,19 +70,19 @@ main(int argc, const char **argv)
   UTEST_TEST(zSocketTest_UnixSocketDefault, 0);
   UTEST_TEST(zSocketTest_UnixSocketSendReceive, 0);
 
-  UTEST_TEST(zSocketTest_EthAddressGetSet, 0);
-  UTEST_TEST(zSocketTest_EthAddressCompare, 0);
+  UTEST_TEST(zSocketTest_MacAddressGetSet, 0);
+  UTEST_TEST(zSocketTest_MacAddressCompare, 0);
 
-  UTEST_TEST(zSocketTest_EthSocketDefault, 0);
-  UTEST_TEST(zSocketTest_EthSocketSendReceiveLoop, 0);
-  UTEST_TEST(zSocketTest_EthSocketSendReceiveSock2Sock, 0);
+  UTEST_TEST(zSocketTest_RawSocketDefault, 0);
+  UTEST_TEST(zSocketTest_RawSocketSendReceiveLoop, 0);
+  UTEST_TEST(zSocketTest_RawSocketSendReceiveSock2Sock, 0);
 
-  UTEST_TEST(zSocketTest_InetAddressGetSet, 0);
-  UTEST_TEST(zSocketTest_InetAddressCompare, 0);
+  UTEST_TEST(zSocketTest_Ipv4AddressGetSet, 0);
+  UTEST_TEST(zSocketTest_Ipv4AddressCompare, 0);
 
-  UTEST_TEST(zSocketTest_InetSocketDefault, 0);
-  UTEST_TEST(zSocketTest_InetSocketSendReceiveLoop, 0);
-  UTEST_TEST(zSocketTest_InetSocketSendReceiveSock2Sock, 0);
+  UTEST_TEST(zSocketTest_UdpSocketDefault, 0);
+  UTEST_TEST(zSocketTest_UdpSocketSendReceiveLoop, 0);
+  UTEST_TEST(zSocketTest_UdpSocketSendReceiveSock2Sock, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

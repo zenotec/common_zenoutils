@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef __ZUNIXSOCKET_H__
-#define __ZUNIXSOCKET_H__
+#ifndef __ZRAWADDRESS_H__
+#define __ZRAWADDRESS_H__
 
-#include <sys/un.h>
+#include <stdint.h>
+#include <linux/if_packet.h>
+#include <linux/if_ether.h>
 
 #include <string>
 
-#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
 
 namespace zUtils
@@ -29,28 +30,24 @@ namespace zUtils
 namespace zSocket
 {
 
-class UnixSocket;
-
 //**********************************************************************
-// Class: zSocket::UnixAddress
+// Class: zSocket::RawAddress
 //**********************************************************************
 
-class UnixAddress :
+class RawAddress :
     public Address
 {
 
-  friend UnixSocket;
-
 public:
 
-  UnixAddress(const std::string &addr_ = "");
+  RawAddress(const std::string &addr_ = "");
 
-  UnixAddress(const Address& addr_);
+  RawAddress(const Address& addr_);
 
-  UnixAddress(const struct sockaddr_un& sa_);
+  RawAddress(const struct sockaddr_ll& sa_);
 
   virtual
-  ~UnixAddress();
+  ~RawAddress();
 
   virtual std::string
   GetAddress() const;
@@ -58,11 +55,11 @@ public:
   virtual bool
   SetAddress(const std::string &addr_);
 
-  struct sockaddr_un
+  struct sockaddr_ll
   GetSA() const;
 
   bool
-  SetSA(const struct sockaddr_un& sa_);
+  SetSA(const struct sockaddr_ll& sa_);
 
   virtual void
   Display() const;
@@ -71,50 +68,11 @@ protected:
 
 private:
 
-  struct sockaddr_un _sa;
-
-};
-
-//**********************************************************************
-// Class: zSocket::UnixSocket
-//**********************************************************************
-
-class UnixSocket :
-    public Socket
-{
-
-public:
-
-  UnixSocket();
-
-  virtual
-  ~UnixSocket();
-
-  virtual int
-  GetId() const;
-
-  virtual const Address&
-  GetAddress() const;
-
-  virtual bool
-  Bind(const Address& addr_);
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
-
-protected:
-
-private:
-
-  int _fd;
-  UnixAddress _addr;
+  struct sockaddr_ll _sa;
 
 };
 
 }
 }
 
-#endif /* __ZUNIXSOCKET_H__ */
+#endif /* __ZRAWADDRESS_H__ */

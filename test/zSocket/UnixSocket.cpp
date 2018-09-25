@@ -55,7 +55,7 @@ zSocketTest_UnixSocketDefault(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress MyAddr;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, MyAddr.GetType());
+  TEST_EQ(Address::TYPE_UNIX, MyAddr.GetType());
   TEST_EQ(std::string(""), MyAddr.GetAddress());
 
   // Set socket address
@@ -70,7 +70,7 @@ zSocketTest_UnixSocketDefault(void* arg_)
   delete (MySock);
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
 
 }
 
@@ -86,7 +86,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress *SrcAddr = new zSocket::UnixAddress;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, SrcAddr->GetType());
+  TEST_EQ(Address::TYPE_UNIX, SrcAddr->GetType());
   TEST_EQ(std::string(""), SrcAddr->GetAddress());
   TEST_TRUE(SrcAddr->SetAddress(std::string("/tmp/UnixSrcSock")));
   TEST_EQ(std::string("/tmp/UnixSrcSock"), SrcAddr->GetAddress());
@@ -98,7 +98,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::UnixAddress *DstAddr = new zSocket::UnixAddress;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, DstAddr->GetType());
+  TEST_EQ(Address::TYPE_UNIX, DstAddr->GetType());
   TEST_EQ(std::string(""), DstAddr->GetAddress());
   TEST_TRUE(DstAddr->SetAddress(std::string("/tmp/UnixDstSock")));
   TEST_EQ(std::string("/tmp/UnixDstSock"), DstAddr->GetAddress());
@@ -162,6 +162,6 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   delete (SrcAddr);
 
   // Return success
-  UTEST_RETURN;
+  return (UTEST_PASS);
 
 }

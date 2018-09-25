@@ -39,12 +39,12 @@ namespace zSocket
 {
 
 //*****************************************************************************
-// zSocket::SocketNotification Class
+// Class: zSocket::Notification
 //*****************************************************************************
 
 Notification::Notification(Socket& sock_) :
     zEvent::Notification(sock_), _subtype(Notification::SUBTYPE_NONE),
-    _sa(sock_.GetType()), _da(sock_.GetType())
+    _sa(sock_.GetAddress().GetType()), _da(sock_.GetAddress().GetType())
 {
 }
 

@@ -57,7 +57,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Create new socket address and validate
   zSocket::LoopAddress *MyAddr = new zSocket::LoopAddress;
-  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, MyAddr->GetType());
+  TEST_EQ(Address::TYPE_LOOP, MyAddr->GetType());
   TEST_EQ(std::string(""), MyAddr->GetAddress());
 
   // Create new socket and validate

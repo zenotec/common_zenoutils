@@ -35,7 +35,7 @@ zSocketTest_UnixAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   UnixAddress myAddr;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr.GetType());
+  TEST_EQ(Address::TYPE_UNIX, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Set socket address
@@ -57,12 +57,12 @@ zSocketTest_UnixAddressCompare(void* arg_)
 
   // Create new socket address and validate
   UnixAddress myAddr1;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr1.GetType());
+  TEST_EQ(Address::TYPE_UNIX, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create second socket address and validate
   UnixAddress myAddr2;
-  TEST_EQ(SOCKET_TYPE::TYPE_UNIX, myAddr2.GetType());
+  TEST_EQ(Address::TYPE_UNIX, myAddr2.GetType());
   TEST_EQ(std::string(""), myAddr2.GetAddress());
 
   // Compare address (match)

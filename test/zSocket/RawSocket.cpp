@@ -57,28 +57,18 @@ uint8_t pkt[] =
 };
 
 int
-zSocketTest_EthSocketDefault(void* arg_)
+zSocketTest_RawSocketDefault(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_EthSocketDefault()");
+  ZLOG_DEBUG("# zSocketTest_RawSocketDefault()");
   ZLOG_DEBUG("#############################################################");
-
-  // First step is to determine if we were executed with root privileges, if not, bypass test
-  uid_t uid = getuid(), euid = geteuid();
-  if (uid != 0 || uid != euid)
-  {
-    ZLOG_DEBUG("Test bypassed");
-    UTEST_BYPASS;
-  }
-
-  // Create new socket address and validate
-  zSocket::EthAddress MyAddr;
-  TEST_EQ(std::string("00:00:00:00:00:00"), MyAddr.GetAddress());
 
   // Create new socket and validate
   zSocket::RawSocket *MySock = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock);
+  TEST_EQ(zSocket::TYPE_RAW, MySock->GetType());
+  TEST_EQ(std::string(""), MySock->GetAddress().GetAddress());
 
   // Cleanup
   delete (MySock);
@@ -89,13 +79,13 @@ zSocketTest_EthSocketDefault(void* arg_)
 }
 
 int
-zSocketTest_EthSocketSendReceiveLoop(void* arg_)
+zSocketTest_RawSocketSendReceiveLoop(void* arg_)
 {
 
   bool status = false;
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_EthSocketSendReceiveLoop()");
+  ZLOG_DEBUG("# zSocketTest_RawSocketSendReceiveLoop()");
   ZLOG_DEBUG("#############################################################");
 
   // First step is to determine if we were executed with root privileges, if not, bypass test
@@ -107,16 +97,16 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
   }
 
   // Create new socket address and validate
-  zSocket::EthAddress *SrcAddr = new zSocket::EthAddress;
+  zSocket::RawAddress *SrcAddr = new zSocket::RawAddress;
   TEST_ISNOT_NULL(SrcAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), SrcAddr->GetAddress());
+  TEST_EQ(std::string(""), SrcAddr->GetAddress());
   TEST_TRUE(SrcAddr->SetAddress("lo"));
   TEST_EQ(std::string("lo"), SrcAddr->GetAddress());
 
   // Create new socket address and validate
-  zSocket::EthAddress *DstAddr = new zSocket::EthAddress;
+  zSocket::RawAddress *DstAddr = new zSocket::RawAddress;
   TEST_ISNOT_NULL(DstAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), DstAddr->GetAddress());
+  TEST_EQ(std::string(""), DstAddr->GetAddress());
   TEST_TRUE(DstAddr->SetAddress("lo"));
   TEST_EQ(std::string("lo"), DstAddr->GetAddress());
 
@@ -184,13 +174,13 @@ zSocketTest_EthSocketSendReceiveLoop(void* arg_)
 }
 
 int
-zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
+zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
 {
 
   bool status = false;
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_EthSocketSendReceiveSock2Sock()");
+  ZLOG_DEBUG("# zSocketTest_RawSocketSendReceiveSock2Sock()");
   ZLOG_DEBUG("#############################################################");
 
   // First step is to determine if we were executed with root privileges, if not, bypass test
@@ -202,16 +192,16 @@ zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_)
   }
 
   // Create new socket address and validate
-  zSocket::EthAddress *SrcAddr = new zSocket::EthAddress;
+  zSocket::RawAddress *SrcAddr = new zSocket::RawAddress;
   TEST_ISNOT_NULL(SrcAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), SrcAddr->GetAddress());
+  TEST_EQ(std::string(""), SrcAddr->GetAddress());
   TEST_TRUE(SrcAddr->SetAddress("lo"));
   TEST_EQ(std::string("lo"), SrcAddr->GetAddress());
 
   // Create new socket address and validate
-  zSocket::EthAddress *DstAddr = new zSocket::EthAddress;
+  zSocket::RawAddress *DstAddr = new zSocket::RawAddress;
   TEST_ISNOT_NULL(DstAddr);
-  TEST_EQ(std::string("00:00:00:00:00:00"), DstAddr->GetAddress());
+  TEST_EQ(std::string(""), DstAddr->GetAddress());
   TEST_TRUE(DstAddr->SetAddress("lo"));
   TEST_EQ(std::string("lo"), DstAddr->GetAddress());
 

@@ -197,7 +197,7 @@ Socket::Send(Frame& frame_)
     return (n);
   }
 
-  return (this->Send(zSocket::EthAddress(frame_.GetDestination()), sb));
+  return (this->Send(zSocket::MacAddress(frame_.GetDestination()), sb));
 }
 
 void

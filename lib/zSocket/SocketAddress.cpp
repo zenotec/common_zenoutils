@@ -30,7 +30,7 @@ namespace zSocket
 // Class: zSocket::Address
 //**********************************************************************
 
-Address::Address(const SOCKET_TYPE type_, const std::string &addr_) :
+Address::Address(const Address::TYPE type_, const std::string &addr_) :
     _type(type_), _addr(addr_)
 {
 }
@@ -76,34 +76,23 @@ Address::operator >(const Address &other_) const
   return ((this->_type != other_._type) || (this->_addr > other_._addr));
 }
 
-SOCKET_TYPE
+Address::TYPE
 Address::GetType() const
 {
   return (this->_type);
 }
 
 bool
-Address::SetType(const SOCKET_TYPE type_)
+Address::SetType(const Address::TYPE type_)
 {
   bool status = false;
   switch (type_)
   {
-  case SOCKET_TYPE::TYPE_TEST:
-    // no break
-  case SOCKET_TYPE::TYPE_LOOP:
-    // no break
-  case SOCKET_TYPE::TYPE_UNIX:
-    // no break
-  case SOCKET_TYPE::TYPE_RAW:
-    // no break
-  case SOCKET_TYPE::TYPE_INET4:
-    // no break
-  case SOCKET_TYPE::TYPE_INET6:
+  case Address::TYPE_NONE ... Address::TYPE_LAST:
     this->_type = type_;
     status = true;
     break;
   default:
-    status = false;
     break;
   }
   return (status);

@@ -33,6 +33,8 @@ zSocketTest_SocketDefaults(void* arg_);
 int
 zSocketTest_BufferString(void* arg_);
 int
+zSocketTest_BufferReadWrite(void* arg_);
+int
 zSocketTest_BufferCompare(void* arg_);
 int
 zSocketTest_BufferCopy(void* arg_);
@@ -63,31 +65,31 @@ int
 zSocketTest_UnixSocketSendReceive(void* arg_);
 
 int
-zSocketTest_EthAddressGetSet(void* arg_);
+zSocketTest_MacAddressGetSet(void* arg_);
 int
-zSocketTest_EthAddressCompare(void* arg_);
+zSocketTest_MacAddressCompare(void* arg_);
 
 int
-zSocketTest_EthSocketDefault(void* arg_);
+zSocketTest_RawSocketDefault(void* arg_);
 int
-zSocketTest_EthSocketSendReceiveLoop(void* arg_);
+zSocketTest_RawSocketSendReceiveLoop(void* arg_);
 int
-zSocketTest_EthSocketSendReceiveSock2Sock(void* arg_);
+zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_);
 
 int
-zSocketTest_InetAddressGetSet(void* arg_);
+zSocketTest_Ipv4AddressGetSet(void* arg_);
 int
-zSocketTest_InetAddressCompare(void* arg_);
+zSocketTest_Ipv4AddressCompare(void* arg_);
 
 int
-zSocketTest_InetSocketDefault(void* arg_);
+zSocketTest_UdpSocketDefault(void* arg_);
 int
-zSocketTest_InetSocketSendReceiveLoop(void* arg_);
+zSocketTest_UdpSocketSendReceiveLoop(void* arg_);
 int
-zSocketTest_InetSocketSendReceiveSock2Sock(void* arg_);
+zSocketTest_UdpSocketSendReceiveSock2Sock(void* arg_);
 
 int
-zSocketTest_InetSocketObserver(void* arg_);
+zSocketTest_UdpSocketObserver(void* arg_);
 
 using namespace Test;
 using namespace zUtils;
@@ -99,7 +101,7 @@ class TestAddress : public zSocket::Address
 public:
 
   TestAddress() :
-    zSocket::Address(SOCKET_TYPE::TYPE_TEST)
+    zSocket::Address(Address::TYPE_NONE)
   {
   }
 

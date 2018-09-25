@@ -59,13 +59,13 @@ _sa2addr(const struct sockaddr_un &sa_, std::string &addr_)
 //**********************************************************************
 
 UnixAddress::UnixAddress(const std::string &addr_) :
-    Address(SOCKET_TYPE::TYPE_UNIX, addr_), sa { 0 }
+    Address(Address::TYPE_UNIX, addr_), _sa { 0 }
 {
-  _addr2sa(addr_, this->sa);
+  _addr2sa(addr_, this->_sa);
 }
 
 UnixAddress::UnixAddress(const Address &addr_) :
-    Address(SOCKET_TYPE::TYPE_UNIX), sa { 0 }
+    Address(Address::TYPE_UNIX), _sa { 0 }
 {
   if (addr_.GetType() == this->GetType())
   {
@@ -74,7 +74,7 @@ UnixAddress::UnixAddress(const Address &addr_) :
 }
 
 UnixAddress::UnixAddress(const struct sockaddr_un& sa_) :
-        Address(SOCKET_TYPE::TYPE_UNIX), sa (sa_)
+        Address(Address::TYPE_UNIX), _sa (sa_)
 {
   this->SetAddress(this->GetAddress());
 }
@@ -87,7 +87,7 @@ std::string
 UnixAddress::GetAddress() const
 {
   std::string addr;
-  _sa2addr(this->sa, addr);
+  _sa2addr(this->_sa, addr);
   return (addr);
 }
 
@@ -95,9 +95,27 @@ bool
 UnixAddress::SetAddress(const std::string& addr_)
 {
   bool status = false;
-  if (_addr2sa(addr_, this->sa))
+  if (_addr2sa(addr_, this->_sa))
   {
     status = Address::SetAddress(addr_);
+  }
+  return (status);
+}
+
+struct sockaddr_un
+UnixAddress::GetSA() const
+{
+  return (this->_sa);
+}
+
+bool
+UnixAddress::SetSA(const struct sockaddr_un& sa_)
+{
+  bool status = false;
+  if (sa_.sun_family == AF_UNIX)
+  {
+    this->_sa = sa_;
+    status = true;
   }
   return (status);
 }
@@ -141,7 +159,7 @@ UnixSocket::~UnixSocket()
     if (this->_fd)
     {
       ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
-      unlink(this->_addr.sa.sun_path);
+      unlink(this->_addr._sa.sun_path);
       close(this->_fd);
       this->_fd = 0;
     } // end if
@@ -170,7 +188,7 @@ UnixSocket::Bind(const Address& addr_)
     return (false);
   }
 
-  if (addr_.GetType() != SOCKET_TYPE::TYPE_UNIX)
+  if (addr_.GetType() != Address::TYPE_UNIX)
   {
     ZLOG_CRIT(std::string("Invalid socket address"));
     return (false);
@@ -179,7 +197,7 @@ UnixSocket::Bind(const Address& addr_)
   this->_addr = UnixAddress(addr_);
 
   // Bind address to socket
-  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr.sa, sizeof(this->_addr.sa));
+  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr._sa, sizeof(this->_addr._sa));
   if (ret < 0)
   {
     ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
@@ -229,12 +247,14 @@ UnixSocket::Recv()
   }
 
   return (n);
+
 }
 
 SHARED_PTR(zSocket::Notification)
 UnixSocket::Send(const Address& to_, const Buffer& sb_)
 {
 
+  // Initialize notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   ssize_t nbytes = -1;
 
@@ -249,11 +269,12 @@ UnixSocket::Send(const Address& to_, const Buffer& sb_)
   n->SetDstAddress(to_);
   n->SetBuffer(sb_);
 
+  // Poll for transmit ready
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
     UnixAddress addr(to_);
-    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr.sa, sizeof(addr.sa));
+    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr._sa, sizeof(addr._sa));
     if (nbytes > 0)
     {
       ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
@@ -265,8 +286,14 @@ UnixSocket::Send(const Address& to_, const Buffer& sb_)
       ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
     }
   }
+  else
+  {
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+  }
 
   return (n);
+
 }
 
 }

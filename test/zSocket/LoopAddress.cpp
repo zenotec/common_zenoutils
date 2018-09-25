@@ -47,7 +47,7 @@ zSocketTest_LoopAddressGetSet(void* arg_)
 
   // Create new socket address and validate
   LoopAddress myAddr;
-  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr.GetType());
+  TEST_EQ(Address::TYPE_LOOP, myAddr.GetType());
   TEST_EQ(std::string(""), myAddr.GetAddress());
 
   // Set socket address
@@ -69,12 +69,12 @@ zSocketTest_LoopAddressCompare(void* arg_)
 
   // Create new socket address and validate
   LoopAddress myAddr1;
-  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr1.GetType());
+  TEST_EQ(Address::TYPE_LOOP, myAddr1.GetType());
   TEST_EQ(std::string(""), myAddr1.GetAddress());
 
   // Create second socket address and validate
   LoopAddress myAddr2;
-  TEST_EQ(SOCKET_TYPE::TYPE_LOOP, myAddr2.GetType());
+  TEST_EQ(Address::TYPE_LOOP, myAddr2.GetType());
   TEST_EQ(std::string(""), myAddr2.GetAddress());
 
   // Compare address (match)

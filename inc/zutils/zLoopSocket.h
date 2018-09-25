@@ -36,7 +36,7 @@ class LoopAddress : public Address
 public:
 
   LoopAddress(const std::string& addr_ = "") :
-    Address(SOCKET_TYPE::TYPE_LOOP, addr_)
+    Address(Address::TYPE_LOOP, addr_)
   {
   }
 

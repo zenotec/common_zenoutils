@@ -41,7 +41,9 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(const SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET),
+ _type(type_),
+ _addr(Address::TYPE_NONE)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -61,6 +63,19 @@ const SOCKET_TYPE
 Socket::GetType() const
 {
   return (this->_type);
+}
+
+const Address&
+Socket::GetAddress() const
+{
+  return (this->_addr);
+}
+
+bool
+Socket::SetAddress(const Address& addr_)
+{
+  this->_addr = addr_;
+  return (true);
 }
 
 bool
@@ -98,10 +113,10 @@ Socket::Send(const Address& addr_, const Buffer& sb_)
 }
 
 SHARED_PTR(zSocket::Notification)
-Socket::Send(const Address &addr_, const std::string &str_)
+Socket::Send(const Address& to_, const std::string& str_)
 {
   Buffer sb(str_);
-  return (this->Send(addr_, sb));
+  return (this->Send(to_, sb));
 }
 
 }

@@ -27,6 +27,9 @@ noinst_LTLIBRARIES = libzSocket.la
 libzSocket_la_SOURCES = \
     SocketBuffer.cpp \
     SocketAddress.cpp \
+    MacAddress.cpp \
+    RawAddress.cpp \
+    IpAddress.cpp \
     Frame.cpp \
     SocketNotification.cpp \
     Socket.cpp \
@@ -36,7 +39,8 @@ libzSocket_la_SOURCES = \
     LoopSocket.cpp \
     UnixSocket.cpp \
     RawSocket.cpp \
-    InetSocket.cpp
+    InetSocket.cpp \
+    UdpSocket.cpp
 
 libzSocket_la_LIBADD = \
     ${top_builddir}/lib/zSocket/ieee8023/libieee8023.la

@@ -17,7 +17,7 @@
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
 
-#include <zutils/zInetSocket.h>
+#include <zutils/zUdpSocket.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 

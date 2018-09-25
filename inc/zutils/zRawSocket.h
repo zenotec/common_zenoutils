@@ -24,6 +24,8 @@
 
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
+#include <zutils/zRawAddress.h>
+#include <zutils/zMacAddress.h>
 
 namespace zUtils
 {
@@ -33,45 +35,7 @@ namespace zSocket
 class RawSocket;
 
 //**********************************************************************
-// Class: zSocket::EthAddress
-//**********************************************************************
-
-class EthAddress :
-    public Address
-{
-
-  friend RawSocket;
-
-public:
-
-  EthAddress(const std::string &addr_ = "00:00:00:00:00:00");
-
-  EthAddress(const Address& addr_);
-
-  EthAddress(const struct sockaddr_ll& sa_);
-
-  virtual
-  ~EthAddress();
-
-  virtual std::string
-  GetAddress() const;
-
-  virtual bool
-  SetAddress(const std::string &addr_);
-
-  virtual void
-  Display() const;
-
-protected:
-
-  struct sockaddr_ll sa;
-
-private:
-
-};
-
-//**********************************************************************
-// Class: zSocket::EthSocket
+// Class: zSocket::RawSocket
 //**********************************************************************
 
 class RawSocket :
@@ -83,7 +47,8 @@ public:
   enum PROTO
   {
     PROTO_ERR = -1,
-    PROTO_NONE = 1,
+    PROTO_NONE = 0,
+    PROTO_ETH = ETH_P_802_3,
     PROTO_ALL = ETH_P_ALL,
     PROTO_LLC = ETH_P_802_2,
     PROTO_LOOP = ETH_P_LOOP,
@@ -91,7 +56,24 @@ public:
     PROTO_LAST
   };
 
-  RawSocket(const RawSocket::PROTO proto_ = PROTO_ALL);
+  enum PACKETTYPE
+
+  {
+    PACKETTYPE_ERR = -1,
+    PACKETTYPE_NONE = 0,
+    PACKETTYPE_HOST = PACKET_HOST,
+    PACKETTYPE_BCAST = PACKET_BROADCAST,
+    PACKETTYPE_MCAST = PACKET_MULTICAST,
+    PACKETTYPE_OTHERHOST = PACKET_OTHERHOST,
+    PACKETTYPE_OUTGOING = PACKET_OUTGOING,
+    PACKETTYPE_LOOP = PACKET_LOOPBACK,
+    PACKETTYPE_USER = PACKET_USER,
+    PACKETTYPE_KERNEL = PACKET_KERNEL,
+    PACKETTYPE_LAST
+  };
+
+  RawSocket(const RawSocket::PROTO proto_ = PROTO_ALL,
+      const RawSocket::PACKETTYPE ptype_ = PACKETTYPE_HOST);
 
   virtual
   ~RawSocket();
@@ -99,15 +81,13 @@ public:
   virtual int
   GetId() const;
 
-  virtual const Address&
-  GetAddress() const;
-
   virtual bool
   Getopt(Socket::OPTIONS opt_);
 
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
+  // Address is name of interface
   virtual bool
   Bind(const Address& addr_);
 
@@ -122,7 +102,9 @@ protected:
 private:
 
   int _fd;
-  EthAddress _addr;
+  RawAddress _addr;
+  RawSocket::PROTO _proto;
+  RawSocket::PACKETTYPE _ptype;
 
 };
 

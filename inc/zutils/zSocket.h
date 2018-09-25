@@ -184,7 +184,20 @@ class Address
 
 public:
 
-  Address(const SOCKET_TYPE type, const std::string& addr_ = std::string(""));
+  enum TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_LOOP,
+    TYPE_RAW,
+    TYPE_MAC,
+    TYPE_IPv4,
+    TYPE_IPv6,
+    TYPE_UNIX,
+    TYPE_LAST
+  };
+
+  Address(const Address::TYPE type_, const std::string& addr_ = std::string(""));
 
   Address(const Address &other_);
 
@@ -206,11 +219,11 @@ public:
   bool
   operator >(const Address &other_) const;
 
-  SOCKET_TYPE
+  Address::TYPE
   GetType() const;
 
   bool
-  SetType(const SOCKET_TYPE type_);
+  SetType(const Address::TYPE type_);
 
   virtual std::string
   GetAddress() const;
@@ -225,7 +238,7 @@ protected:
 
 private:
 
-  SOCKET_TYPE _type;
+  Address::TYPE _type;
   std::string _addr;
 
 };
@@ -328,6 +341,7 @@ public:
     OPTIONS_TOS_NP, // Normal priority
     OPTIONS_TOS_HP, // High priority
     OPTIONS_TOS_UHP, // Ultra-high priority
+    OPTIONS_PROMISC,
     OPTIONS_LAST
   };
 
@@ -343,7 +357,10 @@ public:
   GetType() const;
 
   virtual const Address&
-  GetAddress() const = 0;
+  GetAddress() const;
+
+  virtual bool
+  SetAddress(const Address& addr_);
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -368,6 +385,7 @@ protected:
 private:
 
   const SOCKET_TYPE _type;
+  Address _addr;
 
   Socket(Socket &other_);
 
