@@ -271,17 +271,16 @@ UdpSocket::Recv()
       socklen_t len = sizeof(src);
       SHARED_PTR(Buffer) sb(new Buffer(nbytes));
 
-      nbytes = recvfrom(this->_fd, sb->Head(), sb->Tailroom(), 0, (struct sockaddr *) &src, &len);
+      nbytes = recvfrom(this->_fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb->Put(nbytes))
       {
         struct timespec ts = { 0 };
         ioctl(this->_fd, SIOCGSTAMPNS, &ts);
         sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-#warning "TODO"
-//        n->SetDstAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
-//        n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(src)));
-//        n->SetBuffer(sb);
+        n->SetDstAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
+        n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(src)));
+        n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
         ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + n->GetSrcAddress()->GetAddress());
@@ -305,10 +304,9 @@ UdpSocket::Send(const Address& to_, const Buffer& sb_)
   // Initialize notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   SHARED_PTR(Ipv4Address) addr(new Ipv4Address(to_));
-#warning "TODO"
-//  n->SetDstAddress(addr);
-//  n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
-//  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  n->SetDstAddress(addr);
+  n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
+  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
   // NOTE: frame is initialized by optional adapter socket
 
   // Setup for poll loop

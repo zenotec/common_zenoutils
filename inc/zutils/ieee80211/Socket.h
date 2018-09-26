@@ -65,18 +65,11 @@ public:
   bool
   RadiotapHeader(SHARED_PTR(ieee80211::RadioTap) rtaphdr_);
 
-  SHARED_PTR(ieee80211::Frame)
-  Frame();
-
-  bool
-  Frame(SHARED_PTR(ieee80211::Frame) frame_);
-
 protected:
 
 private:
 
   SHARED_PTR(ieee80211::RadioTap) _rtaphdr;
-  SHARED_PTR(ieee80211::Frame) _frame;
 
 };
 

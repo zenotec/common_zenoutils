@@ -96,8 +96,8 @@ LoopSocket::Recv()
 
   // Initialize notification
   n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(this->GetAddress());
-  n->SetDstAddress(this->GetAddress());
+  n->SetSrcAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
+  n->SetDstAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
   return (n);
 }
 
@@ -108,10 +108,9 @@ LoopSocket::Send(const Address& to_, const Buffer& sb_)
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
 
   // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(this->GetAddress());
-  n->SetDstAddress(this->GetAddress());
-  n->SetBuffer(sb_);
+  n->SetSrcAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
+  n->SetDstAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
+  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
 
   if (to_ == this->GetAddress())
   {
@@ -121,6 +120,7 @@ LoopSocket::Send(const Address& to_, const Buffer& sb_)
   }
   else
   {
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 

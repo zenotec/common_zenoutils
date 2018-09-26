@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef __ZLOOPSOCKET_H__
-#define __ZLOOPSOCKET_H__
+#ifndef __ZLOOPADDRESS_H__
+#define __ZLOOPADDRESS_H__
 
 #include <string>
 
 #include <zutils/zSocket.h>
-#include <zutils/zLoopAddress.h>
 
 namespace zUtils
 {
@@ -28,46 +27,36 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::LoopSocket
+// Class zSocket::LoopAddress
 //**********************************************************************
 
-class LoopSocket :
-    public Socket
+class LoopAddress : public Address
 {
 
 public:
 
-  LoopSocket();
+  LoopAddress(const std::string& addr_ = "") :
+    Address(Address::TYPE_LOOP, addr_)
+  {
+  }
+
+  LoopAddress(const Address& addr_) :
+    Address(addr_)
+  {
+  }
 
   virtual
-  ~LoopSocket();
-
-  virtual int
-  GetId() const;
-
-  virtual const Address&
-  GetAddress() const;
-
-  virtual bool
-  Bind(const Address& addr_);
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
+  ~LoopAddress()
+  {
+  }
 
 protected:
 
 private:
-
-  int _fd;
-  LoopAddress _addr;
-
 
 };
 
 }
 }
 
-#endif /* __ZLOOPSOCKET_H__ */
+#endif /* __ZLOOPADDRESS_H__ */

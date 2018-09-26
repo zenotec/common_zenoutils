@@ -59,17 +59,10 @@ public:
   virtual
   ~Notification();
 
-  SHARED_PTR(ieee8023::Frame)
-  Frame();
-
-  bool
-  Frame(SHARED_PTR(ieee8023::Frame) frame_);
-
 protected:
 
 private:
 
-  SHARED_PTR(ieee8023::Frame) _frame;
 };
 
 //*****************************************************************************

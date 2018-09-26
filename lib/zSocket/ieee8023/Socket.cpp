@@ -53,19 +53,17 @@ namespace ieee8023
 Notification::Notification(Socket& sock_) :
     zSocket::Notification(sock_)
 {
-  this->Frame(SHARED_PTR(ieee8023::Frame)(new ieee8023::Frame));
+  this->SetFrame(SHARED_PTR(ieee8023::Frame)(new ieee8023::Frame));
 }
 
-Notification::Notification(const zSocket::Notification& noti_) :
-    zSocket::Notification(noti_)
+Notification::Notification(const zSocket::Notification& n_) :
+    zSocket::Notification(n_)
 {
-  this->Frame(SHARED_PTR(ieee8023::Frame)(new ieee8023::Frame));
-  uint8_t* f = this->GetBuffer().Data();
-  size_t rem = this->GetBuffer().Length();
+
+  SHARED_PTR(ieee8023::Frame)frame(new ieee8023::Frame);
 
   // Peek at the 802.3 frame to determine its type & protocol
-  f = this->Frame()->Peek(f, rem, false);
-  if (f == NULL)
+  if (!frame->Peek(*this->GetBuffer()))
   {
     ZLOG_WARN("Cannot decode IEEE8023 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -73,13 +71,12 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
 
   // Complete parsing of frame based on type
-  switch (this->Frame()->GetSubtype())
+  switch (frame->GetSubtype())
   {
   case Frame::SUBTYPE_ETHER:
   {
-    this->Frame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
-    f = this->Frame()->Disassemble(f, rem, false);
-    if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
+      if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
     {
       ZLOG_WARN("Cannot decode ether frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -88,9 +85,8 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   case Frame::SUBTYPE_LLC:
   {
-    this->Frame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
-    f = this->Frame()->Disassemble(f, rem, false);
-    if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
+      if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
     {
       ZLOG_WARN("Cannot decode LLC frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -99,9 +95,8 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   case Frame::SUBTYPE_ETHER2:
   {
-    this->Frame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
-    f = this->Frame()->Disassemble(f, rem, false);
-    if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
+      if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
     {
       ZLOG_WARN("Cannot decode ether2 frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -110,9 +105,8 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   case Frame::SUBTYPE_VLAN:
   {
-    this->Frame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
-    f = this->Frame()->Disassemble(f, rem, false);
-    if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
+      if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
     {
       ZLOG_WARN("Cannot decode VLAN frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -127,19 +121,6 @@ Notification::Notification(const zSocket::Notification& noti_) :
 
 Notification::~Notification()
 {
-}
-
-SHARED_PTR(ieee8023::Frame)
-Notification::Frame()
-{
-  return(this->_frame);
-}
-
-bool
-Notification::Frame(SHARED_PTR(ieee8023::Frame)frame_)
-{
-  this->_frame = frame_;
-  return(true);
 }
 
 //*****************************************************************************
@@ -176,28 +157,22 @@ Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
 SHARED_PTR(zSocket::Notification)
 Socket::Send(Frame& frame_)
 {
+
+  SHARED_PTR(Notification) n(new Notification(*this));
   zSocket::Buffer sb;
-  uint8_t* sbptr = sb.Head();
-  size_t sbsize = sb.TotalSize();
 
   // Assemble frame (writes buffer)
-  if (!(sbptr = frame_.Assemble(sbptr, sbsize)))
+  if (!frame_.Assemble(sb))
   {
-    ZLOG_ERR("Error assembling IEEE80211 header");
-    SHARED_PTR(Notification) n(new Notification(*this));
+    ZLOG_ERR("Error assembling IEEE8023 frame");
     n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
     return (n);
   }
 
-  if (!sb.Put(sb.TotalSize() - sbsize))
-  {
-    ZLOG_ERR("Error updating socket buffer size");
-    SHARED_PTR(Notification) n(new Notification(*this));
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-    return (n);
-  }
+  n = STATIC_CAST(Notification)(this->Send(zSocket::MacAddress(frame_.GetDestination()), sb));
+  n->SetFrame(SHARED_PTR(Frame)(new Frame(frame_)));
 
-  return (this->Send(zSocket::MacAddress(frame_.GetDestination()), sb));
+  return (n);
 }
 
 void

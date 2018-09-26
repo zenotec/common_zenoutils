@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef __ZLOOPSOCKET_H__
-#define __ZLOOPSOCKET_H__
+#ifndef __ZUNIXADDRESS_H__
+#define __ZUNIXADDRESS_H__
+
+#include <sys/un.h>
 
 #include <string>
 
+#include <zutils/zThread.h>
 #include <zutils/zSocket.h>
-#include <zutils/zLoopAddress.h>
 
 namespace zUtils
 {
@@ -28,46 +30,48 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::LoopSocket
+// Class: zSocket::UnixAddress
 //**********************************************************************
 
-class LoopSocket :
-    public Socket
+class UnixAddress :
+    public Address
 {
 
 public:
 
-  LoopSocket();
+  UnixAddress(const std::string &addr_ = "");
+
+  UnixAddress(const Address& addr_);
+
+  UnixAddress(const struct sockaddr_un& sa_);
 
   virtual
-  ~LoopSocket();
+  ~UnixAddress();
 
-  virtual int
-  GetId() const;
-
-  virtual const Address&
+  virtual std::string
   GetAddress() const;
 
   virtual bool
-  Bind(const Address& addr_);
+  SetAddress(const std::string &addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
+  struct sockaddr_un
+  GetSA() const;
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
+  bool
+  SetSA(const struct sockaddr_un& sa_);
+
+  virtual void
+  Display() const;
 
 protected:
 
 private:
 
-  int _fd;
-  LoopAddress _addr;
-
+  struct sockaddr_un _sa;
 
 };
 
 }
 }
 
-#endif /* __ZLOOPSOCKET_H__ */
+#endif /* __ZUNIXADDRESS_H__ */

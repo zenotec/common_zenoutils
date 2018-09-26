@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <zutils/zUtils.h>
 #include <zutils/zLog.h>
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
@@ -101,9 +102,9 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((rxn->GetSrcAddress() == *MyAddr), rxn->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxn->GetDstAddress() == *MyAddr), rxn->GetDstAddress().GetAddress());
-  TEST_EQ(ExpStr, rxn->GetBuffer().String());
+  TEST_TRUE_MSG((*rxn->GetSrcAddress() == *MyAddr), rxn->GetSrcAddress()->GetAddress());
+  TEST_TRUE_MSG((*rxn->GetDstAddress() == *MyAddr), rxn->GetDstAddress()->GetAddress());
+  TEST_TRUE(ExpStr == rxn->GetBuffer()->String());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock);
@@ -116,6 +117,6 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   delete (MyAddr);
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
 
 }

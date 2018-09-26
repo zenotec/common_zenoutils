@@ -159,7 +159,7 @@ UnixSocket::~UnixSocket()
     if (this->_fd)
     {
       ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
-      unlink(this->_addr._sa.sun_path);
+      unlink(this->_addr.GetSA().sun_path);
       close(this->_fd);
       this->_fd = 0;
     } // end if
@@ -197,7 +197,8 @@ UnixSocket::Bind(const Address& addr_)
   this->_addr = UnixAddress(addr_);
 
   // Bind address to socket
-  int ret = bind(this->_fd, (struct sockaddr*) &this->_addr._sa, sizeof(this->_addr._sa));
+  struct sockaddr_un sa(this->_addr.GetSA());
+  int ret = bind(this->_fd, (struct sockaddr*) &sa, sizeof(sa));
   if (ret < 0)
   {
     ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
@@ -216,10 +217,6 @@ UnixSocket::Recv()
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   int nbytes = 0;
 
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetDstAddress(this->GetAddress());
-
   if (this->_fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
@@ -228,19 +225,25 @@ UnixSocket::Recv()
     {
       struct sockaddr_un src;
       socklen_t len = sizeof(src);
-      Buffer sb(nbytes);
-      nbytes = recvfrom(this->_fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
-      if ((nbytes > 0) && sb.Put(nbytes))
+      SHARED_PTR(Buffer) sb(new Buffer(nbytes));
+
+      nbytes = recvfrom(this->_fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
+      if ((nbytes > 0) && sb->Put(nbytes))
       {
-        UnixAddress addr(src);
+        struct timespec ts = { 0 };
+        ioctl(this->_fd, SIOCGSTAMPNS, &ts);
+        sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-        n->SetSrcAddress(addr);
+        n->SetDstAddress(SHARED_PTR(UnixAddress)(new UnixAddress(this->GetAddress())));
+        n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(src)));
         n->SetBuffer(sb);
-        ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
-            " bytes from: " + addr.GetAddress());
+        // NOTE: frame is initialized by optional adapter socket
+        ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+            " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
       {
+        n->SetSubType(Notification::SUBTYPE_PKT_ERR);
         ZLOG_ERR(std::string("Cannot receive packet: " + std::string(strerror(errno))));
       }
     }
@@ -256,33 +259,33 @@ UnixSocket::Send(const Address& to_, const Buffer& sb_)
 
   // Initialize notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  ssize_t nbytes = -1;
+  SHARED_PTR(UnixAddress) addr(new UnixAddress(to_));
+  n->SetDstAddress(addr);
+  n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(this->GetAddress())));
+  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  // NOTE: frame is initialized by optional adapter socket
 
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = this->_fd;
   fds[0].events = (POLLOUT | POLLERR);
 
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(this->GetAddress());
-  n->SetDstAddress(to_);
-  n->SetBuffer(sb_);
-
   // Poll for transmit ready
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
-    UnixAddress addr(to_);
-    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &addr._sa, sizeof(addr._sa));
+    // Send
+    struct sockaddr_un dst(addr->GetSA());
+    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
     if (nbytes > 0)
     {
-      ZLOG_INFO("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
-          " bytes to: " + addr.GetAddress());
+      ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+          " bytes to: " + addr->GetAddress());
       n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }
     else
     {
+      n->SetSubType(Notification::SUBTYPE_PKT_ERR);
       ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
     }
   }

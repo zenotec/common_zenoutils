@@ -39,7 +39,6 @@ libzSocket_la_SOURCES = \
     LoopSocket.cpp \
     UnixSocket.cpp \
     RawSocket.cpp \
-    InetSocket.cpp \
     UdpSocket.cpp
 
 libzSocket_la_LIBADD = \

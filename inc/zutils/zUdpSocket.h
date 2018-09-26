@@ -23,71 +23,30 @@
 
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
+#include <zutils/zIpAddress.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
 
-class InetSocket;
-
-//**********************************************************************
-// Class: zSocket::InetAddress
-//**********************************************************************
-
-class InetAddress : public Address
-{
-
-  friend InetSocket;
-
-public:
-
-  InetAddress(const std::string &addr_ = std::string("0.0.0.0:0"));
-
-  InetAddress(const Address& addr_);
-
-  InetAddress(const struct sockaddr_in& sa_);
-
-  virtual
-  ~InetAddress();
-
-  virtual std::string
-  GetAddress() const;
-
-  virtual bool
-  SetAddress(const std::string &addr_);
-
-  virtual void
-  Display() const;
-
-protected:
-
-  struct sockaddr_in sa;
-
-private:
-
-};
-
 //**********************************************************************
 // Class: zSocket::InetSocket
 //**********************************************************************
 
-class InetSocket :
+class UdpSocket :
     public Socket
 {
 
 public:
 
-  InetSocket();
+  UdpSocket();
 
   virtual
-  ~InetSocket();
+  ~UdpSocket();
 
   virtual int
   GetId() const;
-
-  virtual const Address&
-  GetAddress() const;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -109,7 +68,6 @@ protected:
 private:
 
   int _fd;
-  InetAddress _addr;
 
 };
 

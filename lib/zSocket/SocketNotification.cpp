@@ -43,8 +43,8 @@ namespace zSocket
 //*****************************************************************************
 
 Notification::Notification(Socket& sock_) :
-    zEvent::Notification(sock_), _subtype(Notification::SUBTYPE_NONE),
-    _sa(sock_.GetAddress().GetType()), _da(sock_.GetAddress().GetType())
+    zEvent::Notification(sock_),
+    _subtype(Notification::SUBTYPE_NONE)
 {
 }
 
@@ -70,46 +70,72 @@ Notification::GetSubType() const
   return (this->_subtype);
 }
 
-const Address&
+bool
+Notification::SetSubType(const Notification::SUBTYPE subtype_)
+{
+  bool status = false;
+  switch (subtype_)
+  {
+  case Notification::SUBTYPE_NONE ... Notification::SUBTYPE_LAST:
+    this->_subtype = subtype_;
+    status = true;
+    break;
+  default:
+    break;
+  }
+  return (status);
+}
+
+SHARED_PTR(Address)
 Notification::GetSrcAddress() const
 {
   return (this->_sa);
 }
 
-const Address&
+bool
+Notification::SetSrcAddress(SHARED_PTR(Address) sa_)
+{
+  this->_sa = sa_;
+  return (true);
+}
+
+SHARED_PTR(Address)
 Notification::GetDstAddress() const
 {
   return (this->_da);
 }
 
-const Buffer&
+bool
+Notification::SetDstAddress(SHARED_PTR(Address) da_)
+{
+  this->_da = da_;
+  return (true);
+}
+
+SHARED_PTR(Buffer)
 Notification::GetBuffer() const
 {
   return (this->_sb);
 }
 
-void
-Notification::SetSubType(Notification::SUBTYPE subtype_)
-{
-  this->_subtype = subtype_;
-}
-
-void
-Notification::SetSrcAddress(const Address& sa_)
-{
-  this->_sa = sa_;
-}
-
-void
-Notification::SetDstAddress(const Address& da_)
-{
-  this->_da = da_;
-}
-
-void
-Notification::SetBuffer(const Buffer& sb_)
+bool
+Notification::SetBuffer(SHARED_PTR(Buffer) sb_)
 {
   this->_sb = sb_;
+  return (true);
+}
+
+SHARED_PTR(Frame)
+Notification::GetFrame() const
+{
+  return (this->_frame);
+}
+
+bool
+Notification::SetFrame(SHARED_PTR(Frame) frame_)
+{
+  this->_frame = frame_;
+  return (true);
 }
 
 }

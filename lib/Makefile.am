@@ -17,9 +17,14 @@ if COND_ZSOCKET
 ZSOCKET_SUBDIRS = zSocket
 ZSOCKET_SOURCE = \
 	$(top_srcdir)/inc/zutils/zSocket.h \
+	$(top_srcdir)/inc/zutils/zMacAddress.h \
+	$(top_srcdir)/inc/zutils/zRawAddress.h \
 	$(top_srcdir)/inc/zutils/zRawSocket.h \
-	$(top_srcdir)/inc/zutils/zInetSocket.h \
+	$(top_srcdir)/inc/zutils/zIpAddress.h \
+	$(top_srcdir)/inc/zutils/zUdpSocket.h \
+	$(top_srcdir)/inc/zutils/zLoopAddress.h \
 	$(top_srcdir)/inc/zutils/zLoopSocket.h \
+	$(top_srcdir)/inc/zutils/zUnixAddress.h \
 	$(top_srcdir)/inc/zutils/zUnixSocket.h
 ZSOCKET_CPPFLAGS =
 ZSOCKET_LDFLAGS =

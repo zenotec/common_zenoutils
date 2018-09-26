@@ -207,10 +207,6 @@ RawSocket::Recv()
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   int nbytes = 0;
 
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetDstAddress(this->GetAddress());
-
   if (this->_fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
@@ -219,48 +215,52 @@ RawSocket::Recv()
     {
       struct sockaddr_ll src;
       socklen_t len = sizeof(src);
-      Buffer sb(nbytes);
-      nbytes = recvfrom(this->_fd, sb.Head(), sb.TotalSize(), 0, (struct sockaddr *) &src, &len);
-      if ((nbytes > 0) && sb.Put(nbytes))
+      SHARED_PTR(Buffer) sb(new Buffer(nbytes));
+
+      nbytes = recvfrom(this->_fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
+      if ((nbytes > 0) && sb->Put(nbytes))
       {
         struct timespec ts = { 0 };
         ioctl(this->_fd, SIOCGSTAMPNS, &ts);
-        sb.Timestamp(ts);
-        RawAddress addr(src);
+        sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-        n->SetSrcAddress(addr);
+        n->SetDstAddress(SHARED_PTR(RawAddress)(new RawAddress(this->GetAddress())));
+        n->SetSrcAddress(SHARED_PTR(RawAddress)(new RawAddress(src)));
         n->SetBuffer(sb);
+        // NOTE: frame is initialized by optional adapter socket
         ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
-            " bytes from: " + addr.GetAddress());
+            " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
       {
+        n->SetSubType(Notification::SUBTYPE_PKT_ERR);
         ZLOG_ERR(std::string("Cannot receive packet: " + std::string(strerror(errno))));
       }
     }
   }
 
   return (n);
+
 }
 
 SHARED_PTR(zSocket::Notification)
 RawSocket::Send(const Address& to_, const Buffer& sb_)
 {
 
+  // Initialize notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  ssize_t nbytes = -1;
+  SHARED_PTR(RawAddress) addr(new RawAddress(to_));
+  n->SetDstAddress(addr);
+  n->SetSrcAddress(SHARED_PTR(RawAddress)(new RawAddress(this->GetAddress())));
+  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  // NOTE: frame is initialized by optional adapter socket
 
   // Setup for poll loop
   struct pollfd fds[1];
   fds[0].fd = this->_fd;
   fds[0].events = (POLLOUT | POLLERR);
 
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(this->GetAddress());
-  n->SetDstAddress(to_);
-  n->SetBuffer(sb_);
-
+  // Poll for transmit ready
   int ret = poll(fds, 1, 100);
   if (ret > 0 && (fds[0].revents == POLLOUT))
   {
@@ -268,11 +268,12 @@ RawSocket::Send(const Address& to_, const Buffer& sb_)
     sa.sll_family = AF_PACKET;
     sa.sll_protocol = htons(this->_proto);
     sa.sll_pkttype = this->_ptype;
-    nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
+
+    size_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
     if (nbytes > 0)
     {
       ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
-          " bytes to: " + this->_addr.GetAddress());
+          " bytes to: " + addr->GetAddress());
       n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }
     else

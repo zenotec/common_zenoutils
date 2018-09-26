@@ -25,6 +25,7 @@
 // libzutils includes
 
 #include <zutils/zLog.h>
+#include <zutils/zMacAddress.h>
 #include <zutils/ieee80211/Frame.h>
 #include <zutils/ieee80211/RadioTap.h>
 #include <zutils/ieee80211/Beacon.h>
@@ -57,31 +58,37 @@ namespace ieee80211
 Notification::Notification(Socket& sock_) :
     zSocket::Notification(sock_)
 {
-  this->RadiotapHeader(SHARED_PTR(ieee80211::RadioTap)(new ieee80211::RadioTap));
-  this->Frame(SHARED_PTR(ieee80211::Frame)(new ieee80211::Frame(ieee80211::Frame::TYPE_NONE)));
 }
 
-Notification::Notification(const zSocket::Notification& noti_) :
-    zSocket::Notification(noti_)
+Notification::Notification(const zSocket::Notification& n_) :
+    zSocket::Notification(n_)
 {
 
-  this->RadiotapHeader(SHARED_PTR(ieee80211::RadioTap)(new ieee80211::RadioTap));
-  this->Frame(SHARED_PTR(ieee80211::Frame)(new ieee80211::Frame(ieee80211::Frame::TYPE_NONE)));
-  uint8_t* f = this->GetBuffer().Data();
-  size_t rem = this->GetBuffer().Length();
+  if (!this->GetBuffer().get() || !this->GetBuffer()->Length())
+  {
+    this->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
+    ZLOG_ERR("Error parsing socket notification: No data");
+    return;
+  }
+
+  SHARED_PTR(zSocket::Buffer) sb(this->GetBuffer());
+  SHARED_PTR(ieee80211::RadioTap) rthdr(new ieee80211::RadioTap);
+  ieee80211::Frame frame(ieee80211::Frame::TYPE_NONE);
 
   // Process radiotap header
-  f = this->RadiotapHeader()->Disassemble(f, rem);
-  if (f == 0)
+  if (!rthdr || !rthdr->Disassemble(*(sb)))
   {
     ZLOG_WARN("Cannot decode radiotap header");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
     return;
   }
 
+  // Update notification with radiotap header
+  this->RadiotapHeader(rthdr);
+
   // Check for presence of FCS
   ieee80211::RadioTapFieldFlags flags;
-  this->RadiotapHeader()->GetField(flags);
+  rthdr->GetField(flags);
   bool fcsflag = flags.FCS();
 
   // Check for bad FCS
@@ -92,7 +99,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
     return;
   }
 
-  // Check for TX flags indicating this was a frame we transmitted
+  // Check for TX flags indicating this was a frame we transmitted then continue with disassembly
   ieee80211::RadioTapFieldTxFlags txflags;
   if (this->RadiotapHeader()->GetField(txflags))
   {
@@ -100,8 +107,7 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
 
   // Peek at the 802.11 frame to determine its type/subtype
-  f = this->Frame()->Peek(f, rem, fcsflag);
-  if (f == NULL)
+  if (!frame.Peek(*sb))
   {
     ZLOG_WARN("Cannot decode IEEE80211 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -109,106 +115,96 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
 
   // Complete parsing of frame based on type/subtype
-  switch (this->Frame()->Type())
+  switch (frame.Type())
   {
   case ieee80211::Frame::TYPE_MGMT:
   {
-    if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_BEACON))
+    if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_BEACON))
     {
 
-      this->Frame(SHARED_PTR(ieee80211::Beacon)(new ieee80211::Beacon));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::Beacon)(new ieee80211::Beacon));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode beacon frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_PROBEREQ))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_PROBEREQ))
     {
-      this->Frame(SHARED_PTR(ieee80211::ProbeRequest)(new ieee80211::ProbeRequest));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::ProbeRequest)(new ieee80211::ProbeRequest));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode probe request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_PROBERESP))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_PROBERESP))
     {
-      this->Frame(SHARED_PTR(ieee80211::ProbeResponse)(new ieee80211::ProbeResponse));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::ProbeResponse)(new ieee80211::ProbeResponse));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode probe response frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_ASSREQ))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_ASSREQ))
     {
-      this->Frame(SHARED_PTR(ieee80211::AssociationRequest)(new ieee80211::AssociationRequest));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::AssociationRequest)(new ieee80211::AssociationRequest));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode association request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_RASSREQ))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_RASSREQ))
     {
-      this->Frame(SHARED_PTR(ieee80211::ReassociationRequest)(new ieee80211::ReassociationRequest));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::ReassociationRequest)(new ieee80211::ReassociationRequest));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode reassociation request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_DISASS))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_DISASS))
     {
-      this->Frame(SHARED_PTR(ieee80211::Disassociation)(new ieee80211::Disassociation));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::Disassociation)(new ieee80211::Disassociation));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode disassociation frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_ASSRESP))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_ASSRESP))
     {
-      this->Frame(SHARED_PTR(ieee80211::AssociationResponse)(new ieee80211::AssociationResponse));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::AssociationResponse)(new ieee80211::AssociationResponse));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode association response frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_AUTHENTICATE))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_AUTHENTICATE))
     {
-      this->Frame(SHARED_PTR(ieee80211::Authentication)(new ieee80211::Authentication));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::Authentication)(new ieee80211::Authentication));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode authentication frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_DEAUTH))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_DEAUTH))
     {
-      this->Frame(SHARED_PTR(ieee80211::Deauthentication)(new ieee80211::Deauthentication));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::Deauthentication)(new ieee80211::Deauthentication));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
         ZLOG_WARN("Cannot decode deauthentication frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
       }
     }
-    else if ((this->Frame()->Subtype() == ieee80211::Frame::SUBTYPE_ACTION))
+    else if ((frame.Subtype() == ieee80211::Frame::SUBTYPE_ACTION))
     {
-      this->Frame(SHARED_PTR(ieee80211::ActionRequest)(new ieee80211::ActionRequest));
-      f = this->Frame()->Disassemble(f, rem, fcsflag);
-      if (f == 0)
+      this->SetFrame(SHARED_PTR(ieee80211::ActionRequest)(new ieee80211::ActionRequest));
+      if (!this->GetFrame()->Disassemble(*sb))
       {
 //        ZLOG_WARN("Cannot decode action request frame");
         this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -218,9 +214,8 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   case ieee80211::Frame::TYPE_CNTL:
   {
-    this->Frame(SHARED_PTR(ieee80211::ControlFrame)(new ieee80211::ControlFrame));
-    f = this->Frame()->Disassemble(f, rem, fcsflag);
-    if (f == 0)
+    this->SetFrame(SHARED_PTR(ieee80211::ControlFrame)(new ieee80211::ControlFrame));
+    if (!this->GetFrame()->Disassemble(*sb))
     {
       ZLOG_WARN("Cannot decode control frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -229,9 +224,8 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   case ieee80211::Frame::TYPE_DATA:
   {
-    this->Frame(SHARED_PTR(ieee80211::DataFrame)(new ieee80211::DataFrame));
-    f = this->Frame()->Disassemble(f, rem, fcsflag);
-    if (f == 0)
+    this->SetFrame(SHARED_PTR(ieee80211::DataFrame)(new ieee80211::DataFrame));
+    if (!this->GetFrame()->Disassemble(*sb))
     {
       ZLOG_WARN("Cannot decode data frame");
       this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -240,9 +234,9 @@ Notification::Notification(const zSocket::Notification& noti_) :
   }
   default:
   {
-      ZLOG_WARN("Unsupported frame type / subtype: " + zLog::HexStr(this->Frame()->Type()) + " / "
-          + zLog::HexStr(this->Frame()->Subtype()));
-      this->Frame()->Display();
+      ZLOG_WARN("Unsupported frame type / subtype: " + zLog::HexStr(frame.Type()) + " / "
+          + zLog::HexStr(frame.Subtype()));
+      frame.Display();
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
     break;
   }
@@ -268,19 +262,6 @@ Notification::RadiotapHeader(SHARED_PTR(ieee80211::RadioTap)rtaphdr_)
   return (true);
 }
 
-SHARED_PTR(ieee80211::Frame)
-Notification::Frame()
-{
-  return(this->_frame);
-}
-
-bool
-Notification::Frame(SHARED_PTR(ieee80211::Frame)frame_)
-{
-  this->_frame = frame_;
-  return(true);
-}
-
 //*****************************************************************************
 // Class: ieee80211::Socket
 //*****************************************************************************
@@ -301,15 +282,21 @@ Socket::Recv()
   // Receive frame and convert to wireless notification
   SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
 
-  // Update destination address from actual frame
-  zSocket::Address daddr(zSocket::Socket::GetAddress().GetType(),
-      n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_1));
-  n->SetDstAddress(daddr);
+  if (n.get() && (n->GetSubType() == zSocket::Notification::SUBTYPE_PKT_RCVD))
+  {
+    std::string addr;
+    // Update destination address from actual frame
+    SHARED_PTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
+    n->SetDstAddress(dst);
 
-  // Update source address from actual frame
-  zSocket::Address saddr(zSocket::Socket::GetAddress().GetType(),
-      n->Frame()->GetAddress(ieee80211::Frame::ADDRESS_2));
-  n->SetSrcAddress(saddr);
+    // Update source address from actual frame
+    SHARED_PTR(zSocket::MacAddress) src(new zSocket::MacAddress(n->GetFrame()->GetSource()));
+    n->SetSrcAddress(src);
+  }
+  else
+  {
+    fprintf(stderr, "BUG: Unknown frame: %d\n", n->GetSubType());
+  }
 
   // Return wireless notification
   return (n);
@@ -326,10 +313,8 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
 {
 
   zSocket::Buffer sb;
-  uint8_t* sbptr = sb.Head();
-  size_t sbsize = sb.TotalSize();
 
-  if (!(sbptr = hdr_.Assemble(sbptr, sbsize)))
+  if (!hdr_.Assemble(sb))
   {
     ZLOG_ERR("Error assembling radiotap header");
     SHARED_PTR(Notification) n(new Notification(*this));
@@ -338,7 +323,7 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
   }
 
   // Assemble frame (writes buffer)
-  if (!(sbptr = frame_.Assemble(sbptr, sbsize)))
+  if (!frame_.Assemble(sb))
   {
     ZLOG_ERR("Error assembling IEEE80211 header");
     SHARED_PTR(Notification) n(new Notification(*this));
@@ -346,16 +331,8 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
     return (n);
   }
 
-  if (!sb.Put(sb.TotalSize() - sbsize))
-  {
-    ZLOG_ERR("Error updating socket buffer size");
-    SHARED_PTR(Notification) n(new Notification(*this));
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-    return (n);
-  }
-
-  zSocket::Address daddr(zSocket::Socket::GetAddress().GetType(), frame_.GetAddress(ieee80211::Frame::ADDRESS_1));
-  return (this->Send(daddr, sb));
+  zSocket::MacAddress dst(frame_.GetAddress(ieee80211::Frame::ADDRESS_1));
+  return (this->Send(dst, sb));
 }
 
 void

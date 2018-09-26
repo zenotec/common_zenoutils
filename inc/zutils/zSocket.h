@@ -436,35 +436,42 @@ public:
   Notification::SUBTYPE
   GetSubType() const;
 
-  void
-  SetSubType(Notification::SUBTYPE subtype_);
+  bool
+  SetSubType(const Notification::SUBTYPE subtype_);
 
-  const Address&
+  SHARED_PTR(Address)
   GetSrcAddress() const;
 
-  void
-  SetSrcAddress(const Address& sa_);
+  bool
+  SetSrcAddress(SHARED_PTR(Address) sa_);
 
-  const Address&
+  SHARED_PTR(Address)
   GetDstAddress() const;
 
-  void
-  SetDstAddress(const Address& da_);
+  bool
+  SetDstAddress(SHARED_PTR(Address) da_);
 
-  const Buffer&
+  SHARED_PTR(Buffer)
   GetBuffer() const;
 
-  void
-  SetBuffer(const Buffer& sb_);
+  bool
+  SetBuffer(SHARED_PTR(Buffer) sb_);
+
+  SHARED_PTR(Frame)
+  GetFrame() const;
+
+  bool
+  SetFrame(const SHARED_PTR(Frame) frame_);
 
 protected:
 
 private:
 
   Notification::SUBTYPE _subtype;
-  Address _sa;
-  Address _da;
-  Buffer _sb;
+  SHARED_PTR(Address) _sa;
+  SHARED_PTR(Address) _da;
+  SHARED_PTR(Buffer) _sb;
+  SHARED_PTR(Frame) _frame;
 
 };
 
@@ -566,18 +573,18 @@ public:
 protected:
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification)noti_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   {
     bool status = false;
-    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
+    if (n_.get() && (n_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
-      status = this->ObserveEvent(STATIC_CAST(Notification)(noti_));
+      status = this->ObserveEvent(STATIC_CAST(Notification)(n_));
     }
     return (status);
   }
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zSocket::Notification)noti_) = 0;
+  ObserveEvent(SHARED_PTR(zSocket::Notification) n_) = 0;
 
 private:
 

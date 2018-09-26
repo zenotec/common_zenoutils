@@ -33,8 +33,6 @@ zSocketUnitTest_SOURCES = \
     UnixSocket.cpp \
     MacAddress.cpp \
     RawSocket.cpp \
-    InetAddress.cpp \
-    InetSocket.cpp \
     Ipv4Address.cpp \
     UdpSocket.cpp
 

@@ -38,6 +38,7 @@
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 
+#include <zutils/zRawAddress.h>
 #include <zutils/zRawSocket.h>
 
 #include "zSocketTest.h"
@@ -153,9 +154,9 @@ zSocketTest_RawSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
-  TEST_TRUE(sb == rxn->GetBuffer());
+  TEST_TRUE_MSG((*STATIC_CAST(RawAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
+  TEST_TRUE_MSG((*STATIC_CAST(RawAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
+  TEST_TRUE(sb == *rxn->GetBuffer());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock);
@@ -256,9 +257,9 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-  TEST_TRUE_MSG((rxn->GetSrcAddress() == *SrcAddr), rxn->GetSrcAddress().GetAddress());
-  TEST_TRUE_MSG((rxn->GetDstAddress() == *DstAddr), rxn->GetDstAddress().GetAddress());
-  TEST_TRUE(sb == rxn->GetBuffer());
+  TEST_TRUE_MSG((*STATIC_CAST(RawAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
+  TEST_TRUE_MSG((*STATIC_CAST(RawAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
+  TEST_TRUE(sb == *rxn->GetBuffer());
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock1);

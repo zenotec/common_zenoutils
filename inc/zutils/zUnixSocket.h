@@ -23,57 +23,12 @@
 
 #include <zutils/zThread.h>
 #include <zutils/zSocket.h>
+#include <zutils/zUnixAddress.h>
 
 namespace zUtils
 {
 namespace zSocket
 {
-
-class UnixSocket;
-
-//**********************************************************************
-// Class: zSocket::UnixAddress
-//**********************************************************************
-
-class UnixAddress :
-    public Address
-{
-
-  friend UnixSocket;
-
-public:
-
-  UnixAddress(const std::string &addr_ = "");
-
-  UnixAddress(const Address& addr_);
-
-  UnixAddress(const struct sockaddr_un& sa_);
-
-  virtual
-  ~UnixAddress();
-
-  virtual std::string
-  GetAddress() const;
-
-  virtual bool
-  SetAddress(const std::string &addr_);
-
-  struct sockaddr_un
-  GetSA() const;
-
-  bool
-  SetSA(const struct sockaddr_un& sa_);
-
-  virtual void
-  Display() const;
-
-protected:
-
-private:
-
-  struct sockaddr_un _sa;
-
-};
 
 //**********************************************************************
 // Class: zSocket::UnixSocket
