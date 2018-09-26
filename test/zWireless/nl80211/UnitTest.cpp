@@ -35,7 +35,16 @@ main(int argc, const char **argv)
 
   // Test all classes
   UTEST_INIT();
-  UTEST_TEST(Nl80211Test_Phy, 0);
+  UTEST_TEST(Nl80211Test_PhyGetCommands, 0);
+  UTEST_TEST(Nl80211Test_InterfaceGetCommands, 0);
+  UTEST_TEST(Nl80211Test_PhySetCommands, 0);
+  UTEST_TEST(Nl80211Test_InterfaceSetCommands, 0);
+  UTEST_TEST(Nl80211Test_InterfaceNewDelCommand, 0);
+
+  UTEST_TEST(Nl80211Test_ApCommands, 0);
+
+  UTEST_TEST(Nl80211Test_FrameEvent, 0);
+  UTEST_TEST(Nl80211Test_FrameCommand, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

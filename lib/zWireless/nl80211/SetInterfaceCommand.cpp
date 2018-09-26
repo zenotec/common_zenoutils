@@ -16,14 +16,8 @@
  */
 
 // libc includes
-//#include <stdlib.h>
-//#include <net/if.h>
-//#include <linux/nl80211.h>
-//#include <netlink/netlink.h>
-//#include <netlink/msg.h>
-//#include <netlink/attr.h>
-//#include <netlink/genl/genl.h>
-//#include <netlink/genl/ctrl.h>
+#include <string.h>
+#include <errno.h>
 
 // libc++ includes
 #include <iostream>
@@ -44,7 +38,7 @@ namespace nl80211
 static std::string
 __errstr(int code)
 {
-  return(std::string(nl_geterror(code)));
+  return(std::string(strerror(-code)));
 }
 
 //*****************************************************************************
@@ -87,7 +81,7 @@ SetInterfaceCommand::Exec()
     return(false);
   }
 
-  if (!this->_sock.SetHandler(this))
+  if (!this->_sock.SetCallback(this))
   {
     ZLOG_ERR("Error setting up message handlers");
     return(false);

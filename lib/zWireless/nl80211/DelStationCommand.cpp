@@ -16,6 +16,8 @@
  */
 
 // libc includes
+#include <string.h>
+#include <errno.h>
 
 // libc++ includes
 #include <iostream>
@@ -36,7 +38,7 @@ namespace nl80211
 static std::string
 __errstr(int code)
 {
-  return(std::string(nl_geterror(code)));
+  return(std::string(strerror(-code)));
 }
 
 //*****************************************************************************
@@ -72,7 +74,7 @@ DelStationCommand::Exec()
     return(false);
   }
 
-  if (!this->_sock.SetHandler(this))
+  if (!this->_sock.SetCallback(this))
   {
     ZLOG_ERR("Error setting up message handlers");
     return(false);

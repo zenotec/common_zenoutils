@@ -25,9 +25,9 @@
 
 // libzutils includes
 #include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
 #include <zutils/netlink/Socket.h>
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
@@ -45,7 +45,9 @@ namespace nl80211
 // Class: SetInterfaceCommand
 //*****************************************************************************
 
-class SetInterfaceCommand : public netlink::Command, public netlink::Handler
+class SetInterfaceCommand :
+    public netlink::Command,
+    public netlink::Callback
 {
 
 public:

@@ -34,7 +34,11 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/BeaconTailAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ProbeResponseAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ChannelWidthAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/CookieAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/DtimPeriodAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameMatchAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameTypeAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/FrequencyAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/IfIndexAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/IfNameAttribute.h \
@@ -45,6 +49,7 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/PhyNameAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/PhyBandsAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/SsidAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/RxSignalLevelAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerLevelAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/TxPowerModeAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ListPhysCommand.h \
@@ -63,13 +68,16 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/SetBeaconCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StartApCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/StopApCommand.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameCommand.h \
 	${top_srcdir}/inc/zutils/nl80211/Socket.h \
 	${top_srcdir}/inc/zutils/nl80211/CenterFrequency1Attribute.h \
 	${top_srcdir}/inc/zutils/nl80211/CenterFrequency2Attribute.h \
 	${top_srcdir}/inc/zutils/nl80211/ListenIntervalAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/StaAidAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/StaSupportedRatesAttribute.h \
-	${top_srcdir}/inc/zutils/nl80211/StationFlagsAttribute.h
+	${top_srcdir}/inc/zutils/nl80211/StationFlagsAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameEvent.h \
+	${top_srcdir}/inc/zutils/nl80211/FrameSocket.h
 
 libnl80211_la_SOURCES = \
 	Socket.cpp \
@@ -88,5 +96,8 @@ libnl80211_la_SOURCES = \
 	DelStationCommand.cpp \
 	SetBeaconCommand.cpp \
 	StartApCommand.cpp \
-	StopApCommand.cpp
+	StopApCommand.cpp \
+	FrameEvent.cpp \
+	FrameCommand.cpp \
+	FrameSocket.cpp
 	

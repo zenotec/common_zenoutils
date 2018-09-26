@@ -39,6 +39,7 @@ Nl80211UnitTest_SOURCES = \
 
 Nl80211UnitTest_LDADD = \
     ${top_builddir}/lib/zWireless/nl80211/libnl80211.la \
+    ${top_builddir}/lib/zWireless/ieee80211/libieee80211.la \
     ${top_builddir}/lib/zInterface/libzInterface.la \
     ${top_builddir}/lib/zInterface/netlink/libnetlink.la \
     ${top_builddir}/lib/zLog/libzLog.la \
@@ -47,5 +48,6 @@ Nl80211UnitTest_LDADD = \
     ${top_builddir}/lib/zConfig/libzConfig.la \
     ${top_builddir}/lib/zEvent/libzEvent.la \
     ${top_builddir}/lib/zData/libzData.la \
-    ${top_builddir}/lib/zSem/libzSem.la
+    ${top_builddir}/lib/zSem/libzSem.la \
+    ${top_builddir}/lib/zSocket/libzSocket.la
 

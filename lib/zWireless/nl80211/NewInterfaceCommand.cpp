@@ -17,6 +17,7 @@
 
 // libc includes
 #include <string.h>
+#include <errno.h>
 
 // libc++ includes
 #include <iostream>
@@ -32,6 +33,12 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
 namespace nl80211
 {
+
+static std::string
+__errstr(int code)
+{
+  return(std::string(strerror(-code)));
+}
 
 //*****************************************************************************
 // Class: NewInterfaceCommand
@@ -67,7 +74,7 @@ NewInterfaceCommand::Exec()
     return(false);
   }
 
-  if (!this->_sock.SetHandler(this))
+  if (!this->_sock.SetCallback(this))
   {
     ZLOG_ERR("Error setting up message handlers");
     return(false);
@@ -188,7 +195,7 @@ int
 NewInterfaceCommand::err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
 {
   ZLOG_ERR("Error executing NewInterfaceCommand");
-  ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + strerror(nlerr->error));
+  ZLOG_ERR("Error: (" + ZLOG_INT(nlerr->error) + ") " + __errstr(nlerr->error));
   this->_status = false;
   this->_count.Post();
   return(NL_SKIP);

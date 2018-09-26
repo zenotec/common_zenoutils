@@ -26,8 +26,8 @@
 
 // libzutils includes
 #include <zutils/zThread.h>
-#include <zutils/zEvent.h>
 using namespace zUtils;
+#include <zutils/netlink/Callback.h>
 
 // local includes
 #include "RouteLink.h"
@@ -41,21 +41,15 @@ namespace netlink
 // Class: RouteLinkEvent
 //*****************************************************************************
 
-class RouteLinkEvent : public Handler, public zEvent::Event,
-    public zThread::ThreadFunction, public zThread::ThreadArg
+class RouteLinkEvent :
+    public zThread::ThreadFunction,
+    public zThread::ThreadArg,
+    public netlink::Callback
 {
 
 public:
 
-  enum EVENTID
-  {
-    EVENTID_ERR = -1,
-    EVENTID_NONE = 0,
-    EVENTID_UPDOWN = 1,
-    EVENTID_LAST
-  };
-
-  RouteLinkEvent(const std::string& name_ = "");
+  RouteLinkEvent(netlink::Callback& cb_);
 
   virtual
   ~RouteLinkEvent();
@@ -64,7 +58,7 @@ public:
   GetIfName() const;
 
   bool
-  SetIfName(const std::string& name_);
+  SetIfName(const std::string& ifname_);
 
   bool
   Start();
@@ -90,33 +84,7 @@ private:
 
   int _ifindex;
   std::string _ifname;
-
-};
-
-//*****************************************************************************
-// Class: RouteLinkNotification
-//*****************************************************************************
-
-class RouteLinkNotification : public zEvent::Notification
-{
-
-public:
-
-  RouteLink Link;
-
-  RouteLinkNotification(RouteLinkEvent& rlevent_, RouteLinkEvent::EVENTID id_);
-
-  virtual
-  ~RouteLinkNotification();
-
-  RouteLinkEvent::EVENTID
-  Id() const;
-
-protected:
-
-private:
-
-  RouteLinkEvent::EVENTID _id;
+  netlink::Callback& _cb;
 
 };
 

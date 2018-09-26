@@ -36,13 +36,14 @@ namespace nl80211
 // Class: FrequencyAttribute
 //*****************************************************************************
 
-class FrequencyAttribute : public AttributeValue
+class FrequencyAttribute :
+    public netlink::AttributeValue
 {
 
 public:
 
   FrequencyAttribute() :
-    AttributeValue(NL80211_ATTR_WIPHY_FREQ)
+    netlink::AttributeValue(NL80211_ATTR_WIPHY_FREQ)
   {
   }
 

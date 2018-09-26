@@ -19,11 +19,11 @@
 #define __NETLINK_SOCKET_H__
 
 #include <netlink/netlink.h>
+#include <zutils/netlink/Callback.h>
 
 #include <zutils/zCompatibility.h>
 
 #include "Message.h"
-#include "Handler.h"
 
 namespace netlink
 {
@@ -43,16 +43,19 @@ public:
   ~Socket();
 
   virtual struct nl_sock*
-  operator()();
+  operator()() const;
 
   bool
-  SetHandler(Handler* handler_);
+  SetCallback(Callback* cb_);
 
   virtual bool
   Connect(const int family_);
 
   bool
   Disconnect();
+
+  bool
+  IsConnected() const;
 
   bool
   SendMsg(SHARED_PTR(Message) msg_);

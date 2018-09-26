@@ -25,13 +25,13 @@
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
 #include <linux/nl80211.h>
+#include <zutils/netlink/Callback.h>
 
 // libc++ includes
 #include <iostream>
 
 // libzutils includes
 #include <zutils/zLog.h>
-#include <zutils/netlink/Handler.h>
 using namespace zUtils;
 
 // local includes
@@ -41,83 +41,108 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
 namespace netlink
 {
 
-static std::string
-__errstr(int code)
-{
-  return(std::string(nl_geterror(code)));
-}
-
 //*****************************************************************************
 // Class: Handler
 //*****************************************************************************
 
-Handler::Handler(void* arg_) :
-    _arg(arg_), _msgcnt(0)
+Callback::Callback(void* arg_) :
+    _arg(arg_)
 {
 }
 
-Handler::~Handler()
+Callback::~Callback()
 {
-}
-
-int
-Handler::Count() const
-{
-  return(this->_msgcnt);
 }
 
 int
-Handler::ValidCallback(struct nl_msg* msg, void* arg)
+Callback::SequenceCheckCallback(struct nl_msg* msg_, void* arg_)
 {
-  Handler* self = (Handler*)arg;
-  self->_msgcnt++;
-  return(self->valid_cb(msg, self->_arg));
+  int ret = NL_SKIP;
+  Callback* self = (Callback*)arg_;
+  if (self)
+  {
+    ret = self->seqchk_cb(msg_, self->_arg);
+  }
+  return(ret);
 }
 
 int
-Handler::FinishCallback(struct nl_msg* msg, void* arg)
+Callback::ValidCallback(struct nl_msg* msg_, void* arg_)
 {
-  Handler* self = (Handler*)arg;
-  return(self->finish_cb(msg, self->_arg));
+  int ret = NL_SKIP;
+  Callback* self = (Callback*)arg_;
+  if (self)
+  {
+    ret = self->valid_cb(msg_, self->_arg);
+  }
+  else
+  {
+    ZLOG_ERR("Invalid \"this\" pointer");
+  }
+  return(ret);
 }
 
 int
-Handler::AckCallback(struct nl_msg* msg, void* arg)
+Callback::FinishCallback(struct nl_msg* msg_, void* arg_)
 {
-  Handler* self = (Handler*)arg;
-  return(self->ack_cb(msg, self->_arg));
+  int ret = NL_SKIP;
+  Callback* self = (Callback*)arg_;
+  if (self)
+  {
+    ret = self->finish_cb(msg_, self->_arg);
+  }
+  return(ret);
 }
 
 int
-Handler::ErrorCallback(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg)
+Callback::AckCallback(struct nl_msg* msg_, void* arg_)
 {
-  Handler* self = (Handler*)arg;
-  return(self->err_cb(nla, nlerr, self->_arg));
+  int ret = NL_SKIP;
+  Callback* self = (Callback*)arg_;
+  if (self)
+  {
+    ret = self->ack_cb(msg_, self->_arg);
+  }
+  return(ret);
 }
 
 int
-Handler::valid_cb(struct nl_msg* msg, void* arg)
+Callback::ErrorCallback(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_)
 {
-  this->_msgcnt = 0;
+  int ret = NL_SKIP;
+  Callback* self = (Callback*)arg_;
+  if (self)
+  {
+    ret = self->err_cb(nla_, nlerr_, self->_arg);
+  }
+  return(ret);
+}
+
+int
+Callback::seqchk_cb(struct nl_msg* msg_, void* arg_)
+{
+  return(NL_OK);
+}
+
+int
+Callback::valid_cb(struct nl_msg* msg, void* arg)
+{
   ZLOG_WARN("Unhandled valid callback");
   return(NL_SKIP);
 }
 
 int
-Handler::finish_cb(struct nl_msg* msg, void* arg)
+Callback::finish_cb(struct nl_msg* msg, void* arg)
 {
-  this->_msgcnt = 0;
   ZLOG_WARN("Unhandled finish callback");
   return(NL_SKIP);
 }
 
 int
-Handler::ack_cb(struct nl_msg* msg, void* arg)
+Callback::ack_cb(struct nl_msg* msg, void* arg)
 {
-  this->_msgcnt = 0;
   ZLOG_WARN("Unhandled ack callback");
   return(NL_SKIP);
 }
 
 }
-

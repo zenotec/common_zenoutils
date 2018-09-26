@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,39 +15,45 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBEACONCOMMAND_H__
-#define __NL80211_SETBEACONCOMMAND_H__
+#ifndef __NL80211_FRAMEEVENT_H__
+#define __NL80211_FRAMEEVENT_H__
 
 // libc includes
+#include <linux/nl80211.h>
+#include <linux/netlink.h>
+#include <netlink/netlink.h>
+#include <netlink/msg.h>
+#include <netlink/attr.h>
 
 // libc++ includes
-#include <string>
+#include <list>
 
 // libzutils includes
+#include <zutils/zThread.h>
+using namespace zUtils;
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Socket.h>
-#include <zutils/netlink/GenericMessage.h>
-#include <zutils/netlink/GenericSocket.h>
 using namespace netlink;
 #include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/BeaconHeadAttribute.h>
-#include <zutils/nl80211/BeaconTailAttribute.h>
-#include <zutils/nl80211/BeaconIntervalAttribute.h>
-#include <zutils/nl80211/ProbeResponseAttribute.h>
+#include <zutils/nl80211/FrameTypeAttribute.h>
+#include <zutils/nl80211/FrameMatchAttribute.h>
+
+// local includes
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: FrameEvent
 //*****************************************************************************
 
-class SetBeaconCommand :
+class FrameEvent :
+    public zThread::ThreadFunction,
+    public zThread::ThreadArg,
     public netlink::Command,
     public netlink::Callback
 {
@@ -56,17 +62,22 @@ public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  BeaconHeadAttribute BeaconHead;
-  BeaconTailAttribute BeaconTail;
-  BeaconIntervalAttribute BeaconInterval;
-  ProbeResponseAttribute ProbeResp;
+  FrameTypeAttribute FrameType;
+  FrameMatchAttribute FrameMatch;
 
-  SetBeaconCommand(int index_);
-
-  SetBeaconCommand(const std::string& name_);
+  FrameEvent(const int ifindex_, Callback& cb_);
 
   virtual
-  ~SetBeaconCommand();
+  ~FrameEvent();
+
+  int
+  GetSockFd() const;
+
+  bool
+  RecvMsg();
+
+  bool
+  Listen();
 
   virtual bool
   Exec();
@@ -76,18 +87,26 @@ public:
 
 protected:
 
-  virtual int
-  ack_cb(struct nl_msg* msg, void* arg);
+  virtual void
+  Run(zThread::ThreadArg *arg_);
 
   virtual int
-  err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);
+  valid_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
+  ack_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
+  err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_);
 
 private:
 
   nl80211::Socket _sock;
+  zThread::Thread _thread;
+  netlink::Callback& _cb;
 
 };
 
 }
 
-#endif /* __NL80211_SETBEACONCOMMAND_H__ */
+#endif /* __NL80211_FRAMEEVENT_H__ */

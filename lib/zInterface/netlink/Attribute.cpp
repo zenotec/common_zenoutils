@@ -195,9 +195,9 @@ __nlattrstr(const unsigned int id_)
   case NL80211_ATTR_SUPPORTED_COMMANDS:
     str = "NL80211_ATTR_SUPPORTED_COMMANDS";
     break;
-//    case NL80211_ATTR_FRAME,
-    //    str = "NL80211_ATTR_FRAME";
-    //    break;
+  case NL80211_ATTR_FRAME:
+    str = "NL80211_ATTR_FRAME";
+    break;
 //    case NL80211_ATTR_SSID,
     //    str = "NL80211_ATTR_SSID";
     //    break;

@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBEACONCOMMAND_H__
-#define __NL80211_SETBEACONCOMMAND_H__
+#ifndef __NL80211_FRAMECOMMAND_H__
+#define __NL80211_FRAMECOMMAND_H__
 
 // libc includes
 
@@ -35,19 +35,21 @@ using namespace netlink;
 #include <zutils/nl80211/Socket.h>
 #include <zutils/nl80211/IfIndexAttribute.h>
 #include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/BeaconHeadAttribute.h>
-#include <zutils/nl80211/BeaconTailAttribute.h>
-#include <zutils/nl80211/BeaconIntervalAttribute.h>
-#include <zutils/nl80211/ProbeResponseAttribute.h>
+#include <zutils/nl80211/FrequencyAttribute.h>
+#include <zutils/nl80211/FrameAttribute.h>
+#include <zutils/nl80211/CookieAttribute.h>
+
+
+// local includes
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: FrameCommand
 //*****************************************************************************
 
-class SetBeaconCommand :
+class FrameCommand :
     public netlink::Command,
     public netlink::Callback
 {
@@ -56,17 +58,16 @@ public:
 
   IfIndexAttribute IfIndex;
   IfNameAttribute IfName;
-  BeaconHeadAttribute BeaconHead;
-  BeaconTailAttribute BeaconTail;
-  BeaconIntervalAttribute BeaconInterval;
-  ProbeResponseAttribute ProbeResp;
+  FrequencyAttribute Frequency;
+  FrameAttribute Frame;
+  CookieAttribute Cookie;
 
-  SetBeaconCommand(int index_);
+  FrameCommand(int ifindex_);
 
-  SetBeaconCommand(const std::string& name_);
+  FrameCommand(const std::string& ifname_);
 
   virtual
-  ~SetBeaconCommand();
+  ~FrameCommand();
 
   virtual bool
   Exec();
@@ -77,7 +78,7 @@ public:
 protected:
 
   virtual int
-  ack_cb(struct nl_msg* msg, void* arg);
+  valid_cb(struct nl_msg* msg, void* arg);
 
   virtual int
   err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);
@@ -90,4 +91,4 @@ private:
 
 }
 
-#endif /* __NL80211_SETBEACONCOMMAND_H__ */
+#endif /* __NL80211_FRAMECOMMAND_H__ */

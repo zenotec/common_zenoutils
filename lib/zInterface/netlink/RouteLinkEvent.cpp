@@ -48,11 +48,11 @@ __errstr(int code)
 // Class: RouteLinkEvent
 //*****************************************************************************
 
-RouteLinkEvent::RouteLinkEvent(const std::string& name_) :
-    zEvent::Event(zEvent::Event::TYPE_LAST), _thread(this, this), _ifindex(0)
+RouteLinkEvent::RouteLinkEvent(Callback& cb_) :
+    _thread(this, this),
+    _ifindex(0),
+    _cb(cb_)
 {
-  this->SetIfName(name_);
-
 }
 
 RouteLinkEvent::~RouteLinkEvent()
@@ -86,11 +86,11 @@ RouteLinkEvent::GetIfName() const
 }
 
 bool
-RouteLinkEvent::SetIfName(const std::string& name_)
+RouteLinkEvent::SetIfName(const std::string& ifname_)
 {
   bool status = false;
-  GetLinkCommand cmd(name_);
-  if (!name_.empty() && cmd.Exec())
+  GetLinkCommand cmd(ifname_);
+  if (!ifname_.empty() && cmd.Exec())
   {
     this->_ifindex = cmd.IfIndex();
     this->_ifname = cmd.IfName();
@@ -109,7 +109,7 @@ RouteLinkEvent::Start()
     return(false);
   }
 
-  if (!this->_sock.SetHandler(this))
+  if (!this->_sock.SetCallback(this))
   {
     ZLOG_ERR("Error setting up message handlers");
     return(false);
@@ -155,8 +155,7 @@ RouteLinkEvent::valid_cb(struct nl_msg* msg_, void* arg_)
 
   if (!this->_ifindex || (this->_ifindex == msg.LinkIndex()))
   {
-    SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_UPDOWN));
-    this->notifyHandlers(n);
+    this->_cb.ValidCallback(msg_, arg_);
   }
 
   return(NL_OK);
@@ -166,34 +165,7 @@ int
 RouteLinkEvent::err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_)
 {
   std::cout << "RouteLinkEvent::err_cb()" << std::endl;
-  SHARED_PTR(RouteLinkNotification) n(new RouteLinkNotification(*this, RouteLinkEvent::EVENTID_ERR));
-  this->notifyHandlers(n);
-
-  return(NL_SKIP);
-}
-
-//*****************************************************************************
-// Class: RouteLinkNotification
-//*****************************************************************************
-
-RouteLinkNotification::RouteLinkNotification(RouteLinkEvent& rlevent_, RouteLinkEvent::EVENTID id_) :
-    zEvent::Notification(rlevent_), _id(id_)
-{
-//  GetLinkCommand cmd(index_);
-//  if (cmd.Exec())
-//  {
-//    this->Link = cmd.Link;
-//  }
-}
-
-RouteLinkNotification::~RouteLinkNotification()
-{
-}
-
-RouteLinkEvent::EVENTID
-RouteLinkNotification::Id() const
-{
-  return (this->_id);
+  return(this->_cb.ErrorCallback(nla_, nlerr_, arg_));
 }
 
 }

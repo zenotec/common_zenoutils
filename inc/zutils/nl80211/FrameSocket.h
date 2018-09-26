@@ -15,79 +15,82 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_SETBEACONCOMMAND_H__
-#define __NL80211_SETBEACONCOMMAND_H__
+#ifndef __NL80211_FRAMESOCKET_H__
+#define __NL80211_FRAMESOCKET_H__
 
 // libc includes
 
 // libc++ includes
-#include <string>
 
 // libzutils includes
+#include <zutils/zSocket.h>
+#include <zutils/zQueue.h>
+using namespace zUtils;
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Socket.h>
-#include <zutils/netlink/GenericMessage.h>
-#include <zutils/netlink/GenericSocket.h>
 using namespace netlink;
-#include <zutils/nl80211/Socket.h>
-#include <zutils/nl80211/IfIndexAttribute.h>
-#include <zutils/nl80211/IfNameAttribute.h>
-#include <zutils/nl80211/BeaconHeadAttribute.h>
-#include <zutils/nl80211/BeaconTailAttribute.h>
-#include <zutils/nl80211/BeaconIntervalAttribute.h>
-#include <zutils/nl80211/ProbeResponseAttribute.h>
+#include <zutils/nl80211/FrameEvent.h>
+#include <zutils/nl80211/FrameCommand.h>
+using namespace nl80211;
+
+// local includes
 
 namespace nl80211
 {
 
 //*****************************************************************************
-// Class: SetBeaconCommand
+// Class: FrameSocket
 //*****************************************************************************
 
-class SetBeaconCommand :
-    public netlink::Command,
+class FrameSocket :
+    public zSocket::Socket,
     public netlink::Callback
 {
 
 public:
 
-  IfIndexAttribute IfIndex;
-  IfNameAttribute IfName;
-  BeaconHeadAttribute BeaconHead;
-  BeaconTailAttribute BeaconTail;
-  BeaconIntervalAttribute BeaconInterval;
-  ProbeResponseAttribute ProbeResp;
-
-  SetBeaconCommand(int index_);
-
-  SetBeaconCommand(const std::string& name_);
+  FrameSocket();
 
   virtual
-  ~SetBeaconCommand();
+  ~FrameSocket();
 
+  virtual int
+  GetId() const;
+
+  bool
+  RegisterFrame(const uint16_t type_, const uint8_t* match_, const size_t len_);
+
+  // Address is name of interface
   virtual bool
-  Exec();
+  Bind(const zSocket::Address& addr_);
 
-  virtual void
-  Display(const std::string& prefix_ = "") const;
+  virtual SHARED_PTR(zSocket::Notification)
+  Recv();
+
+  virtual SHARED_PTR(zSocket::Notification)
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
 
 protected:
 
   virtual int
-  ack_cb(struct nl_msg* msg, void* arg);
+  valid_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
-  err_cb(struct sockaddr_nl* nla, struct nlmsgerr* nlerr, void* arg);
+  ack_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
+  err_cb(struct sockaddr_nl* nla_, struct nlmsgerr* nlerr_, void* arg_);
 
 private:
 
-  nl80211::Socket _sock;
+  nl80211::FrameCommand* _fcmd;
+  nl80211::FrameEvent* _fevent;
+  zQueue<SHARED_PTR(zSocket::Notification)> _rxq;
 
 };
 
 }
 
-#endif /* __NL80211_SETBEACONCOMMAND_H__ */
+#endif /* __NL80211_FRAMESOCKET_H__ */

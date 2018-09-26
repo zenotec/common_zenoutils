@@ -25,18 +25,18 @@ namespace netlink
 // Class: Handler
 //*****************************************************************************
 
-class Handler
+class Callback
 {
 
 public:
 
-  Handler(void* arg_ = NULL);
+  Callback(void* arg_ = NULL);
 
   virtual
-  ~Handler();
+  ~Callback();
 
-  int
-  Count() const;
+  static int
+  SequenceCheckCallback(struct nl_msg* msg, void* arg);
 
   static int
   ValidCallback(struct nl_msg* msg_, void* arg_);
@@ -53,6 +53,9 @@ public:
 protected:
 
   virtual int
+  seqchk_cb(struct nl_msg* msg_, void* arg_);
+
+  virtual int
   valid_cb(struct nl_msg* msg_, void* arg_);
 
   virtual int
@@ -67,7 +70,6 @@ protected:
 private:
 
   void* _arg;
-  int _msgcnt;
 
 };
 

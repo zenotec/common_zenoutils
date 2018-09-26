@@ -32,8 +32,8 @@
 // libzutils includes
 #include <zutils/zLog.h>
 #include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
 #include <zutils/netlink/Socket.h>
 using namespace zUtils;
 
@@ -65,19 +65,28 @@ Socket::~Socket()
 }
 
 struct nl_sock*
-Socket::operator ()()
+Socket::operator ()() const
 {
   return(this->_sock);
 }
 
 bool
-Socket::SetHandler(Handler* handler_)
+Socket::SetCallback(Callback* handler_)
 {
   int ret = 0;
 
   if (!this->_sock)
   {
     ZLOG_ERR("Error setting handler, socket does not exists");
+    return(false);
+  }
+
+  ret = nl_socket_modify_cb(this->_sock, NL_CB_SEQ_CHECK, NL_CB_CUSTOM, handler_->SequenceCheckCallback, handler_);
+  if (ret < 0)
+  {
+    ZLOG_ERR("Error setting up netlink valid message callback");
+    ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+    this->Disconnect();
     return(false);
   }
 
@@ -155,6 +164,12 @@ Socket::Disconnect()
     status = true;
   }
   return(status);
+}
+
+bool
+Socket::IsConnected() const
+{
+  return (this->_sock != NULL);
 }
 
 bool

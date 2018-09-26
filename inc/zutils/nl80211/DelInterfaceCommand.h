@@ -35,7 +35,7 @@
 using namespace zUtils;
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Attribute.h>
-#include <zutils/netlink/Handler.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Message.h>
 #include <zutils/netlink/Socket.h>
 #include <zutils/netlink/GenericMessage.h>
@@ -54,7 +54,7 @@ namespace nl80211
 // Class: DelInterfaceCommand
 //*****************************************************************************
 
-class DelInterfaceCommand : public netlink::Command, public netlink::Handler
+class DelInterfaceCommand : public netlink::Command, public netlink::Callback
 {
 
 public:

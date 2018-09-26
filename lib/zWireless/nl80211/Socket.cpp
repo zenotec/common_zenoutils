@@ -38,7 +38,7 @@
 using namespace zUtils;
 #include <zutils/netlink/Attribute.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/GenericSocket.h>
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/nl80211/Socket.h>
@@ -224,7 +224,9 @@ _attr2str(const int attr_)
 //
 //    NL80211_ATTR_DURATION,
 //
-//    NL80211_ATTR_COOKIE,
+  case NL80211_ATTR_COOKIE:
+    str += "NL80211_ATTR_COOKIE";
+    break;
 //
 //    NL80211_ATTR_WIPHY_COVERAGE_CLASS,
 //

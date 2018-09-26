@@ -30,7 +30,7 @@ libnetlink_la_HEADERS = \
 	${top_srcdir}/inc/zutils/netlink/Message.h \
 	${top_srcdir}/inc/zutils/netlink/GenericMessage.h \
 	${top_srcdir}/inc/zutils/netlink/RouteMessage.h \
-	${top_srcdir}/inc/zutils/netlink/Handler.h \
+	${top_srcdir}/inc/zutils/netlink/Callback.h \
 	${top_srcdir}/inc/zutils/netlink/Socket.h \
 	${top_srcdir}/inc/zutils/netlink/GenericSocket.h \
 	${top_srcdir}/inc/zutils/netlink/RouteLink.h \
@@ -48,7 +48,7 @@ libnetlink_la_SOURCES = \
 	Message.cpp \
 	GenericMessage.cpp \
 	RouteMessage.cpp \
-	Handler.cpp \
+	Callback.cpp \
 	Socket.cpp \
 	GenericSocket.cpp \
 	RouteLink.cpp \

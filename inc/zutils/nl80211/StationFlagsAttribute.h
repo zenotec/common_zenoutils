@@ -36,18 +36,19 @@ namespace nl80211
 // Class: StaionFlagsAttribute
 //*****************************************************************************
 
-class StaionFlagsAttribute : public AttributeValue
+class StationFlagsAttribute : 
+  public netlink::AttributeValue
 {
 
 public:
 
-  StaionFlagsAttribute() :
+  StationFlagsAttribute() :
       AttributeValue(NL80211_ATTR_STA_FLAGS2)
   {
   }
 
   virtual
-  ~StaionFlagsAttribute()
+  ~StationFlagsAttribute()
   {
   }
 

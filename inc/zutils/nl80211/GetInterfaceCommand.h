@@ -25,9 +25,9 @@
 
 // libzutils includes
 #include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
 #include <zutils/netlink/Socket.h>
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
@@ -57,7 +57,9 @@ namespace nl80211
 // Class: GetInterfaceCommand
 //*****************************************************************************
 
-class GetInterfaceCommand : public netlink::Command, public Handler
+class GetInterfaceCommand :
+    public netlink::Command,
+    public Callback
 {
 
 public:
@@ -76,9 +78,9 @@ public:
   TxPowerModeAttribute TxPowerMode;
   TxPowerLevelAttribute TxPowerLevel;
 
-  GetInterfaceCommand(int index_);
+  GetInterfaceCommand(int ifindex_);
 
-  GetInterfaceCommand(const std::string& name_);
+  GetInterfaceCommand(const std::string& ifname_);
 
   virtual
   ~GetInterfaceCommand();

@@ -16,6 +16,8 @@
  */
 
 // libc includes
+#include <string.h>
+#include <errno.h>
 
 // libc++ includes
 #include <iostream>
@@ -35,7 +37,7 @@ namespace nl80211
 static std::string
 __errstr(int code)
 {
-  return(std::string(nl_geterror(code)));
+  return(std::string(strerror(-code)));
 }
 
 //*****************************************************************************
@@ -71,7 +73,7 @@ NewStationCommand::Exec()
     return(false);
   }
 
-  if (!this->_sock.SetHandler(this))
+  if (!this->_sock.SetCallback(this))
   {
     ZLOG_ERR("Error setting up message handlers");
     return(false);
@@ -85,14 +87,12 @@ NewStationCommand::Exec()
   if (!cmdmsg->PutAttribute(&this->Mac))
   {
     ZLOG_ERR("Error putting Mac attribute: ");
-    std::cout << "sam..................errro putting Mac attribute" <<std::endl;
     return (false);
   }
 
   if (!cmdmsg->PutAttribute(&this->ListenInterval))
   {
     ZLOG_ERR("Error putting Listen Interval attribute: ");
-    std::cout << "sam..................errro putting listen interval" <<std::endl;
     return (false);
   }
 
@@ -105,17 +105,15 @@ NewStationCommand::Exec()
   if (!cmdmsg->PutAttribute(&this->StaAid))
   {
     ZLOG_ERR("Error putting StaAid attribute: ");
-    std::cout << "sam..................errro putting staaid" <<std::endl;
     return (false);
   }
 
   if (!cmdmsg->PutAttribute(&this->StaFlags))
   {
 	ZLOG_ERR("Error putting Station Flags attribute: ");
-	std::cout << "sam..................errro putting station flags" <<std::endl;
 	return (false);
   }
-  std::cout << "8" << std::endl;
+
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {

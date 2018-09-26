@@ -19,9 +19,9 @@
 #define __NL80211_LISTINTERFACESCOMMAND_H__
 
 #include <zutils/netlink/Attribute.h>
+#include <zutils/netlink/Callback.h>
 #include <zutils/netlink/Command.h>
 #include <zutils/netlink/Message.h>
-#include <zutils/netlink/Handler.h>
 #include <zutils/netlink/Socket.h>
 #include <zutils/netlink/GenericMessage.h>
 #include <zutils/netlink/GenericSocket.h>
@@ -39,7 +39,7 @@ namespace nl80211
 
 class ListInterfacesCommand :
     public netlink::Command,
-    public netlink::Handler
+    public netlink::Callback
 {
 
 public:

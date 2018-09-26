@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,59 +15,49 @@
  * limitations under the License.
  */
 
+#ifndef __NL80211_FRAMEATTRIBUTE_H__
+#define __NL80211_FRAMEATTRIBUTE_H__
+
 // libc includes
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netlink/netlink.h>
+#include <stdint.h>
+#include <linux/nl80211.h>
 
 // libc++ includes
-#include <iostream>
 
 // libzutils includes
-#include <zutils/zLog.h>
 #include <zutils/netlink/Attribute.h>
-#include <zutils/netlink/Callback.h>
-#include <zutils/netlink/Message.h>
-#include <zutils/netlink/Socket.h>
-#include <zutils/netlink/RouteSocket.h>
-using namespace zUtils;
 
 // local includes
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_INTERFACE);
-
-namespace netlink
+namespace nl80211
 {
 
 //*****************************************************************************
-// Class: RouteSocket
+// Class: FrameAttribute
 //*****************************************************************************
 
-RouteSocket::RouteSocket()
-{
-}
-
-RouteSocket::~RouteSocket()
-{
-}
-
-bool
-RouteSocket::Connect()
+class FrameAttribute :
+    public netlink::AttributeValue
 {
 
-  if (!Socket::Connect(NETLINK_ROUTE))
+public:
+
+  FrameAttribute() :
+      netlink::AttributeValue(NL80211_ATTR_FRAME)
   {
-    ZLOG_ERR("Error connecting route netlink socket");
-    this->Disconnect();
-    return (false);
   }
 
-  return (true);
+  virtual
+  ~FrameAttribute()
+  {
+  }
+
+protected:
+
+private:
+
+};
+
 }
 
-
-}
-
+#endif /* __NL80211_FRAMEATTRIBUTE_H__ */

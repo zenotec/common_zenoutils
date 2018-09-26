@@ -20,6 +20,23 @@
 #include "UnitTest.h"
 
 int
-Nl80211Test_Phy(void* arg_);
+Nl80211Test_PhyGetCommands(void* arg_);
+int
+Nl80211Test_PhySetCommands(void* arg_);
+
+int
+Nl80211Test_InterfaceGetCommands(void* arg_);
+int
+Nl80211Test_InterfaceSetCommands(void* arg_);
+int
+Nl80211Test_InterfaceNewDelCommand(void* arg_);
+
+int
+Nl80211Test_ApCommands(void* arg_);
+
+int
+Nl80211Test_FrameEvent(void* arg_);
+int
+Nl80211Test_FrameCommand(void* arg_);
 
 #endif /* _NL80211_NL80211TEST_H_ */
