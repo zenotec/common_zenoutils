@@ -79,13 +79,13 @@ public:
   ~Frame();
 
   virtual bool
-  Assemble(zSocket::Buffer& sb_);
+  Assemble(zSocket::Buffer& sb_, bool fcs_ = false);
 
   virtual bool
-  Disassemble(zSocket::Buffer& sb_);
+  Disassemble(zSocket::Buffer& sb_, bool fcs_ = false);
 
   virtual bool
-  Peek(const zSocket::Buffer& sb_);
+  Peek(const zSocket::Buffer& sb_, bool fcs_ = false);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);

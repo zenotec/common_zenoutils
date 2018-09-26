@@ -81,7 +81,7 @@ public:
     SUBTYPE_ATIM = 9,
     SUBTYPE_BACK = 9,
     SUBTYPE_DISASS = 10,
-    SUBTYPE_AUTHENTICATE = 11,
+    SUBTYPE_AUTH = 11,
     SUBTYPE_RTS = 11,
     SUBTYPE_DEAUTH = 12,
     SUBTYPE_CTS = 12,
@@ -116,13 +116,13 @@ public:
   ~Frame();
 
   virtual bool
-  Assemble(zSocket::Buffer& sb_);
+  Assemble(zSocket::Buffer& sb_, bool fcs_);
 
   virtual bool
-  Disassemble(zSocket::Buffer& sb_);
+  Disassemble(zSocket::Buffer& sb_, bool fcs_);
 
   virtual bool
-  Peek(const zSocket::Buffer& sb_);
+  Peek(const zSocket::Buffer& sb_, bool fcs_);
 
   virtual uint8_t*
   Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);

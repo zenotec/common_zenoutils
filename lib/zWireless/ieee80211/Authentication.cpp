@@ -45,7 +45,7 @@ namespace ieee80211
 //*****************************************************************************
 
 Authentication::Authentication() :
-    ManagementFrame(ManagementFrame::SUBTYPE_AUTHENTICATE), _algorithm(0), _sequenceNumber(0), _statusCode(0)
+    ManagementFrame(ManagementFrame::SUBTYPE_AUTH), _algorithm(0), _sequenceNumber(0), _statusCode(0)
 {
 }
 
@@ -54,9 +54,9 @@ Authentication::~Authentication()
 }
 
 bool
-Authentication::Assemble(zSocket::Buffer& sb_)
+Authentication::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_AUTHENTICATE)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_AUTH)
   {
     ZLOG_ERR("Error assembling Authentication frame header");
     return (false);
@@ -108,19 +108,19 @@ Authentication::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Authentication::Disassemble(zSocket::Buffer& sb_)
+Authentication::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_auth* f = (ieee80211_auth*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling Authentication frame header");
     return false;
   }
 
   // Validate frame is proper type/subtype
-  if (this->Subtype() != ManagementFrame::SUBTYPE_AUTHENTICATE)
+  if (this->Subtype() != ManagementFrame::SUBTYPE_AUTH)
   {
     ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
     return (false);

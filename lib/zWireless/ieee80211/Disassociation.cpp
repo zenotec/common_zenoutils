@@ -53,9 +53,9 @@ Disassociation::~Disassociation()
 }
 
 bool
-Disassociation::Assemble(zSocket::Buffer& sb_)
+Disassociation::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_DISASS)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_DISASS)
   {
     ZLOG_ERR("Error assembling Disassociation frame header");
     return (false);
@@ -89,12 +89,12 @@ Disassociation::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Disassociation::Disassemble(zSocket::Buffer& sb_)
+Disassociation::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_disass* f = (ieee80211_disass*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling Disassociation frame header");
     return false;

@@ -57,7 +57,7 @@ ManagementFrame::~ManagementFrame()
 }
 
 bool
-ManagementFrame::Assemble(zSocket::Buffer& sb_)
+ManagementFrame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -66,7 +66,7 @@ ManagementFrame::Assemble(zSocket::Buffer& sb_)
   struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
 
   // Assemble lower level frame and validate
-  if (!Frame::Assemble(sb_) || (this->Type() != Frame::TYPE_MGMT))
+  if (!Frame::Assemble(sb_, fcs_) || (this->Type() != Frame::TYPE_MGMT))
   {
     ZLOG_ERR("Error assembling frame");
     return (false);
@@ -109,7 +109,7 @@ ManagementFrame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ManagementFrame::Disassemble(zSocket::Buffer& sb_)
+ManagementFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
@@ -119,7 +119,7 @@ ManagementFrame::Disassemble(zSocket::Buffer& sb_)
   struct ieee80211_hdr* f = (struct ieee80211_hdr*) sb_.Data();
 
   // Disassemble lower level frame and validate
-  if (!Frame::Disassemble(sb_) || (this->Type() != Frame::TYPE_MGMT))
+  if (!Frame::Disassemble(sb_, fcs_) || (this->Type() != Frame::TYPE_MGMT))
   {
     ZLOG_ERR("Error disassembling frame: " + ZLOG_INT(this->Type()));
     return (false);

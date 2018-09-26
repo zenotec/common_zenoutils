@@ -94,10 +94,10 @@ Beacon::Capabilities(const uint16_t cap_)
 }
 
 bool
-Beacon::Assemble(zSocket::Buffer& sb_)
+Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_BEACON)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_BEACON)
   {
     ZLOG_ERR("Error assembling beacon frame header");
     return (false);
@@ -179,12 +179,12 @@ Beacon::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Beacon::Disassemble(zSocket::Buffer& sb_)
+Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_beacon* f = (ieee80211_beacon*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling beacon frame header");
     return false;

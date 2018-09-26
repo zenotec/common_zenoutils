@@ -48,7 +48,8 @@ namespace ieee8023
 Frame::Frame(const Frame::SUBTYPE subtype_, const Frame::PROTO proto_) :
     zSocket::Frame(zSocket::Frame::TYPE_8023),
     _subtype(subtype_),
-    _proto(proto_)
+    _proto(proto_),
+    _fcs(0)
 {
 }
 
@@ -57,7 +58,7 @@ Frame::~Frame()
 }
 
 bool
-Frame::Assemble(zSocket::Buffer& sb_)
+Frame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -92,7 +93,7 @@ Frame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Frame::Disassemble(zSocket::Buffer& sb_)
+Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
@@ -160,7 +161,7 @@ Frame::Disassemble(zSocket::Buffer& sb_)
 }
 
 bool
-Frame::Peek(const zSocket::Buffer& sb_)
+Frame::Peek(const zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
@@ -171,7 +172,7 @@ Frame::Peek(const zSocket::Buffer& sb_)
   Buffer tmp(sb_);
 
   // Disassemble frame using temporary local buffer
-  return (this->Disassemble(tmp));
+  return (this->Disassemble(tmp, fcs_));
 }
 
 uint8_t*

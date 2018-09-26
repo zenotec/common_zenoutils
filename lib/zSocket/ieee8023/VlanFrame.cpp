@@ -57,7 +57,7 @@ VlanFrame::~VlanFrame()
 }
 
 bool
-VlanFrame::Assemble(zSocket::Buffer& sb_)
+VlanFrame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -70,7 +70,7 @@ VlanFrame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-VlanFrame::Disassemble(zSocket::Buffer& sb_)
+VlanFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
   //   tail is set to end of frame (full)

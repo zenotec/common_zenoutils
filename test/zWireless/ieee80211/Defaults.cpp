@@ -442,7 +442,7 @@ Ieee80211Test_AuthenticationDefaults(void* arg_)
   Authentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());

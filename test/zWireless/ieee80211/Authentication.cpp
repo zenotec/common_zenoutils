@@ -51,7 +51,7 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   Authentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -140,7 +140,7 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   Authentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -162,7 +162,7 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
   TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
-  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_AUTHENTICATE));
+  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_AUTH));
   TEST_TRUE(frame.ToDS(false));
   TEST_TRUE(frame.FromDS(false));
   TEST_TRUE(frame.MoreFragments(false));
@@ -184,7 +184,7 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   // Verify
   TEST_EQ(0, frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -237,7 +237,7 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   Authentication frame;
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());
@@ -262,7 +262,7 @@ Ieee80211Test_AuthenticationDisassemble(void* arg_)
   // Verify
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
-  TEST_EQ(Frame::SUBTYPE_AUTHENTICATE, frame.Subtype());
+  TEST_EQ(Frame::SUBTYPE_AUTH, frame.Subtype());
   TEST_FALSE(frame.ToDS());
   TEST_FALSE(frame.FromDS());
   TEST_FALSE(frame.MoreFragments());

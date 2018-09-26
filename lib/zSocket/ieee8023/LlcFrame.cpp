@@ -57,7 +57,7 @@ LlcFrame::~LlcFrame()
 }
 
 bool
-LlcFrame::Assemble(zSocket::Buffer& sb_)
+LlcFrame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -107,7 +107,7 @@ LlcFrame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-LlcFrame::Disassemble(zSocket::Buffer& sb_)
+LlcFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
   //   tail is set to end of frame (full)

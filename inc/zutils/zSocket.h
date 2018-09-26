@@ -267,13 +267,13 @@ public:
   ~Frame();
 
   virtual bool
-  Assemble(zSocket::Buffer& sb_) = 0;
+  Assemble(zSocket::Buffer& sb_, bool fcs_ = false) = 0;
 
   virtual bool
-  Disassemble(zSocket::Buffer& sb_) = 0;
+  Disassemble(zSocket::Buffer& sb_, bool fcs_ = false) = 0;
 
   virtual bool
-  Peek(const zSocket::Buffer& sb_) = 0;
+  Peek(const zSocket::Buffer& sb_, bool fcs_ = false) = 0;
 
   Frame::TYPE
   GetType() const;

@@ -48,7 +48,7 @@ namespace ieee8023
 //*****************************************************************************
 
 EtherFrame::EtherFrame() :
-    Frame(Frame::SUBTYPE_ETHER)
+    Frame(Frame::SUBTYPE_ETHER), _length(0)
 {
 }
 
@@ -57,7 +57,7 @@ EtherFrame::~EtherFrame()
 }
 
 bool
-EtherFrame::Assemble(zSocket::Buffer& sb_)
+EtherFrame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -101,7 +101,7 @@ EtherFrame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-EtherFrame::Disassemble(zSocket::Buffer& sb_)
+EtherFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and

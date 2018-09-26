@@ -53,9 +53,9 @@ ProbeRequest::~ProbeRequest()
 }
 
 bool
-ProbeRequest::Assemble(zSocket::Buffer& sb_)
+ProbeRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_PROBEREQ)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_PROBEREQ)
   {
     ZLOG_ERR("Error assembling ProbeRequest frame header");
     return (false);
@@ -90,12 +90,12 @@ ProbeRequest::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ProbeRequest::Disassemble(zSocket::Buffer& sb_)
+ProbeRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_probereq* f = (ieee80211_probereq*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling ProbeRequest frame header");
     return false;
@@ -232,9 +232,9 @@ ProbeResponse::~ProbeResponse()
 }
 
 bool
-ProbeResponse::Assemble(zSocket::Buffer& sb_)
+ProbeResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_PROBERESP)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_PROBERESP)
   {
     ZLOG_ERR("Error assembling ProbeResponse frame header");
     return (false);
@@ -312,12 +312,12 @@ ProbeResponse::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ProbeResponse::Disassemble(zSocket::Buffer& sb_)
+ProbeResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_proberesp* f = (ieee80211_proberesp*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling ProbeResponse frame header");
     return false;

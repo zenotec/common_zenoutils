@@ -59,7 +59,7 @@ Frame::~Frame()
 }
 
 bool
-Frame::Assemble(zSocket::Buffer& sb_)
+Frame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -122,7 +122,7 @@ Frame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Frame::Disassemble(zSocket::Buffer& sb_)
+Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
@@ -131,6 +131,13 @@ Frame::Disassemble(zSocket::Buffer& sb_)
 
   // Initialize frame pointer to start of data
   struct ieee80211_hdr* f = (struct ieee80211_hdr*)sb_.Data();
+
+  // Check for FCS
+  if (fcs_ && sb_.Pop(sizeof(this->_fcs)))
+  {
+    this->_fcs = *(uint32_t*)(sb_.Tail());
+
+  }
 
   // Read frame control field
   if (sb_.Pull(sizeof(f->fc)))
@@ -183,6 +190,7 @@ Frame::Disassemble(zSocket::Buffer& sb_)
     }
     else
     {
+      fprintf(stderr, "Frame::Disassemble(%d)\n", fcs_);
       ZLOG_ERR("Missing address field: 2");
       return(false);
     }
@@ -193,7 +201,7 @@ Frame::Disassemble(zSocket::Buffer& sb_)
 }
 
 bool
-Frame::Peek(const zSocket::Buffer& sb_)
+Frame::Peek(const zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
@@ -205,7 +213,7 @@ Frame::Peek(const zSocket::Buffer& sb_)
   zSocket::Buffer tmp(sb_);
 
   // Disassemble frame using temporary local buffer
-  return (this->Disassemble(tmp));
+  return (this->Disassemble(tmp, fcs_));
 
 }
 
@@ -271,6 +279,8 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
     ZLOG_ERR("Missing address field: 1");
     return (NULL);
   }
+  this->SetDestination(this->GetAddress(Frame::ADDRESS_1));
+
 
   // Address 2 (Transmitter address) field
   if (rem_)
@@ -281,6 +291,7 @@ Frame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
       ZLOG_ERR("Missing address field: 2");
       return (NULL);
     }
+    this->SetSource(this->GetAddress(Frame::ADDRESS_2));
   }
 
   return (p_);

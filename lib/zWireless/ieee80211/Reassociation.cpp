@@ -54,9 +54,9 @@ ReassociationRequest::~ReassociationRequest()
 }
 
 bool
-ReassociationRequest::Assemble(zSocket::Buffer& sb_)
+ReassociationRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_RASSREQ)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_RASSREQ)
   {
     ZLOG_ERR("Error assembling ReassociationRequest frame header");
     return (false);
@@ -128,12 +128,12 @@ ReassociationRequest::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ReassociationRequest::Disassemble(zSocket::Buffer& sb_)
+ReassociationRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_rassreq* f = (ieee80211_rassreq*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling ReassociationRequest frame header");
     return false;
@@ -422,9 +422,9 @@ ReassociationResponse::~ReassociationResponse()
 }
 
 bool
-ReassociationResponse::Assemble(zSocket::Buffer& sb_)
+ReassociationResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_RASSRESP)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_RASSRESP)
   {
     ZLOG_ERR("Error assembling ReassociationResponse frame header");
     return (false);
@@ -485,12 +485,12 @@ ReassociationResponse::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ReassociationResponse::Disassemble(zSocket::Buffer& sb_)
+ReassociationResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_rassresp* f = (ieee80211_rassresp*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling ReassociationResponse frame header");
     return false;

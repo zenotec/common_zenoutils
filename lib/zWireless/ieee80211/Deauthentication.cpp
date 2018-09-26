@@ -53,9 +53,9 @@ Deauthentication::~Deauthentication()
 }
 
 bool
-Deauthentication::Assemble(zSocket::Buffer& sb_)
+Deauthentication::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_DEAUTH)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_DEAUTH)
   {
     ZLOG_ERR("Error assembling Deauthentication frame header");
     return (false);
@@ -88,12 +88,12 @@ Deauthentication::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Deauthentication::Disassemble(zSocket::Buffer& sb_)
+Deauthentication::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_deauth* f = (ieee80211_deauth*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling Deauthentication frame header");
     return false;

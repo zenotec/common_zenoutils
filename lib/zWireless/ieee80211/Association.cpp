@@ -54,7 +54,7 @@ AssociationRequest::~AssociationRequest()
 }
 
 bool
-AssociationRequest::Assemble(zSocket::Buffer& sb_)
+AssociationRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
   if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ASSREQ)
   {
@@ -117,7 +117,7 @@ AssociationRequest::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-AssociationRequest::Disassemble(zSocket::Buffer& sb_)
+AssociationRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   struct ieee80211_assreq* f = (ieee80211_assreq*) sb_.Data();
 

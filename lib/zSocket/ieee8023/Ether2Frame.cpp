@@ -57,7 +57,7 @@ Ether2Frame::~Ether2Frame()
 }
 
 bool
-Ether2Frame::Assemble(zSocket::Buffer& sb_)
+Ether2Frame::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
   // NOTE: Assumes caller's socket buffer data and tail are set to start of frame (empty)
@@ -102,7 +102,7 @@ Ether2Frame::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-Ether2Frame::Disassemble(zSocket::Buffer& sb_)
+Ether2Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   // NOTE: Assumes caller's socket buffer data is set to start of frame and
   //   tail is set to end of frame (full)

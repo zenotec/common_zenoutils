@@ -60,7 +60,7 @@ ActionRequest::~ActionRequest()
 }
 
 bool
-ActionRequest::Assemble(zSocket::Buffer& sb_)
+ActionRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
   if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ACTION)
   {
@@ -74,7 +74,7 @@ ActionRequest::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ActionRequest::Disassemble(zSocket::Buffer& sb_)
+ActionRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   return true;
 }
