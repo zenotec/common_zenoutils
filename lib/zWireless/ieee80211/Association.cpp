@@ -56,7 +56,7 @@ AssociationRequest::~AssociationRequest()
 bool
 AssociationRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ASSREQ)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ASSREQ)
   {
     ZLOG_ERR("Error assembling AssociationRequest frame header");
     return (false);
@@ -122,7 +122,7 @@ AssociationRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   struct ieee80211_assreq* f = (ieee80211_assreq*) sb_.Data();
 
   // Disassemble base and verify
-  if (not ManagementFrame::Disassemble(sb_))
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
   {
     ZLOG_ERR("Error disassembling AssociationRequest frame header");
     return false;
@@ -362,9 +362,9 @@ AssociationResponse::~AssociationResponse()
 }
 
 bool
-AssociationResponse::Assemble(zSocket::Buffer& sb_)
+AssociationResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-	if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ASSRESP)
+	if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ASSRESP)
 	{
 		ZLOG_ERR("Error assembling AssociationResponse frame header");
 		return (false);
@@ -425,12 +425,12 @@ AssociationResponse::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-AssociationResponse::Disassemble(zSocket::Buffer& sb_)
+AssociationResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
 	struct ieee80211_assresp* f = (ieee80211_assresp*) sb_.Data();
 
 	// Disassemble base and verify
-	if (not ManagementFrame::Disassemble(sb_))
+	if (not ManagementFrame::Disassemble(sb_, fcs_))
 	{
 		ZLOG_ERR("Error disassembling AssociationResponse frame header");
 		return false;
