@@ -140,15 +140,14 @@ zSocketTest_UdpSocketSendReceiveLoop(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-#warning "TODO"
-//  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
-//  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
-//  TEST_TRUE(sb == *rxn->GetBuffer());
-//  uint8_t* p = rxn->GetBuffer()->Head();
-//  for (int i = 0; i < sizeof(buf); i++)
-//  {
-//    TEST_EQ_MSG(buf[i], *p++, zUtils::zToStr(i));
-//  }
+  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
+  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
+  TEST_TRUE(sb == *rxn->GetBuffer());
+  uint8_t* p = rxn->GetBuffer()->Head();
+  for (int i = 0; i < sizeof(buf); i++)
+  {
+    TEST_EQ_MSG(buf[i], *p++, zUtils::zToStr(i));
+  }
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock);
@@ -246,15 +245,14 @@ zSocketTest_UdpSocketSendReceiveSock2Sock(void* arg_)
   TEST_FALSE(status);
 
   // Validate messages match
-#warning "TODO"
-//  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
-//  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
-//  TEST_TRUE(sb == *rxn->GetBuffer());
-//  uint8_t* p = rxn->GetBuffer()->Head();
-//  for (int i = 0; i < sizeof(buf); i++)
-//  {
-//    TEST_EQ_MSG(buf[i], *p++, zUtils::zToStr(i));
-//  }
+  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetSrcAddress()) == *SrcAddr), rxn->GetSrcAddress()->GetAddress());
+  TEST_TRUE_MSG((*STATIC_CAST(LoopAddress)(rxn->GetDstAddress()) == *DstAddr), rxn->GetDstAddress()->GetAddress());
+  TEST_TRUE(sb == *rxn->GetBuffer());
+  uint8_t* p = rxn->GetBuffer()->Head();
+  for (int i = 0; i < sizeof(buf); i++)
+  {
+    TEST_EQ_MSG(buf[i], *p++, zUtils::zToStr(i));
+  }
 
   // Unregister observer with socket handler
   MyHandler->UnregisterSocket(MySock1);

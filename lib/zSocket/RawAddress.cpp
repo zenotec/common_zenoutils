@@ -17,6 +17,7 @@
 // libc includes
 #include <string.h>
 #include <net/if.h>
+#include <netinet/in.h>
 
 // libc++ includes
 
@@ -107,8 +108,10 @@ RawAddress::Display() const
   std::string mac;
   Address::Display();
   std::cout << "----------------- Raw Address -----------------" << std::endl;
-  std::cout << "IfIndex:\t" << this->_sa.sll_ifindex << std::endl;
-  std::cout << "IfName: \t" << this->GetAddress() << std::endl;
+  std::cout << "IfIndex: \t" << int(this->_sa.sll_ifindex) << std::endl;
+  std::cout << "IfName:  \t" << this->GetAddress() << std::endl;
+  std::cout << "Protocol:\t" << std::hex << int(ntohs(this->_sa.sll_protocol)) << std::dec << std::endl;
+  std::cout << "PType:   \t" << int(this->_sa.sll_pkttype) << std::endl;
 }
 
 }

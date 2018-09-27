@@ -73,48 +73,48 @@ Notification::Notification(const zSocket::Notification& n_) :
   // Complete parsing of frame based on type
   switch (frame->GetSubtype())
   {
-  case Frame::SUBTYPE_ETHER:
-  {
+    case Frame::SUBTYPE_ETHER:
+    {
       this->SetFrame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
-    {
-      ZLOG_WARN("Cannot decode ether frame");
-      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      {
+        ZLOG_WARN("Cannot decode ether frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+      break;
     }
-    break;
-  }
-  case Frame::SUBTYPE_LLC:
-  {
+    case Frame::SUBTYPE_LLC:
+    {
       this->SetFrame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
-    {
-      ZLOG_WARN("Cannot decode LLC frame");
-      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      {
+        ZLOG_WARN("Cannot decode LLC frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+      break;
     }
-    break;
-  }
-  case Frame::SUBTYPE_ETHER2:
-  {
+    case Frame::SUBTYPE_ETHER2:
+    {
       this->SetFrame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
-    {
-      ZLOG_WARN("Cannot decode ether2 frame");
-      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      {
+        ZLOG_WARN("Cannot decode ether2 frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+      break;
     }
-    break;
-  }
-  case Frame::SUBTYPE_VLAN:
-  {
+    case Frame::SUBTYPE_VLAN:
+    {
       this->SetFrame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
-    {
-      ZLOG_WARN("Cannot decode VLAN frame");
-      this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      {
+        ZLOG_WARN("Cannot decode VLAN frame");
+        this->SetSubType(Notification::SUBTYPE_PKT_ERR);
+      }
+      break;
     }
-    break;
-  }
-  default:
-    break;
+    default:
+      break;
   }
 
 }

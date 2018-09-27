@@ -41,9 +41,7 @@ namespace zSocket
 // zSocket::Socket Class
 //*****************************************************************************
 Socket::Socket(const SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET),
- _type(type_),
- _addr(Address::TYPE_NONE)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(Address::TYPE_NONE)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }

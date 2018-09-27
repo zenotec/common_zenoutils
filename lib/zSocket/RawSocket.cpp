@@ -169,13 +169,13 @@ RawSocket::Bind(const Address& addr_)
 
   if (!this->_fd)
   {
-    ZLOG_ERR(std::string("Socket not opened"));
+    ZLOG_ERR("Socket not opened");
     return (false);
   }
 
   if (addr_.GetType() != Address::TYPE_RAW)
   {
-    ZLOG_CRIT(std::string("Invalid socket address"));
+    ZLOG_CRIT("Invalid socket address");
     return (false);
   }
 
@@ -213,6 +213,7 @@ RawSocket::Recv()
     ioctl(this->_fd, FIONREAD, &nbytes);
     if (nbytes)
     {
+
       struct sockaddr_ll src;
       socklen_t len = sizeof(src);
       SHARED_PTR(Buffer) sb(new Buffer(nbytes));

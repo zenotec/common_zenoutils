@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+#include <zutils/zUdpSocket.h>
+
 #include "zMessageTest.h"
 
-#include <zutils/zInetSocket.h>
 
 using namespace Test;
 using namespace zUtils;
@@ -34,7 +35,7 @@ zMessageTest_MessageHandler(void* arg_)
   TEST_TRUE(MyAddr.Port("8888"));
 
   // Create new socket and validate
-  zSocket::InetSocket *MySock = new zSocket::InetSocket;
+  zSocket::UdpSocket *MySock = new zSocket::UdpSocket;
   TEST_ISNOT_NULL(MySock);
   TEST_TRUE(MySock->SetAddress(MyAddr));
 

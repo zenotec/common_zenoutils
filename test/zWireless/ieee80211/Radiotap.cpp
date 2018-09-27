@@ -270,6 +270,7 @@ Ieee80211Test_RadiotapDisassemble(void* arg_)
 
   // Disassemble and verify
   TEST_TRUE(rtaphdr.Disassemble(sb));
+
 //  rtaphdr.Display();
   TEST_EQ(0, rtaphdr.GetVersion());
   TEST_EQ(41, rtaphdr.GetLength());

@@ -100,7 +100,7 @@ zWirelessTest_WirelessInterface(void* arg)
 
   TEST_TRUE(MyInterface->SetAdminState(ConfigData::STATE_UP));
   TEST_EQ(ConfigData::STATE_UP, MyInterface->GetAdminState());
-  MyInterface->Commit(); 
+  MyInterface->Commit();
   TEST_TRUE(MyInterface->SetAdminState(ConfigData::STATE_DOWN));
   TEST_EQ(ConfigData::STATE_DOWN, MyInterface->GetAdminState());
   MyInterface->Commit();
