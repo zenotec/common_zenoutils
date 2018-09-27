@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef __ZACCESSPOINTINTERFACE_H__
-#define __ZACCESSPOINTINTERFACE_H__
+#ifndef __ZWIRELESS_ACCESSPOINTINTERFACE_H__
+#define __ZWIRELESS_ACCESSPOINTINTERFACE_H__
 
 #include <zutils/zInterface.h>
 using namespace zUtils::zInterface;
@@ -36,7 +36,8 @@ namespace zWireless
 // Class: AccessPointInterface
 // ****************************************************************************
 
-class AccessPointInterface : public Interface
+class AccessPointInterface :
+    public Interface
 {
 public:
 
@@ -88,4 +89,4 @@ private:
 
 }
 }
-#endif /* __ZACCESSPOINTINTERFACE_H__ */
+#endif /* __ZWIRELESS_ACCESSPOINTINTERFACE_H__ */

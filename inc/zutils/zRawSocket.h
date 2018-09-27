@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __ZETHSOCKET_H__
-#define __ZETHSOCKET_H__
+#ifndef __ZSOCKET_RAWSOCKET_H__
+#define __ZSOCKET_RAWSOCKET_H__
 
 #include <linux/if_packet.h>
 #include <linux/if_ether.h>
@@ -31,8 +31,6 @@ namespace zUtils
 {
 namespace zSocket
 {
-
-class RawSocket;
 
 //**********************************************************************
 // Class: zSocket::RawSocket
@@ -111,4 +109,4 @@ private:
 }
 }
 
-#endif /* __ZETHSOCKET_H__ */
+#endif /* __ZSOCKET_RAWSOCKET_H__ */

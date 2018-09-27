@@ -45,7 +45,10 @@ namespace ieee80211
 //*****************************************************************************
 
 Authentication::Authentication() :
-    ManagementFrame(ManagementFrame::SUBTYPE_AUTH), _algorithm(0), _sequenceNumber(0), _statusCode(0)
+    ManagementFrame(ManagementFrame::SUBTYPE_AUTH),
+    _algorithm(0),
+    _sequenceNumber(0),
+    _statusCode(0)
 {
 }
 

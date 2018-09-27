@@ -211,10 +211,8 @@ ProbeRequest::Display() const
 {
   ManagementFrame::Display();
   std::cout << "----- IEEE802.11 Probe Request -----------" << std::endl;
-  if (this->Ssid.Valid())
-    this->Ssid.Display();
-  if (this->Rates.Valid())
-    this->Rates.Display();
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
 }
 
 //*****************************************************************************
@@ -574,30 +572,18 @@ ProbeResponse::Display() const
   std::cout << "\tTS:       \t" << std::hex << this->Timestamp() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
-  if (this->Ssid.Valid())
-    this->Ssid.Display();
-  if (this->Rates.Valid())
-    this->Rates.Display();
-  if (this->Dsss.Valid())
-    this->Dsss.Display();
-  if (this->Country.Valid())
-    this->Country.Display();
-  if (this->ChannelSwitch.Valid())
-    this->ChannelSwitch.Display();
-  if (this->ErpInfo.Valid())
-    this->ErpInfo.Display();
-  if (this->ExtRates.Valid())
-    this->ExtRates.Display();
-  if (this->SuppOpClass.Valid())
-    this->SuppOpClass.Display();
-  if (this->HtCaps.Valid())
-    this->HtCaps.Display();
-  if (this->HtInfo.Valid())
-    this->HtInfo.Display();
-  if (this->ExtCaps.Valid())
-    this->ExtCaps.Display();
-  if (this->WmmWme.Valid())
-    this->WmmWme.Display();
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
+  if (this->Dsss.Valid()) this->Dsss.Display();
+  if (this->Country.Valid()) this->Country.Display();
+  if (this->ChannelSwitch.Valid()) this->ChannelSwitch.Display();
+  if (this->ErpInfo.Valid()) this->ErpInfo.Display();
+  if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->HtInfo.Valid()) this->HtInfo.Display();
+  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

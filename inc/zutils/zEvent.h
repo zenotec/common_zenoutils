@@ -129,7 +129,7 @@ class Observer
 {
 public:
   virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_) = 0;
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
 };
 
 //**********************************************************************

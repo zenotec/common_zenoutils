@@ -57,14 +57,16 @@ namespace zWireless
 // Class: AccessPointInterface
 // ****************************************************************************
 
-AccessPointInterface::AccessPointInterface(const std::string& name_) :
-    Interface(name_), _running(false)
+AccessPointInterface::AccessPointInterface(const std::string& ifname_) :
+    Interface(ifname_),
+    _running(false)
 {
   this->SetOpMode(ConfigData::OPMODE_AP);
 }
 
 AccessPointInterface::~AccessPointInterface()
 {
+  this->Stop();
 }
 
 std::string
@@ -147,13 +149,18 @@ bool
 AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_)
 {
 
-  bool status = false;
   uint8_t buf[512] = { 0 };
   size_t blen = 0;
 
   if (!this->GetIfIndex())
   {
     ZLOG_ERR("Error starting AP interface, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  if (this->_running)
+  {
+    ZLOG_ERR("Error updating AP interface, interface is already running: " + this->GetIfName());
     return (false);
   }
 
@@ -188,7 +195,12 @@ AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse
   cmd->CenterFrequency2(this->GetCenterFrequency2());
   this->addCommand(cmd);
 
-  return (this->Commit());
+  if (this->execCommands())
+  {
+    this->_running = true;
+  }
+
+  return (this->_running);
 
 }
 
@@ -202,7 +214,13 @@ AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeRespons
 
   if (!this->GetIfIndex())
   {
-    ZLOG_ERR("Error starting AP interface, interface does not exist: " + this->GetIfName());
+    ZLOG_ERR("Error updating AP interface, interface does not exist: " + this->GetIfName());
+    return (false);
+  }
+
+  if (!this->_running)
+  {
+    ZLOG_ERR("Error updating AP interface, interface is not running: " + this->GetIfName());
     return (false);
   }
 
@@ -231,7 +249,12 @@ AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeRespons
 
   this->addCommand(cmd);
 
-  return (this->Commit());
+  if (this->execCommands())
+  {
+    this->_running = true;
+  }
+
+  return (this->_running);
 
 }
 
@@ -246,17 +269,24 @@ AccessPointInterface::Stop()
     return (false);
   }
 
+  if (!this->_running)
+  {
+    return (true);
+  }
+
   if (this->GetAdminState() == zInterface::ConfigData::STATE_UP)
   {
     this->SetPromiscuousMode(zWireless::ConfigData::PROMODE_DISABLED);
     this->SetAdminState(zWireless::ConfigData::STATE_DOWN);
     StopApCommand* cmd = new StopApCommand(this->GetIfIndex());
     this->addCommand(cmd);
-    status = true;
+    if (this->Commit())
+    {
+      this->_running = false;
+    }
   }
 
-  // Call base destroy which will eventually execute all commands in order
-  return (status);
+  return (!this->_running);
 }
 
 void

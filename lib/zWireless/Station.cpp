@@ -36,10 +36,12 @@ namespace zWireless
 // ****************************************************************************
 
 Station::Station(const std::string& addr_) :
-	_macAddress(addr_), _associationId(0), _flags(0),  _capabilities(0),
+	_macAddress(addr_),
+	_associationId(0),
+	_flags(0),
+	_capabilities(0),
     _listenInterval(0)
 {
-	_supportedRates = vector<uint8_t>(0);
 }
 
 Station::~Station()
@@ -47,13 +49,13 @@ Station::~Station()
 }
 
 uint16_t
-Station::AssociationId() const
+Station::GetAssociationId() const
 {
   return _associationId;
 }
 
 bool
-Station::AssociationId(const uint16_t id_)
+Station::SetAssociationId(const uint16_t id_)
 {
   bool status = true;
   _associationId = id_;
@@ -61,42 +63,41 @@ Station::AssociationId(const uint16_t id_)
 }
 
 uint8_t
-Station::Flags() const
+Station::GetFlags() const
 {
   return _flags;
 }
 
 bool
-Station::Flags(const uint8_t flags_)
+Station::SetFlags(const uint8_t flags_)
 {
   bool status = true;
   _flags = flags_;
   return status;
 }
 
+std::string
+Station::GetAddress() const
+{
+  return _macAddress;
+}
 
 bool
-Station::MacAddress(const std::string& macAddress_)
+Station::SetAddress(const std::string& macAddress_)
 {
   bool status = true;
   _macAddress = macAddress_;
   return status;
 }
 
-std::string
-Station::MacAddress() const
-{
-  return _macAddress;
-}
-
 uint16_t
-Station::Capabilities() const
+Station::GetCapabilities() const
 {
   return _capabilities;
 }
 
 bool
-Station::Capabilities(const uint16_t caps_)
+Station::SetCapabilities(const uint16_t caps_)
 {
   bool status = true;
   _capabilities = caps_;
@@ -104,13 +105,13 @@ Station::Capabilities(const uint16_t caps_)
 }
 
 uint16_t
-Station::ListenInterval() const
+Station::GetListenInterval() const
 {
   return _listenInterval;
 }
 
 bool
-Station::ListenInterval(const uint16_t interval_)
+Station::SetListenInterval(const uint16_t interval_)
 {
   bool status = true;
   _listenInterval = interval_;
@@ -118,17 +119,29 @@ Station::ListenInterval(const uint16_t interval_)
 }
 
 vector<uint8_t>
-Station::SupportedRates() const
+Station::GetSupportedRates() const
 {
   return _supportedRates;
 }
 
 bool
-Station::SupportedRates(const vector<uint8_t> rates_)
+Station::SetSupportedRates(const vector<uint8_t> rates_)
 {
   bool status = true;
   _supportedRates = rates_;
   return status;
+}
+
+void
+Station::Display(const std::string &prefix_) const
+{
+  std::cout << prefix_ << "" << std::endl;
+  std::cout << prefix_ << "Station: " << this->_macAddress << std::endl;
+  std::cout << prefix_ << "Flags:           0x" << std::hex << int(this->_flags) << std::dec << std::endl;
+  std::cout << prefix_ << "AID:             " << int(this->_associationId) << std::endl;
+  std::cout << prefix_ << "Capabilities:    0x" << std::hex << int(this->_capabilities) << std::dec << std::endl;
+  std::cout << prefix_ << "Listen Interval: " << int(this->_listenInterval) << std::endl;
+  std::cout << prefix_ << "" << std::endl;
 }
 
 

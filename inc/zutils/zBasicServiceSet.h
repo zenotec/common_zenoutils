@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Copyright (c) 2014-2017 ZenoTec LLC (http://www.zenotec.net)
@@ -52,6 +52,9 @@ public:
 
   virtual
   ~BasicServiceSet();
+
+  const zWireless::AccessPointInterface&
+  GetInterface() const;
 
   std::string
   GetSsid() const;
@@ -108,6 +111,12 @@ public:
   AssociationResponse();
 
   bool
+  AddSta(const zWireless::Station& station_);
+
+  bool
+  DelSta(const zWireless::Station& station_);
+
+  bool
   Start();
 
   bool
@@ -115,12 +124,6 @@ public:
 
   bool
   Stop();
-
-  bool
-  AddSta(zWireless::Station& station_);
-
-  bool
-  DelSta(zWireless::Station& station_);
 
   virtual void
   Display(const std::string &prefix_ = std::string(""));

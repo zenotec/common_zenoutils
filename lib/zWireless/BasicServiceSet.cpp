@@ -43,8 +43,8 @@ namespace zWireless
 // Class: BasicServiceSet
 // ****************************************************************************
 
-BasicServiceSet::BasicServiceSet(const std::string& iface_) :
-    _iface(iface_)
+BasicServiceSet::BasicServiceSet(const std::string& ifname_) :
+    _iface(ifname_)
 {
 
   // Initialize beacon and probe frame templates
@@ -55,7 +55,7 @@ BasicServiceSet::BasicServiceSet(const std::string& iface_) :
   }
   else
   {
-    ZLOG_CRIT("Error creating BSS, interface does not exist: " + iface_);
+    ZLOG_CRIT("Error creating BSS, interface does not exist: " + ifname_);
   }
   return;
 
@@ -63,6 +63,12 @@ BasicServiceSet::BasicServiceSet(const std::string& iface_) :
 
 BasicServiceSet::~BasicServiceSet()
 {
+}
+
+const zWireless::AccessPointInterface&
+BasicServiceSet::GetInterface() const
+{
+  return (this->_iface);
 }
 
 std::string
@@ -283,6 +289,65 @@ BasicServiceSet::AssociationResponse()
 }
 
 bool
+BasicServiceSet::AddSta(const zWireless::Station& station_)
+{
+  bool status = true;
+  struct nl80211_sta_flag_update sta_flags;
+
+  if (!this->_iface.GetIfIndex())
+  {
+    ZLOG_ERR("Error adding Station: interface does not exist: " + this->_iface.GetIfName());
+    return (false);
+  }
+
+  sta_flags.mask = station_.GetFlags();
+  sta_flags.set = station_.GetFlags();
+
+  // Create add STA command
+  NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
+
+  cmd->IfIndex(this->_iface.GetIfIndex());
+  cmd->IfName(this->_iface.GetIfName());
+  cmd->ListenInterval(station_.GetListenInterval());
+  cmd->Mac(station_.GetAddress());
+  cmd->StaAid(station_.GetAssociationId());
+  cmd->StaSupportedRates(station_.GetSupportedRates());
+  cmd->StaFlags(&sta_flags);
+
+  if (!cmd->Exec())
+  {
+    status = false;
+    ZLOG_ERR("Cannot execute AddStation command");
+  }
+  delete (cmd);
+  return (status);
+}
+
+bool
+BasicServiceSet::DelSta(const zWireless::Station& station_)
+{
+  bool status = true;
+  if (!this->_iface.GetIfIndex())
+  {
+    ZLOG_ERR("Error deleting Sta: interface does not exist: " + this->_iface.GetIfName());
+    return (false);
+  }
+
+  // Create del STA command
+  DelStationCommand* cmd = new DelStationCommand(this->_iface.GetIfIndex());
+
+  cmd->Mac(station_.GetAddress());
+
+  if (!cmd->Exec())
+  {
+    status = false;
+    ZLOG_ERR("Cannot execute AddStation command");
+  }
+  delete (cmd);
+  return (status);
+}
+
+bool
 BasicServiceSet::Start()
 {
 
@@ -336,70 +401,6 @@ BasicServiceSet::Update()
 
   // Update AP and return status
   return (this->_iface.Update(this->_beacon, this->_probe));
-}
-
-bool
-BasicServiceSet::AddSta(zWireless::Station& station_)
-{
-  bool status = true;
-  struct nl80211_sta_flag_update sta_flags;
-
-  if (!this->_iface.GetIfIndex())
-  {
-    ZLOG_ERR("Error adding Sta: interface does not exist: " + this->_iface.GetIfName());
-    std::cout << "sam..................erro sta interface does not exist" <<std::endl;
-    return (false);
-  }
-
-  sta_flags.mask = station_.Flags();
-  sta_flags.set = station_.Flags();
-
-  // Create add STA command
-  NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
-
-  cmd->IfIndex(this->_iface.GetIfIndex());
-  cmd->IfName(this->_iface.GetIfName());
-  cmd->ListenInterval(station_.ListenInterval());
-  cmd->Mac(station_.MacAddress());
-  cmd->StaAid(station_.AssociationId());
-  cmd->StaSupportedRates(station_.SupportedRates());
-  cmd->StaFlags(&sta_flags);
-	
-  if (!cmd->Exec())
-  {
-    status = false;
-    ZLOG_ERR("Cannot execute AddStation command");
-    std::cout << "Error executing AddStation command: " << std::endl;
-    cmd->Display();
-  }
-  delete (cmd);
-  return (status);
-}
-
-bool
-BasicServiceSet::DelSta(zWireless::Station& station_)
-{
-  bool status = true;
-  if (!this->_iface.GetIfIndex())
-  {
-    ZLOG_ERR("Error deleting Sta: interface does not exist: " + this->_iface.GetIfName());
-    return (false);
-  }
-
-  // Create del STA command
-  DelStationCommand* cmd = new DelStationCommand(this->_iface.GetIfIndex());
-
-  cmd->Mac(station_.MacAddress());
-
-  if (!cmd->Exec())
-  {
-    status = false;
-    ZLOG_ERR("Cannot execute AddStation command");
-    std::cout << "Error executing AddStation command: " << std::endl;
-    cmd->Display();
-  }
-  delete (cmd);
-  return (status);
 }
 
 void

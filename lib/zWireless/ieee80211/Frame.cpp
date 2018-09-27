@@ -190,7 +190,6 @@ Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
     }
     else
     {
-      fprintf(stderr, "Frame::Disassemble(%d)\n", fcs_);
       ZLOG_ERR("Missing address field: 2");
       return(false);
     }

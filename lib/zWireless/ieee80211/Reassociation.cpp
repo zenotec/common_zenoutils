@@ -402,10 +402,8 @@ ReassociationRequest::Display() const
   std::cout << "----- IEEE802.11 Reassociation Request -----------" << std::endl;
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
-  if (this->Ssid.Valid())
-    this->Ssid.Display();
-  if (this->PowerCaps.Valid())
-    this->PowerCaps.Display();
+  if (this->Ssid.Valid()) this->Ssid.Display();
+  if (this->PowerCaps.Valid()) this->PowerCaps.Display();
 }
 
 //*****************************************************************************
@@ -696,16 +694,11 @@ ReassociationResponse::Display() const
   std::cout << "\tCap:      \t" << std::hex << this->Capabilities() << std::dec << std::endl;
   std::cout << "\tStatus:   \t" << int(this->Status()) << std::endl;
   std::cout << "\tAID:      \t" << int(this->ReassociationIdentifier()) << std::endl;
-  if (this->Rates.Valid())
-    this->Rates.Display();
-  if (this->HtCaps.Valid())
-    this->HtCaps.Display();
-  if (this->ExtRates.Valid())
-    this->ExtRates.Display();
-  if (this->ExtCaps.Valid())
-    this->ExtCaps.Display();
-  if (this->WmmWme.Valid())
-    this->WmmWme.Display();
+  if (this->Rates.Valid()) this->Rates.Display();
+  if (this->HtCaps.Valid()) this->HtCaps.Display();
+  if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->ExtCaps.Valid()) this->ExtCaps.Display();
+  if (this->WmmWme.Valid()) this->WmmWme.Display();
 }
 
 }

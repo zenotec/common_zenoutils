@@ -46,43 +46,43 @@ public:
   ~Station();
 
   uint16_t
-  AssociationId() const;
+  GetAssociationId() const;
 
   bool
-  AssociationId(const uint16_t id_);
+  SetAssociationId(const uint16_t id_);
 
   uint8_t
-  Flags() const;
+  GetFlags() const;
 
   bool
-  Flags(const uint8_t flags_);
-
-  bool
-  MacAddress(const std::string& macAddress_);
+  SetFlags(const uint8_t flags_);
 
   std::string
-  MacAddress() const;
-
-  uint16_t
-  Capabilities() const;
+  GetAddress() const;
 
   bool
-  Capabilities(const uint16_t caps_); // as defined in 802.11 9.4.1.4
+  SetAddress(const std::string& addr_);
 
   uint16_t
-  ListenInterval() const;
+  GetCapabilities() const;
 
   bool
-  ListenInterval(const uint16_t interval_);
+  SetCapabilities(const uint16_t caps_); // as defined in 802.11 9.4.1.4
+
+  uint16_t
+  GetListenInterval() const;
+
+  bool
+  SetListenInterval(const uint16_t interval_);
 
   vector<uint8_t>
-  SupportedRates() const;
+  GetSupportedRates() const;
 
   bool
-  SupportedRates(const vector<uint8_t> rates_);
+  SetSupportedRates(const vector<uint8_t> rates_);
 
-//  virtual void
-//  Display(const std::string &prefix_ = std::string(""));
+  virtual void
+  Display(const std::string &prefix_ = std::string("")) const;
 
 protected:
 
