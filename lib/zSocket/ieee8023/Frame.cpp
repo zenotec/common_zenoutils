@@ -388,7 +388,7 @@ Frame::Display(const std::string& prefix_) const
   std::cout << prefix_ << "------------------------------------------" << std::endl;
   std::cout << prefix_ <<  "----- IEEE802.3 Header ------------------" << std::endl;
   std::cout << prefix_ <<  "\tDest:  \t" << this->GetDestination() << std::endl;
-  std::cout << prefix_ <<  "\tSource:  \t" << this->GetSource() << std::endl;
+  std::cout << prefix_ <<  "\tSource:\t" << this->GetSource() << std::endl;
 }
 
 bool
