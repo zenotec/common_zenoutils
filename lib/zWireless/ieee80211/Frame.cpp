@@ -818,7 +818,6 @@ Frame::Display() const
   std::cout << "\tProtect:  \t" << (this->Protected() ? "true" : "false") << std::endl;
   std::cout << "\tOrder:    \t" << (this->Order() ? "true" : "false") << std::endl;
   std::cout << "\tDuration: \t" << (int) this->DurationId() << std::endl;
-  printf("fccntl: 0x%04x\n", this->_fccntl);
 }
 
 bool

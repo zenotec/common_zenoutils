@@ -243,15 +243,25 @@ Socket::Recv()
   // Receive frame and convert to wireless notification
   SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
 
-  if (n.get() && (n->GetSubType() == zSocket::Notification::SUBTYPE_PKT_RCVD))
+  if (n.get())
   {
-    // Update destination address from actual frame
-    SHARED_PTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
-    n->SetDstAddress(dst);
-
-    // Update source address from actual frame
-    SHARED_PTR(zSocket::MacAddress) src(new zSocket::MacAddress(n->GetFrame()->GetSource()));
-    n->SetSrcAddress(src);
+    switch (n->GetSubType())
+    {
+      case zSocket::Notification::SUBTYPE_PKT_RCVD:
+        // no break
+      case zSocket::Notification::SUBTYPE_PKT_SENT:
+      {
+        // Update destination address from actual frame
+        SHARED_PTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
+        n->SetDstAddress(dst);
+        // Update source address from actual frame
+        SHARED_PTR(zSocket::MacAddress) src(new zSocket::MacAddress(n->GetFrame()->GetSource()));
+        n->SetSrcAddress(src);
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   // Return wireless notification

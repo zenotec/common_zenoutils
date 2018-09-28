@@ -16,11 +16,14 @@
  */
 
 // libc includes
+
 #include <stdlib.h>
 #include <string.h>
 #include <endian.h>
+#include <netinet/in.h>
 
 // libc++ includes
+
 #include <iostream>
 
 // libzutils includes
@@ -597,8 +600,10 @@ DataFrame::Display() const
   std::cout << "\tTA:       \t" << this->TransmitterAddress() << std::endl;
   std::cout << "\tSA:       \t" << this->SourceAddress() << std::endl;
   std::cout << "\tBSSID:    \t" << this->Bssid() << std::endl;
-  std::cout << "\tFrag:     \t" << (int) this->FragmentNum() << std::endl;
-  std::cout << "\tSeq:      \t" << (int) this->SequenceNum() << std::endl;
+  std::cout << "\tFrag:     \t" << int(this->FragmentNum()) << std::endl;
+  std::cout << "\tSeq:      \t" << int(this->SequenceNum()) << std::endl;
+  std::cout << "----- IEEE802.11 LLC ---------------------" << std::endl;
+  std::cout << "\tProto:    \t" << std::hex << int(ntohs(this->Llc().proto)) << std::dec << std::endl;
 }
 
 }
