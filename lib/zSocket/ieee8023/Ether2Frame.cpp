@@ -66,7 +66,7 @@ Ether2Frame::Assemble(zSocket::Buffer& sb_, bool fcs_)
   struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
 
   // Assemble lower level frame and validate
-  if (!Frame::Assemble(sb_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
+  if (!Frame::Assemble(sb_, fcs_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
   {
     ZLOG_ERR("Error assembling frame");
     return (false);
@@ -111,7 +111,7 @@ Ether2Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   struct ieee8023_hdr* f = (struct ieee8023_hdr*)sb_.Data();
 
   // Disassemble lower level frame and validate
-  if (!Frame::Disassemble(sb_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
+  if (!Frame::Disassemble(sb_, fcs_) || (this->GetSubtype() != Frame::SUBTYPE_ETHER2))
   {
     ZLOG_ERR("Error disassembling frame: " + ZLOG_INT(this->GetSubtype()));
     return (false);
