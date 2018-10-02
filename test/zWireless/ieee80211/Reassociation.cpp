@@ -270,7 +270,7 @@ Ieee80211Test_ReassociationRequestAssemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_rassreq));
 
@@ -322,7 +322,7 @@ Ieee80211Test_ReassociationRequestDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble association request
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
 
   // Verify
   TEST_IS_ZERO(frame.Version());
@@ -548,7 +548,7 @@ Ieee80211Test_ReassociationResponseAssemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_rassresp));
 
@@ -600,7 +600,7 @@ Ieee80211Test_ReassociationResponseDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble beacon
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
 
   // Verify
   TEST_IS_ZERO(frame.Version());

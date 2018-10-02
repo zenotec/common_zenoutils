@@ -124,15 +124,6 @@ public:
   virtual bool
   Peek(const zSocket::Buffer& sb_, bool fcs_);
 
-  virtual uint8_t*
-  Assemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
-
-  virtual uint8_t*
-  Disassemble(uint8_t* p_, size_t& rem_, bool fcs_ = false);
-
-  virtual uint8_t*
-  Peek(uint8_t* p_, size_t len_, bool fcs_ = false);
-
   uint8_t*
   AssembleTags(uint8_t* tag_, size_t& rem_, uint8_t tagtype_ = TAGTYPE_ALL);
 

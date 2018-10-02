@@ -327,10 +327,9 @@ Nl80211Test_ApCommands(void* arg_)
   TEST_TRUE(setcmd.Exec());
 
   // Create new beacon
-  uint8_t bbuf[512] = {0};
-  size_t blen = sizeof(bbuf);
+  zSocket::Buffer sb;
   ieee80211::Beacon beacon;
-  beacon.Assemble(bbuf, blen, false);
+  TEST_TRUE(beacon.Assemble(sb, false));
 
   // Start AP
   nl80211::StartApCommand startcmd(newcmd.IfIndex());
@@ -394,10 +393,9 @@ Nl80211Test_FrameEvent(void* arg_)
   TEST_TRUE(setcmd.Exec());
 
   // Create new beacon
-  uint8_t bbuf[512] = {0};
-  size_t blen = sizeof(bbuf);
+  zSocket::Buffer sb;
   ieee80211::Beacon beacon;
-  beacon.Assemble(bbuf, blen, false);
+  TEST_TRUE(beacon.Assemble(sb, false));
 
   // Start AP
   nl80211::StartApCommand startcmd(newcmd.IfIndex());
@@ -483,10 +481,9 @@ Nl80211Test_FrameCommand(void* arg_)
   TEST_TRUE(getcmd.Exec());
 
   // Create new beacon frame for starting AP interface
-  uint8_t bbuf[512] = {0};
-  size_t blen = sizeof(bbuf);
+  zSocket::Buffer sb;
   ieee80211::Beacon beacon;
-  beacon.Assemble(bbuf, blen, false);
+  beacon.Assemble(sb, false);
 
   // Start AP
   nl80211::StartApCommand startcmd(newcmd.IfIndex());
@@ -501,16 +498,15 @@ Nl80211Test_FrameCommand(void* arg_)
   TEST_TRUE(startcmd.Exec());
 
   // Create new probe response to send from AP interface
-  uint8_t pbuf[512] = {0};
-  size_t plen = sizeof(pbuf);
+  zSocket::Buffer psb;
   ieee80211::ProbeResponse probe_resp;
   TEST_TRUE(probe_resp.ReceiverAddress(std::string("00:00:00:00:00:00")));
   TEST_TRUE(probe_resp.TransmitterAddress(getcmd.Mac()));
-  probe_resp.Assemble(pbuf, plen, false);
+  TEST_TRUE(probe_resp.Assemble(psb, false));
 
   // Create new frame command for sending probe respose
   nl80211::FrameCommand framecmd(newcmd.IfIndex());
-  TEST_TRUE(framecmd.Frame.Set(pbuf, (sizeof(pbuf) - plen)));
+  TEST_TRUE(framecmd.Frame.Set(psb.Data(), psb.Length()));
   TEST_TRUE(framecmd.Exec());
 
   // Stop AP

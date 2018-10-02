@@ -162,68 +162,6 @@ RadioTapField::Disassemble(zSocket::Buffer& sb_, const uint8_t* hdr_, size_t& pa
 	return true;
 }
 
-uint8_t*
-RadioTapField::Assemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_)
-{
-
-  // Sanity check the field attributes
-  if (!this->Align() || !this->Size() || this->_value.empty())
-  {
-    return (NULL);
-  }
-
-  // Align the field address
-  size_t pad = 0;
-//  printf("\nRadioTapField::Assemble(%d): %p\n", this->Id(), frame_);
-  frame_ = _align(hdr_, frame_, this->Align(), pad);
-//  printf("RadioTapField::Assemble(%d): %p\n", this->Id(), frame_);
-//  printf("RadioTapField::Assemble(%d): %zd, %zd, %zd\n",
-//      this->Id(), this->Align(), this->Size(), pad);
-
-  // Verify there is enough room in the caller's buffer
-  if (rem_ < (this->Size() + pad))
-  {
-    return (NULL);
-  }
-  rem_ -= (this->Size() + pad);
-  pad_ = pad;
-
-  memcpy(frame_, this->_value.data(), this->Size());
-
-  return (frame_ + this->Size());
-}
-
-uint8_t*
-RadioTapField::Disassemble(uint8_t* hdr_, uint8_t* frame_, size_t& rem_, size_t& pad_)
-{
-
-  // Sanity check the field attributes
-  if (!this->Align() || !this->Size())
-  {
-    return (NULL);
-  }
-
-  // Align the field address
-  size_t pad = 0;
-//  printf("\nRadioTapField::Disassemble(%d): %p\n", this->Id(), frame_);
-  frame_ = _align(hdr_, frame_, this->Align(), pad);
-//  printf("RadioTapField::Disassemble(%d): %p\n", this->Id(), frame_);
-//  printf("RadioTapField::Disassemble(%d): %zd, %zd, %zd\n",
-//      this->Id(), this->Align(), this->Size(), pad);
-
-  // Verify there is enough room in the caller's buffer
-  if (rem_ < (pad + this->Size()))
-  {
-    return (NULL);
-  }
-  rem_ -= (pad + this->Size());
-  pad_ = pad;
-
-  this->_value.resize(this->Size());
-  memcpy(this->_value.data(), frame_, this->Size());
-  return (frame_ + this->Size());
-}
-
 RadioTapField::ID
 RadioTapField::Id() const
 {

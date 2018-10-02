@@ -177,7 +177,7 @@ Ieee80211Test_ManagementFrameAssemble(void* arg_)
   TEST_EQ(0x0123, frame.SequenceNum());
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
   TEST_EQ(sb.Size(), sizeof(fbuf));
 
   // Verify data matches expected
@@ -227,7 +227,7 @@ Ieee80211Test_ManagementFrameDisassemble(void* arg_)
   TEST_EQ(sizeof(fbuf), sb.Length());
 
   // Disassemble Data frame
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
   TEST_IS_ZERO(sb.Length());
 
   // Verify

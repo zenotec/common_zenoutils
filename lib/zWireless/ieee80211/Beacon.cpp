@@ -97,6 +97,11 @@ bool
 Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
 
+  // latch ptrs to beginning of data (_head), end of HEAD tags, start of TAIL tags (_tail) and end of TAIL tags (_end)
+  _head = sb_.Head();
+  _tail = sb_.Head();
+  _end = sb_.Head();
+
   if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_BEACON)
   {
     ZLOG_ERR("Error assembling beacon frame header");
@@ -116,6 +121,9 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (sb_.Put(sizeof(f->interval)))
   {
     f->interval = htole16(this->Interval());
@@ -127,6 +135,9 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (sb_.Put(sizeof(f->capabilities)))
   {
     f->capabilities = htole16(this->Capabilities());
@@ -137,6 +148,9 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
     ZLOG_ERR("Error assembling beacon frame");
     return (false);
   }
+
+  _tail = sb_.Data();
+  _end = sb_.Data();
 
   if (!this->PutTag(this->Ssid))
   {
@@ -169,11 +183,16 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (not AssembleTags(sb_, TAGTYPE_TAIL))
   {
     ZLOG_ERR("Error assembling beacon frame tags");
     return (false);
   }
+
+  _end = sb_.Data();
 
   return true;
 }
@@ -181,6 +200,11 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
 bool
 Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
+  // latch ptrs to beginning of data (_head), end of HEAD tags, start of TAIL tags (_tail) and end of TAIL tags (_end)
+  _head = sb_.Head();
+  _tail = sb_.Head();
+  _end = sb_.Head();
+
   struct ieee80211_beacon* f = (ieee80211_beacon*) sb_.Data();
 
   // Disassemble base and verify
@@ -209,6 +233,9 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (sb_.Pull(sizeof(f->interval)))
   {
     this->Interval(le16toh(f->interval));
@@ -218,6 +245,9 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
     ZLOG_ERR("Missing interval field");
     return (false);
   }
+
+  _tail = sb_.Data();
+  _end = sb_.Data();
 
   if (sb_.Pull(sizeof(f->capabilities)))
   {
@@ -229,17 +259,25 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (not this->DisassembleTags(sb_, TAGTYPE_HEAD))
   {
     ZLOG_ERR("Error disassembling beacon frame tags");
     return (false);
   }
 
+  _tail = sb_.Data();
+  _end = sb_.Data();
+
   if (not this->DisassembleTags(sb_, TAGTYPE_TAIL))
   {
     ZLOG_ERR("Error disassembling beacon frame tags");
     return (false);
   }
+
+  _end = sb_.Data();
 
   if (!this->GetTag(this->Ssid))
   {
@@ -267,200 +305,6 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   this->GetTag(this->WmmWme);
 
   return true;
-}
-
-uint8_t*
-Beacon::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  struct ieee80211_beacon* f = NULL;
-  this->_head = p_;
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
-  if (p_ == NULL)
-  {
-    ZLOG_ERR("Error assembling beacon frame header: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  if (this->Subtype() != ManagementFrame::SUBTYPE_BEACON)
-  {
-    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
-    return (NULL);
-  }
-
-  f = (ieee80211_beacon*) p_;
-
-  p_ = this->chklen(p_, sizeof(f->timestamp), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->timestamp = htole64(this->Timestamp());
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->chklen(p_, sizeof(f->interval), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->interval = htole16(this->Interval());
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->chklen(p_, sizeof(f->capabilities), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->capabilities = htole16(this->Capabilities());
-  this->_tail = p_;
-  this->_end = p_;
-
-  if (!this->PutTag(this->Ssid))
-  {
-    ZLOG_ERR("Error assembling beacon frame: Missing SSID");
-    return(NULL);
-  }
-
-  if (!this->PutTag(this->Rates))
-  {
-    ZLOG_ERR("Error assembling beacon frame: Missing Rates");
-    return(NULL);
-  }
-
-  // NOTE: ORDER MATTERS!!!
-  this->PutTag(this->Dsss);
-  this->PutTag(this->Tim);
-  this->PutTag(this->Country);
-  this->PutTag(this->ChannelSwitch);
-  this->PutTag(this->ErpInfo);
-  this->PutTag(this->ExtRates);
-  this->PutTag(this->SuppOpClass);
-  this->PutTag(this->HtCaps);
-  this->PutTag(this->HtInfo);
-  this->PutTag(this->ExtCaps);
-  this->PutTag(this->WmmWme);
-
-  p_ = this->Frame::AssembleTags(p_, rem_, TAGTYPE_HEAD);
-  if (!p_)
-  {
-    ZLOG_ERR("Error assembling beacon frame tags: " + ZLOG_INT(rem_));
-    return(NULL);
-  }
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->Frame::AssembleTags(p_, rem_, TAGTYPE_TAIL);
-  if (!p_)
-  {
-    ZLOG_ERR("Error assembling beacon frame tags: " + ZLOG_INT(rem_));
-    return(NULL);
-  }
-  this->_end = p_;
-
-  return (p_);
-}
-
-uint8_t*
-Beacon::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  struct ieee80211_beacon* f = NULL;
-  this->_head = p_;
-  this->_tail = p_;
-  this->_end = p_;
-
-  // Disassemble base and verify
-  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
-  if (p_ == NULL)
-  {
-    ZLOG_ERR("Error disassembling beacon frame header: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  // Validate frame is proper type/subtype
-  if (this->Subtype() != ManagementFrame::SUBTYPE_BEACON)
-  {
-    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
-    return (NULL);
-  }
-
-  f = (ieee80211_beacon*) p_;
-
-  p_ = this->chklen(p_, sizeof(f->timestamp), rem_);
-  if (!p_ || !this->Timestamp(le64toh(f->timestamp)))
-  {
-    ZLOG_ERR("Missing timestamp field");
-    return (NULL);
-  }
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->chklen(p_, sizeof(f->interval), rem_);
-  if (!p_ || !this->Interval(le16toh(f->interval)))
-  {
-    ZLOG_ERR("Missing interval field");
-    return (NULL);
-  }
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->chklen(p_, sizeof(f->capabilities), rem_);
-  if (!p_ || !this->Capabilities(le16toh(f->capabilities)))
-  {
-    ZLOG_ERR("Missing capabilities field");
-    return (NULL);
-  }
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->Frame::DisassembleTags(p_, rem_, TAGTYPE_HEAD);
-  if (!p_)
-  {
-    ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-  this->_tail = p_;
-  this->_end = p_;
-
-  p_ = this->Frame::DisassembleTags(p_, rem_, TAGTYPE_TAIL);
-  if (!p_)
-  {
-    ZLOG_ERR("Error disassembling beacon frame tags: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-  this->_end = p_;
-
-  if (!this->GetTag(this->Ssid))
-  {
-    ZLOG_ERR("Error disassembling beacon frame: Missing SSID");
-    return (NULL);
-  }
-
-  if (!this->GetTag(this->Rates))
-  {
-    ZLOG_ERR("Error disassembling beacon frame: Missing Rates");
-    return (NULL);
-  }
-
-  // NOTE: ORDER MATTERS!!!	  //RKB Frame::GetTag(Tag& tag_, const int index_) appears to iterate all tags on each call - how do we verify order?
-  this->GetTag(this->Dsss);
-  this->GetTag(this->Tim);
-  this->GetTag(this->Country);
-  this->GetTag(this->ChannelSwitch);
-  this->GetTag(this->ErpInfo);
-  this->GetTag(this->ExtRates);
-  this->GetTag(this->SuppOpClass);
-  this->GetTag(this->HtCaps);
-  this->GetTag(this->HtInfo);
-  this->GetTag(this->ExtCaps);
-  this->GetTag(this->WmmWme);
-
-  return (p_);
 }
 
 uint8_t*

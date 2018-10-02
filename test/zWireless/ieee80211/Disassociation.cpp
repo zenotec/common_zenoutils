@@ -194,7 +194,7 @@ Ieee80211Test_DisassociationAssemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_disass));
 
@@ -243,7 +243,7 @@ Ieee80211Test_DisassociationDisassemble(void* arg_)
   TEST_IS_ZERO(frame.ReasonCode());
 
   // Disassemble association request
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
 
   // Verify
   TEST_IS_ZERO(frame.Version());

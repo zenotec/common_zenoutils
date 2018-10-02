@@ -62,7 +62,7 @@ ActionRequest::~ActionRequest()
 bool
 ActionRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ACTION)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ACTION)
   {
     ZLOG_ERR("Error assembling ActionRequest frame header");
     return (false);
@@ -77,121 +77,6 @@ bool
 ActionRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   return true;
-}
-
-uint8_t*
-ActionRequest::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
-  struct ieee80211_actionreq* f = (ieee80211_actionreq*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error assembling action request frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->_categoryCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_categoryCode = this->_categoryCode;
-
-  p_ = this->chklen(p_, sizeof(f->_actionCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_actionCode = this->_actionCode;
-
-  p_ = this->chklen(p_, sizeof(f->_dialogToken), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_dialogToken = this->_dialogToken;
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckparms), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_blockAckparms = htole16(this->_blockAckparms);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckTimeout), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_blockAckTimeout = htole16(this->_blockAckTimeout);
-
-  p_ = this->chklen(p_, sizeof(f->_blockStartingSequence), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_blockStartingSequence = htole16(this->_blockStartingSequence);
-
-  return (p_);
-}
-
-uint8_t*
-ActionRequest::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
-  struct ieee80211_actionreq* f = (ieee80211_actionreq*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error disassembling action request frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->_categoryCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _categoryCode = f->_categoryCode;
-
-  p_ = this->chklen(p_, sizeof(f->_actionCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _actionCode = f->_actionCode;
-
-  p_ = this->chklen(p_, sizeof(f->_dialogToken), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _dialogToken = f->_dialogToken;
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckparms), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _blockAckparms = le16toh(f->_blockAckparms);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckTimeout), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _blockAckTimeout = le16toh(f->_blockAckTimeout);
-
-  p_ = this->chklen(p_, sizeof(f->_blockStartingSequence), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _blockStartingSequence = le16toh(f->_blockStartingSequence);
-  return (p_);
 }
 
 uint8_t
@@ -303,9 +188,9 @@ ActionResponse::~ActionResponse()
 }
 
 bool
-ActionResponse::Assemble(zSocket::Buffer& sb_)
+ActionResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-  if (not ManagementFrame::Assemble(sb_) || this->Subtype() != Frame::SUBTYPE_ACTION)
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ACTION)
   {
     ZLOG_ERR("Error assembling ActionResponse frame header");
     return (false);
@@ -317,123 +202,9 @@ ActionResponse::Assemble(zSocket::Buffer& sb_)
 }
 
 bool
-ActionResponse::Disassemble(zSocket::Buffer& sb_)
+ActionResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
   return true;
-}
-
-uint8_t*
-ActionResponse::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
-  struct ieee80211_actionresp* f = (ieee80211_actionresp*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error assembling action response frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->_categoryCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_categoryCode = this->_categoryCode;
-
-  p_ = this->chklen(p_, sizeof(f->_actionCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_actionCode = this->_actionCode;
-
-  p_ = this->chklen(p_, sizeof(f->_dialogToken), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_dialogToken = this->_dialogToken;
-
-  p_ = this->chklen(p_, sizeof(f->_status), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_status = htole16(this->_status);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckparms), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_blockAckparms = htole16(this->_blockAckparms);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckTimeout), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->_blockAckTimeout = htole16(this->_blockAckTimeout);
-
-  return (p_);
-}
-
-uint8_t*
-ActionResponse::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
-  struct ieee80211_actionresp* f = (ieee80211_actionresp*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error disassembling action response frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->_categoryCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _categoryCode = f->_categoryCode;
-
-  p_ = this->chklen(p_, sizeof(f->_actionCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _actionCode = f->_actionCode;
-
-  p_ = this->chklen(p_, sizeof(f->_dialogToken), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _dialogToken = f->_dialogToken;
-
-  p_ = this->chklen(p_, sizeof(f->_status), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _status = le16toh(f->_status);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckparms), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _blockAckparms = le16toh(f->_blockAckparms);
-
-  p_ = this->chklen(p_, sizeof(f->_blockAckTimeout), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  _blockAckTimeout = le16toh(f->_blockAckTimeout);
-
-  return (p_);
 }
 
 void

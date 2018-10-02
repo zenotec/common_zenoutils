@@ -63,7 +63,7 @@ Notification::Notification(const zSocket::Notification& n_) :
   SHARED_PTR(ieee8023::Frame)frame(new ieee8023::Frame);
 
   // Peek at the 802.3 frame to determine its type & protocol
-  if (!frame->Peek(*this->GetBuffer()))
+  if (!frame->Peek(*this->GetBuffer(), false))
   {
     ZLOG_WARN("Cannot decode IEEE8023 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
@@ -162,7 +162,7 @@ Socket::Send(Frame& frame_)
   zSocket::Buffer sb;
 
   // Assemble frame (writes buffer)
-  if (!frame_.Assemble(sb))
+  if (!frame_.Assemble(sb, false))
   {
     ZLOG_ERR("Error assembling IEEE8023 frame");
     n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);

@@ -129,65 +129,6 @@ Disassociation::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   return true;
 }
 
-uint8_t*
-Disassociation::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  p_ = ManagementFrame::Assemble(p_, rem_, fcs_);
-  struct ieee80211_disass* f = (ieee80211_disass*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error assembling disassociation request frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->reasonCode), rem_);
-  if (!p_)
-  {
-    return (NULL);
-  }
-  f->reasonCode = htole16(this->ReasonCode());
-
-  p_ = this->Frame::AssembleTags(p_, rem_);
-  if (!p_)
-  {
-    ZLOG_ERR("Error assembling disassociation request frame tags: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  return (p_);
-}
-
-uint8_t*
-Disassociation::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  p_ = ManagementFrame::Disassemble(p_, rem_, fcs_);
-  struct ieee80211_disass* f = (ieee80211_disass*) p_;
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error disassembling disassociation frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->reasonCode), rem_);
-  if (!p_ || !this->ReasonCode(le16toh(f->reasonCode)))
-  {
-    return (NULL);
-  }
-
-  p_ = this->Frame::DisassembleTags((uint8_t*) &f->tags, rem_);
-  if (!p_)
-  {
-    ZLOG_ERR("Error disassembling disassociation frame tags: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  return (p_);
-}
-
 uint16_t
 Disassociation::ReasonCode() const
 {

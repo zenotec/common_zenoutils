@@ -149,8 +149,8 @@ bool
 AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse& probe_)
 {
 
-  uint8_t buf[512] = { 0 };
-  size_t blen = 0;
+  zSocket::Buffer probeSb;
+  zSocket::Buffer beaconSb;
 
   if (!this->GetIfIndex())
   {
@@ -168,24 +168,24 @@ AccessPointInterface::Start(ieee80211::Beacon& beacon_, ieee80211::ProbeResponse
   StartApCommand* cmd = new StartApCommand(this->GetIfIndex());
 
   // Write beacon
-  memset(buf, 0, sizeof(buf));
-  blen = sizeof(buf);
-  if (beacon_.Assemble(buf, blen) == NULL)
+  if (not beacon_.Assemble(beaconSb, false))
   {
+    ZLOG_ERR("Beacon Assemble failed");
     return (false);
   }
+  beaconSb.Push(beaconSb.Size());
   cmd->BeaconHead.Set(beacon_.Head(), beacon_.HeadSize()); // copies buffer
   cmd->BeaconTail.Set(beacon_.Tail(), beacon_.TailSize()); // copies buffer
   cmd->BeaconInterval(beacon_.Interval());
 
   // Write out probe
-  memset(buf, 0, sizeof(buf));
-  blen = sizeof(buf);
-  if (probe_.Assemble(buf, blen) == NULL)
+  if (not probe_.Assemble(probeSb, false))
   {
+    ZLOG_ERR("Probe Assemble failed");
     return (false);
   }
-  cmd->ProbeResp.Set(buf, (sizeof(buf) - blen)); // copies buffer
+  probeSb.Push(probeSb.Size());
+  cmd->ProbeResp.Set(probeSb.Data(), probeSb.Length()); // copies buffer
 
   cmd->DtimPeriod(1);
   cmd->Ssid(this->GetSsid());
@@ -209,8 +209,8 @@ AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeRespons
 {
 
   bool status = false;
-  uint8_t buf[512] = { 0 };
-  size_t blen = 0;
+  zSocket::Buffer beaconSb;
+  zSocket::Buffer probeSb;
 
   if (!this->GetIfIndex())
   {
@@ -228,24 +228,24 @@ AccessPointInterface::Update(ieee80211::Beacon& beacon_, ieee80211::ProbeRespons
   SetBeaconCommand* cmd = new SetBeaconCommand(this->GetIfIndex());
 
   // Write beacon
-  memset(buf, 0, sizeof(buf));
-  blen = sizeof(buf);
-  if (beacon_.Assemble(buf, blen) == NULL)
+  if (not beacon_.Assemble(beaconSb, false))
   {
+    ZLOG_ERR("Beacon Assemble failed");
     return (false);
   }
+  beaconSb.Push(beaconSb.Size());
   cmd->BeaconHead.Set(beacon_.Head(), beacon_.HeadSize()); // copies buffer
   cmd->BeaconTail.Set(beacon_.Tail(), beacon_.TailSize()); // copies buffer
   cmd->BeaconInterval(beacon_.Interval());
 
   // Write out probe
-  memset(buf, 0, sizeof(buf));
-  blen = sizeof(buf);
-  if (probe_.Assemble(buf, blen) == NULL)
+  if (not probe_.Assemble(probeSb, false))
   {
+    ZLOG_ERR("Probe Assemble failed");
     return (false);
   }
-  cmd->ProbeResp.Set(buf, (sizeof(buf) - blen)); // copies buffer
+  probeSb.Push(probeSb.Size());
+  cmd->ProbeResp.Set(probeSb.Data(), probeSb.Length()); // copies buffer
 
   this->addCommand(cmd);
 

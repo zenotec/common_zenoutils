@@ -144,65 +144,6 @@ EtherFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   return (true);
 }
 
-uint8_t*
-EtherFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-
-  struct ieee8023_hdr* f = (struct ieee8023_hdr*) p_;
-
-  // Assemble lower level frame and validate
-  p_ = Frame::Assemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_ETHER))
-  {
-    ZLOG_WARN("Error assembling frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  // Write payload
-  uint8_t* pay = p_;
-  size_t len = this->GetPayloadLength();
-
-  if (!(p_ = this->chklen(pay, len, rem_)))
-  {
-    ZLOG_ERR("Buffer overrun");
-    return (NULL);
-  }
-  if (this->GetPayload(pay, len) != len)
-  {
-    ZLOG_WARN("Missing or invalid payload");
-  }
-
-  return (p_);
-}
-
-uint8_t*
-EtherFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  struct ieee8023_hdr* f = (struct ieee8023_hdr*) p_;
-
-  // Disassemble lower level frame and validate
-  p_ = Frame::Disassemble(p_, rem_, fcs_);
-  if (!p_ || (this->GetSubtype() != Frame::SUBTYPE_ETHER))
-  {
-    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  // Copy out the frame payload
-  uint8_t* pay = p_;
-  size_t len = rem_;
-  p_ = this->chklen(pay, len, rem_);
-  if (!p_ || !this->PutPayload(pay, len))
-  {
-    ZLOG_WARN("Error disassembling frame: " + ZLOG_INT(rem_));
-    return(NULL);
-  }
-
-  return (p_);
-}
-
 uint16_t
 EtherFrame::GetLength() const
 {

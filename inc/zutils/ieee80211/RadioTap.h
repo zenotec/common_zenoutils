@@ -53,15 +53,6 @@ public:
   virtual bool
   Disassemble(zSocket::Buffer& sb_);
 
-  uint8_t*
-  Assemble(uint8_t* frame_, size_t& rem_);
-
-  uint8_t*
-  Disassemble(uint8_t* frame_, size_t& rem_);
-
-  uint8_t*
-  Peek(uint8_t* frame_, size_t& rem_);
-
   uint8_t
   GetVersion() const;
 

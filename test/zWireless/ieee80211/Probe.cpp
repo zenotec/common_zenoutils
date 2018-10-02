@@ -279,7 +279,7 @@ Ieee80211Test_ProbeRequestAssemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_probe_req));
 
@@ -329,7 +329,7 @@ Ieee80211Test_ProbeRequestDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble beacon
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
 
   // Verify
   TEST_IS_ZERO(frame.Version());
@@ -561,7 +561,7 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_probe_resp));
 
@@ -614,7 +614,7 @@ Ieee80211Test_ProbeResponseDisassemble(void* arg_)
   TEST_IS_ZERO(frame.Rates().size());
 
   // Disassemble beacon
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
 
   // Verify
   TEST_IS_ZERO(frame.Version());

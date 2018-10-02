@@ -159,7 +159,7 @@ Ieee80211Test_ControlFrameAssemble(void* arg_)
   TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
 
   // Assemble and verify
-  TEST_TRUE(frame.Assemble(sb));
+  TEST_TRUE(frame.Assemble(sb, false));
   TEST_EQ(sb.Size(), sizeof(fbuf));
 
   // Verify data matches expected
@@ -212,7 +212,7 @@ Ieee80211Test_ControlFrameDisassemble(void* arg_)
   TEST_EQ(sizeof(fbuf), sb.Length());
 
   // Disassemble Control frame
-  TEST_TRUE(frame.Disassemble(sb));
+  TEST_TRUE(frame.Disassemble(sb, false));
   TEST_IS_ZERO(sb.Length());
 
   // Verify

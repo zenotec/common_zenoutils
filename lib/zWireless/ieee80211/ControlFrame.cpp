@@ -114,69 +114,6 @@ ControlFrame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 
 }
 
-// Deprecated - DO NOT USE
-uint8_t*
-ControlFrame::Assemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  ieee80211_hdr* f = (ieee80211_hdr*) p_;
-  p_ = Frame::Assemble(p_, rem_, fcs_);
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error assembling control frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  if (this->Type() != Frame::TYPE_CNTL)
-  {
-    ZLOG_WARN("Frame type not control");
-    return (NULL);
-  }
-
-  p_ = this->chklen(p_, sizeof(f->u.cntl.ra), rem_);
-  if (!p_ || this->GetAddress(ADDRESS_1).empty()
-      || !this->str2mac(this->GetAddress(ADDRESS_1), f->u.cntl.ra))
-  {
-    return (NULL);
-  }
-
-  if (this->Subtype() == Frame::SUBTYPE_RTS)
-  {
-    p_ = this->chklen(p_, sizeof(f->u.cntl.ta), rem_);
-    if (!p_ || this->GetAddress(ADDRESS_2).empty()
-        || !this->str2mac(this->GetAddress(ADDRESS_2), f->u.cntl.ta))
-    {
-      return (NULL);
-    }
-  }
-
-  return (p_);
-}
-
-// Deprecated - DO NOT USE
-uint8_t*
-ControlFrame::Disassemble(uint8_t* p_, size_t& rem_, bool fcs_)
-{
-
-  ieee80211_hdr* f = (ieee80211_hdr*) p_;
-  p_ = Frame::Disassemble(p_, rem_, fcs_);
-
-  if (f == NULL)
-  {
-    ZLOG_WARN("Error disassembling control frame: " + ZLOG_INT(rem_));
-    return (NULL);
-  }
-
-  if (this->Type() != Frame::TYPE_CNTL)
-  {
-    ZLOG_WARN("Frame type not control");
-    return (NULL);
-  }
-
-  return (p_);
-}
-
 std::string
 ControlFrame::ReceiverAddress() const
 {

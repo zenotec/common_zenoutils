@@ -49,16 +49,10 @@ public:
   ~ManagementFrame();
 
   virtual bool
-  Assemble(zSocket::Buffer& sb_, bool fcs_ = false);
+  Assemble(zSocket::Buffer& sb_, bool fcs_);
 
   virtual bool
-  Disassemble(zSocket::Buffer& sb_, bool fcs_ = false);
-
-  virtual uint8_t*
-  Assemble(uint8_t* p_, size_t& len, bool fcs_ = false);
-
-  virtual uint8_t*
-  Disassemble(uint8_t* p_, size_t& len, bool fcs_ = false);
+  Disassemble(zSocket::Buffer& sb_, bool fcs_);
 
   bool
   AssembleTags(zSocket::Buffer& sb_, uint8_t tagtype_ = TAGTYPE_ALL);

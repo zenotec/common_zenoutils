@@ -69,16 +69,10 @@ public:
   ~Deauthentication();
 
   virtual bool
-  Assemble(zSocket::Buffer& sb_, bool fcs_ = false);
+  Assemble(zSocket::Buffer& sb_, bool fcs_);
 
   virtual bool
-  Disassemble(zSocket::Buffer& sb_, bool fcs_ = false);
-
-  virtual uint8_t*
-  Assemble(uint8_t* p_, size_t& len_, bool fcs_ = false);
-
-  virtual uint8_t*
-  Disassemble(uint8_t* p_, size_t& len_, bool fcs_ = false);
+  Disassemble(zSocket::Buffer& sb_, bool fcs_);
 
   uint16_t
   ReasonCode() const;

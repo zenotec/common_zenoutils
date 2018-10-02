@@ -111,7 +111,7 @@ Ieee8023Test_Assemble(void* arg_)
   zSocket::Buffer sb;
 
   // Assemble frame
-  TEST_TRUE(f.Assemble(sb));
+  TEST_TRUE(f.Assemble(sb, false));
 
 //  // Validate frame
 //  for (int i = 0; i < arp_pkt_len; i++)
@@ -143,7 +143,7 @@ Ieee8023Test_Disassemble(void* arg_)
   memcpy(sb.Head(), arp_pkt, arp_pkt_len);
   sb.Put(arp_pkt_len);
 
-  TEST_TRUE(f.Disassemble(sb));
+  TEST_TRUE(f.Disassemble(sb, false));
   TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), f.GetDestination());
   TEST_EQ(std::string("00:01:02:03:04:05"), f.GetSource());
   TEST_EQ(zSocket::ieee8023::Frame::SUBTYPE_ETHER2, f.GetSubtype());
