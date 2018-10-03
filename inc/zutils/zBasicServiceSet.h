@@ -116,13 +116,13 @@ public:
   bool
   DelSta(const zWireless::Station& station_);
 
-  bool
+  virtual bool
   Start();
 
-  bool
+  virtual bool
   Update();
 
-  bool
+  virtual bool
   Stop();
 
   virtual void
