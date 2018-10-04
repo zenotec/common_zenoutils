@@ -215,7 +215,7 @@ UnixSocket::Recv()
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  int nbytes = 0;
+  ssize_t nbytes = 0;
 
   if (this->_fd)
   {

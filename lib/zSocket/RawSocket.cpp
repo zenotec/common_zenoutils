@@ -205,7 +205,7 @@ RawSocket::Recv()
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  int nbytes = 0;
+  ssize_t nbytes = 0;
 
   if (this->_fd)
   {
@@ -270,7 +270,7 @@ RawSocket::Send(const Address& to_, const Buffer& sb_)
     sa.sll_protocol = htons(this->_proto);
     sa.sll_pkttype = this->_ptype;
 
-    size_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
+    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
     if (nbytes > 0)
     {
       ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
