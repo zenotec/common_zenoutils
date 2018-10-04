@@ -269,7 +269,7 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
     ZLOG_WARN("Zero length payload");
   }
 
-  if (buf_ && (len_ < 7952))
+  if (buf_)
   {
     this->_payload.clear();
     this->_payload.resize(len_);
