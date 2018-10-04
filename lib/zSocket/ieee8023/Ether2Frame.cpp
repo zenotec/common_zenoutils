@@ -93,7 +93,7 @@ Ether2Frame::Assemble(zSocket::Buffer& sb_, bool fcs_)
   }
   else
   {
-    ZLOG_ERR("Error assembling frame");
+    ZLOG_ERR("Error assembling frame: len: " + ZLOG_UINT(len));
     return (false);
   }
 
