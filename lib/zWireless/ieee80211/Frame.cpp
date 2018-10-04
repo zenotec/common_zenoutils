@@ -29,7 +29,7 @@ using namespace zUtils;
 #include <zutils/ieee80211/Frame.h>
 
 // local includes
-#include "ieee80211.h"
+#include <zutils/ieee80211/ieee80211.h>
 
 ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
@@ -530,11 +530,13 @@ Frame::SetAddress(const ADDRESS_ID id_, const std::string& address_)
     this->SetSource(address_);
     this->_address[id_] = address_;
     status = true;
+    break;
   case Frame::ADDRESS_3:
     // no break
   case Frame::ADDRESS_4:
     this->_address[id_] = address_;
     status = true;
+    break;
   default:
     break;
   }
