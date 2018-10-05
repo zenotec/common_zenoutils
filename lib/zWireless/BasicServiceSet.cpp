@@ -147,7 +147,7 @@ BasicServiceSet::SetChannel(const unsigned int channel_)
 
     std::map<int, zWireless::Capabilities> caps = this->_iface.GetCapabilities();
     zWireless::Capabilities::BAND band = (channel_ <= 11) ? zWireless::Capabilities::BAND_2_4 : zWireless::Capabilities::BAND_5;
-    ieee80211::HtInfoTag::ht_info htinfo = this->_beacon.HtInfo();
+    struct ht_info htinfo = this->_beacon.HtInfo();
     ieee80211::country_tag country = this->_beacon.Country();
     uint16_t supOp = 0;
 
@@ -289,10 +289,9 @@ BasicServiceSet::AssociationResponse()
 }
 
 bool
-BasicServiceSet::AddSta(const zWireless::Station& station_)
+BasicServiceSet::AddStation(const zWireless::Station& station_)
 {
   bool status = true;
-  struct nl80211_sta_flag_update sta_flags;
 
   if (!this->_iface.GetIfIndex())
   {
@@ -300,8 +299,6 @@ BasicServiceSet::AddSta(const zWireless::Station& station_)
     return (false);
   }
 
-  sta_flags.mask = station_.GetFlags();
-  sta_flags.set = station_.GetFlags();
 
   // Create add STA command
   NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
@@ -312,7 +309,9 @@ BasicServiceSet::AddSta(const zWireless::Station& station_)
   cmd->Mac(station_.GetAddress());
   cmd->StaAid(station_.GetAssociationId());
   cmd->StaSupportedRates(station_.GetSupportedRates());
+  struct nl80211_sta_flag_update sta_flags = { station_.GetFlags(), station_.GetFlags() };
   cmd->StaFlags(&sta_flags);
+  cmd->HtCapabilties(station_.GetHtCapabilities());
 
   if (!cmd->Exec())
   {
@@ -324,7 +323,7 @@ BasicServiceSet::AddSta(const zWireless::Station& station_)
 }
 
 bool
-BasicServiceSet::DelSta(const zWireless::Station& station_)
+BasicServiceSet::DelStation(const zWireless::Station& station_)
 {
   bool status = true;
   if (!this->_iface.GetIfIndex())
@@ -444,7 +443,7 @@ BasicServiceSet::_init_beacon()
   }
 
   // Get HT information
-  ieee80211::HtInfoTag::ht_info htinfo = { 0 };
+  struct ht_info htinfo = { 0 };
   htinfo.ht_primary_channel = channel;
   htinfo.ht_subset_1 = 0x00;
   htinfo.ht_subset_2 = 0x0000;
@@ -454,8 +453,8 @@ BasicServiceSet::_init_beacon()
   htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
   this->_beacon.HtInfo(htinfo);
 
-  this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
-  this->_beacon.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
+  this->_beacon.ExtCaps.SetFlag(EXCAP_EXTENDED_CHANNEL_SWITCHING);
+  this->_beacon.ExtCaps.SetFlag(EXCAP_OPERATING_MODE_NOTIFICATION);
 
   ieee80211::WmmWmeTag::ac_parms ac0 = {0x03, 0xa4, 0x0000};
   ieee80211::WmmWmeTag::ac_parms ac1 = {0x27, 0xa4, 0x0000};
@@ -494,7 +493,7 @@ BasicServiceSet::_init_probe()
   }
 
   // Get HT information
-  ieee80211::HtInfoTag::ht_info htinfo = { 0 };
+  struct ht_info htinfo = { 0 };
   htinfo.ht_primary_channel = channel;
   htinfo.ht_subset_1 = 0x00;
   htinfo.ht_subset_2 = 0x0000;
@@ -504,8 +503,8 @@ BasicServiceSet::_init_probe()
   htinfo.ht_rx_mcs.tx_mcs_fields.tx_bits = 0x00;
   this->_probe.HtInfo(htinfo);
 
-  this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_EXTENDED_CHANNEL_SWITCHING);
-  this->_probe.ExtCaps.SetFlag(ieee80211::ExtCapsTag::EXCAP_OPERATING_MODE_NOTIFICATION);
+  this->_probe.ExtCaps.SetFlag(EXCAP_EXTENDED_CHANNEL_SWITCHING);
+  this->_probe.ExtCaps.SetFlag(EXCAP_OPERATING_MODE_NOTIFICATION);
 
   ieee80211::WmmWmeTag::ac_parms ac0 = {0x03, 0xa4, 0x0000};
   ieee80211::WmmWmeTag::ac_parms ac1 = {0x27, 0xa4, 0x0000};

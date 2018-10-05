@@ -28,7 +28,7 @@ using namespace zUtils;
 #include <zutils/ieee80211/Beacon.h>
 
 // local includes
-#include "ieee80211.h"
+#include <zutils/ieee80211/ieee80211.h>
 
 ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 

@@ -39,6 +39,7 @@
 #include <zutils/ieee80211/WmmWmeTag.h>
 #include <zutils/ieee80211/ChannelsTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
+#include <zutils/ieee80211/VhtCapsTag.h>
 
 // local includes
 
@@ -57,13 +58,33 @@ class ReassociationRequest : public ManagementFrame
 {
 
 public:
-  //ORDER MATTERS - Declare in the order they are rendered
+
+  // NOTE: ORDER MATTERS - Declare in the order they are rendered
   SsidTag Ssid;
   RatesTag Rates;
   ExtRatesTag ExtRates;
   PowerCapsTag PowerCaps;
   ChannelsTag Channels;
+  // RSN
+  // QoS Capability
+  // RM Enabled Capabilities
+  // Mobility domain
+  // Fast BSS Transition
+  // Resource Information Container
+  SuppOpClassesTag SuppOpClasses;
   HtCapsTag HtCaps;
+  // 20/40 BSS Coexistence
+  ExtCapsTag ExtCaps;
+  // QoS Traffic Capability
+  // TIM Broadcast Request
+  // FMS Request
+  // DMS Request
+  // Interworking
+  // Multi-band
+  // DMG Capabilities
+  // Mutltiple MAC Sublayers
+  VhtCapsTag VhtCaps;
+  // Operating Mode Notification
   WmmWmeTag WmmWme;
 
   ReassociationRequest();
@@ -118,12 +139,40 @@ class ReassociationResponse : public ManagementFrame
 {
 
 public:
-  //ORDER MATTERS - Declare in the order they are rendered
+
+  // NOTE: ORDER MATTERS - Declare in the order they are rendered
   RatesTag Rates;
   ExtRatesTag ExtRates;
+  // EDCA Parameter Set
+  // RCPI
+  // RSNI
+  // RM Enabled Capabilities
+  // RSN
+  // Mobility domain
+  // Fast BSS Transition
+  // RIC
+  // DSE Registered location
+  // Timeout Interval
   HtCapsTag HtCaps;
   HtInfoTag HtInfo;
+  // 20/40 BSS Coexistence
+  // Overlapping BSS Scan Parameters
   ExtCapsTag ExtCaps;
+  // BSS Max Idle Period
+  // TIM Broadcast Request
+  // FMS Reponse
+  // DMS Response
+  // QoS Map
+  // QMF Policy
+  // Multi-band
+  // DMG Capabilities
+  // DMG Operation
+  // Mutltiple MAC Sublayers
+  // Neighbor Report
+  VhtCapsTag VhtCaps;
+  // VHT Operation
+  // Operating Mode Notification
+  // Future Channel Guidance
   WmmWmeTag WmmWme;
 
   ReassociationResponse();

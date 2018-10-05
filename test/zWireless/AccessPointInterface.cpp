@@ -29,7 +29,7 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 #include <zutils/zAccessPointInterface.h>
 #include <zutils/nl80211/ListInterfacesCommand.h>
 #include <zutils/nl80211/ListPhysCommand.h>
-#include "ieee80211.h"
+#include <zutils/ieee80211/ieee80211.h>
 
 using namespace Test;
 using namespace zUtils;

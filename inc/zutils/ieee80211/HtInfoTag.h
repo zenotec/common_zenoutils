@@ -21,6 +21,7 @@
 using namespace std;
 
 #include <zutils/ieee80211/Tag.h>
+#include <zutils/ieee80211/ieee80211.h>
 
 namespace zUtils
 {
@@ -33,36 +34,14 @@ namespace ieee80211
 // Class: HtInfoTag
 //*****************************************************************************
 
-class HtInfoTag : public Tag
+class HtInfoTag :
+    public Tag
 {
 
 public:
 
-  struct tx_mcs
-  {
-    uint8_t tx_bits;
-    uint16_t reserved1;
-    uint8_t reserved2;
-  } __attribute__ ((packed));
-
-  struct mcs_set
-  {
-    std::array<uint8_t,10> rx_mcs_bitmask;
-    uint16_t rx_highest_rate;
-    tx_mcs tx_mcs_fields;
-  } __attribute__ ((packed));
-
-  struct ht_info
-  {
-    uint8_t ht_primary_channel;
-    uint8_t ht_subset_1;
-    uint16_t ht_subset_2;
-    uint16_t ht_subset_3;
-	struct mcs_set ht_rx_mcs;
-  } __attribute__ ((packed));
-
   HtInfoTag() :
-    Tag(Tag::ID_HT_INFORMATION, sizeof(struct ht_info))
+    Tag(Tag::ID_HTINFO, sizeof(struct ht_info))
   {
   }
 
@@ -71,7 +50,7 @@ public:
   {
   }
 
-  ht_info
+  struct ht_info
   operator()() const
   {
     ht_info info;
@@ -80,7 +59,7 @@ public:
   }
 
   bool
-  operator()(const ht_info& info_)
+  operator()(const struct ht_info& info_)
   {
     return(this->PutValue(info_));
   }

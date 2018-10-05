@@ -28,7 +28,7 @@
 using namespace zUtils;
 
 // local includes
-#include "ieee80211.h"
+#include <zutils/ieee80211/ieee80211.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
@@ -114,9 +114,7 @@ ReassociationRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
   this->PutTag(this->PowerCaps);
   this->PutTag(this->Channels);
   this->PutTag(this->HtCaps);
-#if 0 //TODO
   this->PutTag(this->WmmWme);
-#endif
 
   if (not AssembleTags(sb_))
   {

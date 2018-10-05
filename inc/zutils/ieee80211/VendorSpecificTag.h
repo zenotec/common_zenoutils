@@ -50,7 +50,7 @@ public:
   };
 
   VendorSpecificTag(const uint8_t oui1_, const uint8_t oui2_, const uint8_t oui3_, const uint8_t oui_type_) :
-    Tag(Tag::ID_VENDOR_SPECIFIC)
+    Tag(Tag::ID_VENDOR)
   {
     vector<uint8_t> vendor;
     vendor.push_back(uint8_t(oui1_));

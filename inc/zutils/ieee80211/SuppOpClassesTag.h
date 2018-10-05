@@ -31,13 +31,14 @@ namespace ieee80211
 // Class: SuppOpClassesTag
 //*****************************************************************************
 
-class SuppOpClassesTag : public Tag
+class SuppOpClassesTag :
+    public Tag
 {
 
 public:
 
   SuppOpClassesTag() :
-    Tag(Tag::ID_SUPP_OP_CLASSES, sizeof(uint16_t))
+    Tag(Tag::ID_REG_CLASSES, sizeof(uint16_t))
   {
   }
 

@@ -83,14 +83,14 @@ Capabilities::SetPowerCaps(const ieee80211::PowerCapsTag::power_caps_tag& caps_)
   return (true);
 }
 
-ieee80211::HtCapsTag::ht_caps
+struct ht_caps
 Capabilities::GetHtCaps() const
 {
   return (this->_ht_caps);
 }
 
 bool
-Capabilities::SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_)
+Capabilities::SetHtCaps(const struct ht_caps& caps_)
 {
   this->_ht_caps = caps_;
   return (true);

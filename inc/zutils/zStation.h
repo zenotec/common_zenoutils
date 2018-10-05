@@ -24,6 +24,8 @@
 #include <vector>
 using namespace std;
 
+#include <zutils/ieee80211/ieee80211.h>
+
 namespace zUtils
 {
 
@@ -69,6 +71,24 @@ public:
   bool
   SetCapabilities(const uint16_t caps_); // as defined in 802.11 9.4.1.4
 
+  struct ht_info
+  GetHtInfo() const;
+
+  bool
+  SetHtInfo(const struct ht_info& info_);
+
+  struct ht_caps
+  GetHtCapabilities() const;
+
+  bool
+  SetHtCapabilities(const struct ht_caps& caps_);
+
+  struct vht_caps
+  GetVhtCapabilities() const;
+
+  bool
+  SetVhtCapabilities(const struct vht_caps& caps_);
+
   uint16_t
   GetListenInterval() const;
 
@@ -92,6 +112,9 @@ private:
   uint8_t _flags;
   std::string _macAddress;
   uint16_t _capabilities;
+  struct ht_info _htInfo;
+  struct ht_caps _htCapabilities;
+  struct vht_caps _vhtCapabilities;
   uint16_t _listenInterval;
   vector<uint8_t> _supportedRates;
 

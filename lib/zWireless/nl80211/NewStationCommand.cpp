@@ -114,6 +114,9 @@ NewStationCommand::Exec()
 	return (false);
   }
 
+  cmdmsg->PutAttribute(&this->HtCapabilties);
+  cmdmsg->PutAttribute(&this->VhtCapabilties);
+
   // Send message
   if (!this->_sock.SendMsg(cmdmsg))
   {
@@ -144,12 +147,18 @@ NewStationCommand::Exec()
 void
 NewStationCommand::Display(const std::string& prefix_) const
 {
-  std::cout << "##################################################" << std::endl;
-  std::cout << "NewStationCommand: " << std::endl;
-  std::cout << "\tName:  \t" << this->IfName() << std::endl;
-  std::cout << "\tIndex: \t" << this->IfIndex() << std::endl;
-  std::cout << "\tMac:   \t" << this->Mac() << std::endl;
-  std::cout << "##################################################" << std::endl;
+  std::cout << prefix_ << "##################################################" << std::endl;
+  std::cout << prefix_ << "NewStationCommand: " << std::endl;
+  std::cout << prefix_ << "\tName:  \t" << this->IfName() << std::endl;
+  std::cout << prefix_ << "\tIndex: \t" << this->IfIndex() << std::endl;
+  std::cout << prefix_ << "\tMac:   \t" << this->Mac() << std::endl;
+  if (this->ListenInterval.IsValid())
+    std::cout << prefix_ << "\tListen:\t" << this->ListenInterval() << std::endl;
+  if (this->StaAid.IsValid())
+    std::cout << prefix_ << "\tAID:   \t" << this->StaAid() << std::endl;
+  if (this->StaFlags.IsValid())
+    std::cout << prefix_ << "\tFlags: \t0x" << std::hex << this->StaFlags().set << std::dec << std::endl;
+  std::cout << prefix_ << "##################################################" << std::endl;
 }
 
 int

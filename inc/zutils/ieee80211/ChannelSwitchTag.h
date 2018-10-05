@@ -47,7 +47,7 @@ public:
   };
 
   ChannelSwitchTag() :
-    Tag(Tag::ID_CHANNEL_SWITCH, sizeof(struct channel_switch_tag))
+    Tag(Tag::ID_CHANSWITCHANN, sizeof(struct channel_switch_tag))
   {
   }
 

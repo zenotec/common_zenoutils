@@ -146,23 +146,23 @@ struct ieee80211_mgmthdr
     ieee80211_disass disass;
     ieee80211_deauth deauth;
   } u;
-}__attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct ieee80211_cntlhdr
 {
   uint8_t ra[ETH_ALEN];
   uint8_t ta[ETH_ALEN];
-}__attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct ieee80211_data4addr
 {
   uint8_t addr4[ETH_ALEN];
-}__attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct ieee80211_qosdata
 {
   uint16_t qoscntl;
-}__attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct ieee80211_datahdr
 {
@@ -175,7 +175,7 @@ struct ieee80211_datahdr
     ieee80211_data4addr data4addr;
     ieee80211_qosdata qosdata;
   } u;
-}__attribute__ ((packed));
+} __attribute__ ((packed));
 
 struct ieee80211_hdr
 {
@@ -188,6 +188,103 @@ struct ieee80211_hdr
     ieee80211_cntlhdr cntl;
     ieee80211_datahdr data;
   } u;
-}__attribute__ ((packed));
+} __attribute__ ((packed));
+
+
+//    The first 4 bits indicate which byte, the second which bit in the byte
+enum EXTCAPSBIT
+{
+  EXCAP_20_40_BSS_COEXISTENCE_MANAGEMENT_SUPPORT = 0x00,
+  EXCAP_ON_DEMAND_BEACON = 0x01,
+  EXCAP_EXTENDED_CHANNEL_SWITCHING = 0x02,
+  EXCAP_WAVE_INDICATION = 0x03,
+  EXCAP_PSMP_CAPABILITY = 0x04,
+  EXCAP_S_PSMP_SUPPORT = 0x06,
+  EXCAP_EVENT = 0x07,
+  EXCAP_DIAGNOSTICS = 0x10,
+  EXCAP_MULTICAST_DIAGNOSTICS = 0x11,
+  EXCAP_LOCATION_TRACKING = 0x12,
+  EXCAP_FMS = 0x13,
+  EXCAP_PROXY_ARP_SERVICE = 0x14,
+  EXCAP_COLLOCATED_INTERFERENCE_REPORTING = 0x15,
+  EXCAP_CIVIC_LOCATION = 0x16,
+  EXCAP_GEOSPATIAL_LOCATION = 0x17,
+  EXCAP_TFS = 0x20,
+  EXCAP_WNM_SLEEP_MODE = 0x21,
+  EXCAP_TIM_BROADCAST = 0x22,
+  EXCAP_BSS_TRANSITION = 0x23,
+  EXCAP_QOS_TRAFFIC_CAPABILITY = 0x24,
+  EXCAP_AC_STATION_COUNT = 0x25,
+  EXCAP_MULTIPLE_BSSID = 0x26,
+  EXCAP_TIMING_MEASUREMENT = 0x27,
+  EXCAP_CHANNEL_USAGE = 0x30,
+  EXCAP_SSID_LIST = 0x31,
+  EXCAP_DMS = 0x32,
+  EXCAP_UTC_TSF_OFFSET = 0x33,
+  EXCAP_PEER_U_APSD_BUFFER_STA_SUPPORT = 0x34,
+  EXCAP_TDLS_PEER_PSM_SUPPORT = 0x35,
+  EXCAP_TDLS_CHANNEL_SWITCHING = 0x36,
+  EXCAP_INTERWORKING = 0x37,
+  EXCAP_QOS_MAP = 0x40,
+  EXCAP_EBR = 0x41,
+  EXCAP_SSPN_INTERFACE = 0x42,
+  EXCAP_MSGCF_CAPABILITY = 0x44,
+  EXCAP_TDLS_SUPPORT = 0x45,
+  EXCAP_TDLS_PROHIBITED = 0x46,
+  EXCAP_TDLS_CHANNEL_SWITCHING_PROHIBITED = 0x47,
+  EXCAP_REJECT_UNADMITTED_FRAME = 0x50,
+  EXCAP_IDENTIFIER_LOCATION = 0x04,
+  EXCAP_U_APSD_COEXISTENCE = 0x05,
+  EXCAP_WNM_NOTIFICATION = 0x06,
+  EXCAP_QAB_CAPABILITY = 0x07,
+  EXCAP_UTF_8_SSID = 0x60,
+  EXCAP_TDLS_WIDER_BANDWIDTH = 0x75,
+  EXCAP_OPERATING_MODE_NOTIFICATION = 0x76,
+  EXCAP_MAX_NUMBER_OF_MSDUS_IN_A_MSDU = 0x77
+};
+
+struct ext_caps_tag
+{
+  uint8_t caps[8];
+};
+
+struct tx_mcs
+{
+  uint8_t tx_bits;
+  uint16_t reserved1;
+  uint8_t reserved2;
+} __attribute__ ((packed));
+
+struct mcs_set
+{
+  std::array<uint8_t,10> rx_mcs_bitmask;
+  uint16_t rx_highest_rate;
+  tx_mcs tx_mcs_fields;
+} __attribute__ ((packed));
+
+struct ht_info
+{
+  uint8_t ht_primary_channel;
+  uint8_t ht_subset_1;
+  uint16_t ht_subset_2;
+  uint16_t ht_subset_3;
+  struct mcs_set ht_rx_mcs;
+} __attribute__ ((packed));
+
+struct ht_caps
+{
+  uint16_t ht_cap_info;
+  uint8_t ampdu_parms;
+  mcs_set supported_mcs_set;
+  uint16_t ht_ext_cap;
+  uint32_t trans_beam_cap;
+  uint8_t asel_cap;
+} __attribute__ ((packed));
+
+struct vht_caps
+{
+  // TODO
+  uint8_t tmp;
+} __attribute__ ((packed));
 
 #endif /* __IEEE80211_H__ */

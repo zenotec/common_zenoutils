@@ -21,6 +21,7 @@
 using namespace std;
 
 #include <zutils/ieee80211/Tag.h>
+#include <zutils/ieee80211/ieee80211.h>
 
 namespace zUtils
 {
@@ -33,37 +34,14 @@ namespace ieee80211
 // Class: HtCapsTag
 //*****************************************************************************
 
-class HtCapsTag : public Tag
+class HtCapsTag :
+    public Tag
 {
 
 public:
 
-  struct tx_mcs
-  {
-    uint8_t tx_bits;
-    uint16_t reserved1;
-    uint8_t reserved2;
-  } __attribute__ ((packed));
-
-  struct mcs_set
-  {
-    std::array<uint8_t,10> rx_mcs_bitmask;
-    uint16_t rx_highest_rate;
-    tx_mcs tx_mcs_fields;
-  } __attribute__ ((packed));
-
-  struct ht_caps
-  {
-    uint16_t ht_cap_info;
-    uint8_t ampdu_parms;
-    mcs_set supported_mcs_set;
-    uint16_t ht_ext_cap;
-    uint32_t trans_beam_cap;
-    uint8_t asel_cap;
-  } __attribute__ ((packed));
-
   HtCapsTag() :
-    Tag(Tag::ID_HT_CAPS, sizeof(struct ht_caps))
+    Tag(Tag::ID_HTCAP, sizeof(struct ht_caps))
   {
   }
 

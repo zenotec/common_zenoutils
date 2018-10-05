@@ -36,65 +36,8 @@ class ExtCapsTag : public Tag
 
 public:
 
-  //	The the first 4 bits indicate which byte, the second which bit in the byte
-  enum EXTCAPSBIT 
-  { 
-    EXCAP_20_40_BSS_COEXISTENCE_MANAGEMENT_SUPPORT = 0x00,
-    EXCAP_ON_DEMAND_BEACON = 0x01,
-    EXCAP_EXTENDED_CHANNEL_SWITCHING = 0x02,
-    EXCAP_WAVE_INDICATION = 0x03,
-    EXCAP_PSMP_CAPABILITY = 0x04,
-    EXCAP_S_PSMP_SUPPORT = 0x06,
-    EXCAP_EVENT = 0x07,
-    EXCAP_DIAGNOSTICS = 0x10,
-    EXCAP_MULTICAST_DIAGNOSTICS = 0x11,
-    EXCAP_LOCATION_TRACKING = 0x12,
-    EXCAP_FMS = 0x13,
-    EXCAP_PROXY_ARP_SERVICE = 0x14,
-    EXCAP_COLLOCATED_INTERFERENCE_REPORTING = 0x15,
-    EXCAP_CIVIC_LOCATION = 0x16,
-    EXCAP_GEOSPATIAL_LOCATION = 0x17,
-    EXCAP_TFS = 0x20,
-    EXCAP_WNM_SLEEP_MODE = 0x21,
-    EXCAP_TIM_BROADCAST = 0x22,
-    EXCAP_BSS_TRANSITION = 0x23,
-    EXCAP_QOS_TRAFFIC_CAPABILITY = 0x24,
-    EXCAP_AC_STATION_COUNT = 0x25,
-    EXCAP_MULTIPLE_BSSID = 0x26,
-    EXCAP_TIMING_MEASUREMENT = 0x27,
-    EXCAP_CHANNEL_USAGE = 0x30,
-    EXCAP_SSID_LIST = 0x31,
-    EXCAP_DMS = 0x32,
-    EXCAP_UTC_TSF_OFFSET = 0x33,
-    EXCAP_PEER_U_APSD_BUFFER_STA_SUPPORT = 0x34,
-    EXCAP_TDLS_PEER_PSM_SUPPORT = 0x35,
-    EXCAP_TDLS_CHANNEL_SWITCHING = 0x36,
-    EXCAP_INTERWORKING = 0x37,
-    EXCAP_QOS_MAP = 0x40,
-    EXCAP_EBR = 0x41,
-    EXCAP_SSPN_INTERFACE = 0x42,
-    EXCAP_MSGCF_CAPABILITY = 0x44,
-    EXCAP_TDLS_SUPPORT = 0x45,
-    EXCAP_TDLS_PROHIBITED = 0x46,
-    EXCAP_TDLS_CHANNEL_SWITCHING_PROHIBITED = 0x47,
-    EXCAP_REJECT_UNADMITTED_FRAME = 0x50,
-    EXCAP_IDENTIFIER_LOCATION = 0x04,
-    EXCAP_U_APSD_COEXISTENCE = 0x05,
-    EXCAP_WNM_NOTIFICATION = 0x06,
-    EXCAP_QAB_CAPABILITY = 0x07,
-    EXCAP_UTF_8_SSID = 0x60,
-    EXCAP_TDLS_WIDER_BANDWIDTH = 0x75,
-    EXCAP_OPERATING_MODE_NOTIFICATION = 0x76,
-    EXCAP_MAX_NUMBER_OF_MSDUS_IN_A_MSDU = 0x77
-  };
-
-  struct ext_caps_tag
-  {
-    uint8_t caps[8];
-  };
-
   ExtCapsTag() :
-    Tag(Tag::ID_EXT_CAPS, sizeof(struct ext_caps_tag))
+    Tag(Tag::ID_EXTCAP, sizeof(struct ext_caps_tag))
   {
   }
 
@@ -124,7 +67,7 @@ public:
   }
 
   bool
-  GetFlag(const ExtCapsTag::EXTCAPSBIT bit_)
+  GetFlag(const EXTCAPSBIT bit_)
   {
       struct ext_caps_tag val = { 0 };
       this->GetValue(val);
@@ -132,7 +75,7 @@ public:
   }
 
   bool
-  SetFlag(const ExtCapsTag::EXTCAPSBIT bit_)
+  SetFlag(const EXTCAPSBIT bit_)
   {
     struct ext_caps_tag val = { 0 };
     this->GetValue(val);
@@ -141,7 +84,7 @@ public:
   }
 
   bool
-  ClearFlag(const ExtCapsTag::EXTCAPSBIT bit_)
+  ClearFlag(const EXTCAPSBIT bit_)
   {
     struct ext_caps_tag val = { 0 };
     this->GetValue(val);

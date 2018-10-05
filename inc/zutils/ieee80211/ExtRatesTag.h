@@ -37,7 +37,7 @@ class ExtRatesTag : public RatesTag
 public:
 
   ExtRatesTag() :
-    RatesTag(Tag::ID_EXT_RATES)
+    RatesTag(Tag::ID_XRATES)
   {
   }
 

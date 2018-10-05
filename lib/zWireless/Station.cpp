@@ -51,85 +51,128 @@ Station::~Station()
 uint16_t
 Station::GetAssociationId() const
 {
-  return _associationId;
+  return (this->_associationId);
 }
 
 bool
 Station::SetAssociationId(const uint16_t id_)
 {
   bool status = true;
-  _associationId = id_;
-  return status;
+  this->_associationId = id_;
+  return (status);
 }
 
 uint8_t
 Station::GetFlags() const
 {
-  return _flags;
+  return (this->_flags);
 }
 
 bool
 Station::SetFlags(const uint8_t flags_)
 {
   bool status = true;
-  _flags = flags_;
-  return status;
+  fprintf(stderr, "Station::SetFlags(0x%02x)", flags_);
+  this->_flags = flags_;
+  return (status);
 }
 
 std::string
 Station::GetAddress() const
 {
-  return _macAddress;
+  return (this->_macAddress);
 }
 
 bool
 Station::SetAddress(const std::string& macAddress_)
 {
   bool status = true;
-  _macAddress = macAddress_;
-  return status;
+  this->_macAddress = macAddress_;
+  return (status);
 }
 
 uint16_t
 Station::GetCapabilities() const
 {
-  return _capabilities;
+  return (this->_capabilities);
 }
 
 bool
 Station::SetCapabilities(const uint16_t caps_)
 {
   bool status = true;
-  _capabilities = caps_;
-  return status;
+  this->_capabilities = caps_;
+  return (status);
+}
+
+struct ht_info
+Station::GetHtInfo() const
+{
+  return (this->_htInfo);
+}
+
+bool
+Station::SetHtInfo(const struct ht_info& info_)
+{
+  bool status = true;
+  this->_htInfo = info_;
+  return (status);
+}
+
+struct ht_caps
+Station::GetHtCapabilities() const
+{
+  return (this->_htCapabilities);
+}
+
+bool
+Station::SetHtCapabilities(const struct ht_caps& caps_)
+{
+  bool status = true;
+  this->_htCapabilities = caps_;
+  return (status);
+}
+
+struct vht_caps
+Station::GetVhtCapabilities() const
+{
+  return (this->_vhtCapabilities);
+}
+
+bool
+Station::SetVhtCapabilities(const struct vht_caps& caps_)
+{
+  bool status = true;
+  this->_vhtCapabilities = caps_;
+  return (status);
 }
 
 uint16_t
 Station::GetListenInterval() const
 {
-  return _listenInterval;
+  return (this->_listenInterval);
 }
 
 bool
 Station::SetListenInterval(const uint16_t interval_)
 {
   bool status = true;
-  _listenInterval = interval_;
-  return status;
+  this->_listenInterval = interval_;
+  return (status);
 }
 
 vector<uint8_t>
 Station::GetSupportedRates() const
 {
-  return _supportedRates;
+  return (this->_supportedRates);
 }
 
 bool
 Station::SetSupportedRates(const vector<uint8_t> rates_)
 {
   bool status = true;
-  _supportedRates = rates_;
-  return status;
+  this->_supportedRates = rates_;
+  return (status);
 }
 
 void

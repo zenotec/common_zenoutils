@@ -40,6 +40,8 @@ using namespace netlink;
 #include <zutils/nl80211/StaSupportedRatesAttribute.h>
 #include <zutils/nl80211/StaAidAttribute.h>
 #include <zutils/nl80211/StationFlagsAttribute.h>
+#include <zutils/nl80211/HtCapabilityAttribute.h>
+#include <zutils/nl80211/VhtCapabilityAttribute.h>
 
 namespace nl80211
 {
@@ -59,6 +61,8 @@ public:
   IfNameAttribute IfName;
   MacAttribute Mac;
   ListenIntervalAttribute ListenInterval;
+  HtCapabilityAttribute HtCapabilties;
+  VhtCapabilityAttribute VhtCapabilties;
   StaSupportedRatesAttribute StaSupportedRates;
   StaAidAttribute StaAid;
   StationFlagsAttribute StaFlags;

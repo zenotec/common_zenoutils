@@ -37,7 +37,7 @@ class DsssTag : public Tag
 public:
 
   DsssTag() :
-    Tag(Tag::ID_DSSS)
+    Tag(Tag::ID_DSPARMS)
   {
   }
 

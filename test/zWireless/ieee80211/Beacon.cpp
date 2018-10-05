@@ -145,9 +145,9 @@ Ieee80211Test_BeaconGetSet(void* arg_)
 
   std::vector<uint8_t> rates_ = {0x82, 0x84, 0x8B, 0x96, 6*2, 9*2, 12*2, 18*2};
   std::vector<uint8_t> exrates_ = {24, 36, 48, 54};
-  HtCapsTag::ht_caps htcaps_ = { 0xaaaa, 0xee, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44 }, 0x4444, 0x55555555L, 0x66 };
+  struct ht_caps htcaps_ = { 0xaaaa, 0xee, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 }, 0x0123, 0x44 }, 0x4444, 0x55555555L, 0x66 };
   //                         Chan s1    s2      s3      mcs mask                             hdr     mcs   padding - move to ht_caps
-  HtInfoTag::ht_info info_ = { 6, 0x11, 0x2222, 0x3333, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },  0x44, { 0xff, 0xfe, 0xfd } } };
+  struct ht_info info_ = { 6, 0x11, 0x2222, 0x3333, { { 10, 9, 8, 7, 6, 5, 4, 3, 2, 1 },  0x44, { 0xff, 0xfe, 0xfd } } };
 
   TEST_TRUE(frame.Dsss(6));
   TimTag:tim_tag tim_ = { 1, 2, 3, 4 };
@@ -295,7 +295,7 @@ Ieee80211Test_BeaconAssemble(void* arg_)
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
 
-  HtCapsTag::ht_caps caps = {};
+  struct ht_caps caps = {};
   caps.ht_cap_info = 0x1234; // LE in memory
   caps.ampdu_parms = 0x56;
   caps.supported_mcs_set.rx_mcs_bitmask = {0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F, 0x80, 0x81};

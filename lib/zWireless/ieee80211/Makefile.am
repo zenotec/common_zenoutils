@@ -27,6 +27,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/DsssTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/ExtRatesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/HtCapsTag.h \
+	${top_srcdir}/inc/zutils/ieee80211/VhtCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/HtInfoTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/PowerCapsTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/RatesTag.h \
@@ -70,6 +71,7 @@ libieee80211_la_SOURCES = \
 	RadioTapFieldTxFlags.cpp \
 	RadioTapFieldDataRetries.cpp \
 	HtCapsTag.cpp \
+	VhtCapsTag.cpp \
 	HtInfoTag.cpp \
 	Frame.cpp \
 	ControlFrame.cpp \

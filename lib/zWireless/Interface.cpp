@@ -1049,7 +1049,7 @@ Interface::_getCapabilities() const
         caps[band].SetExtBitRates(extrates);
 
         // Get HT capabilities
-        ieee80211::HtCapsTag::ht_caps htcaps = { 0 };
+        struct ht_caps htcaps = { 0 };
         htcaps.ht_cap_info = cmd.PhyBands.GetPhyBand(band).GetHtCaps()();
         htcaps.ampdu_parms = cmd.PhyBands.GetPhyBand(band).GetAmpduFactor()();
         htcaps.ampdu_parms |= (cmd.PhyBands.GetPhyBand(band).GetAmpduDensity()() << 2);

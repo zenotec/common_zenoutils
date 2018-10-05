@@ -34,7 +34,8 @@ namespace ieee80211
 // Class: PowerCapsTag
 //*****************************************************************************
 
-class PowerCapsTag : public Tag
+class PowerCapsTag :
+    public Tag
 {
 
 public:
@@ -46,7 +47,7 @@ public:
   };
 
   PowerCapsTag() :
-    Tag(Tag::ID_POWER_CAPS, sizeof(struct power_caps_tag))
+    Tag(Tag::ID_PWRCAP, sizeof(struct power_caps_tag))
   {
   }
 

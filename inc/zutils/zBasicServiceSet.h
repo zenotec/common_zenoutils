@@ -111,10 +111,10 @@ public:
   AssociationResponse();
 
   bool
-  AddSta(const zWireless::Station& station_);
+  AddStation(const zWireless::Station& station_);
 
   bool
-  DelSta(const zWireless::Station& station_);
+  DelStation(const zWireless::Station& station_);
 
   virtual bool
   Start();

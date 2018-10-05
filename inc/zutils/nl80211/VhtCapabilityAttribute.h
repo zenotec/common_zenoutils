@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Cable Television Laboratories, Inc. ("CableLabs")
+ * Copyright (c) 2018 Cable Television Laboratories, Inc. ("CableLabs")
  *                    and others.  All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef __NL80211_STACAPABILITYATTRIBUTE_H__
-#define __NL80211_STACAPABILITYATTRIBUTE_H__
+#ifndef __NL80211_VHTCAPABILITYATTRIBUTE_H__
+#define __NL80211_VHTCAPABILITYATTRIBUTE_H__
 
 // libc includes
 #include <stdint.h>
@@ -25,6 +25,7 @@
 // libc++ includes
 
 // libzutils includes
+#include <zutils/ieee80211/ieee80211.h>
 #include <zutils/netlink/Attribute.h>
 
 // local includes
@@ -33,35 +34,38 @@ namespace nl80211
 {
 
 //*****************************************************************************
-// Class: StaCapabilityAttribute
+// Class: VhtCapabilityAttribute
 //*****************************************************************************
 
-class StaCapabilityAttribute :
+class VhtCapabilityAttribute :
     public netlink::AttributeValue
 {
 
 public:
 
-  StaCapabilityAttribute() :
-      AttributeValue(NL80211_ATTR_STA_CAPABILITY)
+  VhtCapabilityAttribute() :
+      AttributeValue(NL80211_ATTR_VHT_CAPABILITY)
   {
   }
 
   virtual
-  ~StaCapabilityAttribute()
+  ~VhtCapabilityAttribute()
   {
   }
 
-  uint16_t
+  struct vht_caps
   operator()() const
   {
-    return (this->Get(uint16_t(0)));
+    struct vht_caps vhtcaps = { 0 };
+    size_t len = sizeof(struct vht_caps);
+    this->Get((uint8_t*)&vhtcaps, len);
+    return (vhtcaps);
   }
 
   bool
-  operator()(const uint16_t capability_)
+  operator()(const struct vht_caps& capability_)
   {
-    return (this->Set(capability_));
+    return (this->Set((uint8_t*)&capability_, sizeof(struct vht_caps)));
   }
 
 protected:
@@ -72,4 +76,4 @@ private:
 
 }
 
-#endif /* __NL80211_STACAPABILITYATTRIBUTE_H__ */
+#endif /* __NL80211_VHTCAPABILITYATTRIBUTE_H__ */

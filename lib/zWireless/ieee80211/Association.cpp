@@ -28,7 +28,7 @@
 using namespace zUtils;
 
 // local includes
-#include "ieee80211.h"
+#include <zutils/ieee80211/ieee80211.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 
@@ -175,7 +175,7 @@ AssociationRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
     return (false);
   }
 
-  //ORDER MATTERS - Declare in the order they are rendered - don't think it matters here since GetTag itterates
+  // ORDER MATTERS - Declare in the order they are rendered - don't think it matters here since GetTag iterates
   this->GetTag(ExtRates);
   this->GetTag(PowerCaps);
   this->GetTag(Channels);
@@ -239,131 +239,129 @@ AssociationResponse::~AssociationResponse()
 bool
 AssociationResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
 {
-	if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ASSRESP)
-	{
-		ZLOG_ERR("Error assembling AssociationResponse frame header");
-		return (false);
-	}
+  if (not ManagementFrame::Assemble(sb_, fcs_) || this->Subtype() != Frame::SUBTYPE_ASSRESP)
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame header");
+    return (false);
+  }
 
-	struct ieee80211_assresp* f = (struct ieee80211_assresp*)sb_.Data();
+  struct ieee80211_assresp* f = (struct ieee80211_assresp*) sb_.Data();
 
-	if (sb_.Put(sizeof(f->capabilities)))
-	{
-		f->capabilities = htole16(this->Capabilities());
-		sb_.Pull(sizeof(f->capabilities));
-	}
-	else
-	{
-		ZLOG_ERR("Error assembling AssociationResponse frame");
-		return(false);
-	}
+  if (sb_.Put(sizeof(f->capabilities)))
+  {
+    f->capabilities = htole16(this->Capabilities());
+    sb_.Pull(sizeof(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame");
+    return (false);
+  }
 
-	if (sb_.Put(sizeof(f->status)))
-	{
-		f->status = htole16(this->Status());
-		sb_.Pull(sizeof(f->status));
-	}
-	else
-	{
-		ZLOG_ERR("Error assembling AssociationResponse frame");
-		return(false);
-	}
+  if (sb_.Put(sizeof(f->status)))
+  {
+    f->status = htole16(this->Status());
+    sb_.Pull(sizeof(f->status));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame");
+    return (false);
+  }
 
-	if (sb_.Put(sizeof(f->aid)))
-	{
-		f->aid = htole16(this->AssociationIdentifier());
-		sb_.Pull(sizeof(f->aid));
-	}
-	else
-	{
-		ZLOG_ERR("Error assembling AssociationResponse frame");
-		return(false);
-	}
+  if (sb_.Put(sizeof(f->aid)))
+  {
+    f->aid = htole16(this->AssociationIdentifier());
+    sb_.Pull(sizeof(f->aid));
+  }
+  else
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame");
+    return (false);
+  }
 
-	// Order matters - check 802.11 spec
-	this->PutTag(this->Rates);
-	this->PutTag(this->ExtRates);
-	this->PutTag(this->HtCaps);
-	this->PutTag(this->HtInfo);
-	this->PutTag(this->ExtCaps);
-#if 0
-	this->PutTag(this->WmmWme);
-#endif
+  // Order matters - check 802.11 spec
+  this->PutTag(this->Rates);
+  this->PutTag(this->ExtRates);
+  this->PutTag(this->HtCaps);
+  this->PutTag(this->HtInfo);
+  this->PutTag(this->ExtCaps);
+  this->PutTag(this->WmmWme);
 
-	if (not AssembleTags(sb_))
-	{
-		ZLOG_ERR("Error assembling AssociationResponse frame tags");
-		return(false);
-	}
+  if (not AssembleTags(sb_))
+  {
+    ZLOG_ERR("Error assembling AssociationResponse frame tags");
+    return (false);
+  }
 
-	return true;
+  return true;
 }
 
 bool
 AssociationResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 {
-	struct ieee80211_assresp* f = (ieee80211_assresp*) sb_.Data();
+  struct ieee80211_assresp* f = (ieee80211_assresp*) sb_.Data();
 
-	// Disassemble base and verify
-	if (not ManagementFrame::Disassemble(sb_, fcs_))
-	{
-		ZLOG_ERR("Error disassembling AssociationResponse frame header");
-		return false;
-	}
+  // Disassemble base and verify
+  if (not ManagementFrame::Disassemble(sb_, fcs_))
+  {
+    ZLOG_ERR("Error disassembling AssociationResponse frame header");
+    return false;
+  }
 
-	// Validate frame is proper type/subtype
-	if (this->Subtype() != ManagementFrame::SUBTYPE_ASSRESP)
-	{
-		ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
-		return (false);
-	}
+  // Validate frame is proper type/subtype
+  if (this->Subtype() != ManagementFrame::SUBTYPE_ASSRESP)
+  {
+    ZLOG_ERR("Invalid subtype: " + ZLOG_INT(this->Subtype()));
+    return (false);
+  }
 
-	f = (ieee80211_assresp*)sb_.Data();
+  f = (ieee80211_assresp*) sb_.Data();
 
-	if (sb_.Pull(sizeof(f->capabilities)))
-	{
-		this->Capabilities(le16toh(f->capabilities));
-	}
-	else
-	{
-		ZLOG_ERR("Missing capabilities field");
-		return (false);
-	}
+  if (sb_.Pull(sizeof(f->capabilities)))
+  {
+    this->Capabilities(le16toh(f->capabilities));
+  }
+  else
+  {
+    ZLOG_ERR("Missing capabilities field");
+    return (false);
+  }
 
-	if (sb_.Pull(sizeof(f->status)))
-	{
-		this->Status(le16toh(f->status));
-	}
-	else
-	{
-		ZLOG_ERR("Missing status field");
-		return (false);
-	}
+  if (sb_.Pull(sizeof(f->status)))
+  {
+    this->Status(le16toh(f->status));
+  }
+  else
+  {
+    ZLOG_ERR("Missing status field");
+    return (false);
+  }
 
-	if (sb_.Pull(sizeof(f->aid)))
-	{
-		this->AssociationIdentifier(le16toh(f->aid));
-	}
-	else
-	{
-		ZLOG_ERR("Missing aid field");
-		return (false);
-	}
+  if (sb_.Pull(sizeof(f->aid)))
+  {
+    this->AssociationIdentifier(le16toh(f->aid));
+  }
+  else
+  {
+    ZLOG_ERR("Missing aid field");
+    return (false);
+  }
 
-	if (not this->DisassembleTags(sb_))
-	{
-		ZLOG_ERR("Error disassembling AssociationResponse frame tags");
-		return (false);
-	}
+  if (not this->DisassembleTags(sb_))
+  {
+    ZLOG_ERR("Error disassembling AssociationResponse frame tags");
+    return (false);
+  }
 
-	this->GetTag(this->Rates);
-	this->GetTag(this->ExtRates);
-	this->GetTag(this->HtCaps);
-	this->GetTag(this->HtInfo);
-	this->GetTag(this->ExtCaps);
-	this->GetTag(this->WmmWme);
+  this->GetTag(this->Rates);
+  this->GetTag(this->ExtRates);
+  this->GetTag(this->HtCaps);
+  this->GetTag(this->HtInfo);
+  this->GetTag(this->ExtCaps);
+  this->GetTag(this->WmmWme);
 
-	return true;
+  return true;
 }
 
 uint16_t

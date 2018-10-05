@@ -40,21 +40,54 @@ public:
   enum ID
   {
     ID_ERR = -1,
-    ID_SSID = 0,
-    ID_RATES = 1,
-    ID_DSSS = 3,
-    ID_TIM = 5,
-    ID_COUNTRY = 7,
-    ID_POWER_CAPS = 33, // 0x21
-    ID_CHANNELS = 36, // 0x24
-    ID_CHANNEL_SWITCH = 37, // 0x25
-    ID_ERP_INFO = 42, // 0x2A
-    ID_HT_CAPS = 45, // 0x2D
-    ID_EXT_RATES = 50, // 0x32
-    ID_SUPP_OP_CLASSES = 59, // 0x3B
-    ID_HT_INFORMATION = 61, // 0x3D
-    ID_EXT_CAPS = 127, // 0x7f
-    ID_VENDOR_SPECIFIC = 221, // 0xDD
+    ID_SSID       = 0,
+    ID_RATES      = 1,
+    ID_FHPARMS    = 2,
+    ID_DSPARMS    = 3,
+    ID_CFPARMS    = 4,
+    ID_TIM        = 5,
+    ID_IBSSPARMS  = 6,
+    ID_COUNTRY    = 7,
+    ID_REQINFO    = 10,
+    ID_CHALLENGE  = 16,
+    /* 17-31 reserved for challenge text extension */
+    ID_PWRCNSTR   = 32,
+    ID_PWRCAP     = 33,
+    ID_TPCREQ     = 34,
+    ID_TPCREP     = 35,
+    ID_SUPPCHAN   = 36,
+    ID_CHANSWITCHANN  = 37,
+    ID_MEASREQ    = 38,
+    ID_MEASREP    = 39,
+    ID_QUIET      = 40,
+    ID_IBSSDFS    = 41,
+    ID_ERP        = 42,
+    ID_HTCAP      = 45,
+    ID_RSN        = 48,
+    ID_XRATES     = 50,
+    ID_NEIGHBOR_REP   = 52,
+    ID_FTIE       = 55,
+    ID_TIMEOUT_INT    = 56,
+    ID_REG_CLASSES    = 59,
+    ID_HTINFO     = 61,
+    ID_EXTCAP     = 127,
+    /* 128-129 proprietary elements used by Agere chipsets */
+    ID_AGERE1     = 128,
+    ID_AGERE2     = 129,
+    ID_TPC        = 150,
+    ID_CCKM       = 156,
+    /* 191-199 Table 8-54-Element IDs in Draft P802.11ac_D4.0.pdf */
+    ID_VHTCAP     = 191,
+    ID_VHTOP      = 192,
+    ID_EXTBSSLOAD = 193,
+    ID_WBWCHANSWITCH  = 194,
+    ID_VHTXMTPWRENVLP = 195,
+    ID_CHANSWITCHWRP  = 196,
+    ID_AID        = 197,
+    ID_QUIETCHAN  = 198,
+    ID_OPMODNOTICE    = 199,
+    /* Vendor Specific */
+    ID_VENDOR     = 221,  /* vendor private */
     ID_LAST
   };
 
@@ -73,19 +106,20 @@ public:
       case ID_ERR: { return "ID_ERR"; break; }
       case ID_SSID: { return "ID_SSID"; break; }
       case ID_RATES: { return "ID_RATES"; break; }
-      case ID_DSSS: { return "ID_DSSS"; break; }
+      case ID_DSPARMS: { return "ID_DSPARMS"; break; }
       case ID_TIM: { return "ID_TIM"; break; }
       case ID_COUNTRY: { return "ID_COUNTRY"; break; }
-      case ID_POWER_CAPS: { return "ID_POWER_CAPS"; break; }
-      case ID_CHANNELS: { return "ID_CHANNELS"; break; }
-      case ID_CHANNEL_SWITCH: { return "ID_CHANNEL_SWITCH"; break; }
-      case ID_ERP_INFO: { return "ID_ERP_INFO"; break; }
-      case ID_HT_CAPS: { return "ID_HT_CAPS"; break; }
-      case ID_EXT_RATES: { return "ID_EXT_RATES"; break; }
-      case ID_SUPP_OP_CLASSES: { return "ID_SUPP_OP_CLASSES"; break; }
-      case ID_HT_INFORMATION: { return "ID_HT_INFORMATION"; break; }
-      case ID_EXT_CAPS: { return "ID_EXT_CAPS"; break; }
-      case ID_VENDOR_SPECIFIC: { return "ID_VENDOR_SPECIFIC"; break; }
+      case ID_PWRCAP: { return "ID_PWRCAP"; break; }
+      case ID_SUPPCHAN: { return "ID_SUPPCHAN"; break; }
+      case ID_CHANSWITCHANN: { return "ID_CHANSWITCHANN"; break; }
+      case ID_ERP: { return "ID_ERP"; break; }
+      case ID_HTCAP: { return "ID_HTCAP"; break; }
+      case ID_XRATES: { return "ID_XRATES"; break; }
+      case ID_REG_CLASSES: { return "ID_REG_CLASSES"; break; }
+      case ID_HTINFO: { return "ID_HTINFO"; break; }
+      case ID_EXTCAP: { return "ID_EXTCAP"; break; }
+      case ID_VHTCAP: { return "ID_VHTCAP"; break; }
+      case ID_VENDOR: { return "ID_VENDOR"; break; }
       default: { return "UNKNOWN"; break; }
     }
   }

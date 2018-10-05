@@ -15,21 +15,9 @@
  * limitations under the License.
  */
 
-// libc includes
-#include <stdlib.h>
-#include <string.h>
-#include <endian.h>
-
-// libc++ includes
-#include <iostream>
-
-// libzutils includes
 #include <zutils/zLog.h>
-#include <zutils/ieee80211/QosData.h>
 using namespace zUtils;
-
-// local includes
-#include <zutils/ieee80211/ieee80211.h>
+#include <zutils/ieee80211/VhtCapsTag.h>
 
 ZLOG_MODULE_INIT(zLog::Log::MODULE_WIRELESS);
 
@@ -41,39 +29,16 @@ namespace ieee80211
 {
 
 //*****************************************************************************
-// Class: QosData
+// Class: HtCapsTag
 //*****************************************************************************
 
-QosData::QosData() :
-    DataFrame(Frame::SUBTYPE_DATAQOS)
-{
-}
-
-QosData::~QosData()
-{
-}
-
-uint8_t
-QosData::TID() const
-{
-  return (this->QosControl() & 0x0f);
-}
-
-bool
-QosData::TID(const uint8_t id_)
-{
-  uint16_t qoscntl = this->QosControl();
-  qoscntl &= ~0x000f;
-  qoscntl |= (id_ & 0x000f);
-  return (this->QosControl(qoscntl));
-}
-
 void
-QosData::Display() const
+VhtCapsTag::Display() const
 {
-  DataFrame::Display();
-  std::cout << "----- IEEE802.11 QoS Data -------------" << std::endl;
+  Tag::Display();
+  struct vht_caps caps = this->operator ()();
 }
+
 
 }
 }

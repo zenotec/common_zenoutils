@@ -34,13 +34,14 @@ namespace ieee80211
 // Class: ChannelsTag
 //*****************************************************************************
 
-class ChannelsTag : public Tag
+class ChannelsTag :
+    public Tag
 {
 
 public:
 
   ChannelsTag() :
-    Tag(Tag::ID_CHANNELS)
+    Tag(Tag::ID_SUPPCHAN)
   {
   }
 

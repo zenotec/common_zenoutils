@@ -26,6 +26,7 @@
 #include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/HtCapsTag.h>
 #include <zutils/ieee80211/HtInfoTag.h>
+#include <zutils/ieee80211/ieee80211.h>
 
 namespace zUtils
 {
@@ -269,11 +270,11 @@ public:
   bool
   SetPowerCaps(const ieee80211::PowerCapsTag::power_caps_tag& caps_);
 
-  ieee80211::HtCapsTag::ht_caps
+  struct ht_caps
   GetHtCaps() const;
 
   bool
-  SetHtCaps(const ieee80211::HtCapsTag::ht_caps& caps_);
+  SetHtCaps(const struct ht_caps& caps_);
 
   std::vector<uint8_t>
   GetChannels() const;
@@ -308,7 +309,7 @@ private:
 
   bool _valid;
   ieee80211::PowerCapsTag::power_caps_tag _power_caps;
-  ieee80211::HtCapsTag::ht_caps _ht_caps;
+  struct ht_caps _ht_caps;
   std::vector <uint8_t> _channels;
   std::vector <uint8_t> _rates;
   std::vector <uint8_t> _ext_rates;
