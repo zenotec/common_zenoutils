@@ -69,7 +69,7 @@ public:
   operator()(const vector<uint8_t> rates)
   {
 	bool status = false;
-	if (rates.size() <= NL80211_MAX_SUPP_RATES)
+	if (!rates.empty() && (rates.size() <= NL80211_MAX_SUPP_RATES))
 	{
 	  status = this->Set((const uint8_t*) (&rates[0]), rates.size());
 	}
@@ -79,8 +79,6 @@ public:
 protected:
 
 private:
-
-  uint8_t _buf[NL80211_MAX_SUPP_RATES + 1];
 
 };
 
