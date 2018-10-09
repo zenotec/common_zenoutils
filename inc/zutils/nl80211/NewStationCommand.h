@@ -61,11 +61,11 @@ public:
   IfNameAttribute IfName;
   MacAttribute Mac;
   ListenIntervalAttribute ListenInterval;
-  HtCapabilityAttribute HtCapabilties;
-  VhtCapabilityAttribute VhtCapabilties;
   StaSupportedRatesAttribute StaSupportedRates;
   StaAidAttribute StaAid;
   StationFlagsAttribute StaFlags;
+  HtCapabilityAttribute HtCapabilties;
+  VhtCapabilityAttribute VhtCapabilties;
 
   NewStationCommand(const unsigned int ifindex_);
 
