@@ -40,7 +40,11 @@ Station::Station(const std::string& addr_) :
 	_associationId(0),
 	_flags(0),
 	_capabilities(0),
-    _listenInterval(0)
+    _listenInterval(0),
+    _htCapable(false),
+    _htCapabilities{0},
+    _vhtCapable(false),
+    _vhtCapabilities{0}
 {
 }
 
@@ -72,7 +76,6 @@ bool
 Station::SetFlags(const uint8_t flags_)
 {
   bool status = true;
-  fprintf(stderr, "Station::SetFlags(0x%02x)", flags_);
   this->_flags = flags_;
   return (status);
 }
@@ -105,18 +108,24 @@ Station::SetCapabilities(const uint16_t caps_)
   return (status);
 }
 
-struct ht_info
-Station::GetHtInfo() const
+bool
+Station::IsHtCapable() const
 {
-  return (this->_htInfo);
+  return (this->_htCapable);
 }
 
 bool
-Station::SetHtInfo(const struct ht_info& info_)
+Station::SetHtCapable()
 {
-  bool status = true;
-  this->_htInfo = info_;
-  return (status);
+  this->_htCapable = true;
+  return (this->_htCapable);
+}
+
+bool
+Station::ClrHtCapable()
+{
+  this->_htCapable = false;
+  return (!this->_htCapable);
 }
 
 struct ht_caps
@@ -131,6 +140,26 @@ Station::SetHtCapabilities(const struct ht_caps& caps_)
   bool status = true;
   this->_htCapabilities = caps_;
   return (status);
+}
+
+bool
+Station::IsVhtCapable() const
+{
+  return (this->_vhtCapable);
+}
+
+bool
+Station::SetVhtCapable()
+{
+  this->_vhtCapable = true;
+  return (this->_vhtCapable);
+}
+
+bool
+Station::ClrVhtCapable()
+{
+  this->_vhtCapable = false;
+  return (!this->_vhtCapable);
 }
 
 struct vht_caps
@@ -168,7 +197,7 @@ Station::GetSupportedRates() const
 }
 
 bool
-Station::SetSupportedRates(const vector<uint8_t> rates_)
+Station::SetSupportedRates(const vector<uint8_t>& rates_)
 {
   bool status = true;
   this->_supportedRates = rates_;
@@ -184,6 +213,13 @@ Station::Display(const std::string &prefix_) const
   std::cout << prefix_ << "AID:             " << int(this->_associationId) << std::endl;
   std::cout << prefix_ << "Capabilities:    0x" << std::hex << int(this->_capabilities) << std::dec << std::endl;
   std::cout << prefix_ << "Listen Interval: " << int(this->_listenInterval) << std::endl;
+  fprintf(stderr, "%sRates:           %zd\n", prefix_.c_str(), this->_supportedRates.size());
+  for (int i = 0; i < this->_supportedRates.size(); i++)
+  {
+    fprintf(stderr, "%sRate[% 2d]:      0x%02x\n", prefix_.c_str(), i, this->_supportedRates[i]);
+  }
+  std::cout << prefix_ << "HT Capable:      " << (this->IsHtCapable() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "VHT Capable:     " << (this->IsVhtCapable() ? "true" : "false") << std::endl;
   std::cout << prefix_ << "" << std::endl;
 }
 

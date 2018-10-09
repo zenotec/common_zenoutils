@@ -299,7 +299,6 @@ BasicServiceSet::AddStation(const zWireless::Station& station_)
     return (false);
   }
 
-
   // Create add STA command
   NewStationCommand* cmd = new NewStationCommand(this->_iface.GetIfIndex());
 
@@ -311,12 +310,19 @@ BasicServiceSet::AddStation(const zWireless::Station& station_)
   cmd->StaSupportedRates(station_.GetSupportedRates());
   struct nl80211_sta_flag_update sta_flags = { station_.GetFlags(), station_.GetFlags() };
   cmd->StaFlags(&sta_flags);
-  cmd->HtCapabilties(station_.GetHtCapabilities());
+  if (station_.IsHtCapable())
+  {
+    cmd->HtCapabilties(station_.GetHtCapabilities());
+  }
+  if (station_.IsVhtCapable())
+  {
+    cmd->VhtCapabilties(station_.GetVhtCapabilities());
+  }
 
   if (!cmd->Exec())
   {
-    status = false;
     ZLOG_ERR("Cannot execute AddStation command");
+    status = false;
   }
   delete (cmd);
   return (status);

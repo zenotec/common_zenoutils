@@ -71,17 +71,29 @@ public:
   bool
   SetCapabilities(const uint16_t caps_); // as defined in 802.11 9.4.1.4
 
-  struct ht_info
-  GetHtInfo() const;
+  bool
+  IsHtCapable() const;
 
   bool
-  SetHtInfo(const struct ht_info& info_);
+  SetHtCapable();
+
+  bool
+  ClrHtCapable();
 
   struct ht_caps
   GetHtCapabilities() const;
 
   bool
   SetHtCapabilities(const struct ht_caps& caps_);
+
+  bool
+  IsVhtCapable() const;
+
+  bool
+  SetVhtCapable();
+
+  bool
+  ClrVhtCapable();
 
   struct vht_caps
   GetVhtCapabilities() const;
@@ -99,10 +111,10 @@ public:
   GetSupportedRates() const;
 
   bool
-  SetSupportedRates(const vector<uint8_t> rates_);
+  SetSupportedRates(const vector<uint8_t>& rates_);
 
   virtual void
-  Display(const std::string &prefix_ = std::string("")) const;
+  Display(const std::string& prefix_ = std::string("")) const;
 
 protected:
 
@@ -112,8 +124,9 @@ private:
   uint8_t _flags;
   std::string _macAddress;
   uint16_t _capabilities;
-  struct ht_info _htInfo;
+  bool _htCapable;
   struct ht_caps _htCapabilities;
+  bool _vhtCapable;
   struct vht_caps _vhtCapabilities;
   uint16_t _listenInterval;
   vector<uint8_t> _supportedRates;
