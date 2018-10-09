@@ -158,6 +158,24 @@ NewStationCommand::Display(const std::string& prefix_) const
     std::cout << prefix_ << "\tAID:   \t" << this->StaAid() << std::endl;
   if (this->StaFlags.IsValid())
     std::cout << prefix_ << "\tFlags: \t0x" << std::hex << this->StaFlags().set << std::dec << std::endl;
+  if (this->StaSupportedRates.IsValid())
+  {
+    std::vector<uint8_t> rates(this->StaSupportedRates());
+    std::cout << prefix_ << "\tRates: \t" << rates.size() << std::endl;
+    for (int i = 0; i < rates.size(); i++)
+    {
+      std::cout << prefix_ << "\t\tRate[" << int(i) << "]: \t0x" << std::hex << int(rates[i]) << std::dec << std::endl;
+    }
+  }
+  if (this->HtCapabilties.IsValid())
+  {
+    std::cout << prefix_ << "\tHT Caps: " << std::endl;
+  }
+  if (this->VhtCapabilties.IsValid())
+  {
+    std::cout << prefix_ << "\tVHT Caps: " << std::endl;
+  }
+
   std::cout << prefix_ << "##################################################" << std::endl;
 }
 
