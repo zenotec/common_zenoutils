@@ -19,6 +19,7 @@ libieee80211_ladir = $(includedir)/zutils/ieee80211
 
 # Headers to install
 libieee80211_la_HEADERS = \
+	${top_srcdir}/inc/zutils/ieee80211/ieee80211.h \
 	${top_srcdir}/inc/zutils/ieee80211/RadioTap.h \
 	${top_srcdir}/inc/zutils/ieee80211/RadioTapField.h \
 	${top_srcdir}/inc/zutils/ieee80211/Tag.h \
@@ -55,7 +56,6 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/Socket.h
 
 libieee80211_la_SOURCES = \
-	ieee80211.h \
 	RadioTap.cpp \
 	RadioTapField.cpp \
 	RadioTapFieldTsft.cpp \

@@ -40,6 +40,8 @@ libnl80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/nl80211/FrameMatchAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/FrameTypeAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/FrequencyAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/HtCapabilityAttribute.h \
+	${top_srcdir}/inc/zutils/nl80211/VhtCapabilityAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/IfIndexAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/IfNameAttribute.h \
 	${top_srcdir}/inc/zutils/nl80211/IfTypeAttribute.h \
