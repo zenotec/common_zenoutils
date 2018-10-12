@@ -66,7 +66,6 @@ AccessPointInterface::AccessPointInterface(const std::string& ifname_) :
 
 AccessPointInterface::~AccessPointInterface()
 {
-  this->Stop();
 }
 
 std::string
@@ -130,6 +129,12 @@ AccessPointInterface::Create()
 {
 
   bool status = false;
+
+  if (this->GetIfIndex())
+  {
+    ZLOG_ERR("Error creating AP interface, interface already exists: " + this->GetIfName());
+    return (false);
+  }
 
   if (this->lock.Lock())
   {
@@ -263,15 +268,15 @@ AccessPointInterface::Stop()
 {
   bool status = false;
 
+  if (!this->_running)
+  {
+    return (true);
+  }
+
   if (!this->GetIfIndex())
   {
     ZLOG_ERR("Error stopping AP interface, interface does not exist: " + this->GetIfName());
     return (false);
-  }
-
-  if (!this->_running)
-  {
-    return (true);
   }
 
   if (this->GetAdminState() == zInterface::ConfigData::STATE_UP)
