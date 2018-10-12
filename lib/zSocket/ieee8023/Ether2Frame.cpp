@@ -124,7 +124,8 @@ Ether2Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   }
   else
   {
-    ZLOG_ERR("Error disassembling frame");
+    sb_.Display();
+    ZLOG_ERR("Error disassembling frame: Unknown protocol: " + ZLOG_UINT(Frame::PROTO(be16toh(f->u.ether2.proto))));
     return(false);
   }
 
