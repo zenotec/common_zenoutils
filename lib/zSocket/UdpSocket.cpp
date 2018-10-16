@@ -309,29 +309,14 @@ UdpSocket::Send(const Address& to_, const Buffer& sb_)
   n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
   // NOTE: frame is initialized by optional adapter socket
 
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = this->_fd;
-  fds[0].events = (POLLOUT | POLLERR);
-
-  // Poll for transmit ready
-  int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT))
+  // Send
+  struct sockaddr_in dst(addr->GetSA());
+  ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
+  if (nbytes > 0)
   {
-    // Send
-    struct sockaddr_in dst(addr->GetSA());
-    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
-    if (nbytes > 0)
-    {
-      ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
-          " bytes to: " + addr->GetAddress());
-      n->SetSubType(Notification::SUBTYPE_PKT_SENT);
-    }
-    else
-    {
-      n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-      ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-    }
+    ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+        " bytes to: " + addr->GetAddress());
+    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
