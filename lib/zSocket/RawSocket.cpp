@@ -256,36 +256,22 @@ RawSocket::Send(const Address& to_, const Buffer& sb_)
   n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
   // NOTE: frame is initialized by optional adapter socket
 
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = this->_fd;
-  fds[0].events = (POLLOUT | POLLERR);
+  struct sockaddr_ll sa(this->_addr.GetSA());
+  sa.sll_family = AF_PACKET;
+  sa.sll_protocol = htons(this->_proto);
+  sa.sll_pkttype = this->_ptype;
 
-  // Poll for transmit ready
-  int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT))
+  ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
+  if (nbytes == sb_.Size())
   {
-    struct sockaddr_ll sa(this->_addr.GetSA());
-    sa.sll_family = AF_PACKET;
-    sa.sll_protocol = htons(this->_proto);
-    sa.sll_pkttype = this->_ptype;
-
-    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &sa, sizeof(sa));
-    if (nbytes > 0)
-    {
-      ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
-          " bytes to: " + addr->GetAddress());
-      n->SetSubType(Notification::SUBTYPE_PKT_SENT);
-    }
-    else
-    {
-      ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-    }
+    ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+        " bytes to: " + addr->GetAddress());
+    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
-    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
   }
 
   return (n);
