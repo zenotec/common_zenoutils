@@ -15,8 +15,9 @@
  */
 
 #include <unistd.h>
+#include <poll.h>
 #include <errno.h>
-#include <string.h>
+#include <sys/eventfd.h>
 
 #include <zutils/zSem.h>
 
@@ -29,88 +30,85 @@ namespace zSem
 // Semaphore Class
 //*****************************************************************************
 
-Semaphore::Semaphore(const uint32_t value_) :
-    _sem_lock(Mutex::LOCKED), _sem_cnt(value_)
+Semaphore::Semaphore(const uint64_t value_) :
+    _fd(0)
 {
-  if (this->_sem_cnt == 0)
-  {
-    this->_empty_lock.lock();
-  }
-  this->_sem_lock.Unlock();
+  this->_fd = eventfd(value_, (EFD_NONBLOCK | EFD_SEMAPHORE));
 }
 
 Semaphore::~Semaphore()
 {
+  if (this->_fd)
+    close(this->_fd);
+}
+
+int
+Semaphore::GetId() const
+{
+  return (this->_fd);
 }
 
 bool
-Semaphore::Post()
+Semaphore::Post(const uint64_t value_) const
 {
   bool status = false;
-
-  if (this->_sem_lock.Lock())
+  if (this->_fd)
   {
-    // Test for overflow
-    if ((this->_sem_cnt + 1) > this->_sem_cnt)
-    {
-      if (this->_sem_cnt == 0)
-      {
-        this->_empty_lock.unlock();
-      }
-      this->_sem_cnt++;
-    }
-    status = true;
-    this->_sem_lock.Unlock();
+    status = (write(this->_fd, &value_, sizeof(value_)) == sizeof(value_));
   }
-
   return (status);
 }
 
 bool
-Semaphore::Wait()
+Semaphore::Wait() const
 {
-
-  bool status = this->TryWait();
-
-  if (!status)
-  {
-    this->_empty_lock.lock();
-    this->_empty_lock.unlock();
-    status = this->TryWait();
-  }
-
-  return (status);
+  return (this->TimedWait(-1));
 }
 
 bool
-Semaphore::TryWait()
+Semaphore::TryWait() const
+{
+  return (this->TimedWait(0));
+}
+
+bool
+Semaphore::TimedWait(int msec_) const
 {
   bool status = false;
-  if (this->_sem_lock.Lock())
-  {
-    if (this->_sem_cnt > 0)
-    {
-      if (this->_sem_cnt-- == 1)
-      {
-        this->_empty_lock.lock();
-      }
-      status = true;
-    }
-    this->_sem_lock.Unlock();
-  }
-  return (status);
-}
+  int fd_cnt = 1;
+  struct pollfd fds[1] = { 0 };
 
-bool
-Semaphore::TimedWait(uint32_t msec_)
-{
-  bool status = this->TryWait();
-  if (!status)
+  // Initialize
+  fds[0].fd = this->_fd;
+  fds[0].events = (POLLIN | POLLERR);
+
+  int ret = poll(fds, fd_cnt, msec_);
+  switch (ret)
   {
-    if (TIMED_LOCK(this->_empty_lock, msec_))
+    case 1:
     {
-      this->_empty_lock.unlock();
-      status = this->TryWait();
+      uint64_t cntr = 0;
+      // Poll successful
+      if (fds[0].revents == POLLIN)
+      {
+        status = ((read(this->_fd, &cntr, sizeof(cntr)) == sizeof(cntr)) && (cntr == 1));
+      }
+      break;
+    }
+    case 0:
+      // Poll timed out
+      break;
+    case -EINTR:
+      // A signal interrupted poll; exit flag should be set
+      fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
+      break;
+    default:
+    {
+      if (ret < 0)
+      {
+        fprintf(stderr, "Semaphore encountered a poll error: %d\n", ret);
+      }
+      break;
     }
   }
   return (status);
@@ -120,17 +118,6 @@ bool
 Semaphore::Reset()
 {
   bool status = false;
-
-  if (this->_sem_lock.Lock())
-  {
-    if (this->_sem_cnt != 0)
-    {
-      this->_sem_cnt = 0;
-      this->_empty_lock.lock();
-    }
-    status = this->_sem_lock.Unlock();
-  }
-
   return (status);
 }
 

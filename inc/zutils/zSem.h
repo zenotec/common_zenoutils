@@ -88,22 +88,25 @@ class Semaphore
 {
 public:
 
-  Semaphore(const uint32_t value_ = 0);
+  Semaphore(const uint64_t value_ = 0);
 
   virtual
   ~Semaphore();
 
-  bool
-  Post();
+  int
+  GetId() const;
 
   bool
-  Wait();
+  Post(const uint64_t value_ = 1) const;
 
   bool
-  TryWait();
+  Wait() const;
 
   bool
-  TimedWait(uint32_t ms_);
+  TryWait() const;
+
+  bool
+  TimedWait(int msec_) const;
 
   bool
   Reset();
@@ -122,9 +125,7 @@ private:
   Semaphore &
   operator=(const Semaphore &other_);
 
-  Mutex _sem_lock;
-  TIMED_MUTEX _empty_lock; // empty = locked
-  ATOMIC(uint32_t) _sem_cnt;
+  int _fd;
 
 };
 
