@@ -50,7 +50,7 @@ RawSocket::RawSocket(const RawSocket::PROTO proto_, const RawSocket::PACKETTYPE 
     Socket(SOCKET_TYPE::TYPE_RAW), _fd(0), _proto(proto_), _ptype(ptype_)
 {
   // Create a AF_INET socket
-  this->_fd = socket( PF_PACKET, SOCK_RAW, htons(proto_));
+  this->_fd = socket( PF_PACKET, (SOCK_RAW | SOCK_NONBLOCK), htons(proto_));
   if (this->_fd > 0)
   {
     ZLOG_INFO("Socket created: " + ZLOG_INT(this->_fd));
