@@ -44,20 +44,6 @@ class Notification;
 class Tap;
 class Handler;
 
-
-enum SOCKET_TYPE
-{
-  TYPE_ERR = -1,
-  TYPE_NONE = 0,
-  TYPE_TEST = 1,
-  TYPE_LOOP = 2,
-  TYPE_UNIX = 3,
-  TYPE_RAW = 4,
-  TYPE_INET4 = 5,
-  TYPE_INET6 = 6,
-  TYPE_LAST
-};
-
 //**********************************************************************
 // Class: zSocket::Buffer
 //**********************************************************************
@@ -322,13 +308,27 @@ private:
 //**********************************************************************
 
 class Socket :
-    public zEvent::Event
+    public zEvent::Event,
+    public zThread::ThreadFunction
 {
 
   friend Tap;
   friend Handler;
 
 public:
+
+  enum SOCKET_TYPE
+  {
+    TYPE_ERR = -1,
+    TYPE_NONE = 0,
+    TYPE_TEST = 1,
+    TYPE_LOOP = 2,
+    TYPE_UNIX = 3,
+    TYPE_RAW = 4,
+    TYPE_INET4 = 5,
+    TYPE_INET6 = 6,
+    TYPE_LAST
+  };
 
   enum OPTIONS
   {
@@ -345,7 +345,7 @@ public:
     OPTIONS_LAST
   };
 
-  Socket(const SOCKET_TYPE type_);
+  Socket(const Socket::SOCKET_TYPE type_);
 
   virtual
   ~Socket();
@@ -353,7 +353,7 @@ public:
   virtual int
   GetId() const;
 
-  const SOCKET_TYPE
+  const Socket::SOCKET_TYPE
   GetType() const;
 
   virtual const Address&
@@ -382,10 +382,15 @@ public:
 
 protected:
 
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
 private:
 
-  const SOCKET_TYPE _type;
+  const Socket::SOCKET_TYPE _type;
   Address _addr;
+  zThread::Thread _thread;
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _txq;
 
   Socket(Socket &other_);
 
@@ -620,7 +625,8 @@ private:
 
   zSem::Mutex _lock;
   std::map<int, Socket*> _sock_list;
-  zThread::Thread _thread;
+  zThread::Thread _thread; // Thread to poll notification queue
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _nq; // Notification queue
 
 };
 

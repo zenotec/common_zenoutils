@@ -40,7 +40,7 @@ namespace zSocket
 //*****************************************************************************
 // zSocket::Socket Class
 //*****************************************************************************
-Socket::Socket(const SOCKET_TYPE type_) :
+Socket::Socket(const Socket::SOCKET_TYPE type_) :
     zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(Address::TYPE_NONE)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
@@ -57,7 +57,7 @@ Socket::GetId() const
   return (0);
 }
 
-const SOCKET_TYPE
+const Socket::SOCKET_TYPE
 Socket::GetType() const
 {
   return (this->_type);
@@ -106,7 +106,13 @@ SHARED_PTR(zSocket::Notification)
 Socket::Send(const Address& addr_, const Buffer& sb_)
 {
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  n->SetSubType(Notification::SUBTYPE_ERR);
+  SHARED_PTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
+  n->SetSrcAddress(src);
+  SHARED_PTR(zSocket::Address) dst(new zSocket::Address(addr_));
+  n->SetDstAddress(dst);
+  SHARED_PTR(zSocket::Buffer) sb(new zSocket::Buffer(sb_));
+  n->SetBuffer(sb);
+  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
   return (n);
 }
 

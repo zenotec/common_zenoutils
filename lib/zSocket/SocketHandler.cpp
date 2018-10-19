@@ -28,6 +28,8 @@ namespace zUtils
 namespace zSocket
 {
 
+static int id = 0;
+
 //*****************************************************************************
 // Class: zSocket::Handler
 //*****************************************************************************
@@ -130,38 +132,39 @@ Handler::Run(zThread::ThreadArg *arg_)
 
     switch (ret)
     {
-    case 0:
-      // Poll timed out
-      break;
-    case -EINTR:
-      // A signal interrupted poll; exit flag should be set
-      fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
-      ZLOG_INFO("Socket poll interrupted by signal");
-      break;
-    default:
-    {
-      if (ret < 0)
+      case 0:
+        // Poll timed out
+        break;
+      case -EINTR:
+        // A signal interrupted poll; exit flag should be set
+        fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
+        ZLOG_INFO("Socket poll interrupted by signal");
+        break;
+      default:
       {
-        fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
-      }
-      else
-      {
-        for (int i = 0; i < fd_cnt; i++)
+        if (ret < 0)
         {
-          int fd = fds[i].fd;
-          if (fds[i].revents == POLLIN)
+          fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
+        }
+        else
+        {
+          for (int i = 0; i < fd_cnt; i++)
           {
-            if (this->_sock_list.count(fd))
+            int fd = fds[i].fd;
+            if (fds[i].revents == POLLIN)
             {
-              Socket* sock = this->_sock_list[fd];
-              sock->notifyHandlers(sock->Recv());
+              if (this->_sock_list.count(fd))
+              {
+                Socket* sock = this->_sock_list[fd];
+                sock->notifyHandlers(sock->Recv());
+              }
             }
           }
         }
+        break;
       }
-      break;
     }
-    }
+
   }
   return;
 }

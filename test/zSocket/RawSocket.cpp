@@ -68,7 +68,7 @@ zSocketTest_RawSocketDefault(void* arg_)
   // Create new socket and validate
   zSocket::RawSocket *MySock = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock);
-  TEST_EQ(zSocket::TYPE_RAW, MySock->GetType());
+  TEST_EQ(zSocket::Socket::TYPE_RAW, MySock->GetType());
   TEST_EQ(std::string(""), MySock->GetAddress().GetAddress());
 
   // Cleanup
