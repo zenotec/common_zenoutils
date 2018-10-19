@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __ZINETSOCKET_H__
-#define __ZINETSOCKET_H__
+#ifndef __ZUDPSOCKET_H__
+#define __ZUDPSOCKET_H__
 
 #include <netinet/in.h>
 
@@ -31,7 +31,7 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::InetSocket
+// Class: zSocket::UdpSocket
 //**********************************************************************
 
 class UdpSocket :
@@ -74,4 +74,4 @@ private:
 }
 }
 
-#endif /* __ZINETSOCKET_H__ */
+#endif /* __ZUDPSOCKET_H__ */
