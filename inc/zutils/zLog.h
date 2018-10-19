@@ -79,8 +79,8 @@ namespace zLog
 #else
 #define ZLOG_CRIT(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_CRIT,(x))
 #define ZLOG_ERR(x)     ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_ERROR,(x))
-#define ZLOG_WARN(x)
-#define ZLOG_INFO(x)
+#define ZLOG_WARN(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_WARN,(x))
+#define ZLOG_INFO(x)    ZLOG_LOGGER(zUtils::zLog::Log::LEVEL_INFO,(x))
 #define ZLOG_DEBUG(x)
 #define ZLOG_DEBUG1(x)
 #define ZLOG_DEBUG2(x)
