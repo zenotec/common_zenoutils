@@ -30,7 +30,7 @@ zQueueTest_Defaults(void* arg_)
   std::string obs_str;
 
   // Create new queue and validate
-  zQueue<std::string> MyQueue;
+  zQueue::Queue<std::string> MyQueue;
   TEST_TRUE(MyQueue.Empty());
   TEST_FALSE(MyQueue.TryWait());
   TEST_IS_ZERO(MyQueue.Size());

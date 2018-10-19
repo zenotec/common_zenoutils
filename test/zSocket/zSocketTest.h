@@ -128,9 +128,9 @@ public:
   {
   }
 
-  zQueue<SHARED_PTR(zSocket::Notification)> RxSem;
-  zQueue<SHARED_PTR(zSocket::Notification)> TxSem;
-  zQueue<SHARED_PTR(zSocket::Notification)> ErrSem;
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> RxSem;
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> TxSem;
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> ErrSem;
 
 protected:
 

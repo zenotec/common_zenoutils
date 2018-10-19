@@ -102,7 +102,7 @@ public:
 
 class TestObserver :
     public Observer,
-    public zQueue<SHARED_PTR(zEvent::Notification)>
+    public zQueue::Queue<SHARED_PTR(zEvent::Notification)>
 {
 
 public:

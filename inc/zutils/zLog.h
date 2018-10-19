@@ -428,7 +428,7 @@ private:
 
   zSem::Mutex _log_lock;
   zThread::Thread _thread;
-  zQueue<SHARED_PTR(zLog::Message)> _msg_queue;
+  zQueue::Queue<SHARED_PTR(zLog::Message)> _msg_queue;
   std::map<std::string, Log::LEVEL> _max_level;
   std::map<std::string, int> _mod_refcnt;
   std::map<Log::LEVEL, Connector*> _conn;

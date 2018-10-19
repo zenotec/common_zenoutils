@@ -33,7 +33,7 @@ class TestConnector : public zLog::Connector
 {
 public:
 
-  zQueue<std::string> MsgQueue;
+  zQueue::Queue<std::string> MsgQueue;
 
   TestConnector()
   {

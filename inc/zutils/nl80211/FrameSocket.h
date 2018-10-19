@@ -87,7 +87,7 @@ private:
 
   nl80211::FrameCommand* _fcmd;
   nl80211::FrameEvent* _fevent;
-  zQueue<SHARED_PTR(zSocket::Notification)> _rxq;
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _rxq;
 
 };
 

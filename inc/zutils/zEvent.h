@@ -170,7 +170,6 @@ private:
   zSem::Mutex _event_lock;
   std::list<Event *> _event_list;
   std::list<Observer*> _obs_list;
-  zQueue<SHARED_PTR(Notification)> _noti_queue;
 
   Handler(Handler const &);
 
