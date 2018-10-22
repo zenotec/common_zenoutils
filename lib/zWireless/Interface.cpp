@@ -968,17 +968,16 @@ Interface::_setChannel()
     //  Set either ChannelType OR ChannelWidth based on HT mode
     switch (this->stagingConfig.GetHtMode())
     {
-    case ConfigData::HTMODE_VHT80PLUS80:
-      cmd->CenterFrequency2(this->stagingConfig.GetCenterFrequency2());
-      // no break
     case ConfigData::HTMODE_HT40:
       // no break
     case ConfigData::HTMODE_VHT40:
       // no break
     case ConfigData::HTMODE_VHT80:
       // no break
+    case ConfigData::HTMODE_VHT80PLUS80:
+      // no break
     case ConfigData::HTMODE_VHT160:
-      cmd->CenterFrequency1(this->stagingConfig.GetCenterFrequency1());
+      cmd->CenterFrequency2(this->stagingConfig.GetCenterFrequency2());
       // no break
     case ConfigData::HTMODE_HT20:
       // no break
