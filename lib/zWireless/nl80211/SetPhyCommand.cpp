@@ -94,7 +94,7 @@ SetPhyCommand::Display(const std::string& prefix_) const
   }
   if (this->CenterFrequency2.IsValid())
   {
-    std::cout << "\tCenter 1:  \t" << this->CenterFrequency2() << std::endl;
+    std::cout << "\tCenter 2:  \t" << this->CenterFrequency2() << std::endl;
   }
   if (this->TxPowerMode.IsValid())
   {
