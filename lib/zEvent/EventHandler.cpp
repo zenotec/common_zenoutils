@@ -47,14 +47,11 @@ Handler::RegisterEvent(Event *event_)
   bool status = false;
   if (event_ && this->_event_lock.Lock())
   {
-    // Remove any possible duplicates
-    this->_event_list.remove(event_);
-    event_->unregisterHandler(this);
-
     // Register event
     this->_event_list.push_back(event_);
+    this->_event_list.unique();
     status = event_->registerHandler(this);
-    status &= this->_event_lock.Unlock();
+    this->_event_lock.Unlock();
   }
   return (status);
 }
@@ -67,7 +64,7 @@ Handler::UnregisterEvent(Event *event_)
   {
     this->_event_list.remove(event_);
     status = event_->unregisterHandler(this);
-    status &= this->_event_lock.Unlock();
+    this->_event_lock.Unlock();
   }
   return (status);
 }
@@ -78,12 +75,11 @@ Handler::RegisterObserver(Observer *obs_)
   bool status = false;
   if (obs_ && this->_event_lock.Lock())
   {
-    // Remove any duplicates
-    this->_obs_list.remove(obs_);
-
     // Register observer
     this->_obs_list.push_back(obs_);
-    status = this->_event_lock.Unlock();
+    this->_obs_list.unique();
+    status = true;
+    this->_event_lock.Unlock();
   }
   return (status);
 }
@@ -96,7 +92,8 @@ Handler::UnregisterObserver(Observer *obs_)
   {
     // Unregister observer
     this->_obs_list.remove(obs_);
-    status = this->_event_lock.Unlock();
+    status = true;
+    this->_event_lock.Unlock();
   }
   return (status);
 }
@@ -115,7 +112,7 @@ Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 
     FOREACH (auto& obs, this->_obs_list)
     {
-      status &= obs->ObserveEvent(noti_);
+      status = status && obs->ObserveEvent(noti_);
     }
 
     this->_event_lock.Unlock();

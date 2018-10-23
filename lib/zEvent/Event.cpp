@@ -63,7 +63,7 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
     {
-      status &= handler->notifyObservers(noti_);
+      status = status && handler->notifyObservers(noti_);
     }
 
     this->_event_lock.Unlock();
@@ -78,8 +78,10 @@ Event::registerHandler(Handler *handler_)
   bool status = false;
   if (handler_ && this->_event_lock.Lock())
   {
-    this->_handler_list.push_front(handler_);
-    status = this->_event_lock.Unlock();
+    this->_handler_list.push_back(handler_);
+    this->_handler_list.unique();
+    status = true;
+    this->_event_lock.Unlock();
   }
   return (status);
 }
@@ -92,7 +94,8 @@ Event::unregisterHandler(Handler *handler_)
   if (handler_ && this->_event_lock.Lock())
   {
     this->_handler_list.remove(handler_);
-    status = this->_event_lock.Unlock();
+    status = true;
+    this->_event_lock.Unlock();
   }
   return (status);
 }
