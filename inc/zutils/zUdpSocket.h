@@ -31,22 +31,61 @@ namespace zSocket
 {
 
 //**********************************************************************
+// Class: zSocket::UdpSocketRx
+//**********************************************************************
+
+class UdpSocketRx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::UdpSocketTx
+//**********************************************************************
+
+class UdpSocketTx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
 // Class: zSocket::UdpSocket
 //**********************************************************************
 
 class UdpSocket :
-    public Socket
+    public Socket,
+    public zThread::ThreadArg
 {
 
 public:
+
+  friend UdpSocketRx;
+  friend UdpSocketTx;
 
   UdpSocket();
 
   virtual
   ~UdpSocket();
-
-  virtual int
-  GetId() const;
 
   virtual bool
   Getopt(Socket::OPTIONS opt_);
@@ -57,17 +96,24 @@ public:
   virtual bool
   Bind(const Address& addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
-
 protected:
+
+  int fd;
+
+  // Receives and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  recv();
+
+  // Sends from transmit queue and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  send();
 
 private:
 
-  int _fd;
+  zThread::Thread _rxthread;
+  UdpSocketRx _rxfunc;
+  zThread::Thread _txthread;
+  UdpSocketTx _txfunc;
 
 };
 

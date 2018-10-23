@@ -28,8 +28,6 @@ namespace zUtils
 namespace zSocket
 {
 
-static int id = 0;
-
 //*****************************************************************************
 // Class: zSocket::Handler
 //*****************************************************************************
@@ -52,14 +50,14 @@ Handler::RegisterSocket(Socket* sock_)
   bool status = false;
   int nsock = 0;
 
-  if (sock_ && sock_->GetId() && this->_lock.Lock())
+  if (sock_ && this->_lock.Lock())
   {
-    if (this->_sock_list.size() < NSOCK_MAX)
+    ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetFd()));
+    if (this->RegisterEvent(sock_))
     {
-      ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetId()));
-      status = this->RegisterEvent(sock_);
-      this->_sock_list[sock_->GetId()] = sock_;
-      nsock = this->_sock_list.size();
+      this->_smap[sock_->GetFd()] = sock_;
+      nsock = this->_smap.size();
+      status = true;
     }
     this->_lock.Unlock();
   }
@@ -83,13 +81,13 @@ Handler::UnregisterSocket(Socket* sock_)
 
   if (sock_ && this->_lock.Lock())
   {
-    if (this->_sock_list.count(sock_->GetId()))
+    ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetFd()));
+    if (this->UnregisterEvent(sock_))
     {
-      ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetId()));
-      status = this->UnregisterEvent(sock_);
-      this->_sock_list.erase(sock_->GetId());
+      this->_smap.erase(sock_->GetFd());
+      nsock = this->_smap.size();
+      status = true;
     }
-    nsock = this->_sock_list.size();
     this->_lock.Unlock();
   }
 
@@ -111,12 +109,12 @@ Handler::Run(zThread::ThreadArg *arg_)
   int fd_cnt = 0;
   struct pollfd fds[NSOCK_MAX] = { 0 };
 
-  // Setup for poll loop
+  // Setup for polling sockets receive queue
   if (this->_lock.Lock())
   {
-    FOREACH (auto& t, this->_sock_list)
+    FOREACH (auto& t, this->_smap)
     {
-      fds[fd_cnt].fd = t.first;
+      fds[fd_cnt].fd = t.second->GetFd();
       fds[fd_cnt].events = (POLLIN | POLLERR);
       fd_cnt++;
     }
@@ -127,46 +125,50 @@ Handler::Run(zThread::ThreadArg *arg_)
   {
 
     // Wait on file descriptor set
-    // Note: returns immediately if a signal is received
+    // Note: returns immediately when a signal is received
     int ret = poll(fds, fd_cnt, 100);
 
-    switch (ret)
+    if (ret > 0)
     {
-      case 0:
-        // Poll timed out
-        break;
-      case -EINTR:
+      for (int i = 0; i < fd_cnt; i++)
+      {
+        int fd = fds[i].fd;
+        if (fds[i].revents == POLLIN)
+        {
+          if (this->_smap.count(fd) && this->_smap[fd])
+          {
+            Socket* sock = this->_smap[fd];
+            sock->notifyHandlers(sock->Recv());
+          }
+          else
+          {
+            fprintf(stderr, "[%d] BUG: Unexpected socket received data: %d\n", __LINE__, fd);
+          }
+        }
+      }
+    }
+    else if (ret == 0)
+    {
+      continue;
+    }
+    else
+    {
+      if (errno == -EINTR)
+      {
         // A signal interrupted poll; exit flag should be set
         fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
         ZLOG_INFO("Socket poll interrupted by signal");
-        break;
-      default:
+      }
+      else
       {
-        if (ret < 0)
-        {
-          fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
-        }
-        else
-        {
-          for (int i = 0; i < fd_cnt; i++)
-          {
-            int fd = fds[i].fd;
-            if (fds[i].revents == POLLIN)
-            {
-              if (this->_sock_list.count(fd))
-              {
-                Socket* sock = this->_sock_list[fd];
-                sock->notifyHandlers(sock->Recv());
-              }
-            }
-          }
-        }
-        break;
+        fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
+        ZLOG_INFO("Socket handler encountered a poll error: " + ZLOG_INT(ret));
       }
     }
-
   }
+
   return;
+
 }
 
 

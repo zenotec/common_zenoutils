@@ -82,9 +82,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  SHARED_PTR(zSocket::Notification) txn(MySock->Send(*MyAddr, ExpStr));
-  TEST_ISNOT_NULL(txn.get());
-  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
+  TEST_TRUE(MySock->Send(*MyAddr, ExpStr));
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();

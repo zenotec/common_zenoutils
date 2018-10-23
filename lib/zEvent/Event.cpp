@@ -63,7 +63,7 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
     // Notify all registered event handlers
     FOREACH (auto& handler, this->_handler_list)
     {
-      status = status && handler->notifyObservers(noti_);
+      status &= handler->notifyObservers(noti_);
     }
 
     this->_event_lock.Unlock();

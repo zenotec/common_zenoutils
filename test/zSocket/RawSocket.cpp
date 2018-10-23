@@ -134,9 +134,7 @@ zSocketTest_RawSocketSendReceiveLoop(void* arg_)
   zSocket::Buffer sb(sizeof(pkt));
   memcpy(sb.Head(), pkt, sizeof(pkt));
   TEST_TRUE(sb.Put(sizeof(pkt)));
-  SHARED_PTR(zSocket::Notification) txn(MySock->Send(*DstAddr, sb));
-  TEST_ISNOT_NULL(txn.get());
-  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
+  TEST_TRUE(MySock->Send(*DstAddr, sb));
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();
@@ -238,9 +236,7 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   zSocket::Buffer sb(sizeof(pkt));
   memcpy(sb.Head(), pkt, sizeof(pkt));
   TEST_TRUE(sb.Put(sizeof(pkt)));
-  SHARED_PTR(zSocket::Notification) txn(MySock1->Send(*DstAddr, sb));
-  TEST_ISNOT_NULL(txn.get());
-  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
+  TEST_TRUE(MySock1->Send(*DstAddr, sb));
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();

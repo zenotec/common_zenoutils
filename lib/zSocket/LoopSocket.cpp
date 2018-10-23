@@ -18,7 +18,11 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <linux/sockios.h>
+#include <net/if.h>
 #include <netinet/in.h>
+#include <poll.h>
 
 #include <zutils/zLog.h>
 #include <zutils/zSocket.h>
@@ -32,99 +36,75 @@ namespace zSocket
 {
 
 //**********************************************************************
+// Class: zSocket::LoopSocketTx
+//**********************************************************************
+
+void
+LoopSocketTx::Run(zThread::ThreadArg *arg_)
+{
+
+  class LoopSocket* sock = (class LoopSocket*)arg_;
+
+  while (!this->Exit())
+  {
+    if (sock->txq.TimedWait(100))
+    {
+      sock->rxq.Push(sock->send());
+    }
+  }
+
+}
+
+//**********************************************************************
 // Class: zSocket::LoopSocket
 //**********************************************************************
 
 LoopSocket::LoopSocket() :
-    Socket(SOCKET_TYPE::TYPE_LOOP)
+    Socket(SOCKET_TYPE::TYPE_LOOP),
+    _txthread(&_txfunc, this),
+    _fd(0)
 {
-  // Create a AF_INET socket
-  this->_fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
-  if (this->_fd > 0)
-  {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_fd));
-  }
-  else
-  {
-    this->_fd = 0;
-    ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
-  }
 }
 
 LoopSocket::~LoopSocket()
 {
-  // Make sure the socket is unregistered from all handlers
-  if (!this->_handler_list.empty())
-  {
-    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
-  }
-  else
-  {
-    // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
-    if (this->_fd)
-    {
-      close(this->_fd);
-      this->_fd = 0;
-    } // end if
-  }
-}
-
-int
-LoopSocket::GetId() const
-{
-  return (this->_fd);
-}
-
-const Address&
-LoopSocket::GetAddress() const
-{
-  return (this->_addr);
+  this->_txthread.Stop();
 }
 
 bool
 LoopSocket::Bind(const Address& addr_)
 {
-  this->_addr = LoopAddress(addr_);
-  return (true);
+  return (this->SetAddress(LoopAddress(addr_)) && this->_txthread.Start());
 }
 
 SHARED_PTR(zSocket::Notification)
-LoopSocket::Recv()
-{
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-
-  // Initialize notification
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  n->SetSrcAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
-  n->SetDstAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
-  return (n);
-}
-
-SHARED_PTR(zSocket::Notification)
-LoopSocket::Send(const Address& to_, const Buffer& sb_)
+LoopSocket::send()
 {
 
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  // Initialize send notification
+  SHARED_PTR(zSocket::Notification) txn(this->txq.Front());
+  this->txq.Pop();
+//  fprintf(stderr, "LoopSocket::send(): Pop from TX queue\n");
+//  txn->Display("txn\t");
 
-  // Initialize notification
-  n->SetSrcAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
-  n->SetDstAddress(SHARED_PTR(Address)(new Address(this->GetAddress())));
-  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  // Initialize receive notification
+  SHARED_PTR(zSocket::Notification) rxn(new zSocket::Notification(*this));
+  rxn->SetSubType(Notification::SUBTYPE_PKT_RCVD);
+  if (txn->GetSrcAddress().get())
+    rxn->SetDstAddress(txn->GetSrcAddress());
+  if (txn->GetDstAddress().get())
+    rxn->SetSrcAddress(txn->GetDstAddress());
+  if (txn->GetBuffer().get())
+    rxn->SetBuffer(txn->GetBuffer());
 
-  if (to_ == this->GetAddress())
-  {
-    n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-    this->notifyHandlers(n);
-    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
-  }
-  else
-  {
-    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-  }
+  // Push onto receive queue
+  this->rxq.Push(rxn);
+//  fprintf(stderr, "LoopSocket::send(): Pushed to RX queue\n");
+//  rxn->Display("rxn\t");
 
-  return (n);
+  // Return send notification
+  return (txn);
+
 }
 
 }

@@ -40,24 +40,43 @@ using namespace nl80211;
 namespace nl80211
 {
 
+//**********************************************************************
+// Class: FrameSocketTx
+//**********************************************************************
+
+class FrameSocketTx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
 //*****************************************************************************
 // Class: FrameSocket
 //*****************************************************************************
 
 class FrameSocket :
     public zSocket::Socket,
+    public zThread::ThreadArg,
     public netlink::Callback
 {
 
 public:
 
+  friend FrameSocketTx;
+
   FrameSocket();
 
   virtual
   ~FrameSocket();
-
-  virtual int
-  GetId() const;
 
   bool
   RegisterFrame(const uint16_t type_, const uint8_t* match_, const size_t len_);
@@ -66,13 +85,14 @@ public:
   virtual bool
   Bind(const zSocket::Address& addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
+  bool
+  Listen();
 
 protected:
+
+  // Sends from transmit queue and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  send();
 
   virtual int
   valid_cb(struct nl_msg* msg_, void* arg_);
@@ -87,7 +107,9 @@ private:
 
   nl80211::FrameCommand* _fcmd;
   nl80211::FrameEvent* _fevent;
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _rxq;
+
+  zThread::Thread _txthread;
+  FrameSocketTx _txfunc;
 
 };
 

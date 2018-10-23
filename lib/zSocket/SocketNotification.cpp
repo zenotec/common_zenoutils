@@ -58,12 +58,6 @@ Notification::GetSocket() const
   return (static_cast<Socket&>(this->GetEvent()));
 }
 
-int
-Notification::GetId() const
-{
-  return (this->GetSocket().GetId());
-}
-
 Notification::SUBTYPE
 Notification::GetSubType() const
 {
@@ -138,5 +132,19 @@ Notification::SetFrame(SHARED_PTR(Frame) frame_)
   return (true);
 }
 
+void
+Notification::Display(const std::string& prefix_)
+{
+
+  std::cout << prefix_ << "SocketNotification: " << std::endl;
+  std::cout << prefix_ << "Socket: " << int(this->GetSocket().GetFd()) << std::endl;
+  if (this->GetDstAddress().get())
+    std::cout << prefix_ << "Dst: " << this->GetDstAddress()->GetAddress() << std::endl;
+  if (this->GetSrcAddress().get())
+    std::cout << prefix_ << "Src: " << this->GetSrcAddress()->GetAddress() << std::endl;
+  if (this->GetBuffer().get())
+    this->GetBuffer()->Display();
+
+}
 }
 }

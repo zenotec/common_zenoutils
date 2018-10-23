@@ -43,7 +43,7 @@ Semaphore::~Semaphore()
 }
 
 int
-Semaphore::GetId() const
+Semaphore::GetFd() const
 {
   return (this->_fd);
 }

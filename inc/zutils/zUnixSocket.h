@@ -31,22 +31,61 @@ namespace zSocket
 {
 
 //**********************************************************************
+// Class: zSocket::UnixSocketRx
+//**********************************************************************
+
+class UnixSocketRx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::UnixSocketTx
+//**********************************************************************
+
+class UnixSocketTx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
 // Class: zSocket::UnixSocket
 //**********************************************************************
 
 class UnixSocket :
-    public Socket
+    public Socket,
+    public zThread::ThreadArg
 {
 
 public:
+
+  friend UnixSocketRx;
+  friend UnixSocketTx;
 
   UnixSocket();
 
   virtual
   ~UnixSocket();
-
-  virtual int
-  GetId() const;
 
   virtual const Address&
   GetAddress() const;
@@ -54,18 +93,26 @@ public:
   virtual bool
   Bind(const Address& addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
-
 protected:
+
+  int fd;
+
+  // Receives and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  recv();
+
+  // Sends from transmit queue and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  send();
 
 private:
 
-  int _fd;
   UnixAddress _addr;
+
+  zThread::Thread _rxthread;
+  UnixSocketRx _rxfunc;
+  zThread::Thread _txthread;
+  UnixSocketTx _txfunc;
 
 };
 

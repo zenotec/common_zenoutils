@@ -25,7 +25,7 @@ zSemTest_Semaphore(void* arg_)
 
   // Create new semaphore with defaults and validate
   zSem::Semaphore MySemaphore; //
-  TEST_ISNOT_ZERO(MySemaphore.GetId());
+  TEST_ISNOT_ZERO(MySemaphore.GetFd());
   TEST_FALSE(MySemaphore.TryWait()); //
   
   // Post and Wait

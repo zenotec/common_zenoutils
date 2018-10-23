@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -308,8 +308,7 @@ private:
 //**********************************************************************
 
 class Socket :
-    public zEvent::Event,
-    public zThread::ThreadFunction
+    public zEvent::Event
 {
 
   friend Tap;
@@ -351,7 +350,7 @@ public:
   ~Socket();
 
   virtual int
-  GetId() const;
+  GetFd() const;
 
   const Socket::SOCKET_TYPE
   GetType() const;
@@ -374,23 +373,24 @@ public:
   virtual SHARED_PTR(zSocket::Notification)
   Recv();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual bool
   Send(const Address& to_, const Buffer& sb_);
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual bool
+  Send(Frame& frame_);
+
+  virtual bool
   Send(const Address& to_, const std::string& str_);
 
 protected:
 
-  virtual void
-  Run(zThread::ThreadArg *arg_);
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> txq; // transmit queue
+  zQueue::Queue<SHARED_PTR(zSocket::Notification)> rxq; // receive queue
 
 private:
 
   const Socket::SOCKET_TYPE _type;
   Address _addr;
-  zThread::Thread _thread;
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _txq;
 
   Socket(Socket &other_);
 
@@ -435,9 +435,6 @@ public:
   Socket&
   GetSocket() const;
 
-  int
-  GetId() const;
-
   Notification::SUBTYPE
   GetSubType() const;
 
@@ -468,6 +465,9 @@ public:
   bool
   SetFrame(const SHARED_PTR(Frame) frame_);
 
+  void
+  Display(const std::string& prefix_ = "");
+
 protected:
 
 private:
@@ -496,7 +496,7 @@ public:
   ~Adapter();
 
   virtual int
-  GetId() const;
+  GetFd() const;
 
   virtual const zSocket::Address&
   GetAddress() const;
@@ -511,10 +511,16 @@ public:
   Bind(const zSocket::Address& addr_);
 
   virtual SHARED_PTR(zSocket::Notification)
-  Recv() = 0;
+  Recv();
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
+  virtual bool
+  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
+
+  virtual bool
+  Send(Frame& frame_);
+
+  virtual bool
+  Send(const Address& to_, const std::string& str_);
 
 protected:
 
@@ -545,7 +551,7 @@ public:
   virtual SHARED_PTR(zSocket::Notification)
   Recv() = 0;
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual bool
   Send(const zSocket::Address& to_, const zSocket::Buffer& sb_) = 0;
 
 protected:
@@ -601,7 +607,8 @@ private:
 
 class Handler :
     public zEvent::Handler,
-    public zThread::ThreadFunction
+    public zThread::ThreadFunction,
+    public zThread::ThreadArg
 {
 public:
 
@@ -624,9 +631,8 @@ protected:
 private:
 
   zSem::Mutex _lock;
-  std::map<int, Socket*> _sock_list;
-  zThread::Thread _thread; // Thread to poll notification queue
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> _nq; // Notification queue
+  std::map<int, Socket*> _smap;
+  zThread::Thread _thread; // Thread to poll socket notification queues
 
 };
 

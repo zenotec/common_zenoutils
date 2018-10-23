@@ -112,7 +112,7 @@ Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 
     FOREACH (auto& obs, this->_obs_list)
     {
-      status = status && obs->ObserveEvent(noti_);
+      status &= obs->ObserveEvent(noti_);
     }
 
     this->_event_lock.Unlock();

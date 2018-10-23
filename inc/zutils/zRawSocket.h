@@ -33,14 +33,56 @@ namespace zSocket
 {
 
 //**********************************************************************
+// Class: zSocket::RawSocketRx
+//**********************************************************************
+
+class RawSocketRx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zSocket::RawSocketTx
+//**********************************************************************
+
+class RawSocketTx :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
 // Class: zSocket::RawSocket
 //**********************************************************************
 
 class RawSocket :
-    public Socket
+    public Socket,
+    public zThread::ThreadArg
 {
 
 public:
+
+  friend RawSocketRx;
+  friend RawSocketTx;
 
   enum PROTO
   {
@@ -76,9 +118,6 @@ public:
   virtual
   ~RawSocket();
 
-  virtual int
-  GetId() const;
-
   virtual bool
   Getopt(Socket::OPTIONS opt_);
 
@@ -89,20 +128,28 @@ public:
   virtual bool
   Bind(const Address& addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
-
 protected:
+
+  int fd;
+
+  // Receives and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  recv();
+
+  // Sends from transmit queue and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  send();
 
 private:
 
-  int _fd;
   RawAddress _addr;
   RawSocket::PROTO _proto;
   RawSocket::PACKETTYPE _ptype;
+
+  zThread::Thread _rxthread;
+  RawSocketRx _rxfunc;
+  zThread::Thread _txthread;
+  RawSocketTx _txfunc;
 
 };
 

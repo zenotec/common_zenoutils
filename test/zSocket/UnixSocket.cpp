@@ -80,7 +80,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 {
 
   ZLOG_DEBUG("#############################################################");
-  ZLOG_DEBUG("# zSocketTest_UnixSocketSendReceiveUnix()");
+  ZLOG_DEBUG("# zSocketTest_UnixSocketSendReceive()");
   ZLOG_DEBUG("#############################################################");
 
   bool status = false;
@@ -126,9 +126,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
 
   // Send string and validate
   std::string ExpStr = "Hello Universe";
-  SHARED_PTR(zSocket::Notification) txn(MySrcSock->Send(*DstAddr, ExpStr));
-  TEST_ISNOT_NULL(txn.get());
-  TEST_EQ(zSocket::Notification::SUBTYPE_PKT_SENT, txn->GetSubType());
+  TEST_TRUE(MySrcSock->Send(*DstAddr, ExpStr));
 
   // Verify no errors
   status = MyObserver->ErrSem.TryWait();

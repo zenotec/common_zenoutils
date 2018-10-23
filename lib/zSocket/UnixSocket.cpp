@@ -35,27 +35,101 @@ namespace zSocket
 {
 
 //**********************************************************************
+// Class: zSocket::UnixSocketRx
+//**********************************************************************
+
+void
+UnixSocketRx::Run(zThread::ThreadArg *arg_)
+{
+  class UnixSocket* sock = (class UnixSocket*)arg_;
+
+  // Setup for poll loop
+  struct pollfd fds[1];
+  fds[0].fd = sock->fd;
+  fds[0].events = (POLLIN | POLLERR);
+
+  while (!this->Exit())
+  {
+    int ret = poll(fds, 1, 100);
+
+    if (ret == 1)
+    {
+      if (fds[0].revents & POLLIN)
+      {
+        sock->rxq.Push(sock->recv());
+      }
+    }
+    else if (ret == 0)
+    {
+      continue;
+    }
+    else
+    {
+      if (errno == -EINTR)
+      {
+        // A signal interrupted poll; exit flag should be set
+        fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
+        ZLOG_INFO("Socket poll interrupted by signal");
+      }
+      else
+      {
+        fprintf(stderr, "Error receiving on socket: %d\n", sock->GetFd()); // TODO: Debug code, remove when no longer needed
+        fprintf(stderr, "\t%s", strerror(errno));
+        ZLOG_INFO("Error receiving on socket: " + ZLOG_INT(sock->GetFd()));
+      }
+    }
+
+  }
+}
+
+//**********************************************************************
+// Class: zSocket::UnixSocketTx
+//**********************************************************************
+
+void
+UnixSocketTx::Run(zThread::ThreadArg *arg_)
+{
+  class UnixSocket* sock = (class UnixSocket*)arg_;
+
+  while (!this->Exit())
+  {
+    if (sock->txq.TimedWait(100))
+    {
+      sock->rxq.Push(sock->send());
+    }
+  }
+
+}
+
+//**********************************************************************
 // Class: zSocket::UnixSocket
 //**********************************************************************
 
 UnixSocket::UnixSocket() :
-    Socket(SOCKET_TYPE::TYPE_UNIX)
+    Socket(SOCKET_TYPE::TYPE_UNIX),
+    _rxthread(&_rxfunc, this),
+    _txthread(&_txfunc, this),
+    fd(0)
 {
   // Create a AF_INET socket
-  this->_fd = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
-  if (this->_fd > 0)
+  this->fd = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
+  if (this->fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->_fd));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
   }
   else
   {
-    this->_fd = 0;
+    this->fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
 }
 
 UnixSocket::~UnixSocket()
 {
+
+  this->_rxthread.Stop();
+  this->_txthread.Stop();
+
   // Make sure the socket is unregistered from all handlers
   if (!this->_handler_list.empty())
   {
@@ -64,20 +138,14 @@ UnixSocket::~UnixSocket()
   else
   {
     // Close socket
-    if (this->_fd)
+    if (this->fd)
     {
-      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->_fd));
+      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
       unlink(this->_addr.GetSA().sun_path);
-      close(this->_fd);
-      this->_fd = 0;
+      close(this->fd);
+      this->fd = 0;
     } // end if
   }
-}
-
-int
-UnixSocket::GetId() const
-{
-  return (this->_fd);
 }
 
 const Address&
@@ -90,7 +158,7 @@ bool
 UnixSocket::Bind(const Address& addr_)
 {
 
-  if (!this->_fd)
+  if (!this->fd)
   {
     ZLOG_ERR(std::string("Socket not opened"));
     return (false);
@@ -106,47 +174,51 @@ UnixSocket::Bind(const Address& addr_)
 
   // Bind address to socket
   struct sockaddr_un sa(this->_addr.GetSA());
-  int ret = bind(this->_fd, (struct sockaddr*) &sa, sizeof(sa));
+  int ret = bind(this->fd, (struct sockaddr*) &sa, sizeof(sa));
   if (ret < 0)
   {
     ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->_fd));
+  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
+
+  this->_rxthread.Start();
+  this->_txthread.Start();
 
   return (true);
 }
 
 SHARED_PTR(zSocket::Notification)
-UnixSocket::Recv()
+UnixSocket::recv()
 {
 
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   ssize_t nbytes = 0;
 
-  if (this->_fd)
+  if (this->fd)
   {
     // Query for the number of bytes ready to be read for use creating socket buffer
-    ioctl(this->_fd, FIONREAD, &nbytes);
+    ioctl(this->fd, FIONREAD, &nbytes);
     if (nbytes)
     {
+
       struct sockaddr_un src;
       socklen_t len = sizeof(src);
       SHARED_PTR(Buffer) sb(new Buffer(nbytes));
 
-      nbytes = recvfrom(this->_fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
+      nbytes = recvfrom(this->fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb->Put(nbytes))
       {
         struct timespec ts = { 0 };
-        ioctl(this->_fd, SIOCGSTAMPNS, &ts);
+        ioctl(this->fd, SIOCGSTAMPNS, &ts);
         sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
         n->SetDstAddress(SHARED_PTR(UnixAddress)(new UnixAddress(this->GetAddress())));
         n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(src)));
         n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
-        ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
@@ -162,20 +234,18 @@ UnixSocket::Recv()
 }
 
 SHARED_PTR(zSocket::Notification)
-UnixSocket::Send(const Address& to_, const Buffer& sb_)
+UnixSocket::send()
 {
 
   // Initialize notification
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  SHARED_PTR(UnixAddress) addr(new UnixAddress(to_));
-  n->SetDstAddress(addr);
-  n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(this->GetAddress())));
-  n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
-  // NOTE: frame is initialized by optional adapter socket
+  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
+  this->txq.Pop();
+  SHARED_PTR(UnixAddress) addr(new UnixAddress(*n->GetDstAddress()));
+  zSocket::Buffer sb(*n->GetBuffer());
 
   // Setup for poll loop
   struct pollfd fds[1];
-  fds[0].fd = this->_fd;
+  fds[0].fd = this->fd;
   fds[0].events = (POLLOUT | POLLERR);
 
   // Poll for transmit ready
@@ -184,10 +254,10 @@ UnixSocket::Send(const Address& to_, const Buffer& sb_)
   {
     // Send
     struct sockaddr_un dst(addr->GetSA());
-    ssize_t nbytes = sendto(this->_fd, sb_.Head(), sb_.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
+    ssize_t nbytes = sendto(this->fd, sb.Head(), sb.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
     if (nbytes > 0)
     {
-      ZLOG_DEBUG("(" + ZLOG_INT(this->_fd) + ") " + "Sent " + ZLOG_INT(sb_.Length()) +
+      ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
           " bytes to: " + addr->GetAddress());
       n->SetSubType(Notification::SUBTYPE_PKT_SENT);
     }

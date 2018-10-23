@@ -40,8 +40,11 @@ namespace zSocket
 //*****************************************************************************
 // zSocket::Socket Class
 //*****************************************************************************
+
 Socket::Socket(const Socket::SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET), _type(type_), _addr(Address::TYPE_NONE)
+    zEvent::Event(zEvent::Event::TYPE_SOCKET),
+    _type(type_),
+    _addr(Address::TYPE_NONE)
 {
   ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
 }
@@ -52,9 +55,9 @@ Socket::~Socket()
 }
 
 int
-Socket::GetId() const
+Socket::GetFd() const
 {
-  return (0);
+  return (this->rxq.GetFd());
 }
 
 const Socket::SOCKET_TYPE
@@ -97,30 +100,87 @@ Socket::Bind(const Address& addr_)
 SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
+
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
   n->SetSubType(Notification::SUBTYPE_ERR);
+
+  if (this->rxq.TryWait())
+  {
+    n = this->rxq.Front();
+    this->rxq.Pop();
+  }
+
   return (n);
 }
 
-SHARED_PTR(zSocket::Notification)
+bool
 Socket::Send(const Address& addr_, const Buffer& sb_)
 {
+
+  if (sb_.Length() == 0)
+  {
+    fprintf(stderr, "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    fprintf(stderr, "zSocket::send(): Refusing to send empty buffer\n");
+    sb_.Display();
+    fprintf(stderr, "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    return (false);
+  }
+
+  // Create shared notification
   SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  SHARED_PTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
-  n->SetSrcAddress(src);
-  SHARED_PTR(zSocket::Address) dst(new zSocket::Address(addr_));
-  n->SetDstAddress(dst);
-  SHARED_PTR(zSocket::Buffer) sb(new zSocket::Buffer(sb_));
-  n->SetBuffer(sb);
+  if (!n.get())
+  {
+    return (false);
+  }
   n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-  return (n);
+
+  // Create shared source address
+  SHARED_PTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
+  if (!src.get())
+  {
+    return (false);
+  }
+  n->SetSrcAddress(src);
+
+  // Create shared destination address
+  SHARED_PTR(zSocket::Address) dst(new zSocket::Address(addr_));
+  if (!dst.get())
+  {
+    return (false);
+  }
+  n->SetDstAddress(dst);
+
+  // Create shared socket buffer
+  SHARED_PTR(zSocket::Buffer) sb(new zSocket::Buffer(sb_));
+  if (!sb.get())
+  {
+    return (false);
+  }
+  n->SetBuffer(sb);
+
+  // Push notification onto transmit queue for socket to send
+  return (this->txq.Push(n));
+
 }
 
-SHARED_PTR(zSocket::Notification)
+bool
+Socket::Send(Frame& frame_)
+{
+  bool status = false;
+  zSocket::Address to(Address::TYPE_NONE, frame_.GetDestination());
+  zSocket::Buffer sb;
+  if (frame_.Assemble(sb, false))
+  {
+    sb.Push(sb.Size()); // restore data pointer to start of frame
+    status = this->Send(to, sb);
+  }
+  return (status);
+}
+
+bool
 Socket::Send(const Address& to_, const std::string& str_)
 {
-  Buffer sb(str_);
-  return (this->Send(to_, sb));
+  return (this->Send(to_, Buffer(str_)));
 }
 
 }

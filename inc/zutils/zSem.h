@@ -94,7 +94,7 @@ public:
   ~Semaphore();
 
   int
-  GetId() const;
+  GetFd() const;
 
   bool
   Post(const uint64_t value_ = 1) const;

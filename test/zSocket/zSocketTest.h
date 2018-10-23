@@ -135,14 +135,14 @@ public:
 protected:
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   {
     ZLOG_DEBUG("Handling socket event");
 
     bool status = false;
-    if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SOCKET))
+    if (n_ && (n_->GetType() == zEvent::Event::TYPE_SOCKET))
     {
-      SHARED_PTR(Notification) n = STATIC_CAST(Notification)(noti_);
+      SHARED_PTR(Notification) n = STATIC_CAST(Notification)(n_);
       switch (n->GetSubType())
       {
       case Notification::SUBTYPE_PKT_RCVD:

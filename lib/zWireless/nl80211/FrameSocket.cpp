@@ -39,12 +39,32 @@ ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 namespace nl80211
 {
 
+//**********************************************************************
+// Class: FrameSocketTx
+//**********************************************************************
+
+void
+FrameSocketTx::Run(zThread::ThreadArg *arg_)
+{
+  class FrameSocket* sock = (class FrameSocket*)arg_;
+
+  while (!this->Exit())
+  {
+    if (sock->txq.TimedWait(100))
+    {
+      sock->rxq.Push(sock->send());
+    }
+  }
+
+}
+
 //*****************************************************************************
 // Class: FrameSocket
 //*****************************************************************************
 
 FrameSocket::FrameSocket() :
     Socket(SOCKET_TYPE::TYPE_RAW),
+    _txthread(&_txfunc, this),
     _fcmd(NULL),
     _fevent(NULL)
 {
@@ -52,6 +72,9 @@ FrameSocket::FrameSocket() :
 
 FrameSocket::~FrameSocket()
 {
+
+  this->_txthread.Stop();
+
   if (this->_fcmd)
   {
     delete (this->_fcmd);
@@ -75,17 +98,6 @@ FrameSocket::RegisterFrame(const uint16_t type_, const uint8_t* match_, const si
     status = this->_fevent->Exec();
   }
   return (status);
-}
-
-int
-FrameSocket::GetId() const
-{
-  int id = 0;
-  if (this->_fevent)
-  {
-    id = this->_fevent->GetSockFd();
-  }
-  return (id);
 }
 
 bool
@@ -123,37 +135,43 @@ FrameSocket::Bind(const zSocket::Address& addr_)
     return (false);
   }
 
+  this->_txthread.Start();
+
   return (true);
 }
 
-SHARED_PTR(zSocket::Notification)
-FrameSocket::Recv()
+bool
+FrameSocket::Listen()
 {
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-
-  if (this->_fevent && this->_fevent->RecvMsg())
+  bool status = false;
+  if (this->_fevent)
   {
-    if (this->_rxq.TimedWait(100))
-    {
-      n = this->_rxq.Front();
-      this->_rxq.Pop();
-    }
+    status = this->_fevent->Listen();
   }
-
-  return (n);
+  return (status);
 }
 
 SHARED_PTR(zSocket::Notification)
-FrameSocket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
+FrameSocket::send()
 {
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+
+  // Initialize notification
+  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
+  this->txq.Pop();
+  zSocket::Address addr(*n->GetDstAddress());
+  zSocket::Buffer sb(*n->GetBuffer());
   n->SetSubType(Notification::SUBTYPE_PKT_ERR);
 
-  if (this->_fcmd && this->_fcmd->Frame.Set(sb_.Head(), sb_.Size()) && this->_fcmd->Exec())
+  if (this->_fcmd && this->_fcmd->Frame.Set(sb.Head(), sb.Size()) && this->_fcmd->Exec())
   {
+    ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
+        " bytes to: " + addr.GetAddress());
     n->SetSubType(Notification::SUBTYPE_PKT_SENT);
-    n->SetBuffer(SHARED_PTR(Buffer)(new Buffer(sb_)));
+  }
+  else
+  {
+    ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
   }
 
   return (n);
@@ -163,7 +181,7 @@ int
 FrameSocket::valid_cb(struct nl_msg* msg_, void* arg_)
 {
 
-  //  fprintf(stderr, "FrameSocket::valid_cb()\n");
+//  fprintf(stderr, "FrameSocket::valid_cb()\n");
 
   GenericMessage msg;
   if (!msg.Disassemble(msg_))
@@ -233,7 +251,7 @@ FrameSocket::valid_cb(struct nl_msg* msg_, void* arg_)
   sb->Push(rtlen);
 
   // Push to receive queue to allow 'Recv' to return the notification to the socket handler
-  this->_rxq.Push(n);
+  this->rxq.Push(n);
 
   return (NL_OK);
 

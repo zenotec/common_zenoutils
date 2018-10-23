@@ -60,7 +60,13 @@ Notification::Notification(const zSocket::Notification& n_) :
     zSocket::Notification(n_)
 {
 
-  SHARED_PTR(ieee8023::Frame)frame(new ieee8023::Frame);
+  // TODO: Only support notifications for received frames for now
+  if (this->GetSubType() != zSocket::Notification::SUBTYPE_PKT_RCVD)
+  {
+    return;
+  }
+
+  SHARED_PTR(ieee8023::Frame) frame(new ieee8023::Frame);
 
   // Peek at the 802.3 frame to determine its type & protocol
   if (!frame->Peek(*this->GetBuffer(), false))
@@ -140,38 +146,10 @@ Socket::~Socket()
 SHARED_PTR(zSocket::Notification)
 Socket::Recv()
 {
-
   // Receive frame and convert to wireless notification
   SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
 
   // Return wireless notification
-  return (n);
-}
-
-SHARED_PTR(zSocket::Notification)
-Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
-{
-  return (this->socket.Send(to_, sb_));
-}
-
-SHARED_PTR(zSocket::Notification)
-Socket::Send(Frame& frame_)
-{
-
-  SHARED_PTR(Notification) n(new Notification(*this));
-  zSocket::Buffer sb;
-
-  // Assemble frame (writes buffer)
-  if (!frame_.Assemble(sb, false))
-  {
-    ZLOG_ERR("Error assembling IEEE8023 frame");
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-    return (n);
-  }
-
-  n = STATIC_CAST(Notification)(this->Send(zSocket::MacAddress(frame_.GetDestination()), sb));
-  n->SetFrame(SHARED_PTR(Frame)(new Frame(frame_)));
-
   return (n);
 }
 

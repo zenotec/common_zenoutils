@@ -91,10 +91,10 @@ public:
   virtual SHARED_PTR(zSocket::Notification)
   Recv();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual bool
   Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual bool
   Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_);
 
   void

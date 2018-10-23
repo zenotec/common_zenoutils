@@ -83,12 +83,6 @@ public:
   virtual SHARED_PTR(zSocket::Notification)
   Recv();
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const zSocket::Address& to_, const zSocket::Buffer& sb_);
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(ieee8023::Frame& frame_);
-
   void
   Display();
 

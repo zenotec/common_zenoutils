@@ -28,42 +28,57 @@ namespace zSocket
 {
 
 //**********************************************************************
-// Class: zSocket::LoopSocket
+// Class: zSocket::LoopSocketTx
 //**********************************************************************
 
-class LoopSocket :
-    public Socket
+class LoopSocketTx :
+    public zThread::ThreadFunction
 {
 
 public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
+// Class: LoopSocket
+//**********************************************************************
+
+class LoopSocket :
+    public Socket,
+    public zThread::ThreadArg
+{
+
+public:
+
+  friend LoopSocketTx;
 
   LoopSocket();
 
   virtual
   ~LoopSocket();
 
-  virtual int
-  GetId() const;
-
-  virtual const Address&
-  GetAddress() const;
-
   virtual bool
   Bind(const Address& addr_);
 
-  virtual SHARED_PTR(zSocket::Notification)
-  Recv();
-
-  virtual SHARED_PTR(zSocket::Notification)
-  Send(const Address& to_, const Buffer& sb_);
-
 protected:
+
+  // Sends from transmit queue and returns notification
+  virtual SHARED_PTR(zSocket::Notification)
+  send();
 
 private:
 
   int _fd;
-  LoopAddress _addr;
 
+  zThread::Thread _txthread;
+  LoopSocketTx _txfunc;
 
 };
 

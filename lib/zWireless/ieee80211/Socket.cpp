@@ -64,6 +64,12 @@ Notification::Notification(const zSocket::Notification& n_) :
     zSocket::Notification(n_)
 {
 
+  // TODO: Only support notifications for received frames for now
+  if (this->GetSubType() != zSocket::Notification::SUBTYPE_PKT_RCVD)
+  {
+    return;
+  }
+
   if (!this->GetBuffer().get() || !this->GetBuffer()->Length())
   {
     this->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
@@ -248,8 +254,6 @@ Socket::Recv()
     switch (n->GetSubType())
     {
       case zSocket::Notification::SUBTYPE_PKT_RCVD:
-        // no break
-      case zSocket::Notification::SUBTYPE_PKT_SENT:
       {
         // Update destination address from actual frame
         SHARED_PTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
@@ -268,13 +272,13 @@ Socket::Recv()
   return (n);
 }
 
-SHARED_PTR(zSocket::Notification)
+bool
 Socket::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
 {
   return (this->socket.Send(to_, sb_));
 }
 
-SHARED_PTR(zSocket::Notification)
+bool
 Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
 {
 
@@ -283,21 +287,21 @@ Socket::Send(ieee80211::RadioTap hdr_, ieee80211::Frame& frame_)
   if (!hdr_.Assemble(sb))
   {
     ZLOG_ERR("Error assembling radiotap header");
-    SHARED_PTR(Notification) n(new Notification(*this));
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-    return (n);
+    return (false);
   }
 
   // Assemble frame (writes buffer)
   if (!frame_.Assemble(sb, false))
   {
     ZLOG_ERR("Error assembling IEEE80211 header");
-    SHARED_PTR(Notification) n(new Notification(*this));
-    n->SetSubType(zSocket::Notification::SUBTYPE_PKT_ERR);
-    return (n);
+    return (false);
   }
 
   zSocket::MacAddress dst(frame_.GetDestination());
+
+  // Restore data pointer to start of frame
+  sb.Push(sb.Size());
+
   return (this->Send(dst, sb));
 }
 

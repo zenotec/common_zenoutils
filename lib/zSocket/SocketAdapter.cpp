@@ -38,9 +38,9 @@ Adapter::~Adapter()
 }
 
 int
-Adapter::GetId() const
+Adapter::GetFd() const
 {
-  return (this->socket.GetId());
+  return (this->socket.GetFd());
 }
 
 const zSocket::Address&
@@ -65,6 +65,30 @@ bool
 Adapter::Bind(const zSocket::Address& addr_)
 {
   return (this->socket.Bind(addr_));
+}
+
+SHARED_PTR(zSocket::Notification)
+Adapter::Recv()
+{
+  return (this->socket.Recv());
+}
+
+bool
+Adapter::Send(const zSocket::Address& to_, const zSocket::Buffer& sb_)
+{
+  return (this->socket.Send(to_, sb_));
+}
+
+bool
+Adapter::Send(Frame& frame_)
+{
+  return (this->socket.Send(frame_));
+}
+
+bool
+Adapter::Send(const Address& to_, const std::string& str_)
+{
+  return (this->socket.Send(to_, str_));
 }
 
 }
