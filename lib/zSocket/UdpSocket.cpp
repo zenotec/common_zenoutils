@@ -105,14 +105,22 @@ UdpSocketTx::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-    if (sock->txq.TimedWait(100))
-    {
-      int ret = poll(fds, 1, 100);
+    int ret = poll(fds, 1, 200);
 
-      if ((ret == 1) && (fds[0].revents & POLLOUT))
+    if ((ret == 1) && (fds[0].revents & POLLOUT))
+    {
+      if (sock->txq.TimedWait(100))
       {
         sock->rxq.Push(sock->send());
       }
+    }
+    else if (ret == 0)
+    {
+      fprintf(stderr, "BUG: Timed out waiting to send frame...trying again\n");
+    }
+    else
+    {
+      continue;
     }
   }
 
