@@ -107,22 +107,25 @@ RawSocketTx::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-    int ret = poll(fds, 1, 200);
-
-    if ((ret == 1) && (fds[0].revents & POLLOUT))
+    if (sock->txq.TimedWait(100))
     {
-      if (sock->txq.TimedWait(100))
+      int retry = 5;
+      SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+      sock->txq.Pop();
+      while (!this->Exit() && --retry)
       {
-        sock->rxq.Push(sock->send());
+        int ret = poll(fds, 1, 100);
+
+        if ((ret == 1) && (fds[0].revents & POLLOUT))
+        {
+          sock->rxq.Push(sock->send(n));
+          break;
+        }
+        else
+        {
+          fprintf(stderr, "BUG: Timed out waiting to send frame...trying again: %d\n", retry);
+        }
       }
-    }
-    else if (ret == 0)
-    {
-      fprintf(stderr, "BUG: Timed out waiting to send frame...trying again\n");
-    }
-    else
-    {
-      continue;
     }
   }
 
@@ -335,14 +338,12 @@ RawSocket::recv()
 }
 
 SHARED_PTR(zSocket::Notification)
-RawSocket::send()
+RawSocket::send(SHARED_PTR(zSocket::Notification) n_)
 {
 
   // Initialize notification
-  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
-  this->txq.Pop();
-  zSocket::Address addr(*n->GetDstAddress());
-  zSocket::Buffer sb(*n->GetBuffer());
+  zSocket::Address addr(*n_->GetDstAddress());
+  zSocket::Buffer sb(*n_->GetBuffer());
 
   struct sockaddr_ll sa(this->_addr.GetSA());
   sa.sll_family = AF_PACKET;
@@ -354,15 +355,15 @@ RawSocket::send()
   {
     ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
         " bytes to: " + addr.GetAddress());
-    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
+    n_->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    n_->SetSubType(Notification::SUBTYPE_PKT_ERR);
   }
 
-  return (n);
+  return (n_);
 
 }
 

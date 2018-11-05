@@ -105,22 +105,25 @@ UdpSocketTx::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-    int ret = poll(fds, 1, 200);
-
-    if ((ret == 1) && (fds[0].revents & POLLOUT))
+    if (sock->txq.TimedWait(100))
     {
-      if (sock->txq.TimedWait(100))
+      int retry = 5;
+      SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+      sock->txq.Pop();
+      while (!this->Exit() && --retry)
       {
-        sock->rxq.Push(sock->send());
+        int ret = poll(fds, 1, 100);
+
+        if ((ret == 1) && (fds[0].revents & POLLOUT))
+        {
+          sock->rxq.Push(sock->send(n));
+          break;
+        }
+        else
+        {
+          fprintf(stderr, "BUG: Timed out waiting to send frame...trying again: %d\n", retry);
+        }
       }
-    }
-    else if (ret == 0)
-    {
-      fprintf(stderr, "BUG: Timed out waiting to send frame...trying again\n");
-    }
-    else
-    {
-      continue;
     }
   }
 
@@ -388,13 +391,11 @@ UdpSocket::recv()
 }
 
 SHARED_PTR(zSocket::Notification)
-UdpSocket::send()
+UdpSocket::send(SHARED_PTR(zSocket::Notification) n_)
 {
   // Initialize notification
-  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
-  this->txq.Pop();
-  SHARED_PTR(Ipv4Address) addr(new Ipv4Address(*n->GetDstAddress()));
-  zSocket::Buffer sb(*n->GetBuffer());
+  SHARED_PTR(Ipv4Address) addr(new Ipv4Address(*n_->GetDstAddress()));
+  zSocket::Buffer sb(*n_->GetBuffer());
 
   // Send
   struct sockaddr_in dst(addr->GetSA());
@@ -403,15 +404,15 @@ UdpSocket::send()
   {
     ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
         " bytes to: " + addr->GetAddress());
-    n->SetSubType(Notification::SUBTYPE_PKT_SENT);
+    n_->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
-    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    n_->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 
-  return (n);
+  return (n_);
 
 }
 

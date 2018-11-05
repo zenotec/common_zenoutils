@@ -98,25 +98,27 @@ UnixSocketTx::Run(zThread::ThreadArg *arg_)
 
   while (!this->Exit())
   {
-    int ret = poll(fds, 1, 200);
-
-    if ((ret == 1) && (fds[0].revents & POLLOUT))
+    if (sock->txq.TimedWait(100))
     {
-      if (sock->txq.TimedWait(100))
+      int retry = 5;
+      SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+      sock->txq.Pop();
+      while (!this->Exit() && --retry)
       {
-        sock->rxq.Push(sock->send());
+        int ret = poll(fds, 1, 100);
+
+        if ((ret == 1) && (fds[0].revents & POLLOUT))
+        {
+          sock->rxq.Push(sock->send(n));
+          break;
+        }
+        else
+        {
+          fprintf(stderr, "BUG: Timed out waiting to send frame...trying again: %d\n", retry);
+        }
       }
     }
-    else if (ret == 0)
-    {
-      fprintf(stderr, "BUG: Timed out waiting to send frame...trying again\n");
-    }
-    else
-    {
-      continue;
-    }
   }
-
 
 }
 
@@ -253,46 +255,29 @@ UnixSocket::recv()
 }
 
 SHARED_PTR(zSocket::Notification)
-UnixSocket::send()
+UnixSocket::send(SHARED_PTR(zSocket::Notification) n_)
 {
 
   // Initialize notification
-  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
-  this->txq.Pop();
-  SHARED_PTR(UnixAddress) addr(new UnixAddress(*n->GetDstAddress()));
-  zSocket::Buffer sb(*n->GetBuffer());
+  SHARED_PTR(UnixAddress) addr(new UnixAddress(*n_->GetDstAddress()));
+  zSocket::Buffer sb(*n_->GetBuffer());
 
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = this->fd;
-  fds[0].events = (POLLOUT | POLLERR);
-
-  // Poll for transmit ready
-  int ret = poll(fds, 1, 100);
-  if (ret > 0 && (fds[0].revents == POLLOUT))
+  // Send
+  struct sockaddr_un dst(addr->GetSA());
+  ssize_t nbytes = sendto(this->fd, sb.Head(), sb.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
+  if (nbytes > 0)
   {
-    // Send
-    struct sockaddr_un dst(addr->GetSA());
-    ssize_t nbytes = sendto(this->fd, sb.Head(), sb.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
-    if (nbytes > 0)
-    {
-      ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
-          " bytes to: " + addr->GetAddress());
-      n->SetSubType(Notification::SUBTYPE_PKT_SENT);
-    }
-    else
-    {
-      n->SetSubType(Notification::SUBTYPE_PKT_ERR);
-      ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
-    }
+    ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
+        " bytes to: " + addr->GetAddress());
+    n_->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
-    n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+    n_->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
   }
 
-  return (n);
+  return (n_);
 
 }
 
