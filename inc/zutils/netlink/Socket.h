@@ -65,9 +65,9 @@ public:
 
 protected:
 
-  struct nl_sock* _sock;
-
 private:
+
+  struct nl_sock* _sock;
 
 };
 

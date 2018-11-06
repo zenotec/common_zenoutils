@@ -87,7 +87,7 @@ GenericSocket::CreateMsg(const std::string& family_)
 {
   SHARED_PTR(GenericMessage) msg;
 
-  int family = genl_ctrl_resolve((struct nl_sock*)this->_sock, family_.c_str());
+  int family = genl_ctrl_resolve((struct nl_sock*)this->operator ()(), family_.c_str());
   if (family < 0)
   {
     ZLOG_ERR("Error resolving generic netlink family name: " + family_);

@@ -81,6 +81,11 @@ DelStationCommand::Exec()
   }
 
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  if (!cmdmsg)
+  {
+    ZLOG_ERR("Error creating the Netlink message");
+    return(false);
+  }
   cmdmsg->SetCommand(NL80211_CMD_DEL_STATION);
 
   cmdmsg->PutAttribute(&this->IfIndex);

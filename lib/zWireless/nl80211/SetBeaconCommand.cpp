@@ -85,6 +85,11 @@ SetBeaconCommand::Exec()
   }
 
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  if (!cmdmsg)
+  {
+    ZLOG_ERR("Error creating the Netlink message");
+    return(false);
+  }
   cmdmsg->SetCommand(NL80211_CMD_SET_BEACON);
 
   if (!cmdmsg->PutAttribute(&this->IfIndex))

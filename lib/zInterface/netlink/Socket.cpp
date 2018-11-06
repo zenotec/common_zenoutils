@@ -67,6 +67,10 @@ Socket::~Socket()
 struct nl_sock*
 Socket::operator ()() const
 {
+  if (!this->_sock)
+  {
+    ZLOG_WARN("Returning NULL socket handler");
+  }
   return(this->_sock);
 }
 

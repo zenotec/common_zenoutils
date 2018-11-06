@@ -80,7 +80,13 @@ NewStationCommand::Exec()
   }
 
   SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  if (!cmdmsg)
+  {
+    ZLOG_ERR("Error creating the Netlink message");
+    return(false);
+  }
   cmdmsg->SetCommand(NL80211_CMD_NEW_STATION);
+
   cmdmsg->PutAttribute(&this->IfIndex);
   cmdmsg->PutAttribute(&this->IfName);
 
