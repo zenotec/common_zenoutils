@@ -490,10 +490,10 @@ Socket::~Socket()
 {
 }
 
-SHARED_PTR(netlink::GenericMessage)
-Socket::CreateMsg()
+bool
+Socket::Connect()
 {
-  return (netlink::GenericSocket::CreateMsg(std::string(NL80211_GENL_NAME)));
+  return (netlink::GenericSocket::Connect(std::string(NL80211_GENL_NAME)));
 }
 
 }

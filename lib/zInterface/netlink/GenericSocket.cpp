@@ -60,7 +60,8 @@ __errstr(int code)
 // Class: GenericSocket
 //*****************************************************************************
 
-GenericSocket::GenericSocket()
+GenericSocket::GenericSocket() :
+    _fid(0)
 {
 }
 
@@ -69,7 +70,7 @@ GenericSocket::~GenericSocket()
 }
 
 bool
-GenericSocket::Connect()
+GenericSocket::Connect(const std::string& family_)
 {
 
   if (!Socket::Connect(NETLINK_GENERIC))
@@ -79,23 +80,24 @@ GenericSocket::Connect()
     return (false);
   }
 
-  return (true);
+  this->_fid = genl_ctrl_resolve((struct nl_sock*)this->operator ()(), family_.c_str());
+  if (this->_fid < 0)
+  {
+    ZLOG_ERR("Error resolving generic netlink family name: " + family_);
+    ZLOG_ERR("Error: (" + ZLOG_INT(this->_fid) + ") " + __errstr(this->_fid));
+  }
+
+  return (this->_fid > 0);
 }
 
 SHARED_PTR(GenericMessage)
-GenericSocket::CreateMsg(const std::string& family_)
+GenericSocket::CreateMsg()
 {
   SHARED_PTR(GenericMessage) msg;
 
-  int family = genl_ctrl_resolve((struct nl_sock*)this->operator ()(), family_.c_str());
-  if (family < 0)
+  if (this->_fid > 0)
   {
-    ZLOG_ERR("Error resolving generic netlink family name: " + family_);
-    ZLOG_ERR("Error: (" + ZLOG_INT(family) + ") " + __errstr(family));
-  }
-  else
-  {
-    msg = SHARED_PTR(GenericMessage)(new GenericMessage(family));
+    msg = SHARED_PTR(GenericMessage)(new GenericMessage(this->_fid));
   }
 
   return (msg);

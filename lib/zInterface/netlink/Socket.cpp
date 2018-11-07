@@ -55,7 +55,7 @@ __errstr(int code)
 //*****************************************************************************
 
 Socket::Socket() :
-    _sock(NULL)
+    _sock(NULL), _proto(0)
 {
 }
 
@@ -134,7 +134,7 @@ Socket::SetCallback(Callback* handler_)
 }
 
 bool
-Socket::Connect(const int family_)
+Socket::Connect(const int proto_)
 {
   int ret = 0;
 
@@ -145,13 +145,15 @@ Socket::Connect(const int family_)
     return (false);
   }
 
-  ret = nl_connect(this->_sock, family_);
+  ret = nl_connect(this->_sock, proto_);
   if (ret < 0)
   {
-    ZLOG_ERR("Error connecting netlink socket");
+    ZLOG_ERR("Error connecting netlink socket: " + ZLOG_INT(proto_));
     ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
     return (false);
   }
+
+  this->_proto = proto_;
 
   return(true);
 }

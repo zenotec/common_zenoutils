@@ -41,14 +41,16 @@ public:
   ~GenericSocket();
 
   virtual bool
-  Connect();
+  Connect(const std::string& family_);
 
   virtual SHARED_PTR(GenericMessage)
-  CreateMsg(const std::string& family_);
+  CreateMsg();
 
 protected:
 
 private:
+
+  int _fid;
 
 };
 

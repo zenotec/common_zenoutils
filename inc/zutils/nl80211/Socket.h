@@ -24,7 +24,7 @@ namespace nl80211
 {
 
 //*****************************************************************************
-// Class: GenericSocket
+// Class: Socket
 //*****************************************************************************
 
 class Socket : public netlink::GenericSocket
@@ -37,8 +37,8 @@ public:
   virtual
   ~Socket();
 
-  virtual SHARED_PTR(netlink::GenericMessage)
-  CreateMsg();
+  virtual bool
+  Connect();
 
 protected:
 

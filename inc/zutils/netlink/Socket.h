@@ -49,7 +49,7 @@ public:
   SetCallback(Callback* cb_);
 
   virtual bool
-  Connect(const int family_);
+  Connect(const int proto_);
 
   bool
   Disconnect();
@@ -68,6 +68,7 @@ protected:
 private:
 
   struct nl_sock* _sock;
+  int _proto;
 
 };
 
