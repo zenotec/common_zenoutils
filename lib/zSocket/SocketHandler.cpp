@@ -50,6 +50,9 @@ Handler::RegisterSocket(Socket* sock_)
   bool status = false;
   int nsock = 0;
 
+  // Always stop thread before registering socket
+  this->_thread.Stop();
+
   if (sock_ && this->_lock.Lock())
   {
     ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetFd()));
@@ -64,7 +67,6 @@ Handler::RegisterSocket(Socket* sock_)
 
   // Conditionally stop/start handler thread so the socket fd gets added
   // to the poll list Note: this needs to be done outside critical section
-  this->_thread.Stop();
   if (nsock > 0)
   {
     this->_thread.Start();
@@ -79,6 +81,9 @@ Handler::UnregisterSocket(Socket* sock_)
   bool status = false;
   int nsock = 0;
 
+  // Always stop thread before unregistering socket
+  this->_thread.Stop();
+
   if (sock_ && this->_lock.Lock())
   {
     ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetFd()));
@@ -91,9 +96,8 @@ Handler::UnregisterSocket(Socket* sock_)
     this->_lock.Unlock();
   }
 
-  // Conditionally stop/start handler thread so the socket fd gets removed
+  // Conditionally start handler thread so the socket fd gets removed
   // from the poll list Note: this needs to be done outside critical section
-  this->_thread.Stop();
   if (nsock > 0)
   {
     this->_thread.Start();
