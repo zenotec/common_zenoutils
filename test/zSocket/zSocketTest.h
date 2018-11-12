@@ -155,6 +155,8 @@ protected:
         status = true;
         break;
       default:
+        ZLOG_ERR("Socket Error: " + ZLOG_UINT(n->GetSubType()));
+        n->Display("obs: ");
         this->ErrSem.Push(n);
         status = false;
         break;
