@@ -175,6 +175,15 @@ AM_CONDITIONAL([COND_ZSIGNAL],[test "$enable_zsignal" = yes])
 
 #########################################################################################
 
+AC_ARG_ENABLE([zstate],
+  [AS_HELP_STRING([--disable-zstate],
+    [disable building zState subsystem])],
+    [],
+    [enable_zstate=yes])
+AM_CONDITIONAL([COND_ZSTATE],[test "$enable_zprogram" = yes])
+
+#########################################################################################
+
 AC_ARG_ENABLE([zconfig],
   [AS_HELP_STRING([--disable-zconfig],
     [disable building zConfig subsystem])],
@@ -330,6 +339,7 @@ AC_CONFIG_FILES([lib/zLog/Makefile test/zLog/Makefile])
 AC_CONFIG_FILES([lib/zSem/Makefile test/zSem/Makefile])
 AC_CONFIG_FILES([lib/zData/Makefile test/zData/Makefile])
 AC_CONFIG_FILES([lib/zMath/Makefile test/zMath/Makefile])
+AC_CONFIG_FILES([lib/zState/Makefile test/zState/Makefile])
 AC_CONFIG_FILES([lib/zEvent/Makefile test/zEvent/Makefile])
 AC_CONFIG_FILES([lib/zConfig/Makefile test/zConfig/Makefile])
 AC_CONFIG_FILES([lib/zSignal/Makefile])
