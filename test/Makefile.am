@@ -104,6 +104,14 @@ ZCONFIG_TESTS += zConfig/valgrind.sh
 endif
 endif
 
+if COND_ZSTATE
+ZSTATE_SUBDIRS = zState
+ZSTATE_TESTS = zState/zStateUnitTest
+if COND_VALGRIND
+ZSTATE_TESTS += zState/valgrind.sh
+endif
+endif
+
 if COND_ZEVENT
 ZEVENT_SUBDIRS = zEvent
 ZEVENT_TESTS = zEvent/zEventUnitTest
@@ -168,6 +176,7 @@ SUBDIRS = \
 	$(ZDATA_SUBDIRS) \
 	$(ZMATH_SUBDIRS) \
 	$(ZEVENT_SUBDIRS) \
+	$(ZSTATE_SUBDIRS) \
 	$(ZCONFIG_SUBDIRS) \
 	$(ZTHREAD_SUBDIRS) \
 	$(ZTIMER_SUBDIRS) \
@@ -188,6 +197,7 @@ TESTS = \
 	$(ZDATA_TESTS) \
 	$(ZMATH_TESTS) \
 	$(ZEVENT_TESTS) \
+	$(ZSTATE_TESTS) \
 	$(ZCONFIG_TESTS) \
 	$(ZTHREAD_TESTS) \
 	$(ZTIMER_TESTS) \
