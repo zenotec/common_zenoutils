@@ -138,6 +138,8 @@ Notification::Display(const std::string& prefix_)
 
   std::cout << prefix_ << "SocketNotification: " << std::endl;
   std::cout << prefix_ << "Socket: " << int(this->GetSocket().GetFd()) << std::endl;
+  std::cout << prefix_ << "Type: " << int(this->GetType()) << std::endl;
+  std::cout << prefix_ << "Subtype: " << int(this->GetSubType()) << std::endl;
   if (this->GetDstAddress().get())
     std::cout << prefix_ << "Dst: " << this->GetDstAddress()->GetAddress() << std::endl;
   if (this->GetSrcAddress().get())

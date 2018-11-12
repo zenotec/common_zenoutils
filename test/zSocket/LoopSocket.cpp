@@ -88,6 +88,13 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   status = MyObserver->ErrSem.TryWait();
   TEST_FALSE(status);
 
+  // Wait for packet to be sent
+  status = MyObserver->TxSem.TimedWait(100);
+  TEST_TRUE(status);
+  SHARED_PTR(zSocket::Notification) txn(MyObserver->TxSem.Front());
+  TEST_ISNOT_NULL(txn.get());
+  MyObserver->TxSem.Pop();
+
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);

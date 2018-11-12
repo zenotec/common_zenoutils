@@ -132,7 +132,7 @@ Socket::Send(const Address& addr_, const Buffer& sb_)
   {
     return (false);
   }
-  n->SetSubType(Notification::SUBTYPE_PKT_ERR);
+  n->SetSubType(Notification::SUBTYPE_PKT_SENT);
 
   // Create shared source address
   SHARED_PTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
