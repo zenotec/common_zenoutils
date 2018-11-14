@@ -205,7 +205,7 @@ Notification::Notification(const zSocket::Notification& n_) :
   // Disassemble frame
   if (!frame || !frame->Disassemble(*sb, fcsflag) || !this->SetFrame(frame))
   {
-    ZLOG_WARN("Cannot decode IEEE80211 frame: ");
+    ZLOG_WARN("Cannot decode IEEE80211 frame");
     this->SetSubType(Notification::SUBTYPE_PKT_ERR);
   }
 
