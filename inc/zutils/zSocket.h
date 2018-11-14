@@ -244,6 +244,7 @@ public:
     TYPE_NONE = 0,
     TYPE_8023,
     TYPE_80211,
+    TYPE_OTHER,
     TYPE_LAST
   };
 
