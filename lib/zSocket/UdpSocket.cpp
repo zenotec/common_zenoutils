@@ -255,9 +255,13 @@ UdpSocket::Setopt(Socket::OPTIONS opt_)
   {
     // Enable reuse of socket
     int optval = 0;
-    if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) == -1)
+    if (setsockopt(this->fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0)
     {
       ZLOG_CRIT("Cannot set socket option: " + std::string(strerror(errno)));
+    }
+    else
+    {
+      status = true;
     }
     break;
   }
