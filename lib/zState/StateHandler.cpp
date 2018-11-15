@@ -59,11 +59,26 @@ bool
 Handler::Notify(SHARED_PTR(Notification) n_)
 {
   bool status = false;
-  if (this->_state.get())
+  SHARED_PTR(zState::State) s(this->_state);
+  if (!s.get())
   {
-    n_->SetState(this->GetState());
-    status = this->_state->ObserveEvent(n_);
-    this->SetState(n_->GetState());
+    return (false);
+  }
+
+  n_->SetState(this->GetState());
+  status = this->_state->ObserveEvent(n_);
+  this->SetState(n_->GetState());
+
+  return (status);
+}
+
+bool
+Handler::SetStateAndNotify(SHARED_PTR(zState::State) s_, SHARED_PTR(zState::Notification) n_)
+{
+  bool status = false;
+  if (this->SetState(s_))
+  {
+    status = this->Notify(n_);
   }
   return (status);
 }
