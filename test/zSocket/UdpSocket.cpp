@@ -106,7 +106,7 @@ zSocketTest_UdpSocketSendReceiveLoop(void* arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterSocket(MySock);
+  MyHandler->RegisterEvent(MySock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -148,7 +148,7 @@ zSocketTest_UdpSocketSendReceiveLoop(void* arg_)
   }
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySock);
+  MyHandler->UnregisterEvent(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
@@ -208,7 +208,7 @@ zSocketTest_UdpSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock1->Bind(*SrcAddr));
 
   // Register socket with handler
-  MyHandler->RegisterSocket(MySock1);
+  MyHandler->RegisterEvent(MySock1);
 
   // Create new socket and validate
   zSocket::UdpSocket *MySock2 = new zSocket::UdpSocket;
@@ -216,7 +216,7 @@ zSocketTest_UdpSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock2->Bind(*DstAddr));
 
   // Register socket with handler
-  MyHandler->RegisterSocket(MySock2);
+  MyHandler->RegisterEvent(MySock2);
 
   // Send string and validate
   uint8_t buf[] = { 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x55, 0x6e, 0x69, 0x76, 0x65, 0x72, 0x73, 0x65 }; // "Hello Universe"
@@ -251,8 +251,8 @@ zSocketTest_UdpSocketSendReceiveSock2Sock(void* arg_)
   }
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySock1);
-  MyHandler->UnregisterSocket(MySock2);
+  MyHandler->UnregisterEvent(MySock1);
+  MyHandler->UnregisterEvent(MySock2);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup

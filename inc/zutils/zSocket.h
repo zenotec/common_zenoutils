@@ -618,11 +618,11 @@ public:
   virtual
   ~Handler();
 
-  bool
-  RegisterSocket(Socket* socket_);
+  virtual bool
+  RegisterEvent(Socket* socket_);
 
-  bool
-  UnregisterSocket(Socket* socket_);
+  virtual bool
+  UnregisterEvent(Socket* socket_);
 
 protected:
 

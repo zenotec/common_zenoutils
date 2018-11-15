@@ -71,7 +71,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterSocket(MySock);
+  MyHandler->RegisterEvent(MySock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -112,7 +112,7 @@ zSocketTest_LoopSocketSendReceive(void* arg_)
   TEST_TRUE(ExpStr == rxn->GetBuffer()->String());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySock);
+  MyHandler->UnregisterEvent(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup

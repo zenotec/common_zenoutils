@@ -148,10 +148,10 @@ public:
   virtual
   ~Handler();
 
-  bool
+  virtual bool
   RegisterEvent(Event* event_);
 
-  bool
+  virtual bool
   UnregisterEvent(Event* event_);
 
   bool

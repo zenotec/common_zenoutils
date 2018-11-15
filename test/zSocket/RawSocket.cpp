@@ -128,7 +128,7 @@ zSocketTest_RawSocketSendReceiveLoop(void* arg_)
   TEST_TRUE(MySock->Bind(*SrcAddr));
 
   // Add socket to handler
-  TEST_TRUE(MyHandler->RegisterSocket(MySock));
+  TEST_TRUE(MyHandler->RegisterEvent(MySock));
 
   // Send string and validate
   zSocket::Buffer sb(sizeof(pkt));
@@ -158,7 +158,7 @@ zSocketTest_RawSocketSendReceiveLoop(void* arg_)
   // See Ubuntu bug: #1791893 (https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1791893)
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySock);
+  MyHandler->UnregisterEvent(MySock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
@@ -222,7 +222,7 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock1->Bind(*SrcAddr));
 
   // Add socket to handler
-  TEST_TRUE(MyHandler->RegisterSocket(MySock1));
+  TEST_TRUE(MyHandler->RegisterEvent(MySock1));
 
   // Create new socket and validate
   zSocket::RawSocket *MySock2 = new zSocket::RawSocket;
@@ -230,7 +230,7 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   TEST_TRUE(MySock2->Bind(*DstAddr));
 
   // Add socket to handler
-  TEST_TRUE(MyHandler->RegisterSocket(MySock2));
+  TEST_TRUE(MyHandler->RegisterEvent(MySock2));
 
   // Send string and validate
   zSocket::Buffer sb(sizeof(pkt));
@@ -260,8 +260,8 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   // See Ubuntu bug: #1791893 (https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1791893)
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySock1);
-  MyHandler->UnregisterSocket(MySock2);
+  MyHandler->UnregisterEvent(MySock1);
+  MyHandler->UnregisterEvent(MySock2);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup

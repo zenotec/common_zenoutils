@@ -52,6 +52,12 @@ Socket::Socket(const Socket::SOCKET_TYPE type_) :
 Socket::~Socket()
 {
   ZLOG_DEBUG("Destroying socket: '" + ZLOG_P(this) + "'");
+
+  // Make sure the socket is unregistered from all handlers
+  FOREACH(auto& handler, this->_handler_list)
+  {
+    handler->UnregisterEvent(this);
+  }
 }
 
 int

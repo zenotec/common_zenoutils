@@ -133,11 +133,11 @@ public:
   virtual
   ~Handler();
 
-  bool
-  RegisterTimer(Timer* event_);
+  virtual bool
+  RegisterEvent(Timer* event_);
 
-  bool
-  UnregisterTimer(Timer* event_);
+  virtual bool
+  UnregisterEvent(Timer* event_);
 
 protected:
 

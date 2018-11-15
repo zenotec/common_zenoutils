@@ -114,8 +114,8 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_ISNOT_NULL(MyHandler);
 
   // Add socket to handler
-  MyHandler->RegisterSocket(MySrcSock);
-  MyHandler->RegisterSocket(MyDstSock);
+  MyHandler->RegisterEvent(MySrcSock);
+  MyHandler->RegisterEvent(MyDstSock);
 
   // Create new observer and validate
   TestObserver *MyObserver = new TestObserver;
@@ -148,8 +148,8 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   TEST_EQ(ExpStr, rxn->GetBuffer()->String());
 
   // Unregister observer with socket handler
-  MyHandler->UnregisterSocket(MySrcSock);
-  MyHandler->UnregisterSocket(MyDstSock);
+  MyHandler->UnregisterEvent(MySrcSock);
+  MyHandler->UnregisterEvent(MyDstSock);
   MyHandler->UnregisterObserver(MyObserver);
 
   // Cleanup
