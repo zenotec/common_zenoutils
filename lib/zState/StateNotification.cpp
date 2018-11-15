@@ -46,5 +46,18 @@ Notification::SetState(SHARED_PTR(State) state_)
   return (true);
 }
 
+SHARED_PTR(zEvent::Notification)
+Notification::GetNotification()
+{
+  return (this->_notification);
+}
+
+bool
+Notification::SetNotification(SHARED_PTR(zEvent::Notification) n_)
+{
+  this->_notification = n_;
+  return (true);
+}
+
 }
 }
