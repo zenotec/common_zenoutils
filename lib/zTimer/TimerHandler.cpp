@@ -44,7 +44,7 @@ Handler::~Handler()
 }
 
 bool
-Handler::RegisterTimer(Timer* timer_)
+Handler::RegisterEvent(Timer* timer_)
 {
   bool status = false;
   int ntimer = 0;
@@ -53,7 +53,7 @@ Handler::RegisterTimer(Timer* timer_)
   {
     if (this->_timer_list.size() < NTIMER_MAX)
     {
-      status = this->RegisterEvent(timer_);
+      status = zEvent::Handler::RegisterEvent(timer_);
       this->_timer_list[timer_->_fd] = timer_;
       ntimer = this->_timer_list.size();
     }
@@ -72,7 +72,7 @@ Handler::RegisterTimer(Timer* timer_)
 }
 
 bool
-Handler::UnregisterTimer(Timer* timer_)
+Handler::UnregisterEvent(Timer* timer_)
 {
   bool status = false;
   int ntimer = 0;
@@ -81,7 +81,7 @@ Handler::UnregisterTimer(Timer* timer_)
   {
     if (this->_timer_list.count(timer_->_fd))
     {
-      status = this->UnregisterEvent(timer_);
+      status = zEvent::Handler::UnregisterEvent(timer_);
       this->_timer_list.erase(timer_->_fd);
     }
     ntimer = this->_timer_list.size();

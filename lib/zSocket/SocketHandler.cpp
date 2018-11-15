@@ -45,7 +45,7 @@ Handler::~Handler()
 }
 
 bool
-Handler::RegisterSocket(Socket* sock_)
+Handler::RegisterEvent(Socket* sock_)
 {
   bool status = false;
   int nsock = 0;
@@ -56,7 +56,7 @@ Handler::RegisterSocket(Socket* sock_)
   if (sock_ && this->_lock.Lock())
   {
     ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetFd()));
-    if (this->RegisterEvent(sock_))
+    if (zEvent::Handler::RegisterEvent(sock_))
     {
       this->_smap[sock_->GetFd()] = sock_;
       nsock = this->_smap.size();
@@ -76,7 +76,7 @@ Handler::RegisterSocket(Socket* sock_)
 }
 
 bool
-Handler::UnregisterSocket(Socket* sock_)
+Handler::UnregisterEvent(Socket* sock_)
 {
   bool status = false;
   int nsock = 0;
@@ -87,7 +87,7 @@ Handler::UnregisterSocket(Socket* sock_)
   if (sock_ && this->_lock.Lock())
   {
     ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetFd()));
-    if (this->UnregisterEvent(sock_))
+    if (zEvent::Handler::UnregisterEvent(sock_))
     {
       this->_smap.erase(sock_->GetFd());
       nsock = this->_smap.size();

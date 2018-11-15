@@ -45,7 +45,7 @@ zTimerTest_StartStop(void* arg_)
   // Create new timer handler and validate
   zTimer::Handler *MyHandler = new zTimer::Handler;
   TEST_ISNOT_NULL(MyHandler);
-  TEST_TRUE(MyHandler->RegisterTimer(MyTimer));
+  TEST_TRUE(MyHandler->RegisterEvent(MyTimer));
 
   // Create new timer observer and register with timer handler
   TimerTestObserver *MyObserver = new TimerTestObserver;
@@ -72,7 +72,7 @@ zTimerTest_StartStop(void* arg_)
 
   // Cleanup
   MyHandler->UnregisterObserver(MyObserver);
-  MyHandler->UnregisterTimer(MyTimer);
+  MyHandler->UnregisterEvent(MyTimer);
   delete (MyHandler);
   delete (MyObserver);
   delete (MyTimer);
