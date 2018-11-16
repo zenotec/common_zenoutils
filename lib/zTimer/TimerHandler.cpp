@@ -28,19 +28,41 @@ namespace zTimer
 {
 
 //**********************************************************************
-// Class: Handler
+// Class: zTimer::NotificationThread
+//**********************************************************************
+
+void
+NotificationThread::Run(zThread::ThreadArg *arg_)
+{
+
+  Handler* h = (Handler*)arg_;
+
+  while (!this->Exit())
+  {
+    if (h->nq.TimedWait(100))
+    {
+      SHARED_PTR(Notification) n(h->nq.Front());
+      h->nq.Pop();
+      h->notifyObservers(n);
+    }
+  }
+
+}
+
+//**********************************************************************
+// Class: zTimer::Handler
 //**********************************************************************
 
 Handler::Handler() :
-    _thread(this, NULL)
+    _timer_thread(this, this), _notification_thread(&_notification_func, this)
 {
-  this->_lock.Unlock();
+  this->_notification_thread.Start();
 }
 
 Handler::~Handler()
 {
-  this->_thread.Stop();
-  this->_lock.Lock();
+  this->_timer_thread.Stop();
+  this->_notification_thread.Stop();
 }
 
 bool
@@ -49,23 +71,22 @@ Handler::RegisterEvent(Timer* timer_)
   bool status = false;
   int ntimer = 0;
 
-  if (timer_ && timer_->_fd && this->_lock.Lock())
+  // Stop timer handler thread so the timer fd gets added to the poll list
+  this->_timer_thread.Stop();
+
+  // Register event with handler
+  if (timer_ && timer_->GetId())
   {
-    if (this->_timer_list.size() < NTIMER_MAX)
-    {
-      status = zEvent::Handler::RegisterEvent(timer_);
-      this->_timer_list[timer_->_fd] = timer_;
-      ntimer = this->_timer_list.size();
-    }
-    this->_lock.Unlock();
+    this->_timers[timer_->GetId()] = timer_;
+    status = zEvent::Handler::RegisterEvent(timer_);
+    ntimer = this->getEvents().size();
   }
 
-  // Conditionally stop/start handler thread so the timer fd gets added
+  // Conditionally start handler thread so the timer fd gets added
   // to the poll list Note: this needs to be done outside critical section
-  this->_thread.Stop();
   if (ntimer > 0)
   {
-    this->_thread.Start();
+    this->_timer_thread.Start();
   }
 
   return (status);
@@ -77,89 +98,92 @@ Handler::UnregisterEvent(Timer* timer_)
   bool status = false;
   int ntimer = 0;
 
-  if (timer_ && this->_lock.Lock())
+  // Stop timer handler thread so the timer fd gets added to the poll list
+  this->_timer_thread.Stop();
+
+  // Register event with handler
+  if (timer_ && timer_->GetId())
   {
-    if (this->_timer_list.count(timer_->_fd))
-    {
-      status = zEvent::Handler::UnregisterEvent(timer_);
-      this->_timer_list.erase(timer_->_fd);
-    }
-    ntimer = this->_timer_list.size();
-    this->_lock.Unlock();
+    this->_timers.erase(timer_->GetId());
+    status = zEvent::Handler::UnregisterEvent(timer_);
+    ntimer = this->getEvents().size();
   }
 
-  // Conditionally stop/start handler thread so the timer fd gets removed
-  // from the poll list Note: this needs to be done outside critical section
-  this->_thread.Stop();
+  // Conditionally start handler thread so the timer fd gets added
+  // to the poll list Note: this needs to be done outside critical section
   if (ntimer > 0)
   {
-    this->_thread.Start();
+    this->_timer_thread.Start();
   }
 
   return (status);
+}
+
+std::list<Timer*>
+Handler::getTimers()
+{
+  std::list<Timer*> timers;
+  FOREACH(auto& timer, this->_timers)
+  {
+    timers.push_back(timer.second);
+  }
+  return (timers);
 }
 
 void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
-  int fd_cnt = 0;
   struct pollfd fds[NTIMER_MAX] = { 0 };
+  int fd_cnt = 0;
+  std::list<Timer*> timers(this->getTimers());
 
-  if (this->_lock.Lock())
+  // Setup for poll loop
+  FOREACH (auto& timer, timers)
   {
-    // Setup for poll loop
-    FOREACH (auto& t, this->_timer_list)
-    {
-      fds[fd_cnt].fd = t.first;
-      fds[fd_cnt].events = (POLLIN | POLLERR);
-      fd_cnt++;
-    }
-    this->_lock.Unlock();
+    fds[fd_cnt].fd = timer->GetId();
+    fds[fd_cnt].events = (POLLIN | POLLERR);
+    fd_cnt++;
   }
 
   while (!this->Exit())
   {
 
     // Wait on file descriptor set
-    // Note: returns immediately if a signal is received
     int ret = poll(fds, fd_cnt, 100);
 
-    switch (ret)
+    if (ret == 0)
     {
-    case 0:
-      // Poll timed out
-      break;
-    case -EINTR:
-      // A signal interrupted poll; exit flag should be set
-      fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
-      break;
-    default:
+      continue;
+    }
+    else if (ret > 0)
     {
-      if (ret < 0)
+      for (int i = 0; i < fd_cnt; i++)
       {
-        fprintf(stderr, "Timer handler encountered a poll error: %d\n", ret);
-      }
-      else
-      {
-        for (int i = 0; i < fd_cnt; i++)
+        if (fds[i].revents == POLLIN)
         {
-          if (fds[i].revents == POLLIN)
+          uint64_t ticks = 0;
+          ret = read(fds[i].fd, &ticks, sizeof(ticks));
+          if (ret > 0 && this->_timers.count(fds[i].fd))
           {
-            uint64_t ticks = 0;
-            ret = read(fds[i].fd, &ticks, sizeof(ticks));
-            if (ret > 0 && this->_timer_list.count(fds[i].fd))
-            {
-              Timer* t = this->_timer_list[fds[i].fd];
-              SHARED_PTR(Notification) noti(new Notification(*t));
-              t->notifyHandlers(noti);
-            }
+            Timer* t = this->_timers[fds[i].fd];
+            SHARED_PTR(Notification) n(new Notification(*t));
+            this->nq.Push(n);
           }
         }
       }
-      break;
     }
+    // TODO: Debug code, remove when no longer needed
+    else if (ret == -EINTR)
+    {
+      // A signal interrupted poll; exit flag should be set
+      fprintf(stderr, "Poll interrupted by signal\n");
     }
+    else
+    {
+      fprintf(stderr, "Timer handler encountered a poll error: %d\n", ret);
+    }
+
   }
 
   return;

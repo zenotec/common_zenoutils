@@ -79,10 +79,10 @@ Timer::~Timer()
   // Make sure the timer is stopped
   this->Stop();
 
-  // Make sure the timer is unregistered from all handlers
-  FOREACH(auto& handler, this->_handler_list)
+  std::list<zEvent::Handler*> handlers(this->_handler_list);
+  FOREACH(auto& handler, handlers)
   {
-    handler->UnregisterEvent(this);
+    ((Handler*)handler)->UnregisterEvent(this);
   }
 
   this->_lock.Lock();
@@ -123,10 +123,10 @@ Timer::Stop(void)
   return (status);
 }
 
-uint32_t
+int
 Timer::GetId() const
 {
-  return (uint32_t(this->_fd)); // read only
+  return (this->_fd);
 }
 
 std::string

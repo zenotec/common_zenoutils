@@ -33,7 +33,7 @@ namespace zTimer
 class Handler;
 
 //**********************************************************************
-// Class: Timer
+// Class: zTimer::Timer
 //**********************************************************************
 
 class Timer : public zEvent::Event
@@ -54,7 +54,7 @@ public:
   bool
   Stop(void);
 
-  uint32_t
+  int
   GetId() const;
 
   uint64_t
@@ -85,7 +85,7 @@ private:
 };
 
 //**********************************************************************
-// Class: Notification
+// Class: zTimer::Notification
 //**********************************************************************
 
 class Notification : public zEvent::Notification
@@ -118,13 +118,35 @@ private:
 };
 
 //**********************************************************************
-// Class: Handler
+// Class: zTimer::NotificationThread
+//**********************************************************************
+
+class NotificationThread :
+    public zThread::ThreadFunction
+{
+
+public:
+
+protected:
+
+  virtual void
+  Run(zThread::ThreadArg *arg_);
+
+private:
+
+};
+
+//**********************************************************************
+// Class: zTimer::Handler
 //**********************************************************************
 
 class Handler :
     public zEvent::Handler,
-    public zThread::ThreadFunction
+    public zThread::ThreadFunction,
+    public zThread::ThreadArg
 {
+
+  friend NotificationThread;
 
 public:
 
@@ -141,14 +163,22 @@ public:
 
 protected:
 
+  zQueue::Queue<SHARED_PTR(Notification)> nq; // notification queue
+
+  std::list<Timer*>
+  getTimers();
+
   virtual void
   Run(zThread::ThreadArg *arg_);
 
 private:
 
-  zSem::Mutex _lock;
-  std::map<int, Timer*> _timer_list;
-  zThread::Thread _thread;
+  std::map<int, Timer*> _timers; // key is timer id
+
+  zThread::Thread _timer_thread;
+
+  zThread::Thread _notification_thread;
+  NotificationThread _notification_func;
 
 };
 
