@@ -29,12 +29,12 @@ namespace zEvent
 Event::Event(Event::TYPE type_) :
     _type(type_)
 {
-  this->_event_lock.Unlock();
+  this->_lock.Unlock();
 }
 
 Event::~Event()
 {
-  this->_event_lock.Lock();
+  this->_lock.Lock();
   if (!this->_handler_list.empty())
   {
     fprintf(stderr, "BUG: Event not unregistered before destruction\n");
@@ -56,7 +56,7 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
 {
   bool status = false;
 
-  if (this->_event_lock.Lock())
+  if (this->_lock.Lock())
   {
     status = true;
 
@@ -66,7 +66,7 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
       status &= handler->notifyObservers(noti_);
     }
 
-    this->_event_lock.Unlock();
+    this->_lock.Unlock();
 
   }
   return (status);
@@ -76,12 +76,12 @@ bool
 Event::registerHandler(Handler *handler_)
 {
   bool status = false;
-  if (handler_ && this->_event_lock.Lock())
+  if (handler_ && this->_lock.Lock())
   {
     this->_handler_list.push_back(handler_);
     this->_handler_list.unique();
     status = true;
-    this->_event_lock.Unlock();
+    this->_lock.Unlock();
   }
   return (status);
 }
@@ -91,11 +91,11 @@ Event::unregisterHandler(Handler *handler_)
 {
   bool status = false;
   // Remove handler from list
-  if (handler_ && this->_event_lock.Lock())
+  if (handler_ && this->_lock.Lock())
   {
     this->_handler_list.remove(handler_);
     status = true;
-    this->_event_lock.Unlock();
+    this->_lock.Unlock();
   }
   return (status);
 }
