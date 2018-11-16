@@ -72,10 +72,10 @@ protected:
 
   std::list<Handler*> _handler_list;
 
-  bool
+  virtual bool
   registerHandler(Handler* handler_);
 
-  bool
+  virtual bool
   unregisterHandler(Handler* handler_);
 
   bool
@@ -83,7 +83,7 @@ protected:
 
 private:
 
-  mutable zSem::Mutex _event_lock;
+  mutable zSem::Mutex _lock;
   Event::TYPE _type;
 
   Event(Event &other_);
@@ -165,9 +165,15 @@ protected:
   bool
   notifyObservers(SHARED_PTR(zEvent::Notification) noti_);
 
+  std::list<Event*>
+  getEvents();
+
+  std::list<Observer*>
+  getObservers();
+
 private:
 
-  zSem::Mutex _event_lock;
+  zSem::Mutex _lock;
   std::list<Event *> _event_list;
   std::list<Observer*> _obs_list;
 
