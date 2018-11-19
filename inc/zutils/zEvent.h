@@ -99,9 +99,9 @@ private:
 class Notification
 {
 
-  friend Event;
-
 public:
+
+  Notification(Event& event_);
 
   virtual
   ~Notification();
@@ -113,8 +113,6 @@ public:
   GetEvent() const;
 
 protected:
-
-  Notification(Event& event_);
 
 private:
 

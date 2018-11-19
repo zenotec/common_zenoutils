@@ -27,7 +27,7 @@ namespace zEvent
 {
 
 //**********************************************************************
-// Class: EventNotification
+// Class: zEvent::Notification
 //**********************************************************************
 
 Notification::Notification(Event& event_) :
