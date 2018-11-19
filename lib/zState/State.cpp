@@ -25,13 +25,19 @@ namespace zState
 // Class: State
 //**********************************************************************
 
-State::State(const uint32_t id_) :
-    _id(id_)
+State::State(Handler& handler_, const uint32_t id_) :
+    _handler(handler_), _id(id_)
 {
 }
 
 State::~State()
 {
+}
+
+Handler&
+State::GetHandler()
+{
+  return (this->_handler);
 }
 
 uint32_t

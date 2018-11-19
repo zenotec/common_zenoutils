@@ -47,12 +47,13 @@ enum STATE_ID
 //**********************************************************************
 
 class TestNotification :
-    public zState::Notification
+    public zEvent::Notification
 {
 
 public:
 
-  TestNotification()
+  TestNotification(zEvent::Event& event_) :
+    zEvent::Notification(event_)
   {
   }
 
@@ -92,7 +93,7 @@ class TestStateUpper :
 
 public:
 
-  TestStateUpper();
+  TestStateUpper(zState::Handler& handler_);
 
   virtual
   ~TestStateUpper();
@@ -100,7 +101,7 @@ public:
 protected:
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zState::Notification) n_);
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:
 
@@ -116,7 +117,7 @@ class TestStateLower :
 
 public:
 
-  TestStateLower();
+  TestStateLower(zState::Handler& handler_);
 
   virtual
   ~TestStateLower();
@@ -124,7 +125,7 @@ public:
 protected:
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zState::Notification) n_);
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:
 

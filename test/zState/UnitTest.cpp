@@ -27,8 +27,8 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 // Class: TestStateUpper
 //**********************************************************************
 
-TestStateUpper::TestStateUpper() :
-    zState::State(STATE_ID::ID_UPPER)
+TestStateUpper::TestStateUpper(zState::Handler& handler_) :
+    zState::State(handler_, STATE_ID::ID_UPPER)
 {
 }
 
@@ -37,7 +37,7 @@ TestStateUpper::~TestStateUpper()
 }
 
 bool
-TestStateUpper::ObserveEvent(SHARED_PTR(zState::Notification)n_)
+TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
 {
   int cnt = 0;
   SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
@@ -52,7 +52,8 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zState::Notification)n_)
   }
   if (!cnt)
   {
-    n->SetState(STATIC_CAST(zState::State)(SHARED_PTR(TestStateLower)(new TestStateLower)));
+    SHARED_PTR(TestStateLower) s(new TestStateLower(this->GetHandler()));
+    this->GetHandler().SetNextState(s);
   }
   return (n->SetString(str));
 }
@@ -62,8 +63,8 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zState::Notification)n_)
 // Class: TestStateLower
 //**********************************************************************
 
-TestStateLower::TestStateLower() :
-    zState::State(STATE_ID::ID_LOWER)
+TestStateLower::TestStateLower(zState::Handler& handler_) :
+    zState::State(handler_, STATE_ID::ID_LOWER)
 {
 }
 
@@ -72,7 +73,7 @@ TestStateLower::~TestStateLower()
 }
 
 bool
-TestStateLower::ObserveEvent(SHARED_PTR(zState::Notification)n_)
+TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
 {
   SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
   std::string str = n->GetString();
@@ -87,7 +88,8 @@ TestStateLower::ObserveEvent(SHARED_PTR(zState::Notification)n_)
   }
   if (!cnt)
   {
-    n->SetState(STATIC_CAST(zState::State)(SHARED_PTR(TestStateUpper)(new TestStateUpper)));
+    SHARED_PTR(TestStateUpper) s(new TestStateUpper(this->GetHandler()));
+    this->GetHandler().SetNextState(STATIC_CAST(zState::State)(s));
   }
   return (n->SetString(str));
 }
