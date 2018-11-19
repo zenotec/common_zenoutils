@@ -34,52 +34,110 @@ namespace zState
 // Class: Handler
 //**********************************************************************
 
-Handler::Handler()
+Handler::Handler() :
+    zEvent::Event(zEvent::Event::TYPE_NONE)
 {
+  this->_lock.Unlock();
 }
 
 Handler::~Handler()
 {
+  this->_lock.Lock();
+}
+
+SHARED_PTR(zState::State)
+Handler::GetLastState() const
+{
+  SHARED_PTR(zState::State) s;
+  if (this->_lock.Lock())
+  {
+    s = this->_last;
+    this->_lock.Unlock();
+  }
+  return (s);
+}
+
+bool
+Handler::SetLastState(SHARED_PTR(zState::State) state_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    this->_last = state_;
+    status = this->_lock.Unlock();
+  }
+  return (status);
 }
 
 SHARED_PTR(zState::State)
 Handler::GetState() const
 {
-  return (this->_state);
+  SHARED_PTR(zState::State) s;
+  if (this->_lock.Lock())
+  {
+    s = this->_state;
+    this->_lock.Unlock();
+  }
+  return (s);
 }
 
 bool
 Handler::SetState(SHARED_PTR(zState::State) state_)
 {
-  this->_state = state_;
-  return (true);
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    this->_state = state_;
+    status = this->_lock.Unlock();
+  }
+  return (status);
+}
+
+SHARED_PTR(zState::State)
+Handler::GetNextState() const
+{
+  SHARED_PTR(zState::State) s;
+  if (this->_lock.Lock())
+  {
+    s = this->_next;
+    this->_lock.Unlock();
+  }
+  return (s);
 }
 
 bool
-Handler::Notify(SHARED_PTR(Notification) n_)
+Handler::SetNextState(SHARED_PTR(zState::State) state_)
 {
   bool status = false;
-  SHARED_PTR(zState::State) s(this->_state);
-  if (!s.get())
+  if (this->_lock.Lock())
   {
-    return (false);
+    this->_next = state_;
+    status = this->_lock.Unlock();
   }
-
-  n_->SetState(this->GetState());
-  status = this->_state->ObserveEvent(n_);
-  this->SetState(n_->GetState());
-
   return (status);
 }
 
 bool
-Handler::SetStateAndNotify(SHARED_PTR(zState::State) s_, SHARED_PTR(zState::Notification) n_)
+Handler::Notify()
+{
+  SHARED_PTR(zEvent::Notification) n(new zEvent::Notification(*this));
+  return (this->Notify(n));
+}
+
+bool
+Handler::Notify(SHARED_PTR(zEvent::Notification) n_)
 {
   bool status = false;
-  if (this->SetState(s_))
+  // Guarantees current state does not get destructed
+  SHARED_PTR(zState::State) s(this->GetNextState());
+
+  if (s.get())
   {
-    status = this->Notify(n_);
+    this->SetLastState(this->GetState());
+    this->SetState(this->GetNextState());
+    status = this->GetState()->ObserveEvent(n_);
   }
+
   return (status);
 }
 

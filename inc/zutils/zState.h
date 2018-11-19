@@ -18,6 +18,7 @@
 #define __ZSTATE_H__
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zSem.h>
 #include <zutils/zEvent.h>
 
 namespace zUtils
@@ -25,67 +26,37 @@ namespace zUtils
 namespace zState
 {
 
-class State;
-
-//**********************************************************************
-// Class: Notification
-//**********************************************************************
-
-class Notification
-{
-
-public:
-
-  Notification();
-
-  virtual
-  ~Notification();
-
-  SHARED_PTR(zState::State)
-  GetState() const;
-
-  bool
-  SetState(SHARED_PTR(zState::State) state_);
-
-  SHARED_PTR(zEvent::Notification)
-  GetNotification();
-
-  bool
-  SetNotification(SHARED_PTR(zEvent::Notification) n_);
-
-protected:
-
-private:
-
-  SHARED_PTR(zState::State) _state;
-  SHARED_PTR(zEvent::Notification) _notification;
-
-};
+class Handler;
 
 //**********************************************************************
 // Class: State
 //**********************************************************************
 
-class State
+class State :
+    public zEvent::Observer
 {
 
 public:
 
-  State(const uint32_t id_);
+  State(Handler& handler_, const uint32_t id_);
 
   virtual
   ~State();
+
+  Handler&
+  GetHandler();
 
   uint32_t
   GetId() const;
 
   virtual bool
-  ObserveEvent(SHARED_PTR(zState::Notification) n_) = 0;
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
 
 protected:
 
 private:
 
+  Handler& _handler;
   uint32_t _id;
 
 };
@@ -94,7 +65,8 @@ private:
 // Class: Handler
 //**********************************************************************
 
-class Handler
+class Handler :
+    public zEvent::Event // needed to create empty notification
 {
 
 public:
@@ -105,22 +77,37 @@ public:
   ~Handler();
 
   SHARED_PTR(zState::State)
+  GetLastState() const;
+
+  bool
+  SetLastState(SHARED_PTR(zState::State) state_);
+
+  SHARED_PTR(zState::State)
   GetState() const;
 
   bool
   SetState(SHARED_PTR(zState::State) state_);
 
-  virtual bool
-  Notify(SHARED_PTR(zState::Notification) n_);
+  SHARED_PTR(zState::State)
+  GetNextState() const;
 
   bool
-  SetStateAndNotify(SHARED_PTR(zState::State) s_, SHARED_PTR(zState::Notification) n_);
+  SetNextState(SHARED_PTR(zState::State) state_);
+
+  virtual bool
+  Notify();
+
+  virtual bool
+  Notify(SHARED_PTR(zEvent::Notification) n_);
 
 protected:
 
 private:
 
+  mutable zSem::Mutex _lock;
+  SHARED_PTR(zState::State) _last;
   SHARED_PTR(zState::State) _state;
+  SHARED_PTR(zState::State) _next;
 
 };
 
