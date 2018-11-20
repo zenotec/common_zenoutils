@@ -27,7 +27,7 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 // Class: TestStateUpper
 //**********************************************************************
 
-TestStateUpper::TestStateUpper(zState::Handler& handler_) :
+TestStateUpper::TestStateUpper(zState::Context& handler_) :
     zState::State(handler_, STATE_ID::ID_UPPER)
 {
 }
@@ -63,7 +63,7 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
 // Class: TestStateLower
 //**********************************************************************
 
-TestStateLower::TestStateLower(zState::Handler& handler_) :
+TestStateLower::TestStateLower(zState::Context& handler_) :
     zState::State(handler_, STATE_ID::ID_LOWER)
 {
 }

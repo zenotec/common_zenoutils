@@ -22,7 +22,6 @@
 #include <map>
 
 #include <zutils/zEvent.h>
-
 #include <zutils/zState.h>
 
 namespace zUtils
@@ -31,22 +30,22 @@ namespace zState
 {
 
 //**********************************************************************
-// Class: Handler
+// Class: Context
 //**********************************************************************
 
-Handler::Handler() :
+Context::Context() :
     zEvent::Event(zEvent::Event::TYPE_STATE)
 {
   this->_lock.Unlock();
 }
 
-Handler::~Handler()
+Context::~Context()
 {
   this->_lock.Lock();
 }
 
 uint32_t
-Handler::GetLastStateId() const
+Context::GetLastStateId() const
 {
   uint32_t id = 0;
   SHARED_PTR(zState::State)s(this->GetLastState());
@@ -58,7 +57,7 @@ Handler::GetLastStateId() const
 }
 
 SHARED_PTR(zState::State)
-Handler::GetLastState() const
+Context::GetLastState() const
 {
   SHARED_PTR(zState::State) s;
   if (this->_lock.Lock())
@@ -70,7 +69,7 @@ Handler::GetLastState() const
 }
 
 bool
-Handler::SetLastState(SHARED_PTR(zState::State) state_)
+Context::SetLastState(SHARED_PTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -82,7 +81,7 @@ Handler::SetLastState(SHARED_PTR(zState::State) state_)
 }
 
 uint32_t
-Handler::GetStateId() const
+Context::GetStateId() const
 {
   uint32_t id = 0;
   SHARED_PTR(zState::State)s(this->GetState());
@@ -94,7 +93,7 @@ Handler::GetStateId() const
 }
 
 SHARED_PTR(zState::State)
-Handler::GetState() const
+Context::GetState() const
 {
   SHARED_PTR(zState::State) s;
   if (this->_lock.Lock())
@@ -106,7 +105,7 @@ Handler::GetState() const
 }
 
 bool
-Handler::SetState(SHARED_PTR(zState::State) state_)
+Context::SetState(SHARED_PTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -118,7 +117,7 @@ Handler::SetState(SHARED_PTR(zState::State) state_)
 }
 
 uint32_t
-Handler::GetNextStateId() const
+Context::GetNextStateId() const
 {
   uint32_t id = 0;
   SHARED_PTR(zState::State)s(this->GetNextState());
@@ -130,7 +129,7 @@ Handler::GetNextStateId() const
 }
 
 SHARED_PTR(zState::State)
-Handler::GetNextState() const
+Context::GetNextState() const
 {
   SHARED_PTR(zState::State) s;
   if (this->_lock.Lock())
@@ -142,7 +141,7 @@ Handler::GetNextState() const
 }
 
 bool
-Handler::SetNextState(SHARED_PTR(zState::State) state_)
+Context::SetNextState(SHARED_PTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -154,14 +153,14 @@ Handler::SetNextState(SHARED_PTR(zState::State) state_)
 }
 
 bool
-Handler::Notify()
+Context::Notify()
 {
   SHARED_PTR(zState::Notification) n(new zState::Notification(*this));
   return (this->Notify(n));
 }
 
 bool
-Handler::Notify(SHARED_PTR(zEvent::Notification) n_)
+Context::Notify(SHARED_PTR(zEvent::Notification) n_)
 {
   bool status = false;
 
@@ -177,6 +176,12 @@ Handler::Notify(SHARED_PTR(zEvent::Notification) n_)
   }
 
   return (status);
+}
+
+bool
+Context::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+{
+  return (this->Notify(n_));
 }
 
 }

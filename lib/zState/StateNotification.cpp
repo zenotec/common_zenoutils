@@ -25,7 +25,7 @@ namespace zState
 // Class: Notification
 //**********************************************************************
 
-Notification::Notification(Handler& handler_) :
+Notification::Notification(Context& handler_) :
     zEvent::Notification(handler_)
 {
 }

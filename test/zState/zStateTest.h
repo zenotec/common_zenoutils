@@ -93,7 +93,7 @@ class TestStateUpper :
 
 public:
 
-  TestStateUpper(zState::Handler& handler_);
+  TestStateUpper(zState::Context& handler_);
 
   virtual
   ~TestStateUpper();
@@ -117,7 +117,7 @@ class TestStateLower :
 
 public:
 
-  TestStateLower(zState::Handler& handler_);
+  TestStateLower(zState::Context& handler_);
 
   virtual
   ~TestStateLower();

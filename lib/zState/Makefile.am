@@ -13,7 +13,7 @@ AM_LDFLAGS := $(LDFLAGS_GCOV)
 noinst_LTLIBRARIES = libzState.la
 
 libzState_la_SOURCES = \
-    StateHandler.cpp \
+    StateContext.cpp \
     StateNotification.cpp \
     State.cpp
     
