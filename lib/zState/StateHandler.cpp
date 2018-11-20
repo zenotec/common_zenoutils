@@ -35,7 +35,7 @@ namespace zState
 //**********************************************************************
 
 Handler::Handler() :
-    zEvent::Event(zEvent::Event::TYPE_NONE)
+    zEvent::Event(zEvent::Event::TYPE_STATE)
 {
   this->_lock.Unlock();
 }
@@ -43,6 +43,18 @@ Handler::Handler() :
 Handler::~Handler()
 {
   this->_lock.Lock();
+}
+
+uint32_t
+Handler::GetLastStateId() const
+{
+  uint32_t id = 0;
+  SHARED_PTR(zState::State)s(this->GetLastState());
+  if (s.get())
+  {
+    id = s->GetId();
+  }
+  return (id);
 }
 
 SHARED_PTR(zState::State)
@@ -69,6 +81,18 @@ Handler::SetLastState(SHARED_PTR(zState::State) state_)
   return (status);
 }
 
+uint32_t
+Handler::GetStateId() const
+{
+  uint32_t id = 0;
+  SHARED_PTR(zState::State)s(this->GetState());
+  if (s.get())
+  {
+    id = s->GetId();
+  }
+  return (id);
+}
+
 SHARED_PTR(zState::State)
 Handler::GetState() const
 {
@@ -91,6 +115,18 @@ Handler::SetState(SHARED_PTR(zState::State) state_)
     status = this->_lock.Unlock();
   }
   return (status);
+}
+
+uint32_t
+Handler::GetNextStateId() const
+{
+  uint32_t id = 0;
+  SHARED_PTR(zState::State)s(this->GetNextState());
+  if (s.get())
+  {
+    id = s->GetId();
+  }
+  return (id);
 }
 
 SHARED_PTR(zState::State)
@@ -120,7 +156,7 @@ Handler::SetNextState(SHARED_PTR(zState::State) state_)
 bool
 Handler::Notify()
 {
-  SHARED_PTR(zEvent::Notification) n(new zEvent::Notification(*this));
+  SHARED_PTR(zState::Notification) n(new zState::Notification(*this));
   return (this->Notify(n));
 }
 
@@ -128,6 +164,7 @@ bool
 Handler::Notify(SHARED_PTR(zEvent::Notification) n_)
 {
   bool status = false;
+
   // Guarantees current state does not get destructed
   SHARED_PTR(zState::State) s(this->GetNextState());
 

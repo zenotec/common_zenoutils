@@ -14,5 +14,6 @@ noinst_LTLIBRARIES = libzState.la
 
 libzState_la_SOURCES = \
     StateHandler.cpp \
+    StateNotification.cpp \
     State.cpp
     
