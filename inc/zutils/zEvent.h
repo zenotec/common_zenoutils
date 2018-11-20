@@ -57,6 +57,7 @@ public:
     TYPE_MSG = 9,
     TYPE_TEMP = 10,
     TYPE_COMMAND = 11,
+    TYPE_STATE = 12,
     TYPE_LAST
   };
 

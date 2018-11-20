@@ -29,6 +29,28 @@ namespace zState
 class Handler;
 
 //**********************************************************************
+// Class: Notification
+//**********************************************************************
+
+class Notification :
+    public zEvent::Notification
+{
+
+public:
+
+  Notification(Handler& handler_);
+
+  virtual
+  ~Notification();
+
+protected:
+
+private:
+
+
+};
+
+//**********************************************************************
 // Class: State
 //**********************************************************************
 
@@ -66,7 +88,7 @@ private:
 //**********************************************************************
 
 class Handler :
-    public zEvent::Event // needed to create empty notification
+    public zEvent::Event
 {
 
 public:
@@ -76,17 +98,26 @@ public:
   virtual
   ~Handler();
 
+  uint32_t
+  GetLastStateId() const;
+
   SHARED_PTR(zState::State)
   GetLastState() const;
 
   bool
   SetLastState(SHARED_PTR(zState::State) state_);
 
+  uint32_t
+  GetStateId() const;
+
   SHARED_PTR(zState::State)
   GetState() const;
 
   bool
   SetState(SHARED_PTR(zState::State) state_);
+
+  uint32_t
+  GetNextStateId() const;
 
   SHARED_PTR(zState::State)
   GetNextState() const;
