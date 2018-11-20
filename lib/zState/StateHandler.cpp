@@ -172,6 +172,7 @@ Handler::Notify(SHARED_PTR(zEvent::Notification) n_)
   {
     this->SetLastState(this->GetState());
     this->SetState(this->GetNextState());
+    fprintf(stderr, "\n[%d] State: %d -> %d\n", __LINE__, this->GetLastStateId(), this->GetStateId());
     status = this->GetState()->ObserveEvent(n_);
   }
 
