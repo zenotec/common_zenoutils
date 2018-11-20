@@ -24,7 +24,7 @@ zStateTest_Defaults(void* arg_)
 {
 
   // Create state handler and verify
-  zState::Handler* myHandler = new zState::Handler;
+  zState::Context* myHandler = new zState::Context;
   TEST_ISNOT_NULL(myHandler);
   TEST_IS_NULL(myHandler->GetLastState().get());
   TEST_IS_NULL(myHandler->GetState().get());

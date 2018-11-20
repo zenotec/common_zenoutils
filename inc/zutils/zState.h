@@ -26,7 +26,7 @@ namespace zUtils
 namespace zState
 {
 
-class Handler;
+class Context;
 
 //**********************************************************************
 // Class: Notification
@@ -38,7 +38,7 @@ class Notification :
 
 public:
 
-  Notification(Handler& handler_);
+  Notification(Context& handler_);
 
   virtual
   ~Notification();
@@ -60,12 +60,12 @@ class State :
 
 public:
 
-  State(Handler& handler_, const uint32_t id_);
+  State(Context& handler_, const uint32_t id_);
 
   virtual
   ~State();
 
-  Handler&
+  Context&
   GetHandler();
 
   uint32_t
@@ -78,7 +78,7 @@ protected:
 
 private:
 
-  Handler& _handler;
+  Context& _ctx;
   uint32_t _id;
 
 };
@@ -87,16 +87,17 @@ private:
 // Class: Handler
 //**********************************************************************
 
-class Handler :
-    public zEvent::Event
+class Context :
+    public zEvent::Event,
+    public zEvent::Observer
 {
 
 public:
 
-  Handler();
+  Context();
 
   virtual
-  ~Handler();
+  ~Context();
 
   uint32_t
   GetLastStateId() const;
@@ -133,6 +134,9 @@ public:
 
 protected:
 
+  virtual bool
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
+
 private:
 
   mutable zSem::Mutex _lock;
@@ -146,7 +150,7 @@ private:
 // Class: Manager
 //**********************************************************************
 
-class Manager : public Handler
+class Manager : public Context
 {
 public:
 
