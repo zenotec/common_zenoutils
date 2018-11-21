@@ -60,8 +60,9 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
   {
     status = true;
 
-    // Notify all registered event handlers
-    FOREACH (auto& handler, this->_handler_list)
+    // Create copy in case an handler registers/unregisters another handler
+    std::list<Handler*> handlers = this->_handler_list;
+    FOREACH (auto& handler, handlers)
     {
       status &= handler->notifyObservers(noti_);
     }

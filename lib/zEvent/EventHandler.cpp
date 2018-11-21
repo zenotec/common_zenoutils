@@ -110,7 +110,9 @@ Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
   {
     status = true;
 
-    FOREACH (auto& obs, this->_obs_list)
+    // Create copy in case an observer registers/unregisters another observer
+    std::list<Observer*> observers = this->_obs_list;
+    FOREACH (auto& obs, observers)
     {
       status &= obs->ObserveEvent(noti_);
     }
