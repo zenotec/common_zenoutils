@@ -153,6 +153,18 @@ Context::SetNextState(SHARED_PTR(zState::State) state_)
 }
 
 bool
+Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_)
+{
+  bool status = false;
+  if (this->_lock.Lock())
+  {
+    this->_next = state_;
+    status = this->_lock.Unlock();
+  }
+  return (status && this->Notify());
+}
+
+bool
 Context::Notify()
 {
   SHARED_PTR(zState::Notification) n(new zState::Notification(*this));
