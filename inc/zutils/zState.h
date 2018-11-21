@@ -126,6 +126,9 @@ public:
   bool
   SetNextState(SHARED_PTR(zState::State) state_);
 
+  bool
+  SetNextStateAndNotify(SHARED_PTR(zState::State) state_);
+
   virtual bool
   Notify();
 
