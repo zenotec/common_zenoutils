@@ -69,13 +69,13 @@ bool
 Handler::RegisterEvent(Timer* timer_)
 {
   bool status = false;
-  int ntimer = 0;
+  int ntimer = this->getEvents().size();
 
   // Stop timer handler thread so the timer fd gets added to the poll list
   this->_timer_thread.Stop();
 
   // Register event with handler
-  if (timer_ && timer_->GetId())
+  if (timer_ && timer_->GetId() && !this->_timers.count(timer_->GetId()))
   {
     this->_timers[timer_->GetId()] = timer_;
     status = zEvent::Handler::RegisterEvent(timer_);
@@ -96,16 +96,16 @@ bool
 Handler::UnregisterEvent(Timer* timer_)
 {
   bool status = false;
-  int ntimer = 0;
+  int ntimer = this->getEvents().size();
 
   // Stop timer handler thread so the timer fd gets added to the poll list
   this->_timer_thread.Stop();
 
-  // Register event with handler
-  if (timer_ && timer_->GetId())
+  // Unregister event with handler
+  if (timer_ && timer_->GetId() && this->_timers.count(timer_->GetId()))
   {
-    this->_timers.erase(timer_->GetId());
     status = zEvent::Handler::UnregisterEvent(timer_);
+    this->_timers.erase(timer_->GetId());
     ntimer = this->getEvents().size();
   }
 
