@@ -108,7 +108,7 @@ _str2port(const std::string& addr_)
 }
 
 static bool
-_addr2sa(const std::string& addr_, struct sockaddr_in& sa_)
+_str2sa(const std::string& addr_, struct sockaddr_in& sa_)
 {
 
   bool status = false;
@@ -131,12 +131,12 @@ _addr2sa(const std::string& addr_, struct sockaddr_in& sa_)
 }
 
 static bool
-_sa2addr(const struct sockaddr_in& sa_, std::string& addr_)
+_sa2str(const struct sockaddr_in& sa_, std::string& addr_)
 {
   bool status = false;
   struct sockaddr_in sockaddr;
   std::string addr = _sa2ip(sa_) + ":" + _sa2portstr(sa_);
-  if (_addr2sa(addr, sockaddr))
+  if (_str2sa(addr, sockaddr))
   {
     addr_ = addr;
     status = true;
@@ -181,7 +181,7 @@ std::string
 Ipv4Address::GetAddress() const
 {
   std::string addr;
-  _sa2addr(this->_sa, addr);
+  _sa2str(this->_sa, addr);
   return (addr);
 }
 
@@ -189,29 +189,55 @@ bool
 Ipv4Address::SetAddress(const std::string& addr_)
 {
   bool status = false;
-  if (_addr2sa(addr_, this->_sa))
+  if (_str2sa(addr_, this->_sa))
   {
     status = Address::SetAddress(addr_);
   }
   return (status);
 }
 
-std::string
+uint32_t
 Ipv4Address::GetIp() const
+{
+  return (this->_sa.sin_addr.s_addr);
+}
+
+std::string
+Ipv4Address::GetIpString() const
 {
   return (_sa2ip(this->_sa));
 }
 
 bool
+Ipv4Address::SetIp(const uint32_t ip_)
+{
+  this->_sa.sin_addr.s_addr = ip_;
+  return (true);
+}
+
+bool
 Ipv4Address::SetIp(const std::string& ip_)
 {
-  return (this->SetAddress(ip_ + ":" + this->GetPort()));
+  return (this->SetAddress(ip_ + ":" + _sa2portstr(this->_sa)));
+}
+
+uint16_t
+Ipv4Address::GetPort() const
+{
+  return (this->_sa.sin_port);
 }
 
 std::string
-Ipv4Address::GetPort() const
+Ipv4Address::GetPortString() const
 {
   return (_sa2portstr(this->_sa));
+}
+
+bool
+Ipv4Address::SetPort(const uint16_t port_)
+{
+  this->_sa.sin_port = port_;
+  return (true);
 }
 
 bool

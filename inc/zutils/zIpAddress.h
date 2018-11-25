@@ -54,14 +54,26 @@ public:
   virtual bool
   SetAddress(const std::string &addr_);
 
-  std::string
+  uint32_t
   GetIp() const;
+
+  std::string
+  GetIpString() const;
+
+  bool
+  SetIp(const uint32_t ip_);
 
   bool
   SetIp(const std::string& ip_);
 
-  std::string
+  uint16_t
   GetPort() const;
+
+  std::string
+  GetPortString() const;
+
+  bool
+  SetPort(const uint16_t port_);
 
   bool
   SetPort(const std::string& port_);
