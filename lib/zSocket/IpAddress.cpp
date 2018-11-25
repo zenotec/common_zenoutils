@@ -41,8 +41,14 @@ namespace zUtils
 namespace zSocket
 {
 
-static std::string
+static in_addr_t
 _sa2ip(const struct sockaddr_in& sa_)
+{
+  return (ntohl(sa_.sin_addr.s_addr));
+}
+
+static std::string
+_sa2ipstr(const struct sockaddr_in& sa_)
 {
   char ip[INET_ADDRSTRLEN] = { 0 };
   std::string str;
@@ -135,7 +141,7 @@ _sa2str(const struct sockaddr_in& sa_, std::string& addr_)
 {
   bool status = false;
   struct sockaddr_in sockaddr;
-  std::string addr = _sa2ip(sa_) + ":" + _sa2portstr(sa_);
+  std::string addr = _sa2ipstr(sa_) + ":" + _sa2portstr(sa_);
   if (_str2sa(addr, sockaddr))
   {
     addr_ = addr;
@@ -199,20 +205,20 @@ Ipv4Address::SetAddress(const std::string& addr_)
 uint32_t
 Ipv4Address::GetIp() const
 {
-  return (this->_sa.sin_addr.s_addr);
+  return (_sa2ip(this->_sa));
 }
 
 std::string
 Ipv4Address::GetIpString() const
 {
-  return (_sa2ip(this->_sa));
+  return (_sa2ipstr(this->_sa));
 }
 
 bool
 Ipv4Address::SetIp(const uint32_t ip_)
 {
-  this->_sa.sin_addr.s_addr = ip_;
-  return (true);
+  this->_sa.sin_addr.s_addr = htonl(ip_);
+  return (Address::SetAddress(this->GetAddress()));
 }
 
 bool
@@ -224,7 +230,7 @@ Ipv4Address::SetIp(const std::string& ip_)
 uint16_t
 Ipv4Address::GetPort() const
 {
-  return (this->_sa.sin_port);
+  return (_sa2port(this->_sa));
 }
 
 std::string
@@ -236,8 +242,8 @@ Ipv4Address::GetPortString() const
 bool
 Ipv4Address::SetPort(const uint16_t port_)
 {
-  this->_sa.sin_port = port_;
-  return (true);
+  this->_sa.sin_port = htons(port_);
+  return (Address::SetAddress(this->GetAddress()));
 }
 
 bool
@@ -270,7 +276,7 @@ Ipv4Address::Display() const
   Address::Display();
   std::cout << "----------------- IPv4 Address -----------------" << std::endl;
   std::cout << "Family: \t" << this->_sa.sin_family << std::endl;
-  std::cout << "IP:     \t" << _sa2ip(this->_sa) << std::endl;
+  std::cout << "IP:     \t" << _sa2ipstr(this->_sa) << std::endl;
   std::cout << "Port:   \t" << _sa2portstr(this->_sa) << std::endl;
 }
 
