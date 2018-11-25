@@ -187,6 +187,7 @@ Context::Notify(SHARED_PTR(zEvent::Notification) n_)
     this->SetState(this->GetNextState());
     fprintf(stderr, "\n[%d] State: %d -> %d\n", __LINE__, this->GetLastStateId(), this->GetStateId());
     status = this->GetState()->ObserveEvent(n_);
+    fprintf(stderr, "[%d] Status: %d\n", __LINE__, status);
   }
 
   return (status);
