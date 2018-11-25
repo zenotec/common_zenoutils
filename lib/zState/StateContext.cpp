@@ -36,14 +36,18 @@ namespace zState
 Context::Context() :
     zEvent::Event(zEvent::Event::TYPE_STATE)
 {
+  this->_last = NULL;
   this->_state = NULL;
+  this->_next = NULL;
   this->_lock.Unlock();
 }
 
 Context::~Context()
 {
-  this->_state = NULL; // Ensure the state is destructed before the context
   this->_lock.Lock();
+  this->_next = NULL;
+  this->_state = NULL;
+  this->_last = NULL;
 }
 
 uint32_t
