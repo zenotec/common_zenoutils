@@ -24,14 +24,14 @@ zStateTest_Defaults(void* arg_)
 {
 
   // Create state handler and verify
-  zState::Context* myHandler = new zState::Context;
-  TEST_ISNOT_NULL(myHandler);
+  SHARED_PTR(zState::Context) myHandler(new zState::Context);
+  TEST_ISNOT_NULL(myHandler.get());
   TEST_IS_NULL(myHandler->GetLastState().get());
   TEST_IS_NULL(myHandler->GetState().get());
   TEST_IS_NULL(myHandler->GetNextState().get());
 
   // Create initial state and verify
-  SHARED_PTR(TestStateLower) s1(new TestStateLower(*myHandler));
+  SHARED_PTR(TestStateLower) s1(new TestStateLower(myHandler));
   TEST_ISNOT_NULL(s1.get());
   TEST_EQ(s1->GetId(), STATE_ID::ID_LOWER);
 
@@ -43,14 +43,15 @@ zStateTest_Defaults(void* arg_)
   TEST_EQ(myHandler->GetNextState()->GetId(), STATE_ID::ID_LOWER);
 
   // Create test notification
-  SHARED_PTR(TestNotification) n(new TestNotification(*myHandler));
-  TEST_ISNOT_NULL(n.get());
-  TEST_TRUE(n->SetString("TestString"));
-  TEST_EQ(std::string("TestString"), n->GetString());
+  TestNotification* myNotification = new TestNotification(*myHandler);
+  TEST_ISNOT_NULL(myNotification);
+  SHARED_PTR(zEvent::Notification) n(myNotification);
+  TEST_TRUE(myNotification->SetString("TestString"));
+  TEST_EQ(std::string("TestString"), myNotification->GetString());
 
   // Notify state of event and verify
-  TEST_TRUE(myHandler->Notify(n));
-  TEST_EQ(std::string("teststring"), n->GetString());
+  TEST_EQ(zEvent::STATUS_OK, myHandler->Notify(n));
+  TEST_EQ(std::string("teststring"), myNotification->GetString());
   TEST_IS_NULL(myHandler->GetLastState().get());
   TEST_ISNOT_NULL(myHandler->GetState().get());
   TEST_EQ(myHandler->GetState()->GetId(), STATE_ID::ID_LOWER);
@@ -58,8 +59,8 @@ zStateTest_Defaults(void* arg_)
   TEST_EQ(myHandler->GetNextState()->GetId(), STATE_ID::ID_LOWER);
 
   // Notify state of event and verify
-  TEST_TRUE(myHandler->Notify(n));
-  TEST_EQ(std::string("teststring"), n->GetString());
+  TEST_EQ(zEvent::STATUS_OK, myHandler->Notify(n));
+  TEST_EQ(std::string("teststring"), myNotification->GetString());
   TEST_ISNOT_NULL(myHandler->GetLastState().get());
   TEST_EQ(myHandler->GetLastState()->GetId(), STATE_ID::ID_LOWER);
   TEST_ISNOT_NULL(myHandler->GetState().get());
@@ -69,7 +70,7 @@ zStateTest_Defaults(void* arg_)
 
   // Notify state of event and verify
   TEST_TRUE(myHandler->Notify(n));
-  TEST_EQ(std::string("TESTSTRING"), n->GetString());
+  TEST_EQ(std::string("TESTSTRING"), myNotification->GetString());
   TEST_ISNOT_NULL(myHandler->GetLastState().get());
   TEST_EQ(myHandler->GetLastState()->GetId(), STATE_ID::ID_LOWER);
   TEST_ISNOT_NULL(myHandler->GetState().get());
@@ -79,7 +80,7 @@ zStateTest_Defaults(void* arg_)
 
   // Notify state of event and verify
   TEST_TRUE(myHandler->Notify(n));
-  TEST_EQ(std::string("TESTSTRING"), n->GetString());
+  TEST_EQ(std::string("TESTSTRING"), myNotification->GetString());
   TEST_ISNOT_NULL(myHandler->GetLastState().get());
   TEST_EQ(myHandler->GetLastState()->GetId(), STATE_ID::ID_UPPER);
   TEST_ISNOT_NULL(myHandler->GetState().get());

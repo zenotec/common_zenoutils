@@ -13,9 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// libc includes
+
+#include <string.h>
+
+// libc++ includes
+
 #include <iostream>
 
+// libzutils includes
+
 #include <zutils/zEvent.h>
+using namespace zUtils;
+
+// local includes
 
 namespace zUtils
 {
@@ -26,7 +38,7 @@ namespace zEvent
 // Class: Event
 //**********************************************************************
 
-Event::Event(Event::TYPE type_) :
+Event::Event(zEvent::TYPE type_) :
     _type(type_)
 {
   this->_lock.Unlock();
@@ -45,31 +57,32 @@ Event::~Event()
   }
 }
 
-Event::TYPE
+zEvent::TYPE
 Event::GetType() const
 {
   return (this->_type); // since type is read only, no need to lock
 }
 
-bool
-Event::notifyHandlers(SHARED_PTR(zEvent::Notification) noti_)
+zEvent::STATUS
+Event::notifyHandlers(SHARED_PTR(zEvent::Notification) n_)
 {
-  bool status = false;
+  zEvent::STATUS status = STATUS_NONE;
 
   if (this->_lock.Lock())
   {
-    status = true;
-
-    // Create copy in case an handler registers/unregisters another handler
+    // Create copy to allow an observer to modify the handler list
     std::list<Handler*> handlers = this->_handler_list;
     FOREACH (auto& handler, handlers)
     {
-      status &= handler->notifyObservers(noti_);
+      status = handler->notifyObservers(n_);
+      if (!(status & STATUS_CONT))
+      {
+        break;
+      }
     }
-
     this->_lock.Unlock();
-
   }
+
   return (status);
 }
 

@@ -24,6 +24,7 @@
 #include <queue>
 #include <vector>
 
+#include <zutils/zCompatibility.h>
 #include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
 
@@ -41,7 +42,13 @@ zEventTest_EventManagerDefaults(void * arg_);
 int
 zEventTest_EventTest(void* arg_);
 int
-zEventTest_EventHandlerTest(void* arg_);
+zEventTest_EventHandlerTestSingleEventSingleObserver(void* arg_);
+int
+zEventTest_EventHandlerTestSingleEventMultiObserver(void* arg_);
+int
+zEventTest_EventHandlerTestMultiEventSingleObserver(void* arg_);
+int
+zEventTest_EventHandlerTestMultiEventMultiObserver(void* arg_);
 int
 zEventTest_EventManagerTest(void* arg_);
 
@@ -70,6 +77,13 @@ public:
     return (this->_value);
   }
 
+  bool
+  SetValue(const int value_)
+  {
+    this->_value = value_;
+    return (this->_value == value_);
+  }
+
 private:
 
   int _value;
@@ -83,31 +97,31 @@ class TestEvent :
 public:
 
   TestEvent() :
-      Event(zEvent::Event::TYPE_TEST)
+      Event(zEvent::TYPE_TEST)
   {
   }
   ~TestEvent()
   {
   }
 
-  bool
+  zEvent::STATUS
   Notify(int val_)
   {
-    SHARED_PTR(TestNotification) n(new TestNotification(*this, val_));
-    this->notifyHandlers(n);
-    return (true);
+    SHARED_PTR(zEvent::Notification) n(new TestNotification(*this, val_));
+    return (this->notifyHandlers(n));
   }
 
 };
 
 class TestObserver :
     public Observer,
-    public zQueue::Queue<SHARED_PTR(zEvent::Notification)>
+    public zQueue::Queue<int>
 {
 
 public:
 
-  TestObserver()
+  TestObserver(bool cont_ = true) :
+    _cont(cont_)
   {
   }
 
@@ -116,11 +130,25 @@ public:
   {
   }
 
-  virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
+  virtual zEvent::STATUS
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   {
-    return (this->Push(noti_));
+    zEvent::STATUS status = zEvent::STATUS_ERR;
+    TestNotification* n = (TestNotification*)n_.get();
+    if (n && n->SetValue(n->GetValue() + 1) && this->Push(n->GetValue()))
+    {
+      status = zEvent::STATUS_OK;
+      if (this->_cont)
+      {
+        status = zEvent::STATUS(status | zEvent::STATUS_CONT);
+      }
+    }
+    return (status);
   }
+
+private:
+
+  bool _cont;
 };
 
 #endif /* _ZEVENTTEST_H_ */

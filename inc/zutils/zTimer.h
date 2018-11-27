@@ -22,6 +22,7 @@
 #include <map>
 
 #include <zutils/zSem.h>
+#include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
 #include <zutils/zThread.h>
 
@@ -163,7 +164,7 @@ public:
 
 protected:
 
-  zQueue::Queue<SHARED_PTR(Notification)> nq; // notification queue
+  zQueue::Queue<SHARED_PTR(zEvent::Notification)> nq; // notification queue
 
   std::list<Timer*>
   getTimers();

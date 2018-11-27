@@ -60,25 +60,25 @@ class State :
 
 public:
 
-  State(Context& handler_, const uint32_t id_);
+  State(SHARED_PTR(Context) context_, const uint32_t id_);
 
   virtual
   ~State();
 
-  Context&
-  GetHandler();
+  SHARED_PTR(Context)&
+  GetContext();
 
   uint32_t
   GetId() const;
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
 
 protected:
 
 private:
 
-  Context& _ctx;
+  SHARED_PTR(Context) _ctx;
   uint32_t _id;
 
 };
@@ -126,18 +126,21 @@ public:
   bool
   SetNextState(SHARED_PTR(zState::State) state_);
 
-  bool
+  zEvent::STATUS
   SetNextStateAndNotify(SHARED_PTR(zState::State) state_);
 
-  virtual bool
+  zEvent::STATUS
+  SetNextStateAndNotify(SHARED_PTR(zState::State) state_, SHARED_PTR(zEvent::Notification) n_);
+
+  virtual zEvent::STATUS
   Notify();
 
-  virtual bool
+  virtual zEvent::STATUS
   Notify(SHARED_PTR(zEvent::Notification) n_);
 
 protected:
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:

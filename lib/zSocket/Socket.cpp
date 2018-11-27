@@ -42,7 +42,7 @@ namespace zSocket
 //*****************************************************************************
 
 Socket::Socket(const Socket::SOCKET_TYPE type_) :
-    zEvent::Event(zEvent::Event::TYPE_SOCKET),
+    zEvent::Event(zEvent::TYPE_SOCKET),
     _type(type_),
     _addr(Address::TYPE_NONE)
 {

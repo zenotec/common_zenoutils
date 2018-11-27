@@ -126,8 +126,8 @@ public:
 
 protected:
 
-  virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
+  virtual zEvent::STATUS
+  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:
 

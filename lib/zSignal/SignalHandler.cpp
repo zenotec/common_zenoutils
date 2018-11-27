@@ -76,10 +76,10 @@ Handler::UnregisterObserver(Signal::ID id_, zEvent::Observer *obs_)
   return (status);
 }
 
-bool
+zEvent::STATUS
 Handler::Notify(Signal::ID id_, siginfo_t *info_)
 {
-  bool status = false;
+  zEvent::STATUS status = zEvent::STATUS_ERR;
   if ((id_ > Signal::ID_ERR) && (id_ < Signal::ID_LAST) && this->_sigs[id_])
   {
     status = this->_sigs[id_]->Notify(info_);

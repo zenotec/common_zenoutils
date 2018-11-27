@@ -86,63 +86,27 @@ Log::ToString(const Log::MODULE module_)
   std::string str;
   switch (module_)
   {
-  case  MODULE_ALL:
-    str = "ALL";
-    break;
-  case  MODULE_COMMAND:
-    str = "COMMAND";
-    break;
-  case  MODULE_CONFIG:
-    str = "CONFIG";
-    break;
-  case  MODULE_DATA:
-    str = "DATA";
-    break;
-  case  MODULE_DISPLAY:
-    str = "DISPLAY";
-    break;
-  case  MODULE_GPIO:
-    str = "GPIO";
-    break;
-  case  MODULE_INTERFACE:
-    str = "INTERFACE";
-    break;
-  case  MODULE_LED:
-    str = "LED";
-    break;
-  case  MODULE_MATH:
-    str = "MATH";
-    break;
-  case  MODULE_MESSAGE:
-    str = "MESSAGE";
-    break;
-  case  MODULE_NODE:
-    str = "NODE";
-    break;
-  case  MODULE_PROGRAM:
-    str = "PROGRAM";
-    break;
-  case  MODULE_SERIAL:
-    str = "SERIAL";
-    break;
-  case  MODULE_SOCKET:
-    str = "SOCKET";
-    break;
-  case  MODULE_SWITCH:
-    str = "SWITCH";
-    break;
-  case  MODULE_THERMO:
-    str = "THERMO";
-    break;
-  case  MODULE_WIRELESS:
-    str = "WIRELESS";
-    break;
-  case  MODULE_TEST:
-    str = "TEST";
-    break;
-  default:
-    str = "UNKNOWN";
-    break;
+    case  MODULE_ALL: str = "ALL"; break;
+    case  MODULE_COMMAND: str = "COMMAND"; break;
+    case  MODULE_CONFIG: str = "CONFIG"; break;
+    case  MODULE_DATA: str = "DATA"; break;
+    case  MODULE_DISPLAY: str = "DISPLAY"; break;
+    case  MODULE_EVENT: str = "EVENT"; break;
+    case  MODULE_GPIO: str = "GPIO"; break;
+    case  MODULE_INTERFACE: str = "INTERFACE"; break;
+    case  MODULE_LED: str = "LED"; break;
+    case  MODULE_MATH: str = "MATH"; break;
+    case  MODULE_MESSAGE: str = "MESSAGE"; break;
+    case  MODULE_NODE: str = "NODE"; break;
+    case  MODULE_PROGRAM: str = "PROGRAM"; break;
+    case  MODULE_SERIAL: str = "SERIAL"; break;
+    case  MODULE_SOCKET: str = "SOCKET"; break;
+    case  MODULE_STATE: str = "STATE"; break;
+    case  MODULE_SWITCH: str = "SWITCH"; break;
+    case  MODULE_THERMO: str = "THERMO"; break;
+    case  MODULE_WIRELESS: str = "WIRELESS"; break;
+    case  MODULE_TEST: str = "TEST"; break;
+    default: str = "UNKNOWN"; break;
   }
 
   return (str);
@@ -154,36 +118,16 @@ Log::ToString(const Log::LEVEL level_)
   std::string str;
   switch (level_)
   {
-  case  LEVEL_ALL:
-    str = "ALL";
-    break;
-  case  LEVEL_CRIT:
-    str = "CRIT";
-    break;
-  case LEVEL_ERROR:
-    str = "ERROR";
-    break;
-  case LEVEL_WARN:
-    str = "WARN";
-    break;
-  case LEVEL_INFO:
-    str = "INFO";
-    break;
-  case LEVEL_DEBUG:
-    str = "DEBUG";
-    break;
-  case LEVEL_DEBUG1:
-    str = "DEBUG1";
-    break;
-  case LEVEL_DEBUG2:
-    str = "DEBUG2";
-    break;
-  case LEVEL_DEBUG3:
-    str = "DEBUG3";
-    break;
-  default:
-    str = "UNKNOWN";
-    break;
+    case LEVEL_ALL: str = "ALL"; break;
+    case LEVEL_CRIT: str = "CRIT"; break;
+    case LEVEL_ERROR: str = "ERROR"; break;
+    case LEVEL_WARN: str = "WARN"; break;
+    case LEVEL_INFO: str = "INFO"; break;
+    case LEVEL_DEBUG: str = "DEBUG"; break;
+    case LEVEL_DEBUG1: str = "DEBUG1"; break;
+    case LEVEL_DEBUG2: str = "DEBUG2"; break;
+    case LEVEL_DEBUG3: str = "DEBUG3"; break;
+    default: str = "UNKNOWN"; break;
   }
   return (str);
 }

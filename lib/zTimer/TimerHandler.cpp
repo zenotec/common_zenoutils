@@ -41,7 +41,7 @@ NotificationThread::Run(zThread::ThreadArg *arg_)
   {
     if (h->nq.TimedWait(100))
     {
-      SHARED_PTR(Notification) n(h->nq.Front());
+      SHARED_PTR(zEvent::Notification) n(h->nq.Front());
       h->nq.Pop();
       h->notifyObservers(n);
     }

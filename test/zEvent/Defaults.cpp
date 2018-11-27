@@ -22,7 +22,7 @@ zEventTest_EventDefaults(void * arg_)
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
+  TEST_EQ(zEvent::TYPE_TEST, MyEvent->GetType());
 
   // Cleanup
   delete (MyEvent);
@@ -37,12 +37,12 @@ zEventTest_EventNotificationDefaults(void * arg_)
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(Event::TYPE_TEST, MyEvent->GetType());
+  TEST_EQ(zEvent::TYPE_TEST, MyEvent->GetType());
 
   // Create new event notification and validate
   TestNotification* MyNotification = new TestNotification(*MyEvent, 88);
   TEST_ISNOT_NULL(MyNotification);
-  TEST_EQ(Event::TYPE_TEST, MyNotification->GetType());
+  TEST_EQ(zEvent::TYPE_TEST, MyNotification->GetType());
   TEST_EQ(88, MyNotification->GetValue());
 
   // Cleanup

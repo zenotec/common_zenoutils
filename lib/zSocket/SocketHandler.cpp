@@ -142,7 +142,8 @@ Handler::Run(zThread::ThreadArg *arg_)
           if (this->_smap.count(fd) && this->_smap[fd])
           {
             Socket* sock = this->_smap[fd];
-            sock->notifyHandlers(sock->Recv());
+            SHARED_PTR(zEvent::Notification) n(sock->Recv());
+            sock->notifyHandlers(n);
           }
           else
           {

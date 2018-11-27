@@ -72,7 +72,7 @@ protected:
 
   Signal(const Signal::ID id_);
 
-  bool
+  zEvent::STATUS
   Notify(siginfo_t *info_);
 
 private:
@@ -140,7 +140,7 @@ public:
   bool
   UnregisterObserver (Signal::ID id_, zEvent::Observer *obs_);
 
-  bool
+  zEvent::STATUS
   Notify(Signal::ID id_, siginfo_t *info_);
 
 protected:

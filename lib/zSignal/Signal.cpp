@@ -122,7 +122,7 @@ _sigaction_func(int sig_, siginfo_t *info_, void *arg_)
 //**********************************************************************
 
 Signal::Signal(const Signal::ID id_) :
-    zEvent::Event(zEvent::Event::TYPE_SIGNAL), _id(id_), _count(0)
+    zEvent::Event(zEvent::TYPE_SIGNAL), _id(id_), _count(0)
 {
   this->RegisterEvent(this);
   memset(&this->_act, 0, sizeof(this->_act));
@@ -156,14 +156,14 @@ Signal::Count() const
   return (this->_count);
 }
 
-bool
+zEvent::STATUS
 Signal::Notify(siginfo_t *info_)
 {
   this->_count++;
-  SHARED_PTR(Notification) notification(new Notification(*this));
+  Notification* notification = new Notification(*this);
+  SHARED_PTR(zEvent::Notification) n(notification);
   notification->siginfo(info_);
-  zEvent::Event::notifyHandlers(notification);
-  return (true);
+  return (zEvent::Event::notifyHandlers(n));
 }
 
 }

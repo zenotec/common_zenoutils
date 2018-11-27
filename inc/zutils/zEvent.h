@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ZenoTec LLC (http://www.zenotec.net)
+ * Copyright (c) 2014-2018 ZenoTec LLC (http://www.zenotec.net)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 #include <list>
 
 #include <zutils/zSem.h>
-#include <zutils/zQueue.h>
 
 namespace zUtils
 {
@@ -28,8 +27,49 @@ namespace zEvent
 {
 
 class Notification;
-class Adapter;
 class Handler;
+
+// Return status for event handlers
+enum STATUS
+{
+  STATUS_NONE = 0x00, // Uninitialized
+  STATUS_ERR = 0x01, // Error observing event notification
+  STATUS_OK = 0x02, // Event observed successfully
+  STATUS_CONT = 0x04, // Allow next observer to be called
+  STATUS_OK_CONT = (STATUS_OK | STATUS_CONT),
+  STATUS_ERR_CONT = (STATUS_ERR | STATUS_CONT),
+  STATUS_STOP = 0x08, // Stop all event observation
+  STATUS_OK_STOP = (STATUS_OK | STATUS_STOP),
+  STATUS_ERR_STOP = (STATUS_ERR | STATUS_STOP),
+  STATUS_LAST
+};
+
+enum TYPE
+{
+  TYPE_ERR = -1,
+  TYPE_NONE = 0,
+  TYPE_TEST = 1,
+  TYPE_TIMER = 2,
+  TYPE_SIGNAL = 3,
+  TYPE_CONFIG = 4,
+  TYPE_GPIO = 5,
+  TYPE_SERIAL = 6,
+  TYPE_INTERFACE = 7,
+  TYPE_SOCKET = 8,
+  TYPE_MSG = 9,
+  TYPE_TEMP = 10,
+  TYPE_COMMAND = 11,
+  TYPE_STATE = 12,
+  TYPE_RSVD_0 = 32,
+  TYPE_RSVD_1 = 33,
+  TYPE_RSVD_2 = 34,
+  TYPE_RSVD_3 = 35,
+  TYPE_RSVD_4 = 36,
+  TYPE_RSVD_5 = 37,
+  TYPE_RSVD_6 = 38,
+  TYPE_RSVD_7 = 39,
+  TYPE_LAST
+};
 
 //**********************************************************************
 // Class: Event
@@ -42,31 +82,12 @@ class Event
 
 public:
 
-  enum TYPE
-  {
-    TYPE_ERR = -1,
-    TYPE_NONE = 0,
-    TYPE_TEST = 1,
-    TYPE_TIMER = 2,
-    TYPE_SIGNAL = 3,
-    TYPE_CONFIG = 4,
-    TYPE_GPIO = 5,
-    TYPE_SERIAL = 6,
-    TYPE_INTERFACE = 7,
-    TYPE_SOCKET = 8,
-    TYPE_MSG = 9,
-    TYPE_TEMP = 10,
-    TYPE_COMMAND = 11,
-    TYPE_STATE = 12,
-    TYPE_LAST
-  };
-
-  Event(Event::TYPE type_);
+  Event(zEvent::TYPE type_);
 
   virtual
   ~Event();
 
-  Event::TYPE
+  zEvent::TYPE
   GetType() const;
 
 protected:
@@ -79,13 +100,13 @@ protected:
   virtual bool
   unregisterHandler(Handler* handler_);
 
-  bool
-  notifyHandlers(SHARED_PTR(zEvent::Notification) noti_);
+  zEvent::STATUS
+  notifyHandlers(SHARED_PTR(zEvent::Notification) n_);
 
 private:
 
   mutable zSem::Mutex _lock;
-  Event::TYPE _type;
+  zEvent::TYPE _type;
 
   Event(Event &other_);
 
@@ -107,7 +128,7 @@ public:
   virtual
   ~Notification();
 
-  zEvent::Event::TYPE
+  zEvent::TYPE
   GetType() const;
 
   zEvent::Event&
@@ -127,7 +148,8 @@ private:
 class Observer
 {
 public:
-  virtual bool
+
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
 };
 
@@ -161,8 +183,8 @@ public:
 
 protected:
 
-  bool
-  notifyObservers(SHARED_PTR(zEvent::Notification) noti_);
+  zEvent::STATUS
+  notifyObservers(SHARED_PTR(zEvent::Notification) n_);
 
   std::list<Event*>
   getEvents();
@@ -180,35 +202,6 @@ private:
 
   void
   operator=(Handler const &);
-
-};
-
-//**********************************************************************
-// Class: Adapter
-//**********************************************************************
-
-class Adapter :
-    public Event
-{
-
-public:
-
-  Adapter(Event& event_);
-
-  virtual
-  ~Adapter();
-
-protected:
-
-  virtual SHARED_PTR(zEvent::Notification)
-  AdaptEvent(SHARED_PTR(zEvent::Notification) noti_) = 0;
-
-private:
-
-  Event& _event;
-
-  virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_);
 
 };
 

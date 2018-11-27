@@ -29,6 +29,7 @@
 // libzutils includes
 
 #include <zutils/zCompatibility.h>
+#include <zutils/zQueue.h>
 #include <zutils/zEvent.h>
 #include <zutils/zThread.h>
 
@@ -547,7 +548,7 @@ public:
   ~Tap();
 
   bool
-  Inject(SHARED_PTR(zSocket::Notification) n_);
+  Inject(SHARED_PTR(zEvent::Notification)& n_);
 
   virtual SHARED_PTR(zSocket::Notification)
   Recv() = 0;
@@ -560,45 +561,6 @@ protected:
 private:
 
   Socket& _tappee;
-
-};
-
-//**********************************************************************
-// Class: zSocket::Observer
-//**********************************************************************
-
-class Observer :
-    public zEvent::Observer
-{
-
-public:
-
-  Observer()
-  {
-  }
-
-  virtual
-  ~Observer()
-  {
-  }
-
-protected:
-
-  virtual bool
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
-  {
-    bool status = false;
-    if (n_.get() && (n_->GetType() == zEvent::Event::TYPE_SOCKET))
-    {
-      status = this->ObserveEvent(STATIC_CAST(Notification)(n_));
-    }
-    return (status);
-  }
-
-  virtual bool
-  ObserveEvent(SHARED_PTR(zSocket::Notification) n_) = 0;
-
-private:
 
 };
 

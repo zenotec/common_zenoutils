@@ -15,5 +15,4 @@ noinst_LTLIBRARIES = libzEvent.la
 libzEvent_la_SOURCES = \
     Event.cpp \
     EventNotification.cpp \
-    EventHandler.cpp \
-    EventAdapter.cpp
+    EventHandler.cpp

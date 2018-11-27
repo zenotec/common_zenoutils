@@ -134,31 +134,31 @@ public:
 
 protected:
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   {
     ZLOG_DEBUG("Handling socket event");
 
-    bool status = false;
-    if (n_ && (n_->GetType() == zEvent::Event::TYPE_SOCKET))
+    zEvent::STATUS status = zEvent::STATUS_NONE;
+    if (n_ && (n_->GetType() == zEvent::TYPE_SOCKET))
     {
-      SHARED_PTR(Notification) n = STATIC_CAST(Notification)(n_);
+      SHARED_PTR(Notification) n(STATIC_CAST(Notification)(n_));
       switch (n->GetSubType())
       {
       case Notification::SUBTYPE_PKT_RCVD:
         this->RxSem.Push(n);
-        status = true;
+        status = zEvent::STATUS_OK;
         break;
       case Notification::SUBTYPE_PKT_SENT:
         this->TxSem.Push(n);
         this->TxSem.Post();
-        status = true;
+        status = zEvent::STATUS_OK;
         break;
       default:
         ZLOG_ERR("Socket Error: " + ZLOG_UINT(n->GetSubType()));
         n->Display("obs: ");
         this->ErrSem.Push(n);
-        status = false;
+        status = zEvent::STATUS_ERR;
         break;
       }
     }

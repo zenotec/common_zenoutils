@@ -73,9 +73,10 @@
    fflush( stdout ); \
 }
 
-#define DOTS(n) \
+#define DOTS(x) \
 { \
-   for (int i = 0; i < n; i++) IPRINTF("."); \
+    int n = (x < 100) ? x : 0; \
+    for (int i = 0; i < (n); i++) IPRINTF("."); \
 }
 
 #define UTEST_PASS  Test::UnitTest::RESULT_PASS
@@ -107,7 +108,7 @@ do { \
 do { \
    Test::UnitTest::RESULT status = UTEST_PASS; \
    IPRINTF( "  %s()", #fnc ); \
-   DOTS((50-sizeof(#fnc))); \
+   DOTS((80-sizeof(#fnc))); \
    status = (Test::UnitTest::RESULT)(fnc)(arg); \
    if ( status == UTEST_PASS ) \
    { \

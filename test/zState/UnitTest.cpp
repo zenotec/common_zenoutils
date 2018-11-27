@@ -27,8 +27,8 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 // Class: TestStateUpper
 //**********************************************************************
 
-TestStateUpper::TestStateUpper(zState::Context& handler_) :
-    zState::State(handler_, STATE_ID::ID_UPPER)
+TestStateUpper::TestStateUpper(SHARED_PTR(zState::Context) context_) :
+    zState::State(context_, STATE_ID::ID_UPPER)
 {
 }
 
@@ -36,9 +36,10 @@ TestStateUpper::~TestStateUpper()
 {
 }
 
-bool
-TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
+zEvent::STATUS
+TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 {
+  zEvent::STATUS status = zEvent::STATUS_ERR;
   int cnt = 0;
   SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
   std::string str = n->GetString();
@@ -52,10 +53,14 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
   }
   if (!cnt)
   {
-    SHARED_PTR(TestStateLower) s(new TestStateLower(this->GetHandler()));
-    this->GetHandler().SetNextState(s);
+    SHARED_PTR(TestStateLower) s(new TestStateLower(this->GetContext()));
+    this->GetContext()->SetNextState(s);
   }
-  return (n->SetString(str));
+  if (n->SetString(str))
+  {
+    status = zEvent::STATUS_OK;
+  }
+  return (status);
 }
 
 
@@ -63,8 +68,8 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
 // Class: TestStateLower
 //**********************************************************************
 
-TestStateLower::TestStateLower(zState::Context& handler_) :
-    zState::State(handler_, STATE_ID::ID_LOWER)
+TestStateLower::TestStateLower(SHARED_PTR(zState::Context) context_) :
+    zState::State(context_, STATE_ID::ID_LOWER)
 {
 }
 
@@ -72,9 +77,10 @@ TestStateLower::~TestStateLower()
 {
 }
 
-bool
-TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
+zEvent::STATUS
+TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 {
+  zEvent::STATUS status = zEvent::STATUS_ERR;
   SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
   std::string str = n->GetString();
   int cnt = 0;
@@ -88,10 +94,14 @@ TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification)n_)
   }
   if (!cnt)
   {
-    SHARED_PTR(TestStateUpper) s(new TestStateUpper(this->GetHandler()));
-    this->GetHandler().SetNextState(STATIC_CAST(zState::State)(s));
+    SHARED_PTR(TestStateUpper) s(new TestStateUpper(this->GetContext()));
+    this->GetContext()->SetNextState(STATIC_CAST(zState::State)(s));
   }
-  return (n->SetString(str));
+  if (n->SetString(str))
+  {
+    status = zEvent::STATUS_OK;
+  }
+  return (status);
 }
 
 
