@@ -220,15 +220,14 @@ Thread::Stop()
   return (status);
 }
 
-bool
+zEvent::STATUS
 Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 {
-  bool status = false;
-  SHARED_PTR(zSignal::Notification) n = NULL;
+  zEvent::STATUS status = zEvent::STATUS_ERR;
 
-  if (n_ && (n_->GetType() == zEvent::Event::TYPE_SIGNAL))
+  if (n_ && (n_->GetType() == zEvent::TYPE_SIGNAL))
   {
-    n = STATIC_CAST(zSignal::Notification)(n_);
+    SHARED_PTR(zSignal::Notification) n(STATIC_CAST(zSignal::Notification)(n_));
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:
@@ -236,7 +235,8 @@ Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
     case zSignal::Signal::ID_SIGINT:
       // No break
     case zSignal::Signal::ID_SIGABRT:
-      status = this->_func->Exit(true);
+      this->_func->Exit(true);
+      status = zEvent::STATUS_CONT;
       break;
     default:
       break;

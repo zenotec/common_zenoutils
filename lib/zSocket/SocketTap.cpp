@@ -38,9 +38,10 @@ Tap::~Tap()
 }
 
 bool
-Tap::Inject(SHARED_PTR(zSocket::Notification) n_)
+Tap::Inject(SHARED_PTR(zEvent::Notification)& n_)
 {
-  return (this->_tappee.notifyHandlers(n_));
+  zEvent::STATUS status = this->_tappee.notifyHandlers(n_);
+  return (status == zEvent::STATUS_OK);
 }
 
 }

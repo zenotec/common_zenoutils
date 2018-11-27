@@ -14,7 +14,18 @@
  * limitations under the License.
  */
 
+// libc includes
+
+// libc++ includes
+
+// libzutils includes
+#include <zutils/zLog.h>
+using namespace zUtils;
 #include <zutils/zState.h>
+
+// local includes
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_STATE);
 
 namespace zUtils
 {
@@ -25,8 +36,8 @@ namespace zState
 // Class: State
 //**********************************************************************
 
-State::State(Context& handler_, const uint32_t id_) :
-    _ctx(handler_), _id(id_)
+State::State(SHARED_PTR(Context) context_, const uint32_t id_) :
+    _ctx(context_), _id(id_)
 {
 }
 
@@ -34,8 +45,8 @@ State::~State()
 {
 }
 
-Context&
-State::GetHandler()
+SHARED_PTR(Context)&
+State::GetContext()
 {
   return (this->_ctx);
 }

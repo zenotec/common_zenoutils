@@ -39,7 +39,7 @@ Notification::~Notification()
 {
 }
 
-zEvent::Event::TYPE
+zEvent::TYPE
 Notification::GetType() const
 {
   return (this->_event.GetType());

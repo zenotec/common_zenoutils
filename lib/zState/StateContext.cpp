@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-#include <string.h>
-#include <signal.h>
+// libc includes
 
-#include <mutex>
-#include <list>
-#include <map>
 
+// libc++ includes
+
+// libzutils includes
+#include <zutils/zLog.h>
+using namespace zUtils;
 #include <zutils/zEvent.h>
 #include <zutils/zState.h>
+
+// local includes
+
+ZLOG_MODULE_INIT(zLog::Log::MODULE_STATE);
 
 namespace zUtils
 {
@@ -34,7 +39,7 @@ namespace zState
 //**********************************************************************
 
 Context::Context() :
-    zEvent::Event(zEvent::Event::TYPE_STATE)
+    zEvent::Event(zEvent::TYPE_STATE)
 {
   this->_last = NULL;
   this->_state = NULL;
@@ -45,6 +50,7 @@ Context::Context() :
 Context::~Context()
 {
   this->_lock.Lock();
+  // Explicitly delete all states before the context gets destructed
   this->_next = NULL;
   this->_state = NULL;
   this->_last = NULL;
@@ -158,46 +164,58 @@ Context::SetNextState(SHARED_PTR(zState::State) state_)
   return (status);
 }
 
-bool
+zEvent::STATUS
 Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_)
 {
-  bool status = false;
-  if (this->_lock.Lock())
+  zEvent::STATUS status = zEvent::STATUS_ERR;
+  if (this->SetNextState(state_))
   {
-    this->_next = state_;
-    status = this->_lock.Unlock();
+    status = this->Notify();
   }
-  return (status && this->Notify());
+  return (status);
 }
 
-bool
+zEvent::STATUS
+Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_, SHARED_PTR(zEvent::Notification) n_)
+{
+  zEvent::STATUS status = zEvent::STATUS_ERR;
+  if (this->SetNextState(state_))
+  {
+    status = this->Notify(n_);
+  }
+  return (status);
+}
+
+zEvent::STATUS
 Context::Notify()
 {
-  SHARED_PTR(zState::Notification) n(new zState::Notification(*this));
+  SHARED_PTR(zEvent::Notification) n(new zState::Notification(*this));
   return (this->Notify(n));
 }
 
-bool
+zEvent::STATUS
 Context::Notify(SHARED_PTR(zEvent::Notification) n_)
 {
-  bool status = false;
+  zEvent::STATUS status = zEvent::STATUS_ERR;
 
-  // Guarantees current state does not get destructed
+  // Protect current state from destroying itself by changing state
   SHARED_PTR(zState::State) s(this->GetNextState());
 
   if (s.get())
   {
     this->SetLastState(this->GetState());
     this->SetState(this->GetNextState());
+    ZLOG_DEBUG("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
     fprintf(stderr, "\n[%d] State: %d -> %d\n", __LINE__, this->GetLastStateId(), this->GetStateId());
     status = this->GetState()->ObserveEvent(n_);
-    fprintf(stderr, "[%d] Status: %d\n", __LINE__, status);
+    ZLOG_DEBUG("State status: " + ZLOG_UINT(status));
+    fprintf(stderr, "[%d] Status: 0x%02x\n", __LINE__, status);
   }
 
   return (status);
 }
 
-bool
+zEvent::STATUS
 Context::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 {
   return (this->Notify(n_));

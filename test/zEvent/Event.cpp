@@ -20,17 +20,19 @@ int
 zEventTest_EventTest(void* arg_)
 {
 
-  bool status = false;
-
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
   TEST_ISNOT_NULL(MyEvent);
-  TEST_EQ(zEvent::Event::TYPE_TEST, MyEvent->GetType());
+  TEST_EQ(zEvent::TYPE_TEST, MyEvent->GetType());
+
+  // Notify handlers (note: no handlers registered)
+  TEST_EQ(zEvent::STATUS_NONE, MyEvent->Notify(8));
 
   // Cleanup
   delete (MyEvent);
 
   // Return success
-  return (0);
+  return (UTEST_PASS);
+
 }
 

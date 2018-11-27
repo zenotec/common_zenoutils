@@ -98,23 +98,27 @@ Handler::UnregisterObserver(Observer *obs_)
   return (status);
 }
 
-bool
+zEvent::STATUS
 Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
 {
-
-  bool status = false;
+  //*************************************************************************************
   // Note: never call this routine directly; Only should be called by the event class
+  //*************************************************************************************
+
+  zEvent::STATUS status = STATUS_NONE;
 
   // Start critical section
   if (this->_lock.Lock())
   {
-    status = true;
-
-    // Create copy in case an observer registers/unregisters another observer
+    // Create copy to allow an observer to modify the observer list
     std::list<Observer*> observers = this->_obs_list;
     FOREACH (auto& obs, observers)
     {
-      status &= obs->ObserveEvent(noti_);
+      status = obs->ObserveEvent(noti_);
+      if (!(status & STATUS_CONT))
+      {
+        break;
+      }
     }
 
     this->_lock.Unlock();

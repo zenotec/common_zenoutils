@@ -29,7 +29,7 @@ using namespace zUtils;
 
 // local includes
 
-ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
+ZLOG_MODULE_INIT(zLog::Log::MODULE_SOCKET);
 
 namespace zUtils
 {

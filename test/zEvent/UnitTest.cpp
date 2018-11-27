@@ -27,8 +27,11 @@ main(int argc, const char **argv)
   UTEST_TEST(zEventTest_EventHandlerDefaults, 0);
   UTEST_TEST(zEventTest_EventManagerDefaults, 0);
   UTEST_TEST(zEventTest_EventTest, 0);
-  UTEST_TEST(zEventTest_EventHandlerTest, 0);
-//  UTEST_TEST(zEventTest_EventManagerTest, 0);
+  UTEST_TEST(zEventTest_EventHandlerTestSingleEventSingleObserver, 0);
+  UTEST_TEST(zEventTest_EventHandlerTestSingleEventMultiObserver, 0);
+  UTEST_TEST(zEventTest_EventHandlerTestMultiEventSingleObserver, 0);
+  UTEST_TEST(zEventTest_EventHandlerTestMultiEventMultiObserver, 0);
+  UTEST_TEST(zEventTest_EventManagerTest, 0);
   UTEST_FINI();
 
 }

@@ -60,7 +60,7 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 //**********************************************************************
 
 Timer::Timer(const std::string& name_) :
-    zEvent::Event(zEvent::Event::TYPE_TIMER), _fd(0), _interval(0), _name(name_)
+    zEvent::Event(zEvent::TYPE_TIMER), _fd(0), _interval(0), _name(name_)
 {
 
   // Create timer

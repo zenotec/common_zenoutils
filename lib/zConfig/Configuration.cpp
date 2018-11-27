@@ -35,7 +35,7 @@ namespace zConfig
 //**********************************************************************
 
 Configuration::Configuration() :
-    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+    zEvent::Event(zEvent::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
         _modified(false), _connector(NULL)
 
 {
@@ -43,21 +43,21 @@ Configuration::Configuration() :
 }
 
 Configuration::Configuration(ConfigData &data_) :
-    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+    zEvent::Event(zEvent::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
         _modified(false), _connector(NULL), _staging(data_), _working(data_)
 {
   this->_lock.Unlock();
 }
 
 Configuration::Configuration(const ConfigData &data_) :
-    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+    zEvent::Event(zEvent::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
         _modified(false), _connector(NULL), _staging(data_), _working(data_)
 {
   this->_lock.Unlock();
 }
 
 Configuration::Configuration(Configuration &other_) :
-    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+    zEvent::Event(zEvent::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
         _modified(other_._modified), _connector(NULL), _staging(other_._staging),
         _working(other_._working)
 {
@@ -65,7 +65,7 @@ Configuration::Configuration(Configuration &other_) :
 }
 
 Configuration::Configuration(const Configuration &other_) :
-    zEvent::Event(zEvent::Event::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
+    zEvent::Event(zEvent::TYPE_CONFIG), _lock(zSem::Mutex::LOCKED),
         _modified(other_._modified), _connector(NULL), _staging(other_._staging),
         _working(other_._working)
 {

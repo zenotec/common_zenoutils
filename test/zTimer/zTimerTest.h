@@ -29,7 +29,8 @@ zTimerTest_StartStop(void* arg_);
 using namespace zUtils;
 using namespace Test;
 
-class TimerTestObserver : public zEvent::Observer
+class TimerTestObserver :
+    public zEvent::Observer
 {
 public:
   TimerTestObserver() :
@@ -42,10 +43,11 @@ public:
   {
   }
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
   {
     this->_cnt++;
+    return (zEvent::STATUS_OK);
   }
 
   int

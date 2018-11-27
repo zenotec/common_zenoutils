@@ -93,14 +93,14 @@ class TestStateUpper :
 
 public:
 
-  TestStateUpper(zState::Context& handler_);
+  TestStateUpper(SHARED_PTR(zState::Context) context_);
 
   virtual
   ~TestStateUpper();
 
 protected:
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:
@@ -117,14 +117,14 @@ class TestStateLower :
 
 public:
 
-  TestStateLower(zState::Context& handler_);
+  TestStateLower(SHARED_PTR(zState::Context) context_);
 
   virtual
   ~TestStateLower();
 
 protected:
 
-  virtual bool
+  virtual zEvent::STATUS
   ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
 
 private:
