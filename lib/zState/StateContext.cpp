@@ -206,10 +206,10 @@ Context::Notify(SHARED_PTR(zEvent::Notification) n_)
     this->SetLastState(this->GetState());
     this->SetState(this->GetNextState());
     ZLOG_DEBUG("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
-    fprintf(stderr, "\n[%d] State: %d -> %d\n", __LINE__, this->GetLastStateId(), this->GetStateId());
+//    fprintf(stderr, "\n[%d] (%p) State: %d -> %d\n", __LINE__, this, this->GetLastStateId(), this->GetStateId());
     status = this->GetState()->ObserveEvent(n_);
     ZLOG_DEBUG("State status: " + ZLOG_UINT(status));
-    fprintf(stderr, "[%d] Status: 0x%02x\n", __LINE__, status);
+//    fprintf(stderr, "[%d] (%p) Status: 0x%02x\n", __LINE__, this, status);
   }
 
   return (status);
