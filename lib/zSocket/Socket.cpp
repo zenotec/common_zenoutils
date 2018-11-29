@@ -98,7 +98,19 @@ Socket::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
+Socket::Open()
+{
+  return (false);
+}
+
+bool
 Socket::Bind(const Address& addr_)
+{
+  return (false);
+}
+
+bool
+Socket::Close()
 {
   return (false);
 }

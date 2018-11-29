@@ -94,7 +94,13 @@ public:
   Setopt(Socket::OPTIONS opt_);
 
   virtual bool
+  Open();
+
+  virtual bool
   Bind(const Address& addr_);
+
+  virtual bool
+  Close();
 
 protected:
 
