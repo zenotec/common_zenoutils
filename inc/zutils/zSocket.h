@@ -370,7 +370,13 @@ public:
   Setopt(Socket::OPTIONS opt_);
 
   virtual bool
+  Open();
+
+  virtual bool
   Bind(const Address& addr_);
+
+  virtual bool
+  Close();
 
   virtual SHARED_PTR(zSocket::Notification)
   Recv();
@@ -504,13 +510,19 @@ public:
   GetAddress() const;
 
   virtual bool
-  Getopt(Socket::OPTIONS opt_);
+  Getopt(zSocket::Socket::OPTIONS opt_);
 
   virtual bool
-  Setopt(Socket::OPTIONS opt_);
+  Setopt(zSocket::Socket::OPTIONS opt_);
+
+  virtual bool
+  Open();
 
   virtual bool
   Bind(const zSocket::Address& addr_);
+
+  virtual bool
+  Close();
 
   virtual SHARED_PTR(zSocket::Notification)
   Recv();

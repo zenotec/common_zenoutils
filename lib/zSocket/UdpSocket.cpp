@@ -140,24 +140,13 @@ UdpSocket::UdpSocket() :
     fd(0)
 
 {
-  // Create a AF_INET socket
-  this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
-  if (this->fd > 0)
-  {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
-  }
-  else
-  {
-    this->fd = 0;
-    ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
-  }
+  this->Open();
 }
 
 UdpSocket::~UdpSocket()
 {
 
-  this->_rxthread.Stop();
-  this->_txthread.Stop();
+  this->Close();
 
   // Make sure the socket is unregistered from all handlers
   if (!this->_handler_list.empty())
@@ -315,9 +304,41 @@ UdpSocket::Setopt(Socket::OPTIONS opt_)
   return (status);
 }
 
+
+bool
+UdpSocket::Open()
+{
+
+  bool status = false;
+
+  if (this->fd)
+  {
+    ZLOG_WARN(std::string("Socket already open"));
+    return (true);
+  }
+
+  // Create a AF_INET socket
+  this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
+  if (this->fd > 0)
+  {
+    ZLOG_INFO("Socket opened: " + ZLOG_INT(this->fd));
+    status = true;
+  }
+  else
+  {
+    this->fd = 0;
+    ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
+  }
+
+  return (status);
+
+}
+
 bool
 UdpSocket::Bind(const Address& addr_)
 {
+
+  bool status = false;
 
   if (!this->fd)
   {
@@ -344,10 +365,41 @@ UdpSocket::Bind(const Address& addr_)
 
   ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
 
-  this->_rxthread.Start();
-  this->_txthread.Start();
+  if (this->_rxthread.Start() && this->_txthread.Start())
+  {
+    status = this->SetAddress(addr_);
+  }
 
-  return (this->SetAddress(addr_));
+  return (status);
+
+}
+
+bool
+UdpSocket::Close()
+{
+
+  bool status = false;
+
+  if (!this->fd)
+  {
+    ZLOG_ERR(std::string("Socket not open"));
+    return (false);
+  }
+
+  if (this->_rxthread.Stop() && this->_txthread.Stop())
+  {
+    if (close(this->fd) == 0)
+    {
+      this->fd = 0;
+      status = true;
+    }
+    else
+    {
+      ZLOG_CRIT("Cannot close socket: " + this->GetAddress().GetAddress() + ": " + std::string(strerror(errno)));
+    }
+  }
+
+  return (status);
 
 }
 

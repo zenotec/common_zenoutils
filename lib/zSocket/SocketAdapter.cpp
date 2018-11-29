@@ -62,9 +62,21 @@ Adapter::Setopt(Socket::OPTIONS opt_)
 }
 
 bool
+Adapter::Open()
+{
+  return (this->socket.Open());
+}
+
+bool
 Adapter::Bind(const zSocket::Address& addr_)
 {
   return (this->socket.Bind(addr_));
+}
+
+bool
+Adapter::Close()
+{
+  return (this->socket.Close());
 }
 
 SHARED_PTR(zSocket::Notification)
