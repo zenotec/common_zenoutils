@@ -75,7 +75,8 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) n_)
     FOREACH (auto& handler, handlers)
     {
       status = handler->notifyObservers(n_);
-      if (!(status & STATUS_CONT))
+      // Only stop notifying handlers if explicitly instructed to by the observer
+      if ((status & STATUS_STOP))
       {
         break;
       }

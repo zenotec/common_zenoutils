@@ -115,6 +115,7 @@ Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
     FOREACH (auto& obs, observers)
     {
       status = obs->ObserveEvent(noti_);
+      // Stop notifying observers if the observer doesn't set the continue status
       if (!(status & STATUS_CONT))
       {
         break;
