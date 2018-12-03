@@ -313,7 +313,7 @@ UdpSocket::Open()
 
   if (this->fd)
   {
-    ZLOG_WARN(std::string("Socket already open"));
+    ZLOG_WARN(std::string("Socket already open: " + ZLOG_INT(this->fd)));
     return (true);
   }
 
