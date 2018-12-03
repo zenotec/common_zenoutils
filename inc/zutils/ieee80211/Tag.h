@@ -120,6 +120,7 @@ public:
       case ID_EXTCAP: { return "ID_EXTCAP"; break; }
       case ID_VHTCAP: { return "ID_VHTCAP"; break; }
       case ID_VENDOR: { return "ID_VENDOR"; break; }
+      case ID_RSN: { return "ID_RSN"; break; }
       default: { return "UNKNOWN"; break; }
     }
   }

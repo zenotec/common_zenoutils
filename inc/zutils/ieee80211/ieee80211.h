@@ -281,6 +281,11 @@ struct ht_caps
   uint8_t asel_cap;
 } __attribute__ ((packed));
 
+struct rsn_element
+{
+  uint16_t version;
+};
+
 struct vht_caps
 {
   // TODO
