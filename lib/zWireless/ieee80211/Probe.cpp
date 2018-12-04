@@ -217,6 +217,7 @@ ProbeResponse::Assemble(zSocket::Buffer& sb_, bool fcs_)
   this->PutTag(this->ChannelSwitch);
   this->PutTag(this->ErpInfo);
   this->PutTag(this->ExtRates);
+  this->PutTag(this->RsnElement);
   this->PutTag(this->SuppOpClass);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
@@ -307,6 +308,7 @@ ProbeResponse::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   this->GetTag(this->ChannelSwitch);
   this->GetTag(this->ErpInfo);
   this->GetTag(this->ExtRates);
+  this->GetTag(this->RsnElement);
   this->GetTag(this->SuppOpClass);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
@@ -370,6 +372,7 @@ ProbeResponse::Display() const
   if (this->ChannelSwitch.Valid()) this->ChannelSwitch.Display();
   if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->RsnElement.Valid()) this->RsnElement.Display();
   if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->HtInfo.Valid()) this->HtInfo.Display();

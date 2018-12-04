@@ -38,6 +38,7 @@
 #include <zutils/ieee80211/ExtCapsTag.h>
 #include <zutils/ieee80211/WmmWmeTag.h>
 #include <zutils/ieee80211/ChannelSwitchTag.h>
+#include <zutils/ieee80211/RsnTag.h>
 
 // local includes
 
@@ -101,6 +102,7 @@ public:
   ChannelSwitchTag ChannelSwitch;
   ErpInfoTag ErpInfo;
   ExtRatesTag ExtRates;
+  RsnTag RsnElement;
   SuppOpClassesTag SuppOpClass;
   HtInfoTag HtInfo;
   HtCapsTag HtCaps;

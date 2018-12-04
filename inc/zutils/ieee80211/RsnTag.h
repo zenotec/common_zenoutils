@@ -31,47 +31,6 @@ namespace ieee80211
 {
 
 
-struct oui_format
-{
-    uint8_t oui_b1;
-    uint8_t oui_b2;
-    uint8_t oui_b3;
-}__attribute__ ((packed));
-
-/* Group, Pairwise Cipher, AKM, and Group Management Suites use the same data structure */
-struct RsnSuite
-{
-    struct oui_format cipherOui;
-    uint8_t cipherSuiteType;
-}__attribute__ ((packed));
-
-/* There is a field for counts for both Pairwise AKM, PMKID fields */
-struct RsnSuiteCount
-{
-    uint16_t pairwiseCount;
-}__attribute__ ((packed));
-
-/* RSN Capabilities flags, described in 802.11-2016 Sec. 9.4.2.25.4
- * B0 - Preauth
- * B1 - No Pairwise
- * B2,3 - PTKSA Replay Counter
- * B4,5 - GTKSA Replay Counter
- * B6 - Management Frame Protection Required
- * B7 - Management Frame Protection Capable
- * B8 - Joint Multi-Band RSNA
- * B9 - PeerKey Enabled
- * B10 - SPP A-MSDU Capable
- * B11 - SPP A-MSDU Required
- * B12 - PBAC
- * B13 - Extended Key ID for Individually Addressed Frames
- * B14,15 - Reserved
- */
-struct RsnCapabilities
-{
-    uint16_t rsnCap;
-}__attribute__ ((packed));
-
-
 //*****************************************************************************
 // Class: RsnTag
 //*****************************************************************************
@@ -146,8 +105,9 @@ public:
     };
 
     RsnTag(const RsnTag::RSN_PROTOCOL ver_ = VER_80211_2016) :
-        Tag(Tag::ID_RSN), _rsnProtocol(ver_)
+        Tag(Tag::ID_RSN)
     {
+        _rsnProtocol.version = 0 | ver_;
     }
 
     virtual
@@ -155,14 +115,53 @@ public:
     {
     }
 
-    virtual bool
-    operator()(const std::string cipher_)
+    bool
+    SetVersion()
     {
+        return(this->PutValue(_rsnProtocol));
+    }
 
+    bool
+    operator()(const struct rsn_suite_count& pw_cnt_, const struct rsn_suite (&pw_cipher_)[])
+    {
+        this->AddValue(pw_cnt_);
+        return(this->AddValue(pw_cipher_));
+    }
+
+    template<typename T>
+        bool
+        operator()(T& val_)
+        {
+            return(this->AddValue(val_));
+        }
+
+    virtual std::vector<uint8_t>
+    operator()() const
+    {
+        std::vector<uint8_t> rsn_info;
+        rsn_info.resize(this->Length());
+        this->GetValue(rsn_info.data(), rsn_info.size());
+        return(rsn_info);
+    }
+
+    virtual void
+    Display() const
+    {
+        int cnt = 0;
+        Tag::Display();
+        std::vector<uint8_t> rsn = this->operator()();
+        uint16_t ver = ((uint16_t)rsn[0] << 8) | rsn[1];
+        cnt += 2;
+        std::cout << "Version: " << ver << std::endl;
+        FOREACH(auto& rsn_info, rsn[cnt])
+        {
+            printf("0x%02x\n", rsn_info);
+        }
     }
 
 private:
-    uint16_t _rsnProtocol;
+    struct rsn_element _rsnProtocol;
+
 };
 
 }

@@ -284,7 +284,45 @@ struct ht_caps
 struct rsn_element
 {
   uint16_t version;
-};
+} __attribute__ ((packed));
+
+struct rsn_oui_format
+{
+  uint8_t oui_b1;
+  uint8_t oui_b2;
+  uint8_t oui_b3;
+} __attribute__ ((packed));
+
+struct rsn_suite
+{
+  struct rsn_oui_format cipher_oui;
+  uint8_t cipher_suite_type;
+} __attribute__ ((packed));
+
+struct rsn_suite_count
+{
+  uint8_t suite_count;
+} __attribute__ ((packed));
+
+/* RSN Capabilities flags, described in 802.11-2016 Sec. 9.4.2.25.4
+ * B0 - Preauth
+ * B1 - No Pairwise
+ * B2,3 - PTKSA Replay Counter
+ * B4,5 - GTKSA Replay Counter
+ * B6 - Management Frame Protection Required
+ * B7 - Management Frame Protection Capable
+ * B8 - Joint Multi-Band RSNA
+ * B9 - PeerKey Enabled
+ * B10 - SPP A-MSDU Capable
+ * B11 - SPP A-MSDU Required
+ * B12 - PBAC
+ * B13 - Extended Key ID for Individually Addressed Frames
+ * B14,15 - Reserved
+ */
+struct rsn_capabilities
+{
+  uint16_t rsn_cap;
+} __attribute__ ((packed));
 
 struct vht_caps
 {
