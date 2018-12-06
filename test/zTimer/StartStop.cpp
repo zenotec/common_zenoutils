@@ -19,6 +19,7 @@
 
 #include <mutex>
 
+#include <zutils/zCompatibility.h>
 #include <zutils/zLog.h>
 using namespace zUtils;
 ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
@@ -39,8 +40,8 @@ zTimerTest_StartStop(void* arg_)
   int n = 10;
 
   // Create new timer and validate
-  zTimer::Timer *MyTimer = new zTimer::Timer;
-  TEST_ISNOT_NULL(MyTimer);
+  SHARED_PTR(zTimer::Timer) MyTimer(new zTimer::Timer);
+  TEST_ISNOT_NULL(MyTimer.get());
 
   // Create new timer handler and validate
   zTimer::Handler *MyHandler = new zTimer::Handler;
@@ -75,7 +76,67 @@ zTimerTest_StartStop(void* arg_)
   MyHandler->UnregisterEvent(MyTimer);
   delete (MyHandler);
   delete (MyObserver);
-  delete (MyTimer);
+
+  // Return success
+  return (0);
+}
+
+int
+zTimerTest_StartStopMultiple(void* arg_)
+{
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# zTimerTest_StartStopMultiple()");
+  ZLOG_DEBUG("#############################################################");
+
+  const int ntimers = 100;
+  uint32_t interval = 50000;
+  int n = 10;
+
+  std::map<int, SHARED_PTR(zTimer::Timer)> timers;
+
+  // Create new timer handler and validate
+  zTimer::Handler *MyHandler = new zTimer::Handler;
+  TEST_ISNOT_NULL(MyHandler);
+
+  // Create new timer observer and register with timer handler
+  TimerTestObserver *MyObserver = new TimerTestObserver;
+  TEST_ISNOT_NULL(MyObserver);
+  TEST_IS_ZERO(MyObserver->GetCnt());
+  TEST_TRUE(MyHandler->RegisterObserver(MyObserver));
+
+  // Create new timers and validate
+  for (int i = 0; i < ntimers; i++)
+  {
+    SHARED_PTR(zTimer::Timer) MyTimer(new zTimer::Timer);
+    TEST_ISNOT_NULL(MyTimer.get());
+    timers[MyTimer->GetId()] = MyTimer;
+    TEST_TRUE(MyHandler->RegisterEvent(MyTimer));
+    // Start the timer
+    TEST_TRUE(MyTimer->Start(interval));
+  }
+
+  // Delay for n intervals
+  for (int i = 0; i < n; i++)
+  {
+    usleep(interval);
+  }
+
+  // Stop the timer
+  FOREACH (auto& timer, timers)
+  {
+    timer.second->Stop();
+    MyHandler->UnregisterEvent(timer.second);
+  }
+
+  usleep((interval));
+
+  // Validate
+  TEST_EQ((n * ntimers), MyObserver->GetCnt());
+
+  // Cleanup
+  MyHandler->UnregisterObserver(MyObserver);
+  delete (MyObserver);
+  delete (MyHandler);
 
   // Return success
   return (0);
