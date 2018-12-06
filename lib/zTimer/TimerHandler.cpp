@@ -17,15 +17,23 @@
 #include <unistd.h>
 #include <poll.h>
 
+#include <list>
+#include <vector>
+
+#include <zutils/zCompatibility.h>
 #include <zutils/zEvent.h>
 #include <zutils/zTimer.h>
-
-#define NTIMER_MAX   8
 
 namespace zUtils
 {
 namespace zTimer
 {
+
+static std::vector<struct pollfd>
+_getfds(std::list<SHARED_PTR(Timer)> timers_)
+{
+
+}
 
 //**********************************************************************
 // Class: zTimer::NotificationThread
@@ -56,101 +64,95 @@ NotificationThread::Run(zThread::ThreadArg *arg_)
 Handler::Handler() :
     _timer_thread(this, this), _notification_thread(&_notification_func, this)
 {
+  this->_lock.Unlock();
   this->_notification_thread.Start();
+  this->_timer_thread.Start();
 }
 
 Handler::~Handler()
 {
   this->_timer_thread.Stop();
   this->_notification_thread.Stop();
+  this->_lock.Lock();
+  this->_timers.clear();
 }
 
 bool
-Handler::RegisterEvent(Timer* timer_)
+Handler::RegisterEvent(SHARED_PTR(Timer) timer_)
 {
   bool status = false;
-  int ntimer = this->getEvents().size();
-
-  // Stop timer handler thread so the timer fd gets added to the poll list
-  this->_timer_thread.Stop();
 
   // Register event with handler
-  if (timer_ && timer_->GetId() && !this->_timers.count(timer_->GetId()))
+  if (this->_lock.Lock())
   {
-    this->_timers[timer_->GetId()] = timer_;
-    status = zEvent::Handler::RegisterEvent(timer_);
-    ntimer = this->getEvents().size();
-  }
-
-  // Conditionally start handler thread so the timer fd gets added
-  // to the poll list Note: this needs to be done outside critical section
-  if (ntimer > 0)
-  {
-    this->_timer_thread.Start();
+    if (timer_ && timer_->GetId() && !this->_timers.count(timer_->GetId()))
+    {
+      this->_timers[timer_->GetId()] = timer_;
+      status = zEvent::Handler::RegisterEvent(timer_.get());
+      this->_reload.Post();
+    }
+    this->_lock.Unlock();
   }
 
   return (status);
 }
 
 bool
-Handler::UnregisterEvent(Timer* timer_)
+Handler::UnregisterEvent(SHARED_PTR(Timer) timer_)
 {
   bool status = false;
-  int ntimer = this->getEvents().size();
-
-  // Stop timer handler thread so the timer fd gets added to the poll list
-  this->_timer_thread.Stop();
 
   // Unregister event with handler
-  if (timer_ && timer_->GetId() && this->_timers.count(timer_->GetId()))
+  if (this->_lock.Lock())
   {
-    status = zEvent::Handler::UnregisterEvent(timer_);
-    this->_timers.erase(timer_->GetId());
-    ntimer = this->getEvents().size();
-  }
-
-  // Conditionally start handler thread so the timer fd gets added
-  // to the poll list Note: this needs to be done outside critical section
-  if (ntimer > 0)
-  {
-    this->_timer_thread.Start();
+    if (timer_ && timer_->GetId() && this->_timers.count(timer_->GetId()))
+    {
+      status = zEvent::Handler::UnregisterEvent(timer_.get());
+      this->_timers.erase(timer_->GetId());
+      this->_reload.Post();
+    }
+    this->_lock.Unlock();
   }
 
   return (status);
-}
-
-std::list<Timer*>
-Handler::getTimers()
-{
-  std::list<Timer*> timers;
-  FOREACH(auto& timer, this->_timers)
-  {
-    timers.push_back(timer.second);
-  }
-  return (timers);
 }
 
 void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
-  struct pollfd fds[NTIMER_MAX] = { 0 };
-  int fd_cnt = 0;
-  std::list<Timer*> timers(this->getTimers());
-
-  // Setup for poll loop
-  FOREACH (auto& timer, timers)
-  {
-    fds[fd_cnt].fd = timer->GetId();
-    fds[fd_cnt].events = (POLLIN | POLLERR);
-    fd_cnt++;
-  }
-
   while (!this->Exit())
   {
 
+    std::vector<struct pollfd> fds;
+
+    // Begin critical section
+    if (!this->_lock.Lock())
+    {
+      this->Exit(true);
+      break;
+    }
+
+    // Add the reload semaphore to the list of file descriptors to poll
+    struct pollfd reload = { 0 };
+    reload.fd = this->_reload.GetFd();
+    reload.events = (POLLIN || POLLERR);
+    fds.push_back(reload);
+
+    // Add all known timers to the list of file descriptors to poll
+    FOREACH (auto& timer, this->_timers)
+    {
+      struct pollfd fd = { 0 };
+      fd.fd = timer.second->GetId();
+      fd.events = (POLLIN | POLLERR);
+      fds.push_back(fd);
+    }
+
+    // End critical section
+    this->_lock.Unlock();
+
     // Wait on file descriptor set
-    int ret = poll(fds, fd_cnt, 100);
+    int ret = poll(fds.data(), fds.size(), 100);
 
     if (ret == 0)
     {
@@ -158,15 +160,19 @@ Handler::Run(zThread::ThreadArg *arg_)
     }
     else if (ret > 0)
     {
-      for (int i = 0; i < fd_cnt; i++)
+      FOREACH (auto& fd, fds)
       {
-        if (fds[i].revents == POLLIN)
+        if (fd.fd == this->_reload.GetFd() && (fd.revents == POLLIN))
+        {
+          this->_reload.GetCount(); // need to read the counter to clear
+        }
+        else if (this->_timers.count(fd.fd) && (fd.revents == POLLIN))
         {
           uint64_t ticks = 0;
-          ret = read(fds[i].fd, &ticks, sizeof(ticks));
-          if (ret > 0 && this->_timers.count(fds[i].fd))
+          ret = read(fd.fd, &ticks, sizeof(ticks));
+          if (ret > 0)
           {
-            Timer* t = this->_timers[fds[i].fd];
+            SHARED_PTR(Timer) t(this->_timers[fd.fd]);
             SHARED_PTR(Notification) n(new Notification(*t));
             this->nq.Push(n);
           }
@@ -178,10 +184,12 @@ Handler::Run(zThread::ThreadArg *arg_)
     {
       // A signal interrupted poll; exit flag should be set
       fprintf(stderr, "Poll interrupted by signal\n");
+      continue;
     }
     else
     {
-      fprintf(stderr, "Timer handler encountered a poll error: %d\n", ret);
+      fprintf(stderr, "BUG: Timer handler encountered a poll error: %d\n", ret);
+      continue;
     }
 
   }

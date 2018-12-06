@@ -25,6 +25,8 @@ int
 zTimerTest_Defaults(void* arg_);
 int
 zTimerTest_StartStop(void* arg_);
+int
+zTimerTest_StartStopMultiple(void* arg_);
 
 using namespace zUtils;
 using namespace Test;

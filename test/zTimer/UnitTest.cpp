@@ -37,6 +37,7 @@ main(int argc, const char **argv)
   UTEST_INIT();
   UTEST_TEST(zTimerTest_Defaults, 0);
   UTEST_TEST(zTimerTest_StartStop, 0);
+  UTEST_TEST(zTimerTest_StartStopMultiple, 0);
 
   zLog::Manager::Instance().UnregisterConnector(zLog::Log::LEVEL_ALL);
 

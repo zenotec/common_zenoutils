@@ -79,12 +79,6 @@ Timer::~Timer()
   // Make sure the timer is stopped
   this->Stop();
 
-  std::list<zEvent::Handler*> handlers(this->_handler_list);
-  FOREACH(auto& handler, handlers)
-  {
-    ((Handler*)handler)->UnregisterEvent(this);
-  }
-
   this->_lock.Lock();
 
   // Delete timer
