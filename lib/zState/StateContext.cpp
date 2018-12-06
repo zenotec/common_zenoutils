@@ -132,7 +132,7 @@ uint32_t
 Context::GetNextStateId() const
 {
   uint32_t id = 0;
-  SHARED_PTR(zState::State)s(this->GetNextState());
+  SHARED_PTR(zState::State) s(this->GetNextState());
   if (s.get())
   {
     id = s->GetId();
@@ -201,15 +201,23 @@ Context::Notify(SHARED_PTR(zEvent::Notification) n_)
   // Protect current state from destroying itself by changing state
   SHARED_PTR(zState::State) s(this->GetNextState());
 
-  if (s.get())
+  if (!s.get())
   {
-    this->SetLastState(this->GetState());
-    this->SetState(this->GetNextState());
-    ZLOG_DEBUG("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
-//    fprintf(stderr, "\n[%d] (%p) State: %d -> %d\n", __LINE__, this, this->GetLastStateId(), this->GetStateId());
+    return (zEvent::STATUS_ERR);
+  }
+
+  // Advance state
+  this->SetLastState(this->GetState());
+  this->SetState(this->GetNextState());
+
+  // Hold lock while state is observing event to block other threads from trying to modify the state
+  //    note: lock allows same thread to relock the lock while blocking other threads from the same
+  if (this->_lock.Lock())
+  {
+    ZLOG_DEBUG1("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
     status = this->GetState()->ObserveEvent(n_);
-    ZLOG_DEBUG("State status: " + ZLOG_UINT(status));
-//    fprintf(stderr, "[%d] (%p) Status: 0x%02x\n", __LINE__, this, status);
+    ZLOG_DEBUG1("State status: " + ZLOG_UINT(status));
+    this->_lock.Unlock();
   }
 
   return (status);
