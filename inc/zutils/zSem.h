@@ -96,6 +96,9 @@ public:
   int
   GetFd() const;
 
+  uint64_t
+  GetCount() const;
+
   bool
   Post(const uint64_t value_ = 1) const;
 
