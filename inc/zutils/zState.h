@@ -65,7 +65,7 @@ public:
   virtual
   ~State();
 
-  SHARED_PTR(Context)&
+  SHARED_PTR(Context)
   GetContext();
 
   uint32_t
