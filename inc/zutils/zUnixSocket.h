@@ -87,11 +87,14 @@ public:
   virtual
   ~UnixSocket();
 
-  virtual const Address&
-  GetAddress() const;
+  virtual bool
+  Open();
 
   virtual bool
   Bind(const Address& addr_);
+
+  virtual bool
+  Close();
 
 protected:
 
@@ -106,8 +109,6 @@ protected:
   send(SHARED_PTR(zSocket::Notification) n_);
 
 private:
-
-  UnixAddress _addr;
 
   zThread::Thread _rxthread;
   UnixSocketRx _rxfunc;

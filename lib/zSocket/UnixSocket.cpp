@@ -132,52 +132,47 @@ UnixSocket::UnixSocket() :
     _txthread(&_txfunc, this),
     fd(0)
 {
-  // Create a AF_INET socket
+  this->Open();
+}
+
+UnixSocket::~UnixSocket()
+{
+  this->Close();
+}
+
+bool
+UnixSocket::Open()
+{
+
+  bool status = false;
+
+  if (this->fd)
+  {
+    ZLOG_WARN(std::string("Socket already open: " + ZLOG_INT(this->GetFd())));
+    return (true);
+  }
+
+  // Create a AF_UNIX socket
   this->fd = socket( AF_UNIX, (SOCK_DGRAM | SOCK_NONBLOCK), 0);
   if (this->fd > 0)
   {
-    ZLOG_INFO("Socket created: " + ZLOG_INT(this->fd));
+    ZLOG_INFO("Socket created: " + ZLOG_INT(this->GetFd()));
   }
   else
   {
     this->fd = 0;
     ZLOG_ERR("Cannot create socket: " + std::string(strerror(errno)));
   }
-}
 
-UnixSocket::~UnixSocket()
-{
+  return (status);
 
-  this->_rxthread.Stop();
-  this->_txthread.Stop();
-
-  // Make sure the socket is unregistered from all handlers
-  if (!this->_handler_list.empty())
-  {
-    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
-  }
-  else
-  {
-    // Close socket
-    if (this->fd)
-    {
-      ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
-      unlink(this->_addr.GetSA().sun_path);
-      close(this->fd);
-      this->fd = 0;
-    } // end if
-  }
-}
-
-const Address&
-UnixSocket::GetAddress() const
-{
-  return (this->_addr);
 }
 
 bool
 UnixSocket::Bind(const Address& addr_)
 {
+
+  bool status = false;
 
   if (!this->fd)
   {
@@ -191,23 +186,59 @@ UnixSocket::Bind(const Address& addr_)
     return (false);
   }
 
-  this->_addr = UnixAddress(addr_);
+  UnixAddress addr(addr_);
+  struct sockaddr_un sa(addr.GetSA());
 
   // Bind address to socket
-  struct sockaddr_un sa(this->_addr.GetSA());
   int ret = bind(this->fd, (struct sockaddr*) &sa, sizeof(sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->_addr.GetAddress() + ": " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot bind socket: " + addr_.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
+  ZLOG_INFO("Bind on socket: [" + ZLOG_INT(this->GetFd()) + "] " + addr_.GetAddress());
 
-  this->_rxthread.Start();
-  this->_txthread.Start();
+  if (this->_rxthread.Start() && this->_txthread.Start())
+  {
+    status = this->SetAddress(addr_);
+  }
 
-  return (true);
+  return (status);
+}
+
+bool
+UnixSocket::Close()
+{
+
+  bool status = false;
+
+  if (!this->fd)
+  {
+    ZLOG_ERR(std::string("Socket already closed"));
+    return (true);
+  }
+
+  UnixAddress addr = UnixAddress(this->GetAddress());
+  struct sockaddr_un sa(addr.GetSA());
+
+  if (this->_rxthread.Stop() && this->_txthread.Stop())
+  {
+    if (close(this->fd) == 0)
+    {
+      ZLOG_INFO("Closed socket: " + ZLOG_INT(this->GetFd()));
+      unlink(addr.GetSA().sun_path);
+      this->fd = 0;
+      status = true;
+    }
+    else
+    {
+      ZLOG_CRIT("Cannot close socket: " + this->GetAddress().GetAddress() + ": " + std::string(strerror(errno)));
+    }
+  }
+
+  return (status);
+
 }
 
 SHARED_PTR(zSocket::Notification)
@@ -239,7 +270,7 @@ UnixSocket::recv()
         n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(src)));
         n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
-        ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
@@ -259,22 +290,23 @@ UnixSocket::send(SHARED_PTR(zSocket::Notification) n_)
 {
 
   // Initialize notification
-  SHARED_PTR(UnixAddress) addr(new UnixAddress(*n_->GetDstAddress()));
+  UnixAddress addr(*n_->GetDstAddress());
   zSocket::Buffer sb(*n_->GetBuffer());
 
   // Send
-  struct sockaddr_un dst(addr->GetSA());
+  struct sockaddr_un dst(addr.GetSA());
   ssize_t nbytes = sendto(this->fd, sb.Head(), sb.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
   if (nbytes > 0)
   {
-    ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
-        " bytes to: " + addr->GetAddress());
+    ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
+        " bytes to: " + addr.GetAddress());
     n_->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
   {
     n_->SetSubType(Notification::SUBTYPE_PKT_ERR);
     ZLOG_ERR(std::string("Cannot send packet: " + std::string(strerror(errno))));
+    ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") Sent 0 bytes to: " + addr.GetAddress());
   }
 
   return (n_);
