@@ -41,17 +41,16 @@ namespace zEvent
 Event::Event(zEvent::TYPE type_) :
     _type(type_)
 {
-  this->_lock.Unlock();
+  this->_hlock.Unlock();
+  this->_nlock.Unlock();
 }
 
 Event::~Event()
 {
-  this->_lock.Lock();
-  if (!this->_handler_list.empty())
-  {
-    fprintf(stderr, "BUG: Event not unregistered before destruction\n");
-  }
-  FOREACH(auto& handler, this->_handler_list)
+  this->_nlock.Lock();
+  this->_hlock.Lock(); // supports consecutive locks from same thread
+  std::list<Handler*> handlers = this->_handlers;
+  FOREACH(auto& handler, handlers)
   {
     handler->UnregisterEvent(this);
   }
@@ -68,20 +67,20 @@ Event::notifyHandlers(SHARED_PTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = STATUS_NONE;
 
-  if (this->_lock.Lock())
+  // Create copy of the handler list to allow observer to register/unregister events
+  std::list<Handler*> handlers = this->getHandlers();
+
+  // Loop through and notify all handlers; stop if observer set stop flag
+  if (this->_nlock.Lock())
   {
-    // Create copy to allow an observer to modify the handler list
-    std::list<Handler*> handlers = this->_handler_list;
     FOREACH (auto& handler, handlers)
     {
-      status = handler->notifyObservers(n_);
-      // Only stop notifying handlers if explicitly instructed to by the observer
-      if ((status & STATUS_STOP))
+      if (((status = handler->notifyObservers(n_)) & STATUS_STOP))
       {
         break;
       }
     }
-    this->_lock.Unlock();
+    this->_nlock.Unlock();
   }
 
   return (status);
@@ -91,12 +90,11 @@ bool
 Event::registerHandler(Handler *handler_)
 {
   bool status = false;
-  if (handler_ && this->_lock.Lock())
+  if (handler_ && this->_hlock.Lock())
   {
-    this->_handler_list.push_back(handler_);
-    this->_handler_list.unique();
-    status = true;
-    this->_lock.Unlock();
+    this->_handlers.push_back(handler_);
+    this->_handlers.unique();
+    status = this->_hlock.Unlock();
   }
   return (status);
 }
@@ -106,13 +104,25 @@ Event::unregisterHandler(Handler *handler_)
 {
   bool status = false;
   // Remove handler from list
-  if (handler_ && this->_lock.Lock())
+  if (handler_ && this->_hlock.Lock())
   {
-    this->_handler_list.remove(handler_);
-    status = true;
-    this->_lock.Unlock();
+    this->_handlers.remove(handler_);
+    status = this->_hlock.Unlock();
   }
   return (status);
+}
+
+std::list<Handler*>
+Event::getHandlers()
+{
+  std::list<Handler*> handlers;
+  // Start critical section
+  if (this->_hlock.Lock())
+  {
+    handlers = this->_handlers;
+    this->_hlock.Unlock();
+  }
+  return (handlers);
 }
 
 }

@@ -46,18 +46,12 @@ Socket::Socket(const Socket::SOCKET_TYPE type_) :
     _type(type_),
     _addr(Address::TYPE_NONE)
 {
-  ZLOG_DEBUG("Creating socket: '" + ZLOG_P(this) + "'");
+  ZLOG_DEBUG("Creating socket: '" + ZLOG_INT(this->GetFd()) + "'");
 }
 
 Socket::~Socket()
 {
-  ZLOG_DEBUG("Destroying socket: '" + ZLOG_P(this) + "'");
-
-  // Make sure the socket is unregistered from all handlers
-  FOREACH(auto& handler, this->_handler_list)
-  {
-    handler->UnregisterEvent(this);
-  }
+  ZLOG_DEBUG("Destroying socket: '" + ZLOG_INT(this->GetFd()) + "'");
 }
 
 int

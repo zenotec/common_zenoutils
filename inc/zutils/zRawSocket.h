@@ -124,9 +124,14 @@ public:
   virtual bool
   Setopt(Socket::OPTIONS opt_);
 
-  // Address is name of interface
   virtual bool
-  Bind(const Address& addr_);
+  Open();
+
+  virtual bool
+  Bind(const Address& addr_); // Address is name of interface
+
+  virtual bool
+  Close();
 
 protected:
 
@@ -142,7 +147,6 @@ protected:
 
 private:
 
-  RawAddress _addr;
   RawSocket::PROTO _proto;
   RawSocket::PACKETTYPE _ptype;
 

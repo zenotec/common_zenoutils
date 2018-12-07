@@ -156,24 +156,7 @@ UdpSocket::UdpSocket() :
 
 UdpSocket::~UdpSocket()
 {
-
   this->Close();
-
-  // Make sure the socket is unregistered from all handlers
-  if (!this->_handler_list.empty())
-  {
-    fprintf(stderr, "BUG: Socket registered with handler, not closing FD\n");
-  }
-  else
-  {
-    // Close socket
-    ZLOG_INFO("Closing socket: " + ZLOG_INT(this->fd));
-    if (this->fd)
-    {
-      close(this->fd);
-      this->fd = 0;
-    } // end if
-  }
 }
 
 bool
@@ -315,7 +298,6 @@ UdpSocket::Setopt(Socket::OPTIONS opt_)
   return (status);
 }
 
-
 bool
 UdpSocket::Open()
 {
@@ -324,7 +306,7 @@ UdpSocket::Open()
 
   if (this->fd)
   {
-    ZLOG_WARN(std::string("Socket already open: " + ZLOG_INT(this->fd)));
+    ZLOG_WARN(std::string("Socket already open: " + ZLOG_INT(this->GetFd())));
     return (true);
   }
 
@@ -332,7 +314,7 @@ UdpSocket::Open()
   this->fd = socket( AF_INET, (SOCK_DGRAM | SOCK_NONBLOCK), IPPROTO_UDP);
   if (this->fd > 0)
   {
-    ZLOG_INFO("Socket opened: " + ZLOG_INT(this->fd));
+    ZLOG_INFO("Socket opened: " + ZLOG_INT(this->GetFd()));
     status = true;
   }
   else
@@ -363,18 +345,18 @@ UdpSocket::Bind(const Address& addr_)
     return (false);
   }
 
-  Ipv4Address addr = Ipv4Address(addr_);
+  Ipv4Address addr(addr_);
   struct sockaddr_in sa(addr.GetSA());
 
   // Bind address to socket
-  int ret = bind(this->fd, (struct sockaddr*) &sa, sizeof(struct sockaddr_in));
+  int ret = bind(this->fd, (struct sockaddr*) &sa, sizeof(sa));
   if (ret < 0)
   {
-    ZLOG_CRIT("Cannot bind socket: " + this->GetAddress().GetAddress() + ": " + std::string(strerror(errno)));
+    ZLOG_CRIT("Cannot bind socket: " + addr_.GetAddress() + ": " + std::string(strerror(errno)));
     return (false);
   } // end if
 
-  ZLOG_INFO("Bind on socket: " + ZLOG_INT(this->fd));
+  ZLOG_INFO("Bind on socket: [" + ZLOG_INT(this->GetFd()) + "] " + addr_.GetAddress());
 
   if (this->_rxthread.Start() && this->_txthread.Start())
   {
@@ -401,6 +383,7 @@ UdpSocket::Close()
   {
     if (close(this->fd) == 0)
     {
+      ZLOG_INFO("Closed socket: " + ZLOG_INT(this->GetFd()));
       this->fd = 0;
       status = true;
     }
@@ -442,7 +425,7 @@ UdpSocket::recv()
         n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(src)));
         n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
-        ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Received " + ZLOG_INT(nbytes) +
+        ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Received " + ZLOG_INT(nbytes) +
             " bytes from: " + n->GetSrcAddress()->GetAddress());
       }
       else
@@ -461,16 +444,16 @@ SHARED_PTR(zSocket::Notification)
 UdpSocket::send(SHARED_PTR(zSocket::Notification) n_)
 {
   // Initialize notification
-  SHARED_PTR(Ipv4Address) addr(new Ipv4Address(*n_->GetDstAddress()));
+  Ipv4Address addr(*n_->GetDstAddress());
   zSocket::Buffer sb(*n_->GetBuffer());
 
   // Send
-  struct sockaddr_in dst(addr->GetSA());
+  struct sockaddr_in dst(addr.GetSA());
   ssize_t nbytes = sendto(this->fd, sb.Head(), sb.Size(), 0, (struct sockaddr *) &dst, sizeof(dst));
   if (nbytes > 0)
   {
-    ZLOG_DEBUG("(" + ZLOG_INT(this->fd) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
-        " bytes to: " + addr->GetAddress());
+    ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Sent " + ZLOG_INT(sb.Length()) +
+        " bytes to: " + addr.GetAddress());
     n_->SetSubType(Notification::SUBTYPE_PKT_SENT);
   }
   else
