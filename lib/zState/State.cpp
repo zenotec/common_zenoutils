@@ -45,7 +45,7 @@ State::~State()
 {
 }
 
-SHARED_PTR(Context)&
+SHARED_PTR(Context)
 State::GetContext()
 {
   return (this->_ctx);
