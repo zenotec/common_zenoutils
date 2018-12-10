@@ -344,6 +344,8 @@ main(int argc, const char **argv)
   UTEST_TEST(Ieee80211Test_BeaconGetSet, 0);
   UTEST_TEST(Ieee80211Test_BeaconAssemble, 0);
   UTEST_TEST(Ieee80211Test_BeaconDisassemble, 0);
+  UTEST_TEST(Ieee80211Test_BeaconAssembleWpa2, 0);
+  UTEST_TEST(Ieee80211Test_BeaconDisassembleWpa2, 0);
 
   // Probe Request class unit tests
   UTEST_TEST(Ieee80211Test_ProbeRequestDefaults, 0);
@@ -355,13 +357,17 @@ main(int argc, const char **argv)
   UTEST_TEST(Ieee80211Test_ProbeResponseDefaults, 0);
   UTEST_TEST(Ieee80211Test_ProbeResponseGetSet, 0);
   UTEST_TEST(Ieee80211Test_ProbeResponseAssemble, 0);
+  UTEST_TEST(Ieee80211Test_ProbeResponseAssembleWpa2, 0);
   UTEST_TEST(Ieee80211Test_ProbeResponseDisassemble, 0);
+  UTEST_TEST(Ieee80211Test_ProbeResponseDisassembleWpa2, 0);
 
   // Association Request class unit tests
   UTEST_TEST(Ieee80211Test_AssociationRequestDefaults, 0);
   UTEST_TEST(Ieee80211Test_AssociationRequestGetSet, 0);
   UTEST_TEST(Ieee80211Test_AssociationRequestAssemble, 0);
   UTEST_TEST(Ieee80211Test_AssociationRequestDisassemble, 0);
+  UTEST_TEST(Ieee80211Test_AssociationRequestAssembleWpa2, 0);
+  UTEST_TEST(Ieee80211Test_AssociationRequestDisassembleWpa2, 0);
 
   // Association Response class unit tests
   UTEST_TEST(Ieee80211Test_AssociationResponseDefaults, 0);

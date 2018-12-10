@@ -102,6 +102,7 @@ AssociationRequest::Assemble(zSocket::Buffer& sb_, bool fcs_)
   this->PutTag(this->ExtRates);
   this->PutTag(this->PowerCaps);
   this->PutTag(this->Channels);
+  this->PutTag(this->RsnElement);
   this->PutTag(this->HtCaps);
 #if 0 //TODO
   this->PutTag(this->WmmWme);
@@ -179,6 +180,7 @@ AssociationRequest::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   this->GetTag(ExtRates);
   this->GetTag(PowerCaps);
   this->GetTag(Channels);
+  this->GetTag(RsnElement);
   this->GetTag(HtCaps);
   this->GetTag(WmmWme);
 
@@ -220,6 +222,7 @@ AssociationRequest::Display() const
   std::cout << "\tInterval: \t" << (int) this->Interval() << std::endl;
   if (this->Ssid.Valid()) this->Ssid.Display();
   if (this->PowerCaps.Valid()) this->PowerCaps.Display();
+  if (this->RsnElement.Valid()) this->RsnElement.Display();
 }
 
 //*****************************************************************************

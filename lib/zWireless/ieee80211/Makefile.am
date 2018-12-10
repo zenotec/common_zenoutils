@@ -53,6 +53,7 @@ libieee80211_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee80211/SuppOpClassesTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/DataFrame.h \
 	${top_srcdir}/inc/zutils/ieee80211/QosData.h \
+	${top_srcdir}/inc/zutils/ieee80211/RsnTag.h \
 	${top_srcdir}/inc/zutils/ieee80211/Socket.h
 
 libieee80211_la_SOURCES = \
@@ -86,5 +87,6 @@ libieee80211_la_SOURCES = \
 	Disassociation.cpp \
 	DataFrame.cpp \
 	QosData.cpp \
+	RsnTag.cpp \
 	Socket.cpp
 	

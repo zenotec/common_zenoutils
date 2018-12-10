@@ -93,6 +93,10 @@ int
 Ieee80211Test_BeaconAssemble(void* arg_);
 int
 Ieee80211Test_BeaconDisassemble(void* arg_);
+int
+Ieee80211Test_BeaconAssembleWpa2(void* arg_);
+int
+Ieee80211Test_BeaconDisassembleWpa2(void* arg_);
 
 int
 Ieee80211Test_ProbeRequestDefaults(void* arg_);
@@ -110,7 +114,11 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_);
 int
 Ieee80211Test_ProbeResponseAssemble(void* arg_);
 int
+Ieee80211Test_ProbeResponseAssembleWpa2(void* arg_);
+int
 Ieee80211Test_ProbeResponseDisassemble(void* arg_);
+int
+Ieee80211Test_ProbeResponseDisassembleWpa2(void* arg_);
 
 int
 Ieee80211Test_AssociationRequestDefaults(void* arg_);
@@ -120,6 +128,11 @@ int
 Ieee80211Test_AssociationRequestAssemble(void* arg_);
 int
 Ieee80211Test_AssociationRequestDisassemble(void* arg_);
+int
+Ieee80211Test_AssociationRequestAssembleWpa2(void* arg_);
+int
+Ieee80211Test_AssociationRequestDisassembleWpa2(void* arg_);
+
 
 int
 Ieee80211Test_AssociationResponseDefaults(void* arg_);

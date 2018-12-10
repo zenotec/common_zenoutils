@@ -171,6 +171,7 @@ Beacon::Assemble(zSocket::Buffer& sb_, bool fcs_)
   this->PutTag(this->ChannelSwitch);
   this->PutTag(this->ErpInfo);
   this->PutTag(this->ExtRates);
+  this->PutTag(this->RsnElement);
   this->PutTag(this->SuppOpClass);
   this->PutTag(this->HtCaps);
   this->PutTag(this->HtInfo);
@@ -262,19 +263,19 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   _tail = sb_.Data();
   _end = sb_.Data();
 
-  if (not this->DisassembleTags(sb_, TAGTYPE_HEAD))
+  if(not this->DisassembleTags(sb_, TAGTYPE_HEAD))
   {
-    ZLOG_ERR("Error disassembling beacon frame tags");
-    return (false);
+      ZLOG_ERR("Error disassembling beacon frame");
+      return (false);
   }
 
   _tail = sb_.Data();
   _end = sb_.Data();
 
-  if (not this->DisassembleTags(sb_, TAGTYPE_TAIL))
+  if(not this->DisassembleTags(sb_, TAGTYPE_TAIL))
   {
-    ZLOG_ERR("Error disassembling beacon frame tags");
-    return (false);
+      ZLOG_ERR("Error disassembling beacon frame");
+      return (false);
   }
 
   _end = sb_.Data();
@@ -298,6 +299,7 @@ Beacon::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   this->GetTag(this->ChannelSwitch);
   this->GetTag(this->ErpInfo);
   this->GetTag(this->ExtRates);
+  this->GetTag(this->RsnElement);
   this->GetTag(this->SuppOpClass);
   this->GetTag(this->HtCaps);
   this->GetTag(this->HtInfo);
@@ -347,6 +349,7 @@ Beacon::Display() const
   if (this->ChannelSwitch.Valid()) this->ChannelSwitch.Display();
   if (this->ErpInfo.Valid()) this->ErpInfo.Display();
   if (this->ExtRates.Valid()) this->ExtRates.Display();
+  if (this->RsnElement.Valid()) this->RsnElement.Display();
   if (this->SuppOpClass.Valid()) this->SuppOpClass.Display();
   if (this->HtCaps.Valid()) this->HtCaps.Display();
   if (this->HtInfo.Valid()) this->HtInfo.Display();

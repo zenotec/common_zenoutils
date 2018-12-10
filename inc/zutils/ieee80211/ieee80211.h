@@ -301,7 +301,7 @@ struct rsn_suite
 
 struct rsn_suite_count
 {
-  uint8_t suite_count;
+  uint16_t suite_count;
 } __attribute__ ((packed));
 
 /* RSN Capabilities flags, described in 802.11-2016 Sec. 9.4.2.25.4

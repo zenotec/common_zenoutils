@@ -40,6 +40,7 @@
 #include <zutils/ieee80211/ChannelsTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/VhtCapsTag.h>
+#include <zutils/ieee80211/RsnTag.h>
 
 // local includes
 
@@ -65,7 +66,7 @@ public:
   ExtRatesTag ExtRates;
   PowerCapsTag PowerCaps;
   ChannelsTag Channels;
-  // RSN
+  RsnTag RsnElement;
   // QoS Capability
   // RM Enabled Capabilities
   // Mobility domain

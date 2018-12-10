@@ -26,6 +26,7 @@ using namespace Test;
 #include <zutils/ieee80211/RadioTap.h>
 #include <zutils/ieee80211/Probe.h>
 
+
 using namespace zWireless::ieee80211;
 
 const uint8_t probe_req_frame[] =
@@ -111,8 +112,11 @@ const uint8_t probe_resp_frame_wpa2[] =
     0x66, 0xc3, 0x88, 0x09, 0x00, 0x00, 0x64, 0x00, /* f.....d. */
     0x11, 0x14, 0x00, 0x08, 0x4c, 0x4c, 0x57, 0x69, /* ....LLWi */
     0x66, 0x69, 0x35, 0x30, 0x01, 0x08, 0x82, 0x84, /* fi50.... */
-    0x0b, 0x16, 0x24, 0x30, 0x48, 0x6c, 0x03, 0x01, /* ..$0Hl.. */
-    0x01, 0x2a, 0x01, 0x00, 0x32, 0x04, 0x0c, 0x12, /* .*..2... */
+    0x0b, 0x16, 0x24, 0x30, 0x48, 0x6c, 0x30, 0x12, /* ..$0Hl.. */
+    0x01, 0x00, 0x00, 0x0f, 0xac, 0x04, 0x01, 0x00,
+    0x00, 0x0f, 0xac, 0x04, 0x01, 0x00, 0x00, 0x0f,
+    0xac, 0x02, 0x03, 0x01, 0x01, 0x2a, 0x01, 0x00,
+    0x32, 0x04, 0x0c, 0x12, /* .*..2... */
     0x18, 0x60, 0x30, 0x14, 0x01, 0x00, 0x00, 0x0f, /* .`0..... */
     0xac, 0x04, 0x01, 0x00, 0x00, 0x0f, 0xac, 0x04, /* ........ */
     0x01, 0x00, 0x00, 0x0f, 0xac, 0x02, 0x0c, 0x00, /* ........ */
@@ -157,6 +161,15 @@ const uint8_t probe_resp_frame_wpa2[] =
 };
 
 const size_t probe_resp_frame_wpa2_len = sizeof(probe_resp_frame_wpa2);
+
+const struct rsn_element def_version = { .version = 1 };
+const struct rsn_element ver_unknown = { .version = 0 };
+const struct rsn_oui_format def_oui = { .oui_b1 = 0x00, .oui_b2 = 0x0F, .oui_b3 = 0xAC };
+const struct rsn_suite def_group = { .cipher_oui = def_oui, .cipher_suite_type = 4 };
+const struct rsn_suite def_unknown = { .cipher_oui = def_oui, .cipher_suite_type = 255 };
+const struct rsn_suite def_pair = { .cipher_oui = def_oui, .cipher_suite_type = 4 };
+const struct rsn_suite def_akm = { .cipher_oui = def_oui, .cipher_suite_type = 2 };
+const struct rsn_suite_count def_count = { .suite_count = 1 };
 
 int
 Ieee80211Test_ProbeRequestGetSet(void* arg_)
@@ -429,8 +442,28 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   ZLOG_DEBUG("# Ieee80211Test_ProbeResponseGetSet()");
   ZLOG_DEBUG("#############################################################");
 
+  RsnTag::rsn_default rsn_def = {
+          .protocol = def_version,
+          .group_data_cipher = def_group,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_pair,
+          .akm_count = def_count,
+          .akm_suite_list = def_akm
+  };
+
+  RsnTag::rsn_default rsn_unknown = {
+          .protocol = ver_unknown,
+          .group_data_cipher = def_unknown,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_unknown,
+          .akm_count = def_count,
+          .akm_suite_list = def_unknown
+  };
+
+
   // Create frame and validate
   ProbeResponse frame;
+  RsnTag::rsn_default rsnTag_def = frame.RsnElement();
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
   TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
@@ -453,6 +486,29 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_IS_ZERO(frame.Capabilities());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
+  TEST_IS_ZERO(frame.RsnElement.Length());
+  TEST_EQ(rsn_unknown.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+
 
   // Set non default values
   TEST_TRUE(frame.Version(1));
@@ -480,8 +536,10 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
+  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
 
   // Verify
+  rsnTag_def = frame.RsnElement();
   TEST_EQ(frame.Version(), 1);
   TEST_EQ(Frame::TYPE_DATA, frame.Type());
   TEST_EQ(Frame::SUBTYPE_BEACON, frame.Subtype());
@@ -508,6 +566,38 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_EQ(2, frame.Rates()[1]);
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
+  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(18, frame.RsnElement.Length());
+  TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_suite_type,
+              rsnTag_def.group_data_cipher.cipher_suite_type);
+  TEST_EQ(rsn_def.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_suite_type,
+              rsnTag_def.pairwise_cipher_suite.cipher_suite_type);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_suite_type,
+              rsnTag_def.akm_suite_list.cipher_suite_type);
 
   // Return success
   return (0);
@@ -535,8 +625,19 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
       0xf2, 0x02
   };
 
+  RsnTag::rsn_default rsn_unknown = {
+          .protocol = ver_unknown,
+          .group_data_cipher = def_unknown,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_unknown,
+          .akm_count = def_count,
+          .akm_suite_list = def_unknown
+  };
+
+
   // Create frame and validate
   ProbeResponse frame;
+  RsnTag::rsn_default rsnTag_def = frame.RsnElement();
   TEST_IS_ZERO(frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
   TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
@@ -559,6 +660,29 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_IS_ZERO(frame.Capabilities());
   TEST_EQ(std::string(""), frame.Ssid());
   TEST_IS_ZERO(frame.Rates().size());
+  TEST_IS_ZERO(frame.RsnElement.Length());
+  TEST_EQ(rsn_unknown.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+
 
   // Set values for management frame
   TEST_TRUE(frame.Version(0));
@@ -588,6 +712,7 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_TRUE(frame.Rates(8));
 
   // Verify
+  rsnTag_def = frame.RsnElement();
   TEST_EQ(0, frame.Version());
   TEST_EQ(Frame::TYPE_MGMT, frame.Type());
   TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
@@ -614,6 +739,29 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   TEST_EQ(2, frame.Rates()[1]);
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
+  TEST_IS_ZERO(frame.RsnElement.Length());
+  TEST_EQ(rsn_unknown.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+
 
   zSocket::Buffer sb;
 
@@ -626,6 +774,197 @@ Ieee80211Test_ProbeResponseAssemble(void* arg_)
   for (int i = 0; i < sizeof(frm_probe_resp); i++)
   {
     TEST_EQ_MSG((int)frm_probe_resp[i], *p++, zLog::IntStr(i));
+  }
+
+  // Return success
+  return (0);
+}
+
+
+int
+Ieee80211Test_ProbeResponseAssembleWpa2(void* arg_)
+{
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_ProbeResponseAssemble()");
+  ZLOG_DEBUG("#############################################################");
+
+  size_t len = 0;
+  uint8_t frm_buf[80] = { 0 };
+  uint8_t frm_probe_resp[] =
+  {
+      0x50, 0x00, 0x34, 0x12, 0xff, 0xff, 0xff, 0xff,
+      0xff, 0xff, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55,
+      0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x34, 0x12,
+      0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
+      0x64, 0x00, 0x34, 0x12, 0x00, 0x08, 0x54, 0x65,
+      0x73, 0x74, 0x53, 0x53, 0x49, 0x44, 0x01, 0x04,
+      0x01, 0x02, 0x04, 0x08, 0x30, 0x12, 0x01, 0x00,
+      0x00, 0x0f, 0xac, 0x04, 0x01, 0x00, 0x00, 0x0f,
+      0xac, 0x04, 0x01, 0x00, 0x00, 0x0f, 0xac, 0x02,
+      0xdd, 0x04, 0x00, 0x50, 0xf2, 0x02
+  };
+
+  RsnTag::rsn_default rsn_def = {
+          .protocol = def_version,
+          .group_data_cipher = def_group,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_pair,
+          .akm_count = def_count,
+          .akm_suite_list = def_akm
+  };
+
+  RsnTag::rsn_default rsn_unknown = {
+          .protocol = ver_unknown,
+          .group_data_cipher = def_unknown,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_unknown,
+          .akm_count = def_count,
+          .akm_suite_list = def_unknown
+  };
+
+
+  // Create frame and validate
+  ProbeResponse frame;
+  RsnTag::rsn_default rsnTag_def = frame.RsnElement();
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.Timestamp());
+  TEST_IS_ZERO(frame.Interval());
+  TEST_IS_ZERO(frame.Capabilities());
+  TEST_EQ(std::string(""), frame.Ssid());
+  TEST_IS_ZERO(frame.Rates().size());
+  TEST_IS_ZERO(frame.RsnElement.Length());
+  TEST_EQ(rsn_unknown.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+
+  // Set values for management frame
+  TEST_TRUE(frame.Version(0));
+  TEST_TRUE(frame.Type(Frame::TYPE_MGMT));
+  TEST_TRUE(frame.Subtype(Frame::SUBTYPE_PROBERESP));
+  TEST_TRUE(frame.ToDS(false));
+  TEST_TRUE(frame.FromDS(false));
+  TEST_TRUE(frame.MoreFragments(false));
+  TEST_TRUE(frame.Retry(false));
+  TEST_TRUE(frame.PowerManagement(false));
+  TEST_TRUE(frame.MoreData(false));
+  TEST_TRUE(frame.Protected(false));
+  TEST_TRUE(frame.Order(false));
+  TEST_TRUE(frame.DurationId(0x1234));
+  TEST_TRUE(frame.ReceiverAddress("ff:ff:ff:ff:ff:ff"));
+  TEST_TRUE(frame.TransmitterAddress("00:11:22:33:44:55"));
+  TEST_TRUE(frame.Bssid("00:11:22:33:44:55"));
+  TEST_TRUE(frame.FragmentNum(0x04));
+  TEST_TRUE(frame.SequenceNum(0x0123));
+  TEST_TRUE(frame.Timestamp(0x0011223344556677));
+  TEST_TRUE(frame.Interval(100));
+  TEST_TRUE(frame.Capabilities(0x1234));
+  TEST_TRUE(frame.Ssid("TestSSID"));
+  TEST_TRUE(frame.Rates(1));
+  TEST_TRUE(frame.Rates(2));
+  TEST_TRUE(frame.Rates(4));
+  TEST_TRUE(frame.Rates(8));
+  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
+  // Verify
+  rsnTag_def = frame.RsnElement();
+  TEST_EQ(0, frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_EQ(0x1234, frame.DurationId());
+  TEST_EQ(std::string("ff:ff:ff:ff:ff:ff"), frame.ReceiverAddress());
+  TEST_EQ(std::string("00:11:22:33:44:55"), frame.TransmitterAddress());
+  TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
+  TEST_EQ(0x04, frame.FragmentNum());
+  TEST_EQ(0x0123, frame.SequenceNum());
+  TEST_EQ(0x0011223344556677, frame.Timestamp());
+  TEST_EQ(100, frame.Interval());
+  TEST_EQ(0x1234, frame.Capabilities());
+  TEST_EQ(std::string("TestSSID"), frame.Ssid());
+  TEST_EQ(4, frame.Rates().size());
+  TEST_EQ(1, frame.Rates()[0]);
+  TEST_EQ(2, frame.Rates()[1]);
+  TEST_EQ(4, frame.Rates()[2]);
+  TEST_EQ(8, frame.Rates()[3]);
+  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(18, frame.RsnElement.Length());
+  TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+
+  zSocket::Buffer sb;
+
+  // Assemble and verify
+  TEST_TRUE(frame.Assemble(sb, false));
+
+  TEST_EQ(sb.Size(), sizeof(frm_probe_resp));
+
+  uint8_t* p = sb.Head();
+  for (int i = 0; i < sizeof(frm_probe_resp); i++)
+  {
+      TEST_EQ_MSG((int)frm_probe_resp[i], *p++, zLog::IntStr(i));
   }
 
   // Return success
@@ -708,4 +1047,164 @@ Ieee80211Test_ProbeResponseDisassemble(void* arg_)
   // Return success
   return (0);
 }
+
+int
+Ieee80211Test_ProbeResponseDisassembleWpa2(void* arg_)
+{
+
+  RsnTag::rsn_default rsn_def = {
+          .protocol = def_version,
+          .group_data_cipher = def_group,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_pair,
+          .akm_count = def_count,
+          .akm_suite_list = def_akm
+  };
+
+  RsnTag::rsn_default rsn_unknown = {
+          .protocol = ver_unknown,
+          .group_data_cipher = def_unknown,
+          .pairwise_count = def_count,
+          .pairwise_cipher_suite = def_unknown,
+          .akm_count = def_count,
+          .akm_suite_list = def_unknown
+  };
+
+  ZLOG_DEBUG("#############################################################");
+  ZLOG_DEBUG("# Ieee80211Test_ProbeResponseDisassemble()");
+  ZLOG_DEBUG("#############################################################");
+
+  // Make copy of raw Probe response frame
+  zSocket::Buffer sb;
+  sb.Write(probe_resp_frame_wpa2, probe_resp_frame_wpa2_len);
+  sb.Push(probe_resp_frame_wpa2_len); // reset data ptr to start of buffer
+
+  // Create frame and validate
+  ProbeResponse frame;
+  RsnTag::rsn_default rsnTag_def = frame.RsnElement();
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_IS_ZERO(frame.DurationId());
+  TEST_EQ(std::string(""), frame.ReceiverAddress());
+  TEST_EQ(std::string(""), frame.TransmitterAddress());
+  TEST_EQ(std::string(""), frame.Bssid());
+  TEST_IS_ZERO(frame.FragmentNum());
+  TEST_IS_ZERO(frame.SequenceNum());
+  TEST_IS_ZERO(frame.Timestamp());
+  TEST_IS_ZERO(frame.Interval());
+  TEST_IS_ZERO(frame.Capabilities());
+  TEST_EQ(std::string(""), frame.Ssid());
+  TEST_IS_ZERO(frame.Rates().size());
+  TEST_IS_ZERO(frame.RsnElement.Length());
+  TEST_EQ(rsn_unknown.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.group_data_cipher.cipher_suite_type,
+              rsnTag_def.group_data_cipher.cipher_suite_type);
+  TEST_EQ(rsn_unknown.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+  TEST_EQ(rsn_unknown.pairwise_cipher_suite.cipher_suite_type,
+              rsnTag_def.pairwise_cipher_suite.cipher_suite_type);
+  TEST_EQ(rsn_unknown.akm_suite_list.cipher_suite_type,
+              rsnTag_def.akm_suite_list.cipher_suite_type);
+
+  // Disassemble beacon
+  TEST_TRUE(frame.Disassemble(sb, false));
+
+  // Verify
+  rsnTag_def = frame.RsnElement();
+  TEST_IS_ZERO(frame.Version());
+  TEST_EQ(Frame::TYPE_MGMT, frame.Type());
+  TEST_EQ(Frame::SUBTYPE_PROBERESP, frame.Subtype());
+  TEST_FALSE(frame.ToDS());
+  TEST_FALSE(frame.FromDS());
+  TEST_FALSE(frame.MoreFragments());
+  TEST_FALSE(frame.Retry());
+  TEST_FALSE(frame.PowerManagement());
+  TEST_FALSE(frame.MoreData());
+  TEST_FALSE(frame.Protected());
+  TEST_FALSE(frame.Order());
+  TEST_EQ(0x013a, frame.DurationId());
+  TEST_EQ(std::string("00:11:22:33:44:55"), frame.ReceiverAddress());
+  TEST_EQ(std::string("01:12:23:34:45:56"), frame.TransmitterAddress());
+  TEST_EQ(std::string("00:11:22:33:44:55"), frame.Bssid());
+  TEST_EQ(0x00, frame.FragmentNum());
+  TEST_EQ(0x03fa, frame.SequenceNum());
+  TEST_EQ((uint64_t)0x000988c3669830, frame.Timestamp());
+  TEST_EQ(100, frame.Interval());
+  TEST_EQ(0x1411, frame.Capabilities());
+  TEST_EQ(std::string("LLWifi50"), frame.Ssid());
+  TEST_EQ(8, frame.Rates().size());
+  TEST_EQ(0x82, frame.Rates()[0]); /* 1(B) */
+  TEST_EQ(0x84, frame.Rates()[1]); /* 2(B) */
+  TEST_EQ(0x0b, frame.Rates()[2]); /* 5.5 */
+  TEST_EQ(0x16, frame.Rates()[3]); /* 11 */
+  TEST_EQ(0x24, frame.Rates()[4]); /* 18 */
+  TEST_EQ(0x30, frame.Rates()[5]); /* 24 */
+  TEST_EQ(0x48, frame.Rates()[6]); /* 36 */
+  TEST_EQ(0x6c, frame.Rates()[7]); /* 54 */
+  TEST_EQ(18, frame.RsnElement.Length());
+  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b2,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b3,
+              rsnTag_def.group_data_cipher.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.group_data_cipher.cipher_suite_type,
+              rsnTag_def.group_data_cipher.cipher_suite_type);
+  TEST_EQ(rsn_def.akm_count.suite_count, rsnTag_def.akm_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_count.suite_count, rsnTag_def.pairwise_count.suite_count);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b1,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b2,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_oui.oui_b3,
+              rsnTag_def.pairwise_cipher_suite.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.pairwise_cipher_suite.cipher_suite_type,
+              rsnTag_def.pairwise_cipher_suite.cipher_suite_type);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b1,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b1);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b2,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b2);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_oui.oui_b3,
+              rsnTag_def.akm_suite_list.cipher_oui.oui_b3);
+  TEST_EQ(rsn_def.akm_suite_list.cipher_suite_type,
+              rsnTag_def.akm_suite_list.cipher_suite_type);
+
+
+
+  // Return success
+  return (0);
+}
+
 

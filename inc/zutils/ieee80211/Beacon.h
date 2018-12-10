@@ -42,6 +42,7 @@
 #include <zutils/ieee80211/ChannelsTag.h>
 #include <zutils/ieee80211/PowerCapsTag.h>
 #include <zutils/ieee80211/ChannelSwitchTag.h>
+#include <zutils/ieee80211/RsnTag.h>
 
 // local includes
 
@@ -69,6 +70,7 @@ public:
   ChannelSwitchTag ChannelSwitch;
   ErpInfoTag ErpInfo;
   ExtRatesTag ExtRates;
+  RsnTag RsnElement;
   SuppOpClassesTag SuppOpClass;
   HtCapsTag HtCaps;
   HtInfoTag HtInfo;

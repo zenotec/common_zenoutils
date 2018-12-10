@@ -187,6 +187,7 @@ ManagementFrame::AssembleTags(zSocket::Buffer& sb_, uint8_t tagtype_)
 bool
 ManagementFrame::DisassembleTags(zSocket::Buffer& sb_, uint8_t tagtype_)
 {
+  bool ret = true;
 
   struct ieee80211_tag* t = (struct ieee80211_tag*) sb_.Data();
 
@@ -211,7 +212,7 @@ ManagementFrame::DisassembleTags(zSocket::Buffer& sb_, uint8_t tagtype_)
       default:
         break;
       }
-      if (type != TAGTYPE_NONE and tagtype_ != TAGTYPE_NONE)
+      if (type != TAGTYPE_NONE && (type & tagtype_))
       {
         tag.PutValue(t->val, t->len);
         this->_tags[tag.Type()].push_back(tag);
@@ -219,6 +220,12 @@ ManagementFrame::DisassembleTags(zSocket::Buffer& sb_, uint8_t tagtype_)
       }
       else
       {
+        // Reset pointer from pull
+        if(!sb_.Push(sizeof(t->tag) + sizeof(t->len) + t->len))
+        {
+            ZLOG_ERR("Failed to place tag back on buffer");
+            ret = false;
+        }
         break;
       }
     }
@@ -228,7 +235,7 @@ ManagementFrame::DisassembleTags(zSocket::Buffer& sb_, uint8_t tagtype_)
     }
   }
 
-  return true;
+  return ret;
 }
 
 std::string
