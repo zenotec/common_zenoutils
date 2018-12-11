@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([libzutils], [2.0.12], [kevin.mahoney@zenotec.net])
+AC_INIT([libzutils], [2.0.13], [kevin.mahoney@zenotec.net])
 AM_INIT_AUTOMAKE([foreign parallel-tests color-tests])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
