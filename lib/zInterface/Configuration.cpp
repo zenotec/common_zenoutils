@@ -288,6 +288,7 @@ ConfigData::ConfigData(const std::string& name_) :
   SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData(ConfigPath::ConfigRoot));
   this->SetData(data);
   this->SetIfName(name_);
+  this->_init_defaults();
 }
 
 ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
@@ -295,6 +296,7 @@ ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(data_)");
   this->SetData(data_);
+  this->_init_defaults();
 }
 
 ConfigData::~ConfigData()
@@ -539,6 +541,20 @@ ConfigData::SetPromiscuousMode(const ConfigData::PROMODE mode_)
   ConfigPath path(ConfigPath::ConfigPromiscuousModePath);
   std::string str = _promode2str(mode_);
   return (this->_data->PutValue(path, str));
+}
+
+void
+ConfigData::_init_defaults()
+{
+  this->SetIfIndex(this->GetIfIndex());
+  this->SetMasterIfIndex(this->GetMasterIfIndex());
+  this->SetIfName(this->GetIfName());
+  this->SetIfType(this->GetIfType());
+  this->SetMtu(this->GetMtu());
+  this->SetIpAddress(this->GetIpAddress());
+  this->SetNetmask(this->GetNetmask());
+  this->SetAdminState(this->GetAdminState());
+  this->SetPromiscuousMode(this->GetPromiscuousMode());
 }
 
 }
