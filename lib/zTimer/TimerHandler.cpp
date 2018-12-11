@@ -85,9 +85,9 @@ Handler::RegisterEvent(SHARED_PTR(Timer) timer_)
   // Register event with handler
   if (this->_lock.Lock())
   {
-    if (timer_ && timer_->GetId() && !this->_timers.count(timer_->GetId()))
+    if (timer_ && timer_->GetFd() && !this->_timers.count(timer_->GetFd()))
     {
-      this->_timers[timer_->GetId()] = timer_;
+      this->_timers[timer_->GetFd()] = timer_;
       status = zEvent::Handler::RegisterEvent(timer_.get());
       this->_reload.Post();
     }
@@ -105,10 +105,10 @@ Handler::UnregisterEvent(SHARED_PTR(Timer) timer_)
   // Unregister event with handler
   if (this->_lock.Lock())
   {
-    if (timer_ && timer_->GetId() && this->_timers.count(timer_->GetId()))
+    if (timer_ && timer_->GetFd() && this->_timers.count(timer_->GetFd()))
     {
       status = zEvent::Handler::UnregisterEvent(timer_.get());
-      this->_timers.erase(timer_->GetId());
+      this->_timers.erase(timer_->GetFd());
       this->_reload.Post();
     }
     this->_lock.Unlock();
@@ -143,7 +143,7 @@ Handler::Run(zThread::ThreadArg *arg_)
     FOREACH (auto& timer, this->_timers)
     {
       struct pollfd fd = { 0 };
-      fd.fd = timer.second->GetId();
+      fd.fd = timer.second->GetFd();
       fd.events = (POLLIN | POLLERR);
       fds.push_back(fd);
     }

@@ -59,8 +59,8 @@ _add_time(struct timespec *ts_, uint32_t usec_)
 // Class: Timer
 //**********************************************************************
 
-Timer::Timer(const std::string& name_) :
-    zEvent::Event(zEvent::TYPE_TIMER), _fd(0), _interval(0), _name(name_)
+Timer::Timer(const std::string& name_, const uint32_t id_) :
+    zEvent::Event(zEvent::TYPE_TIMER), _id(id_), _fd(0), _interval(0), _name(name_)
 {
 
   // Create timer
@@ -118,7 +118,7 @@ Timer::Stop(void)
 }
 
 int
-Timer::GetId() const
+Timer::GetFd() const
 {
   return (this->_fd);
 }
@@ -134,6 +134,19 @@ Timer::Name(const std::string name_)
 {
   _name = name_;
   return true;
+}
+
+uint32_t
+Timer::GetId()
+{
+  return (this->_id);
+}
+
+bool
+Timer::SetId(const uint32_t id_)
+{
+  this->_id = id_;
+  return (true);
 }
 
 uint64_t

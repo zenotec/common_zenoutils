@@ -109,7 +109,7 @@ zTimerTest_StartStopMultiple(void* arg_)
   {
     SHARED_PTR(zTimer::Timer) MyTimer(new zTimer::Timer);
     TEST_ISNOT_NULL(MyTimer.get());
-    timers[MyTimer->GetId()] = MyTimer;
+    timers[MyTimer->GetFd()] = MyTimer;
     TEST_TRUE(MyHandler->RegisterEvent(MyTimer));
     // Start the timer
     TEST_TRUE(MyTimer->Start(interval));

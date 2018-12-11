@@ -44,7 +44,7 @@ class Timer : public zEvent::Event
 
 public:
 
-  Timer(const std::string& name_ = "");
+  Timer(const std::string& name_ = "", const uint32_t id_ = 0);
 
   virtual
   ~Timer();
@@ -56,7 +56,7 @@ public:
   Stop(void);
 
   int
-  GetId() const;
+  GetFd() const;
 
   uint64_t
   GetTicks() const;
@@ -67,13 +67,19 @@ public:
   bool
   Name(const std::string name_);
 
-protected:
+  uint32_t
+  GetId();
 
-  int _fd;
+  bool
+  SetId(const uint32_t id_);
+
+protected:
 
 private:
 
   mutable zSem::Mutex _lock;
+  uint32_t _id;
+  int _fd;
   uint32_t _interval; // micro-seconds
   std::string _name;
 
