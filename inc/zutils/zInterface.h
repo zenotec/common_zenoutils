@@ -249,6 +249,9 @@ private:
 
   SHARED_PTR(zConfig::ConfigData) _data;
 
+  void
+  _init_defaults();
+
 };
 
 // ****************************************************************************

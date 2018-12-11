@@ -26,7 +26,7 @@ namespace zTimer
 //**********************************************************************
 
 Notification::Notification(Timer& timer_) :
-    zEvent::Notification(timer_), _id(timer_.GetId()), _tick(timer_.GetTicks())
+    zEvent::Notification(timer_), _id(timer_.GetFd()), _tick(timer_.GetTicks())
 {
 }
 
