@@ -53,7 +53,7 @@ namespace ieee8023
 Notification::Notification(Socket& sock_) :
     zSocket::Notification(sock_)
 {
-  this->SetFrame(SHARED_PTR(ieee8023::Frame)(new ieee8023::Frame));
+  this->SetFrame(SHPTR(ieee8023::Frame)(new ieee8023::Frame));
 }
 
 Notification::Notification(const zSocket::Notification& n_) :
@@ -66,7 +66,7 @@ Notification::Notification(const zSocket::Notification& n_) :
     return;
   }
 
-  SHARED_PTR(ieee8023::Frame) frame(new ieee8023::Frame);
+  SHPTR(ieee8023::Frame) frame(new ieee8023::Frame);
 
   // Peek at the 802.3 frame to determine its type & protocol
   if (!frame->Peek(*this->GetBuffer(), false))
@@ -81,7 +81,7 @@ Notification::Notification(const zSocket::Notification& n_) :
   {
     case Frame::SUBTYPE_ETHER:
     {
-      this->SetFrame(SHARED_PTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
+      this->SetFrame(SHPTR(ieee8023::EtherFrame)(new ieee8023::EtherFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
       {
         ZLOG_WARN("Cannot decode ether frame");
@@ -91,7 +91,7 @@ Notification::Notification(const zSocket::Notification& n_) :
     }
     case Frame::SUBTYPE_LLC:
     {
-      this->SetFrame(SHARED_PTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
+      this->SetFrame(SHPTR(ieee8023::LlcFrame)(new ieee8023::LlcFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
       {
         ZLOG_WARN("Cannot decode LLC frame");
@@ -101,7 +101,7 @@ Notification::Notification(const zSocket::Notification& n_) :
     }
     case Frame::SUBTYPE_ETHER2:
     {
-      this->SetFrame(SHARED_PTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
+      this->SetFrame(SHPTR(ieee8023::Ether2Frame)(new ieee8023::Ether2Frame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
       {
         ZLOG_WARN("Cannot decode ether2 frame");
@@ -111,7 +111,7 @@ Notification::Notification(const zSocket::Notification& n_) :
     }
     case Frame::SUBTYPE_VLAN:
     {
-      this->SetFrame(SHARED_PTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
+      this->SetFrame(SHPTR(ieee8023::VlanFrame)(new ieee8023::VlanFrame));
       if (!this->GetFrame()->Disassemble(*this->GetBuffer()))
       {
         ZLOG_WARN("Cannot decode VLAN frame");
@@ -143,11 +143,11 @@ Socket::~Socket()
 {
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 Socket::Recv()
 {
   // Receive frame and convert to wireless notification
-  SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
+  SHPTR(Notification) n(new Notification(*this->socket.Recv()));
 
   // Return wireless notification
   return (n);

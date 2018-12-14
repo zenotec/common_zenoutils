@@ -90,14 +90,14 @@ GenericSocket::Connect(const std::string& family_)
   return (this->_fid > 0);
 }
 
-SHARED_PTR(GenericMessage)
+SHPTR(GenericMessage)
 GenericSocket::CreateMsg()
 {
-  SHARED_PTR(GenericMessage) msg;
+  SHPTR(GenericMessage) msg;
 
   if (this->_fid > 0)
   {
-    msg = SHARED_PTR(GenericMessage)(new GenericMessage(this->_fid));
+    msg = SHPTR(GenericMessage)(new GenericMessage(this->_fid));
   }
 
   return (msg);

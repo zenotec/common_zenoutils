@@ -148,7 +148,7 @@ protected:
 
 private:
 
-  SHARED_PTR(struct skbmem) _skbmem;
+  SHPTR(struct skbmem) _skbmem;
   uint8_t *_head;
   size_t _data;
   size_t _tail;
@@ -378,7 +378,7 @@ public:
   virtual bool
   Close();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   Recv();
 
   virtual bool
@@ -392,8 +392,8 @@ public:
 
 protected:
 
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> txq; // transmit queue
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> rxq; // receive queue
+  zQueue::Queue<SHPTR(zSocket::Notification)> txq; // transmit queue
+  zQueue::Queue<SHPTR(zSocket::Notification)> rxq; // receive queue
 
 private:
 
@@ -449,29 +449,29 @@ public:
   bool
   SetSubType(const Notification::SUBTYPE subtype_);
 
-  SHARED_PTR(Address)
+  SHPTR(Address)
   GetSrcAddress() const;
 
   bool
-  SetSrcAddress(SHARED_PTR(Address) sa_);
+  SetSrcAddress(SHPTR(Address) sa_);
 
-  SHARED_PTR(Address)
+  SHPTR(Address)
   GetDstAddress() const;
 
   bool
-  SetDstAddress(SHARED_PTR(Address) da_);
+  SetDstAddress(SHPTR(Address) da_);
 
-  SHARED_PTR(Buffer)
+  SHPTR(Buffer)
   GetBuffer() const;
 
   bool
-  SetBuffer(SHARED_PTR(Buffer) sb_);
+  SetBuffer(SHPTR(Buffer) sb_);
 
-  SHARED_PTR(Frame)
+  SHPTR(Frame)
   GetFrame() const;
 
   bool
-  SetFrame(const SHARED_PTR(Frame) frame_);
+  SetFrame(const SHPTR(Frame) frame_);
 
   void
   Display(const std::string& prefix_ = "");
@@ -481,10 +481,10 @@ protected:
 private:
 
   Notification::SUBTYPE _subtype;
-  SHARED_PTR(Address) _sa;
-  SHARED_PTR(Address) _da;
-  SHARED_PTR(Buffer) _sb;
-  SHARED_PTR(Frame) _frame;
+  SHPTR(Address) _sa;
+  SHPTR(Address) _da;
+  SHPTR(Buffer) _sb;
+  SHPTR(Frame) _frame;
 
 };
 
@@ -524,7 +524,7 @@ public:
   virtual bool
   Close();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   Recv();
 
   virtual bool
@@ -560,9 +560,9 @@ public:
   ~Tap();
 
   bool
-  Inject(SHARED_PTR(zEvent::Notification)& n_);
+  Inject(SHPTR(zEvent::Notification)& n_);
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   Recv() = 0;
 
   virtual bool

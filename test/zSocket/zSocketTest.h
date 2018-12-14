@@ -128,21 +128,21 @@ public:
   {
   }
 
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> RxSem;
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> TxSem;
-  zQueue::Queue<SHARED_PTR(zSocket::Notification)> ErrSem;
+  zQueue::Queue<SHPTR(zSocket::Notification)> RxSem;
+  zQueue::Queue<SHPTR(zSocket::Notification)> TxSem;
+  zQueue::Queue<SHPTR(zSocket::Notification)> ErrSem;
 
 protected:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+  ObserveEvent(SHPTR(zEvent::Notification) n_)
   {
     ZLOG_DEBUG("Handling socket event");
 
     zEvent::STATUS status = zEvent::STATUS_NONE;
     if (n_ && (n_->GetType() == zEvent::TYPE_SOCKET))
     {
-      SHARED_PTR(Notification) n(STATIC_CAST(Notification)(n_));
+      SHPTR(Notification) n(STATIC_CAST(Notification)(n_));
       switch (n->GetSubType())
       {
       case Notification::SUBTYPE_PKT_RCVD:

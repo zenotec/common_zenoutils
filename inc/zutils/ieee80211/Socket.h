@@ -59,17 +59,17 @@ public:
   virtual
   ~Notification();
 
-  SHARED_PTR(ieee80211::RadioTap)
+  SHPTR(ieee80211::RadioTap)
   RadiotapHeader();
 
   bool
-  RadiotapHeader(SHARED_PTR(ieee80211::RadioTap) rtaphdr_);
+  RadiotapHeader(SHPTR(ieee80211::RadioTap) rtaphdr_);
 
 protected:
 
 private:
 
-  SHARED_PTR(ieee80211::RadioTap) _rtaphdr;
+  SHPTR(ieee80211::RadioTap) _rtaphdr;
 
 };
 
@@ -88,7 +88,7 @@ public:
   virtual
   ~Socket();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   Recv();
 
   virtual bool

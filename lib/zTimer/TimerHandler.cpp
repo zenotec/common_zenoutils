@@ -30,7 +30,7 @@ namespace zTimer
 {
 
 static std::vector<struct pollfd>
-_getfds(std::list<SHARED_PTR(Timer)> timers_)
+_getfds(std::list<SHPTR(Timer)> timers_)
 {
 
 }
@@ -49,7 +49,7 @@ NotificationThread::Run(zThread::ThreadArg *arg_)
   {
     if (h->nq.TimedWait(100))
     {
-      SHARED_PTR(zEvent::Notification) n(h->nq.Front());
+      SHPTR(zEvent::Notification) n(h->nq.Front());
       h->nq.Pop();
       h->notifyObservers(n);
     }
@@ -78,7 +78,7 @@ Handler::~Handler()
 }
 
 bool
-Handler::RegisterEvent(SHARED_PTR(Timer) timer_)
+Handler::RegisterEvent(SHPTR(Timer) timer_)
 {
   bool status = false;
 
@@ -98,7 +98,7 @@ Handler::RegisterEvent(SHARED_PTR(Timer) timer_)
 }
 
 bool
-Handler::UnregisterEvent(SHARED_PTR(Timer) timer_)
+Handler::UnregisterEvent(SHPTR(Timer) timer_)
 {
   bool status = false;
 
@@ -172,8 +172,8 @@ Handler::Run(zThread::ThreadArg *arg_)
           ret = read(fd.fd, &ticks, sizeof(ticks));
           if (ret > 0)
           {
-            SHARED_PTR(Timer) t(this->_timers[fd.fd]);
-            SHARED_PTR(Notification) n(new Notification(*t));
+            SHPTR(Timer) t(this->_timers[fd.fd]);
+            SHPTR(Notification) n(new Notification(*t));
             this->nq.Push(n);
           }
         }

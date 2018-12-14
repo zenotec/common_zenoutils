@@ -99,7 +99,7 @@ protected:
   unregisterHandler(Handler* handler_);
 
   zEvent::STATUS
-  notifyHandlers(SHARED_PTR(zEvent::Notification) n_);
+  notifyHandlers(SHPTR(zEvent::Notification) n_);
 
   std::list<Handler*>
   getHandlers();
@@ -155,7 +155,7 @@ class Observer
 public:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
+  ObserveEvent(SHPTR(zEvent::Notification) n_) = 0;
 };
 
 //**********************************************************************
@@ -189,7 +189,7 @@ public:
 protected:
 
   zEvent::STATUS
-  notifyObservers(SHARED_PTR(zEvent::Notification) n_);
+  notifyObservers(SHPTR(zEvent::Notification) n_);
 
   std::list<Event*>
   getEvents();

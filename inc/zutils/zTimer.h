@@ -163,14 +163,14 @@ public:
   ~Handler();
 
   virtual bool
-  RegisterEvent(SHARED_PTR(Timer) event_);
+  RegisterEvent(SHPTR(Timer) event_);
 
   virtual bool
-  UnregisterEvent(SHARED_PTR(Timer) event_);
+  UnregisterEvent(SHPTR(Timer) event_);
 
 protected:
 
-  zQueue::Queue<SHARED_PTR(zEvent::Notification)> nq; // notification queue
+  zQueue::Queue<SHPTR(zEvent::Notification)> nq; // notification queue
 
   virtual void
   Run(zThread::ThreadArg *arg_);
@@ -178,7 +178,7 @@ protected:
 private:
 
   zSem::Mutex _lock;
-  std::map<int, SHARED_PTR(Timer)> _timers; // key is timer id
+  std::map<int, SHPTR(Timer)> _timers; // key is timer id
 
   zSem::Semaphore _reload;
 

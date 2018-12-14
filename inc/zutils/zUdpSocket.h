@@ -107,12 +107,12 @@ protected:
   int fd;
 
   // Receives and returns notification
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   recv();
 
   // Sends from transmit queue and returns notification
-  virtual SHARED_PTR(zSocket::Notification)
-  send(SHARED_PTR(zSocket::Notification) n_);
+  virtual SHPTR(zSocket::Notification)
+  send(SHPTR(zSocket::Notification) n_);
 
 private:
 

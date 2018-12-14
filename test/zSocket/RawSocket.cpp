@@ -143,7 +143,7 @@ zSocketTest_RawSocketSendReceiveLoop(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
+  SHPTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
   TEST_ISNOT_NULL(rxn.get());
   MyObserver->RxSem.Pop();
 
@@ -245,7 +245,7 @@ zSocketTest_RawSocketSendReceiveSock2Sock(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
+  SHPTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
   TEST_ISNOT_NULL(rxn.get());
   MyObserver->RxSem.Pop();
 

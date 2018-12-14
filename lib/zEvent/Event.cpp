@@ -63,7 +63,7 @@ Event::GetType() const
 }
 
 zEvent::STATUS
-Event::notifyHandlers(SHARED_PTR(zEvent::Notification) n_)
+Event::notifyHandlers(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = STATUS_NONE;
 

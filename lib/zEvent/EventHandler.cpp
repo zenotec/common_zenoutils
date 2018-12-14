@@ -106,7 +106,7 @@ Handler::UnregisterObserver(Observer *obs_)
 }
 
 zEvent::STATUS
-Handler::notifyObservers(SHARED_PTR(zEvent::Notification) noti_)
+Handler::notifyObservers(SHPTR(zEvent::Notification) noti_)
 {
   //*************************************************************************************
   // Note: never call this routine directly; Only should be called by the event class

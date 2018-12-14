@@ -46,7 +46,7 @@ typedef uint64_t u64;
 #define UNIQUE_LOCK(t)  boost::unique_lock<t>
 #define TIMED_LOCK(l,t) ((l).timed_lock(boost::get_system_time() + boost::posix_time::milliseconds (t)))
 #define UNIQUE_PTR(p)   boost::interprocess::unique_ptr<p>
-#define SHARED_PTR(p)   boost::shared_ptr<p>
+#define SHPTR(p)   boost::shared_ptr<p>
 #define STATIC_CAST(p)  boost::static_pointer_cast<p>
 #define MOVE(p)         boost::move(p)
 #define FOREACH(a,b)    BOOST_FOREACH(a,b)
@@ -67,7 +67,7 @@ typedef uint64_t u64;
 #define UNIQUE_LOCK(t)  std::unique_lock<t>
 #define TIMED_LOCK(l,t) ((l).try_lock_for(std::chrono::milliseconds(t)))
 #define UNIQUE_PTR(p)   std::unique_ptr<p>
-#define SHARED_PTR(p)   std::shared_ptr<p>
+#define SHPTR(p)   std::shared_ptr<p>
 #define STATIC_CAST(p)  std::static_pointer_cast<p>
 #define MOVE(p)         std::move(p)
 #define FOREACH(a,b)    for (a : b)

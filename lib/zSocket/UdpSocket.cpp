@@ -108,7 +108,7 @@ UdpSocketTx::Run(zThread::ThreadArg *arg_)
     if (sock->txq.TimedWait(100))
     {
       int retry = 5;
-      SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+      SHPTR(zSocket::Notification) n(sock->txq.Front());
       sock->txq.Pop();
       while (!this->Exit() && --retry)
       {
@@ -386,11 +386,11 @@ UdpSocket::Close()
 
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 UdpSocket::recv()
 {
 
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) n(new zSocket::Notification(*this));
   ssize_t nbytes = 0;
 
   if (this->fd)
@@ -401,7 +401,7 @@ UdpSocket::recv()
     {
       struct sockaddr_in src;
       socklen_t len = sizeof(src);
-      SHARED_PTR(Buffer) sb(new Buffer(nbytes));
+      SHPTR(Buffer) sb(new Buffer(nbytes));
 
       nbytes = recvfrom(this->fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb->Put(nbytes))
@@ -410,8 +410,8 @@ UdpSocket::recv()
         ioctl(this->fd, SIOCGSTAMPNS, &ts);
         sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-        n->SetDstAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
-        n->SetSrcAddress(SHARED_PTR(Ipv4Address)(new Ipv4Address(src)));
+        n->SetDstAddress(SHPTR(Ipv4Address)(new Ipv4Address(this->GetAddress())));
+        n->SetSrcAddress(SHPTR(Ipv4Address)(new Ipv4Address(src)));
         n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
         ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Received " + ZLOG_INT(nbytes) +
@@ -429,8 +429,8 @@ UdpSocket::recv()
 
 }
 
-SHARED_PTR(zSocket::Notification)
-UdpSocket::send(SHARED_PTR(zSocket::Notification) n_)
+SHPTR(zSocket::Notification)
+UdpSocket::send(SHPTR(zSocket::Notification) n_)
 {
   // Initialize notification
   Ipv4Address addr(*n_->GetDstAddress());

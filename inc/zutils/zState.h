@@ -60,25 +60,25 @@ class State :
 
 public:
 
-  State(SHARED_PTR(Context) context_, const uint32_t id_);
+  State(SHPTR(Context) context_, const uint32_t id_);
 
   virtual
   ~State();
 
-  SHARED_PTR(Context)
+  SHPTR(Context)
   GetContext();
 
   uint32_t
   GetId() const;
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_) = 0;
+  ObserveEvent(SHPTR(zEvent::Notification) n_) = 0;
 
 protected:
 
 private:
 
-  SHARED_PTR(Context) _ctx;
+  SHPTR(Context) _ctx;
   uint32_t _id;
 
 };
@@ -102,53 +102,53 @@ public:
   uint32_t
   GetLastStateId() const;
 
-  SHARED_PTR(zState::State)
+  SHPTR(zState::State)
   GetLastState() const;
 
   bool
-  SetLastState(SHARED_PTR(zState::State) state_);
+  SetLastState(SHPTR(zState::State) state_);
 
   uint32_t
   GetStateId() const;
 
-  SHARED_PTR(zState::State)
+  SHPTR(zState::State)
   GetState() const;
 
   bool
-  SetState(SHARED_PTR(zState::State) state_);
+  SetState(SHPTR(zState::State) state_);
 
   uint32_t
   GetNextStateId() const;
 
-  SHARED_PTR(zState::State)
+  SHPTR(zState::State)
   GetNextState() const;
 
   bool
-  SetNextState(SHARED_PTR(zState::State) state_);
+  SetNextState(SHPTR(zState::State) state_);
 
   zEvent::STATUS
-  SetNextStateAndNotify(SHARED_PTR(zState::State) state_);
+  SetNextStateAndNotify(SHPTR(zState::State) state_);
 
   zEvent::STATUS
-  SetNextStateAndNotify(SHARED_PTR(zState::State) state_, SHARED_PTR(zEvent::Notification) n_);
+  SetNextStateAndNotify(SHPTR(zState::State) state_, SHPTR(zEvent::Notification) n_);
 
   virtual zEvent::STATUS
   Notify();
 
   virtual zEvent::STATUS
-  Notify(SHARED_PTR(zEvent::Notification) n_);
+  Notify(SHPTR(zEvent::Notification) n_);
 
 protected:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
+  ObserveEvent(SHPTR(zEvent::Notification) n_);
 
 private:
 
   mutable zSem::Mutex _lock;
-  SHARED_PTR(zState::State) _last;
-  SHARED_PTR(zState::State) _state;
-  SHARED_PTR(zState::State) _next;
+  SHPTR(zState::State) _last;
+  SHPTR(zState::State) _state;
+  SHPTR(zState::State) _next;
 
 };
 

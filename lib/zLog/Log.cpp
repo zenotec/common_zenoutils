@@ -63,19 +63,19 @@ Log::SetMaxLevel(Log::LEVEL level_)
   return;
 }
 
-SHARED_PTR(Message)
+SHPTR(Message)
 Log::CreateMessage(Log::LEVEL level_)
 {
-  SHARED_PTR(Message) msg;
+  SHPTR(Message) msg;
   if (level_ <= this->GetMaxLevel())
   {
-    msg = SHARED_PTR(Message)(new Message(this->_module, level_));
+    msg = SHPTR(Message)(new Message(this->_module, level_));
   }
   return (msg);
 }
 
 void
-Log::LogMessage(const SHARED_PTR(Message)& message_)
+Log::LogMessage(const SHPTR(Message)& message_)
 {
   zLog::Manager::Instance().logMessage(message_);
 }

@@ -127,7 +127,7 @@ public:
 protected:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
+  ObserveEvent(SHPTR(zEvent::Notification) n_);
 
 private:
 

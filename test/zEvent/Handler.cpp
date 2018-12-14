@@ -82,7 +82,7 @@ int
 zEventTest_EventHandlerTestSingleEventMultiObserver(void* arg_)
 {
 
-  SHARED_PTR(TestNotification) MyNotification;
+  SHPTR(TestNotification) MyNotification;
 
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;
@@ -260,7 +260,7 @@ int
 zEventTest_EventHandlerTestMultiEventMultiObserver(void* arg_)
 {
 
-  SHARED_PTR(TestNotification) MyNotification;
+  SHPTR(TestNotification) MyNotification;
 
   // Create new event and validate
   TestEvent *MyEvent = new TestEvent;

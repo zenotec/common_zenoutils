@@ -377,7 +377,7 @@ Buffer::Display() const
 void
 Buffer::_init(const size_t size_)
 {
-  this->_skbmem = SHARED_PTR(struct skbmem)(new skbmem(size_));
+  this->_skbmem = SHPTR(struct skbmem)(new skbmem(size_));
   if (!this->_skbmem.get())
   {
     std::string errMsg = "Error allocating memory for socket buffer";

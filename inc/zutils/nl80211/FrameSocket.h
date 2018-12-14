@@ -91,7 +91,7 @@ public:
 protected:
 
   // Sends from transmit queue and returns notification
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   send();
 
   virtual int

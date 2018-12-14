@@ -109,11 +109,11 @@ Socket::Close()
   return (false);
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 Socket::Recv()
 {
 
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) n(new zSocket::Notification(*this));
   n->SetSubType(Notification::SUBTYPE_ERR);
 
   if (this->rxq.TryWait())
@@ -131,41 +131,42 @@ Socket::Send(const Address& addr_, const Buffer& sb_)
 
   if (sb_.Length() == 0)
   {
-    fprintf(stderr, "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
-    fprintf(stderr, "zSocket::send(): Refusing to send empty buffer\n");
-    sb_.Display();
-    fprintf(stderr, "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+    ZLOG_WARN("Empty socket buffer");
     return (false);
   }
 
   // Create shared notification
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) n(new zSocket::Notification(*this));
   if (!n.get())
   {
+    ZLOG_ERR("NULL notification");
     return (false);
   }
   n->SetSubType(Notification::SUBTYPE_PKT_SENT);
 
   // Create shared source address
-  SHARED_PTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
+  SHPTR(zSocket::Address) src(new zSocket::Address(this->GetAddress()));
   if (!src.get())
   {
+    ZLOG_ERR("NULL source address");
     return (false);
   }
   n->SetSrcAddress(src);
 
   // Create shared destination address
-  SHARED_PTR(zSocket::Address) dst(new zSocket::Address(addr_));
+  SHPTR(zSocket::Address) dst(new zSocket::Address(addr_));
   if (!dst.get())
   {
+    ZLOG_ERR("NULL destination address");
     return (false);
   }
   n->SetDstAddress(dst);
 
   // Create shared socket buffer
-  SHARED_PTR(zSocket::Buffer) sb(new zSocket::Buffer(sb_));
+  SHPTR(zSocket::Buffer) sb(new zSocket::Buffer(sb_));
   if (!sb.get())
   {
+    ZLOG_ERR("NULL socket buffer");
     return (false);
   }
   n->SetBuffer(sb);

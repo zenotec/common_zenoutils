@@ -989,8 +989,14 @@ Interface::_setChannel()
       status = true;
       break;
     default:
+      ZLOG_ERR("Invalid HT mode: " + ZLOG_INT(this->stagingConfig.GetHtMode()));
+      status = false;
       break;
     }
+  }
+  else
+  {
+    ZLOG_ERR("Failed to set channel: ifindex: " + ZLOG_INT(this->workingConfig.GetIfIndex()));
   }
   return (status);
 }

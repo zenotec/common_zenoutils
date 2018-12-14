@@ -135,7 +135,7 @@ zSocketTest_UnixSocketSendReceive(void* arg_)
   // Wait for packet to be received
   status = MyObserver->RxSem.TimedWait(100);
   TEST_TRUE(status);
-  SHARED_PTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
+  SHPTR(zSocket::Notification) rxn(MyObserver->RxSem.Front());
   MyObserver->RxSem.Pop();
 
   // Verify no errors

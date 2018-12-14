@@ -92,7 +92,7 @@ ListInterfacesCommand::Exec()
     return(false);
   }
 
-  SHARED_PTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
+  SHPTR(GenericMessage) cmdmsg = this->_sock.CreateMsg();
   if (!cmdmsg)
   {
     ZLOG_ERR("Error creating the Netlink message");
