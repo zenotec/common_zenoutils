@@ -369,6 +369,7 @@ BasicServiceSet::Start()
   this->_iface.SetPromiscuousMode(zWireless::ConfigData::PROMODE_ENABLED);
   if (!this->_iface.Commit())
   {
+    this->_iface.Display("BSS:\t");
     ZLOG_ERR("Error starting AP interface: cannot UP interface: " + this->_iface.GetIfName());
     return (false);
   }

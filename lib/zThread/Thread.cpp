@@ -221,13 +221,13 @@ Thread::Stop()
 }
 
 zEvent::STATUS
-Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+Thread::ObserveEvent(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
 
   if (n_ && (n_->GetType() == zEvent::TYPE_SIGNAL))
   {
-    SHARED_PTR(zSignal::Notification) n(STATIC_CAST(zSignal::Notification)(n_));
+    SHPTR(zSignal::Notification) n(STATIC_CAST(zSignal::Notification)(n_));
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:

@@ -107,7 +107,7 @@ public:
   zEvent::STATUS
   Notify(int val_)
   {
-    SHARED_PTR(zEvent::Notification) n(new TestNotification(*this, val_));
+    SHPTR(zEvent::Notification) n(new TestNotification(*this, val_));
     return (this->notifyHandlers(n));
   }
 
@@ -131,7 +131,7 @@ public:
   }
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+  ObserveEvent(SHPTR(zEvent::Notification) n_)
   {
     zEvent::STATUS status = zEvent::STATUS_ERR;
     TestNotification* n = (TestNotification*)n_.get();

@@ -77,9 +77,9 @@ Notification::Notification(const zSocket::Notification& n_) :
     return;
   }
 
-  SHARED_PTR(zSocket::Buffer)sb(this->GetBuffer());
-  SHARED_PTR(ieee80211::RadioTap)rthdr(new ieee80211::RadioTap);
-  SHARED_PTR(ieee80211::Frame) frame(new ieee80211::Frame(ieee80211::Frame::TYPE_NONE));
+  SHPTR(zSocket::Buffer)sb(this->GetBuffer());
+  SHPTR(ieee80211::RadioTap)rthdr(new ieee80211::RadioTap);
+  SHPTR(ieee80211::Frame) frame(new ieee80211::Frame(ieee80211::Frame::TYPE_NONE));
 
   // Process radiotap header
   if (!rthdr || !rthdr->Disassemble(*(sb)))
@@ -128,34 +128,34 @@ Notification::Notification(const zSocket::Notification& n_) :
       switch (frame->Subtype())
       {
         case ieee80211::Frame::SUBTYPE_BEACON:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::Beacon);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::Beacon);
           break;
         case ieee80211::Frame::SUBTYPE_PROBEREQ:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::ProbeRequest);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::ProbeRequest);
           break;
         case ieee80211::Frame::SUBTYPE_PROBERESP:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::ProbeResponse);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::ProbeResponse);
           break;
         case ieee80211::Frame::SUBTYPE_ASSREQ:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::AssociationRequest);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::AssociationRequest);
           break;
         case ieee80211::Frame::SUBTYPE_ASSRESP:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::AssociationResponse);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::AssociationResponse);
           break;
         case ieee80211::Frame::SUBTYPE_RASSREQ:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::ReassociationRequest);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::ReassociationRequest);
           break;
         case ieee80211::Frame::SUBTYPE_DISASS:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::Disassociation);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::Disassociation);
           break;
         case ieee80211::Frame::SUBTYPE_AUTH:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::Authentication);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::Authentication);
           break;
         case ieee80211::Frame::SUBTYPE_DEAUTH:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::Deauthentication);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::Deauthentication);
           break;
         case ieee80211::Frame::SUBTYPE_ACTION:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::ActionRequest);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::ActionRequest);
           break;
         default:
           break;
@@ -173,7 +173,7 @@ Notification::Notification(const zSocket::Notification& n_) :
         case ieee80211::Frame::SUBTYPE_ACK:
           // no break
         default:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::ControlFrame);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::ControlFrame);
           break;
       }
       break;
@@ -191,7 +191,7 @@ Notification::Notification(const zSocket::Notification& n_) :
         case ieee80211::Frame::SUBTYPE_DATAQOSNULL:
           // no break
         default:
-          frame = SHARED_PTR(ieee80211::Frame)(new ieee80211::DataFrame);
+          frame = SHPTR(ieee80211::Frame)(new ieee80211::DataFrame);
           break;
       }
       break;
@@ -216,14 +216,14 @@ Notification::~Notification()
 {
 }
 
-SHARED_PTR(ieee80211::RadioTap)
+SHPTR(ieee80211::RadioTap)
 Notification::RadiotapHeader()
 {
   return (this->_rtaphdr);
 }
 
 bool
-Notification::RadiotapHeader(SHARED_PTR(ieee80211::RadioTap)rtaphdr_)
+Notification::RadiotapHeader(SHPTR(ieee80211::RadioTap)rtaphdr_)
 {
   this->_rtaphdr = rtaphdr_;
   return (true);
@@ -242,12 +242,12 @@ Socket::~Socket()
 {
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 Socket::Recv()
 {
 
   // Receive frame and convert to wireless notification
-  SHARED_PTR(Notification) n(new Notification(*this->socket.Recv()));
+  SHPTR(Notification) n(new Notification(*this->socket.Recv()));
 
   if (n.get())
   {
@@ -256,10 +256,10 @@ Socket::Recv()
       case zSocket::Notification::SUBTYPE_PKT_RCVD:
       {
         // Update destination address from actual frame
-        SHARED_PTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
+        SHPTR(zSocket::MacAddress) dst(new zSocket::MacAddress(n->GetFrame()->GetDestination()));
         n->SetDstAddress(dst);
         // Update source address from actual frame
-        SHARED_PTR(zSocket::MacAddress) src(new zSocket::MacAddress(n->GetFrame()->GetSource()));
+        SHPTR(zSocket::MacAddress) src(new zSocket::MacAddress(n->GetFrame()->GetSource()));
         n->SetSrcAddress(src);
         break;
       }

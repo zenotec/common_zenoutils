@@ -80,53 +80,53 @@ Notification::SetSubType(const Notification::SUBTYPE subtype_)
   return (status);
 }
 
-SHARED_PTR(Address)
+SHPTR(Address)
 Notification::GetSrcAddress() const
 {
   return (this->_sa);
 }
 
 bool
-Notification::SetSrcAddress(SHARED_PTR(Address) sa_)
+Notification::SetSrcAddress(SHPTR(Address) sa_)
 {
   this->_sa = sa_;
   return (true);
 }
 
-SHARED_PTR(Address)
+SHPTR(Address)
 Notification::GetDstAddress() const
 {
   return (this->_da);
 }
 
 bool
-Notification::SetDstAddress(SHARED_PTR(Address) da_)
+Notification::SetDstAddress(SHPTR(Address) da_)
 {
   this->_da = da_;
   return (true);
 }
 
-SHARED_PTR(Buffer)
+SHPTR(Buffer)
 Notification::GetBuffer() const
 {
   return (this->_sb);
 }
 
 bool
-Notification::SetBuffer(SHARED_PTR(Buffer) sb_)
+Notification::SetBuffer(SHPTR(Buffer) sb_)
 {
   this->_sb = sb_;
   return (true);
 }
 
-SHARED_PTR(Frame)
+SHPTR(Frame)
 Notification::GetFrame() const
 {
   return (this->_frame);
 }
 
 bool
-Notification::SetFrame(SHARED_PTR(Frame) frame_)
+Notification::SetFrame(SHPTR(Frame) frame_)
 {
   this->_frame = frame_;
   return (true);

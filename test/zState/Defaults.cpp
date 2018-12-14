@@ -24,14 +24,14 @@ zStateTest_Defaults(void* arg_)
 {
 
   // Create state handler and verify
-  SHARED_PTR(zState::Context) myHandler(new zState::Context);
+  SHPTR(zState::Context) myHandler(new zState::Context);
   TEST_ISNOT_NULL(myHandler.get());
   TEST_IS_NULL(myHandler->GetLastState().get());
   TEST_IS_NULL(myHandler->GetState().get());
   TEST_IS_NULL(myHandler->GetNextState().get());
 
   // Create initial state and verify
-  SHARED_PTR(TestStateLower) s1(new TestStateLower(myHandler));
+  SHPTR(TestStateLower) s1(new TestStateLower(myHandler));
   TEST_ISNOT_NULL(s1.get());
   TEST_EQ(s1->GetId(), STATE_ID::ID_LOWER);
 
@@ -45,7 +45,7 @@ zStateTest_Defaults(void* arg_)
   // Create test notification
   TestNotification* myNotification = new TestNotification(*myHandler);
   TEST_ISNOT_NULL(myNotification);
-  SHARED_PTR(zEvent::Notification) n(myNotification);
+  SHPTR(zEvent::Notification) n(myNotification);
   TEST_TRUE(myNotification->SetString("TestString"));
   TEST_EQ(std::string("TestString"), myNotification->GetString());
 

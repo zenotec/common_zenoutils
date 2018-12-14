@@ -93,7 +93,7 @@ class TestStateUpper :
 
 public:
 
-  TestStateUpper(SHARED_PTR(zState::Context) context_);
+  TestStateUpper(SHPTR(zState::Context) context_);
 
   virtual
   ~TestStateUpper();
@@ -101,7 +101,7 @@ public:
 protected:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
+  ObserveEvent(SHPTR(zEvent::Notification) n_);
 
 private:
 
@@ -117,7 +117,7 @@ class TestStateLower :
 
 public:
 
-  TestStateLower(SHARED_PTR(zState::Context) context_);
+  TestStateLower(SHPTR(zState::Context) context_);
 
   virtual
   ~TestStateLower();
@@ -125,7 +125,7 @@ public:
 protected:
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) n_);
+  ObserveEvent(SHPTR(zEvent::Notification) n_);
 
 private:
 

@@ -161,7 +161,7 @@ Signal::Notify(siginfo_t *info_)
 {
   this->_count++;
   Notification* notification = new Notification(*this);
-  SHARED_PTR(zEvent::Notification) n(notification);
+  SHPTR(zEvent::Notification) n(notification);
   notification->siginfo(info_);
   return (zEvent::Event::notifyHandlers(n));
 }

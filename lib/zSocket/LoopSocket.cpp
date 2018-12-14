@@ -107,18 +107,18 @@ LoopSocket::Bind(const Address& addr_)
   return (this->SetAddress(LoopAddress(addr_)) && this->_txthread.Start());
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 LoopSocket::send()
 {
 
   // Initialize send notification
-  SHARED_PTR(zSocket::Notification) txn(this->txq.Front());
+  SHPTR(zSocket::Notification) txn(this->txq.Front());
   this->txq.Pop();
 //  fprintf(stderr, "LoopSocket::send(): Pop from TX queue\n");
 //  txn->Display("txn\t");
 
   // Initialize receive notification
-  SHARED_PTR(zSocket::Notification) rxn(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) rxn(new zSocket::Notification(*this));
   rxn->SetSubType(Notification::SUBTYPE_PKT_RCVD);
   if (txn->GetSrcAddress().get())
     rxn->SetDstAddress(txn->GetSrcAddress());

@@ -49,14 +49,14 @@ InterfaceFactory::Create(const zConfig::ConfigData& config_)
     for (int i = 0; i < config_(zInterface::ConfigPath::ConfigRoot).Size(); i++)
     {
       ConfigData config(config_(zInterface::ConfigPath::ConfigRoot)[i]);
-      SHARED_PTR(Interface)iface;
+      SHPTR(Interface)iface;
       if (config.GetIfType() == ConfigData::TYPE_WIRELESS)
       {
-        iface = SHARED_PTR(Interface)(new WirelessInterface(config));
+        iface = SHPTR(Interface)(new WirelessInterface(config));
       }
       else
       {
-        iface = SHARED_PTR(Interface)(new Interface(config));
+        iface = SHPTR(Interface)(new Interface(config));
       }
 //      ifaces[iface->Name()] = iface;
     }

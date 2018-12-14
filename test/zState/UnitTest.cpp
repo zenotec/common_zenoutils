@@ -27,7 +27,7 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 // Class: TestStateUpper
 //**********************************************************************
 
-TestStateUpper::TestStateUpper(SHARED_PTR(zState::Context) context_) :
+TestStateUpper::TestStateUpper(SHPTR(zState::Context) context_) :
     zState::State(context_, STATE_ID::ID_UPPER)
 {
 }
@@ -37,11 +37,11 @@ TestStateUpper::~TestStateUpper()
 }
 
 zEvent::STATUS
-TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+TestStateUpper::ObserveEvent(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
   int cnt = 0;
-  SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
+  SHPTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
   std::string str = n->GetString();
   FOREACH (auto& c, str)
   {
@@ -53,7 +53,7 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   }
   if (!cnt)
   {
-    SHARED_PTR(TestStateLower) s(new TestStateLower(this->GetContext()));
+    SHPTR(TestStateLower) s(new TestStateLower(this->GetContext()));
     this->GetContext()->SetNextState(s);
   }
   if (n->SetString(str))
@@ -68,7 +68,7 @@ TestStateUpper::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 // Class: TestStateLower
 //**********************************************************************
 
-TestStateLower::TestStateLower(SHARED_PTR(zState::Context) context_) :
+TestStateLower::TestStateLower(SHPTR(zState::Context) context_) :
     zState::State(context_, STATE_ID::ID_LOWER)
 {
 }
@@ -78,10 +78,10 @@ TestStateLower::~TestStateLower()
 }
 
 zEvent::STATUS
-TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+TestStateLower::ObserveEvent(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
-  SHARED_PTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
+  SHPTR(TestNotification) n (STATIC_CAST(TestNotification)(n_));
   std::string str = n->GetString();
   int cnt = 0;
   FOREACH (auto& c, str)
@@ -94,7 +94,7 @@ TestStateLower::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
   }
   if (!cnt)
   {
-    SHARED_PTR(TestStateUpper) s(new TestStateUpper(this->GetContext()));
+    SHPTR(TestStateUpper) s(new TestStateUpper(this->GetContext()));
     this->GetContext()->SetNextState(STATIC_CAST(zState::State)(s));
   }
   if (n->SetString(str))

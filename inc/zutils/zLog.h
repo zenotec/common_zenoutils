@@ -58,7 +58,7 @@ namespace zLog
 
 #define ZLOG_LOGGER(l_,m_) \
   do { \
-	  SHARED_PTR(zUtils::zLog::Message) msg = _zlogger.CreateMessage(l_); \
+	  SHPTR(zUtils::zLog::Message) msg = _zlogger.CreateMessage(l_); \
 	  if (msg) { \
 	    msg->SetFile(__FILE__); \
 	    msg->SetLine(__LINE__); \
@@ -283,11 +283,11 @@ public:
   void
   SetMaxLevel(Log::LEVEL level_);
 
-  SHARED_PTR(Message)
+  SHPTR(Message)
   CreateMessage(Log::LEVEL level_);
 
   void
-  LogMessage(const SHARED_PTR(Message)& message_);
+  LogMessage(const SHPTR(Message)& message_);
 
   static std::string
   ToString(const Log::MODULE module_);
@@ -421,7 +421,7 @@ public:
 protected:
 
   void
-  logMessage(const SHARED_PTR(zLog::Message)& message_);
+  logMessage(const SHPTR(zLog::Message)& message_);
 
   virtual void
   Run(zThread::ThreadArg *arg_);
@@ -430,7 +430,7 @@ private:
 
   zSem::Mutex _log_lock;
   zThread::Thread _thread;
-  zQueue::Queue<SHARED_PTR(zLog::Message)> _msg_queue;
+  zQueue::Queue<SHPTR(zLog::Message)> _msg_queue;
   std::map<std::string, Log::LEVEL> _max_level;
   std::map<std::string, int> _mod_refcnt;
   std::map<Log::LEVEL, Connector*> _conn;

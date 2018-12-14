@@ -225,7 +225,7 @@ protected:
 
 private:
 
-  std::map<int, SHARED_PTR(Attribute)> _attrs;
+  std::map<int, SHPTR(Attribute)> _attrs;
 
 };
 

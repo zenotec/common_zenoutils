@@ -79,7 +79,7 @@ Adapter::Close()
   return (this->socket.Close());
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 Adapter::Recv()
 {
   return (this->socket.Recv());

@@ -252,11 +252,11 @@ UnixSocket::Close()
 
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 UnixSocket::recv()
 {
 
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) n(new zSocket::Notification(*this));
   ssize_t nbytes = 0;
 
   if (this->fd)
@@ -268,7 +268,7 @@ UnixSocket::recv()
 
       struct sockaddr_un src;
       socklen_t len = sizeof(src);
-      SHARED_PTR(Buffer) sb(new Buffer(nbytes));
+      SHPTR(Buffer) sb(new Buffer(nbytes));
 
       nbytes = recvfrom(this->fd, sb->Head(), sb->TotalSize(), 0, (struct sockaddr *) &src, &len);
       if ((nbytes > 0) && sb->Put(nbytes))
@@ -277,8 +277,8 @@ UnixSocket::recv()
         ioctl(this->fd, SIOCGSTAMPNS, &ts);
         sb->Timestamp(ts);
         n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
-        n->SetDstAddress(SHARED_PTR(UnixAddress)(new UnixAddress(this->GetAddress())));
-        n->SetSrcAddress(SHARED_PTR(UnixAddress)(new UnixAddress(src)));
+        n->SetDstAddress(SHPTR(UnixAddress)(new UnixAddress(this->GetAddress())));
+        n->SetSrcAddress(SHPTR(UnixAddress)(new UnixAddress(src)));
         n->SetBuffer(sb);
         // NOTE: frame is initialized by optional adapter socket
         ZLOG_DEBUG("(" + ZLOG_INT(this->GetFd()) + ") " + "Received " + ZLOG_INT(nbytes) +
@@ -296,8 +296,8 @@ UnixSocket::recv()
 
 }
 
-SHARED_PTR(zSocket::Notification)
-UnixSocket::send(SHARED_PTR(zSocket::Notification) n_)
+SHPTR(zSocket::Notification)
+UnixSocket::send(SHPTR(zSocket::Notification) n_)
 {
 
   // Initialize notification

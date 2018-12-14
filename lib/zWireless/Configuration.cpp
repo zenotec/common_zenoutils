@@ -258,7 +258,7 @@ ConfigData::ConfigData(zInterface::ConfigData config_) :
   this->SetIfType(zInterface::ConfigData::IFTYPE_IEEE80211);
 }
 
-ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
+ConfigData::ConfigData(SHPTR(zConfig::ConfigData) data_) :
     zInterface::ConfigData(data_)
 {
   ZLOG_DEBUG("zWireless::ConfigData::ConfigData(data_)");

@@ -141,7 +141,7 @@ public:
 
   ConfigData(zInterface::ConfigData config_);
 
-  ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
+  ConfigData(SHPTR(zConfig::ConfigData) data_);
 
   virtual
   ~ConfigData();
@@ -228,7 +228,7 @@ protected:
 
 private:
 
-  SHARED_PTR(zConfig::ConfigData) _data;
+  SHPTR(zConfig::ConfigData) _data;
 
 };
 

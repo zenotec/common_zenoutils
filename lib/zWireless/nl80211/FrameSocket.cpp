@@ -181,12 +181,12 @@ FrameSocket::Listen()
   return (status);
 }
 
-SHARED_PTR(zSocket::Notification)
+SHPTR(zSocket::Notification)
 FrameSocket::send()
 {
 
   // Initialize notification
-  SHARED_PTR(zSocket::Notification) n(this->txq.Front());
+  SHPTR(zSocket::Notification) n(this->txq.Front());
   this->txq.Pop();
   zSocket::Address addr(*n->GetDstAddress());
   zSocket::Buffer sb(*n->GetBuffer());
@@ -243,10 +243,10 @@ FrameSocket::valid_cb(struct nl_msg* msg_, void* arg_)
   }
 
   // Parse message and notify
-  SHARED_PTR(zSocket::Notification) n(new zSocket::Notification(*this));
+  SHPTR(zSocket::Notification) n(new zSocket::Notification(*this));
   n->SetSubType(Notification::SUBTYPE_PKT_RCVD);
 
-  SHARED_PTR(zSocket::Buffer) sb(new zSocket::Buffer);
+  SHPTR(zSocket::Buffer) sb(new zSocket::Buffer);
   n->SetBuffer(sb);
 
   // Create radiotap header

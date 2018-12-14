@@ -150,7 +150,7 @@ Manager::UnregisterConnector(Log::LEVEL level_)
 }
 
 void
-Manager::logMessage(const SHARED_PTR(zLog::Message)& message_)
+Manager::logMessage(const SHPTR(zLog::Message)& message_)
 {
   this->_msg_queue.Push(message_);
 }
@@ -169,7 +169,7 @@ Manager::Run(zThread::ThreadArg *arg_)
       continue;
     }
 
-    SHARED_PTR(Message)msg = this->_msg_queue.Front();
+    SHPTR(Message)msg = this->_msg_queue.Front();
     this->_msg_queue.Pop();
 
     if (msg && this->_log_lock.TimedLock(100))

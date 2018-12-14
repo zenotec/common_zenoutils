@@ -43,7 +43,7 @@ public:
   virtual bool
   Connect(const std::string& family_);
 
-  virtual SHARED_PTR(GenericMessage)
+  virtual SHPTR(GenericMessage)
   CreateMsg();
 
 protected:

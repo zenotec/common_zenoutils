@@ -80,7 +80,7 @@ public:
   virtual
   ~Socket();
 
-  virtual SHARED_PTR(zSocket::Notification)
+  virtual SHPTR(zSocket::Notification)
   Recv();
 
   void

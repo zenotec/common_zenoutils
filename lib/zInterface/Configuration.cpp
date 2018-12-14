@@ -285,13 +285,13 @@ ConfigData::ConfigData(const std::string& name_) :
     _data(NULL)
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(name_)");
-  SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData(ConfigPath::ConfigRoot));
+  SHPTR(zConfig::ConfigData) data(new zConfig::ConfigData(ConfigPath::ConfigRoot));
   this->SetData(data);
   this->SetIfName(name_);
   this->_init_defaults();
 }
 
-ConfigData::ConfigData(SHARED_PTR(zConfig::ConfigData) data_) :
+ConfigData::ConfigData(SHPTR(zConfig::ConfigData) data_) :
     _data(NULL)
 {
   ZLOG_DEBUG("zInterface::ConfigData::ConfigData(data_)");
@@ -303,14 +303,14 @@ ConfigData::~ConfigData()
 {
 }
 
-SHARED_PTR(zConfig::ConfigData)
+SHPTR(zConfig::ConfigData)
 ConfigData::GetData() const
 {
   return (this->_data);
 }
 
 bool
-ConfigData::SetData(SHARED_PTR(zConfig::ConfigData) data_)
+ConfigData::SetData(SHPTR(zConfig::ConfigData) data_)
 {
   this->_data = data_;
   if (!this->_data)

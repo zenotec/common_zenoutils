@@ -860,14 +860,14 @@ AttributeTable::Disassemble(struct nlattr* attr_, size_t len_)
 
   for (pos = attr_, rem = len_; nla_ok(pos, rem); pos = nla_next(pos, &rem))
   {
-    SHARED_PTR(Attribute) a;
+    SHPTR(Attribute) a;
     if (nla_is_nested(pos))
     {
-      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeNested)(new AttributeNested(nla_type(pos))));
+      a = STATIC_CAST(Attribute)(SHPTR(AttributeNested)(new AttributeNested(nla_type(pos))));
     }
     else
     {
-      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(nla_type(pos))));
+      a = STATIC_CAST(Attribute)(SHPTR(AttributeValue)(new AttributeValue(nla_type(pos))));
     }
     status &= a->Disassemble(pos);
     this->_attrs[nla_type(pos)] = a;
@@ -912,14 +912,14 @@ AttributeTable::Put(Attribute* attr_)
   bool status = false;
   if (attr_ && attr_->IsValid())
   {
-    SHARED_PTR(Attribute) a;
+    SHPTR(Attribute) a;
     if (attr_->IsNested())
     {
-      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeNested)(new AttributeNested(attr_)));
+      a = STATIC_CAST(Attribute)(SHPTR(AttributeNested)(new AttributeNested(attr_)));
     }
     else
     {
-      a = STATIC_CAST(Attribute)(SHARED_PTR(AttributeValue)(new AttributeValue(attr_)));
+      a = STATIC_CAST(Attribute)(SHPTR(AttributeValue)(new AttributeValue(attr_)));
     }
     this->_attrs[attr_->GetId()] = a;
   }

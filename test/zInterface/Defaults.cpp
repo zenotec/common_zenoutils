@@ -53,7 +53,7 @@ zInterfaceTest_InterfaceConfigurationDefaults(void* arg)
   TEST_EQ(ConfigData::ConfigNetmaskDefault, MyConfig->GetNetmask());
   TEST_EQ(ConfigData::STATE_DEF, MyConfig->GetAdminState());
 
-  SHARED_PTR(zConfig::ConfigData) data(new zConfig::ConfigData);
+  SHPTR(zConfig::ConfigData) data(new zConfig::ConfigData);
   MyConfig = new ConfigData(data);
   TEST_ISNOT_NULL(MyConfig);
   TEST_EQ(ConfigData::ConfigIfIndexDefault, MyConfig->GetIfIndex());

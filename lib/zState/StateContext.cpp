@@ -60,7 +60,7 @@ uint32_t
 Context::GetLastStateId() const
 {
   uint32_t id = 0;
-  SHARED_PTR(zState::State)s(this->GetLastState());
+  SHPTR(zState::State)s(this->GetLastState());
   if (s.get())
   {
     id = s->GetId();
@@ -68,10 +68,10 @@ Context::GetLastStateId() const
   return (id);
 }
 
-SHARED_PTR(zState::State)
+SHPTR(zState::State)
 Context::GetLastState() const
 {
-  SHARED_PTR(zState::State) s;
+  SHPTR(zState::State) s;
   if (this->_lock.Lock())
   {
     s = this->_last;
@@ -81,7 +81,7 @@ Context::GetLastState() const
 }
 
 bool
-Context::SetLastState(SHARED_PTR(zState::State) state_)
+Context::SetLastState(SHPTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -96,7 +96,7 @@ uint32_t
 Context::GetStateId() const
 {
   uint32_t id = 0;
-  SHARED_PTR(zState::State)s(this->GetState());
+  SHPTR(zState::State)s(this->GetState());
   if (s.get())
   {
     id = s->GetId();
@@ -104,10 +104,10 @@ Context::GetStateId() const
   return (id);
 }
 
-SHARED_PTR(zState::State)
+SHPTR(zState::State)
 Context::GetState() const
 {
-  SHARED_PTR(zState::State) s;
+  SHPTR(zState::State) s;
   if (this->_lock.Lock())
   {
     s = this->_state;
@@ -117,7 +117,7 @@ Context::GetState() const
 }
 
 bool
-Context::SetState(SHARED_PTR(zState::State) state_)
+Context::SetState(SHPTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -132,7 +132,7 @@ uint32_t
 Context::GetNextStateId() const
 {
   uint32_t id = 0;
-  SHARED_PTR(zState::State) s(this->GetNextState());
+  SHPTR(zState::State) s(this->GetNextState());
   if (s.get())
   {
     id = s->GetId();
@@ -140,10 +140,10 @@ Context::GetNextStateId() const
   return (id);
 }
 
-SHARED_PTR(zState::State)
+SHPTR(zState::State)
 Context::GetNextState() const
 {
-  SHARED_PTR(zState::State) s;
+  SHPTR(zState::State) s;
   if (this->_lock.Lock())
   {
     s = this->_next;
@@ -153,7 +153,7 @@ Context::GetNextState() const
 }
 
 bool
-Context::SetNextState(SHARED_PTR(zState::State) state_)
+Context::SetNextState(SHPTR(zState::State) state_)
 {
   bool status = false;
   if (this->_lock.Lock())
@@ -165,7 +165,7 @@ Context::SetNextState(SHARED_PTR(zState::State) state_)
 }
 
 zEvent::STATUS
-Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_)
+Context::SetNextStateAndNotify(SHPTR(zState::State) state_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
   if (this->SetNextState(state_))
@@ -176,7 +176,7 @@ Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_)
 }
 
 zEvent::STATUS
-Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_, SHARED_PTR(zEvent::Notification) n_)
+Context::SetNextStateAndNotify(SHPTR(zState::State) state_, SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
   if (this->SetNextState(state_))
@@ -189,17 +189,17 @@ Context::SetNextStateAndNotify(SHARED_PTR(zState::State) state_, SHARED_PTR(zEve
 zEvent::STATUS
 Context::Notify()
 {
-  SHARED_PTR(zEvent::Notification) n(new zState::Notification(*this));
+  SHPTR(zEvent::Notification) n(new zState::Notification(*this));
   return (this->Notify(n));
 }
 
 zEvent::STATUS
-Context::Notify(SHARED_PTR(zEvent::Notification) n_)
+Context::Notify(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
 
   // Protect current state from destroying itself by changing state
-  SHARED_PTR(zState::State) s(this->GetNextState());
+  SHPTR(zState::State) s(this->GetNextState());
 
   if (!s.get())
   {
@@ -224,7 +224,7 @@ Context::Notify(SHARED_PTR(zEvent::Notification) n_)
 }
 
 zEvent::STATUS
-Context::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
+Context::ObserveEvent(SHPTR(zEvent::Notification) n_)
 {
   return (this->Notify(n_));
 }

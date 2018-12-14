@@ -41,7 +41,7 @@ InterfaceHandler::InterfaceHandler(zConfig::ConfigData &config_) :
     InterfaceConfigData IfaceConfig;
     config_[i]->Get(IfaceConfig.GetData());
 
-    SHARED_PTR(Interface)Iface = InterfaceFactory::Create(IfaceConfig);
+    SHPTR(Interface)Iface = InterfaceFactory::Create(IfaceConfig);
 
     if (Iface && Iface->Refresh())
     {
@@ -134,10 +134,10 @@ InterfaceHandler::Display()
   }
 }
 
-SHARED_PTR(Interface)
+SHPTR(Interface)
 InterfaceHandler::Iface (const std::string &name_)
 {
-  SHARED_PTR(Interface) iface;
+  SHPTR(Interface) iface;
 
   // Begin critical section
   if (this->_lock.Lock())

@@ -40,7 +40,7 @@ zTimerTest_StartStop(void* arg_)
   int n = 10;
 
   // Create new timer and validate
-  SHARED_PTR(zTimer::Timer) MyTimer(new zTimer::Timer);
+  SHPTR(zTimer::Timer) MyTimer(new zTimer::Timer);
   TEST_ISNOT_NULL(MyTimer.get());
 
   // Create new timer handler and validate
@@ -92,7 +92,7 @@ zTimerTest_StartStopMultiple(void* arg_)
   uint32_t interval = 50000;
   int n = 10;
 
-  std::map<int, SHARED_PTR(zTimer::Timer)> timers;
+  std::map<int, SHPTR(zTimer::Timer)> timers;
 
   // Create new timer handler and validate
   zTimer::Handler *MyHandler = new zTimer::Handler;
@@ -107,7 +107,7 @@ zTimerTest_StartStopMultiple(void* arg_)
   // Create new timers and validate
   for (int i = 0; i < ntimers; i++)
   {
-    SHARED_PTR(zTimer::Timer) MyTimer(new zTimer::Timer);
+    SHPTR(zTimer::Timer) MyTimer(new zTimer::Timer);
     TEST_ISNOT_NULL(MyTimer.get());
     timers[MyTimer->GetFd()] = MyTimer;
     TEST_TRUE(MyHandler->RegisterEvent(MyTimer));

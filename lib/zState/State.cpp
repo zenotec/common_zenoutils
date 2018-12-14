@@ -36,7 +36,7 @@ namespace zState
 // Class: State
 //**********************************************************************
 
-State::State(SHARED_PTR(Context) context_, const uint32_t id_) :
+State::State(SHPTR(Context) context_, const uint32_t id_) :
     _ctx(context_), _id(id_)
 {
 }
@@ -45,7 +45,7 @@ State::~State()
 {
 }
 
-SHARED_PTR(Context)
+SHPTR(Context)
 State::GetContext()
 {
   return (this->_ctx);

@@ -58,7 +58,7 @@ public:
   IsConnected() const;
 
   bool
-  SendMsg(SHARED_PTR(Message) msg_);
+  SendMsg(SHPTR(Message) msg_);
 
   bool
   RecvMsg(); // Receives the message and invokes the installed handler

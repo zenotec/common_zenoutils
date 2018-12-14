@@ -163,7 +163,7 @@ public:
 
   ConfigData(const std::string& name_ = ConfigIfNameDefault);
 
-  ConfigData(SHARED_PTR(zConfig::ConfigData) data_);
+  ConfigData(SHPTR(zConfig::ConfigData) data_);
 
   virtual
   ~ConfigData();
@@ -171,11 +171,11 @@ public:
   zInterface::ConfigData&
   operator=(const zInterface::ConfigData& other_);
 
-  SHARED_PTR(zConfig::ConfigData)
+  SHPTR(zConfig::ConfigData)
   GetData() const;
 
   bool
-  SetData(SHARED_PTR(zConfig::ConfigData) data_);
+  SetData(SHPTR(zConfig::ConfigData) data_);
 
   unsigned int
   GetIfIndex(const unsigned int mtu_ = ConfigIfIndexDefault) const;
@@ -247,7 +247,7 @@ protected:
 
 private:
 
-  SHARED_PTR(zConfig::ConfigData) _data;
+  SHPTR(zConfig::ConfigData) _data;
 
   void
   _init_defaults();
@@ -467,7 +467,7 @@ private:
 // Class: InterfaceTable
 // ****************************************************************************
 
-typedef std::map<std::string, SHARED_PTR(Interface)> InterfaceTable;
+typedef std::map<std::string, SHPTR(Interface)> InterfaceTable;
 
 // ****************************************************************************
 // Class: InterfaceFactory

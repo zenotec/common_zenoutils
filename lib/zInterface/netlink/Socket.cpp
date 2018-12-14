@@ -179,7 +179,7 @@ Socket::IsConnected() const
 }
 
 bool
-Socket::SendMsg(SHARED_PTR(Message) msg_)
+Socket::SendMsg(SHPTR(Message) msg_)
 {
 
   bool status = true;

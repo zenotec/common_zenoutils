@@ -46,7 +46,7 @@ public:
   }
 
   virtual zEvent::STATUS
-  ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
+  ObserveEvent(SHPTR(zEvent::Notification) noti_)
   {
     this->_cnt++;
     return (zEvent::STATUS_OK);
