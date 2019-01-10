@@ -89,7 +89,7 @@ Ieee80211Test_AuthenticationGetSet(void* arg_)
   TEST_TRUE(frame.FragmentNum(0x04));
   TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
-  TEST_TRUE(frame.SequenceNumber(23));
+  TEST_TRUE(frame.AuthSequenceNumber(23));
   TEST_TRUE(frame.StatusCode(10));
 
   // Verify
@@ -178,7 +178,7 @@ Ieee80211Test_AuthenticationAssemble(void* arg_)
   TEST_TRUE(frame.FragmentNum(0x04));
   TEST_TRUE(frame.SequenceNum(0x0123));
   TEST_TRUE(frame.Algorithm(Authentication::TYPE_SHARED_KEY));
-  TEST_TRUE(frame.SequenceNumber(23));
+  TEST_TRUE(frame.AuthSequenceNumber(23));
   TEST_TRUE(frame.StatusCode(10));
 
   // Verify

@@ -94,7 +94,7 @@ public:
   AuthSequenceNumber() const;
 
   bool
-  SequenceNumber(const uint16_t authSeq_);
+  AuthSequenceNumber(const uint16_t seqnum_);
 
   uint16_t
   StatusCode() const;
@@ -108,6 +108,7 @@ public:
 protected:
 
 private:
+
   uint16_t _algorithm;
   uint16_t _sequenceNumber;
   uint16_t _statusCode;

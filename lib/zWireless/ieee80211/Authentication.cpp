@@ -143,7 +143,7 @@ Authentication::Disassemble(zSocket::Buffer& sb_, bool fcs_)
 
   if (sb_.Pull(sizeof(f->seqNumber)))
   {
-    this->SequenceNumber(le16toh(f->seqNumber));
+    this->AuthSequenceNumber(le16toh(f->seqNumber));
   }
   else
   {
@@ -191,9 +191,9 @@ Authentication::AuthSequenceNumber() const
 }
 
 bool
-Authentication::SequenceNumber(const uint16_t sequenceNumber_)
+Authentication::AuthSequenceNumber(const uint16_t seqnum_)
 {
-  this->_sequenceNumber = sequenceNumber_;
+  this->_sequenceNumber = seqnum_;
   return(true);
 }
 
