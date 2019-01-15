@@ -165,12 +165,12 @@ Context::SetNextState(SHPTR(zState::State) state_)
 }
 
 zEvent::STATUS
-Context::SetNextStateAndNotify(SHPTR(zState::State) state_)
+Context::SetNextStateAndNotify(SHPTR(zState::State) state_, const uint32_t cmd_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
   if (this->SetNextState(state_))
   {
-    status = this->Notify();
+    status = this->Notify(cmd_);
   }
   return (status);
 }
