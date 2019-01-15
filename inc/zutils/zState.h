@@ -134,7 +134,7 @@ public:
   SetNextState(SHPTR(zState::State) state_);
 
   zEvent::STATUS
-  SetNextStateAndNotify(SHPTR(zState::State) state_);
+  SetNextStateAndNotify(SHPTR(zState::State) state_, const uint32_t cmd_ = 0);
 
   zEvent::STATUS
   SetNextStateAndNotify(SHPTR(zState::State) state_, SHPTR(zEvent::Notification) n_);
