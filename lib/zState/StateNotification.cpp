@@ -25,13 +25,26 @@ namespace zState
 // Class: Notification
 //**********************************************************************
 
-Notification::Notification(Context& handler_) :
-    zEvent::Notification(handler_)
+Notification::Notification(Context& ctx_) :
+    zEvent::Notification(ctx_), _cmd(0)
 {
 }
 
 Notification::~Notification()
 {
+}
+
+uint32_t
+Notification::GetCommand() const
+{
+  return (this->_cmd);
+}
+
+bool
+Notification::SetCommand(const uint32_t cmd_)
+{
+  this->_cmd = cmd_;
+  return (true);
 }
 
 }

@@ -187,9 +187,10 @@ Context::SetNextStateAndNotify(SHPTR(zState::State) state_, SHPTR(zEvent::Notifi
 }
 
 zEvent::STATUS
-Context::Notify()
+Context::Notify(const uint32_t cmd_)
 {
-  SHPTR(zEvent::Notification) n(new zState::Notification(*this));
+  SHPTR(zState::Notification) n(new zState::Notification(*this));
+  n->SetCommand(cmd_);
   return (this->Notify(n));
 }
 

@@ -38,15 +38,22 @@ class Notification :
 
 public:
 
-  Notification(Context& handler_);
+  Notification(Context& ctx_);
 
   virtual
   ~Notification();
+
+  uint32_t
+  GetCommand() const;
+
+  bool
+  SetCommand(const uint32_t cmd_);
 
 protected:
 
 private:
 
+  uint32_t _cmd;
 
 };
 
@@ -133,7 +140,7 @@ public:
   SetNextStateAndNotify(SHPTR(zState::State) state_, SHPTR(zEvent::Notification) n_);
 
   virtual zEvent::STATUS
-  Notify();
+  Notify(const uint32_t cmd_ = 0);
 
   virtual zEvent::STATUS
   Notify(SHPTR(zEvent::Notification) n_);
