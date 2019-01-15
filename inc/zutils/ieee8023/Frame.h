@@ -99,27 +99,6 @@ public:
   bool
   SetProto(const Frame::PROTO proto_);
 
-  std::string
-  GetDestination() const;
-
-  bool
-  SetDestination(const std::string& dst_);
-
-  std::string
-  GetSource() const;
-
-  bool
-  SetSource(const std::string& src_);
-
-  size_t
-  GetPayload(uint8_t* buf_, const size_t len_) const;
-
-  size_t
-  GetPayloadLength() const;
-
-  bool
-  PutPayload(const uint8_t* buf_, const size_t len_);
-
   virtual void
   Display(const std::string& prefix_ = "") const;
 
@@ -139,11 +118,8 @@ protected:
 
 private:
 
-  std::string _dst;
-  std::string _src;
   Frame::SUBTYPE _subtype;
   Frame::PROTO _proto;
-  std::vector<uint8_t> _payload;
   uint32_t _fcs;
 
 };
