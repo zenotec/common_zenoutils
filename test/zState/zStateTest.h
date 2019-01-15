@@ -47,13 +47,13 @@ enum STATE_ID
 //**********************************************************************
 
 class TestNotification :
-    public zEvent::Notification
+    public zState::Notification
 {
 
 public:
 
-  TestNotification(zEvent::Event& event_) :
-    zEvent::Notification(event_)
+  TestNotification(zState::Context& ctx_) :
+    zState::Notification(ctx_)
   {
   }
 
