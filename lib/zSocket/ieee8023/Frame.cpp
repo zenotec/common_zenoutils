@@ -219,65 +219,6 @@ Frame::SetProto(const Frame::PROTO proto_)
   return (status);
 }
 
-std::string
-Frame::GetDestination() const
-{
-  return (this->_dst);
-}
-
-bool
-Frame::SetDestination(const std::string& dst_)
-{
-  this->_dst = dst_;
-  return (true);
-}
-
-std::string
-Frame::GetSource() const
-{
-  return (this->_src);
-}
-
-bool
-Frame::SetSource(const std::string& src_)
-{
-  this->_src = src_;
-  return (true);
-}
-
-size_t
-Frame::GetPayload(uint8_t* buf_, const size_t len_) const
-{
-  size_t cnt = std::min(this->_payload.size(), len_);
-  memcpy(buf_, this->_payload.data(), cnt);
-  return(cnt);
-}
-
-size_t
-Frame::GetPayloadLength() const
-{
-  return(this->_payload.size());
-}
-
-bool
-Frame::PutPayload(const uint8_t* buf_, const size_t len_)
-{
-  bool status = false;
-
-  if (!len_)
-  {
-    ZLOG_WARN("Zero length payload");
-  }
-
-  if (buf_)
-  {
-    this->_payload.clear();
-    this->_payload.resize(len_);
-    status = (memcpy(this->_payload.data(), buf_, len_) == this->_payload.data());
-  }
-  return (status);
-}
-
 void
 Frame::Display(const std::string& prefix_) const
 {
