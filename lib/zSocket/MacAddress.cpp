@@ -53,12 +53,15 @@ _mac2str(const uint8_t* mac_, std::string& addr_)
 {
   bool status = false;
   char str[18] = { 0 };
-  int n = sprintf(str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
-      mac_[0], mac_[1], mac_[2], mac_[3], mac_[4], mac_[5]);
-  if (n == 17)
+  if (mac_)
   {
-    addr_ = std::string(str);
-    status = true;
+    int n = sprintf(str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", mac_[0], mac_[1], mac_[2],
+        mac_[3], mac_[4], mac_[5]);
+    if (n == 17)
+    {
+      addr_ = std::string(str);
+      status = true;
+    }
   }
   return (status);
 }
