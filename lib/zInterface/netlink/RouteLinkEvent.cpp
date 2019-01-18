@@ -63,20 +63,42 @@ RouteLinkEvent::~RouteLinkEvent()
 void
 RouteLinkEvent::Run(zThread::ThreadArg *arg_)
 {
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = nl_socket_get_fd(this->_sock());
-  fds[0].events = (POLLIN | POLLERR);
 
-  while (!this->Exit())
+  bool exit = false;
+
+  this->RegisterFd(nl_socket_get_fd(this->_sock()), (POLLIN | POLLERR));
+
+  while (!exit)
   {
-    // Poll for received data
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLIN))
+
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      nl_recvmsgs_default(this->_sock());
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if ((nl_socket_get_fd(this->_sock()) == fd.fd) && (fd.revents == POLLIN))
+      {
+        nl_recvmsgs_default(this->_sock());
+      }
     }
+
   }
+
+  this->UnregisterFd(nl_socket_get_fd(this->_sock()));
+
+  return;
+
 }
 
 std::string

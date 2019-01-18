@@ -71,10 +71,12 @@ Interface::Interface(const std::string& ifname_) :
     workingConfig(zInterface::Interface::workingConfig)
 {
   this->SetIfType(ConfigData::IFTYPE_IEEE80211);
+  ZLOG_INFO("Creating new wireless interface: " + ifname_);
 }
 
 Interface::~Interface()
 {
+  ZLOG_INFO("Destroying wireless interface: " + this->GetIfName());
 }
 
 ConfigData

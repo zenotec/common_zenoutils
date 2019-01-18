@@ -127,7 +127,7 @@ RawSocketTx::Run(zThread::ThreadArg *arg_)
       {
         if (sock->txq.TryWait())
         {
-          SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+          SHPTR(zSocket::Notification) n(sock->txq.Front());
           sock->txq.Pop();
           sock->rxq.Push(sock->send(n));
         }
