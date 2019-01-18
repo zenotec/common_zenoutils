@@ -65,6 +65,14 @@ zSocketTest_RawSocketDefault(void* arg_)
   ZLOG_DEBUG("# zSocketTest_RawSocketDefault()");
   ZLOG_DEBUG("#############################################################");
 
+  // First step is to determine if we were executed with root privileges, if not, bypass test
+  uid_t uid = getuid(), euid = geteuid();
+  if (uid != 0 || uid != euid)
+  {
+    ZLOG_DEBUG("Test bypassed");
+    UTEST_BYPASS;
+  }
+
   // Create new socket and validate
   zSocket::RawSocket *MySock = new zSocket::RawSocket;
   TEST_ISNOT_NULL(MySock);

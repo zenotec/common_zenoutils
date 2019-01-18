@@ -105,24 +105,46 @@ FrameEvent::Display(const std::string& prefix_) const
 void
 FrameEvent::Run(zThread::ThreadArg *arg_)
 {
-  // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = this->GetSockFd();
-  fds[0].events = (POLLIN | POLLERR);
 
-  while (!this->Exit())
+  bool exit = false;
+
+  // Setup for poll loop
+  this->RegisterFd(this->GetSockFd(), (POLLIN | POLLERR));
+
+  while (!exit)
   {
-    // Poll for received data
-    int ret = poll(fds, 1, 100);
-    if (ret > 0 && (fds[0].revents == POLLIN))
+
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      if (!this->RecvMsg())
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
       {
-        ZLOG_ERR("Error receiving netlink message");
-        ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if ((fd.fd == this->GetSockFd()) && (fd.revents == POLLIN))
+      {
+        if (!this->RecvMsg())
+        {
+          ZLOG_ERR("Error receiving netlink message");
+          ZLOG_ERR("Error: (" + ZLOG_INT(ret) + ") " + __errstr(ret));
+        }
       }
     }
+
   }
+
+  this->UnregisterFd(this->GetSockFd());
+
+  return;
 }
 
 bool

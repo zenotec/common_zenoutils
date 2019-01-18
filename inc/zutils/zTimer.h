@@ -180,8 +180,6 @@ private:
   zSem::Mutex _lock;
   std::map<int, SHPTR(Timer)> _timers; // key is timer id
 
-  zSem::Semaphore _reload;
-
   zThread::Thread _timer_thread;
 
   zThread::Thread _notification_thread;

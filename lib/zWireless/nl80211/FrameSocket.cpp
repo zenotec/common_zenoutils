@@ -46,15 +46,45 @@ namespace nl80211
 void
 FrameSocketTx::Run(zThread::ThreadArg *arg_)
 {
+
+  bool exit = false;
   class FrameSocket* sock = (class FrameSocket*)arg_;
 
-  while (!this->Exit())
+  this->RegisterFd(sock->txq.GetFd(), (POLLIN | POLLERR));
+
+  while (!exit)
   {
-    if (sock->txq.TimedWait(100))
+
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      sock->rxq.Push(sock->send());
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if ((sock->txq.GetFd() == fd.fd) && (fd.revents == POLLIN))
+      {
+        if (sock->txq.TryWait())
+        {
+          sock->rxq.Push(sock->send());
+        }
+      }
     }
+
   }
+
+  this->UnregisterFd(sock->txq.GetFd());
+
+  return;
 
 }
 

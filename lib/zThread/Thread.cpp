@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <poll.h>
 
 #include <mutex>
 #include <list>
@@ -35,82 +36,113 @@ namespace zThread
 //**********************************************************************
 
 ThreadFunction::ThreadFunction() :
-    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _yield(false), _exit(false)
+    _lock(zSem::Mutex::LOCKED)
 {
-  this->_thread_lock.Unlock();
+  int fd = 0;
+
+  // Automatically add the exit semaphore to the poll file descriptors
+  fd = this->_exit.GetFd();
+  this->_fds[fd].fd = fd;
+  this->_fds[fd].events = (POLLIN || POLLERR);
+  this->_fds[fd].revents = 0;
+
+  // Automatically add the reload semaphore to the poll file descriptors
+  fd = this->_reload.GetFd();
+  this->_fds[fd].fd = fd;
+  this->_fds[fd].events = (POLLIN || POLLERR);
+  this->_fds[fd].revents = 0;
+
+  this->_lock.Unlock();
 }
 
 ThreadFunction::~ThreadFunction()
 {
-  this->_thread_lock.Lock();
+  this->_lock.Lock();
+  this->_fds.clear();
 }
 
 bool
-ThreadFunction::Yield()
+ThreadFunction::RegisterFd(const int fd_, const short int events_)
 {
-  bool flag = false;
-  if (this->_thread_lock.Lock())
-  {
-    flag = this->_yield;
-    this->_thread_lock.Unlock();
-  }
-  return (flag);
+  this->_fds[fd_].fd = fd_;
+  this->_fds[fd_].events = events_;
+  this->_fds[fd_].revents = 0;
+  return (this->_reload.Post());
 }
 
 bool
-ThreadFunction::Yield(bool flag_)
+ThreadFunction::UnregisterFd(const int fd_)
 {
-  bool status = false;
-  if (this->_thread_lock.Lock())
-  {
-    this->_yield = flag_;
-    status = true;
-    this->_thread_lock.Unlock();
-  }
-  return (status);
+  this->_fds.erase(fd_);
+  return (this->_reload.Post());
+}
+
+bool
+ThreadFunction::IsReload(const int fd_)
+{
+  return (fd_ == this->_reload.GetFd());
 }
 
 bool
 ThreadFunction::Exit()
 {
   bool flag = false;
-  if (this->_thread_lock.Lock())
+  if (this->_lock.Lock())
   {
-    flag = this->_exit;
-    this->_thread_lock.Unlock();
+    flag = this->_exit.TryWait();
+    this->_lock.Unlock();
   }
   return (flag);
 }
 
 bool
-ThreadFunction::Exit(bool flag_)
+ThreadFunction::Exit(const bool flag_)
 {
-  bool status = false;
-  if (this->_thread_lock.Lock())
+  bool flag = false;
+  if (flag_ && this->_lock.Lock())
   {
-    this->_exit = flag_;
-    status = true;
-    this->_thread_lock.Unlock();
+    flag = this->_exit.Post();
+    this->_lock.Unlock();
   }
-  return (status);
+  return (flag);
 }
 
 bool
-ThreadFunction::setThread(Thread* thread_)
+ThreadFunction::IsExit(const int fd_)
 {
-  bool status = false;
-  if (thread_)
-  {
-    this->_thread = thread_;
-    status = true;
-  }
-  return(status);
+  return (fd_ == this->_exit.GetFd());
 }
 
-void
-ThreadFunction::yield() const
+int
+ThreadFunction::Poll(std::vector<struct pollfd>& fds_, const int timeout_)
 {
-  std::this_thread::yield();
+
+  // Construct poll file descriptor array
+  std::vector<struct pollfd> fds;
+  FOREACH (auto& fd, this->_fds)
+  {
+    fds.emplace_back(fd.second);
+  }
+
+  // Poll on file descriptors (note: includes the reload and exit semaphore file descriptors)
+  int ret = poll(fds.data(), fds.size(), -1);
+  if (ret > 0)
+  {
+    FOREACH (auto& fd, fds)
+    {
+      if (this->IsReload(fd.fd))
+      {
+        this->_reload.GetCount(); // need to read the counter to clear
+      }
+      if (this->IsExit(fd.fd))
+      {
+        this->_exit.GetCount(); // need to read the counter to clear
+      }
+    }
+    fds_ = fds;
+  }
+
+  return (ret);
 }
 
 //*****************************************************************************
@@ -150,12 +182,10 @@ bool
 Thread::Start()
 {
   bool status = false;
-  if (!this->_thread && this->_func && this->_func->setThread(this))
+  if (!this->_thread && this->_func)
   {
     zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
     zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
-    this->_func->Exit(false);
-    this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
     status = !!this->_thread;
   }

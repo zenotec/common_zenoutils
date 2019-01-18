@@ -29,12 +29,6 @@ namespace zUtils
 namespace zTimer
 {
 
-static std::vector<struct pollfd>
-_getfds(std::list<SHPTR(Timer)> timers_)
-{
-
-}
-
 //**********************************************************************
 // Class: zTimer::NotificationThread
 //**********************************************************************
@@ -43,17 +37,46 @@ void
 NotificationThread::Run(zThread::ThreadArg *arg_)
 {
 
+  bool exit = false;
   Handler* h = (Handler*)arg_;
 
-  while (!this->Exit())
+  this->RegisterFd(h->nq.GetFd(), (POLLIN | POLLERR));
+
+  while (!exit)
   {
-    if (h->nq.TimedWait(100))
+
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      SHPTR(zEvent::Notification) n(h->nq.Front());
-      h->nq.Pop();
-      h->notifyObservers(n);
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if ((h->nq.GetFd() == fd.fd) && (fd.revents == POLLIN))
+      {
+        if (h->nq.TryWait())
+        {
+          SHPTR(zEvent::Notification) n(h->nq.Front());
+          h->nq.Pop();
+          h->notifyObservers(n);
+        }
+      }
     }
+
   }
+
+  this->UnregisterFd(h->nq.GetFd());
+
+  return;
 
 }
 
@@ -89,7 +112,7 @@ Handler::RegisterEvent(SHPTR(Timer) timer_)
     {
       this->_timers[timer_->GetFd()] = timer_;
       status = zEvent::Handler::RegisterEvent(timer_.get());
-      this->_reload.Post();
+      this->RegisterFd(timer_->GetFd(), (POLLIN | POLLERR));
     }
     this->_lock.Unlock();
   }
@@ -109,7 +132,7 @@ Handler::UnregisterEvent(SHPTR(Timer) timer_)
     {
       status = zEvent::Handler::UnregisterEvent(timer_.get());
       this->_timers.erase(timer_->GetFd());
-      this->_reload.Post();
+      this->UnregisterFd(timer_->GetFd());
     }
     this->_lock.Unlock();
   }
@@ -121,80 +144,44 @@ void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
-  while (!this->Exit())
+  bool exit = false;
+
+  while (!exit)
   {
 
     std::vector<struct pollfd> fds;
 
-    // Begin critical section
-    if (!this->_lock.Lock())
-    {
-      this->Exit(true);
-      break;
-    }
-
-    // Add the reload semaphore to the list of file descriptors to poll
-    struct pollfd reload = { 0 };
-    reload.fd = this->_reload.GetFd();
-    reload.events = (POLLIN || POLLERR);
-    fds.push_back(reload);
-
-    // Add all known timers to the list of file descriptors to poll
-    FOREACH (auto& timer, this->_timers)
-    {
-      struct pollfd fd = { 0 };
-      fd.fd = timer.second->GetFd();
-      fd.events = (POLLIN | POLLERR);
-      fds.push_back(fd);
-    }
-
-    // End critical section
-    this->_lock.Unlock();
-
     // Wait on file descriptor set
-    int ret = poll(fds.data(), fds.size(), 100);
+    int ret = this->Poll(fds);
 
-    if (ret == 0)
+    FOREACH (auto& fd, fds)
     {
-      continue;
-    }
-    else if (ret > 0)
-    {
-      FOREACH (auto& fd, fds)
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
       {
-        if (fd.fd == this->_reload.GetFd() && (fd.revents == POLLIN))
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if (this->_timers.count(fd.fd) && (fd.revents == POLLIN))
+      {
+        uint64_t ticks = 0;
+        ret = read(fd.fd, &ticks, sizeof(ticks));
+        if (ret > 0)
         {
-          this->_reload.GetCount(); // need to read the counter to clear
-        }
-        else if (this->_timers.count(fd.fd) && (fd.revents == POLLIN))
-        {
-          uint64_t ticks = 0;
-          ret = read(fd.fd, &ticks, sizeof(ticks));
-          if (ret > 0)
-          {
-            SHPTR(Timer) t(this->_timers[fd.fd]);
-            SHPTR(Notification) n(new Notification(*t));
-            this->nq.Push(n);
-          }
+          SHPTR(Timer) t(this->_timers[fd.fd]);
+          SHPTR(Notification) n(new Notification(*t));
+          this->nq.Push(n);
         }
       }
-    }
-    // TODO: Debug code, remove when no longer needed
-    else if (ret == -EINTR)
-    {
-      // A signal interrupted poll; exit flag should be set
-      fprintf(stderr, "Poll interrupted by signal\n");
-      continue;
-    }
-    else
-    {
-      fprintf(stderr, "BUG: Timer handler encountered a poll error: %d\n", ret);
-      continue;
     }
 
   }
 
   return;
+
 }
 
 }

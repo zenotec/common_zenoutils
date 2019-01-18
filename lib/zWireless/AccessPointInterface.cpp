@@ -62,10 +62,12 @@ AccessPointInterface::AccessPointInterface(const std::string& ifname_) :
     _running(false)
 {
   this->SetOpMode(ConfigData::OPMODE_AP);
+  ZLOG_INFO("Creating new AP interface: " + ifname_);
 }
 
 AccessPointInterface::~AccessPointInterface()
 {
+  ZLOG_INFO("Destroying AP interface: " + this->GetIfName());
 }
 
 std::string

@@ -47,6 +47,8 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_) :
     _iface(ifname_)
 {
 
+  ZLOG_INFO("Creating BSS: " + this->_iface.GetIfName());
+
   // Initialize beacon and probe frame templates
   if (this->_iface.Refresh())
   {
@@ -63,6 +65,7 @@ BasicServiceSet::BasicServiceSet(const std::string& ifname_) :
 
 BasicServiceSet::~BasicServiceSet()
 {
+  ZLOG_INFO("Destroying BSS: " + this->_iface.GetIfName());
 }
 
 const zWireless::AccessPointInterface&

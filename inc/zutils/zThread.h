@@ -17,7 +17,11 @@
 #ifndef __ZTHREAD_H__
 #define __ZTHREAD_H__
 
+#include <poll.h>
+
 #include <string>
+#include <vector>
+#include <map>
 #include <thread>
 
 #include <zutils/zSem.h>
@@ -60,35 +64,38 @@ public:
   virtual
   ~ThreadFunction();
 
-  virtual void
-  Run(zThread::ThreadArg *arg_) = 0;
+  bool
+  RegisterFd(const int fd_, const short int events_);
 
   bool
-  Yield();
+  UnregisterFd(const int fd_);
 
   bool
-  Yield(bool flag_);
+  IsReload(const int fd_);
 
   bool
   Exit();
 
   bool
-  Exit(bool flag_);
+  Exit(const bool flag_);
+
+  bool
+  IsExit(const int fd_);
+
+  int
+  Poll(std::vector<struct pollfd>& fds_, const int timeout_ = -1); // default timeout is infinite
+
+  virtual void
+  Run(zThread::ThreadArg *arg_) = 0;
 
 protected:
 
-  bool
-  setThread(Thread* thread_);
-
-  void
-  yield() const;
-
 private:
 
-  zSem::Mutex _thread_lock;
-  Thread *_thread;
-  bool _yield;
-  bool _exit;
+  zSem::Mutex _lock;
+  std::map<int, struct pollfd> _fds;
+  zSem::Semaphore _reload;
+  zSem::Semaphore _exit;
 
 };
 

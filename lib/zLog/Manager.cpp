@@ -159,44 +159,66 @@ void
 Manager::Run(zThread::ThreadArg *arg_)
 {
 
-  pthread_t tid = pthread_self();
+  bool exit = false;
 
-  while (!this->Exit())
+  this->RegisterFd(this->_msg_queue.GetFd(), (POLLIN | POLLERR));
+
+  while (!exit)
   {
 
-    if (!this->_msg_queue.TimedWait(100))
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      continue;
-    }
-
-    SHPTR(Message)msg = this->_msg_queue.Front();
-    this->_msg_queue.Pop();
-
-    if (msg && this->_log_lock.TimedLock(100))
-    {
-      const std::string& module = msg->GetModule();
-      Log::LEVEL level = msg->GetLevel();
-
-      if ((this->_max_level.count(module)) && (level <= this->_max_level[module]))
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
       {
-        if (this->_conn.count(Log::LEVEL(level)) && this->_conn[Log::LEVEL(level)])
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if ((this->_msg_queue.GetFd() == fd.fd) && (fd.revents == POLLIN))
+      {
+        if (this->_msg_queue.TryWait())
         {
-          std::stringstream ss;
-          ss << msg->GetTimestamp() << "\t";
-          ss << msg->GetProcessId() << "\t";
-          ss << msg->GetThreadId() << "\t";
-          ss << msg->GetModule() << "\t";
-          ss << Log::ToString(msg->GetLevel()) << "\t";
-          ss << msg->GetFile() << "[" << msg->GetLine() << "]\t";
-          ss << msg->GetMessage() << "\t";
-          this->_conn[level]->Logger(ss.str());
+
+          SHPTR(Message) msg = this->_msg_queue.Front();
+          this->_msg_queue.Pop();
+
+          if (msg && this->_log_lock.TimedLock(100))
+          {
+            const std::string& module = msg->GetModule();
+            Log::LEVEL level = msg->GetLevel();
+
+            if ((this->_max_level.count(module)) && (level <= this->_max_level[module]))
+            {
+              if (this->_conn.count(Log::LEVEL(level)) && this->_conn[Log::LEVEL(level)])
+              {
+                std::stringstream ss;
+                ss << msg->GetTimestamp() << "\t";
+                ss << msg->GetProcessId() << "\t";
+                ss << msg->GetThreadId() << "\t";
+                ss << msg->GetModule() << "\t";
+                ss << Log::ToString(msg->GetLevel()) << "\t";
+                ss << msg->GetFile() << "[" << msg->GetLine() << "]\t";
+                ss << msg->GetMessage() << "\t";
+                this->_conn[level]->Logger(ss.str());
+              }
+            }
+            this->_log_lock.Unlock();
+          }
         }
       }
-      this->_log_lock.Unlock();
     }
 
-
   }
+
+  this->UnregisterFd(this->_msg_queue.GetFd());
 
   return;
 }

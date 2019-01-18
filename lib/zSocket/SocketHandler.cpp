@@ -36,6 +36,7 @@ Handler::Handler() :
     _thread(this, NULL)
 {
   this->_lock.Unlock();
+  this->_thread.Start();
 }
 
 Handler::~Handler()
@@ -48,28 +49,17 @@ bool
 Handler::RegisterEvent(Socket* sock_)
 {
   bool status = false;
-  int nsock = 0;
 
-  // Always stop thread before registering socket
-  this->_thread.Stop();
-
-  if (sock_ && this->_lock.Lock())
+  // Register event with handler
+  if (this->_lock.Lock())
   {
-    ZLOG_INFO("Registering socket: " + ZLOG_UINT(sock_->GetFd()));
-    if (zEvent::Handler::RegisterEvent(sock_))
+    if (sock_ && sock_->GetFd() && !this->_smap.count(sock_->GetFd()))
     {
       this->_smap[sock_->GetFd()] = sock_;
-      nsock = this->_smap.size();
-      status = true;
+      status = zEvent::Handler::RegisterEvent(sock_);
+      this->RegisterFd(sock_->GetFd(), (POLLIN | POLLERR));
     }
     this->_lock.Unlock();
-  }
-
-  // Conditionally stop/start handler thread so the socket fd gets added
-  // to the poll list Note: this needs to be done outside critical section
-  if (nsock > 0)
-  {
-    this->_thread.Start();
   }
 
   return (status);
@@ -79,28 +69,17 @@ bool
 Handler::UnregisterEvent(Socket* sock_)
 {
   bool status = false;
-  int nsock = 0;
 
-  // Always stop thread before unregistering socket
-  this->_thread.Stop();
-
-  if (sock_ && this->_lock.Lock())
+  // Unregister event with handler
+  if (this->_lock.Lock())
   {
-    ZLOG_INFO("Unregistering socket: " + ZLOG_UINT(sock_->GetFd()));
-    if (zEvent::Handler::UnregisterEvent(sock_))
+    if (sock_ && sock_->GetFd() && this->_smap.count(sock_->GetFd()))
     {
+      status = zEvent::Handler::UnregisterEvent(sock_);
       this->_smap.erase(sock_->GetFd());
-      nsock = this->_smap.size();
-      status = true;
+      this->UnregisterFd(sock_->GetFd());
     }
     this->_lock.Unlock();
-  }
-
-  // Conditionally start handler thread so the socket fd gets removed
-  // from the poll list Note: this needs to be done outside critical section
-  if (nsock > 0)
-  {
-    this->_thread.Start();
   }
 
   return (status);
@@ -110,66 +89,35 @@ void
 Handler::Run(zThread::ThreadArg *arg_)
 {
 
-  int fd_cnt = 0;
-  struct pollfd fds[NSOCK_MAX] = { 0 };
+  bool exit = false;
 
-  // Setup for polling sockets receive queue
-  if (this->_lock.Lock())
+  while (!exit)
   {
-    FOREACH (auto& t, this->_smap)
-    {
-      fds[fd_cnt].fd = t.second->GetFd();
-      fds[fd_cnt].events = (POLLIN | POLLERR);
-      fd_cnt++;
-    }
-    this->_lock.Unlock();
-  }
 
-  while (!this->Exit())
-  {
+    std::vector<struct pollfd> fds;
 
     // Wait on file descriptor set
-    // Note: returns immediately when a signal is received
-    int ret = poll(fds, fd_cnt, 100);
+    int ret = this->Poll(fds);
 
-    if (ret > 0)
+    FOREACH (auto& fd, fds)
     {
-      for (int i = 0; i < fd_cnt; i++)
+      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
       {
-        int fd = fds[i].fd;
-        if (fds[i].revents == POLLIN)
-        {
-          if (this->_smap.count(fd) && this->_smap[fd])
-          {
-            Socket* sock = this->_smap[fd];
-            SHPTR(zEvent::Notification) n(sock->Recv());
-            sock->notifyHandlers(n);
-          }
-          else
-          {
-            fprintf(stderr, "[%d] BUG: Unexpected socket received data: %d\n", __LINE__, fd);
-          }
-        }
+        exit = true;
+        continue;
+      }
+      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      {
+        continue;
+      }
+      else if (this->_smap.count(fd.fd) && (fd.revents == POLLIN))
+      {
+        Socket* sock = this->_smap[fd.fd];
+        SHPTR(zEvent::Notification) n(sock->Recv());
+        sock->notifyHandlers(n);
       }
     }
-    else if (ret == 0)
-    {
-      continue;
-    }
-    else
-    {
-      if (errno == -EINTR)
-      {
-        // A signal interrupted poll; exit flag should be set
-        fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
-        ZLOG_INFO("Socket poll interrupted by signal");
-      }
-      else
-      {
-        fprintf(stderr, "Socket handler encountered a poll error: %d\n", ret);
-        ZLOG_INFO("Socket handler encountered a poll error: " + ZLOG_INT(ret));
-      }
-    }
+
   }
 
   return;
