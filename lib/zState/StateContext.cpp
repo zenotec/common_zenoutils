@@ -199,25 +199,28 @@ Context::Notify(SHPTR(zEvent::Notification) n_)
 {
   zEvent::STATUS status = zEvent::STATUS_ERR;
 
-  // Protect current state from destroying itself by changing state
-  SHPTR(zState::State) s(this->GetNextState());
-
-  if (!s.get())
-  {
-    return (zEvent::STATUS_ERR);
-  }
-
-  // Advance state
-  this->SetLastState(this->GetState());
-  this->SetState(this->GetNextState());
-
   // Hold lock while state is observing event to block other threads from trying to modify the state
   //    note: lock allows same thread to relock the lock while blocking other threads from the same
   if (this->_lock.Lock())
   {
-    ZLOG_DEBUG1("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
-    status = this->GetState()->ObserveEvent(n_);
-    ZLOG_DEBUG1("State status: " + ZLOG_UINT(status));
+
+    // Protect current state from destroying itself by notifying next state
+    SHPTR(zState::State) s(this->GetNextState());
+    if (s.get())
+    {
+      // Advance state
+      this->SetLastState(this->GetState());
+      this->SetState(this->GetNextState());
+
+      ZLOG_DEBUG("State change: " + ZLOG_UINT(this->GetLastStateId()) + " -> " + ZLOG_UINT(this->GetStateId()));
+      status = this->GetState()->ObserveEvent(n_);
+      ZLOG_DEBUG("State status: " + ZLOG_UINT(status));
+    }
+    else
+    {
+      ZLOG_ERR("NULL state");
+    }
+
     this->_lock.Unlock();
   }
 

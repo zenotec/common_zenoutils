@@ -35,8 +35,7 @@ namespace zThread
 // Class: ThreadFunction
 //**********************************************************************
 
-ThreadFunction::ThreadFunction() :
-    _lock(zSem::Mutex::LOCKED)
+ThreadFunction::ThreadFunction()
 {
   int fd = 0;
 
@@ -52,12 +51,10 @@ ThreadFunction::ThreadFunction() :
   this->_fds[fd].events = (POLLIN || POLLERR);
   this->_fds[fd].revents = 0;
 
-  this->_lock.Unlock();
 }
 
 ThreadFunction::~ThreadFunction()
 {
-  this->_lock.Lock();
   this->_fds.clear();
 }
 
@@ -78,68 +75,69 @@ ThreadFunction::UnregisterFd(const int fd_)
 }
 
 bool
-ThreadFunction::IsReload(const int fd_)
+ThreadFunction::IsReloadFd(const struct pollfd& fd_)
 {
-  return (fd_ == this->_reload.GetFd());
+  bool status = false;
+  if (fd_.revents & POLLIN)
+  {
+    status = (fd_.fd == this->_reload.GetFd());
+  }
+  return (status);
 }
 
 bool
 ThreadFunction::Exit()
 {
-  bool flag = false;
-  if (this->_lock.Lock())
-  {
-    flag = this->_exit.TryWait();
-    this->_lock.Unlock();
-  }
-  return (flag);
+  return (this->_exit.TryWait());
 }
 
 bool
 ThreadFunction::Exit(const bool flag_)
 {
   bool flag = false;
-  if (flag_ && this->_lock.Lock())
+  if (flag_)
   {
     flag = this->_exit.Post();
-    this->_lock.Unlock();
   }
   return (flag);
 }
 
 bool
-ThreadFunction::IsExit(const int fd_)
+ThreadFunction::IsExitFd(const struct pollfd& fd_)
 {
-  return (fd_ == this->_exit.GetFd());
+  bool status = false;
+  if (fd_.revents & POLLIN)
+  {
+    status = (fd_.fd == this->_exit.GetFd());
+  }
+  return (status);
 }
 
 int
 ThreadFunction::Poll(std::vector<struct pollfd>& fds_, const int timeout_)
 {
 
-  // Construct poll file descriptor array
-  std::vector<struct pollfd> fds;
+  // Construct poll file descriptor array using the caller's vector
+  fds_.clear();
   FOREACH (auto& fd, this->_fds)
   {
-    fds.emplace_back(fd.second);
+    fds_.emplace_back(fd.second);
   }
 
   // Poll on file descriptors (note: includes the reload and exit semaphore file descriptors)
-  int ret = poll(fds.data(), fds.size(), -1);
-  if (ret > 0)
+  int ret = poll(fds_.data(), fds_.size(), -1);
+
+  // Automatically clear exit and reload semaphores in case the caller doesn't
+  FOREACH (auto& fd, fds_)
   {
-    FOREACH (auto& fd, fds)
+    if (this->IsExitFd(fd))
     {
-      if (this->IsReload(fd.fd))
-      {
-        this->_reload.GetCount(); // need to read the counter to clear
-      }
-      if (this->IsExit(fd.fd))
-      {
-        this->_exit.GetCount(); // need to read the counter to clear
-      }
+      this->_exit.GetCount(); // need to read the counter to clear
     }
-    fds_ = fds;
+    else if (this->IsReloadFd(fd))
+    {
+      this->_reload.GetCount(); // need to read the counter to clear
+    }
   }
 
   return (ret);

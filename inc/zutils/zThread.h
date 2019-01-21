@@ -71,7 +71,7 @@ public:
   UnregisterFd(const int fd_);
 
   bool
-  IsReload(const int fd_);
+  IsReloadFd(const struct pollfd& fd_);
 
   bool
   Exit();
@@ -80,7 +80,7 @@ public:
   Exit(const bool flag_);
 
   bool
-  IsExit(const int fd_);
+  IsExitFd(const struct pollfd& fd_);
 
   int
   Poll(std::vector<struct pollfd>& fds_, const int timeout_ = -1); // default timeout is infinite
@@ -92,7 +92,6 @@ protected:
 
 private:
 
-  zSem::Mutex _lock;
   std::map<int, struct pollfd> _fds;
   zSem::Semaphore _reload;
   zSem::Semaphore _exit;

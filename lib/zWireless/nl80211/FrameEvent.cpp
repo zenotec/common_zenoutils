@@ -121,12 +121,12 @@ FrameEvent::Run(zThread::ThreadArg *arg_)
 
     FOREACH (auto& fd, fds)
     {
-      if (this->IsExit(fd.fd) && (fd.revents == POLLIN))
+      if (this->IsExitFd(fd))
       {
         exit = true;
         continue;
       }
-      else if (this->IsReload(fd.fd) && (fd.revents == POLLIN))
+      else if (this->IsReloadFd(fd))
       {
         continue;
       }
