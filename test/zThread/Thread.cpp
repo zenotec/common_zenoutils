@@ -116,9 +116,8 @@ zThreadTest_Synchronize(void* arg_)
 
   // Run first thread function, force it to stop and verify
   TEST_TRUE(myThread1->Start());
-  usleep(10000);
+  usleep(100000);
   TEST_TRUE(myThread1->Stop());
-  TEST_FALSE(myThread1->Join());
   TEST_EQ((loops - 1), myThread1->TestArg.LoopCnt);
   TEST_EQ(1, myThread1->TestArg.ErrorCnt);
 

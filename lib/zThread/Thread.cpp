@@ -110,7 +110,7 @@ ThreadFunction::IsExitFd(const struct pollfd& fd_)
   {
     status = (fd_.fd == this->_exit.GetFd());
   }
-  return (flag);
+  return (status);
 }
 
 int
