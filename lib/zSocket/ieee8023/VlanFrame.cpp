@@ -32,7 +32,7 @@ using namespace zSocket;
 
 // local includes
 
-#include "ieee8023.h"
+#include <zutils/ieee8023/ieee8023.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_WIRELESS);
 

@@ -6,6 +6,7 @@ sudo apt-get install libnl-3-dev
 sudo apt-get install libnl-genl-3-dev
 sudo apt-get install libnl-route-3-dev
 sudo apt-get install libboost-all-dev
+sudo apt-get install libssl-dev
 
 mkdir -p ./build ./config ./m4
 touch NEWS README AUTHORS ChangeLog

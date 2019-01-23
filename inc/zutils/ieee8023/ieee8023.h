@@ -19,11 +19,16 @@
 #define __IEEE8023_H__
 
 #include <linux/if_ether.h>
+#include <stdint.h>
+#include <array>
+
+#define NOUNCE_LEN 32
+#define PMK_LEN 32
 
 struct ieee8023_addr
 {
   uint8_t addr[ETH_ALEN];
-};
+}__attribute__ ((packed));
 
 struct ether_hdr
 {
@@ -32,6 +37,12 @@ struct ether_hdr
 } __attribute__ ((packed));
 
 struct ether2_hdr
+{
+  uint16_t proto;
+  uint8_t data[0];
+} __attribute__ ((packed));
+
+struct eapol_hdr
 {
   uint16_t proto;
   uint8_t data[0];
@@ -85,6 +96,7 @@ struct ieee8023_hdr
     struct ieee8021q_hdr vlan;
     struct ieee8021ad_hdr vlan2;
     struct ieee8022_llc_hdr llc;
+    struct eapol_hdr eapol;
   } u;
 } __attribute__ ((packed));
 

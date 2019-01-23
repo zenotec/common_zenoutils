@@ -56,6 +56,7 @@ public:
     SUBTYPE_ETHER,
     SUBTYPE_ETHER2,
     SUBTYPE_VLAN,
+    SUBTYPE_EAPOL,
     SUBTYPE_LLC,
     SUBTYPE_LAST
   };
@@ -67,6 +68,7 @@ public:
     PROTO_IPv4 = 0x0800,
     PROTO_ARP = 0x0806,
     PROTO_VLAN = 0x8100,
+    PROTO_EAPOL = 0x888E,
     PROTO_IPv6 = 0x86DD,
     PROTO_VLAN2 = 0x9100,
     PROTO_LAST
@@ -102,10 +104,10 @@ public:
   virtual void
   Display(const std::string& prefix_ = "") const;
 
-protected:
-
   static bool
   str2mac(const std::string& addr_, uint8_t* hwaddr_);
+
+protected:
 
   static bool
   mac2str(const uint8_t* hwaddr_, std::string& addr_);

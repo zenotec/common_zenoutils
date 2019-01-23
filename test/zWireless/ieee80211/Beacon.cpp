@@ -194,7 +194,9 @@ Ieee80211Test_BeaconGetSet(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
+  TEST_TRUE(frame.RsnElement(IEEE_80211_CIPHER_SUITES::CCMP_128,
+                              {IEEE_80211_CIPHER_SUITES::CCMP_128},
+                              {AKM_CIPHER_SUITES::PSK}));
 
 ////  TEST_TRUE(frame.PowerCaps(20,30));
   TEST_TRUE(frame.ExtRates(17));
@@ -559,7 +561,9 @@ Ieee80211Test_BeaconAssembleWpa2(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
+  TEST_TRUE(frame.RsnElement(IEEE_80211_CIPHER_SUITES::CCMP_128,
+                              {IEEE_80211_CIPHER_SUITES::CCMP_128},
+                              {AKM_CIPHER_SUITES::PSK}));
 
 
 
@@ -625,10 +629,10 @@ Ieee80211Test_BeaconAssembleWpa2(void* arg_)
   TEST_EQ(8, frame.Rates()[3]);
 
   TEST_EQ(18, frame.RsnElement.Length());
-  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
-  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(RSN_PROTOCOL::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(AKM_CIPHER_SUITES::PSK, frame.RsnElement.GetAkmSuites()[0]);
 
   caps = frame.HtCaps();
   TEST_EQ(caps.ht_cap_info, 0x1234);
@@ -678,7 +682,6 @@ Ieee80211Test_BeaconAssembleWpa2(void* arg_)
   TEST_TRUE(frame.Assemble(sb, false));
 
   TEST_EQ(sb.Size(), sizeof(frm_beacon));
-
   uint8_t* p = sb.Head();
   for (int i = 0; i < sizeof(frm_beacon); i++)
   {
@@ -894,10 +897,10 @@ Ieee80211Test_BeaconDisassembleWpa2(void* arg_)
   TEST_EQ(1, frame.Tim.Count());
   TEST_EQ(10, frame.Country.Length());
   TEST_EQ(20, frame.RsnElement.Length());
-  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
-  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(RSN_PROTOCOL::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(AKM_CIPHER_SUITES::PSK, frame.RsnElement.GetAkmSuites()[0]);
   TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
   TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
               rsnTag_def.group_data_cipher.cipher_oui.oui_b1);

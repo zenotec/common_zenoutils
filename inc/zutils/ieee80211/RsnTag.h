@@ -86,81 +86,47 @@ public:
                 return true;
             return false;
         }
-/*
+
         bool
-        operator==(const rsn_default& lhs, const rsn_default& rhs) const
+        operator==(const rsn_default& rhs) const
         {
-            if( lhs.protocol == rhs.protocol &&
-                lhs.group_data_cipher == rhs.group_data_cipher &&
-                lhs.pairwise_count == rhs.pairwise_count &&
-                lhs.pairwise_cipher_suite == rhs.pairwise_cipher_suite &&
-                lhs.akm_count == rhs.akm_count &&
-                lhs.akm_suite_list == rhs.pairwise_cipher_suite )
-                return true;
-            return false;
+          if( this->protocol.version == rhs.protocol.version &&
+              this->group_data_cipher.cipher_oui.oui_b1 == rhs.group_data_cipher.cipher_oui.oui_b1 &&
+              this->group_data_cipher.cipher_oui.oui_b2 == rhs.group_data_cipher.cipher_oui.oui_b2 &&
+              this->group_data_cipher.cipher_oui.oui_b3 == rhs.group_data_cipher.cipher_oui.oui_b3 &&
+              this->pairwise_count.suite_count == rhs.pairwise_count.suite_count &&
+              this->pairwise_cipher_suite.cipher_oui.oui_b1 == rhs.pairwise_cipher_suite.cipher_oui.oui_b1 &&
+              this->pairwise_cipher_suite.cipher_oui.oui_b2 == rhs.pairwise_cipher_suite.cipher_oui.oui_b2 &&
+              this->pairwise_cipher_suite.cipher_oui.oui_b3 == rhs.pairwise_cipher_suite.cipher_oui.oui_b3 &&
+              this->akm_count.suite_count == rhs.akm_count.suite_count &&
+              this->akm_suite_list.cipher_oui.oui_b1 == rhs.akm_suite_list.cipher_oui.oui_b1 &&
+              this->akm_suite_list.cipher_oui.oui_b2 == rhs.akm_suite_list.cipher_oui.oui_b2 &&
+              this->akm_suite_list.cipher_oui.oui_b3 == rhs.akm_suite_list.cipher_oui.oui_b3 )
+              return true;
+          return false;
         }
-        */
+
     }__attribute__((packed));
 
-    enum RSN_PROTOCOL
-    {
-        VER_UNKNOWN = 0,
-        VER_80211_2016 = 1,
-        VER_LAST
-    };
 
-    // From IEEE 802.11-2016 Section 9.4.2.25.2
-    enum IEEE_80211_CIPHER_SUITES
-    {
-        USE_GROUP_CIPHER = 0,
-        WEP_40 = 1,
-        TKIP = 2,
-        CIPHER_RESERVED = 3,
-        CCMP_128 = 4,
-        WEP_104 = 5,
-        BIP_CMAC_128 = 6,
-        GROUP_TRAFFIC_NOT_ALLOWED = 7,
-        GCMP_128 = 8,
-        GCMP_256 = 9,
-        CCMP_256 = 10,
-        BIP_GMAC_128 = 11,
-        BIP_GMAC_256 = 12,
-        BIP_CMAC_256 = 13,
-        CIPHER_UNKNOWN = 255,
-        CIPHER_SUITE_LAST
-    };
-
-    // Taken from IEEE 802.11-2016 Sec 9.4.2.25.3
-    enum AKM_CIPHER_SUITES
-    {
-        AKM_RESERVED = 0,
-        IEEE_STD_PMKSA_CACHING = 1,
-        PSK = 2,
-        FT_AUTH_8021X_SHA256 = 3,
-        FT_AUTH_PSK_SHA256 = 4,
-        IEEE_STD_PMKSA_CACHING_SHA256 = 5,
-        PSK_SHA256 = 6,
-        TDLS_SHA256 = 7,
-        SAE_SHA256_PMSKA_CACHING = 8,
-        FT_AUTH_SAE = 9,
-        AP_PEERKEY_AUTH = 10,
-        SUITE_B_EAP_SHA256 = 11,
-        SUITE_B_EAP_SHA384 = 12,
-        FT_AUTH_SHA384 = 13,
-        AKM_CIPHER_UNKNOWN = 255,
-        AKM_CIPHER_LAST
-    };
 
     RsnTag() :
         Tag(Tag::ID_RSN)
     {
         _rsnProtocol.version = 0;
         _parsed = false;
-        _group_cipher = RsnTag::CIPHER_UNKNOWN;
+        _group_cipher = IEEE_80211_CIPHER_SUITES::CIPHER_UNKNOWN;
         // Default OUI for all RSN elements is 00:0F:AC
         _rsnOui.oui_b1 = 0x00;
         _rsnOui.oui_b2 = 0x0F;
         _rsnOui.oui_b3 = 0xAC;
+    }
+
+    bool
+    operator()(const RsnTag& other_)
+    {
+      return(this->operator ()(other_._group_cipher,
+              other_._pairwiseCiphers, other_._akmCiphers));
     }
 
     virtual
@@ -173,9 +139,11 @@ public:
     operator()();
 
     bool
-    operator()(const RsnTag::IEEE_80211_CIPHER_SUITES group_cipher_,
-                const std::vector<RsnTag::IEEE_80211_CIPHER_SUITES> pairwise_ciphers_,
-                const std::vector<RsnTag::AKM_CIPHER_SUITES> akm_ciphers_);
+    operator()(const IEEE_80211_CIPHER_SUITES group_cipher_,
+                const std::vector<IEEE_80211_CIPHER_SUITES> pairwise_ciphers_,
+                const std::vector<AKM_CIPHER_SUITES> akm_ciphers_);
+
+
 
     bool
     PushVersion()
@@ -185,7 +153,7 @@ public:
 
     // Only one version currently defined. That is a value of 1.
     void
-    SetVersion(const RsnTag::RSN_PROTOCOL ver_ = VER_80211_2016)
+    SetVersion(const RSN_PROTOCOL ver_ = VER_80211_2016)
     {
         _rsnProtocol.version = (uint16_t)ver_;
     }
@@ -194,7 +162,7 @@ public:
     RSN_PROTOCOL
     GetVersion() const
     {
-        return((RsnTag::RSN_PROTOCOL)_rsnProtocol.version);
+        return((RSN_PROTOCOL)_rsnProtocol.version);
     }
 
     void
@@ -203,34 +171,40 @@ public:
         _group_cipher = group_ciphers_;
     }
 
-    RsnTag::IEEE_80211_CIPHER_SUITES
+    IEEE_80211_CIPHER_SUITES
     GetGroupDataCipher() const
     {
         return(_group_cipher);
     }
 
     void
-    SetPairwiseCiphers(std::vector<RsnTag::IEEE_80211_CIPHER_SUITES> pairwiseCiphers_)
+    SetPairwiseCiphers(std::vector<IEEE_80211_CIPHER_SUITES> pairwiseCiphers_)
     {
         _pairwiseCiphers = pairwiseCiphers_;
     }
 
-    std::vector<RsnTag::IEEE_80211_CIPHER_SUITES>
+    std::vector<IEEE_80211_CIPHER_SUITES>
     GetPairwiseCiphers() const
     {
         return(_pairwiseCiphers);
     }
 
     void
-    SetAkmSuites(std::vector<RsnTag::AKM_CIPHER_SUITES> akmSuites_)
+    SetAkmSuites(std::vector<AKM_CIPHER_SUITES> akmSuites_)
     {
         _akmCiphers = akmSuites_;
     }
 
-    std::vector<RsnTag::AKM_CIPHER_SUITES>
+    std::vector<AKM_CIPHER_SUITES>
     GetAkmSuites() const
     {
         return(_akmCiphers);
+    }
+
+    std::vector<uint8_t>
+    GetPayload() const
+    {
+      return(_payload);
     }
 
     RsnTag::rsn_default
@@ -256,6 +230,9 @@ public:
                 << " Type: " << prnt_rsn.akm_suite_list.cipher_suite_type << std::endl;
     }
 
+    void
+    ParseTag(std::vector<uint8_t> values);
+
 private:
     struct rsn_element _rsnProtocol;
     struct rsn_oui_format _rsnOui;
@@ -264,8 +241,7 @@ private:
     std::vector<AKM_CIPHER_SUITES> _akmCiphers;
     bool _parsed;
 
-    void
-    ParseTag(std::vector<uint8_t> values);
+    std::vector<uint8_t> _payload;
 };
 
 }

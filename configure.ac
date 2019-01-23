@@ -20,6 +20,7 @@ AC_PROG_MKDIR_P
 AC_PROG_LIBTOOL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AX_CHECK_OPENSSL
 
 LT_INIT
 
@@ -294,6 +295,17 @@ AC_ARG_ENABLE([zqueue],
     [enable_zqueue=yes])
 AM_CONDITIONAL([COND_ZQUEUE],[test "$enable_zqueue" = yes])
 
+
+#########################################################################################
+
+AC_ARG_ENABLE([zsecurity],
+  [AS_HELP_STRING([--disable-zsecurity],
+    [disable building zSecurity subsystem])],
+    [],
+    [enable_zsecurity=yes])
+AM_CONDITIONAL([COND_ZSECURITY],[test "$enable_zsecurity" = yes])
+
+
 #########################################################################################
 #########################################################################################
 
@@ -377,7 +389,10 @@ AC_CONFIG_FILES([lib/zMessage/Makefile test/zMessage/Makefile])
 #AC_CONFIG_FILES([lib/zThermo/Makefile test/zThermo/Makefile])
 #AC_CONFIG_FILES([lib/zDisplay/Makefile test/zDisplay/Makefile])
 
-
+AC_CONFIG_FILES([
+	lib/zSecurity/Makefile
+	test/zSecurity/Makefile
+])
 # Boost checks
 BOOST_REQUIRE([1.41.1])
 

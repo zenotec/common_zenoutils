@@ -25,6 +25,7 @@ ZLOG_MODULE_INIT(zLog::Log::MODULE_TEST);
 using namespace Test;
 #include <zutils/ieee80211/RadioTap.h>
 #include <zutils/ieee80211/Probe.h>
+#include <zutils/ieee80211/ieee80211.h>
 
 
 using namespace zWireless::ieee80211;
@@ -536,7 +537,9 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
+  TEST_TRUE(frame.RsnElement(IEEE_80211_CIPHER_SUITES::CCMP_128,
+                             {IEEE_80211_CIPHER_SUITES::CCMP_128},
+                             {AKM_CIPHER_SUITES::PSK}));
 
   // Verify
   rsnTag_def = frame.RsnElement();
@@ -566,10 +569,10 @@ Ieee80211Test_ProbeResponseGetSet(void* arg_)
   TEST_EQ(2, frame.Rates()[1]);
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
-  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
-  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(RSN_PROTOCOL::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(AKM_CIPHER_SUITES::PSK, frame.RsnElement.GetAkmSuites()[0]);
   TEST_EQ(18, frame.RsnElement.Length());
   TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
   TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
@@ -898,7 +901,9 @@ Ieee80211Test_ProbeResponseAssembleWpa2(void* arg_)
   TEST_TRUE(frame.Rates(2));
   TEST_TRUE(frame.Rates(4));
   TEST_TRUE(frame.Rates(8));
-  TEST_TRUE(frame.RsnElement(RsnTag::CCMP_128, {RsnTag::CCMP_128}, {RsnTag::PSK}));
+  TEST_TRUE(frame.RsnElement(IEEE_80211_CIPHER_SUITES::CCMP_128,
+                              {IEEE_80211_CIPHER_SUITES::CCMP_128},
+                              {AKM_CIPHER_SUITES::PSK}));
   // Verify
   rsnTag_def = frame.RsnElement();
   TEST_EQ(0, frame.Version());
@@ -927,10 +932,10 @@ Ieee80211Test_ProbeResponseAssembleWpa2(void* arg_)
   TEST_EQ(2, frame.Rates()[1]);
   TEST_EQ(4, frame.Rates()[2]);
   TEST_EQ(8, frame.Rates()[3]);
-  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
-  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(RSN_PROTOCOL::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(AKM_CIPHER_SUITES::PSK, frame.RsnElement.GetAkmSuites()[0]);
   TEST_EQ(18, frame.RsnElement.Length());
   TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
   TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
@@ -1169,10 +1174,10 @@ Ieee80211Test_ProbeResponseDisassembleWpa2(void* arg_)
   TEST_EQ(0x48, frame.Rates()[6]); /* 36 */
   TEST_EQ(0x6c, frame.Rates()[7]); /* 54 */
   TEST_EQ(18, frame.RsnElement.Length());
-  TEST_EQ(RsnTag::VER_80211_2016, frame.RsnElement.GetVersion());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetGroupDataCipher());
-  TEST_EQ(RsnTag::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
-  TEST_EQ(RsnTag::PSK, frame.RsnElement.GetAkmSuites()[0]);
+  TEST_EQ(RSN_PROTOCOL::VER_80211_2016, frame.RsnElement.GetVersion());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetGroupDataCipher());
+  TEST_EQ(IEEE_80211_CIPHER_SUITES::CCMP_128, frame.RsnElement.GetPairwiseCiphers()[0]);
+  TEST_EQ(AKM_CIPHER_SUITES::PSK, frame.RsnElement.GetAkmSuites()[0]);
   TEST_EQ(rsn_def.protocol.version, rsnTag_def.protocol.version);
   TEST_EQ(rsn_def.group_data_cipher.cipher_oui.oui_b1,
               rsnTag_def.group_data_cipher.cipher_oui.oui_b1);

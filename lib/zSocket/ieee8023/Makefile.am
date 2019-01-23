@@ -24,6 +24,7 @@ libieee8023_la_HEADERS = \
 	${top_srcdir}/inc/zutils/ieee8023/Ether2Frame.h \
 	${top_srcdir}/inc/zutils/ieee8023/VlanFrame.h \
 	${top_srcdir}/inc/zutils/ieee8023/LlcFrame.h \
+	${top_srcdir}/inc/zutils/ieee8023/EapolFrame.h \
 	${top_srcdir}/inc/zutils/ieee8023/Socket.h
 
 libieee8023_la_SOURCES = \
@@ -33,4 +34,5 @@ libieee8023_la_SOURCES = \
 	LlcFrame.cpp \
 	Ether2Frame.cpp \
 	VlanFrame.cpp \
+	EapolFrame.cpp \
 	Socket.cpp

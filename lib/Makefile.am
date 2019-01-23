@@ -88,6 +88,16 @@ ZLED_LIBS = \
 	${top_builddir}/lib/zLed/libzLed.la
 endif
 
+if COND_ZSECURITY
+ZSECURITY_SUBDIRS = zSecurity
+ZSECURITY_SOURCE = \
+	$(top_srcdir)/inc/zutils/zSecurity.h
+ZSECURITY_CPPFLAGS =
+ZSECURITY_LDFLAGS =
+ZSECURITY_LIBS = \
+	${top_builddir}/lib/zSecurity/libzSecurity.la
+endif
+
 if COND_ZGPIO
 ZGPIO_SUBDIRS = zGpio
 ZGPIO_SOURCE = \
@@ -230,6 +240,7 @@ SUBDIRS = \
 	$(ZSOCKET_SUBDIRS) \
 	$(ZWIRELESS_SUBDIRS) \
 	$(ZPROGRAM_SUBDIRS) \
+	$(ZSECURITY_SUBDIRS) \
 	$(ZMESSAGE_SUBDIRS)
 
 AM_CPPFLAGS := \
@@ -253,6 +264,7 @@ AM_CPPFLAGS := \
 	$(ZWIRELESS_CPPFLAGS) \
 	$(ZPROGRAM_CPPFLAGS) \
 	$(ZMESSAGE_CPPFLAGS) \
+	$(ZSECURITY_CPPFLAGS) \
 	-Werror -Wfatal-errors
 
 AM_LDFLAGS := \
@@ -275,6 +287,7 @@ AM_LDFLAGS := \
 	$(ZSOCKET_LDFLAGS) \
 	$(ZWIRELESS_LDFLAGS) \
 	$(ZPROGRAM_LDFLAGS) \
+	$(ZSECURITY_LDFLAGS) \
 	$(ZMESSAGE_LDFLAGS)
 
 lib_LTLIBRARIES = libzutils.la
@@ -306,6 +319,7 @@ libzutils_la_HEADERS = \
 	$(ZSOCKET_SOURCE) \
 	$(ZWIRELESS_SOURCE) \
 	$(ZPROGRAM_SOURCE) \
+	$(ZSECURITY_SOURCE) \
 	$(ZMESSAGE_SOURCE)
 
 # Sources to include in the package
@@ -332,4 +346,5 @@ libzutils_la_LIBADD = \
 	$(ZSOCKET_LIBS) \
 	$(ZWIRELESS_LIBS) \
 	$(ZPROGRAM_LIBS) \
+	$(ZSECURITY_LIBS) \
 	$(ZMESSAGE_LIBS)

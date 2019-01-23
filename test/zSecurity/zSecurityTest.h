@@ -14,35 +14,36 @@
  * limitations under the License.
  */
 
-#ifndef _IEEE8023_IEEE8023TEST_H_
-#define _IEEE8023_IEEE8023TEST_H_
+
+
+#ifndef _ZSECURITY_ZSECURITYTEST_H_
+#define _ZSECURITY_ZSECURITYTEST_H_
 
 #include "UnitTest.h"
 
-extern const uint8_t arp_pkt[];
-extern const size_t arp_pkt_len;
 extern const uint8_t eapol_pkt_1[];
 extern const uint8_t eapol_pkt_2[];
 extern const uint8_t eapol_pkt_3[];
 extern const uint8_t eapol_pkt_4[];
 extern const size_t eapol_pkt_1_len;
-extern const size_t eapol_pkt_2_len;
+extern const size_t eapol_pkt_1_len;
 extern const size_t eapol_pkt_3_len;
 extern const size_t eapol_pkt_4_len;
 
 int
-Ieee8023Test_Defaults(void* arg_);
+zSecurityTest_Defaults(void* arg_);
 int
-Ieee8023Test_GetSet(void* arg_);
+zSecurityTest_GetSet(void* arg_);
 int
-Ieee8023Test_Assemble(void* arg_);
+zSecurityTest_Handshake_Mes1(void* arg_);
 int
-Ieee8023Test_Disassemble(void* arg_);
+zSecurityTest_Handshake_Mes2(void* arg_);
 int
-EapolTest_GetSet(void* arg_);
+zSecurityTest_Handshake_Mes3(void* arg_);
 int
-EapolTest_Assemble(void* arg_);
-int
-EapolTest_Disassemble(void* arg_);
+zSecurityTest_Handshake_Mes4(void* arg_);
 
-#endif /* _IEEE8023_IEEE8023TEST_H_ */
+
+
+
+#endif

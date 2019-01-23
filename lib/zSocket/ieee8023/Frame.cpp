@@ -30,7 +30,7 @@ using namespace zUtils;
 
 // local includes
 
-#include "ieee8023.h"
+#include <zutils/ieee8023/ieee8023.h>
 
 ZLOG_MODULE_INIT(zUtils::zLog::Log::MODULE_SOCKET);
 
@@ -128,7 +128,7 @@ Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   }
 
   // Verify presence of type field
-  if (sb_.Length() < sizeof(f->u.type))
+  if (sb_.Length() < sizeof(f->u.type)) // @suppress("Field cannot be resolved")
   {
     ZLOG_ERR("Error disassembling frame");
     return (false);
@@ -150,6 +150,10 @@ Frame::Disassemble(zSocket::Buffer& sb_, bool fcs_)
   else if (type == PROTO_VLAN)
   {
     this->_subtype = Frame::SUBTYPE_VLAN;
+  }
+  else if (type == PROTO_EAPOL)
+  {
+    this->_subtype = Frame::SUBTYPE_EAPOL;
   }
   else
   {

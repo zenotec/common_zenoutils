@@ -9,9 +9,16 @@ AM_CPPFLAGS := \
   $(BOOST_CPPFLAGS) \
   -I$(srcdir) \
   -I${top_srcdir}/test/inc \
-  -I${top_srcdir}/lib/zSocket/ieee8023
+  -I${top_srcdir}/lib/zSocket/ieee8023 \
+  -I${top_srcdir}/lib/zWireless/ieee80211 \
+  $(OPENSSL_INCLUDES)
+  
 
-AM_LDFLAGS := $(LDFLAGS_GCOV)
+AM_LDFLAGS := \
+	$(LDFLAGS_GCOV) \
+	$(OPENSSL_LDFLAGS)
+
+AM_LIBFLAGS := 	$(OPENSSL_LIBS)
 
 check_PROGRAMS = Ieee8023UnitTest
 
@@ -20,11 +27,14 @@ Ieee8023UnitTest_SOURCES = \
     valgrind.sh \
     Ieee8023Test.h \
     UnitTest.cpp \
+    EapolTests.cpp \
     Defaults.cpp
 
 Ieee8023UnitTest_LDADD = \
     ${top_builddir}/lib/zSocket/libzSocket.la \
+    ${top_builddir}/lib/zSecurity/libzSecurity.la \
     ${top_builddir}/lib/zSocket/ieee8023/libieee8023.la \
+    ${top_builddir}/lib/zWireless/ieee80211/libieee80211.la \
     ${top_builddir}/lib/zLog/libzLog.la \
     ${top_builddir}/lib/zThread/libzThread.la \
     ${top_builddir}/lib/zSignal/libzSignal.la \

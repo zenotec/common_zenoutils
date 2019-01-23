@@ -73,27 +73,27 @@ unpackSuiteList(T t, std::vector<uint8_t>& val, int& cntr, struct rsn_oui_format
     return(retList);
 }
 
-static RsnTag::IEEE_80211_CIPHER_SUITES
-findDefaultCipher(std::vector<RsnTag::IEEE_80211_CIPHER_SUITES> suites)
+static IEEE_80211_CIPHER_SUITES
+findDefaultCipher(std::vector<IEEE_80211_CIPHER_SUITES> suites)
 {
     FOREACH(auto& ciph, suites)
     {
-        if(ciph == RsnTag::CCMP_128)
+        if(ciph == IEEE_80211_CIPHER_SUITES::CCMP_128)
             return(ciph);
     }
-    return(RsnTag::CIPHER_UNKNOWN);
+    return(IEEE_80211_CIPHER_SUITES::CIPHER_UNKNOWN);
 }
 
 // Will have to make changes later, since we will be doing enterprise.
-static RsnTag::AKM_CIPHER_SUITES
-findDefaultAkmCipher(std::vector<RsnTag::AKM_CIPHER_SUITES> suites)
+static AKM_CIPHER_SUITES
+findDefaultAkmCipher(std::vector<AKM_CIPHER_SUITES> suites)
 {
     FOREACH(auto& ciph, suites)
     {
-        if(ciph == RsnTag::PSK)
+        if(ciph == AKM_CIPHER_SUITES::PSK)
             return(ciph);
     }
-    return(RsnTag::AKM_CIPHER_UNKNOWN);
+    return(AKM_CIPHER_SUITES::AKM_CIPHER_UNKNOWN);
 }
 
 struct RsnTag::rsn_default
@@ -126,7 +126,7 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
     uint16_t ver = ((uint16_t)values[cnt++]) | ((uint16_t)values[cnt++] << 8 );
 
     //Currently there is only 1 version number defined by IEEE 802.11-2016
-    SetVersion((RsnTag::RSN_PROTOCOL)ver);
+    SetVersion((RSN_PROTOCOL)ver);
 
     // Iterate through values, everything is varied length.
     // We only care up to the AKM.
@@ -137,7 +137,7 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
             if(verifyOui(values[cnt++], values[cnt++], values[cnt++], _rsnOui))
             {
                 group = true;
-                SetGroupDataCipher((RsnTag::IEEE_80211_CIPHER_SUITES)values[cnt++]);
+                SetGroupDataCipher((IEEE_80211_CIPHER_SUITES)values[cnt++]);
             }
             else
             {
@@ -149,7 +149,7 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
         {
 
             std::vector<IEEE_80211_CIPHER_SUITES> pair_list =
-                    unpackSuiteList(RsnTag::CIPHER_SUITE_LAST, values, cnt, _rsnOui);
+                    unpackSuiteList(IEEE_80211_CIPHER_SUITES::CIPHER_SUITE_LAST, values, cnt, _rsnOui);
             pair = true;
             if(pair_list.size())
             {
@@ -158,13 +158,13 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
             else
             {
                 // If we iterate through list and none found, then we know we don't support
-                SetPairwiseCiphers({RsnTag::CIPHER_UNKNOWN});
+                SetPairwiseCiphers({IEEE_80211_CIPHER_SUITES::CIPHER_UNKNOWN});
             }
         }
         else if(!akm)
         {
-            std::vector<RsnTag::AKM_CIPHER_SUITES> akm_list =
-                        unpackSuiteList(RsnTag::AKM_CIPHER_LAST, values, cnt, _rsnOui);
+            std::vector<AKM_CIPHER_SUITES> akm_list =
+                        unpackSuiteList(AKM_CIPHER_SUITES::AKM_CIPHER_LAST, values, cnt, _rsnOui);
             akm = true;
             if(akm_list.size())
             {
@@ -173,7 +173,7 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
             else
             {
                 // If we iterate through list and none found, then we know we don't support
-                SetAkmSuites({RsnTag::AKM_CIPHER_UNKNOWN});
+                SetAkmSuites({AKM_CIPHER_SUITES::AKM_CIPHER_UNKNOWN});
             }
         }
         else
@@ -185,9 +185,9 @@ RsnTag::ParseTag(std::vector<uint8_t> values)
     // Not a supported set
     if(unsup)
     {
-        SetGroupDataCipher((RsnTag::IEEE_80211_CIPHER_SUITES)RsnTag::CIPHER_UNKNOWN);
-        SetPairwiseCiphers({(RsnTag::IEEE_80211_CIPHER_SUITES)RsnTag::CIPHER_UNKNOWN});
-        SetAkmSuites({(RsnTag::AKM_CIPHER_SUITES)RsnTag::AKM_CIPHER_UNKNOWN});
+        SetGroupDataCipher((IEEE_80211_CIPHER_SUITES)IEEE_80211_CIPHER_SUITES::CIPHER_UNKNOWN);
+        SetPairwiseCiphers({(IEEE_80211_CIPHER_SUITES)IEEE_80211_CIPHER_SUITES::CIPHER_UNKNOWN});
+        SetAkmSuites({(AKM_CIPHER_SUITES)AKM_CIPHER_SUITES::AKM_CIPHER_UNKNOWN});
     }
 
 }
@@ -208,52 +208,46 @@ RsnTag::operator()()
 // Assumption is that Ciphers passed in here are all of the IEEE specs
 // This assumes all will have the same OUI
 bool
-RsnTag::operator()(const RsnTag::IEEE_80211_CIPHER_SUITES group_cipher_,
-                        const std::vector<RsnTag::IEEE_80211_CIPHER_SUITES> pairwise_ciphers_,
-                        const std::vector<RsnTag::AKM_CIPHER_SUITES> akm_ciphers_)
+RsnTag::operator()(const IEEE_80211_CIPHER_SUITES group_cipher_,
+                        const std::vector<IEEE_80211_CIPHER_SUITES> pairwise_ciphers_,
+                        const std::vector<AKM_CIPHER_SUITES> akm_ciphers_)
 {
-    std::vector<uint8_t> payload;
-
     //Push items into tag, as defined by IEEE802.11-2016
     SetVersion();
-    pushOui(payload, _rsnOui);
-    payload.push_back((uint8_t) group_cipher_);
+    _payload.push_back((uint8_t)this->_rsnProtocol.version);
+    _payload.push_back((uint8_t)(this->_rsnProtocol.version >> 8));
+    pushOui(_payload, _rsnOui);
+    _payload.push_back((uint8_t) group_cipher_);
     SetGroupDataCipher(group_cipher_);
 
     // Pairwise cipher size per specs is 2 bytes
     uint16_t var = pairwise_ciphers_.size();
-    //payload.push_back((uint8_t)(var & 0x0F));
-    //payload.push_back((uint8_t)((var & 0xF0) >> 8));
 
-    payload.push_back((uint8_t)(var));
-    payload.push_back((uint8_t)(var >> 8));
+    _payload.push_back((uint8_t)(var));
+    _payload.push_back((uint8_t)(var >> 8));
 
 
     FOREACH(auto& pairwise, pairwise_ciphers_)
     {
-        pushOui(payload, _rsnOui);
-        payload.push_back((uint8_t) pairwise);
+        pushOui(_payload, _rsnOui);
+        _payload.push_back((uint8_t) pairwise);
     }
     SetPairwiseCiphers(pairwise_ciphers_);
 
     var = akm_ciphers_.size();
-    payload.push_back((uint8_t)(var));
-    payload.push_back((uint8_t)(var >> 8));
+    _payload.push_back((uint8_t)(var));
+    _payload.push_back((uint8_t)(var >> 8));
     // AKM Size is 2 bytes as per 802.11-2016 specs
 
     FOREACH(auto& akm, akm_ciphers_)
     {
-        pushOui(payload, _rsnOui);
-        payload.push_back((uint8_t) akm);
+        pushOui(_payload, _rsnOui);
+        _payload.push_back((uint8_t) akm);
     }
     SetAkmSuites(akm_ciphers_);
 
-    if(PushVersion())
-    {
-        _parsed = true;
-        return(this->AddValue(payload.data(), payload.size()));
-    }
-    return false;
+    _parsed = true;
+    return(this->AddValue(_payload.data(), _payload.size()));
 }
 
 

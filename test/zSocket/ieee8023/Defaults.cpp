@@ -20,6 +20,7 @@
 #include <zutils/ieee8023/LlcFrame.h>
 #include <zutils/ieee8023/Ether2Frame.h>
 #include <zutils/ieee8023/VlanFrame.h>
+#include <zutils/ieee8023/EapolFrame.h>
 using namespace zUtils;
 
 #include "Ieee8023Test.h"
@@ -64,6 +65,11 @@ Ieee8023Test_Defaults(void* arg_)
   TEST_EQ(vlan_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_VLAN);
   TEST_EQ(vlan_f.GetProto(), zSocket::ieee8023::Frame::PROTO_NONE);
   TEST_IS_ZERO(vlan_f.GetPayloadLength());
+
+  zSocket::ieee8023::EapolKeyFrame eapol_f;
+  TEST_EQ(f.GetType(), zSocket::ieee8023::Frame::TYPE_8023);
+  TEST_EQ(eapol_f.GetSubtype(), zSocket::ieee8023::Frame::SUBTYPE_EAPOL);
+  TEST_EQ(eapol_f.GetProto(), zSocket::ieee8023::Frame::PROTO_EAPOL);
 
   // Return success
   return (UTEST_PASS);

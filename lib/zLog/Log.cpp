@@ -100,6 +100,7 @@ Log::ToString(const Log::MODULE module_)
     case  MODULE_NODE: str = "NODE"; break;
     case  MODULE_PROGRAM: str = "PROGRAM"; break;
     case  MODULE_SERIAL: str = "SERIAL"; break;
+    case  MODULE_SECURITY: str = "SECURITY"; break;
     case  MODULE_SOCKET: str = "SOCKET"; break;
     case  MODULE_STATE: str = "STATE"; break;
     case  MODULE_SWITCH: str = "SWITCH"; break;
