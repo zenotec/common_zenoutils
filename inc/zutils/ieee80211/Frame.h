@@ -269,7 +269,7 @@ public:
   PutPayload(const uint8_t* buf_, const size_t len_);
 
   virtual void
-  Display() const;
+  Display(const std::string& prefix_ = "") const;
 
 protected:
 
