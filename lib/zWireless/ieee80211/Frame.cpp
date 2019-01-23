@@ -718,20 +718,20 @@ Frame::PutPayload(const uint8_t* buf_, const size_t len_)
 }
 
 void
-Frame::Display() const
+Frame::Display(const std::string& prefix_) const
 {
-  std::cout << "------------------------------------------" << std::endl;
-  std::cout << "----- IEEE802.11 Header ------------------" << std::endl;
-  std::cout << "\tVersion:  \t" << (int) this->Version() << std::endl;
-  std::cout << "\tType:     \t" << std::hex << (int) this->Type() << std::dec << std::endl;
-  std::cout << "\tSubtype:  \t" << std::hex << (int) this->Subtype() << std::dec << std::endl;
-  std::cout << "\tToDS:     \t" << (this->ToDS() ? "true" : "false") << std::endl;
-  std::cout << "\tFromDS:   \t" << (this->FromDS() ? "true" : "false") << std::endl;
-  std::cout << "\tFrag:     \t" << (this->MoreFragments() ? "true" : "false") << std::endl;
-  std::cout << "\tRetry:    \t" << (this->Retry() ? "true" : "false") << std::endl;
-  std::cout << "\tProtect:  \t" << (this->Protected() ? "true" : "false") << std::endl;
-  std::cout << "\tOrder:    \t" << (this->Order() ? "true" : "false") << std::endl;
-  std::cout << "\tDuration: \t" << (int) this->DurationId() << std::endl;
+  std::cout << prefix_ << "------------------------------------------" << std::endl;
+  std::cout << prefix_ << "----- IEEE802.11 Header ------------------" << std::endl;
+  std::cout << prefix_ << "\tVersion:  \t" << (int) this->Version() << std::endl;
+  std::cout << prefix_ << "\tType:     \t" << std::hex << (int) this->Type() << std::dec << std::endl;
+  std::cout << prefix_ << "\tSubtype:  \t" << std::hex << (int) this->Subtype() << std::dec << std::endl;
+  std::cout << prefix_ << "\tToDS:     \t" << (this->ToDS() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tFromDS:   \t" << (this->FromDS() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tFrag:     \t" << (this->MoreFragments() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tRetry:    \t" << (this->Retry() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tProtect:  \t" << (this->Protected() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tOrder:    \t" << (this->Order() ? "true" : "false") << std::endl;
+  std::cout << prefix_ << "\tDuration: \t" << (int) this->DurationId() << std::endl;
 }
 
 bool
