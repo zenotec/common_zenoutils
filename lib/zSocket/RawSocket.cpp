@@ -50,45 +50,44 @@ namespace zSocket
 void
 RawSocketRx::Run(zThread::ThreadArg *arg_)
 {
+
+  bool exit = false;
   class RawSocket* sock = (class RawSocket*)arg_;
 
   // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = sock->fd;
-  fds[0].events = (POLLIN | POLLERR);
+  this->RegisterFd(sock->fd, (POLLIN | POLLERR));
 
-  while (!this->Exit())
+  while (!exit)
   {
-    int ret = poll(fds, 1, 100);
 
-    if (ret == 1)
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      if (fds[0].revents & POLLIN)
+      if (this->IsExitFd(fd))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReloadFd(fd))
+      {
+        continue;
+      }
+      else if ((fd.fd == sock->fd) && (fd.revents == POLLIN))
       {
         sock->rxq.Push(sock->recv());
       }
     }
-    else if (ret == 0)
-    {
-      continue;
-    }
-    else
-    {
-      if (errno == -EINTR)
-      {
-        // A signal interrupted poll; exit flag should be set
-        fprintf(stderr, "Poll interrupted by signal\n"); // TODO: Debug code, remove when no longer needed
-        ZLOG_INFO("Socket poll interrupted by signal");
-      }
-      else
-      {
-        fprintf(stderr, "Error receiving on socket: %d\n", sock->fd); // TODO: Debug code, remove when no longer needed
-        fprintf(stderr, "\t%s", strerror(errno));
-        ZLOG_INFO("Error receiving on socket: " + ZLOG_INT(sock->fd));
-      }
-    }
 
   }
+
+  this->UnregisterFd(sock->fd);
+
+  return;
+
 }
 
 //**********************************************************************
@@ -98,36 +97,48 @@ RawSocketRx::Run(zThread::ThreadArg *arg_)
 void
 RawSocketTx::Run(zThread::ThreadArg *arg_)
 {
+
+  bool exit = false;
   class RawSocket* sock = (class RawSocket*)arg_;
 
   // Setup for poll loop
-  struct pollfd fds[1];
-  fds[0].fd = sock->fd;
-  fds[0].events = (POLLOUT | POLLERR);
+  this->RegisterFd(sock->txq.GetFd(), (POLLIN | POLLERR));
 
-  while (!this->Exit())
+  while (!exit)
   {
-    if (sock->txq.TimedWait(100))
-    {
-      int retry = 5;
-      SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
-      sock->txq.Pop();
-      while (!this->Exit() && --retry)
-      {
-        int ret = poll(fds, 1, 100);
 
-        if ((ret == 1) && (fds[0].revents & POLLOUT))
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
+    {
+      if (this->IsExitFd(fd))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReloadFd(fd))
+      {
+        continue;
+      }
+      else if ((sock->txq.GetFd() == fd.fd) && (fd.revents == POLLIN))
+      {
+        if (sock->txq.TryWait())
         {
+          SHARED_PTR(zSocket::Notification) n(sock->txq.Front());
+          sock->txq.Pop();
           sock->rxq.Push(sock->send(n));
-          break;
-        }
-        else
-        {
-          fprintf(stderr, "BUG: Timed out waiting to send frame...trying again: %d\n", retry);
         }
       }
     }
+
   }
+
+  this->UnregisterFd(sock->txq.GetFd());
+
+  return;
 
 }
 

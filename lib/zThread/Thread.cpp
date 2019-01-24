@@ -15,6 +15,7 @@
  */
 
 #include <string.h>
+#include <poll.h>
 
 #include <mutex>
 #include <list>
@@ -34,38 +35,52 @@ namespace zThread
 // Class: ThreadFunction
 //**********************************************************************
 
-ThreadFunction::ThreadFunction() :
-    _thread_lock(zSem::Mutex::LOCKED), _thread(NULL), _yield(false), _exit(false)
+ThreadFunction::ThreadFunction()
 {
-  this->_thread_lock.Unlock();
+  int fd = 0;
+
+  // Automatically add the exit semaphore to the poll file descriptors
+  fd = this->_exit.GetFd();
+  this->_fds[fd].fd = fd;
+  this->_fds[fd].events = (POLLIN || POLLERR);
+  this->_fds[fd].revents = 0;
+
+  // Automatically add the reload semaphore to the poll file descriptors
+  fd = this->_reload.GetFd();
+  this->_fds[fd].fd = fd;
+  this->_fds[fd].events = (POLLIN || POLLERR);
+  this->_fds[fd].revents = 0;
+
 }
 
 ThreadFunction::~ThreadFunction()
 {
-  this->_thread_lock.Lock();
+  this->_fds.clear();
 }
 
 bool
-ThreadFunction::Yield()
+ThreadFunction::RegisterFd(const int fd_, const short int events_)
 {
-  bool flag = false;
-  if (this->_thread_lock.Lock())
-  {
-    flag = this->_yield;
-    this->_thread_lock.Unlock();
-  }
-  return (flag);
+  this->_fds[fd_].fd = fd_;
+  this->_fds[fd_].events = events_;
+  this->_fds[fd_].revents = 0;
+  return (this->_reload.Post());
 }
 
 bool
-ThreadFunction::Yield(bool flag_)
+ThreadFunction::UnregisterFd(const int fd_)
+{
+  this->_fds.erase(fd_);
+  return (this->_reload.Post());
+}
+
+bool
+ThreadFunction::IsReloadFd(const struct pollfd& fd_)
 {
   bool status = false;
-  if (this->_thread_lock.Lock())
+  if (fd_.revents & POLLIN)
   {
-    this->_yield = flag_;
-    status = true;
-    this->_thread_lock.Unlock();
+    status = (fd_.fd == this->_reload.GetFd());
   }
   return (status);
 }
@@ -73,44 +88,59 @@ ThreadFunction::Yield(bool flag_)
 bool
 ThreadFunction::Exit()
 {
+  return (this->_exit.TryWait());
+}
+
+bool
+ThreadFunction::Exit(const bool flag_)
+{
   bool flag = false;
-  if (this->_thread_lock.Lock())
+  if (flag_)
   {
-    flag = this->_exit;
-    this->_thread_lock.Unlock();
+    flag = this->_exit.Post();
   }
   return (flag);
 }
 
 bool
-ThreadFunction::Exit(bool flag_)
+ThreadFunction::IsExitFd(const struct pollfd& fd_)
 {
   bool status = false;
-  if (this->_thread_lock.Lock())
+  if (fd_.revents & POLLIN)
   {
-    this->_exit = flag_;
-    status = true;
-    this->_thread_lock.Unlock();
+    status = (fd_.fd == this->_exit.GetFd());
   }
   return (status);
 }
 
-bool
-ThreadFunction::setThread(Thread* thread_)
+int
+ThreadFunction::Poll(std::vector<struct pollfd>& fds_, const int timeout_)
 {
-  bool status = false;
-  if (thread_)
-  {
-    this->_thread = thread_;
-    status = true;
-  }
-  return(status);
-}
 
-void
-ThreadFunction::yield() const
-{
-  std::this_thread::yield();
+  // Construct poll file descriptor array using the caller's vector
+  fds_.clear();
+  FOREACH (auto& fd, this->_fds)
+  {
+    fds_.emplace_back(fd.second);
+  }
+
+  // Poll on file descriptors (note: includes the reload and exit semaphore file descriptors)
+  int ret = poll(fds_.data(), fds_.size(), -1);
+
+  // Automatically clear exit and reload semaphores in case the caller doesn't
+  FOREACH (auto& fd, fds_)
+  {
+    if (this->IsExitFd(fd))
+    {
+      this->_exit.GetCount(); // need to read the counter to clear
+    }
+    else if (this->IsReloadFd(fd))
+    {
+      this->_reload.GetCount(); // need to read the counter to clear
+    }
+  }
+
+  return (ret);
 }
 
 //*****************************************************************************
@@ -150,12 +180,10 @@ bool
 Thread::Start()
 {
   bool status = false;
-  if (!this->_thread && this->_func && this->_func->setThread(this))
+  if (!this->_thread && this->_func)
   {
     zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGTERM, this);
     zSignal::Manager::Instance().RegisterObserver(zSignal::Signal::ID_SIGINT, this);
-    this->_func->Exit(false);
-    this->_func->Yield(false);
     this->_thread = new std::thread(&ThreadFunction::Run, this->_func, this->_arg);
     status = !!this->_thread;
   }
@@ -193,14 +221,14 @@ Thread::Stop()
 }
 
 bool
-Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
+Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) n_)
 {
   bool status = false;
   SHARED_PTR(zSignal::Notification) n = NULL;
 
-  if (noti_ && (noti_->GetType() == zEvent::Event::TYPE_SIGNAL))
+  if (n_ && (n_->GetType() == zEvent::Event::TYPE_SIGNAL))
   {
-    n = STATIC_CAST(zSignal::Notification)(noti_);
+    n = STATIC_CAST(zSignal::Notification)(n_);
     switch (n->Id())
     {
     case zSignal::Signal::ID_SIGTERM:
@@ -208,13 +236,13 @@ Thread::ObserveEvent(SHARED_PTR(zEvent::Notification) noti_)
     case zSignal::Signal::ID_SIGINT:
       // No break
     case zSignal::Signal::ID_SIGABRT:
-      this->_func->Exit(true);
+      status = this->_func->Exit(true);
       break;
     default:
       break;
     }
   }
-  return status;
+  return (status);
 }
 
 }

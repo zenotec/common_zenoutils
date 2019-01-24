@@ -43,15 +43,45 @@ void
 LoopSocketTx::Run(zThread::ThreadArg *arg_)
 {
 
+  bool exit = false;
   class LoopSocket* sock = (class LoopSocket*)arg_;
 
-  while (!this->Exit())
+  // Setup for poll loop
+  this->RegisterFd(sock->txq.GetFd(), (POLLIN | POLLERR));
+
+  while (!exit)
   {
-    if (sock->txq.TimedWait(100))
+
+    std::vector<struct pollfd> fds;
+
+    // Wait on file descriptor set
+    int ret = this->Poll(fds);
+
+    FOREACH (auto& fd, fds)
     {
-      sock->rxq.Push(sock->send());
+      if (this->IsExitFd(fd))
+      {
+        exit = true;
+        continue;
+      }
+      else if (this->IsReloadFd(fd))
+      {
+        continue;
+      }
+      else if ((sock->txq.GetFd() == fd.fd) && (fd.revents == POLLIN))
+      {
+        if (sock->txq.TryWait())
+        {
+          sock->rxq.Push(sock->send());
+        }
+      }
     }
+
   }
+
+  this->UnregisterFd(sock->txq.GetFd());
+
+  return;
 
 }
 

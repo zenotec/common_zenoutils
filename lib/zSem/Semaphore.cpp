@@ -39,13 +39,24 @@ Semaphore::Semaphore(const uint64_t value_) :
 Semaphore::~Semaphore()
 {
   if (this->_fd)
+  {
     close(this->_fd);
+    this->_fd = 0;
+  }
 }
 
 int
 Semaphore::GetFd() const
 {
   return (this->_fd);
+}
+
+uint64_t
+Semaphore::GetCount() const
+{
+  uint64_t cnt = 0;
+  read(this->_fd, &cnt, sizeof(cnt));
+  return (cnt);
 }
 
 bool
@@ -87,11 +98,11 @@ Semaphore::TimedWait(int msec_) const
   {
     case 1:
     {
-      uint64_t cntr = 0;
+      uint64_t cnt = 0;
       // Poll successful
       if (fds[0].revents == POLLIN)
       {
-        status = ((read(this->_fd, &cntr, sizeof(cntr)) == sizeof(cntr)) && (cntr == 1));
+        status = (this->GetCount() == 1);
       }
       break;
     }
